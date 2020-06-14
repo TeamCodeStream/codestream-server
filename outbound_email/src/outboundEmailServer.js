@@ -191,11 +191,13 @@ class OutboundEmailServer {
 	
 	async openMongoClient () {
 		this.log('Opening connection to mongo...');
-		const mongoClient = new MongoClient({ tryIndefinitely: true });
-		const mongoOptions = Object.assign({}, this.config.mongo, { logger: this });
-		mongoOptions.collections = MONGO_COLLECTIONS;
+		const mongoClient = new MongoClient({
+			tryIndefinitely: true,
+			logger: this,
+			collections: MONGO_COLLECTIONS
+		});
 		try {
-			this.mongo = await mongoClient.openMongoClient(mongoOptions);
+			this.mongo = await mongoClient.openMongoClient(this.config.mongo);
 		}
 		catch (error) {
 			const msg = error instanceof Error ? error.message : JSON.stringify(error);
