@@ -11,7 +11,9 @@ export PATH=$CS_BROADCASTER_TOP/bin:$PATH
 
 [ -n "$CSSVC_ENV" ] && export CS_BROADCASTER_ENV=$CSSVC_ENV
 [ -n "$CS_BROADCASTER_CFG_FILE" ] && configParm=$CS_BROADCASTER_CFG_FILE || configParm="$CSSVC_CONFIGURATION"
-sandutil_get_codestream_cfg_file "$CS_BROADCASTER_SANDBOX" "$configParm" "$CSSVC_ENV"
+
+[ -z "$CSSVC_CFG_FILE" ] && sandutil_get_codestream_cfg_file "$CS_BROADCASTER_SANDBOX" "$configParm" "$CSSVC_ENV"
+[ -n "$CS_BROADCASTER_CFG_FILE" -a \( "$CSSVC_CFG_FILE" != "$CS_BROADCASTER_CFG_FILE" \) ] && echo "**** WARNING: CS_BROADCASTER_CFG_FILE != CSSVC_CFG_FILE"
 
 # These variables are used by shell scripts
 export CS_BROADCASTER_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment 2>/dev/null)`
