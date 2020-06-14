@@ -8,6 +8,7 @@ const EmailNotificationV2Sender = require('./emailNotificationV2Sender');
 const Utils = require('./utils');
 const TokenHandler = require('./server_utils/token_handler');
 const Juice = require('juice');
+const ArrayUtilities = require('./server_utils/array_utilities');
 
 const DEFAULT_TIME_ZONE = 'America/New_York';
 
@@ -223,7 +224,8 @@ class EmailNotificationV2Handler {
 
 	// get all members of the team, and all members of the stream as warranted
 	async getAllMembers () {
-		this.teamMembers = await this.data.users.getByIds(this.team.memberIds);
+		const currentMemberIds = ArrayUtilities.difference(this.team.memberIds, this.team.removedMemberIds || []);
+		this.teamMembers = await this.data.users.getByIds(currentMemberIds);
 		if (this.stream.type === 'file' || this.stream.isTeamStream) {
 			this.streamMembers = this.teamMembers;
 		}
