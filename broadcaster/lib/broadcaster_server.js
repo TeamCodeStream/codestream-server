@@ -43,11 +43,15 @@ class BroadcasterServer {
 
 	// connect to the mongo database
 	async connectToMongo () {
-		this.mongoClient = new MongoClient({ tryIndefinitely: true });
+		this.log('Connecting to mongo...');
 		const collections = ['users', 'streams', 'messages'];
-		let mongoConfig = Object.assign({}, this.config.mongo, { collections, logger: this });
+		this.mongoClient = new MongoClient({ 
+			tryIndefinitely: true,
+			collections,
+			logger: this
+		});
 		try {
-			await this.mongoClient.openMongoClient(mongoConfig);
+			await this.mongoClient.openMongoClient(this.config.mongo);
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {
