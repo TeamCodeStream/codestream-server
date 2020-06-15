@@ -1,5 +1,11 @@
 # Change Log
 
+## [7.4.1] - 2020-6-15
+
+### Fixed
+
+- Wait for mongodb collections to be indexed and created before accessing them
+
 ## [7.4.0] - 2020-6-8
 
 ### Added
