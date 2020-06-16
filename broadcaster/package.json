@@ -1,0 +1,27 @@
+{
+  "name": "broadcaster",
+  "description": "CodeStream broadcaster service",
+  "version": "7.4.1",
+  "dependencies": {
+    "commander": "4.1.1",
+    "connect": "3.7.0",
+    "deep-equal": "2.0.1",
+    "express": "4.17.1",
+    "hjson": "3.2.1",
+    "mongodb": "3.5.3",
+    "pre-commit": "^1.2.2",
+    "socketcluster-server": "16.0.0",
+    "strftime": "0.10.0",
+    "uuid": "3.4.0"
+  },
+  "scripts": {
+    "eslint": "eslint ."
+  },
+  "pre-commit": [
+    "eslint"
+  ],
+  "devDependencies": {
+    "eslint": "6.8.0",
+    "pre-commit": "1.2.2"
+  }
+}
