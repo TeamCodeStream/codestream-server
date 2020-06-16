@@ -1,0 +1,23 @@
+#!/bin/bash
+
+tmpfile=/tmp/module-check-$$
+modhashfile=$CS_API_TOP/sandbox/node-modules-check.txt
+
+cd $CS_API_TOP
+time find -s node_modules -type f -exec shasum {} \; | tee -a $tmpfile
+
+if [ -f $modhashfile ]; then
+	x=`diff $modhashfile $tmpfile|wc -l`
+	if [ $x -eq 0 ]; then
+		echo "node_modules integrety confirmed against $modhashfile"
+		/bin/rm $tmpfile
+	else
+		echo "node_modules integrity against $modhashfile failed. There are $x differences"
+		echo
+		echo "run: dif $tmpfile $modhashfile"
+	fi
+else
+	mv $tmpfile $modhashfile
+	echo
+	echo "Saved $modhashfile"
+fi

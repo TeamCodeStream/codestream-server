@@ -1,0 +1,7 @@
+
+# dockerImageName=""  # default uses directory name as image name
+dockerHubOrganization=teamcodestream
+defaultImageVersion=0.0.0
+buildParameters=""
+runParameterss=""
+containerName=""

@@ -1,0 +1,52 @@
+RabbitMQ Setup for Development
+==============================
+
+Notes
+
+- Native installations of RabbitMQ require the rabbitmq_delayed_message_exchange-20171201-x.y.z.ez
+  binary plugin where 'x.y.z' must match your rabbit-server version. For 3.7.x you can find it
+  in dev_tools/docker/rabbitmq-onprem/
+- The RabbitMQ plugin community is here: https://www.rabbitmq.com/community-plugins.html
+
+
+Native installation via MacPorts
+--------------------------------
+- sudo port install rabbitmq-server (make note of version - 3.7.9 at time of documentation)
+- copy rabbitmq_delayed_message_exchange-20171201-3.7.x.ez /opt/local/lib/rabbitmq/lib/rabbitmq_server-3.7.9/plugins/rabbitmq_delayed_message_exchange-20171201-3.7.9.ez
+  (note how the copied filename reflects the complete rabbitmq-server version number)
+- To start rabbitMQ: sudo port load rabbitmq-server
+- To stop rabbitMQ: sudo port unload rabbitmq-server
+
+Native installation on AWS Linux AMI EC2
+----------------------------------------
+(installs rabbitmq-server 3.7.0 at the time of documentation)
+- wget https://github.com/rabbitmq/erlang-rpm/releases/download/v20.1.7/erlang-20.1.7-1.el6.x86_64.rpm
+- sudo rpm -ivh erlang-20.1.7-1.el6.x86_64.rpm
+- sudo yum -y install socat
+- wget https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.0/rabbitmq-server-3.7.0-1.el6.noarch.rpm
+- sudo rpm -ihv rabbitmq-server-3.7.0-1.el6.noarch.rpm
+- copy rabbitmq_delayed_message_exchange-20171201-3.7.x.ez /usr/lib/rabbitmq/lib/rabbitmq_server-3.7.0/plugins/rabbitmq_delayed_message_exchange-20171201-3.7.0.ez
+  (note how the copied filename reflects the complete rabbitmq-server version number)
+- To start rabbitMQ: sudo /etc/init.d/rabbitmq-server start
+- To stop rabbitMQ: sudo /etc/init.d/rabbitmq-server start
+- To configure rabbitMQ to start on boot: sudo chkconfig rabbitmq-server on
+
+Configure native installation (once rabbitmq-server is running...)
+-----------------------------
+- sudo rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+- restart rabbit server
+- sudo rabbitmqctl add_user code stream
+- sudo rabbitmqctl set_user_tags code administrator
+- sudo rabbitmqctl set_permissions -p / code ".*" ".*" ".*"
+
+Configure UI management (also useful for saving / restoring configuration)
+-----------------------
+- sudo rabbit-plugins enable rabbitmq_management
+- restart rabbit
+- http://localhost:15672
+- For CodeStream configuration use user: 'code', password 'stream'
+
+Log files
+---------
+MacPorts: /opt/local/var/log/rabbitmq/rabbit@JJs-MacBookPro13.log
+EC2:      /var/log/rabbitmq/rabbit@op1.log

@@ -1,0 +1,26 @@
+'use strict';
+
+const GetCodemarksTest = require('./get_codemarks_test');
+const ObjectID = require('mongodb').ObjectID;
+
+class TeamNotFoundTest extends GetCodemarksTest {
+
+	get description () {
+		return 'should return an error when trying to fetch codemarks from a team that doesn\'t exist';
+	}
+
+	getExpectedError () {
+		return {
+			code: 'RAPI-1009',
+			reason: 'user not on team'
+		};
+	}
+
+	setPath (callback) {
+		// set teamId to team that doesn't exist
+		this.path = '/codemarks?teamId=' + ObjectID();
+		callback();
+	}
+}
+
+module.exports = TeamNotFoundTest;

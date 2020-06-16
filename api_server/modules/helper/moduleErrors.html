@@ -1,0 +1,7 @@
+<h2 class="moduleTitle" onclick='toggleHide("{{tag}}-errors")'>
+    <span class=triangle id="triangle-{{tag}}-errors">&#x25BC;</span> {{module}}
+</h2>
+<div class="hideable-{{tag}}-errors" id="{{module}}-errors">
+    {{html!errors}}
+    <br/>
+</div>

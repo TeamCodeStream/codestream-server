@@ -1,0 +1,102 @@
+<div id="{{tag}}" class="{{method}} requestDescription">
+    <table>
+        <tr class=clickable onclick='toggleHide("{{tag}}");'>
+            <td style="width:250px">
+                <span class=triangle id="triangle-{{tag}}">{{html!triangle}}</span> <span class=route>{{route}}</span>
+            </td>
+            <td>
+                <span class=summary>{{summary}}</span>
+            </td>
+        </tr>
+    </table>
+    <table class="hideable hideable-{{tag}}" style="{{showDetails}}">
+        <tr>
+            <td colspan=4>
+                <span class=description>{{html!description}}</span>
+            </td>
+        </td>
+        <tr>
+            <td/>
+            <td/>
+            <td>
+                Access rule:
+            </td>
+            <td>
+                <span class=access>{{access}}</span>
+            </td>
+        </tr>
+        <tr id="input-{{tag}}" class="{{inputClickableClass}}" onclick='toggleHide(`input-{{tag}}`);'>
+            <td style="width:20px">
+            </td>
+            <td style="width:12px">
+                <span class=triangle style="{{inputTriangleShow}}" id="triangle-input-{{tag}}">&#x25B6;</span>
+            </td>
+            <td style="width:150px">
+                Input:
+            </td>
+            <td>
+                <span class=input>{{inputSummary}}</span>
+            </td>
+        </tr>
+        <tr class="hideable hideable-input-{{tag}} inputData" style="{{showDetails}}">
+            <td/>
+            <td/>
+            <td colspan=2>
+                {{html!inputLooksLike}}
+            </td>
+        </tr>
+        <tr id="returns-{{tag}}" class="{{returnsClickableClass}}" onclick='toggleHide(`returns-{{tag}}`);'>
+            <td/>
+            <td>
+                <span class=triangle style="{{returnsTriangleShow}}" id="triangle-returns-{{tag}}">&#x25B6;</span>
+            </td>
+            <td>
+                Returns:
+            </td>
+            <td>
+                <span class=returns>{{returnsSummary}}</span>
+            </td>
+        </tr>
+        <tr class="hideable hideable-returns-{{tag}} returnsData" style="display:none">
+            <td/>
+            <td/>
+            <td colspan=2>
+                {{html!returnsLooksLike}}
+            </td>
+        </tr>
+        <tr id="publishes-{{tag}}" class="{{publishesClickableClass}}" onclick='toggleHide(`publishes-{{tag}}`);' style='{{showPublishes}}'>
+            <td/>
+            <td>
+                <span class=triangle style="{{publishesTriangleShow}}" id="triangle-publishes-{{tag}}">&#x25B6;</span>
+            </td>
+            <td>
+                Publishes:
+            </td>
+            <td>
+                <span class=publishes>{{publishesSummary}}</span>
+            </td>
+        </tr>
+        <tr class="hideable hideable-publishes-{{tag}} publishesData" style="display:none">
+            <td/>
+            <td/>
+            <td colspan=2>
+                {{html!publishesLooksLike}}
+            </td>
+        </tr>
+        <tr class="clickable" onclick='toggleHide(`errors-{{tag}}`);'>
+            <td/>
+            <td>
+                <span class=triangle id="triangle-errors-{{tag}}">&#x25B6;</span>
+            </td>
+            <td>
+                Errors:
+            </td>
+        </tr>
+        {{html!errors}}
+        <tr>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+</div>
+
+

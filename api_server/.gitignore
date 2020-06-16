@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+.vscode
+!.vscode/launch.json
+api-server.tgz
+api-server-*.tgz
+api-server.info
+api-server-*.info
+sandbox/docker/extras/
+sandbox/docker/Dockerfile
+sandbox/docker/runtime.env
+etc/msteamsbot/dist/

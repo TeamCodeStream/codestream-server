@@ -1,0 +1,8 @@
+The restful library provides a way to specify basic restful routes (get, post, put, delete)
+with minimal coding effort. The restful.js file provides the abstract Restful class, which is
+derived from APIServerModule. Modules can derive from the Restful class to easily get restful
+functionality associated with a collection. The derived module can then specify which
+operations it wants to support, which translates into routes exposed through express.
+
+The restful library assumes a data collection (from the dataCollection library)
+made up of database-persistent documents that, when manipulated in memory, translate into models.

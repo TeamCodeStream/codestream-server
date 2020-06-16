@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CodeStream</title>
+    {{> partial_html_head partial_html_head_model}}
+</head>
+
+<body>
+    {{> partial_menu partial_menu_model}}
+
+    <div class="container-fluid" id="root">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3">
+                <div class="box-content box-border box-border-sm text-center">
+                    <h1>Sorry, we couldn't find what you were looking for.</h1>
+                    {{#if hasAnotherTeamId}}
+                    <p>If you were attempting to view a codemark, it belongs to another team.</p>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

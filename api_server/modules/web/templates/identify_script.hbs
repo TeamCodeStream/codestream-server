@@ -1,0 +1,31 @@
+<script>
+
+	const props = {
+		Endpoint: 'apiweb',
+		email: '{{email}}',
+		'Join Method': '{{joinMethod}}',
+		createdAt: '{{userRegisteredAt}}',
+		name: '{{fullName}}' || undefined,
+		'Date of Last Post': '{{dateOfLastPost}}' || undefined,
+		'Team ID': '{{teamId}}',
+		'Team Name': '{{teamName}}',
+		'Company Name': '{{companyName}}',
+		'Company ID': '{{companyId}}',
+		company: {
+			id: '{{companyId}}',
+			name: '{{companyName}}',
+			plan: '{{companyPlan}}',
+			created_at: '{{companyCreatedAt}}',
+			trialStart_at: '{{trialStartAt}}',
+			trialEnd_at: '{{trialEndAt}}'
+		},
+		'Team Size': '{{teamSize}}',
+		'Team Created Date': '{{teamCreatedAt}}',
+		'Plan': '{{companyPlan}}',
+		'Reporting Group': '{{reportingGroup}}'
+	};
+
+	const userId = '{{userId}}';
+	window.analytics.identify(userId, props);
+	
+</script>

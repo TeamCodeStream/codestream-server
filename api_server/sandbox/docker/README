@@ -1,0 +1,12 @@
+To setup a docker image:
+
+- mkdir ${{ SB_PREFIX }}_TOP/sandbox/docker/<image-name>
+- cp ${{ SB_PREFIX }}_TOP/sandbox/docker/settings.sh.template ${{ SB_PREFIX }}_TOP/sandbox/docker/<image-name>/settings.sh
+- cp ${{ SB_PREFIX }}_TOP/sandbox/docker/Dockerfile.example ${{ SB_PREFIX }}_TOP/sandbox/docker/<image-name>/Dockerfile
+- Edit those two files
+
+
+To build an image using the image version in settings.sh:
+
+$ dt-docker-build -b -D ${{ SB_PREFIX }}_TOP/sandbox/docker/<image-name>
+

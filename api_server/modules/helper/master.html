@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='cache-control' content='no-cache'>
+    <style>
+        body {
+            font-family: Helvetica;
+            font-size: 18px;
+        }
+        .requestDescription {
+            margin: 5px;
+            border-radius: 3px;
+            border: 1px solid;
+        }
+        .modelDescription {
+            margin: 5px;
+            border-radius: 3px;
+            border: 1px solid rgb(100, 85, 0);
+            background-color: rgb(250, 241, 159);
+        }
+        .error {
+            margin: 5px;
+            border-radius: 3px;
+            border: 1px solid;
+            background-color: rgb(253, 161, 161)
+        }
+        .attributesList {
+            font-family: Courier;
+            color: rgb(46, 46, 46);
+            font-size: 16px;
+            border-collapse: separate;
+            border-spacing: 0px;
+            width: 100%;
+        }
+        .attributesList tr:nth-child(even) {
+            background-color: rgba(197, 197, 197, 0.333)
+        }
+        .overviewData,.inputData,.returnsData,.publishesData {
+            font-family: Courier;
+            color: rgb(46, 46, 46);
+            font-size: 16px;
+        }
+        .clickable {
+            cursor: pointer;
+        }
+        .route {
+            font-weight: bold;
+        }
+        .modelName {
+            font-weight: bold;
+        }
+        .headerValue {
+            font-weight: bold;
+        }
+        .description {
+            font-size: 16px;
+            font-style: italic;
+            margin-left: 16px;
+        }
+        .triangle {
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .errorDescription {
+            font-family: Courier;
+            color: rgb(46, 46, 46);
+            font-size: 16px;
+        }
+        .required {
+            color: red;
+            font-size: 12px;
+        }
+        .get {
+            background-color: rgb(204, 249, 255);
+            border: 1px solid rgb(14, 62, 234);
+        }
+        .post {
+            background-color: rgb(191, 245, 191);
+            border: 1px solid rgb(1, 114, 26);
+        }
+        .put {
+            background-color: rgb(231, 191, 159);
+            border: 1px solid rgb(234, 95, 14);
+        }
+        .delete {
+            background-color: rgb(250, 196, 196);
+            border: 1px solid rgb(234, 14, 14);
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const RIGHT_TRIANGLE = '&#x25B6;';
+        const DOWN_TRIANGLE = '&#x25BC;';
+        const ESCAPED_RIGHT_TRIANGLE = '%E2%96%B6';
+        const ESCAPED_DOWN_TRIANGLE = '%E2%96%BC';
+
+        const showHideElems = function(tag, hide) {
+            let hideableElems = document.getElementsByClassName(`hideable-${tag}`);
+            for (let i = 0; i < hideableElems.length; i++) {
+                hideableElems[i].style.display = hide ? 'none' : '';                
+            }
+            let triangle = document.getElementById(`triangle-${tag}`);
+            if (triangle) {
+                triangle.innerHTML = hide ? RIGHT_TRIANGLE : DOWN_TRIANGLE;
+            }
+        };
+
+        const toggleHide = function(tag) {
+            let triangle = document.getElementById(`triangle-${tag}`);
+            if (!triangle) { return; }
+            const triangleState = encodeURI(triangle.innerHTML);
+            if (triangleState === ESCAPED_RIGHT_TRIANGLE) {
+                show(tag);
+            }
+            else if (triangleState === ESCAPED_DOWN_TRIANGLE) {
+                hide(tag);
+            }
+        };
+
+        const show = function(tag) {
+            const path = window.location.pathname;
+            let tags = sessionStorage.getItem('lasttags') || '{}';
+            tags = JSON.parse(tags);
+            tags[path] = tags[path] || [];
+            if (!tags[path].includes(tag)) {
+                tags[path].push(tag);
+                sessionStorage.setItem('lasttags', JSON.stringify(tags));
+            }
+            showHideElems(tag, false);
+        }
+
+        const hide = function(tag) {
+            const path = window.location.pathname;
+            let tags = sessionStorage.getItem('lasttags') || '{}';
+            tags = JSON.parse(tags);
+            tags[path] = tags[path] || [];
+            const index = tags[path].indexOf(tag);
+            if (index !== -1) {
+                tags[path].splice(index, 1);
+                sessionStorage.setItem('lasttags', JSON.stringify(tags));
+            }
+            showHideElems(tag, true);
+        }
+
+        window.onload = () => {
+            let tags = sessionStorage.getItem('lasttags') || '{}';
+            tags = JSON.parse(tags);
+            if (!{{expanded}}) {
+                let hideableElems = document.getElementsByClassName('hideable');
+                for (let i = 0; i < hideableElems.length; i++) {
+                    hideableElems[i].style.display = 'none'; 
+                }
+            }
+            const tagsForPath = tags[window.location.pathname] || [];
+            for (i = 0; i < tagsForPath.length; i++) {
+                showHideElems(tagsForPath[i], false);
+            }
+        };
+
+    </script>
+
+    <a href="/help">Overview</a> | <a href="/help/modules">Modules</a> | <a href="/help/models">Models</a> | <a href="/help/errors">Error Codes</a>
+    <br/>
+    {{html!content}}
+</body>
+</html>
+        
+    

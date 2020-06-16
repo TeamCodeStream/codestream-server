@@ -1,0 +1,200 @@
+#!/usr/bin/env python3
+
+#desc# Copy codestream team data from one mongo db to another
+
+import os
+import sys
+import argparse
+import pickle
+import glob
+import re
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+
+sys.path.append(os.environ['DT_TOP'] + "/lib")
+from sysUtils import dumpDict, readJsonFileIgnoreComments, someValueOrNone
+
+def getTeamIdFromTeamName(cfgData):
+	teamsCol = MongoClient(cfgData['sourceUrl'])[cfgData['db']]['teams']
+	c = teamsCol.count_documents({'name': cfgData['teamName']})
+	if c != 1:
+		print("there are {} teams named {}. Use teamId".format(c, cfgData['teamName']))
+		exit(1)
+	team = teamsCol.find_one({'name': cfgData['teamName']})
+	if cfgData['debug']: print("{} has teamId {}".format(cfgData['teamName'], team['_id']))
+	return str(team['_id'])
+
+def dumpCollection(cfgData, whichUrl, collection, queryFilter, dumpDir):
+	if not os.path.isdir(dumpDir): os.mkdir(dumpDir)
+	docList = list(MongoClient(cfgData[whichUrl])[cfgData['db']][collection].find(queryFilter))
+	for doc in docList:
+		doc['_id'] = str(doc['_id'])
+	with open(dumpDir + "/" + collection + ".data", 'wb') as binDumpFile:
+		pickle.dump(docList, binDumpFile)
+	if cfgData['verbose']:
+		print("dumped {} document(s) from the {} collection".format(len(docList), collection))
+
+def loadCollection(loadFileName):
+	collectionData = None
+	with open(loadFileName, 'rb') as binLoadFile:
+		collectionData = pickle.load(binLoadFile)
+	for doc in collectionData:
+		if len(doc['_id']) == 24:
+			doc['_id'] = ObjectId(doc['_id'])
+	return collectionData
+
+def mongoDeleteManyWithFilter(cfgData, whichUrl, collection, collectionQueryMap):
+	try:
+		result = MongoClient(cfgData[whichUrl])[cfgData['db']][collection].delete_many(collectionQueryMap[collection])
+		if result.acknowledged != True:
+			print("delete_many was not acknowledged")
+			exit(1)
+		delCount = result.deleted_count
+		if cfgData['verbose']:
+			print("{} documents deleted from {}".format(delCount, collection))
+		return delCount
+	except:
+		exc_type, exc_obj, exc_traceback = sys.exc_info()
+		print("Error during delete_many for collection", collection)
+		print("Type: {}, Obj: {}, Tb: {}".format(exc_type, exc_obj, exc_traceback))
+		exit(1)
+
+def mongoInsertMany(cfgData, whichUrl, dumpDir = None):
+	if not dumpDir: dumpDir = cfgData['dumpDir'] + "/" + cfgData['teamId']
+	fileSpec =  dumpDir + "/*.data"
+	collectionFiles = glob.glob(fileSpec)
+	if not collectionFiles:
+		print("no files to load found ({})".format(fileSpec))
+		exit(1)
+	for loadFileName in sorted(collectionFiles):
+		collection = re.sub('\.data$', '', os.path.basename(loadFileName))
+		collectionData = loadCollection(loadFileName)
+		if collectionData:
+			try:
+				result = MongoClient(cfgData[whichUrl])[cfgData['db']][collection].insert_many(collectionData)
+				if result.acknowledged != True:
+					print("insert was not acknowledged")
+					return False
+				idList = result.inserted_ids
+				if len(idList) != len(collectionData):
+					print("number of records inserted ({}) does not match number loaded ({})".format(len(idList), len(collectionData)))
+					return False
+				if cfgData['verbose']:
+					print("{} documents inserted into {}".format(len(idList), collection))
+			except:
+				exc_type, exc_obj, exc_traceback = sys.exc_info()
+				print("Error during insert_many for collection", collection)
+				print("Type: {}, Obj: {}, Tb: {}".format(exc_type, exc_obj, exc_traceback))
+				return False
+		else:
+			print("no documents in {} to load".format(collection))
+	return True
+
+
+parser = argparse.ArgumentParser(description='copy selected codestream data')
+parser.add_argument('--verbose', action='store_true', default=False, help="verbose mode")
+parser.add_argument('--debug', action='store_true', default=False, help="debug mode")
+
+# config
+parser.add_argument('--cfg', type=str, help="config file")
+parser.add_argument('--sourceUrl', type=str, help="source mongo connect Url")
+parser.add_argument('--destUrl', type=str, help="dest mongo connect Url")
+parser.add_argument('--teamId', type=str, help="teamId")
+parser.add_argument('--teamName', type=str, help="team name (case sensitive) - only useful if it matches on team")
+parser.add_argument('--db', type=str, help="Codestream Database")
+parser.add_argument('--dumpDir', type=str, help="Dump directory")
+
+# behavior
+parser.add_argument('--load', action='store_true', default=False, help="load data from dump (default is false)")
+parser.add_argument('--no-dump', action='store_true', default=False, help="Use pre-existing dump (default is false)")
+parser.add_argument('--pre-delete', action='store_true', default=False, help="delete pre-existing documents on the target before loading")
+parser.add_argument('--restore-on-fail', action='store_true', default=True, help="try to restore original data if copy fails")
+
+args = parser.parse_args()
+if args.debug: args.verbose = True
+
+cfgData = readJsonFileIgnoreComments(args.cfg) if args.cfg else {}
+
+if args.sourceUrl: cfgData['sourceUrl'] = args.sourceUrl
+if args.destUrl: cfgData['destUrl'] = args.destUrl
+if args.teamId: cfgData['teamId'] = args.teamId
+if args.teamName: cfgData['teamName'] = args.teamName
+if args.dumpDir: cfgData['dumpDir'] = args.dumpDir
+if args.db: cfgData['db'] = args.db
+if args.debug: cfgData['debug'] = True
+if args.verbose: cfgData['verbose'] = True
+
+if not someValueOrNone(cfgData, 'dumpDir'):
+	cfgData['dumpDir'] = os.environ['CS_API_TMP'] + "/csdump"
+if not someValueOrNone(cfgData, 'db'):
+	cfgData['db'] = "codestream"
+if not someValueOrNone(cfgData, 'debug'):
+	cfgData['debug'] = False
+if not someValueOrNone(cfgData, 'verbose'):
+	cfgData['verbose'] = False
+
+# find the teamId if a teamName was provided
+if someValueOrNone(cfgData, 'teamName') and 'teamId' not in cfgData:
+	cfgData['teamId'] = getTeamIdFromTeamName(cfgData)
+
+if args.debug: dumpDict(cfgData, None, "cfgData:")
+
+queryTeamId = { "teamId": cfgData['teamId'] }
+queryTeamIds = { "teamIds": cfgData['teamId'] }
+queryTeamObjectId = { "_id": ObjectId(cfgData['teamId']) }
+collectionQueryMap = {
+	'users': queryTeamIds,
+	'companies': queryTeamIds,
+	'repos': queryTeamId,
+	'streams': queryTeamId,
+	'posts': queryTeamId,
+	'markers': queryTeamId,
+	'markerLocations': queryTeamId,
+	'teams': queryTeamObjectId
+}
+
+restoreDir = cfgData['dumpDir'] + "/dest-backup/" + cfgData['teamId']
+
+if not args.no_dump:
+	if os.path.isdir(cfgData['dumpDir']):
+		print("dump directory {} already exists".format(cfgData['dumpDir']))
+		exit(1)
+	os.mkdir(cfgData['dumpDir'])
+	os.mkdir(cfgData['dumpDir'] + "/dest-backup")
+	if cfgData['verbose']: print("==== saving documents from sourceUrl")
+	for collection in sorted(collectionQueryMap.keys()):
+		dumpCollection(cfgData, 'sourceUrl', collection, collectionQueryMap[collection], cfgData['dumpDir'] + "/" + cfgData['teamId'])
+
+if args.load:
+	if args.restore_on_fail:
+		if cfgData['verbose']: print("==== saving documents from destUrl for restore if needed (--restore-on-fail)")
+		for collection in sorted(collectionQueryMap.keys()):
+			if not os.path.isdir(restoreDir): os.mkdir(restoreDir)
+			dumpCollection(cfgData, 'destUrl', collection, collectionQueryMap[collection], restoreDir)
+
+	if args.pre_delete:
+		if cfgData['verbose']: print("==== pre-deleting documents from destUrl")
+		for collection in sorted(collectionQueryMap.keys()):
+			numDeleted = mongoDeleteManyWithFilter(cfgData, 'destUrl', collection, collectionQueryMap)
+
+	if cfgData['verbose']: print("==== loading documents destUrl")
+	success = mongoInsertMany(cfgData, 'destUrl')
+	if not success and not args.restore_on_fail:
+		exit(1)
+	elif not success:
+		cfgData['verbose'] = True
+		print("=======================================================================")
+		print("****** Data load failed - attempting restore of original content ******")
+		print("=======================================================================")
+		print("=== Step 1. Delete partially copied docs...")
+		for collection in sorted(collectionQueryMap.keys()):
+			numDeleted = mongoDeleteManyWithFilter(cfgData, 'destUrl', collection, collectionQueryMap)
+		print("=== Step 2. Loading original data...")
+		success = mongoInsertMany(cfgData, 'destUrl', restoreDir)
+		if not success:
+			print("That didn't work either. You're on your own. Terribly sorry about that.")
+			exit(1)
+		print("=== Restore succeesful")
+
+	print("DON'T FORGET TO RE-CREATE THE INDEXES IDIOT")
+exit(0)

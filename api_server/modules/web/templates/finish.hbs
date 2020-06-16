@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CodeStream</title>
+    {{> partial_html_head partial_html_head_model}}
+    <script>
+        history.pushState(null, "CodeStream", location.href.split("?")[0]);
+    </script>    
+    <style>
+        .div-block-3 {
+            text-align:center;
+            padding-bottom: 30px;
+        }
+        .service-header {
+            display: inline-block;
+            padding-right: 15px;
+            padding-left: 15px;
+            font-size: 40px;
+        }
+        .image-18 {
+            display: inline-block;
+            height: 30px;
+            margin-top: -15px;
+            margin-bottom: 0px;
+        }
+        .image-22 {
+            margin-top: -20px;
+        }
+        ..rocket {
+            display: inline-block;
+            padding-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    {{> partial_menu partial_menu_model}}
+    <div class="container-fluid" id="root">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3">
+                <div class="box-content box-border box-border-sm">                
+                    {{#if tenantToken}}
+                      <div class="div-block-3">
+                        <img src="https://assets.website-files.com/5c1b064db9734016ca52ab39/5c3e9a75ed6af56e47c93418_codestream-light.svg" 
+                            width="193" alt="" class="image-18">
+                        <div class="service-header">+</div>
+                        <img src="https://assets.website-files.com/5c1b064db9734016ca52ab39/5cf967a122a3cb447c3821c0_Microsoft-Teams-Logo-white.png" 
+                            width="104" alt="" class="image-22">
+                        <div class="service-header">=</div>
+                        <div class="service-header rocket">🚀</div>
+                    </div>
+                    
+                    <p style="text-align:center;">
+                        Your CodeStream bot is almost setup. Return to MS Teams and paste the token below into the CodeStream chat to complete your sign in.                                              
+                    </p>
+                    <div class="col-lg-6 offset-lg-3 ">
+                        <div class="row justify-content-center">
+                              <input class="form-control bg-dark" type="text" id="tenantToken" value="{{tenantToken}}" />  
+                        </div>
+                        <script>
+                            var input = document.getElementById('tenantToken');
+                            input.focus();
+                            input.select();
+                        </script>
+                    </div>
+                    {{else}}
+                    <h1>All Set!</h1>
+                    <p style="text-align:center;">
+                        Return to your IDE to start using CodeStream.
+                    </p>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+#desc# playground utility tool
+
+. $DT_TOP/lib/sandbox_release_tool.sh || exit 1
+
+function usage {
+	local c=`basename $0`
+	echo "
+usage:
+    Backend services playground utility. Commands are executed across all 4 projects.
+
+    $(sandtool_help_common_args)
+    $c --report                              # reports version from package.json and head changelog
+    $c --set-version {version}               # update changelog and version for all repos
+"
+	exit 1
+}
+
+[ -z "$1" ] && usage
+
+ec=0
+[ -z "$CS_API_TOP" ] && echo "api sandbox not loaded" && ec=1
+[ -z "$CS_BROADCASTER_TOP" ] && echo "broadcaster sandbox not loaded" && ec=1
+[ -z "$CS_MAILIN_TOP" ] && echo "inbound email sandbox not loaded" && ec=1
+[ -z "$CS_OUTBOUND_EMAIL_TOP" ] && echo "outbound email sandbox not loaded" && ec=1
+[ $ec -eq 1 ] && exit 1
+
+SANDTOOL_REPO_LIST="$CS_API_TOP $CS_BROADCASTER_TOP $CS_MAILIN_TOP $CS_OUTBOUND_EMAIL_TOP"
+
+sandtool_process_common_args "$@" && exit
+[ "$1" == "--report" ] && { sandtool_report_pkgver_and_chlog; exit; }
+[ "$1" == "--set-version" ] && { sandtool_update_chlog_and_pkgver $2; exit; }
+usage

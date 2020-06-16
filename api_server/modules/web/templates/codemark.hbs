@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>CodeStream</title>
+	<link rel="dns-prefetch" href="https://images.codestream.com">
+	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+	{{> partial_html_head partial_html_head_model}}
+	<script type="text/javascript">
+		!function () {
+			var analytics = window.analytics = window.analytics || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
+				analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "once", "off", "on"]; analytics.factory = function (t) { return function () { var e = Array.prototype.slice.call(arguments); e.unshift(t); analytics.push(e); return analytics } }; for (var t = 0; t < analytics.methods.length; t++) { var e = analytics.methods[t]; analytics[e] = analytics.factory(e) } analytics.load = function (t, e) { var n = document.createElement("script"); n.type = "text/javascript"; n.async = !0; n.src = "https://cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js"; var a = document.getElementsByTagName("script")[0]; a.parentNode.insertBefore(n, a); analytics._loadOptions = e }; analytics.SNIPPET_VERSION = "4.1.0";
+				analytics.load("{{segmentKey}}");
+				analytics.page();
+			}
+		}();
+	</script>
+	<script>		 
+		window.CODESTREAM = window.CODESTREAM || {};
+		window.CODESTREAM.page = {
+			type: "codemark",
+			what: "Codemark",
+			data: {
+				id: '{{codemarkId}}',
+				repoId: '{{uniqueRepoId}}',
+				file: '{{uniqueFileName}}'
+			}
+		}	 
+	</script>
+</head>
+<body>
+	{{{identifyScript}}}
+	<script>
+		window.analytics.track('Page Viewed', { 'Page Name': '{{codemarkType}}' });
+	</script>
+
+	{{> partial_menu partial_menu_model}}
+
+	<div class="container-fluid" id="root">
+		{{> partial_launcher partial_launcher_model}}
+		<div class="row">
+			<div class="col-sm-8 offset-sm-2">
+				<div class="box-content box-border box-border-sm">
+					{{> partial_title partial_title_model}}					
+					{{#if showComment}}
+					{{#if hasTagsOrAssignees}}
+					<div class="row no-gutters mt-4">
+						{{#if tags}}
+						<div class="col-sm-6">
+							<h6>TAGS</h6>
+						</div>
+						{{/if}}
+						{{#if assignees}}
+						<div class="col-sm-6">
+							<h6>ASSIGNEES</h6>
+						</div>
+						{{/if}}
+					</div>
+					<div class="row no-gutters mt-1">
+						{{#if tags}}
+							<div class="col-sm-6">
+								{{#tags}}
+									{{#if label}}
+									<span class="label label-square" style="background-color:{{color}};">
+										{{label}}
+									</span>
+									{{/if}}
+									{{^label}}
+									<span class="label label-square label-empty" style="background-color:{{color}};">
+										&#8291;
+									</span>
+									{{/label}}
+								{{/tags}}
+							</div>
+						{{/if}}
+						{{#if assignees}}
+						<div class="col-sm-6">
+							{{#assignees}}
+							<div class="assignee-wrapper">
+								{{#if initials}}
+								<span class="headshot-initials-inline" title="{{tooltip}}">{{initials}}</span>
+								{{/if}}
+								<span title="{{tooltip}}">{{label}}</span>
+							</div>
+							{{/assignees}}
+						</div>
+						{{/if}}
+					</div>
+					{{/if}}
+
+
+					{{#if isIssue}}
+						{{#if text}}
+							<div class="row no-gutters mt-4">
+								<div class="col-sm-12">
+									<h6>DESCRIPTION</h6>
+								</div>
+							</div>						
+							<div class="row no-gutters mt-0">
+								<div class="col-sm-12">									
+									<div class="description">										
+										{{{text}}}				
+									</div>				 									
+								</div>
+							</div>
+						{{/if}}
+					{{/if}}
+						{{#if externalProvider}}
+						<div class="row no-gutters mt-3">
+							<div class="col-sm-12">
+								<h6>LINKED ISSUES</h6>
+							</div>
+						</div>
+				
+					<div class="row no-gutters mt-0">
+						<div class="col-sm-12">						 
+							<a href="#"
+								onclick='event.preventDefault();window.analytics.track("Opened Issue", { Service: "{{externalProvider}}" }); window.open("{{externalProviderUrl}}", "_blank")'>
+							{{#if externalProviderIcon}}{{{externalProviderIcon}}}{{/if}}{{externalProvider}} {{externalProviderUrl}}
+							</a>
+						</div>
+					</div>
+					{{/if}}
+					
+						{{#if relatedCodemarks}}
+						<div class="row no-gutters mt-3">
+							<div class="col-sm-12">
+								<h6>RELATED</h6>
+							</div>
+						</div>
+						<div class="row no-gutters mt-0">
+							<div class="col-sm-12">
+								{{#relatedCodemarks}}
+								<div class="related-codemark">
+									<a href="{{url}}" class="related-codemark-link">
+										{{#if icon}}{{{icon}}}{{/if}}									
+										{{title}}
+										<span class="related-codemark-file">{{file}}</span>
+									</a>
+								</div>
+								{{/relatedCodemarks}}
+							</div>
+						</div>
+						{{/if}}
+					{{/if}}
+					{{#markers}}
+						{{> partial_marker this}}
+					{{/markers}}
+				</div>
+			</div>
+		</div>
+	</div>
+	{{> partial_scripts_footer}}
+</body>
+</html>

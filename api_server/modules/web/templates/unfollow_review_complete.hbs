@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CodeStream</title>
+    {{> partial_html_head partial_html_head_model}}
+    <script>
+        history.pushState(null, "CodeStream", location.href.split("?")[0]);
+    </script>
+</head>
+
+<body>
+    {{> partial_menu partial_menu_model}}
+    <div class="container-fluid" id="root">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3">
+                <div class="box-content box-border box-border-sm">
+                    <h1>Review Unfollowed</h1>
+                    <p style="text-align:center;">
+                        You will no longer receive notifications related to this code review.<br>Sign into CodeStream in your IDE to start following it again.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

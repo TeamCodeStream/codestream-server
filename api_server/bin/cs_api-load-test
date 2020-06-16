@@ -1,0 +1,64 @@
+#!/bin/bash
+
+function usage {
+	echo "usage: $0 -N threads [-M max_iterations_per_thread]"
+	echo "       $0 -S"
+	exit
+}
+
+function run_test {
+	cd $CS_API_TOP
+	rightnow=`date +%s`
+	log="$logdir/test-$rightnow"
+	touch $log.running
+	echo "Launching $log"
+	(./test.sh; mv $log.running $log.done; echo "test $rightnow done") >$log.log 2>&1 &
+	sleep 1
+}
+
+function stop_all {
+	pids=`ps auxww|grep mocha|grep -v grep |grep $CS_API_NAME|awk '{print $2}'`
+	[ -z "$pids" ] && echo "nothing running" || kill $pids
+	exit
+}
+
+function exec_test {
+	run_test
+	running=1
+	cycle=0
+	while [ $running -gt 0 ]; do
+		[ $running -lt $n_threads ] && run_test
+		sleep 5
+		cycle=`expr $cycle + 1`
+		num_complete=`ls $logdir/*.done 2>/dev/null|wc -l`
+		if [ $max_times -gt 0 ]; then
+			[ $num_complete -ge $max_times ] && echo "max count reached" && stop_all
+		fi
+
+		running=`ls $logdir/*.running 2>/dev/null|wc -l`
+		if [ $(( $cycle % 5 )) -eq 0 ]; then
+			printf "`date`   Running: %d   Complete: %d\n" $running $num_complete
+		fi
+	done
+}
+
+n_threads=0
+max_times=0
+while getopts "N:M:S" arg
+do
+	case $arg in
+		S) stop_all;;
+		N) n_threads=$OPTARG;;
+		M) max_times=$OPTARG;;
+		*) usage;;
+	esac
+done
+shift `expr $OPTIND - 1`
+[ $n_threads -le 0 ] && usage
+
+start_time=`date +%Y%m%d-%H%M%S`
+logdir=$CS_API_LOGS/load-test-$start_time
+mkdir $logdir
+echo "Test logs will reside in $logdir"
+
+exec_test

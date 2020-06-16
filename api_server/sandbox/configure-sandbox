@@ -1,0 +1,62 @@
+#!/bin/bash
+
+[ -z "$1" ] && echo "Do not run this script directly. Run dt-configure-sandbox instead." && exit 1
+[ "$1" == "git-hook" ] && sb_git_hook=1 || sb_git_hook=0
+
+# This script is called from dt-configure-sandbox. Do not call it directly.
+# It may also be called from a git hook.
+#
+# Place any commands needed to prepare the sandbox for use here. Assume all
+# environment variables have been set.
+
+cd $CS_API_TOP
+[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
+
+[ -f .gitmodules ] && echo "updating submodules" && git submodule update --init --recursive
+
+if [ -n "$CS_API_NODE_MODULES_DIR" ]; then
+	[ -d "$CS_API_NODE_MODULES_DIR" ] && /bin/rm -rf $CS_API_NODE_MODULES_DIR
+	[ "$CS_API_NODE_MODULES_DIR" != "$CS_API_TOP/node_modules" ] && mkdir -p $CS_API_NODE_MODULES_DIR && ln -s $CS_API_TOP/package.json $CS_API_NODE_MODULES_DIR/package.json && ln -s $CS_API_TOP/package-lock.json $CS_API_NODE_MODULES_DIR/package-lock.json
+else
+	[ -d $CS_API_TOP/node_modules ] && /bin/rm -rf $CS_API_TOP/node_modules
+fi
+
+if [ "$CS_API_YARN" == true ]; then
+	[ ! -f $CS_API_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
+	echo "yarn install (from `pwd`)"
+	yarn install --frozen-lockfile
+else
+	echo "npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
+	npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS
+fi
+
+# package integrity check
+# if [ -f sandbox/package-versions.txt ]; then
+# 	tmpfile=/tmp/junk$$
+# 	npm ls |grep -v ^CodeStream_Server@ >$tmpfile
+# 	x=`diff sandbox/package-versions.txt $tmpfile|wc -l`
+# 	if [ $x -gt 0 ]; then
+# 		echo "***************************************************************************"
+# 		echo "   WARNING: package tree looks different than sandbox/package-versions.txt."
+# 		echo "            Update the file with the following command if it's out of date:"
+# 		echo
+# 		echo "       npm ls | grep -v ^CodeStream_ >sandbox/package-versions.txt"
+# 		echo "***************************************************************************"
+# 	else
+# 		echo "Package integrtity check looks good"
+# 	fi
+# 	/bin/rm $tmpfile
+# fi
+
+echo -n "Installing git hooks as sym links"
+cd $CS_API_TOP/.git/hooks
+for hook in post-checkout post-merge post-rewrite
+do
+	echo -n "...$hook"
+	/bin/rm -f $hook
+	ln -sf ../../hooks/$hook
+done
+echo "."
+
+# You must exit with a status of '0' if the script was successful or '1' otherwise.
+exit 0
