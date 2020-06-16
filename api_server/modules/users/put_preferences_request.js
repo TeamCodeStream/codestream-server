@@ -2,9 +2,9 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const { opFromHash } = require(process.env.CS_API_TOP + '/lib/util/data_collection/model_ops');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const { opFromHash } = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/model_ops');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 const MAX_KEYS = 100;
 

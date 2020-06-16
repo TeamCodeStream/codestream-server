@@ -1,8 +1,8 @@
 'use strict';
 
-const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
+const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_request.js');
 const EscapeHtml = require('escape-html');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 const RIGHT_TRIANGLE = '&#x25B6;';
 const DOWN_TRIANGLE = '&#x25BC;';

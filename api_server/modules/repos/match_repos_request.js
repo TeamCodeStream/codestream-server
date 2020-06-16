@@ -3,8 +3,8 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const RepoMatcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_matcher');
 
 class MatchReposRequest extends RestfulRequest {
 

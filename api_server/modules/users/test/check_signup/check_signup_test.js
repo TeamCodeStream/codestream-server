@@ -1,12 +1,12 @@
 'use strict';
 
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
 const CommonInit = require('./common_init');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const STANDARD_PROVIDER_HOSTS = require(process.env.CS_API_TOP + '/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const STANDARD_PROVIDER_HOSTS = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
 
 class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 

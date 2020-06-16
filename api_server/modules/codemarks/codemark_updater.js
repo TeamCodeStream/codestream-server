@@ -2,10 +2,10 @@
 
 'use strict';
 
-const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
+const ModelUpdater = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_updater');
 const Codemark = require('./codemark');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const CodemarkHelper = require('./codemark_helper');
 
 class CodemarkUpdater extends ModelUpdater {

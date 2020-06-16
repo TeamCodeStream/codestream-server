@@ -3,11 +3,11 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
-const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const MarkerCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_creator');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const RepoMatcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_matcher');
 
 class MoveRequest extends RestfulRequest {
 

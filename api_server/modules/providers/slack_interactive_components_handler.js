@@ -1,14 +1,12 @@
 const { WebClient } = require('@slack/web-api');
 const Fetch = require('node-fetch');
 const url = require('url');
-const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
-const UserCreator = require(process.env.CS_API_TOP +
-	'/modules/users/user_creator');
-const PostCreator = require(process.env.CS_API_TOP +
-	'/modules/posts/post_creator');
-const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
-const PostIndexes = require(process.env.CS_API_TOP + '/modules/posts/indexes');
-const { post } = require(process.env.CS_API_TOP + '/server_utils/https_bot');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_creator');
+const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
+const { post } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/https_bot');
 const SlackInteractiveComponentBlocks = require('./slack_interactive_component_blocks');
 const { keyBy } = require('lodash');
 const MomentTimezone = require('moment-timezone');

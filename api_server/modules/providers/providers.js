@@ -3,16 +3,12 @@
 'use strict';
 
 const qs = require('querystring');
-const APIServerModule = require(process.env.CS_API_TOP +
-	'/lib/api_server/api_server_module.js');
-const ErrorHandler = require(process.env.CS_API_TOP +
-	'/server_utils/error_handler');
+const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module.js');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Errors = require('./errors');
-const RestfulErrors = require(process.env.CS_API_TOP +
-	'/lib/util/restful/errors');
-const AuthErrors = require(process.env.CS_API_TOP +
-	'/modules/authenticator/errors');
-const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
+const RestfulErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/errors');
+const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const UserErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/errors');
 const MSTeamsConversationBot = require('./msteams_conversation_bot');
 
 const ROUTES = [

@@ -5,8 +5,8 @@
 
 'use strict';
 
-const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const CodeStreamModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model');
+const CodeStreamModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model_validator');
 const MarkerAttributes = require('./marker_attributes');
 
 class Marker extends CodeStreamModel {

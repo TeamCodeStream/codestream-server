@@ -2,10 +2,10 @@
 
 'use strict';
 
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const UUID = require('uuid/v4');
 const RandomString = require('randomstring');
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const Crypto = require('crypto');
 
 const LINK_TYPES_TO_ACTION = {

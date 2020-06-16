@@ -1,7 +1,7 @@
 'use strict';
 
 const CodemarkMarkerTest = require('./codemark_marker_test');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 class MarkersTooLongTest extends CodemarkMarkerTest {
 

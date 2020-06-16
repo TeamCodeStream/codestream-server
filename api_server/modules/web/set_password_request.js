@@ -1,10 +1,10 @@
 // handles the POST request
 'use strict';
 
-const CheckResetCore = require(process.env.CS_API_TOP + '/modules/users/check_reset_core');
-const ChangePasswordCore = require(process.env.CS_API_TOP + '/modules/users/change_password_core');
-const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
-const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
+const CheckResetCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/check_reset_core');
+const ChangePasswordCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/change_password_core');
+const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const UserErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/errors');
 const WebRequestBase = require('./web_request_base');
 
 class SetPasswordRequest extends WebRequestBase {

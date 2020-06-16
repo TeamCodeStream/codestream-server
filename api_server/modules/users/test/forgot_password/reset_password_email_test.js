@@ -4,7 +4,7 @@
 'use strict';
 
 const Assert = require('assert');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 
 class ResetPasswordEmailTest extends CodeStreamMessageTest {
 

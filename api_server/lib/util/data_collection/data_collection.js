@@ -5,7 +5,7 @@
 
 const DataCollectionFetcher = require('./data_collection_fetcher');
 const ModelOps = require('./model_ops');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Errors = require('./errors');
 
 class DataCollection {

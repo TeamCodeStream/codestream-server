@@ -2,8 +2,8 @@
 
 'use strict';
 
-const PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_request');
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const PutRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/put_request');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const TeamSubscriptionGranter = require('./team_subscription_granter');
 
 class PutTeamRequest extends PutRequest {

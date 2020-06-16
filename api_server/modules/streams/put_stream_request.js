@@ -2,10 +2,10 @@
 
 'use strict';
 
-const PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_request');
+const PutRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/put_request');
 const StreamPublisher = require('./stream_publisher');
 const StreamSubscriptionGranter = require('./stream_subscription_granter');
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 class PutStreamRequest extends PutRequest {
 

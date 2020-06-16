@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Repo = require('./repo');
 const NormalizeURL = require('./normalize_url');
 const ExtractCompanyIdentifier = require('./extract_company_identifier');

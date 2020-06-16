@@ -1,9 +1,9 @@
 'use strict';
 
 const DeletePostTest = require('./delete_post_test');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const Assert = require('assert');
-const ReviewTestConstants = require(process.env.CS_API_TOP + '/modules/reviews/test/review_test_constants');
+const ReviewTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/test/review_test_constants');
 
 class DeleteReviewTest extends DeletePostTest {
 

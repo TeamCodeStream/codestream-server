@@ -22,7 +22,7 @@ if (!Commander.botId && !Commander.env) {
 
 (async function () {
 	try {
-		var text = fs.readFileSync(process.env.CS_API_TOP + '/etc/msteamsbot/template/manifest.json', 'utf8');
+		var text = fs.readFileSync(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/msteamsbot/template/manifest.json', 'utf8');
 		text = text.replace(/{{botId}}/g, Commander.botId);
 		if (Commander.env === 'prod') {
 			// don't put any env for prod
@@ -32,7 +32,7 @@ if (!Commander.botId && !Commander.env) {
 			text = text.replace(/{{env}}/g, `-${Commander.env}`);
 		}
 		let json = JSON.parse(text);
-		let outputDir = `${process.env.CS_API_TOP}/etc/msteamsbot/dist`;
+		let outputDir = `${process.env.CSSVC_BACKEND_ROOT}/api_server/etc/msteamsbot/dist`;
 		if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 		outputDir += '/' + Commander.env;
 		if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);

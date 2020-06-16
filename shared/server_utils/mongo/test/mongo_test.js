@@ -3,9 +3,9 @@
 
 'use strict';
 
-const GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
+const GenericTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/generic_test');
 const MongoClient = require('../mongo_client.js');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const RandomString = require('randomstring');
 const Assert = require('assert');
 

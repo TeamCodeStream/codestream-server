@@ -1,9 +1,9 @@
 'use strict';
 
 const OpenTest = require('./open_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
-const TestStreamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_stream_creator');
+const TestStreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/test_stream_creator');
 
 class GetStreamsTest extends OpenTest {
 

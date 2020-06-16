@@ -2,13 +2,13 @@
 
 'use strict';
 
-const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const Restful = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful');
 const PostCreator = require('./post_creator');
 const PostUpdater = require('./post_updater');
 const PostDeleter = require('./post_deleter');
 const Post = require('./post');
 const Errors = require('./errors');
-const TryIndefinitely = require(process.env.CS_API_TOP + '/server_utils/try_indefinitely');
+const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
 
 const DEPENDENCIES = [
 	'aws'

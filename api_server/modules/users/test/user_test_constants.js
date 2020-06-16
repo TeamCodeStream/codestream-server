@@ -1,8 +1,8 @@
 'use strict';
 
-const UserAttributes = require(process.env.CS_API_TOP + '/modules/users/user_attributes');
-const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
-//const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const UserAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_attributes');
+const APICapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/capabilities');
+//const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 
 // we expect to see these fields for users who are not yet confirmed
 const EXPECTED_UNREGISTERED_USER_FIELDS = [

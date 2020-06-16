@@ -2,7 +2,7 @@
 
 'use strict';
 
-const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const Restful = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful');
 const MarkerCreator = require('./marker_creator');
 const MarkerUpdater = require('./marker_updater');
 const Marker = require('./marker');

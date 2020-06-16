@@ -1,6 +1,6 @@
 'use strict';
 
-const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
+const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_request.js');
 const WebErrors = require('./errors');
 const Handlebars = require('handlebars');
 const Icons = require('./icons.json');

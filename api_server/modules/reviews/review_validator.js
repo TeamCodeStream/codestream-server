@@ -2,7 +2,7 @@
 
 'use strict';
 
-const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const CodeStreamModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model_validator');
 const ReviewAttributes = require('./review_attributes');
 
 class ReviewValidator extends CodeStreamModelValidator {

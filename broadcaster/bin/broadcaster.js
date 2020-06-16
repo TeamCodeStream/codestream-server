@@ -5,9 +5,9 @@
 'use strict';
 
 // load configurations
-const BroadcasterConfig = require(process.env.CS_BROADCASTER_TOP + '/config');
-const SimpleFileLogger = require(process.env.CS_BROADCASTER_TOP + '/server_utils/simple_file_logger');
-const ClusterWrapper = require(process.env.CS_BROADCASTER_TOP + '/server_utils/cluster_wrapper');
+const BroadcasterConfig = require(process.env.CSSVC_BACKEND_ROOT + '/broadcaster/config');
+const SimpleFileLogger = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/simple_file_logger');
+const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/cluster_wrapper');
 
 // start up the master, this will launch workers to really get down to work
 (async function() {
@@ -17,7 +17,7 @@ const ClusterWrapper = require(process.env.CS_BROADCASTER_TOP + '/server_utils/c
 	const Logger = new SimpleFileLogger(Config.logger);
 
 	// invoke a node cluster master with our configurations provided
-	const ServerClass = require(process.env.CS_BROADCASTER_TOP + '/lib/broadcaster_server');
+	const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/broadcaster/lib/broadcaster_server');
 	const MyClusterWrapper = new ClusterWrapper(
 		ServerClass,
 		{

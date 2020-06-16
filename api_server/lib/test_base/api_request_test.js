@@ -3,8 +3,8 @@
 'use strict';
 
 const GenericTest = require('./generic_test');
-const HTTPSBot = require(process.env.CS_API_TOP + '/server_utils/https_bot');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const HTTPSBot = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/https_bot');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const Assert = require('assert');
 const IPC = require('node-ipc');
 const UUID = require('uuid/v4');

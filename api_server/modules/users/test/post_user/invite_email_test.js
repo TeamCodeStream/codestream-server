@@ -2,8 +2,8 @@
 
 'use strict';
 
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const CommonInit = require('./common_init');
 
 class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {

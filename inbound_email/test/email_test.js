@@ -1,12 +1,12 @@
 'use strict';
 
-const BoundAsync = require(process.env.CS_MAILIN_TOP +'/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-//const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
-const HTTPSBot = require(process.env.CS_MAILIN_TOP + '/server_utils/https_bot');
+//const InboundEmailServerConfig = require(process.env.CSSVC_BACKEND_ROOT + '/inbound_email/config/config');
+const HTTPSBot = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/https_bot');
 const PubNub = require('pubnub');
-const PubNubClient = require(process.env.CS_MAILIN_TOP + '/server_utils/pubnub/pubnub_client_async');
+const PubNubClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/pubnub_client_async');
 const FS = require('fs');
 const Assert = require('assert');
 const Path = require('path');
@@ -260,7 +260,7 @@ class EmailTest {
 	// read the email file indicated for the test
 	readEmailFile (callback) {
 		const inputFile = this.emailFile + '.eml';
-		let path = Path.join(process.env.CS_MAILIN_TOP, 'test', 'test_files', inputFile);
+		let path = Path.join(process.env.CSSVC_BACKEND_ROOT, 'inbound_email', 'test', 'test_files', inputFile);
 		FS.readFile(
 			path,
 			'utf8',

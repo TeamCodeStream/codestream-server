@@ -1,8 +1,8 @@
 'use strict';
 
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const PostIndexes = require(process.env.CS_API_TOP + '/modules/posts/indexes');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 
 class CodemarkHelper {
 

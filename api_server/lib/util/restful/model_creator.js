@@ -4,7 +4,7 @@
 
 'use strict';
 
-const RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
+const RequireAllow = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/require_allow');
 const DeepEqual = require('deep-equal');
 const ModelSaver = require('./model_saver');
 

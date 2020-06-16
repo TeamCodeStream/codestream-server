@@ -1,7 +1,7 @@
 'use strict';
 
 var PubNubTest = require('./pubnub_test');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+var BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 var Assert = require('assert');
 
 class HistoryTest extends PubNubTest {

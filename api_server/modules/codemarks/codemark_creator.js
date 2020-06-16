@@ -2,15 +2,15 @@
 
 'use strict';
 
-const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Codemark = require('./codemark');
-const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
+const MarkerCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_creator');
 const CodemarkTypes = require('./codemark_types');
 const CodemarkAttributes = require('./codemark_attributes');
 const PermalinkCreator = require('./permalink_creator');
 const CodemarkHelper = require('./codemark_helper');
-const RepoMatcher = require(process.env.CS_API_TOP + '/modules/repos/repo_matcher');
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
+const RepoMatcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_matcher');
+const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
 
 class CodemarkCreator extends ModelCreator {
 

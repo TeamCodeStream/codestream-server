@@ -1,10 +1,10 @@
 'use strict';
 
 const MoveTest = require('./move_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
 const MarkerTestConstants = require('../marker_test_constants');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 class FetchSupersededMarkerTest extends MoveTest {
 

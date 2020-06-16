@@ -1,9 +1,9 @@
 'use strict';
 
 const Migration = require('./migration');
-//const CodemarkLinkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_creator');
-//const ApiConfig = require(process.env.CS_API_TOP + '/config/api');
-//const Marker = require(process.env.CS_API_TOP + '/modules/markers/marker');
+//const CodemarkLinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_link_creator');
+//const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/api');
+//const Marker = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker');
 
 //const THROTTLE_TIME = 333;
 

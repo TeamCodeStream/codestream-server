@@ -1,7 +1,7 @@
 'use strict';
 
 const GetUnreadStreamsTest = require('./get_unread_streams_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class GetNoUnreadStreamsTest extends GetUnreadStreamsTest {
 

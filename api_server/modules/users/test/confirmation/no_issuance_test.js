@@ -1,8 +1,8 @@
 'use strict';
 
 const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
-const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class NoIssuanceTest extends ConfirmationWithLinkTest {
 

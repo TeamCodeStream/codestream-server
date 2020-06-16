@@ -4,17 +4,17 @@
 'use strict';
 
 const APIRequestTest = require('./api_request_test');
-const RandomUserFactory = require(process.env.CS_API_TOP + '/modules/users/test/random_user_factory');
-const RandomTeamFactory = require(process.env.CS_API_TOP + '/modules/teams/test/random_team_factory');
-const RandomCompanyFactory = require(process.env.CS_API_TOP + '/modules/companies/test/random_company_factory');
-const RandomRepoFactory = require(process.env.CS_API_TOP + '/modules/repos/test/random_repo_factory');
-const RandomStreamFactory = require(process.env.CS_API_TOP + '/modules/streams/test/random_stream_factory');
-const RandomPostFactory = require(process.env.CS_API_TOP + '/modules/posts/test/random_post_factory');
-const RandomMarkerFactory = require(process.env.CS_API_TOP + '/modules/markers/test/random_marker_factory');
-const RandomCodemarkFactory = require(process.env.CS_API_TOP + '/modules/codemarks/test/random_codemark_factory');
-const RandomReviewFactory = require(process.env.CS_API_TOP + '/modules/reviews/test/random_review_factory');
+const RandomUserFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/test/random_user_factory');
+const RandomTeamFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/test/random_team_factory');
+const RandomCompanyFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/test/random_company_factory');
+const RandomRepoFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/test/random_repo_factory');
+const RandomStreamFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/test/random_stream_factory');
+const RandomPostFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/test/random_post_factory');
+const RandomMarkerFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/test/random_marker_factory');
+const RandomCodemarkFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/test/random_codemark_factory');
+const RandomReviewFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/test/random_review_factory');
 const Assert = require('assert');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const TestTeamCreator = require('./test_team_creator');
 const TestStreamCreator = require('./test_stream_creator');
 

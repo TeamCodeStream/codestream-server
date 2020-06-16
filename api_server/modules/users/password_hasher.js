@@ -3,7 +3,7 @@
 'use strict';
 
 const BCrypt = require('bcrypt');
-const { callbackWrap } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const { callbackWrap } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 class PasswordHasher  {
 

@@ -3,15 +3,16 @@
 
 'use strict';
 
-const BaseTest = require(process.env.CS_API_TOP + '/lib/test_base/base_test');
-const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client.js');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const BaseTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/base_test');
+const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client.js');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const RandomString = require('randomstring');
 const Assert = require('assert');
 const DataCollection = require('../data_collection');
 const DataModel = require('../data_model');
 
 var CodeStreamApiConfig;
+var ReusableMongoClient;
 
 class DataCollectionTest extends BaseTest {
 
@@ -23,12 +24,15 @@ class DataCollectionTest extends BaseTest {
 		this.apiConfig = CodeStreamApiConfig;
 
 		// set up the mongo client, and open it against a test collection
-		this.mongoClientFactory = new MongoClient({
-			collections: ['test'],
-			mockMode: this.mockMode
-		});
+		if (!ReusableMongoClient) {
+			this.mongoClientFactory = new MongoClient({
+				collections: ['test'],
+				mockMode: this.mockMode
+			});
+			ReusableMongoClient = await this.mongoClientFactory.openMongoClient(this.apiConfig.mongo);
+		}
+		this.mongoClient = ReusableMongoClient;
 
-		this.mongoClient = await this.mongoClientFactory.openMongoClient(this.apiConfig.mongo);
 		this.mongoData = this.mongoClient.mongoCollections;
 		this.dataCollection = new DataCollection({
 			databaseCollection: this.mongoData.test,

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const CompanyAttributes = require(process.env.CS_API_TOP + '/modules/companies/company_attributes');
+const CompanyAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/company_attributes');
 
 const EXPECTED_COMPANY_FIELDS = [
 	'id',

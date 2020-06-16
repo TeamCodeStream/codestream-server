@@ -2,7 +2,7 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module.js');
 const fetch = require('node-fetch');
 const FormData = require('form-data');
 const Base64 = require('base-64');

@@ -1,6 +1,6 @@
 'use strict';
 
-const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const Restful = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful');
 const CompanyCreator = require('./company_creator');
 //const CompanyUpdater = require('./company_updater');
 const Company = require('./company');

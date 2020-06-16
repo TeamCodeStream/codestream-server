@@ -10,8 +10,8 @@ const Path = require('path');
 const HTTP = require('http');
 const HTTPS = require('https');
 const HtmlEntities = require('html-entities').AllHtmlEntities;
-const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
-const { callbackWrap } = require(process.env.CS_MAILIN_TOP + '/server_utils/await_utils');
+const InboundEmailServerConfig = require(process.env.CSSVC_BACKEND_ROOT + '/inbound_email/config/config');
+const { callbackWrap } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 class FileHandler {
 

@@ -2,14 +2,14 @@
 
 'use strict';
 
-const Restful = require(process.env.CS_API_TOP + '/lib/util/restful/restful');
+const Restful = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful');
 const UserCreator = require('./user_creator');
 const UserUpdater = require('./user_updater');
 const UserDeleter = require('./user_deleter');
 const SignupTokens = require('./signup_tokens');
 const User = require('./user');
 const Errors = require('./errors');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 
 const DEPENDENCIES = [
 	'authenticator'	// need the user

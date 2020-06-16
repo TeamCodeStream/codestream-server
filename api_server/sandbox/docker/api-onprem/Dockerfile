@@ -5,7 +5,7 @@ ADD config /opt/api/api_server/config
 ADD lib /opt/api/api_server/lib
 ADD modules /opt/api/api_server/modules
 ADD server_utils /opt/api/api_server/server_utils
-ADD codestream-configs /opt/api/api_server/codestream-configs
+ADD codestream_configs /opt/api/api_server/codestream_configs
 ADD etc/webmail_companies.js /opt/api/api_server/etc/webmail_companies.js
 ADD etc/capabilities.js /opt/api/api_server/etc/capabilities.js
 ADD bin/api_server.js /opt/api/api_server/bin/api_server.js

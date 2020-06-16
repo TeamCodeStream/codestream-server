@@ -1,8 +1,8 @@
 'use strict';
 
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 const RandomString = require('randomstring');
-const User = require(process.env.CS_API_TOP + '/modules/users/user');
+const User = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user');
 
 class UserMessageToTeamTest extends CodeStreamMessageTest {
 

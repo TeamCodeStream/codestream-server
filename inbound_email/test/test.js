@@ -2,7 +2,7 @@
 
 'use strict';
 
-const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
+const InboundEmailServerConfig = require(process.env.CSSVC_BACKEND_ROOT + '/inbound_email/config/config');
 const EmailTest = require('./email_test');
 const Async = require('async');
 const EmailTests = require('./email_tests');

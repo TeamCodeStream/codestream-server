@@ -2,7 +2,7 @@
 
 'use strict';
 
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const GetStreamRequestTester = require('./get_stream/get_stream_request_tester');
 const GetStreamsRequestTester = require('./get_streams/get_streams_request_tester');
 const PostStreamRequestTester = require('./post_stream/post_stream_request_tester');

@@ -2,19 +2,19 @@
 
 'use strict';
 
-const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Team = require('./team');
-const CompanyCreator = require(process.env.CS_API_TOP + '/modules/companies/company_creator');
-const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const CompanyCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/company_creator');
+const CodeStreamModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model_validator');
 const TeamSubscriptionGranter = require('./team_subscription_granter');
 const TeamAttributes = require('./team_attributes');
 const Errors = require('./errors');
-const WebmailCompanies = require(process.env.CS_API_TOP + '/etc/webmail_companies');
-const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
-const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const DefaultTags = require('./default_tags');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 class TeamCreator extends ModelCreator {
 

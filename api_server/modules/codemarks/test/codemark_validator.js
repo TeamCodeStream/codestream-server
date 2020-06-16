@@ -2,7 +2,7 @@
 
 const Assert = require('assert');
 const CodemarkTestConstants = require('./codemark_test_constants');
-const MarkerValidator = require(process.env.CS_API_TOP + '/modules/markers/test/marker_validator');
+const MarkerValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/test/marker_validator');
 
 class CodemarkValidator {
 

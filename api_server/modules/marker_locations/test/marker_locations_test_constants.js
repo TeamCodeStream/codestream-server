@@ -2,7 +2,7 @@
 
 'use strict';
 
-const MarkerLocationsAttributes = require(process.env.CS_API_TOP + '/modules/marker_locations/marker_locations_attributes');
+const MarkerLocationsAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/marker_locations/marker_locations_attributes');
 
 const EXPECTED_MARKER_LOCATIONS_FIELDS = [
 	'teamId',

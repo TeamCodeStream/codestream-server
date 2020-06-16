@@ -2,7 +2,7 @@
 
 'use strict';
 
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
+const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 
 class ConfirmationEmailTest extends CodeStreamMessageTest {
 

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
 const UserPublisher = require('../users/user_publisher');
 const ConfirmHelper = require('../users/confirm_helper');
 const LoginHelper = require('../users/login_helper');

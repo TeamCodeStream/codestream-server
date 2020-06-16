@@ -4,7 +4,7 @@
 'use strict';
 
 const DataModelValidator = require('./data_model_validator');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 class DataModel {
 

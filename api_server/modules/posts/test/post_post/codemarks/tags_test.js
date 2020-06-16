@@ -3,8 +3,8 @@
 const CodemarkTest = require('./codemark_test');
 const RandomString = require('randomstring');
 const UUID = require('uuid/v4');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const DefaultTags = require(process.env.CS_API_TOP + '/modules/teams/default_tags');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const DefaultTags = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/default_tags');
 const Assert = require('assert');
 
 class TagsTest extends CodemarkTest {

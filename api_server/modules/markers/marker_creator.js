@@ -2,10 +2,10 @@
 
 'use strict';
 
-const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Marker = require('./marker');
-const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
-const StreamCreator = require(process.env.CS_API_TOP + '/modules/streams/stream_creator');
+const NormalizeUrl = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/normalize_url');
+const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
 
 class MarkerCreator extends ModelCreator {
 

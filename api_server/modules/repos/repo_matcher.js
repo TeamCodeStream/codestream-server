@@ -2,11 +2,11 @@
 
 'use strict';
 
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
-const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const RepoCreator = require(process.env.CS_API_TOP + '/modules/repos/repo_creator');
+const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
+const ExtractCompanyIdentifier = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/extract_company_identifier');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const RepoCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_creator');
 const NormalizeURL = require('./normalize_url');
 
 class RepoMatcher {

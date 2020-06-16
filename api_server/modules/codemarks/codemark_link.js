@@ -6,8 +6,8 @@
 
 'use strict';
 
-const DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
-const DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
+const DataModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/data_model');
+const DataModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/data_model_validator');
 const CodemarkLinkAttributes = require('./codemark_link_attributes');
 
 class CodemarkLink extends DataModel {

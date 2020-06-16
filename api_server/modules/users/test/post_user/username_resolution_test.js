@@ -1,7 +1,7 @@
 'use strict';
 
 const PostUserTest = require('./post_user_test');
-const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 
 class UsernameResolutionTest extends PostUserTest {
 

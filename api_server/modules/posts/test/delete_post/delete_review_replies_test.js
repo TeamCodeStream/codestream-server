@@ -1,9 +1,9 @@
 'use strict';
 
 const DeleteReviewMarkersTest = require('./delete_review_markers_test');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const Assert = require('assert');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class DeleteReviewRepliesTest extends DeleteReviewMarkersTest {
 

@@ -1,13 +1,12 @@
 'use strict';
 
-const CodemarkLinkIndexes = require(process.env.CS_API_TOP +
-	'/modules/codemarks/codemark_link_indexes');
+const CodemarkLinkIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_link_indexes');
 const MomentTimezone = require('moment-timezone');
 const Crypto = require('crypto');
 const Identify = require('./identify');
 const ProviderDisplayNames = require('./provider_display_names');
 const WebRequestBase = require('./web_request_base');
-const Markdowner = require(process.env.CS_API_TOP + '/server_utils/markdowner');
+const Markdowner = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/markdowner');
 const { ides, tagMap} = require('./config');
 
 class LinkReviewRequest extends WebRequestBase {

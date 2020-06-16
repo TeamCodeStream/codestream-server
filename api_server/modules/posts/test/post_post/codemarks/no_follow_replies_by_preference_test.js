@@ -1,7 +1,7 @@
 'use strict';
 
 const CodemarkTest = require('./codemark_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
 
 class NoFollowRepliesByPreferenceTest extends CodemarkTest {

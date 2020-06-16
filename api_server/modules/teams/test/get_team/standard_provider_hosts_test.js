@@ -2,7 +2,7 @@
 
 const GetTeamTest = require('./get_team_test');
 const Assert = require('assert');
-const STANDARD_PROVIDER_HOSTS = require(process.env.CS_API_TOP + '/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
+const STANDARD_PROVIDER_HOSTS = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
 
 class StandardProviderHostsTest extends GetTeamTest {
 

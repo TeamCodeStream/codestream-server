@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ReviewAttributes = require(process.env.CS_API_TOP + '/modules/reviews/review_attributes');
+const ReviewAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/review_attributes');
 
 const EXPECTED_BASE_REVIEW_FIELDS = [
 	'_id',

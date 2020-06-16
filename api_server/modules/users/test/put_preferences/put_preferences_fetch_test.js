@@ -2,7 +2,7 @@
 
 const PutPreferencesTest = require('./put_preferences_test');
 const Assert = require('assert');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class PutPreferencesFetchTest extends PutPreferencesTest {
 

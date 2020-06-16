@@ -2,11 +2,11 @@
 
 'use strict';
 
-const CodemarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
-const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
-const RepoAttributes = require(process.env.CS_API_TOP + '/modules/repos/repo_attributes');
-const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
-const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
+const CodemarkAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_attributes');
+const StreamAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_attributes');
+const RepoAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_attributes');
+const MarkerAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_attributes');
+const PostAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_attributes');
 
 const EXPECTED_BASE_CODEMARK_FIELDS = [
 	'_id',

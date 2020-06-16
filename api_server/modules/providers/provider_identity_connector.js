@@ -3,11 +3,11 @@
 
 'use strict';
 
-const EmailUtilities = require(process.env.CS_API_TOP + '/server_utils/email_utilities');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const UserCreator = require('../users/user_creator');
 const Indexes = require('../users/indexes');
-const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ConfirmHelper = require('../users/confirm_helper');
 
 class ProviderIdentityConnector {

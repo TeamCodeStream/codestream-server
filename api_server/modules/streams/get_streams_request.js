@@ -2,7 +2,7 @@
 
 'use strict';
 
-const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const STREAM_TYPES = require('./stream_types');
 const Indexes = require('./indexes');
 

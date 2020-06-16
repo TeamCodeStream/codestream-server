@@ -5,7 +5,7 @@
 const util = require('util');
 const structuredCfgFile = require('../lib/structured_config');
 const testCfg = new structuredCfgFile({
-	schemaFile: '/Users/jj/src/codestream-configs/parameters.json',
+	schemaFile: '/Users/jj/src/codestream_configs/parameters.json',
 	configFile: 'testcfg.json'
 });
 // testCfg.dump();

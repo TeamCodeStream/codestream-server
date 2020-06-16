@@ -1,9 +1,9 @@
 // provide a base class for many of the tests of the "POST /streams" request to create a stream
 'use strict';
 
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const Assert = require('assert');
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const StreamTestConstants = require('../stream_test_constants');
 const CommonInit = require('./common_init');
 

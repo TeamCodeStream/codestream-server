@@ -2,10 +2,10 @@
 
 'use strict';
 
-const MarkerAttributes = require(process.env.CS_API_TOP + '/modules/markers/marker_attributes');
-const MarkerLocationsAttributes = require(process.env.CS_API_TOP + '/modules/marker_locations/marker_locations_attributes');
-const CodemarkAttributes = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_attributes');
-const PostAttributes = require(process.env.CS_API_TOP + '/modules/posts/post_attributes');
+const MarkerAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_attributes');
+const MarkerLocationsAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/marker_locations/marker_locations_attributes');
+const CodemarkAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_attributes');
+const PostAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_attributes');
 
 const EXPECTED_MARKER_FIELDS = [
 	'id',

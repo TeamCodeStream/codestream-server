@@ -3,10 +3,10 @@
 
 'use strict';
 
-const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
-const MSTeamsTeamsIndexes = require(process.env.CS_API_TOP + '/modules/msteams_teams/indexes');
-const MSTeamsUtils = require(process.env.CS_API_TOP + '/modules/providers/msteams_utils');
+const MSTeamsTeamsIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_teams/indexes');
+const MSTeamsUtils = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/msteams_utils');
 
 class GetMSTeamsConversationsRequest extends GetManyRequest {
 

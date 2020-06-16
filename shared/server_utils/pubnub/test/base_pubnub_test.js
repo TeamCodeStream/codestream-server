@@ -1,13 +1,13 @@
 'use strict';
 
-var GenericTest = require(process.env.CS_API_TOP + '/lib/test_base/generic_test');
-var PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
-var PubNub = require('pubnub');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
-var RandomString = require('randomstring');
-var BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-var Assert = require('assert');
-var OS = require('os');
+const GenericTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/generic_test');
+const PubNubClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/pubnub_client_async');
+const PubNub = require('pubnub');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
+const RandomString = require('randomstring');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const Assert = require('assert');
+const OS = require('os');
 
 class BasePubNubTest extends GenericTest {
 

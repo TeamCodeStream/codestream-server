@@ -2,7 +2,7 @@
 
 'use strict';
 
-var Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+var Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 var RegistrationRequestTester = require('./registration/registration_request_tester');
 var ConfirmationRequestTester = require('./confirmation/confirmation_request_tester');
 var LoginRequestTester = require('./login/login_request_tester');

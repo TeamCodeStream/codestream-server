@@ -8,7 +8,7 @@
 'use strict';
 
 const Commander = require('commander');
-const ContentCombiner = require(process.env.CS_API_TOP + '/modules/teams/content_combiner.js');
+const ContentCombiner = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/content_combiner.js');
 
 Commander
 	.option('-t, --teams <teamIds>', 'Apply only to these teams')

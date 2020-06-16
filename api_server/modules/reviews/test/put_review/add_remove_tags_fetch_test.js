@@ -2,7 +2,7 @@
 
 const PutReviewFetchTest = require('./put_review_fetch_test');
 const AddRemoveTagsTest = require('./add_remove_tags_test');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 
 class AddRemoveTagsFetchTest extends Aggregation(AddRemoveTagsTest, PutReviewFetchTest) {
 

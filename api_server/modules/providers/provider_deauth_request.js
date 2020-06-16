@@ -3,8 +3,8 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class ProviderDeauthRequest extends RestfulRequest {
 

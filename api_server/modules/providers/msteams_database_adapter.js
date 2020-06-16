@@ -6,13 +6,13 @@
 
 /*eslint complexity: ["error", 666]*/
 
-const SignupTokens = require(process.env.CS_API_TOP + '/modules/users/signup_tokens');
-const TeamIndexes = require(process.env.CS_API_TOP + '/modules/teams/indexes');
-const MSTeamsTeamsIndexes = require(process.env.CS_API_TOP + '/modules/msteams_teams/indexes');
-const MSTeamsConversationIndexes = require(process.env.CS_API_TOP + '/modules/msteams_conversations/indexes');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
-const MSTeamsUtils = require(process.env.CS_API_TOP + '/modules/providers/msteams_utils');
+const SignupTokens = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/signup_tokens');
+const TeamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/indexes');
+const MSTeamsTeamsIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_teams/indexes');
+const MSTeamsConversationIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_conversations/indexes');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const MSTeamsUtils = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/msteams_utils');
 
 class MSTeamsDatabaseAdapter {
 	constructor (options) {

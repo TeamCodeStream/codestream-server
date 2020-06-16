@@ -1,8 +1,8 @@
 'use strict';
 
 const Assert = require('assert');
-const CodeStreamMessageTest = require(process.env.CS_API_TOP + '/modules/broadcaster/test/codestream_message_test');
-const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
+const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 
 class ConfirmationEmailTest extends CodeStreamMessageTest {
 

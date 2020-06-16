@@ -4,8 +4,8 @@
 
 /* eslint no-console: 0 */
 
-const StructuredConfigFactory = require('../codestream-configs/lib/structured_config'); 
-const MongoUrlParser = require('../codestream-configs/lib/mongo_url_parser');
+const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config'); 
+const MongoUrlParser = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/mongo_url_parser');
 
 /*
 	Returns: c = {

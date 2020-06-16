@@ -1,7 +1,7 @@
 'use strict';
 
 const ChangeEmailConfirmTest = require('./change_email_confirm_test');
-const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 
 class MissingInPayloadTest extends ChangeEmailConfirmTest {
 

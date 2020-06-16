@@ -1,9 +1,9 @@
 'use strict';
 
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
 const Assert = require('assert');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 
 class ChangeEmailConfirmTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 

@@ -2,9 +2,9 @@
 
 'use strict';
 
-const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class GetUsersRequest extends GetManyRequest {
 

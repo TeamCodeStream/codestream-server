@@ -3,7 +3,7 @@
 const DeleteCodemarkTest = require('./delete_codemark_test');
 const Assert = require('assert');
 const PostTestConstants = require('../post_test_constants');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class DeleteRelationsTest extends DeleteCodemarkTest {
 

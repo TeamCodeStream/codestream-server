@@ -2,7 +2,7 @@
 
 'use strict';
 
-const OAuthModule = require(process.env.CS_API_TOP + '/lib/oauth/oauth_module.js');
+const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/oauth/oauth_module.js');
 
 const OAUTH_CONFIG = {
 	provider: 'jiraserver',

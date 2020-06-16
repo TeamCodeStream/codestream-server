@@ -2,7 +2,7 @@
 
 'use strict';
 
-const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
+const StreamAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_attributes');
 
 // fields expected in all streams
 const EXPECTED_STREAM_FIELDS = [

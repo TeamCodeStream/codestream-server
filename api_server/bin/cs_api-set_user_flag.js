@@ -6,10 +6,10 @@
 
 'use strict';
 
-const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const PubNub = require('pubnub');
-const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
+const PubNubClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/pubnub_client_async');
 const Commander = require('commander');
 const OS = require('os');
 const UUID = require('uuid/v4');

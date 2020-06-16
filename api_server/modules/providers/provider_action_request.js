@@ -3,13 +3,11 @@
 
 'use strict';
 const { UserState } = require('botbuilder');
-const RestfulRequest = require(process.env.CS_API_TOP +
-	'/lib/util/restful/restful_request.js');
-const ProviderDisplayNames = require(process.env.CS_API_TOP +
-	'/modules/web/provider_display_names');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
+const ProviderDisplayNames = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/provider_display_names');
 const SlackInteractiveComponentsHandler = require('./slack_interactive_components_handler');
 const crypto = require('crypto');
-const AddTeamPublisher = require(process.env.CS_API_TOP + '/modules/users/add_team_publisher');
+const AddTeamPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/add_team_publisher');
 const MSTeamsConversationBot = require('./msteams_conversation_bot');
 const { createMSTeamsBotFrameworkAdapter } = require('./msteams_bot_framework_adapter');
 const MSTeamsDatabaseAdapter = require('./msteams_database_adapter');

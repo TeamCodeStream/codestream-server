@@ -3,7 +3,7 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const StreamCreator = require('./stream_creator');
 const Indexes = require('./indexes');
 const Errors = require('./errors');

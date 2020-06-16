@@ -2,7 +2,7 @@
 
 const PutReviewFetchTest = require('./put_review_fetch_test');
 const AddReviewersTest = require('./add_reviewers_test');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 
 class AddReviewersFetchTest extends Aggregation(AddReviewersTest, PutReviewFetchTest) {
 

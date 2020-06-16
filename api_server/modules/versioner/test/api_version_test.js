@@ -1,6 +1,6 @@
 'use strict';
 
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
+const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const ReadPackageJson = require('read-package-json');
 const Assert = require('assert');
 
@@ -25,7 +25,7 @@ class APIVersionTest extends CodeStreamAPITest {
 			// read in package.json so we can check if the version returned with the
 			// test request matches
 			ReadPackageJson(
-				process.env.CS_API_TOP + '/package.json',
+				process.env.CSSVC_BACKEND_ROOT + '/api_server/package.json',
 				(error, data) => {
 					if (error) { return callback(error); }
 					this.apiVersion = data.version;

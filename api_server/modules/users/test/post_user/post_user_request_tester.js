@@ -42,7 +42,7 @@ const AdminsCanInviteTest = require('./admins_can_invite_test');
 const DuplicateUsernameOkTest = require('./duplicate_username_ok_test');
 const NumUsersInvitedTest = require('./num_users_invited_test');
 
-const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
+const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class PostUserRequestTester {
 

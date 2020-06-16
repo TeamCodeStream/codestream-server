@@ -2,10 +2,10 @@
 
 'use strict';
 
-const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const CodeStreamModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model');
+const CodeStreamModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model_validator');
 const TeamAttributes = require('./team_attributes');
-const ProviderFetcher = require(process.env.CS_API_TOP + '/modules/providers/provider_fetcher');
+const ProviderFetcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_fetcher');
 
 class Team extends CodeStreamModel {
 

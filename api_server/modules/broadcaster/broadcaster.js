@@ -2,13 +2,13 @@
 // from server to client (and possibly received from client to server) through pubnub
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
+const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module');
 const PubNub = require('pubnub');
-const PubNubClient = require(process.env.CS_API_TOP + '/server_utils/pubnub/pubnub_client_async');
-const MockPubnub = require(process.env.CS_API_TOP + '/server_utils/pubnub/mock_pubnub');
-const SocketClusterClient = require(process.env.CS_API_TOP + '/server_utils/socketcluster/socketcluster_client');
+const PubNubClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/pubnub_client_async');
+const MockPubnub = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/mock_pubnub');
+const SocketClusterClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/socketcluster/socketcluster_client');
 const OS = require('os');
-const TryIndefinitely = require(process.env.CS_API_TOP + '/server_utils/try_indefinitely');
+const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
 
 class Broadcaster extends APIServerModule {
 

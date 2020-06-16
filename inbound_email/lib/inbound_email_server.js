@@ -13,7 +13,7 @@ const Path = require('path');
 const ChildProcess = require('child_process');
 const FileHandler = require('./file_handler');
 const OS = require('os');
-const { callbackWrap } = require(process.env.CS_MAILIN_TOP + '/server_utils/await_utils');
+const { callbackWrap } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 class InboundEmailServer {
 

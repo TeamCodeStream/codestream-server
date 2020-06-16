@@ -3,7 +3,7 @@
 'use strict';
 
 const SocketClusterClient = require('./socketcluster_client');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config'); // NOTE: only works in api server sandbox
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config'); // NOTE: only works in api server sandbox
 const Commander = require('commander');
 
 Commander

@@ -1,9 +1,9 @@
 'use strict';
 
 const DeleteReviewTest = require('./delete_review_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
-const ReviewTestConstants = require(process.env.CS_API_TOP + '/modules/reviews/test/review_test_constants');
+const ReviewTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/test/review_test_constants');
 
 class DeleteReviewFetchTest extends DeleteReviewTest {
 

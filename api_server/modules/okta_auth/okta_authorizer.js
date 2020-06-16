@@ -3,7 +3,7 @@
 'use strict';
 
 const RandomString = require('randomstring');
-const ProviderErrors = require(process.env.CS_API_TOP + '/modules/providers/errors');
+const ProviderErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/errors');
 const Fetch = require('node-fetch');
 
 class OktaAuthorizer {

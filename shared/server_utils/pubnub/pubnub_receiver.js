@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint no-console: 0 */
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const PubNubClient = require('pubnub');
 
 const pubnub = new PubNubClient(ApiConfig.getPreferredConfig().pubnub);

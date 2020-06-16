@@ -11,7 +11,7 @@ const ValidTokenTest = require('./valid_token_test');
 const OriginalTokenDeprecatedTest = require('./original_token_deprecated_test');
 const ResendConfirmEmailTest = require('./resend_confirm_email_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
-const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
+const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 */
 
 class ResendConfirmRequestTester {

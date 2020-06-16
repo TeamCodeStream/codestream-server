@@ -2,9 +2,9 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const PostPublisher = require('./post_publisher');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class ReactRequest extends RestfulRequest {
 

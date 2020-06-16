@@ -1,7 +1,7 @@
 'use strict';
 
 const FetchTest = require('./fetch_test');
-const DefaultTags = require(process.env.CS_API_TOP + '/modules/teams/default_tags');
+const DefaultTags = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/default_tags');
 
 class AddDefaultTagFetchTest extends FetchTest {
 

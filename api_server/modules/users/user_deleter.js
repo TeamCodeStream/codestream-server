@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ModelDeleter = require(process.env.CS_API_TOP + '/lib/util/restful/model_deleter');
+const ModelDeleter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_deleter');
 
 class UserDeleter extends ModelDeleter {
 

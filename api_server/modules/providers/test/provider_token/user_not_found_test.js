@@ -1,7 +1,7 @@
 'use strict';
 
 const ProviderTokenTest = require('./provider_token_test');
-const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 const Assert = require('assert');
 
 class UserNotFoundTest extends ProviderTokenTest {

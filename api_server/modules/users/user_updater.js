@@ -2,10 +2,10 @@
 
 'use strict';
 
-const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
+const ModelUpdater = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_updater');
 const User = require('./user');
 const UsernameChecker = require('./username_checker');
-const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
+const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/errors');
 
 class UserUpdater extends ModelUpdater {
 

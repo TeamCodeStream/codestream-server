@@ -4,13 +4,13 @@
 'use strict';
 
 const WebRequestBase = require('./web_request_base');
-const UserPublisher = require(process.env.CS_API_TOP + '/modules/users/user_publisher');
-const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
-const WebErrors = require(process.env.CS_API_TOP + '/modules/web/errors');
-const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
-const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
+const UserPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_publisher');
+const AuthenticatorErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
+const WebErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/errors');
+const UserErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/errors');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 class ConfirmEmailRequest extends WebRequestBase {
 

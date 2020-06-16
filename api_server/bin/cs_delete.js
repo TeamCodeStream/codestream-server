@@ -5,7 +5,7 @@
 'use strict';
 
 const Commander = require('commander');
-const Deleter = require(process.env.CS_API_TOP + '/lib/util/deleter');
+const Deleter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/deleter');
 
 Commander
 	.option('-t, --team <teamIdOrName>', 'Delete team')

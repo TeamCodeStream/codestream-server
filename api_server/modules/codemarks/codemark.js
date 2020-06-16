@@ -2,7 +2,7 @@
 
 'use strict';
 
-const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+const CodeStreamModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model');
 const CodemarkAttributes = require('./codemark_attributes');
 const CodemarkValidator = require('./codemark_validator');
 

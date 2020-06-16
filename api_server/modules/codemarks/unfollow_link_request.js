@@ -3,9 +3,9 @@
 'use strict';
 
 const UnfollowCodemarkRequest = require('./unfollow_codemark_request');
-const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
-const WebErrors = require(process.env.CS_API_TOP + '/modules/web/errors');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const WebErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/errors');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 
 class UnfollowLinkRequest extends UnfollowCodemarkRequest {
 

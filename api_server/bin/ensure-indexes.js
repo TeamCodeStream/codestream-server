@@ -14,22 +14,22 @@
 /* eslint no-console: 0 */
 
 const AllModuleIndexes = {
-	companies: require(process.env.CS_API_TOP + '/modules/companies/indexes'),
-	teams: require(process.env.CS_API_TOP + '/modules/teams/indexes'),
-	repos: require(process.env.CS_API_TOP + '/modules/repos/indexes'),
-	streams: require(process.env.CS_API_TOP + '/modules/streams/indexes'),
-	posts: require(process.env.CS_API_TOP + '/modules/posts/indexes'),
-	markers: require(process.env.CS_API_TOP + '/modules/markers/indexes'),
-	codemarks: require(process.env.CS_API_TOP + '/modules/codemarks/indexes'),
-	codemarkLinks: require(process.env.CS_API_TOP + '/modules/codemarks/codemark_link_indexes'),
-	reviews: require(process.env.CS_API_TOP + '/modules/reviews/indexes'),
-	users: require(process.env.CS_API_TOP + '/modules/users/indexes'),
-	signupTokens: require(process.env.CS_API_TOP + '/modules/users/signup_token_indexes'),
-	versionMatrix: require(process.env.CS_API_TOP + '/modules/versioner/indexes'),
-	messages: require(process.env.CS_API_TOP + '/modules/broadcaster/indexes'),
-	msteams_conversations: require(process.env.CS_API_TOP + '/modules/msteams_conversations/indexes'),
-	msteams_states: require(process.env.CS_API_TOP + '/modules/msteams_states/indexes'),
-	msteams_teams: require(process.env.CS_API_TOP + '/modules/msteams_teams/indexes'),
+	companies: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes'),
+	teams: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/indexes'),
+	repos: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes'),
+	streams: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes'),
+	posts: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes'),
+	markers: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/indexes'),
+	codemarks: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/indexes'),
+	codemarkLinks: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_link_indexes'),
+	reviews: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/indexes'),
+	users: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes'),
+	signupTokens: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/signup_token_indexes'),
+	versionMatrix: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/indexes'),
+	messages: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/indexes'),
+	msteams_conversations: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_conversations/indexes'),
+	msteams_states: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_states/indexes'),
+	msteams_teams: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_teams/indexes'),
 };
 
 const AllFinished = {
@@ -39,7 +39,7 @@ const AllFinished = {
 	dropped: 0
 };
 
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const MongoClient = require('mongodb').MongoClient;
 
 const Drop = process.argv.find(arg => arg === 'drop');

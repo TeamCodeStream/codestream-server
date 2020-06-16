@@ -2,8 +2,8 @@
 
 const PutStreamFetchTest = require('./put_stream_fetch_test');
 const RemoveUsersTest = require('./remove_users_test');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class RemoveUsersFetchTest extends Aggregation(RemoveUsersTest, PutStreamFetchTest) {
 

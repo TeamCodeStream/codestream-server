@@ -2,10 +2,10 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const ChangePasswordCore = require(process.env.CS_API_TOP + '/modules/users/change_password_core');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const ChangePasswordCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/change_password_core');
 const Errors = require('./errors');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class ChangePasswordRequest extends RestfulRequest {
 

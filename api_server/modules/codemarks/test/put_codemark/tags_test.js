@@ -1,9 +1,9 @@
 'use strict';
 
 const PutCodemarkTest = require('./put_codemark_test');
-const DefaultTags = require(process.env.CS_API_TOP + '/modules/teams/default_tags');
+const DefaultTags = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/default_tags');
 const RandomString = require('randomstring');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const UUID = require('uuid/v4');
 
 class TagsTest extends PutCodemarkTest {

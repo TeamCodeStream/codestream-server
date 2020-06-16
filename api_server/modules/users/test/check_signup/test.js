@@ -12,7 +12,7 @@ const TokenExpiredTest = require('./token_expired_test');
 const NoTeamsTest = require('./no_teams_test');
 const NoReuseTokenTest = require('./no_reuse_token_test');
 const NoLoginUnregisteredTest = require('./no_login_unregistered_test');
-const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
+const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class CheckSignupRequestTester {
 

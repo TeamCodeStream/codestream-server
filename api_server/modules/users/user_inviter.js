@@ -4,10 +4,10 @@
 'use strict';
 
 const UserCreator = require('./user_creator');
-const AddTeamMembers = require(process.env.CS_API_TOP + '/modules/teams/add_team_members');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const AddTeamPublisher = require('./add_team_publisher');
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class UserInviter {
 

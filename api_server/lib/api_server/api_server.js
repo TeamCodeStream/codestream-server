@@ -5,12 +5,12 @@
 'use strict';
 
 const APIServerModules = require('./api_server_modules.js');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const Express = require('express');
 const HTTPS = require('https');
 const HTTP = require('http');
 const FS = require('fs');
-const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const AwaitUtils = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const IPCResponse = require('./ipc_response');
 
 class APIServer {

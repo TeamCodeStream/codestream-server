@@ -1,7 +1,7 @@
 'use strict';
 
-const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
-const LoginCore = require(process.env.CS_API_TOP + '/modules/users/login_core');
+const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_request.js');
+const LoginCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/login_core');
 const SigninFlowUtils = require('./signin_flow_utils');
 const WebErrors = require('./errors');
 

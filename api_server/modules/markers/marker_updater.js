@@ -2,7 +2,7 @@
 
 'use strict';
 
-const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
+const ModelUpdater = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_updater');
 const Marker = require('./marker');
 
 class MarkerUpdater extends ModelUpdater {

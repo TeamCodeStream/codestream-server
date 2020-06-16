@@ -2,7 +2,7 @@
 
 'use strict';
 
-const PutRequest = require(process.env.CS_API_TOP + '/lib/util/restful/put_request');
+const PutRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/put_request');
 
 class PutMarkerRequest extends PutRequest {
 

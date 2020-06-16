@@ -3,9 +3,9 @@
 
 'use strict';
 
-const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
-const RequireAllow = require(process.env.CS_API_TOP + '/server_utils/require_allow');
+const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_request.js');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
+const RequireAllow = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/require_allow');
 const Errors = require('./errors');
 
 class RestfulRequest extends APIRequest {

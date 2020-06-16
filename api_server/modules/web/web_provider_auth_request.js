@@ -1,9 +1,9 @@
 'use strict';
 
-const APIRequest = require(process.env.CS_API_TOP + '/lib/api_server/api_request.js');
+const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_request.js');
 const WebErrors = require('./errors');
-const ProviderErrors = require(process.env.CS_API_TOP + '/modules/providers/errors');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const ProviderErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/errors');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 
 class WebProviderAuthRequest extends APIRequest {
 

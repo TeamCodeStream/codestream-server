@@ -1,9 +1,9 @@
 'use strict';
 
 const DeleteProviderHostTest = require('./delete_provider_host_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
-const TeamTestConstants = require(process.env.CS_API_TOP + '/modules/teams/test/team_test_constants');
+const TeamTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/test/team_test_constants');
 
 class FetchTest extends DeleteProviderHostTest {
 

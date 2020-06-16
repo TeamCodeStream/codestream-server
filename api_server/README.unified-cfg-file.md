@@ -1,7 +1,7 @@
 # Unified Config File
 
 All CodeStream services share a single unified configuration file which obeys a
-schema ([defined here](https://github.com/TeamCodeStream/codestream-configs)).
+schema ([defined here](https://github.com/TeamCodeStream/codestream_configs)).
 Because it changes over time, the schema and config files are versioned.
 
 ## CodeStream Configurations
@@ -145,7 +145,7 @@ or more generally,
 ```
 where `local` represents the environment and `2` represents the schema version
 number [stored
-here](https://github.com/TeamCodeStream/codestream-configs/blob/develop/parameters.preview).
+here](https://github.com/TeamCodeStream/codestream_configs/blob/develop/parameters.preview).
 This value will change over time and you will end up with numerious
 `codestream-cloud_local_*_json` (eg) files. That's normal.
 
@@ -177,7 +177,7 @@ _sandutil_get_codestream_cfg_file()_ and can be found in
 
 Config files are deployed according to a version number which is kept with the
 schema (in
-[codestream-configs](https://github.com/teamcodestream/codestream-configs)).
+[codestream_configs](https://github.com/teamcodestream/codestream_configs)).
 This number must be bumped each time the schema is updated.
 
 When config files are deployed, they are deployed as

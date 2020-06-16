@@ -2,10 +2,10 @@
 
 'use strict';
 
-const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
+const CodeStreamModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model');
 const UserValidator = require('./user_validator');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities.js');
-const DeepClone = require(process.env.CS_API_TOP + '/server_utils/deep_clone');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities.js');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const UserAttributes = require('./user_attributes');
 const Path = require('path');
 

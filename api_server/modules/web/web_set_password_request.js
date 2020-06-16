@@ -1,7 +1,7 @@
 // handles the GET request
 'use strict';
 
-const CheckResetCore = require(process.env.CS_API_TOP + '/modules/users/check_reset_core');
+const CheckResetCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/check_reset_core');
 const WebRequestBase = require('./web_request_base');
 
 class WebSetPasswordRequest extends WebRequestBase {

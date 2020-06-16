@@ -2,8 +2,8 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const APICapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/capabilities');
 
 class CapabilitiesRequest extends RestfulRequest {
 	

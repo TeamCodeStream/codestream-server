@@ -1,7 +1,7 @@
 'use strict';
 
 const GetReviewTest = require('./get_review_test');
-const MarkerTestConstants = require(process.env.CS_API_TOP + '/modules/markers/test/marker_test_constants');
+const MarkerTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/test/marker_test_constants');
 
 class GetReviewWithMarkersTest extends GetReviewTest {
 

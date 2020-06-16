@@ -1,7 +1,7 @@
 'use strict';
 
 const GetPostTest = require('./get_post_test');
-const ReviewTestConstants = require(process.env.CS_API_TOP + '/modules/reviews/test/review_test_constants');
+const ReviewTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/test/review_test_constants');
 
 class GetPostWithReviewTest extends GetPostTest {
 

@@ -3,9 +3,9 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-const AWS = require(process.env.CS_API_TOP + '/server_utils/aws/aws');
-const SQSClient = require(process.env.CS_API_TOP +'/server_utils/aws/sqs_client');
+const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module');
+const AWS = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/aws');
+const SQSClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/sqs_client');
 
 class AWSModule extends APIServerModule {
 

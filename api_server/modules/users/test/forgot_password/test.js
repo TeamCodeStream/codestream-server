@@ -8,7 +8,7 @@ const RequiredParameterTest = require('./required_parameter_test');
 const InvalidEmailTest = require('./invalid_email_test');
 const UnknownEmailTest = require('./unknown_email_test');
 const NoEmailToUnknownEmailTest = require('./no_email_to_unknown_email_test');
-const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
+const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class ForgotPasswordRequestTester {
 

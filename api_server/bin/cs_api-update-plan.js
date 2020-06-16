@@ -6,12 +6,12 @@
 
 'use strict';
 
-const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
+const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const Intercom = require('intercom-client');
-const Indexes = require(process.env.CS_API_TOP + '/modules/companies/indexes');
+const Indexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
 const Strftime = require('strftime');
-const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 // need these collections from mongo
 const COLLECTIONS = ['companies', 'teams', 'users', 'updatePlanLastRunAt'];

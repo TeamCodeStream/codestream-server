@@ -2,7 +2,7 @@
 
 const PutStreamFetchTest = require('./put_stream_fetch_test');
 const AddUsersTest = require('./add_users_test');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 
 class AddUsersFetchTest extends Aggregation(AddUsersTest, PutStreamFetchTest) {
 

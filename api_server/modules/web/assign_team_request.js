@@ -1,8 +1,8 @@
 // handles the POST request
 'use strict';
 
-const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
-const UserErrors = require(process.env.CS_API_TOP + '/modules/users/errors');
+const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const UserErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/errors');
 const WebRequestBase = require('./web_request_base');
 const SigninFlowUtils = require('./signin_flow_utils');
 

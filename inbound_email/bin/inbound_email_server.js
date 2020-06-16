@@ -4,10 +4,10 @@
 
 'use strict';
 
-const InboundEmailServerConfig = require(process.env.CS_MAILIN_TOP + '/config/config');
-const SimpleFileLogger = require(process.env.CS_MAILIN_TOP + '/server_utils/simple_file_logger');
-const ClusterWrapper = require(process.env.CS_MAILIN_TOP + '/server_utils/cluster_wrapper');
-const ServerClass = require(process.env.CS_MAILIN_TOP + '/lib/inbound_email_server');
+const InboundEmailServerConfig = require(process.env.CSSVC_BACKEND_ROOT + '/inbound_email/config/config');
+const SimpleFileLogger = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/simple_file_logger');
+const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/cluster_wrapper');
+const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/inbound_email/lib/inbound_email_server');
 
 (async function() {
 	const Config = await InboundEmailServerConfig.loadPreferredConfig();

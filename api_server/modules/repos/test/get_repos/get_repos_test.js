@@ -1,9 +1,9 @@
 'use strict';
 
-const CodeStreamAPITest = require(process.env.CS_API_TOP + '/lib/test_base/codestream_api_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RepoTestConstants = require('../repo_test_constants');
-const TestTeamCreator = require(process.env.CS_API_TOP + '/lib/test_base/test_team_creator');
+const TestTeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/test_team_creator');
 
 class GetReposTest extends CodeStreamAPITest {
 

@@ -8,7 +8,7 @@ const HTTP = require('http');
 const FS = require('fs');
 const SocketClusterServer = require('socketcluster-server');
 const UUID = require('uuid/v4');
-const MongoClient = require(process.env.CS_BROADCASTER_TOP + '/server_utils/mongo/mongo_client');
+const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
 const OS = require('os');
 const Express = require('express');
 

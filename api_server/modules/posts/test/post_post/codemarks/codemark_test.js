@@ -1,8 +1,8 @@
 'use strict';
 
 const PostPostTest = require('../post_post_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const CodemarkValidator = require(process.env.CS_API_TOP + '/modules/codemarks/test/codemark_validator');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const CodemarkValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/test/codemark_validator');
 
 class CodemarkTest extends PostPostTest {
 

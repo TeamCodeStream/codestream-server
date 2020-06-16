@@ -1,8 +1,8 @@
 // handle publishing a user object to the team channels for the teams the user belongs to
 'use strict';
 
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 class AddTeamPublisher {
 

@@ -1,4 +1,4 @@
-const SignupTokens = require(process.env.CS_API_TOP + '/modules/users/signup_tokens');
+const SignupTokens = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/signup_tokens');
 const UUID = require('uuid/v4');
 const URL = require('url');
 

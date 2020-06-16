@@ -2,10 +2,10 @@
 
 'use strict';
 
-const CodeStreamModel = require(process.env.CS_API_TOP + '/lib/models/codestream_model');
-const CodeStreamModelValidator = require(process.env.CS_API_TOP + '/lib/models/codestream_model_validator');
+const CodeStreamModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model');
+const CodeStreamModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model_validator');
 const CompanyAttributes = require('./company_attributes');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class Company extends CodeStreamModel {
 

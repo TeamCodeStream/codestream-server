@@ -2,12 +2,12 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
-const WebErrors = require(process.env.CS_API_TOP + '/modules/web/errors');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
+const WebErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/errors');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 
 class ProviderTokenRequest extends RestfulRequest {
 

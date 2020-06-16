@@ -1,6 +1,6 @@
 'use strict';
 
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const MessageTest = require('./message_test');
 const AddReviewerTest = require('./add_reviewer_test');
 

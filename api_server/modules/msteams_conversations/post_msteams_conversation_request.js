@@ -7,13 +7,13 @@
 'use strict';
 
 const { UserState } = require('botbuilder');
-const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
+const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 const { CardFactory, ActionTypes } = require('botbuilder');
-const ProviderDisplayNames = require(process.env.CS_API_TOP + '/modules/web/provider_display_names');
+const ProviderDisplayNames = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/provider_display_names');
 const { MicrosoftAppCredentials } = require('botframework-connector');
-const MSTeamsConversationIndexes = require(process.env.CS_API_TOP + '/modules/msteams_conversations/indexes');
-const { createMSTeamsBotFrameworkAdapter } = require(process.env.CS_API_TOP + '/modules/providers/msteams_bot_framework_adapter');
-const MSTeamsStateAdapter = require(process.env.CS_API_TOP + '/modules/providers/msteams_state_adapter');
+const MSTeamsConversationIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_conversations/indexes');
+const { createMSTeamsBotFrameworkAdapter } = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/msteams_bot_framework_adapter');
+const MSTeamsStateAdapter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/msteams_state_adapter');
 
 class PostMSTeamsConversationRequest extends PostRequest {
 	// authorize the request for the current user	

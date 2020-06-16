@@ -2,11 +2,11 @@
 
 'use strict';
 
-const RepoAttributes = require(process.env.CS_API_TOP + '/modules/repos/repo_attributes');
-const TeamAttributes = require(process.env.CS_API_TOP + '/modules/teams/team_attributes');
-const CompanyAttributes = require(process.env.CS_API_TOP + '/modules/companies/company_attributes');
-const UserAttributes = require(process.env.CS_API_TOP + '/modules/users/user_attributes');
-const StreamAttributes = require(process.env.CS_API_TOP + '/modules/streams/stream_attributes');
+const RepoAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_attributes');
+const TeamAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_attributes');
+const CompanyAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/company_attributes');
+const UserAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_attributes');
+const StreamAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_attributes');
 
 // fields expected in all posts
 const EXPECTED_REPO_FIELDS = [

@@ -2,13 +2,13 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
 const UserCreator = require('./user_creator');
 const ConfirmCode = require('./confirm_code');
 const UserPublisher = require('./user_publisher');
 const Errors = require('./errors');
-const AuthErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
-const TeamErrors = require(process.env.CS_API_TOP + '/modules/teams/errors');
+const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/errors');
 const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
 

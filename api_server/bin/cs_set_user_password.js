@@ -6,12 +6,12 @@
 
 'use strict';
 
-const PasswordHasher = require(process.env.CS_API_TOP + '/modules/users/password_hasher');
+const PasswordHasher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/password_hasher');
 const Email = process.argv[2];
 const Password = process.argv[3];
-const MongoClient = require(process.env.CS_API_TOP + '/server_utils/mongo/mongo_client');
-const ApiConfig = require(process.env.CS_API_TOP + '/config/config');
-const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
+const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 if (!Email || !Password) {
 	console.log('Usage: cs_set_user_password <email> <password>');

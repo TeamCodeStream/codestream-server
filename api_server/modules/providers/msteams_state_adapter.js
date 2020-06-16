@@ -1,5 +1,5 @@
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const MSTeamsStatesIndexes = require(process.env.CS_API_TOP + '/modules/msteams_states/indexes');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const MSTeamsStatesIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_states/indexes');
 
 class MSTeamsStateAdapter {
 	constructor (options) {

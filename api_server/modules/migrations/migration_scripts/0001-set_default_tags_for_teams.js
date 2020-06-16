@@ -1,7 +1,7 @@
 'use strict';
 
 const Migration = require('./migration');
-const DefaultTags = require(process.env.CS_API_TOP + '/modules/teams/default_tags');
+const DefaultTags = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/default_tags');
 
 class DefaultTagsForTeams extends Migration {
 

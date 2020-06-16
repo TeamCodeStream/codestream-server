@@ -1,7 +1,7 @@
 'use strict';
 
 const GetStreamsTest = require('./get_streams_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
 
 class CorrectSortOrderTest extends GetStreamsTest {

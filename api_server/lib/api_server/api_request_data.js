@@ -3,7 +3,7 @@
 
 'use strict';
 
-const DataCollection = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_collection');
+const DataCollection = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/data_collection');
 const OptionsSymbol = Symbol('options');
 const CollectionsSymbol = Symbol('collections');
 

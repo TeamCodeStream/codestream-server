@@ -5,9 +5,9 @@
 const InitialDataFetcher = require('./initial_data_fetcher');
 const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid/v4');
-const ProviderFetcher = require(process.env.CS_API_TOP + '/modules/providers/provider_fetcher');
-const APICapabilities = require(process.env.CS_API_TOP + '/etc/capabilities');
-const VersionErrors = require(process.env.CS_API_TOP + '/modules/versioner/errors');
+const ProviderFetcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_fetcher');
+const APICapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/capabilities');
+const VersionErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/errors');
 
 class LoginHelper {
 

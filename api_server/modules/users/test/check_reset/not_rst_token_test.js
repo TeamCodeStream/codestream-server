@@ -1,7 +1,7 @@
 'use strict';
 
 const CheckResetTest = require('./check_reset_test');
-const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 
 class NotRstTokenTest extends CheckResetTest {
 

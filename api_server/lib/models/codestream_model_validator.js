@@ -2,7 +2,7 @@
 
 'use strict';
 
-const DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
+const DataModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/data_model_validator');
 const URL = require('url');
 const ObjectID = require('mongodb').ObjectID;
 const CodeStreamModelAttributes = require('./codestream_model_attributes');

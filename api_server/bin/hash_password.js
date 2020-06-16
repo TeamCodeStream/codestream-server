@@ -4,7 +4,7 @@
 
 /* eslint no-console: 0 */
 
-const PasswordHasher = require(process.env.CS_API_TOP + '/modules/users/password_hasher');
+const PasswordHasher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/password_hasher');
 const Password = process.argv[2];
 
 new PasswordHasher({ password: Password }).hashPassword((error, hash) => {

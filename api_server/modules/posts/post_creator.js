@@ -3,19 +3,19 @@
 'use strict';
 
 const Post = require('./post');
-const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
+const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const LastReadsUpdater = require('./last_reads_updater');
 const PostPublisher = require('./post_publisher');
 //const EmailNotificationQueue = require('./email_notification_queue');
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-const StreamPublisher = require(process.env.CS_API_TOP + '/modules/streams/stream_publisher');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const CodemarkCreator = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_creator');
-const ReviewCreator = require(process.env.CS_API_TOP + '/modules/reviews/review_creator');
-const CodemarkHelper = require(process.env.CS_API_TOP + '/modules/codemarks/codemark_helper');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
+const StreamPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_publisher');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const CodemarkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_creator');
+const ReviewCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/review_creator');
+const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_helper');
 const Errors = require('./errors');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
-const UserInviter = require(process.env.CS_API_TOP + '/modules/users/user_inviter');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
+const UserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_inviter');
 
 class PostCreator extends ModelCreator {
 

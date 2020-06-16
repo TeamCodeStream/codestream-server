@@ -1,12 +1,12 @@
 'use strict';
 
 const Assert = require('assert');
-const NormalizeURL = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
-const ExtractCompanyIdentifier = require(process.env.CS_API_TOP + '/modules/repos/extract_company_identifier');
+const NormalizeURL = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/normalize_url');
+const ExtractCompanyIdentifier = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/extract_company_identifier');
 const Path = require('path');
 const MarkerTestConstants = require('./marker_test_constants');
-const StreamTestConstants = require(process.env.CS_API_TOP + '/modules/streams/test/stream_test_constants');
-const RepoTestConstants = require(process.env.CS_API_TOP + '/modules/repos/test/repo_test_constants');
+const StreamTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/test/stream_test_constants');
+const RepoTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/test/repo_test_constants');
 
 class MarkerValidator {
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const GetMarkersTest = require('./get_markers_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class ACLStreamTest extends GetMarkersTest {
 

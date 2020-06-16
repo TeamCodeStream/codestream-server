@@ -2,11 +2,11 @@
 
 'use strict';
 
-const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
+const ModelUpdater = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_updater');
 const Review = require('./review');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const ReviewHelper = require('./review_helper');
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
+const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
 
 class ReviewUpdater extends ModelUpdater {
 

@@ -2,7 +2,7 @@
 
 'use strict';
 
-const DeleteRequest = require(process.env.CS_API_TOP + '/lib/util/restful/delete_request');
+const DeleteRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/delete_request');
 
 class DeletePostRequest extends DeleteRequest {
 

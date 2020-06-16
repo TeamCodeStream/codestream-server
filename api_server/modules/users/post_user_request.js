@@ -3,7 +3,7 @@
 
 'use strict';
 
-const PostRequest = require(process.env.CS_API_TOP + '/lib/util/restful/post_request');
+const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 const UserInviter = require('./user_inviter');
 
 class PostUserRequest extends PostRequest {

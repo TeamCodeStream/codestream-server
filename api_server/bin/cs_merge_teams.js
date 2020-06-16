@@ -5,7 +5,7 @@
 'use strict';
 
 const Commander = require('commander');
-const TeamMerger = require(process.env.CS_API_TOP + '/modules/teams/team_merger');
+const TeamMerger = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_merger');
 
 Commander
 	.option('-f, --from <teamId>', 'Teams to merge')

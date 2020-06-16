@@ -2,10 +2,10 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module.js');
 const TokenAuthenticator = require('./token_authenticator');
-const TokenHandler = require(process.env.CS_API_TOP + '/server_utils/token_handler');
-const User = require(process.env.CS_API_TOP + '/modules/users/user');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
+const User = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user');
 const Errors = require('./errors');
 
 const DEPENDENCIES = [

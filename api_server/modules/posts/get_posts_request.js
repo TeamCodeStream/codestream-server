@@ -2,11 +2,11 @@
 
 'use strict';
 
-const GetManyRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_many_request');
+const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 const PostErrors = require('./errors.js');
-const { awaitParallel } = require(process.env.CS_API_TOP + '/server_utils/await_utils');
-const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
+const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 // these parameters essentially get passed verbatim to the query
 const BASIC_QUERY_PARAMETERS = [

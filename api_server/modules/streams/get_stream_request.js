@@ -2,7 +2,7 @@
 
 'use strict';
 
-const GetRequest = require(process.env.CS_API_TOP + '/lib/util/restful/get_request');
+const GetRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_request');
 
 class GetStreamRequest extends GetRequest {
 

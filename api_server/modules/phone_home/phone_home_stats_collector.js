@@ -3,7 +3,7 @@
 
 'use strict';
 
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class PhoneHomeStatsCollector {
 

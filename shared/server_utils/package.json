@@ -1,0 +1,44 @@
+{
+	"name": "server_utils",
+	"version": "1.0.0",
+	"description": "CodeStream shared utilities for backend services",
+	"main": "index.js",
+	"scripts": {},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/teamcodestream/server_utils.git"
+	},
+	"author": "cstryker",
+	"license": "ISC",
+	"bugs": {},
+	"homepage": "https://github.com/teamcodestream/server_utils#readme",
+	"devDependencies": {
+		"eslint": "5.16.0",
+		"eslint-config-standard": "12.0.0",
+		"eslint-plugin-import": "2.17.3",
+		"eslint-plugin-node": "9.1.0",
+		"eslint-plugin-promise": "4.1.1",
+		"eslint-plugin-react": "7.13.0",
+		"eslint-plugin-standard": "4.0.0"
+	},
+	"dependencies": {
+		"amqplib": "0.5.6",
+		"async": "2.6.2",
+		"aws-sdk": "2.615.0",
+		"cluster": "0.7.7",
+		"commander": "5.1.0",
+		"deep-equal": "2.0.3",
+		"jsonwebtoken": "8.5.1",
+		"markdown-it": "11.0.0",
+		"markdown-it-emoji-mart": "0.1.1",
+		"markdown-it-slack": "1.2.0",
+		"mongodb": "3.5.9",
+		"nodemailer": "6.4.8",
+		"pubnub": "4.28.0",
+		"randomstring": "1.1.5",
+		"sendgrid": "5.2.3",
+		"socketcluster-client": "16.0.1",
+		"strftime": "0.10.0",
+		"uuid": "3.4.0"
+	}
+}

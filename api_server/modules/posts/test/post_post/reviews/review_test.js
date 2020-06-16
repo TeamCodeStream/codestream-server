@@ -1,8 +1,8 @@
 'use strict';
 
 const PostPostTest = require('../post_post_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
-const ReviewValidator = require(process.env.CS_API_TOP + '/modules/reviews/test/review_validator');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const ReviewValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/test/review_validator');
 
 class ReviewTest extends PostPostTest {
 

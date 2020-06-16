@@ -5,8 +5,8 @@
 
 'use strict';
 
-const DataModel = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model');
-const DataModelValidator = require(process.env.CS_API_TOP + '/lib/util/data_collection/data_model_validator');
+const DataModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/data_model');
+const DataModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/data_model_validator');
 const MarkerLocationsAttributes = require('./marker_locations_attributes');
 
 class MarkerLocations extends DataModel {

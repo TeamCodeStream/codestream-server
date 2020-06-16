@@ -2,12 +2,12 @@
 
 'use strict';
 
-const ModelUpdater = require(process.env.CS_API_TOP + '/lib/util/restful/model_updater');
+const ModelUpdater = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_updater');
 const Stream = require('./stream');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class StreamUpdater extends ModelUpdater {
 

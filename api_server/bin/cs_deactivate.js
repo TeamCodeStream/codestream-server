@@ -5,7 +5,7 @@
 'use strict';
 
 const Commander = require('commander');
-const Deactivator = require(process.env.CS_API_TOP + '/lib/util/deactivator');
+const Deactivator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/deactivator');
 
 Commander
 	.option('-t, --team <teamIdOrName>', 'Deactivate team')

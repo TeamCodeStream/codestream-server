@@ -1,7 +1,7 @@
 'use strict';
 
 const PutMarkerLocationsTest = require('./put_marker_locations_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
 
 class PutMarkerLocationsFetchTest extends PutMarkerLocationsTest {

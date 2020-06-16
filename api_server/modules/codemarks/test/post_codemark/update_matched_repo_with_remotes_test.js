@@ -2,7 +2,7 @@
 
 const FindRepoByRemotesTest = require('./find_repo_by_remotes_test');
 const Assert = require('assert');
-const NormalizeUrl = require(process.env.CS_API_TOP + '/modules/repos/normalize_url');
+const NormalizeUrl = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/normalize_url');
 
 class UpdateMatchedRepoWithRemotesTest extends FindRepoByRemotesTest {
 

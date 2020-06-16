@@ -4,8 +4,8 @@
 
 'use strict';
 
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
-const ArrayUtilities = require(process.env.CS_API_TOP + '/server_utils/array_utilities');
+const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class InitialDataFetcher  {
 

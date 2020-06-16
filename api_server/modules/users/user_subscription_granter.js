@@ -2,8 +2,8 @@
 
 'use strict';
 
-const RepoIndexes = require(process.env.CS_API_TOP + '/modules/repos/indexes');
-const StreamIndexes = require(process.env.CS_API_TOP + '/modules/streams/indexes');
+const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 class UserSubscriptionGranter  {
 

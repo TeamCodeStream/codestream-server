@@ -1,7 +1,7 @@
 'use strict';
 
 const NewUsersOnTheFlyTest = require('./new_users_on_the_fly_test');
-const BoundAsync = require(process.env.CS_API_TOP + '/server_utils/bound_async');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class NewUserRegisteredTest extends NewUsersOnTheFlyTest {
 

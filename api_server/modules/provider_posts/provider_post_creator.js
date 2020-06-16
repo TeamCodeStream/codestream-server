@@ -3,8 +3,8 @@
 'use strict';
 
 const ProviderPost = require('./provider_post');
-const ModelCreator = require(process.env.CS_API_TOP + '/lib/util/restful/model_creator');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
+const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class ProviderPostCreator extends ModelCreator {
 

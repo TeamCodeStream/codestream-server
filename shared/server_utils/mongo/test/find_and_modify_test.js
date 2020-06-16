@@ -2,7 +2,7 @@
 
 const UpdateTest = require('./update_test');
 const Assert = require('assert');
-const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const AwaitUtils = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 class FindAndModifyTest extends UpdateTest {
 

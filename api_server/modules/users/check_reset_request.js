@@ -2,9 +2,9 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const AuthenticatorErrors = require(process.env.CS_API_TOP + '/modules/authenticator/errors');
-const CheckResetCore = require(process.env.CS_API_TOP+ '/modules/users/check_reset_core');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const AuthenticatorErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const CheckResetCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/check_reset_core');
  
 class CheckResetRequest extends RestfulRequest {
 

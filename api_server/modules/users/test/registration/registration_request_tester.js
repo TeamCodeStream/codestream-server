@@ -25,7 +25,7 @@ const InviteCodeRemovedAfterUseTest = require('./invite_code_removed_after_use_t
 const AlreadyInvitedTest = require('./already_invited_test');
 const InvitedUserMessageToTeamTest = require('./invited_user_message_to_team_test');
 
-const SerializeTests = require(process.env.CS_API_TOP + '/lib/test_base/serialize_tests');
+const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class RegistrationRequestTester {
 

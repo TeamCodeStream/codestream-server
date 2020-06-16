@@ -2,7 +2,7 @@
 
 const MessageTest = require('./message_test');
 const DeleteMarkerTest = require('./delete_marker_test');
-const Aggregation = require(process.env.CS_API_TOP + '/server_utils/aggregation');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 
 class MarkerMessageTest extends Aggregation(MessageTest, DeleteMarkerTest) {
 

@@ -2,8 +2,8 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const MarkerCreator = require(process.env.CS_API_TOP + '/modules/markers/marker_creator');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const MarkerCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_creator');
 
 class PutMarkerLocationsRequest extends RestfulRequest {
 

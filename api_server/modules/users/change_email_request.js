@@ -3,12 +3,12 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const UserValidator = require('./user_validator');
 const UserErrors = require('./errors');
 const UserIndexes = require('./indexes');
-const ModelSaver = require(process.env.CS_API_TOP + '/lib/util/restful/model_saver');
-const UserPublisher = require(process.env.CS_API_TOP + '/modules/users/user_publisher');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const UserPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_publisher');
 
 class ChangeEmailRequest extends RestfulRequest {
 

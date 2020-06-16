@@ -2,7 +2,7 @@
 
 /* eslint no-console: 0 */
 
-const StructuredConfigFactory = require('../codestream-configs/lib/structured_config');
+const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config');
 
 function parseUrl(url) {
 	let parsed = url.match(/^http(s)?:\/\/([\w\d-.]+)(:(\d+))?\/?/);

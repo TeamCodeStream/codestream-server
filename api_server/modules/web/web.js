@@ -2,12 +2,12 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module.js');
+const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module.js');
 const Handlebars = require('handlebars');
 const Glob = require('glob-promise');
 const FS = require('fs');
 const Path = require('path');
-const AwaitUtils = require(process.env.CS_API_TOP + '/server_utils/await_utils');
+const AwaitUtils = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 const STANDARD_PAGES = [
 	/*
@@ -189,7 +189,7 @@ class Web extends APIServerModule {
 
 		let files;
 		try {
-			files = await Glob(process.env.CS_API_TOP + '/modules/web/templates/*.hbs');
+			files = await Glob(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/templates/*.hbs');
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -284,7 +284,7 @@ class Web extends APIServerModule {
 
 	async readVersionInfo() {
 		try {
-			const path = process.env.CS_API_TOP + '/api-server.info';
+			const path = process.env.CSSVC_BACKEND_ROOT + '/api_server/api-server.info';
 			if (!FS.existsSync(path)) return;
 
 			const apiServerInfo = FS.readFileSync(path);
@@ -302,7 +302,7 @@ class Web extends APIServerModule {
 
 	readStylesheet() {
 		try {
-			this.stylesheet = FS.readFileSync(process.env.CS_API_TOP + '/modules/web/styles/web.css', 'utf8');
+			this.stylesheet = FS.readFileSync(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/styles/web.css', 'utf8');
 		}
 		catch (error) {
 			return;
@@ -315,7 +315,7 @@ class Web extends APIServerModule {
 
 	readRobots() {
 		try {
-			this.robots = FS.readFileSync(process.env.CS_API_TOP + '/modules/web/etc/robots.txt', 'utf8');
+			this.robots = FS.readFileSync(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/etc/robots.txt', 'utf8');
 		}
 		catch (error) {
 			return;

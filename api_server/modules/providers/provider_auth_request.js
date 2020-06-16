@@ -2,8 +2,8 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request.js');
-const ErrorHandler = require(process.env.CS_API_TOP + '/server_utils/error_handler');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 
 class ProviderAuthRequest extends RestfulRequest {
 

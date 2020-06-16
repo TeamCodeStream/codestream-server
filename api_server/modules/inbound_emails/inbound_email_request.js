@@ -3,10 +3,10 @@
 
 'use strict';
 
-const RestfulRequest = require(process.env.CS_API_TOP + '/lib/util/restful/restful_request');
-const PostCreator = require(process.env.CS_API_TOP + '/modules/posts/post_creator');
+const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
 const Errors = require('./errors');
-const UserIndexes = require(process.env.CS_API_TOP + '/modules/users/indexes');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 class InboundEmailRequest extends RestfulRequest {
 

@@ -2,9 +2,9 @@
 
 'use strict';
 
-const APIServerModule = require(process.env.CS_API_TOP + '/lib/api_server/api_server_module');
-const RabbitMQClient = require(process.env.CS_API_TOP +'/server_utils/rabbitmq');
-const TryIndefinitely = require(process.env.CS_API_TOP + '/server_utils/try_indefinitely');
+const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module');
+const RabbitMQClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/rabbitmq');
+const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
 
 class Queuer extends APIServerModule {
 
