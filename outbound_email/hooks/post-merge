@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo "Git hook $0 is running"
+echo "(pwd=`pwd`, args=$*)"
+squash_merge=$1
+
+. hooks/git_hooks.sh || exit 1
+
+githook_reconfigure_sandbox
+exit 0

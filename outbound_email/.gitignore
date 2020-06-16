@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+.vscode
+out/
+codestream-services-config.json

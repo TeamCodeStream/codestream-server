@@ -1,0 +1,6 @@
+[submodule "src/server_utils"]
+	path = src/server_utils
+	url = git@github.com:teamcodestream/server_utils
+[submodule "src/codestream-configs"]
+	path = src/codestream-configs
+	url = git@github.com:teamcodestream/codestream-configs.git

@@ -1,0 +1,43 @@
+{
+	// "Code": {
+	// 	"ZipFile": "fileb://../out/outboundEmail.zip"
+	// },
+	"DeadLetterConfig": {
+		// this SNS topic notifies ops for unprorcessed (failed) queue events
+		"TargetArn": "{{ CS_OUTBOUND_EMAIL_SNS_TOPIC_ARN }}"
+	},
+	"Description": "{{ CS_OUTBOUND_EMAIL_LAMBDA_DESCRIPTION }}",
+	"Environment": {
+		"Variables": {
+			"DT_USER": "{{ DT_USER }}",
+			// CS_LAMBDA_* variables required for management with dt-aws-lambda tool
+			"CS_LAMBDA_VERSION": "{{ CS_LAMBDA_VERSION }}",
+			"CS_LAMBDA_EVENT_SRC_ARN": "{{ CS_OUTBOUND_EMAIL_SQS_ARN }}",
+			"CSSVC_ENV": "{{ CSSVC_ENV }}",
+			"CSSVC_MONGO_URL": "{{ CSSVC_MONGO_URL }}",
+			{{ ALL_ENV_VARS_PAIRS_STRING }}
+		}
+	},
+	"FunctionName": "{{ CS_OUTBOUND_EMAIL_SQS }}",
+	"Handler": "src/lambdaHandler.handler",
+	// "KmsKeyArn": String,
+	// "MemorySize": Integer,
+	"Role": "arn:aws:iam::{{ CS_OUTBOUND_EMAIL_AWS_ACCOUNT }}:role/{{ CS_OUTBOUND_EMAIL_LAMBDA_IAM_ROLE }}",
+	"Runtime": "{{ CS_OUTBOUND_EMAIL_LAMBDA_RUNTIME }}",
+	// raising timeout caused err: "Queue visibility timeout: 30 seconds is less than Function timeout: 60 seconds"
+	"Timeout": 30,
+	// "TracingConfig": TracingConfig,
+	"VpcConfig": {
+		"SubnetIds": [
+			{{ CS_OUTBOUND_EMAIL_LAMBDA_SUBNETS }}
+		],
+		"SecurityGroupIds": [
+			{{ CS_OUTBOUND_EMAIL_LAMBDA_SECURITY_GROUPS }}
+		]
+	},
+	"Tags" : {
+		"Name" : "{{ CS_OUTBOUND_EMAIL_SQS }}",
+		"CostMajor" : "{{ CS_OUTBOUND_EMAIL_ENV }}",
+		"CostMinor" : "outbound-email"
+	}
+}

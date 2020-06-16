@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+
+# desc# Standard interface to CodeStream's build process
+
+# https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.md#Structured_Builds
+
+import os
+import sys
+import shutil
+
+sys.path.append(os.environ['DT_TOP'] + "/lib")
+import sysUtils as su
+import buildUtils
+
+# 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
+assetExtensionList = ['zip']
+
+# 2. add any additional repos to be included (do not include primary repo)
+additionalRepos = []
+
+# 3. choose the build type (npm, intellijPlugin, custom)
+buildType = buildUtils.buildType.npm
+
+args = buildUtils.parseStandardBuildArgs()
+buildOptions = {
+	'verbose': args.verbose,
+	'assetExtensionList': assetExtensionList,
+	'additionalRepos': additionalRepos
+}
+
+# 4. Set this if you want your applied git tags to be something other than 'v' (v1.2.3)
+# buildOptions['gitTagPrefix'] = "mytag-"
+
+if args.verbose:
+	print("buildstep running with", args.action)
+
+build = buildUtils.build(buildType, **buildOptions)
+if not build:
+	su.printErr("could not get a build object")
+	exit(1)
+
+runTimeEnvironment = su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV')
+print(f"CS_OUTBOUND_EMAIL_ENV={runTimeEnvironment}" or "")
+cssvcEnvironment = su.someValueOrNone(os.environ, 'CSSVC_ENV')
+print(f"CSSVC_ENV={cssvcEnvironment}" or "")
+
+buildName = build.getDisplayVersion("name")          # outbound-email
+fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
+
+# 5. Make sure the default actions apply, if not make changes as necessary.
+#    Use 'build.execCmd("command string")' to execute custom actions.
+#    https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.project-build-types.md
+if args.action == 'prep':
+	build.prep()                              # set teamcity variables / parameters
+elif args.action == 'build':
+	# build.build()                             # complete build so services can be started
+	print("there is nothing to build")
+elif args.action == 'citest':
+	# build.citest()                            # run the continuous integration test suite
+	print("testing not configured")
+elif args.action == 'pack':
+	# build.pack()                              # create asset info file and package assets
+	build.execCmd(f"npm run {'pack' if runTimeEnvironment not in ['ci', 'pi'] else 'pack_without_config'}")
+	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
+	build.getMD5SumsForAssets()
+	build.writeAssetInfo()
+elif args.action == 'publish':
+	# we publish the vanilla asset (w/out a codestream or lambda config files) for CI and PI builds
+	# while lambda assets are published under their runTimeEnvironment
+	if runTimeEnvironment in ['ci', 'pi']:
+		print("ci & pi builds are publised based on asset env (as opposed to run-time environment)")
+		build.publish(publishToRTE=False)
+	else:
+		print("publishing asset based on run-time env (assets include lambda & codestream configs)")
+		build.publish(publishToRTE=True)
+elif args.action == 'tag':
+	build.tag()                               # update version info and apply tags
+elif args.action == 'release':
+	build.release(releaseToRTE=True)          # release assets to the general public
+elif args.action == 'awsLambda':
+	# add a codestream config file to the zip file to create a new zip file
+	print(f"updating asset to include lambda & codestream configs for {runTimeEnvironment} run-time environment")
+	# add the codestream config file to the zip file asset
+	# shutil.copyfile(f"{os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.lambda.json", f"{os.environ['CS_OUTBOUND_EMAIL_TOP']}/out/{buildName}.lambda.json")
+	tmpDir = f"{os.environ['CS_OUTBOUND_EMAIL_TMP']}/zip{str(os.getpid())}"
+	os.mkdir(tmpDir)
+	build.execCmd(f"cd {tmpDir} && unzip -q {os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.zip")
+	os.environ['CS_OUTBOUND_EMAIL_REPACK_DIR'] = tmpDir
+	build.execCmd("npm run repack")
+	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
+	# create the lambda config and update the asset info file
+	build.awsLambda(lambdaConfig='./out/')   # create lambda config
+else:
+	su.printErr("invalid build args")
+	exit(1)
+
+exit(0)

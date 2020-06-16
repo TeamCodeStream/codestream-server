@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#desc# cs_mailout service init script
+
+function usage {
+    echo "usage: $0 { start | stop | status } [-- service-args]" >&2
+    exit 1
+}
+
+service_name=outbound_email_server.js
+
+[ -z "$1" ] && usage
+[ -z "$CS_OUTBOUND_EMAIL_SANDBOX" ] && echo "sandbox not loaded">&2 && exit 1
+. $DT_TOP/lib/init_funcs.sh
+
+ec=0
+case "$1" in
+	start)
+		# start the service here
+		cd $CS_OUTBOUND_EMAIL_TOP
+		echo 'nohup bin/outbound_email_server.js --one_worker >$CS_OUTBOUND_EMAIL_LOGS/console-out.log 2>&1 </dev/null &'
+		echo "Logs are in $CS_OUTBOUND_EMAIL_LOGS"
+		nohup bin/outbound_email_server.js --one_worker >$CS_OUTBOUND_EMAIL_LOGS/console-out.log 2>&1 </dev/null &
+		# service_status $service_name
+		ec=$?
+		;;
+	stop)
+		service_stop $service_name
+		ec=$?
+		sleep 2
+		service_status $service_name
+		;;
+	status)
+		service_status $service_name
+		;;
+	*)
+		usage
+		;;
+esac
+exit $ec
