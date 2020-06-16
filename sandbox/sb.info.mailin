@@ -1,0 +1,6 @@
+SB_TYPE=cs_mailin
+SB_PREFIX=CS_MAILIN
+GIT_ORIGIN=git@github.com:teamcodestream/codestream-server
+SB_REPO_ROOT=codestream-server
+SB_PROJECT_PATH=codestream-server/inbound_email
+# SB_DEPS=a:b:c

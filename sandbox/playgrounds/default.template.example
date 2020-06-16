@@ -1,0 +1,26 @@
+
+## An example playground template (this is for the API service
+## which has a dependency on mongo).
+
+#desc# mongo/api playground
+
+#playgroundName# <default-playground-name>
+#sandboxTypes# mongo,cs_api
+#sandboxes# {{SBNAME_mongo}},{{SBNAME_cs_api}}
+#environment# local
+
+dt_load {{SBNAME_mongo}} --quiet
+dt_load {{SBNAME_cs_api}}
+if [ "$1" == start ]; then
+	mdb-service start
+	sleep 2
+	cs_api-service start
+elif [ "$1" == stop ]; then
+	cs_api-service stop
+	mdb-service stop
+fi
+cd $CS_API_TOP
+
+# uncomment these if you use iterm2 and want to colorize your tabs
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 88 45

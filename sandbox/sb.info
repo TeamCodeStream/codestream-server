@@ -1,0 +1,5 @@
+SB_TYPE=cs_server
+SB_PREFIX=CSBE
+GIT_ORIGIN=git@github.com:teamcodestream/codestream-server
+SB_PROJECT_PATH=codestream-server
+# SB_DEPS=a:b:c

@@ -1,21 +1,19 @@
 #!/bin/bash
 
-[ -z "$2" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
+[ -z "$1" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
 
 # This script is called via the dt-install-sandbox-software command.
-# Do not run it directly.  Further, this is called prior to the
-# sandbox environment being loaded into the shell so any variables
-# needed from the defaults.sh (or other env file) must be setup
-# manually.
+# Do not run it directly.
 
-export CS_OUTBOUND_EMAIL_SANDBOX=$1  # root of the sandbox
-export CS_OUTBOUND_EMAIL_TOP=$2      # root of the primary git project
-SB_ENV_FILE=$3            # name of the environment file to use
-export CS_OUTBOUND_EMAIL_NAME=`dirname $CS_OUTBOUND_EMAIL_SANDBOX`
-[ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
-
-
-. $CS_OUTBOUND_EMAIL_TOP/sandbox/$SB_ENV_FILE
+if [ "$1" != "--env-loaded" ]; then
+	[ -z "$2" ] && echo "Run dt-install-sandbox-software (version 1) to call this script" && exit 1
+	export CS_OUTBOUND_EMAIL_SANDBOX=$1  # root of the sandbox
+	export CS_OUTBOUND_EMAIL_TOP=$2      # root of the primary git project
+	SB_ENV_FILE=$3            # name of the environment file to use
+	export CS_OUTBOUND_EMAIL_NAME=`dirname $CS_OUTBOUND_EMAIL_SANDBOX`
+	[ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
+	. $CS_OUTBOUND_EMAIL_TOP/sandbox/$SB_ENV_FILE
+fi
 
 # Install node if specified with CS_OUTBOUND_EMAIL_NODE_VER
 [ -n "$CS_OUTBOUND_EMAIL_NODE_VER" -a ! -L $CS_OUTBOUND_EMAIL_SANDBOX/node ] && dt-get-software -V $CS_OUTBOUND_EMAIL_NODE_VER node $CS_OUTBOUND_EMAIL_SANDBOX

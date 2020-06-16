@@ -1,0 +1,6 @@
+SB_TYPE=broadcast
+SB_PREFIX=CS_BROADCASTER
+GIT_ORIGIN=git@github.com:teamcodestream/codestream-server
+SB_REPO_ROOT=codestream-server
+SB_PROJECT_PATH=codestream-server/broadcaster
+# SB_DEPS=a:b:c

@@ -21,10 +21,12 @@ abort_on_fail=1
 # Place any commands needed to prepare the sandbox for use here. Assume the
 # environment is set
 
-cd $CS_BROADCASTER_TOP
+[ ! -d $CS_BROADCASTER_REPO_ROOT/.git ] && echo "nothing to configure for a pre-built asset sandbox ($CS_BROADCASTER_REPO_ROOT/.git not found)" && exit 0
 
-# Install git submodules
-[ -f .gitmodules ] && echo "Updating submodules" && git submodule update --init --recursive
+# update git submodules
+[ -f $CS_BROADCASTER_REPO_ROOT/.gitmodules ] && echo "updating submodules" && (cd $CS_BROADCASTER_REPO_ROOT && git submodule update --init --recursive)
+
+cd $CS_BROADCASTER_TOP
 
 # Exmaple: expanding templates
 # $DT_TOP/bin/create-file-from-template.py -t $XYZ_SANDBOX/git_project/etc/httpd.conf.template -o $XYZ_SANDBOX/conf/httpd.conf
@@ -68,18 +70,17 @@ fi
 
 
 # Add git hooks as needed
+cd $CS_BROADCASTER_REPO_ROOT/.git/hooks
+[ -d ../../broadcaster/hooks ] && hooksDir=../../broadcaster/hooks || hooksDir=../../hooks
 if [ -d "$CS_BROADCASTER_TOP/hooks" ]; then
-	echo -n "Installing git hooks as sym links"
-	cd $CS_BROADCASTER_TOP/.git/hooks
 	for hook in post-checkout post-merge post-rewrite
 	do
-		if [ -f $CS_BROADCASTER_TOP/hooks/$hook ]; then
-			echo -n "...$hook"
-			/bin/rm -f $hook
-			ln -sf ../../hooks/$hook
+		if [ -f $hooksDir/$hook ]; then
+			echo -n "__ $hooksDir/$hook __"
+			ln -snf $hooksDir/$hook
 		fi
 	done
-	echo "."
+	echo
 fi
 
 # You must exit with a status of '0' if the script was successful or '1' otherwise.

@@ -7,15 +7,12 @@
 #   git_hook          run from within a git hook (mode = git_hook)
 #   deploy            run from within a deployment (dt-build)
 #   configureNoAbort  configuration mode but don't abort early if there's a build failure (mode = configure)
-#   no-build          clone the repo only
 mode=""
 abort_on_fail=1
 [ "$1" == "git-hook" ] && mode=git_hook
 [ "$1" == "configure" ] && mode=configure
 [ "$1" == "deploy" ] && mode=deploy
 [ "$1" == "configureNoAbort" ] && mode=configure && abort_on_fail=0
-# custom args
-[ "$1" == "no-build" ] && mode=no_build
 [ -z "$mode" ] && echo "Error: bad configure mode" && exit 1
 
 # This script is called as a hook (from dt-configure-sandbox, deployment script, git hook, ...).
@@ -24,36 +21,27 @@ abort_on_fail=1
 # Place any commands needed to prepare the sandbox for use here. Assume the
 # environment is set
 
-[ ! -d $CS_OUTBOUND_EMAIL_REPO_ROOT/.git ] && echo "nothing to configure for a pre-built asset sandbox ($CS_OUTBOUND_EMAIL_REPO_ROOT/.git not found)" && exit 0
+cd $CSBE_TOP
+[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
 
-[ $mode != "no_build" -a -f $CS_OUTBOUND_EMAIL_REPO_ROOT/.gitmodules ] && echo "updating submodules" && (cd $CS_OUTBOUND_EMAIL_REPO_ROOT && git submodule update --init --recursive)
-
-cd $CS_OUTBOUND_EMAIL_TOP
-
-#cd src || exit 1
+# Install git submodules
+[ -f .gitmodules ] && echo "Updating submodules" && git submodule update --init --recursive
 
 # Exmaple: expanding templates
 # $DT_TOP/bin/create-file-from-template.py -t $XYZ_SANDBOX/git_project/etc/httpd.conf.template -o $XYZ_SANDBOX/conf/httpd.conf
 
 # If the sandbox uses node, wipe the node_modules and re-install during re-configuration
-if [ $mode != "no_build"  -a  -f package.json -a -n "$CS_OUTBOUND_EMAIL_NODE_VER" ]; then
-	[ -d node_modules ] && /bin/rm -rf node_modules
-	if [ "$CS_OUTBOUND_EMAIL_YARN" == true ]; then
-		[ ! -f yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
-		echo "yarn install (from `pwd`)"
-		yarn install --frozen-lockfile
-		[ $? -ne 0 ] && echo "yarn install failed" && [ $abort_on_fail -eq 1 ] && exit 1
-	else
-		echo "npm install --no-save $CS_OUTBOUND_EMAIL_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
-		npm install --no-save $CS_OUTBOUND_EMAIL_NPM_INSTALL_XTRA_OPTS
-		[ $? -ne 0 ] && echo "npm install failed" && [ $abort_on_fail -eq 1 ] && exit 1
-	fi
+if [ -f $CSBE_TOP/package.json -a -n "$CSBE_NODE_VER" ]; then
+	[ -d $CSBE_TOP/node_modules ] && /bin/rm -rf $CSBE_TOP/node_modules
+	echo "npm install --no-save (from `pwd`)"
+	npm install --no-save
+	[ $? -ne 0 ] && echo "npm install failed" && [ $abort_on_fail -eq 1 ] && exit 1
 fi
 
 # Optional NPM package integrity check
 # To set this integrtity check up, you must manually create (and maintain) a file containing
 # a list of packages whenever you make changes:
-#    cd $CS_OUTBOUND_EMAIL_TOP
+#    cd $CSBE_TOP
 #    npm ls | grep -v ^CodeStream_Server@ >sandbox/package-versions.txt
 #
 #
@@ -74,18 +62,18 @@ fi
 
 
 # Add git hooks as needed
-if [ $mode != "no_build"  -a  -d "$CS_OUTBOUND_EMAIL_TOP/hooks" ]; then
+if [ -d "$CSBE_TOP/hooks" ]; then
 	echo -n "Installing git hooks as sym links"
-	cd $CS_OUTBOUND_EMAIL_REPO_ROOT/.git/hooks
-	[ -d ../../outbound_email/hooks ] && hooksDir=../../outbound_email/hooks || hooksDir=../../hooks
+	cd $CSBE_TOP/.git/hooks
 	for hook in post-checkout post-merge post-rewrite
 	do
-		if [ -f $hooksDir/$hook ]; then
-			echo -n "__ $hooksDir/$hook __"
-			ln -snf $hooksDir/$hook
+		if [ -f $CSBE_TOP/hooks/$hook ]; then
+			echo -n "...$hook"
+			/bin/rm -f $hook
+			ln -sf ../../hooks/$hook
 		fi
 	done
-	echo
+	echo "."
 fi
 
 # You must exit with a status of '0' if the script was successful or '1' otherwise.

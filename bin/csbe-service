@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#desc# csbackend service init script
+
+function usage {
+    echo "usage: $0 { start | stop | status } [-- service-args]" >&2
+    exit 1
+}
+
+echo "This is just a template - this script needs to be edited"; exit 1
+
+service_name=XXXXX
+[ -z "$1" ] && usage
+[ -z "$CSBE_SANDBOX" ] && echo "sandbox not loaded">&2 && exit 1
+. $DT_TOP/lib/init_funcs.sh
+
+ec=0
+case "$1" in
+	start)
+		# start the service here
+		service_status $service_name
+		ec=$?
+		;;
+	stop)
+		service_stop $service_name
+		ec=$?
+		sleep 2
+		service_status $service_name
+		;;
+	status)
+		service_status $service_name
+		;;
+	*)
+		usage
+		;;
+esac
+exit $ec

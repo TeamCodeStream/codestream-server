@@ -1,22 +1,19 @@
 #!/bin/bash
 
-[ -z "$2" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
+[ -z "$1" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
 
 # This script is called via the dt-install-sandbox-software command.
-# Do not run it directly.  Further, this is called prior to the
-# sandbox environment being loaded into the shell so any variables
-# needed from the defaults.sh (or other env file) must be setup
-# manually.
+# Do not run it directly.
 
-export CS_MAILIN_SANDBOX=$1  # root of the sandbox
-export CS_MAILIN_TOP=$2      # root of the primary git project
-SB_ENV_FILE=$3            # name of the environment file to use
-export CS_MAILIN_NAME=`dirname $CS_MAILIN_SANDBOX`
-[ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
-
-
-. $CS_MAILIN_TOP/sandbox/$SB_ENV_FILE
-
+if [ "$1" != "--env-loaded" ]; then
+	[ -z "$2" ] && echo "Run dt-install-sandbox-software (version 1) to call this script" && exit 1
+	export CS_MAILIN_SANDBOX=$1  # root of the sandbox
+	export CS_MAILIN_TOP=$2      # root of the primary git project
+	SB_ENV_FILE=$3            # name of the environment file to use
+	export CS_MAILIN_NAME=`dirname $CS_MAILIN_SANDBOX`
+	[ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
+	. $CS_MAILIN_TOP/sandbox/$SB_ENV_FILE
+fi
 
 # depracated
 [ -n "$CS_MAILIN_DIRECTORY" -a ! -d "$CS_MAILIN_DIRECTORY" ] && mkdir -p $CS_MAILIN_DIRECTORY && echo "mkdir -p $CS_MAILIN_DIRECTORY"

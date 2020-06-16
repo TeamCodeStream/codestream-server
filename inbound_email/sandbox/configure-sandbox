@@ -10,6 +10,7 @@ mode=""
 abort_on_fail=1
 [ "$1" == "git-hook" ] && mode=git_hook
 [ "$1" == "configure" ] && mode=configure
+[ "$1" == "deploy" ] && mode=deploy
 [ "$1" == "configureNoAbort" ] && mode=configure && abort_on_fail=0
 [ -z "$mode" ] && echo "Error: bad configure mode" && exit 1
 
@@ -18,12 +19,12 @@ abort_on_fail=1
 # Place any commands needed to prepare the sandbox for use here. Assume the
 # the environment is set
 
+[ ! -d $CS_MAILIN_REPO_ROOT/.git ] && echo "nothing to configure for a pre-built asset sandbox ($CS_MAILIN_REPO_ROOT/.git not found)" && exit 0
+
+[ -f $CS_MAILIN_REPO_ROOT/.gitmodules ] && echo "updating submodules" && (cd $CS_MAILIN_REPO_ROOT && git submodule update --init --recursive)
+
 cd $CS_MAILIN_TOP
 
-[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
-
-# Install git submodules
-[ -f .gitmodules ] && echo "updating git submodules" && git submodule update --init --recursive
 
 # $DT_TOP/bin/create-file-from-template.py -t $XYZ_SANDBOX/git_project/etc/httpd.conf.template -o $XYZ_SANDBOX/conf/httpd.conf
 
@@ -44,16 +45,16 @@ fi
 
 # Add git hooks as needed
 echo -n "Installing git hooks as sym links"
-cd $CS_MAILIN_TOP/.git/hooks
+cd $CS_MAILIN_REPO_ROOT/.git/hooks
+[ -d ../../inbound_email/hooks ] && hooksDir=../../inbound_email/hooks || hooksDir=../../hooks
 for hook in post-checkout post-merge post-rewrite
 do
 	if [ -f $CS_MAILIN_TOP/hooks/$hook ]; then
-		echo -n "...$hook"
-		/bin/rm -f $hook
-		ln -sf ../../hooks/$hook
+		echo -n "__ $hooksDir/$hook __"
+		ln -snf $hooksDir/$hook
 	fi
 done
-echo "."
+echo
 
 # You must exit with a status of '0' if the script was successful or '1' otherwise.
 exit 0

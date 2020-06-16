@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#desc# brief command summary
+
+dt-help "$CSBE_TOP/bin" "$@"

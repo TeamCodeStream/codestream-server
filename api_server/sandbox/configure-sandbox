@@ -1,7 +1,19 @@
 #!/bin/bash
 
 [ -z "$1" ] && echo "Do not run this script directly. Run dt-configure-sandbox instead." && exit 1
-[ "$1" == "git-hook" ] && sb_git_hook=1 || sb_git_hook=0
+
+# argument:
+#   configure         normal configuration mode. Run on a clean install or reconfigure (mode = configure)
+#   git_hook          run from within a git hook (mode = git_hook)
+#   deploy            run from within a deployment (dt-build)
+#   configureNoAbort  configuration mode but don't abort early if there's a build failure (mode = configure)
+mode=""
+abort_on_fail=1
+[ "$1" == "git-hook" ] && mode=git_hook
+[ "$1" == "configure" ] && mode=configure
+[ "$1" == "deploy" ] && mode=deploy
+[ "$1" == "configureNoAbort" ] && mode=configure && abort_on_fail=0
+[ -z "$mode" ] && echo "Error: bad configure mode" && exit 1
 
 # This script is called from dt-configure-sandbox. Do not call it directly.
 # It may also be called from a git hook.
@@ -9,10 +21,10 @@
 # Place any commands needed to prepare the sandbox for use here. Assume all
 # environment variables have been set.
 
-cd $CS_API_TOP
-[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
+[ ! -d $CS_API_REPO_ROOT/.git ] && echo "nothing to configure for a pre-built asset sandbox ($CS_API_REPO_ROOT/.git not found)" && exit 0
+[ -f $CS_API_REPO_ROOT/.gitmodules ] && echo "updating submodules" && (cd $CS_API_REPO_ROOT && git submodule update --init --recursive)
 
-[ -f .gitmodules ] && echo "updating submodules" && git submodule update --init --recursive
+cd $CS_API_TOP
 
 if [ -n "$CS_API_NODE_MODULES_DIR" ]; then
 	[ -d "$CS_API_NODE_MODULES_DIR" ] && /bin/rm -rf $CS_API_NODE_MODULES_DIR
@@ -21,14 +33,8 @@ else
 	[ -d $CS_API_TOP/node_modules ] && /bin/rm -rf $CS_API_TOP/node_modules
 fi
 
-if [ "$CS_API_YARN" == true ]; then
-	[ ! -f $CS_API_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
-	echo "yarn install (from `pwd`)"
-	yarn install --frozen-lockfile
-else
-	echo "npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
-	npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS
-fi
+echo "npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
+npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS
 
 # package integrity check
 # if [ -f sandbox/package-versions.txt ]; then
@@ -48,15 +54,16 @@ fi
 # 	/bin/rm $tmpfile
 # fi
 
+# This needs to work for both individual and mono-repo
 echo -n "Installing git hooks as sym links"
-cd $CS_API_TOP/.git/hooks
+cd $CS_API_REPO_ROOT/.git/hooks
+[ -d ../../api_server/hooks ] && hooksDir=../../api_server/hooks || hooksDir=../../hooks
 for hook in post-checkout post-merge post-rewrite
 do
-	echo -n "...$hook"
-	/bin/rm -f $hook
-	ln -sf ../../hooks/$hook
+	echo -n "__ $hooksDir/$hook __"
+	ln -snf $hooksDir/$hook
 done
-echo "."
+echo
 
 # You must exit with a status of '0' if the script was successful or '1' otherwise.
 exit 0
