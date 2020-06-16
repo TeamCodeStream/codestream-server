@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# post-merge hook
+
+. hooks/git_hooks.sh || exit 1
+
+echo "$0 is running"
+#echo "(pwd=`pwd`, args=$*)"
+squash_merge=$1
+
+githook_reconfigure_sandbox
+exit 0

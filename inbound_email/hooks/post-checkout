@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# post-checkout hook
+
+. hooks/git_hooks.sh || exit 1
+
+echo "$0 is running"
+#echo "(pwd=`pwd`, args=$*)"
+prev_head=$1
+new_head=$2
+checkout_type=$3  # 1=branch checkout, 0=file checkout
+
+if [[ "$prev_head" != "$new_head" ]]; then
+    githook_reconfigure_sandbox
+fi
+exit 0

@@ -1,0 +1,502 @@
+Return-Path: <colin.stryker@gmail.com>
+X-Original-To: @@@x-original-to@@@ 
+Delivered-To: @@@delivered-to@@@
+Received: from mail-it0-f49.google.com (mail-it0-f49.google.com [209.85.214.49])
+	by ip-10-101-0-15.dev.codestream.com (Postfix) with ESMTP id CE73D8041F
+	for <5a570e9305268ccc395d9fe9.5a570e8f05268ccc395d9fe6@dev.codestream.com>; Thu, 11 Jan 2018 02:27:14 -0500 (EST)
+Received: by mail-it0-f49.google.com with SMTP id m11so18933692iti.1
+        for <5a570e9305268ccc395d9fe9.5a570e8f05268ccc395d9fe6@dev.codestream.com>; Wed, 10 Jan 2018 23:27:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to;
+        bh=MiJOwCYUxfKLK1DtLqJXQN/w8H70R69Qj/znLdLDGbQ=;
+        b=J3K9e07lF0s+CCW/u7+Hl0VS/djrNgPKbp2G6dTBsLfPz/wLnry3QcKt5KvoTa5Aob
+         fojpfSIAC6lb7FGoBHPR/xnUegnLmGPX3i0BH2lGgqexf8bjEOBdpwyIS5IV4yBCmVmJ
+         7yDM10r9C2EMidHTyWRwLXX/8LU7fmrmf+lYt16Ohp8eSIyatzdbo3qS0H7lACjCJUO4
+         VPQgIK0rjAuqJLbg93ICAT/USV1rsmWYIwmGSuVGIq9ZhO8oXlOOtISx+VdSM2G7Fb7k
+         XAv9pipHXOaRpJQjATLLL+O+aTQifXnetRxWiYnDa/eyj0X5m4lJJXPRbh7L8Ykozr/j
+         TCkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+         :message-id:subject:to;
+        bh=MiJOwCYUxfKLK1DtLqJXQN/w8H70R69Qj/znLdLDGbQ=;
+        b=qsExQHPzhG7wOKcFAggv2NyqtGY5KdQoItZqMSxCpgyb/OB0/BEOixKAReZKfewSR+
+         o1h4kRi0xoIs3newmyHiyxD4xct6VPYPsjnyHtoHxiVURhgwqF/jSmDez+dqtlehRfsQ
+         Mp/fk6iosfViy6zz96cVQtgPnrc3rzp5LmZgW9xDu0SGnofvt/eTPQdWrKkxE0KUIS7a
+         NzHGG7v5U8JXd1TegXHeRs0CJv0ooZhB5+08g6A/Kvy0gesb8Bi9vx3jNm/3C+A3BIy+
+         6d9sd0CjMXni2voNbE0gPhBijnHsp7GcD3O9z+QtOvEso1+UOQUxb+dxgdlfhB4E4mee
+         TxhQ==
+X-Gm-Message-State: AKwxytd0knKF3g2AJTatlmZ+G3eRL13yVBUB4nE4KUgWCb+KZfGRwRNC
+	Fedpv/vjcrM+oF/1DD1cQjw5X8yZtBmVmZMemmw=
+X-Google-Smtp-Source: ACJfBousttJkq7pTsQcPWPcEGwCF81nzgOrjIJi7FXbRlrSVlsA1k5UEVoa2LIeOBH3s+NEgxX57Z554TA9oHc/GllU=
+X-Received: by 10.36.181.9 with SMTP id v9mr346602ite.27.1515655634397; Wed,
+ 10 Jan 2018 23:27:14 -0800 (PST)
+MIME-Version: 1.0
+Received: by 10.2.102.27 with HTTP; Wed, 10 Jan 2018 23:27:13 -0800 (PST)
+In-Reply-To: <CADEMTLRTCNCjQ0rbksONzKmL-OBUARrGobvCSQgYC_hbr+mpEg@mail.gmail.com>
+References: <t3zwtK2BRM6owQoD3Kie6Q@ismtpd0020p1las1.sendgrid.net>
+ <CADEMTLS4ZuqZ=geHyL2wr+Znau+8NMSYu3bAmqAhLcRnGqnCLA@mail.gmail.com>
+ <CADEMTLSOjRji=dcUpTF-b65Pf0+NCVMdgzXM8AJu5c8CX1hVPg@mail.gmail.com>
+ <CADEMTLSRqhunyLE207688n63u2b7fAtAxv7JRGRnmv65y9gOBw@mail.gmail.com>
+ <CADEMTLTCY6ZLvC=ZcGYZSrQtiiLihnUmNrb3XGbTov_yxMRPpA@mail.gmail.com>
+ <CADEMTLSKDR8WYNRCRAeEuzxS+tFwnB0F+6fLj1RSzwCAWQJYgQ@mail.gmail.com>
+ <CADEMTLS_U7mfY5gXqE4Mqd4eCWGOUaO+LUsFkXseNCZgz+y75Q@mail.gmail.com>
+ <CADEMTLQPcJmk9BKtHvh=4kUUdznPOqCsfvd5XehK1STCR4f5fg@mail.gmail.com>
+ <CADEMTLQPkPv65KWzgBT6dF-G8A+CZqX03AdqdPOaW0+qBT0Agw@mail.gmail.com>
+ <CADEMTLRzyUDz-YdPuWbW5oo0LJKE6UaYOz9KzS-gD6OngjcmCQ@mail.gmail.com>
+ <CADEMTLQ-v3cDr4a7Pk3cSbiB70eqTdbc=PY9nMpgRW5DJ+=h8A@mail.gmail.com>
+ <CADEMTLRuKTUiDiZukDahzSeB5FdJRojC_2=hMp0b+S310rqAbQ@mail.gmail.com> <CADEMTLRTCNCjQ0rbksONzKmL-OBUARrGobvCSQgYC_hbr+mpEg@mail.gmail.com>
+From: Colin Stryker <@@@from@@@>
+Date: Wed, 10 Jan 2018 23:27:13 -0800
+Message-ID: <CADEMTLQ-CKLCGm5MOChWqUMuHeRMu6k5+c8US5Lc7AcjUKtwNw@mail.gmail.com>
+Subject: Re: Colin is discussing marker_pseudo_code.js on CodeStream
+To: CodeStream <@@@to@@@>
+Content-Type: multipart/alternative; boundary="f403045d9916b0b05c05627b1381"
+
+--f403045d9916b0b05c05627b1381
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+test
+
+On Wed, Jan 10, 2018 at 11:26 PM, Colin Stryker <colin.stryker@gmail.com>
+wrote:
+
+> iii
+>
+> On Wed, Jan 10, 2018 at 11:25 PM, Colin Stryker <colin.stryker@gmail.com>
+> wrote:
+>
+>> hhh
+>>
+>> On Wed, Jan 10, 2018 at 11:24 PM, Colin Stryker <colin.stryker@gmail.com=
+>
+>> wrote:
+>>
+>>> ggg
+>>>
+>>> On Wed, Jan 10, 2018 at 11:24 PM, Colin Stryker <colin.stryker@gmail.co=
+m
+>>> > wrote:
+>>>
+>>>> fff
+>>>>
+>>>> On Wed, Jan 10, 2018 at 11:23 PM, Colin Stryker <
+>>>> colin.stryker@gmail.com> wrote:
+>>>>
+>>>>> eee
+>>>>>
+>>>>> On Wed, Jan 10, 2018 at 11:22 PM, Colin Stryker <
+>>>>> colin.stryker@gmail.com> wrote:
+>>>>>
+>>>>>> ddd
+>>>>>>
+>>>>>> On Wed, Jan 10, 2018 at 11:21 PM, Colin Stryker <
+>>>>>> colin.stryker@gmail.com> wrote:
+>>>>>>
+>>>>>>> ccc
+>>>>>>>
+>>>>>>> On Wed, Jan 10, 2018 at 11:20 PM, Colin Stryker <
+>>>>>>> colin.stryker@gmail.com> wrote:
+>>>>>>>
+>>>>>>>> bbb
+>>>>>>>>
+>>>>>>>> On Wed, Jan 10, 2018 at 11:19 PM, Colin Stryker <
+>>>>>>>> colin.stryker@gmail.com> wrote:
+>>>>>>>>
+>>>>>>>>> aaa
+>>>>>>>>>
+>>>>>>>>> On Wed, Jan 10, 2018 at 11:18 PM, Colin Stryker <
+>>>>>>>>> colin.stryker@gmail.com> wrote:
+>>>>>>>>>
+>>>>>>>>>> yo
+>>>>>>>>>>
+>>>>>>>>>> On Wed, Jan 10, 2018 at 11:17 PM, Colin Stryker <
+>>>>>>>>>> colin.stryker@gmail.com> wrote:
+>>>>>>>>>>
+>>>>>>>>>>> answer me man
+>>>>>>>>>>>
+>>>>>>>>>>> On Wed, Jan 10, 2018 at 11:16 PM, Colin Stryker <
+>>>>>>>>>>> colin.stryker@gmail.com> wrote:
+>>>>>>>>>>>
+>>>>>>>>>>>> yeah man
+>>>>>>>>>>>>
+>>>>>>>>>>>> On Wed, Jan 10, 2018 at 11:15 PM, Colin Stryker (via
+>>>>>>>>>>>> CodeStream) <@@@sender@@@> wrote:
+>>>>>>>>>>>>
+>>>>>>>>>>>>> You=E2=80=99ve been added to blah on CodeStream, where Colin =
+Stryker
+>>>>>>>>>>>>> has started a discussion about *marker_pseudo_code.js*. We=E2=
+=80=99ll
+>>>>>>>>>>>>> send you an email when the other developers on your team ask =
+and answer
+>>>>>>>>>>>>> questions about code, and you can participate in the discussi=
+on by simply
+>>>>>>>>>>>>> replying to the email. Or, learn more about CodeStream
+>>>>>>>>>>>>> <http://codestream.com?utm_medium=3Dcolin.stryker@gmail.com&u=
+tm_source=3Dproduct&utm_campaign=3Dfirst_newmessage_notification_unreg>
+>>>>>>>>>>>>> and install the plugin so that you can chat right from within=
+ your IDE!
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> *Repository: https://github.com/teamcodestream/misc
+>>>>>>>>>>>>> <https://github.com/teamcodestream/misc>*
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> dude?
+>>>>>>>>>>>>>
+>>>>>>>>>>>>>
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> CodeStream, Inc.
+>>>>>>>>>>>>> 12 E. 49th St. - 11th Floor, New York, NY 10017
+>>>>>>>>>>>>> <https://maps.google.com/?q=3D12+E.+49th+St.+-+11th+Floor,+Ne=
+w+York,+NY+10017&entry=3Dgmail&source=3Dg>
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> To turn off email notifications, send a request to
+>>>>>>>>>>>>> support@codetream.com <support@codestream.com>.
+>>>>>>>>>>>>>
+>>>>>>>>>>>>
+>>>>>>>>>>>>
+>>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>
+>>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>
+>>
+>
+
+--f403045d9916b0b05c05627b1381
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">test</div><div class=3D"gmail_extra"><br=
+><div class=3D"gmail_quote">On Wed, Jan 10, 2018 at 11:26 PM, Colin Stryker=
+ <span dir=3D"ltr">&lt;<a href=3D"mailto:colin.stryker@gmail.com" target=3D=
+"_blank">colin.stryker@gmail.com</a>&gt;</span> wrote:<br><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex"><div dir=3D"ltr">iii</div><div class=3D"HOEnZb"><div class=3D=
+"h5"><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Wed, Jan =
+10, 2018 at 11:25 PM, Colin Stryker <span dir=3D"ltr">&lt;<a href=3D"mailto=
+:colin.stryker@gmail.com" target=3D"_blank">colin.stryker@gmail.com</a>&gt;=
+</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .=
+8ex;border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">hhh</div>=
+<div class=3D"m_-958781783406771212HOEnZb"><div class=3D"m_-958781783406771=
+212h5"><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Wed, Ja=
+n 10, 2018 at 11:24 PM, Colin Stryker <span dir=3D"ltr">&lt;<a href=3D"mail=
+to:colin.stryker@gmail.com" target=3D"_blank">colin.stryker@gmail.com</a>&g=
+t;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0=
+ .8ex;border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">ggg</di=
+v><div class=3D"m_-958781783406771212m_-7409250687998317396HOEnZb"><div cla=
+ss=3D"m_-958781783406771212m_-7409250687998317396h5"><div class=3D"gmail_ex=
+tra"><br><div class=3D"gmail_quote">On Wed, Jan 10, 2018 at 11:24 PM, Colin=
+ Stryker <span dir=3D"ltr">&lt;<a href=3D"mailto:colin.stryker@gmail.com" t=
+arget=3D"_blank">colin.stryker@gmail.com</a>&gt;</span> wrote:<br><blockquo=
+te class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc so=
+lid;padding-left:1ex"><div dir=3D"ltr">fff</div><div class=3D"m_-9587817834=
+06771212m_-7409250687998317396m_7348254323826546412HOEnZb"><div class=3D"m_=
+-958781783406771212m_-7409250687998317396m_7348254323826546412h5"><div clas=
+s=3D"gmail_extra"><br><div class=3D"gmail_quote">On Wed, Jan 10, 2018 at 11=
+:23 PM, Colin Stryker <span dir=3D"ltr">&lt;<a href=3D"mailto:colin.stryker=
+@gmail.com" target=3D"_blank">colin.stryker@gmail.com</a>&gt;</span> wrote:=
+<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-lef=
+t:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">eee</div><div class=3D"=
+m_-958781783406771212m_-7409250687998317396m_7348254323826546412m_-29792375=
+45375945121HOEnZb"><div class=3D"m_-958781783406771212m_-740925068799831739=
+6m_7348254323826546412m_-2979237545375945121h5"><div class=3D"gmail_extra">=
+<br><div class=3D"gmail_quote">On Wed, Jan 10, 2018 at 11:22 PM, Colin Stry=
+ker <span dir=3D"ltr">&lt;<a href=3D"mailto:colin.stryker@gmail.com" target=
+=3D"_blank">colin.stryker@gmail.com</a>&gt;</span> wrote:<br><blockquote cl=
+ass=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;p=
+adding-left:1ex"><div dir=3D"ltr">ddd</div><div class=3D"m_-958781783406771=
+212m_-7409250687998317396m_7348254323826546412m_-2979237545375945121m_-7217=
+731911543806829HOEnZb"><div class=3D"m_-958781783406771212m_-74092506879983=
+17396m_7348254323826546412m_-2979237545375945121m_-7217731911543806829h5"><=
+div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Wed, Jan 10, 20=
+18 at 11:21 PM, Colin Stryker <span dir=3D"ltr">&lt;<a href=3D"mailto:colin=
+.stryker@gmail.com" target=3D"_blank">colin.stryker@gmail.com</a>&gt;</span=
+> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bo=
+rder-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">ccc</div><div c=
+lass=3D"m_-958781783406771212m_-7409250687998317396m_7348254323826546412m_-=
+2979237545375945121m_-7217731911543806829m_6413366146312345012HOEnZb"><div =
+class=3D"m_-958781783406771212m_-7409250687998317396m_7348254323826546412m_=
+-2979237545375945121m_-7217731911543806829m_6413366146312345012h5"><div cla=
+ss=3D"gmail_extra"><br><div class=3D"gmail_quote">On Wed, Jan 10, 2018 at 1=
+1:20 PM, Colin Stryker <span dir=3D"ltr">&lt;<a href=3D"mailto:colin.stryke=
+r@gmail.com" target=3D"_blank">colin.stryker@gmail.com</a>&gt;</span> wrote=
+:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-le=
+ft:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">bbb</div><div class=3D=
+"m_-958781783406771212m_-7409250687998317396m_7348254323826546412m_-2979237=
+545375945121m_-7217731911543806829m_6413366146312345012m_-18291102963334944=
+55HOEnZb"><div class=3D"m_-958781783406771212m_-7409250687998317396m_734825=
+4323826546412m_-2979237545375945121m_-7217731911543806829m_6413366146312345=
+012m_-1829110296333494455h5"><div class=3D"gmail_extra"><br><div class=3D"g=
+mail_quote">On Wed, Jan 10, 2018 at 11:19 PM, Colin Stryker <span dir=3D"lt=
+r">&lt;<a href=3D"mailto:colin.stryker@gmail.com" target=3D"_blank">colin.s=
+tryker@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote"=
+ style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><d=
+iv dir=3D"ltr">aaa</div><div class=3D"m_-958781783406771212m_-7409250687998=
+317396m_7348254323826546412m_-2979237545375945121m_-7217731911543806829m_64=
+13366146312345012m_-1829110296333494455m_9220452954557213150HOEnZb"><div cl=
+ass=3D"m_-958781783406771212m_-7409250687998317396m_7348254323826546412m_-2=
+979237545375945121m_-7217731911543806829m_6413366146312345012m_-18291102963=
+33494455m_9220452954557213150h5"><div class=3D"gmail_extra"><br><div class=
+=3D"gmail_quote">On Wed, Jan 10, 2018 at 11:18 PM, Colin Stryker <span dir=
+=3D"ltr">&lt;<a href=3D"mailto:colin.stryker@gmail.com" target=3D"_blank">c=
+olin.stryker@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_=
+quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1=
+ex"><div dir=3D"ltr">yo</div><div class=3D"m_-958781783406771212m_-74092506=
+87998317396m_7348254323826546412m_-2979237545375945121m_-721773191154380682=
+9m_6413366146312345012m_-1829110296333494455m_9220452954557213150m_-7397815=
+69333385178HOEnZb"><div class=3D"m_-958781783406771212m_-740925068799831739=
+6m_7348254323826546412m_-2979237545375945121m_-7217731911543806829m_6413366=
+146312345012m_-1829110296333494455m_9220452954557213150m_-73978156933338517=
+8h5"><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Wed, Jan =
+10, 2018 at 11:17 PM, Colin Stryker <span dir=3D"ltr">&lt;<a href=3D"mailto=
+:colin.stryker@gmail.com" target=3D"_blank">colin.stryker@gmail.com</a>&gt;=
+</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .=
+8ex;border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">answer me=
+ man</div><div class=3D"m_-958781783406771212m_-7409250687998317396m_734825=
+4323826546412m_-2979237545375945121m_-7217731911543806829m_6413366146312345=
+012m_-1829110296333494455m_9220452954557213150m_-739781569333385178m_490347=
+9446843123444HOEnZb"><div class=3D"m_-958781783406771212m_-7409250687998317=
+396m_7348254323826546412m_-2979237545375945121m_-7217731911543806829m_64133=
+66146312345012m_-1829110296333494455m_9220452954557213150m_-739781569333385=
+178m_4903479446843123444h5"><div class=3D"gmail_extra"><br><div class=3D"gm=
+ail_quote">On Wed, Jan 10, 2018 at 11:16 PM, Colin Stryker <span dir=3D"ltr=
+">&lt;<a href=3D"mailto:colin.stryker@gmail.com" target=3D"_blank">colin.st=
+ryker@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" =
+style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><di=
+v dir=3D"ltr">yeah man</div><div class=3D"m_-958781783406771212m_-740925068=
+7998317396m_7348254323826546412m_-2979237545375945121m_-7217731911543806829=
+m_6413366146312345012m_-1829110296333494455m_9220452954557213150m_-73978156=
+9333385178m_4903479446843123444m_-2698228690192587055HOEnZb"><div class=3D"=
+m_-958781783406771212m_-7409250687998317396m_7348254323826546412m_-29792375=
+45375945121m_-7217731911543806829m_6413366146312345012m_-182911029633349445=
+5m_9220452954557213150m_-739781569333385178m_4903479446843123444m_-26982286=
+90192587055h5"><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On=
+ Wed, Jan 10, 2018 at 11:15 PM, Colin Stryker (via CodeStream) <span dir=3D=
+"ltr">&lt;<a href=3D"mailto:@@@sender@@@" target=3D"_blank">alerts=
+@codestream.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" =
+style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><u>=
+</u>
+
+ =20
+   =20
+   =20
+   =20
+   =20
+   =20
+
+   =20
+   =20
+   =20
+
+
+
+=20
+
+
+    =20
+ =20
+  <div>
+    <center class=3D"m_-958781783406771212m_-7409250687998317396m_734825432=
+3826546412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012=
+m_-1829110296333494455m_9220452954557213150m_-739781569333385178m_490347944=
+6843123444m_-2698228690192587055m_915581188183083404m_7267080821510625443wr=
+apper">
+      <div class=3D"m_-958781783406771212m_-7409250687998317396m_7348254323=
+826546412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m=
+_-1829110296333494455m_9220452954557213150m_-739781569333385178m_4903479446=
+843123444m_-2698228690192587055m_915581188183083404m_7267080821510625443web=
+kit">
+        <table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"10=
+0%" class=3D"m_-958781783406771212m_-7409250687998317396m_73482543238265464=
+12m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m_-18291=
+10296333494455m_9220452954557213150m_-739781569333385178m_49034794468431234=
+44m_-2698228690192587055m_915581188183083404m_7267080821510625443wrapper" b=
+gcolor=3D"#ffffff">
+          <tbody><tr>
+            <td valign=3D"top" bgcolor=3D"#ffffff" width=3D"100%">
+              <table width=3D"100%" class=3D"m_-958781783406771212m_-740925=
+0687998317396m_7348254323826546412m_-2979237545375945121m_-7217731911543806=
+829m_6413366146312345012m_-1829110296333494455m_9220452954557213150m_-73978=
+1569333385178m_4903479446843123444m_-2698228690192587055m_91558118818308340=
+4m_7267080821510625443outer" align=3D"center" cellpadding=3D"0" cellspacing=
+=3D"0" border=3D"0">
+                <tbody><tr>
+                  <td width=3D"100%">
+                    <table width=3D"100%" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0">
+                      <tbody><tr>
+                        <td>
+                         =20
+                          <table width=3D"100%" cellpadding=3D"0" cellspaci=
+ng=3D"0" border=3D"0" style=3D"width:100%;max-width:1200px" align=3D"center=
+">
+                            <tbody><tr>
+                              <td style=3D"padding:0px 0px 0px 10px;color:#=
+000000;text-align:left" bgcolor=3D"#ffffff" width=3D"100%" align=3D"left">
+                               =20
+    <table class=3D"m_-958781783406771212m_-7409250687998317396m_7348254323=
+826546412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m=
+_-1829110296333494455m_9220452954557213150m_-739781569333385178m_4903479446=
+843123444m_-2698228690192587055m_915581188183083404m_7267080821510625443mod=
+ule m_-958781783406771212m_-7409250687998317396m_7348254323826546412m_-2979=
+237545375945121m_-7217731911543806829m_6413366146312345012m_-18291102963334=
+94455m_9220452954557213150m_-739781569333385178m_4903479446843123444m_-2698=
+228690192587055m_915581188183083404m_7267080821510625443preheader m_-958781=
+783406771212m_-7409250687998317396m_7348254323826546412m_-29792375453759451=
+21m_-7217731911543806829m_6413366146312345012m_-1829110296333494455m_922045=
+2954557213150m_-739781569333385178m_4903479446843123444m_-26982286901925870=
+55m_915581188183083404m_7267080821510625443preheader-hide" border=3D"0" cel=
+lpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"display:none!impor=
+tant;opacity:0;color:transparent;height:0;width:0">
+      <tbody><tr>
+        <td>
+          <p></p>
+        </td>
+      </tr>
+    </tbody></table>
+  <table class=3D"m_-958781783406771212m_-7409250687998317396m_734825432382=
+6546412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m_-=
+1829110296333494455m_9220452954557213150m_-739781569333385178m_490347944684=
+3123444m_-2698228690192587055m_915581188183083404m_7267080821510625443modul=
+e" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D=
+"table-layout:fixed">
+      <tbody><tr>
+        <td height=3D"100%" valign=3D"top">
+          <div class=3D"m_-958781783406771212m_-7409250687998317396m_734825=
+4323826546412m_-2979237545375945121m_-7217731911543806829m_6413366146312345=
+012m_-1829110296333494455m_9220452954557213150m_-739781569333385178m_490347=
+9446843123444m_-2698228690192587055m_915581188183083404m_726708082151062544=
+3intro">
+  You=E2=80=99ve been added to blah on CodeStream, where Colin Stryker has =
+started a discussion about <b>marker_pseudo_code.js</b>. We=E2=80=99ll send=
+ you an email when the other developers on your team ask and answer questio=
+ns about code, and you can participate in the discussion by simply replying=
+ to the email. Or, <a href=3D"http://codestream.com?utm_medium=3Dcolin.stry=
+ker@gmail.com&amp;utm_source=3Dproduct&amp;utm_campaign=3Dfirst_newmessage_=
+notification_unreg" target=3D"_blank">learn more about CodeStream</a> and i=
+nstall the plugin so that you can chat right from within your IDE!
+</div>
+
+<br>
+
+<div class=3D"m_-958781783406771212m_-7409250687998317396m_7348254323826546=
+412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m_-1829=
+110296333494455m_9220452954557213150m_-739781569333385178m_4903479446843123=
+444m_-2698228690192587055m_915581188183083404m_7267080821510625443repoUrl">
+  <b>Repository: <a href=3D"https://github.com/teamcodestream/misc" target=
+=3D"_blank">https://github.com/teamcodestr<wbr>eam/misc</a></b>
+</div>
+
+<br>
+
+<div class=3D"m_-958781783406771212m_-7409250687998317396m_7348254323826546=
+412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m_-1829=
+110296333494455m_9220452954557213150m_-739781569333385178m_4903479446843123=
+444m_-2698228690192587055m_915581188183083404m_7267080821510625443text">
+  dude?
+</div>
+
+<div style=3D"display:none" class=3D"m_-958781783406771212m_-74092506879983=
+17396m_7348254323826546412m_-2979237545375945121m_-7217731911543806829m_641=
+3366146312345012m_-1829110296333494455m_9220452954557213150m_-7397815693333=
+85178m_4903479446843123444m_-2698228690192587055m_915581188183083404m_72670=
+80821510625443codeBlock">
+  <br>
+  <div class=3D"m_-958781783406771212m_-7409250687998317396m_73482543238265=
+46412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m_-18=
+29110296333494455m_9220452954557213150m_-739781569333385178m_49034794468431=
+23444m_-2698228690192587055m_915581188183083404m_7267080821510625443codeCon=
+text">
+   =20
+  </div>
+  <div class=3D"m_-958781783406771212m_-7409250687998317396m_73482543238265=
+46412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m_-18=
+29110296333494455m_9220452954557213150m_-739781569333385178m_49034794468431=
+23444m_-2698228690192587055m_915581188183083404m_7267080821510625443code">
+   =20
+  </div>
+  <div class=3D"m_-958781783406771212m_-7409250687998317396m_73482543238265=
+46412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m_-18=
+29110296333494455m_9220452954557213150m_-739781569333385178m_49034794468431=
+23444m_-2698228690192587055m_915581188183083404m_7267080821510625443codeCon=
+text">
+   =20
+  </div>
+</div>
+
+<div style=3D"display:none" class=3D"m_-958781783406771212m_-74092506879983=
+17396m_7348254323826546412m_-2979237545375945121m_-7217731911543806829m_641=
+3366146312345012m_-1829110296333494455m_9220452954557213150m_-7397815693333=
+85178m_4903479446843123444m_-2698228690192587055m_915581188183083404m_72670=
+80821510625443installText">
+  <br>
+ =20
+</div>
+
+<div class=3D"m_-958781783406771212m_-7409250687998317396m_7348254323826546=
+412m_-2979237545375945121m_-7217731911543806829m_6413366146312345012m_-1829=
+110296333494455m_9220452954557213150m_-739781569333385178m_4903479446843123=
+444m_-2698228690192587055m_915581188183083404m_7267080821510625443address">
+  <br>
+  CodeStream, Inc.<br>
+  <a href=3D"https://maps.google.com/?q=3D12+E.+49th+St.+-+11th+Floor,+New+=
+York,+NY+10017&amp;entry=3Dgmail&amp;source=3Dg" target=3D"_blank">12 E. 49=
+th St. - 11th Floor, New York, NY 10017</a>
+</div>
+
+<div>
+  <br>
+  To turn off email notifications, send a request to <a href=3D"mailto:supp=
+ort@codestream.com" target=3D"_blank">support@codetream.com</a>.
+</div>
+        </td>
+      </tr>
+    </tbody></table>
+                              </td>
+                            </tr>
+                          </tbody></table>
+                         =20
+                        </td>
+                      </tr>
+                    </tbody></table>
+                  </td>
+                </tr>
+              </tbody></table>
+            </td>
+          </tr>
+        </tbody></table>
+      </div>
+    </center>
+ =20
+<img src=3D"https://u5962724.ct.sendgrid.net/wf/open?upn=3DOFgvmg1J6naJevMo=
+tmPmRpY1cybjDjfSCqJoKHDAjMLlCXDa7I3ORI6hPK-2FLLmjxjD8ITbro-2FpFLR0U8U9jrbDd=
+Sw6jkPiFyCt8IYUl-2FYYhIOxuaOM-2FqFZF7ss2CVhSWaxethgeUW2jPNqHCSL8o-2FwQBD9xW=
+IDpgjD4YO2O5a3scI4y0vUjUXaVttDujzE1iL8DXlE27oIaNZvBsyvVDhp-2FB8O5w-2FXKCZOg=
+iBDw8Ztc-3D" alt=3D"" width=3D"1" height=3D"1" border=3D"0" style=3D"height=
+:1px!important;width:1px!important;border-width:0!important;margin-top:0!im=
+portant;margin-bottom:0!important;margin-right:0!important;margin-left:0!im=
+portant;padding-top:0!important;padding-bottom:0!important;padding-right:0!=
+important;padding-left:0!important">
+</div>
+
+</blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+
+--f403045d9916b0b05c05627b1381--

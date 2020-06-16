@@ -1,0 +1,26 @@
+#!/bin/bash
+
+[ -z "$1" ] && echo "this script should not be run directly. Use dt-snapshot-sandbox." && exit 1
+
+# This is used to snapshot a sandbox and is called from dt-snapshot-sandbox.
+# Do not run it directly
+
+# values are 'pre' or 'post' for before and after the snapshot is takem
+x_mode=$1
+
+
+if [ "$x_mode" = pre ]; then
+	# pre is run BEFORE the snapshot is taken. Use it to stop services,
+	# clear (move aside) config files, etc...
+	echo "Peparing sandbox for snapshot"
+	# XYZ-service stop
+	# /bin/mv $XYZ_SANDBOX/conf/my.conf /tmp/my.conf.xyz
+
+else
+	# post is run AFTER the snapshot is taken. Use it to restore
+	# config files, restart services, etc...
+	echo "Resetting sandbox post snapshot"
+	# /bin/mv /tmp/my.conf.xyz $XYZ_SANDBOX/conf/my.conf
+	# echo "XYZ service was stopped. Use 'xyz-service start' to start it."
+
+fi

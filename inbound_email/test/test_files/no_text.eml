@@ -1,0 +1,60 @@
+Return-Path: <colin.stryker@gmail.com>
+X-Original-To: @@@x-original-to@@@ 
+Delivered-To: @@@delivered-to@@@
+Received: from mail-it0-f49.google.com (mail-it0-f49.google.com [209.85.214.49])
+	by ip-10-101-0-15.dev.codestream.com (Postfix) with ESMTP id CE73D8041F
+	for <5a570e9305268ccc395d9fe9.5a570e8f05268ccc395d9fe6@dev.codestream.com>; Thu, 11 Jan 2018 02:27:14 -0500 (EST)
+Received: by mail-it0-f49.google.com with SMTP id m11so18933692iti.1
+        for <5a570e9305268ccc395d9fe9.5a570e8f05268ccc395d9fe6@dev.codestream.com>; Wed, 10 Jan 2018 23:27:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to;
+        bh=MiJOwCYUxfKLK1DtLqJXQN/w8H70R69Qj/znLdLDGbQ=;
+        b=J3K9e07lF0s+CCW/u7+Hl0VS/djrNgPKbp2G6dTBsLfPz/wLnry3QcKt5KvoTa5Aob
+         fojpfSIAC6lb7FGoBHPR/xnUegnLmGPX3i0BH2lGgqexf8bjEOBdpwyIS5IV4yBCmVmJ
+         7yDM10r9C2EMidHTyWRwLXX/8LU7fmrmf+lYt16Ohp8eSIyatzdbo3qS0H7lACjCJUO4
+         VPQgIK0rjAuqJLbg93ICAT/USV1rsmWYIwmGSuVGIq9ZhO8oXlOOtISx+VdSM2G7Fb7k
+         XAv9pipHXOaRpJQjATLLL+O+aTQifXnetRxWiYnDa/eyj0X5m4lJJXPRbh7L8Ykozr/j
+         TCkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+         :message-id:subject:to;
+        bh=MiJOwCYUxfKLK1DtLqJXQN/w8H70R69Qj/znLdLDGbQ=;
+        b=qsExQHPzhG7wOKcFAggv2NyqtGY5KdQoItZqMSxCpgyb/OB0/BEOixKAReZKfewSR+
+         o1h4kRi0xoIs3newmyHiyxD4xct6VPYPsjnyHtoHxiVURhgwqF/jSmDez+dqtlehRfsQ
+         Mp/fk6iosfViy6zz96cVQtgPnrc3rzp5LmZgW9xDu0SGnofvt/eTPQdWrKkxE0KUIS7a
+         NzHGG7v5U8JXd1TegXHeRs0CJv0ooZhB5+08g6A/Kvy0gesb8Bi9vx3jNm/3C+A3BIy+
+         6d9sd0CjMXni2voNbE0gPhBijnHsp7GcD3O9z+QtOvEso1+UOQUxb+dxgdlfhB4E4mee
+         TxhQ==
+X-Gm-Message-State: AKwxytd0knKF3g2AJTatlmZ+G3eRL13yVBUB4nE4KUgWCb+KZfGRwRNC
+	Fedpv/vjcrM+oF/1DD1cQjw5X8yZtBmVmZMemmw=
+X-Google-Smtp-Source: ACJfBousttJkq7pTsQcPWPcEGwCF81nzgOrjIJi7FXbRlrSVlsA1k5UEVoa2LIeOBH3s+NEgxX57Z554TA9oHc/GllU=
+X-Received: by 10.36.181.9 with SMTP id v9mr346602ite.27.1515655634397; Wed,
+ 10 Jan 2018 23:27:14 -0800 (PST)
+MIME-Version: 1.0
+Received: by 10.2.102.27 with HTTP; Wed, 10 Jan 2018 23:27:13 -0800 (PST)
+In-Reply-To: <CADEMTLRTCNCjQ0rbksONzKmL-OBUARrGobvCSQgYC_hbr+mpEg@mail.gmail.com>
+References: <t3zwtK2BRM6owQoD3Kie6Q@ismtpd0020p1las1.sendgrid.net>
+ <CADEMTLS4ZuqZ=geHyL2wr+Znau+8NMSYu3bAmqAhLcRnGqnCLA@mail.gmail.com>
+ <CADEMTLSOjRji=dcUpTF-b65Pf0+NCVMdgzXM8AJu5c8CX1hVPg@mail.gmail.com>
+ <CADEMTLSRqhunyLE207688n63u2b7fAtAxv7JRGRnmv65y9gOBw@mail.gmail.com>
+ <CADEMTLTCY6ZLvC=ZcGYZSrQtiiLihnUmNrb3XGbTov_yxMRPpA@mail.gmail.com>
+ <CADEMTLSKDR8WYNRCRAeEuzxS+tFwnB0F+6fLj1RSzwCAWQJYgQ@mail.gmail.com>
+ <CADEMTLS_U7mfY5gXqE4Mqd4eCWGOUaO+LUsFkXseNCZgz+y75Q@mail.gmail.com>
+ <CADEMTLQPcJmk9BKtHvh=4kUUdznPOqCsfvd5XehK1STCR4f5fg@mail.gmail.com>
+ <CADEMTLQPkPv65KWzgBT6dF-G8A+CZqX03AdqdPOaW0+qBT0Agw@mail.gmail.com>
+ <CADEMTLRzyUDz-YdPuWbW5oo0LJKE6UaYOz9KzS-gD6OngjcmCQ@mail.gmail.com>
+ <CADEMTLQ-v3cDr4a7Pk3cSbiB70eqTdbc=PY9nMpgRW5DJ+=h8A@mail.gmail.com>
+ <CADEMTLRuKTUiDiZukDahzSeB5FdJRojC_2=hMp0b+S310rqAbQ@mail.gmail.com> <CADEMTLRTCNCjQ0rbksONzKmL-OBUARrGobvCSQgYC_hbr+mpEg@mail.gmail.com>
+From: Colin Stryker <@@@from@@@>
+Date: Wed, 10 Jan 2018 23:27:13 -0800
+Message-ID: <CADEMTLQ-CKLCGm5MOChWqUMuHeRMu6k5+c8US5Lc7AcjUKtwNw@mail.gmail.com>
+Subject: Re: Colin is discussing marker_pseudo_code.js on CodeStream
+To: CodeStream <@@@to@@@>
+Content-Type: multipart/alternative; boundary="f403045d9916b0b05c05627b1381"
+
+--f403045d9916b0b05c05627b1381
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+--f403045d9916b0b05c05627b1381

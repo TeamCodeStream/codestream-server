@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#desc# Collect mail from the development inbound mail server and save it to the local poller-stage directory
+
+
+localMailRoot=$(cd $CS_MAILIN_INBOUND_EMAIL_DIRECTORY/.. && pwd)
+localMailStagingDir="$localMailRoot/poller-stage"
+
+function usage {
+	echo "usage: $0 -p polling_interval"
+	exit 1
+}
+
+while getopts "p:" arg
+do
+    case $arg in
+	p) poll_interval=$OPTARG;;
+	*) usage;;
+    esac
+done
+shift `expr $OPTIND - 1`
+[ -z "$poll_interval" ] && usage
+
+
+ssh $CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER echo hi >/dev/null
+[ $? -ne 0 ] && echo "Test ssh to $CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER unsuccessful" && exit 1
+
+[ ! -d $CS_MAILIN_INBOUND_EMAIL_DIRECTORY ] && echo "creating $CS_MAILIN_INBOUND_EMAIL_DIRECTORY" && mkdir -p $CS_MAILIN_INBOUND_EMAIL_DIRECTORY
+[ ! -d $localMailStagingDir ] && echo "creating $localMailStagingDir" && mkdir -p $localMailStagingDir
+
+while [ 1 ]
+do
+	if [ -f $localMailRoot/stop ]; then
+		echo "Stop request detected"
+		/bin/rm $localMailRoot/stop
+		exit
+	fi
+
+	numFilesToCopy=`ssh $CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER "ls $CS_MAILIN_REMOTE_INBOUND_MAIL_DIR|wc -l"`
+	if [ $numFilesToCopy -gt 0 ]; then
+		scp $CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER:$CS_MAILIN_REMOTE_INBOUND_MAIL_DIR/* $localMailStagingDir
+		[ $? -ne 0 ] && echo "scp $CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER:$CS_MAILIN_REMOTE_INBOUND_MAIL_DIR/* $localMailStagingDir FAILED" && exit 1
+		/bin/mv $localMailStagingDir/* $CS_MAILIN_INBOUND_EMAIL_DIRECTORY
+		[ $? -ne 0 ] && echo "/bin/mv $localMailStagingDir/* $CS_MAILIN_INBOUND_EMAIL_DIRECTORY FAILED" && exit 1
+		ssh $CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER "/bin/rm -f $CS_MAILIN_REMOTE_INBOUND_MAIL_DIR/*"
+		[ $? -ne 0 ] && echo "ssh $CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER \"/bin/echo -f $CS_MAILIN_REMOTE_INBOUND_MAIL_DIR/*\" FAILED"
+		echo "$numFilesToCopy files processed"
+	else
+		echo "no files found"
+	fi
+	sleep $poll_interval
+done

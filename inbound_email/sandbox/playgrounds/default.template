@@ -1,0 +1,19 @@
+
+#desc# inbound email playground
+
+#playgroundName# mailin
+#sandboxTypes# cs_mailin
+#sandboxes# {{SBNAME_cs_mailin}}
+#environment# local
+
+dt_load {{SBNAME_cs_mailin}}
+if [ "$1" == start ]; then
+	cs_mailin-service start
+elif [ "$1" == stop ]; then
+	cs_mailin-service stop
+fi
+cd $CS_MAILIN_TOP
+
+# uncomment these if you use iterm2 and want to colorize your tabs
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 88 45

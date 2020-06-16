@@ -1,0 +1,59 @@
+#!/bin/bash
+
+[ -z "$1" ] && echo "Do not run this script directly. Run dt-configure-sandbox instead." && exit 1
+
+# argument:
+#   configure         normal configuration mode. Run on a clean install or reconfigure (mode = configure)
+#   git_hook          run from within a git hook (mode = git_hook)
+#   configureNoAbort  configuration mode but don't abort early if there's a build failure (mode = configure)
+mode=""
+abort_on_fail=1
+[ "$1" == "git-hook" ] && mode=git_hook
+[ "$1" == "configure" ] && mode=configure
+[ "$1" == "configureNoAbort" ] && mode=configure && abort_on_fail=0
+[ -z "$mode" ] && echo "Error: bad configure mode" && exit 1
+
+# This script is called from dt-configure-sandbox. Do not call it directly.
+#
+# Place any commands needed to prepare the sandbox for use here. Assume the
+# the environment is set
+
+cd $CS_MAILIN_TOP
+
+[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
+
+# Install git submodules
+[ -f .gitmodules ] && echo "updating git submodules" && git submodule update --init --recursive
+
+# $DT_TOP/bin/create-file-from-template.py -t $XYZ_SANDBOX/git_project/etc/httpd.conf.template -o $XYZ_SANDBOX/conf/httpd.conf
+
+# Wipe the node_modules and re-install
+if [ -n "$CS_MAILIN_NODE_VER" ]; then
+	[ -d $CS_MAILIN_TOP/node_modules ] && /bin/rm -rf $CS_MAILIN_TOP/node_modules
+	if [ "$CS_MAILIN_YARN" == true ]; then
+		[ ! -f $CS_MAILIN_TOP/yarn.lock ] && echo "WARNING: yarn.lock not found - creating one"
+		echo "yarn install (from `pwd`)"
+		yarn install --frozen-lockfile
+		[ $? -ne 0 ] && echo "yarn install failed" && exit 1
+	else
+		echo "npm install --no-save $CS_MAILIN_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
+		npm install --no-save $CS_MAILIN_NPM_INSTALL_XTRA_OPTS
+		[ $? -ne 0 ] && echo "npm install failed" && exit 1
+	fi
+fi
+
+# Add git hooks as needed
+echo -n "Installing git hooks as sym links"
+cd $CS_MAILIN_TOP/.git/hooks
+for hook in post-checkout post-merge post-rewrite
+do
+	if [ -f $CS_MAILIN_TOP/hooks/$hook ]; then
+		echo -n "...$hook"
+		/bin/rm -f $hook
+		ln -sf ../../hooks/$hook
+	fi
+done
+echo "."
+
+# You must exit with a status of '0' if the script was successful or '1' otherwise.
+exit 0

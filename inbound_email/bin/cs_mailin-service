@@ -1,0 +1,51 @@
+#!/bin/bash
+
+#desc#  service init script
+
+function usage {
+    echo "usage: $0 { start | stop | status | restart } [-- service-args]" >&2
+    exit 1
+}
+
+service_name=inbound_email_server.js
+[ -z "$1" ] && usage
+[ -z "$CS_MAILIN_SANDBOX" ] && echo "sandbox not loaded">&2 && exit 1
+. $DT_TOP/lib/init_funcs.sh
+
+ec=0
+case "$1" in
+	start)
+		if [ -n "$(service_pid_from_pstree $service_name)" ]; then
+			echo "$service_name is aleady running"
+			service_status $service_name
+		else
+			nohup $CS_MAILIN_TOP/bin/$service_name $server_args >/dev/null 2>&1 </dev/null &
+			sleep 1
+			service_status $service_name
+			ec=$?
+		fi
+		;;
+	stop)
+		service_stop $service_name
+		ec=$?
+		sleep 2
+		service_status $service_name
+		;;
+	status)
+		service_status $service_name
+		;;
+	restart)
+		service_stop $service_name
+		sleep 2
+		service_status $service_name
+		[ $? -ne 0 ] && echo "$service_name failed to shutdown" && exit 1
+		nohup $CS_MAILIN_TOP/bin/$service_name $server_args >/dev/null 2>&1 </dev/null &
+		sleep 1
+		service_status $service_name
+		ec=$?
+		;;
+	*)
+		usage
+		;;
+esac
+exit $ec

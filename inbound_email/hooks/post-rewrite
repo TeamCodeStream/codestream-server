@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# post-rewrite hook
+
+. hooks/git_hooks.sh || exit 1
+
+echo "$0 is running"
+#echo "(pwd=`pwd`, args=$*)"
+called_by=$1
+
+githook_reconfigure_sandbox
+exit 0

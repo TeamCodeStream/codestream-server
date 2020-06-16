@@ -1,0 +1,36 @@
+{
+	"name": "inbound-email",
+	"version": "7.4.0",
+	"dependencies": {
+		"async": "2.6.2",
+		"commander": "4.1.0",
+		"hjson": "3.2.1",
+		"html-entities": "1.2.1",
+		"mailparser": "2.7.7",
+		"pubnub": "4.27.3",
+		"randomstring": "1.1.5",
+		"strftime": "0.10.0",
+		"mongodb": "3.5.2",
+		"uuid": "3.4.0"
+	},
+	"devDependencies": {
+		"mocha": "7.0.1",
+		"mocha-teamcity-reporter": "3.0.0",
+		"eslint": "6.8.0",
+		"pre-commit": "1.2.2"
+	},
+	"scripts": {
+		"veryclean": "git clean -fXd",
+		"clean": "git clean -fXd -e !node_modules -e !node_modules/**/*",
+		"test": "mocha",
+		"cistart": "cs_mailin-service start",
+		"cistop": "cs_mailin-service stop",
+		"citest": "mocha --reporter mocha-teamcity-reporter",
+		"test:ci": "npm run citest",
+		"tarball": "touch inbound-email.tgz && tar -czpf inbound-email.tgz --exclude inbound-email.tgz --exclude .git .",
+		"eslint": "eslint ."
+	},
+	"pre-commit": [
+		"eslint"
+	]
+}
