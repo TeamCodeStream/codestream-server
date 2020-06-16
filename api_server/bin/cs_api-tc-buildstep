@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#desc# Standard interface to CodeStream's TeamCity build process for the VS Code Extension
+# desc# Standard interface to CodeStream's TeamCity build process for the VS Code Extension
 
 # Relevant documentation
 # https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.md#Structured_Builds
@@ -57,7 +57,7 @@ elif args.action == 'citest':
 	exitCode = build.execCmd("cs_api-service start && sleep 2 && npm run test:ci", returnOnError=True)
 	build.execCmd("cs_api-service stop")
 elif args.action == 'pack':
-	build.pack()                              # create asset info file and package assets
+	build.pack(csServerMonoRepoDir='api_server')   # create asset info file and package assets
 elif args.action == 'publish':
 	build.publish()                           # publish assets for distribution
 elif args.action == 'tag':
