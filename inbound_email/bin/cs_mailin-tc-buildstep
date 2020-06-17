@@ -49,7 +49,7 @@ elif args.action == 'build':
 elif args.action == 'citest':
 	build.citest()                            # run the continuous integration test suite
 elif args.action == 'pack':
-	build.pack()                              # create asset info file and package assets
+	build.pack(csServerMonoRepoDir='inbound_email')  # create asset info file and package assets
 elif args.action == 'publish':
 	build.publish()                           # publish assets for distribution
 elif args.action == 'tag':
