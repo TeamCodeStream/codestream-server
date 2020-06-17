@@ -51,6 +51,7 @@ const AmendReviewTest = require('./amend_review_test');
 const AmendPushBecomesAddToSetTest = require('./amend_push_becomes_addtoset_test');
 const NoAmendPullTest = require('./no_amend_pull_test');
 const ACLRepoTest = require('./acl_repo_test');
+const TicketAndPullRequestTest = require('./ticket_and_pull_request_test');
 
 class PutReviewRequestTester {
 
@@ -118,6 +119,7 @@ class PutReviewRequestTester {
 		new AmendPushBecomesAddToSetTest().test();
 		new NoAmendPullTest().test();
 		new ACLRepoTest().test();
+		new TicketAndPullRequestTest().test();
 	}
 }
 

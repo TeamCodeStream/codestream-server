@@ -127,5 +127,25 @@ module.exports = {
 		type: 'object',
 		maxLength: 10000,
 		description: 'Hash representing people who have approved the review, keys are the user IDs, and values are objects containing additional information: for now just approvedAt, the timestamp of the approval'
+	},
+	pullRequestUrl: {
+		type: 'string',
+		maxLength: 1000,
+		description: 'URL for the pull request associated with this review'
+	},
+	pullRequestProviderId: {
+		type: 'string',
+		maxLength: '50',
+		description: 'Identifies the third-party provider hosting the pull request associated with this review'
+	},
+	ticketUrl: {
+		type: 'string',
+		maxLength: 1000,
+		description: 'URL for the third-party ticket or issue associated with this review'
+	},
+	ticketProviderId: {
+		type: 'string',
+		maxLength: 50,
+		description: 'Identifies the third-party provider hosting the ticket or issue associated with this review'
 	}
 };
