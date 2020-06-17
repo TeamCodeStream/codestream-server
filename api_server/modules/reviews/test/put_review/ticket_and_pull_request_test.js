@@ -1,7 +1,6 @@
 'use strict';
 
 const PutReviewTest = require('./put_review_test');
-const Assert = require('assert');
 const RandomString = require('randomstring');
 
 class TicketAndPullRequestTest extends PutReviewTest {
