@@ -48,12 +48,19 @@ echo "Current schema version is: $schemaVersion"
 $binDir/process-profile --show-desc --out $repoRoot/README.parameter-definitions.json.x
 diff_notify $repoRoot/README.parameter-definitions.json "$yes"
 
-# create the config templates for on-prem single host preview (beta version only)
+# create the config templates for on-prem single host preview (beta release only)
 for onpremConfig in minimal quickstart
 do
 	[ -n "$verbose" ] && echo $binDir/process-profile --env $onpremConfig --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
 	$binDir/process-profile --env $onpremConfig --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
 	diff_notify $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
+done
+
+# create onprem quickstart config suitable for local development
+for onpremEnv in local
+do
+	$binDir/process-profile --env $onpremEnv --profile $repoRoot/profiles/onprem-single-host-preview-template.json --out $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
+	diff_notify $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json "$yes"
 done
 
 # cloud configuration files, all environments (consumed by developers via dt-update-secrets)

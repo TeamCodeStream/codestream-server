@@ -6,7 +6,10 @@
 // - Outbound SMTP:  NodeMailer
 // - Telemetry:      Segment production
 //
-// - environments (profiles):  default=minimal, quickstart
+// - environments (profiles):
+// -    minimal (default): onprem template that includes ssl and outbound email
+// -    quickstart:        onprem template without ssl or email
+// -    local:             local development template
 
 {
 	"apiServer": {
@@ -24,6 +27,17 @@
 			"port": 443,
 			"publicApiUrl": "https://{{FQHN}}",
 			"tmpDirectory": "/opt/api/tmp"
+		},
+		"local": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"confirmationNotRequired": true,
+			"disablePhoneHome": true,
+			"dontWantAWS": true,
+			"ignoreHttps": true,
+			"phoneHomeUrl": "https://phone-home.codestream.us",
+			"port": 12079,
+			"publicApiUrl": "http://localhost.codestream.us:12079",
+			"showConfig": true
 		},
 		"quickstart": {
 			"assetEnvironment": "onprem",
@@ -56,6 +70,16 @@
 					"auth": "{{SECRET_BROADCAST_AUTH}}"
 				}
 			},
+			"local": {
+				"host": "localhost.codestream.us",
+				"ignoreHttps": true,
+				"port": 12080,
+				"secrets": {
+					"api": "broadcastApiSecret",
+					"auth": "broadcastAuthSecret"
+				},
+				"showConfig": true
+			},
 			"quickstart": {
 				"host": "{{FQHN}}",
 				"ignoreHttps": true,
@@ -77,6 +101,9 @@
 			"senderEmail": "{{SENDER_EMAIL}}",
 			"supportEmail": "{{SUPPORT_EMAIL}}",
 			"suppressEmails": false
+		},
+		"local": {
+			"suppressEmails": true
 		},
 		"quickstart": {
 			"emailTo": null,
@@ -101,18 +128,30 @@
 				"directory": "/opt/mailout/log"
 			},
 			"showConfig": false
+		},
+		"local": {
+			"showConfig": true
 		}
 	},
 	"queuingEngine": {
 		"rabbitmq": {
 			"defaultEnv": {
 				"host": "{{FQHN}}"
+			},
+			"local": {
+				"host": "localhost.codestream.us"
 			}
 		}
 	},
 	"sharedGeneral": {
-		"installationId": "{{INSTALLATION_UUID}}",
-		"runTimeEnvironment": "onprem"
+		"defaultEnv": {
+			"installationId": "{{INSTALLATION_UUID}}",
+			"runTimeEnvironment": "onprem"
+		},
+		"local": {
+			"installationId": "00000000-0000-0000-0000-000000000000",
+			"runTimeEnvironment": "onprem"
+		}
 	},
 	"sharedSecrets": {
 		"defaultEnv": {
@@ -122,6 +161,9 @@
 			"mail": "{{SECRET_MAIL}}",
 			"subscriptionCheat": "{{SECRET_SUBSCRIPTION_CHEAT}}",
 			"telemetry": "84$gTe^._qHm,#D"
+		},
+		"local": {
+			"_loadSecretsFile": "codestream/dev-secrets.cfg"
 		}
 	},
 	"ssl": {
@@ -129,6 +171,12 @@
 			"cafile": "/opt/config/{{SSL_CA_FILE}}",
 			"certfile": "/opt/config/{{SSL_CERT_FILE}}",
 			"keyfile": "/opt/config/{{SSL_KEY_FILE}}",
+			"requireStrictSSL": false
+		},
+		"local": {
+			"cafile": null,
+			"certfile": null,
+			"keyfile": null,
 			"requireStrictSSL": false
 		},
 		"quickstart": {
@@ -142,6 +190,9 @@
 		"mongo": {
 			"defaultEnv": {
 				"url": "mongodb://{{FQHN}}/codestream"
+			},
+			"local": {
+				"url": "mongodb://localhost.codestream.us/codestream"
 			}
 		}
 	},
