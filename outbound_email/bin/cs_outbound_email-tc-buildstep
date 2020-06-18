@@ -61,7 +61,7 @@ elif args.action == 'citest':
 elif args.action == 'pack':
 	# build.pack()                              # create asset info file and package assets
 	build.execCmd(f"npm run {'pack' if runTimeEnvironment not in ['ci', 'pi'] else 'pack_without_config'}")
-	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
+	os.rename(f"./dist/{buildName}.zip", f"{fullName}.zip")
 	build.getMD5SumsForAssets()
 	build.writeAssetInfo()
 elif args.action == 'publish':
@@ -81,15 +81,15 @@ elif args.action == 'awsLambda':
 	# add a codestream config file to the zip file to create a new zip file
 	print(f"updating asset to include lambda & codestream configs for {runTimeEnvironment} run-time environment")
 	# add the codestream config file to the zip file asset
-	# shutil.copyfile(f"{os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.lambda.json", f"{os.environ['CS_OUTBOUND_EMAIL_TOP']}/out/{buildName}.lambda.json")
+	# shutil.copyfile(f"{os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.lambda.json", f"{os.environ['CS_OUTBOUND_EMAIL_TOP']}/dist/{buildName}.lambda.json")
 	tmpDir = f"{os.environ['CS_OUTBOUND_EMAIL_TMP']}/zip{str(os.getpid())}"
 	os.mkdir(tmpDir)
 	build.execCmd(f"cd {tmpDir} && unzip -q {os.environ['CS_OUTBOUND_EMAIL_TOP']}/{fullName}.zip")
 	os.environ['CS_OUTBOUND_EMAIL_REPACK_DIR'] = tmpDir
 	build.execCmd("npm run repack")
-	os.rename(f"./out/{buildName}.zip", f"{fullName}.zip")
+	os.rename(f"./dist/{buildName}.zip", f"{fullName}.zip")
 	# create the lambda config and update the asset info file
-	build.awsLambda(lambdaConfig='./out/')   # create lambda config
+	build.awsLambda(lambdaConfig='./dist/')   # create lambda config
 else:
 	su.printErr("invalid build args")
 	exit(1)
