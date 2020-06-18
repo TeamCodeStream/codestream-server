@@ -15,6 +15,7 @@ class TicketAndPullRequestTest extends PutReviewTest {
 			const newData = {
 				pullRequestUrl: `https://github.com/${RandomString.generate(10)}/${RandomString.generate(10)}`,
 				pullRequestProviderId: 'github*com',
+				pullRequestTitle: RandomString.generate(100),
 				ticketUrl: `https://trello.com/${RandomString.generate(10)}/${RandomString.generate(10)}`,
 				ticketProviderId: 'trello*com'
 			};

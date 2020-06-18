@@ -26,7 +26,7 @@ class ReviewUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['title', 'text', 'status', 'pullRequestUrl', 'pullRequestProviderId', 'ticketUrl', 'ticketProviderId'],
+			string: ['title', 'text', 'status', 'pullRequestUrl', 'pullRequestProviderId', 'pullRequestTitle', 'ticketUrl', 'ticketProviderId'],
 			boolean: ['allReviewersMustApprove'],
 			object: ['$addToSet', '$push', '$pull']
 		};

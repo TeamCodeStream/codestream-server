@@ -138,6 +138,11 @@ module.exports = {
 		maxLength: '50',
 		description: 'Identifies the third-party provider hosting the pull request associated with this review'
 	},
+	pullRequestTitle: {
+		type: 'string',
+		maxLength: 250,
+		description: 'Title of the pull request associated with this review'
+	},
 	ticketUrl: {
 		type: 'string',
 		maxLength: 1000,
