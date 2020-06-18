@@ -2,7 +2,7 @@
 
 'use strict';
 
-const EmailUtilities = require('./server_utils/email_utilities');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 
 class EmailNotificationSender {
 

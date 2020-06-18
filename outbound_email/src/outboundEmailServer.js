@@ -4,16 +4,16 @@
 'use strict';
 
 const OutboundEmailServerConfig = require('./config');  // structured config object
-const AWS = require('./server_utils/aws/aws');
-const SQSClient = require('./server_utils/aws/sqs_client');
-const RabbitMQClient = require('./server_utils/rabbitmq');
-const MongoClient = require('./server_utils/mongo/mongo_client.js');
+const AWS = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/aws');
+const SQSClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/sqs_client');
+const RabbitMQClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/rabbitmq');
+const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client.js');
 const EmailNotificationHandler = require('./emailNotificationHandler');
 const EmailNotificationV2Handler = require('./emailNotificationV2Handler');
 const OS = require('os');
 const PubNub = require('pubnub');
-const PubNubClient = require('./server_utils/pubnub/pubnub_client_async');
-const SocketClusterClient = require('./server_utils/socketcluster/socketcluster_client');
+const PubNubClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/pubnub_client_async');
+const SocketClusterClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/socketcluster/socketcluster_client');
 const EmailSender = require('./emailSender');
 const ConfirmationEmailHandler = require('./confirmationEmailHandler');
 const AlreadyRegisteredEmailHandler = require('./alreadyRegisteredEmailHandler');
@@ -21,8 +21,8 @@ const ChangeEmailConfirmationHandler = require('./changeEmailConfirmationHandler
 const InviteEmailHandler = require('./inviteEmailHandler');
 const ResetPasswordEmailHandler = require('./resetPasswordEmailHandler');
 const TeamCreatedEmailHandler = require('./teamCreatedEmailHandler');
-const TryIndefinitely = require('./server_utils/try_indefinitely');
-const { awaitParallel } = require('./server_utils/await_utils');
+const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const FS = require('fs');
 
 const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'reviews', 'markers'];

@@ -6,9 +6,9 @@ const ReviewRenderer = require('./reviewRenderer');
 const EmailNotificationV2Renderer = require('./emailNotificationV2Renderer');
 const EmailNotificationV2Sender = require('./emailNotificationV2Sender');
 const Utils = require('./utils');
-const TokenHandler = require('./server_utils/token_handler');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 const Juice = require('juice');
-const ArrayUtilities = require('./server_utils/array_utilities');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 const DEFAULT_TIME_ZONE = 'America/New_York';
 

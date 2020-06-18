@@ -2,8 +2,8 @@
 
 'use strict';
 
-const EmailUtilities = require('./server_utils/email_utilities');
-const HtmlEscape = require('./server_utils/html_escape');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const HtmlEscape = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/html_escape');
 const MomentTimezone = require('moment-timezone');
 const Path = require('path');
 const HLJS = require('highlight.js');

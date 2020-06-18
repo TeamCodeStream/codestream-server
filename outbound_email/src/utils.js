@@ -1,11 +1,11 @@
 'use strict';
 
 const MomentTimezone = require('moment-timezone');
-const EmailUtilities = require('./server_utils/email_utilities');
-const HtmlEscape = require('./server_utils/html_escape');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const HtmlEscape = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/html_escape');
 const HLJS = require('highlight.js');
 const Crypto = require('crypto');
-const Markdowner = require('./server_utils/markdowner');
+const Markdowner = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/markdowner');
 const Path = require('path');
 
 const CODE_PROVIDERS = {

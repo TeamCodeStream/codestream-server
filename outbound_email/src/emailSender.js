@@ -2,8 +2,8 @@
 
 'use strict';
 
-const SendGridEmail = require('./server_utils/sendgrid_email');
-const SMTPEmail = require('./server_utils/smtp_email');
+const SendGridEmail = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/sendgrid_email');
+const SMTPEmail = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/smtp_email');
 
 class EmailSender {
 
