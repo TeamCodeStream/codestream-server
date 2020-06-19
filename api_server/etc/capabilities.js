@@ -57,10 +57,12 @@ module.exports = {
 	},
 	'kickstart': {
 		description: 'Kickstart features',
-		version: '7.4.2'
+		version: '7.4.2',
+		restricted: true
 	},
 	'cr2pr': {
 		description: 'Kickstart features',
-		version: '7.4.2'
+		version: '7.4.2',
+		restricted: true
 	}
 };
