@@ -54,5 +54,13 @@ module.exports = {
 	'inviteUsersOnTheFly': {
 		description: 'Users can be invited on-the-fly in codemarks and reviews',
 		version: '7.2.7'
+	},
+	'kickstart': {
+		description: 'Kickstart features',
+		version: '7.4.2'
+	},
+	'cr2pr': {
+		description: 'Kickstart features',
+		version: '7.4.2'
 	}
 };
