@@ -1,5 +1,12 @@
 # Change Log
 
+## [7.4.3] - 2020-6-19
+
+### Added
+
+- Adds support for forthcoming "Start Work" feature
+- Adds support for forthcoming ability to create pull requests from CodeStream
+
 ## [7.4.1] - 2020-6-11
 
 ### Changed
