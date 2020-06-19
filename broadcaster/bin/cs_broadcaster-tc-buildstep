@@ -51,7 +51,7 @@ elif args.action == 'citest':
 	print("nothing to test")
 	# build.citest()                            # run the continuous integration test suite
 elif args.action == 'pack':
-	build.pack()                              # create asset info file and package assets
+	build.pack(csServerMonoRepoDir='broadcaster')  # create asset info file and package assets
 elif args.action == 'publish':
 	build.publish()                           # publish assets for distribution
 elif args.action == 'tag':
