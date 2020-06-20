@@ -6,7 +6,7 @@ prev_head=$1
 new_head=$2
 checkout_type=$3  # 1=branch checkout, 0=file checkout
 
-. hooks/git_hooks.sh || exit 1
+. $CS_BROADCASTER_TOP/hooks/git_hooks.sh || exit 1
 
 if [[ "$prev_head" != "$new_head" ]]; then
     githook_reconfigure_sandbox

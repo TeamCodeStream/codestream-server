@@ -28,7 +28,7 @@ buildOptions = {
 }
 
 # 4. Set this if you want your applied git tags to be something other than 'v' (v1.2.3)
-# buildOptions['gitTagPrefix'] = "mytag-"
+buildOptions['gitTagPrefix'] = "mailin-"
 
 if args.verbose:
 	print("buildstep running with", args.action)

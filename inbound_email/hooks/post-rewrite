@@ -2,7 +2,7 @@
 
 # post-rewrite hook
 
-. hooks/git_hooks.sh || exit 1
+. $CS_MAILIN_TOP/hooks/git_hooks.sh || exit 1
 
 echo "$0 is running"
 #echo "(pwd=`pwd`, args=$*)"
