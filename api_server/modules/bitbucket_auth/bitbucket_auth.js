@@ -11,7 +11,7 @@ const OAUTH_CONFIG = {
 	authPath: 'site/oauth2/authorize',
 	tokenPath: 'site/oauth2/access_token',
 	exchangeFormat: 'form',
-	scopes: 'account team repository issue:write',
+	scopes: 'account team repository issue:write pullrequest:write',
 	appIdInAuthorizationHeader: true,
 	mockAccessTokenExpiresIn: 7200,
 	supportsRefresh: true,
