@@ -236,7 +236,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
-			scope: 'account team repository issue:write'
+			scope: 'account team repository issue:write pullrequest:write'
 		};
 		const url = 'https://bitbucket.org/site/oauth2/authorize';
 		return { url, parameters };
