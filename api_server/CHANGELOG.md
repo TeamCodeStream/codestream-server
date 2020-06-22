@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.0] - 2020-6-22
+
+### Added
+
+- Adds pullrequest:write scope for Bitbucket auth to support creation of a PR on Bitbucket
+
 ## [7.4.2] - 2020-6-19
 
 ### Added

@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.0] - 2020-6-22
+
+### Changed
+
+- Release bump to support latest API version
+
 ## [7.4.2] - 2020-6-19
 
 ### Changed
