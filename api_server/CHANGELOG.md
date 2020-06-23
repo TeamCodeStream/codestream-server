@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.1] - 2020-6-23
+
+### Added
+
+- Opens up new "Start Work" feature for all IDEs except JetBrains
+
 ## [8.0.0] - 2020-6-22
 
 ### Added
