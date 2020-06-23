@@ -57,8 +57,7 @@ module.exports = {
 	},
 	'kickstart': {
 		description: 'Kickstart features',
-		version: '7.4.2',
-		restricted: true
+		version: '7.4.2'
 	},
 	'cr2pr': {
 		description: 'Features supporting opening pull requests after code reviews',
