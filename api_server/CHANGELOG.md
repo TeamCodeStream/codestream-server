@@ -1,10 +1,16 @@
 # Change Log
 
+## [8.0.2] - 2020-6-23
+
+### Added
+
+- Opens up new "Start Work" feature for all teams and all IDEs
+
 ## [8.0.1] - 2020-6-23
 
 ### Added
 
-- Opens up new "Start Work" feature for all IDEs except JetBrains
+- Opens up new "Start Work" feature for select teams and all IDEs except JetBrains
 
 ## [8.0.0] - 2020-6-22
 
