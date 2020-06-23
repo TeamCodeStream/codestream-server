@@ -67,10 +67,19 @@ Incoming requests contain a header field (**X-CS-Plugin-IDE**) that announces th
 | X-CS-Preferred-Version | minimumPreferredRelease |
 | X-CS-Supported-Version | earliestSupportedRelease |
 
-If the passed version is less than **earliestSupportedRelease**, the request is rejected, with the **X-CS-Version-Disposition** header set to "incompatible".
+The value returned in the **X-CS-Version-Disposition** header is determined as follows:
+
+If no version or no plugin header is passed in with the request, the request is honored, and the
+**X-CS-Version-Disposition** header is set to "unknown".
+
+Otherwise, if the plugin type isn't recognized, the request is honored, and the **X-CS-Version-Disposition** header is set to "unknownIDE".
+
+Otherwise, if the passed version is unrecognizable or can't be parsed, the request is honored, and the **X-CS-Version-Disposition** header is set to "unknownVersion".
+
+Otherwise, if the passed version is less than **earliestSupportedRelease**, the request is rejected, with the **X-CS-Version-Disposition** header set to "incompatible".
 
 Otherwise, if the passed version is less than **minimumPreferredRelease**, the request is honored, but the **X-CS-Version-Disposition** header is set to "deprecated".
 
 Otherwise, if the passed version is less than **earliestSupportedRelease**, the request is honored, but the **X-CS-Version-Disposition** header is set to "outdated".
 
-Otherwise, the **X-CS-Version-Disposition** header is set to "ok".
+Otherwise, the request is honored, and the the **X-CS-Version-Disposition** header is set to "ok".
