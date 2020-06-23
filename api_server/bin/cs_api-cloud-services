@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#desc# stop/start/status all cs services in 'cs' playground
+#desc# stop/start/status all cs services in in the playground
 
 function usage {
 	echo "usage: `basename $0` {action}"

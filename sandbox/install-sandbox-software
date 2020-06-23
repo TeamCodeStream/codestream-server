@@ -2,20 +2,20 @@
 
 [ -z "$2" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
 
-# This script is called via the dt-install-sandbox-software command.
-# Do not run it directly.  Further, this is called prior to the
-# sandbox environment being loaded into the shell so any variables
-# needed from the defaults.sh (or other env file) must be setup
-# manually.
+# This script is a hook called via the dt-install-sandbox-software command.
+# Do not run it directly.
 
-export CSBE_SANDBOX=$1  # root of the sandbox
-export CSBE_NAME=`dirname $CSBE_SANDBOX`
-export CSBE_TOP=$2      # root of the primary git project
-SB_ENV_FILE=$3            # name of the environment file to use
-[ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
+[ -z "$1" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
 
-
-. $CSBE_TOP/sandbox/$SB_ENV_FILE
+if [ "$1" != "--env-loaded" ]; then
+	[ -z "$2" ] && echo "Run dt-install-sandbox-software (version 1) to call this script" && exit 1
+	[ -z "$CSBE_SANDBOX" ] && export CSBE_SANDBOX=$1      # root of the sandbox
+	[ -z "$CSBE_TOP" ] && export CSBE_TOP=$2              # root of the primary git project
+	[ -z "$CSBE_NAME" ] && export CSBE_NAME=`dirname $CSBE_SANDBOX`
+	SB_ENV_FILE=$3                                        # name of the environment file to use
+	[ -z "$SB_ENV_FILE" ] && SB_ENV_FILE=defaults.sh
+	. $CSBE_TOP/sandbox/$SB_ENV_FILE
+fi
 
 # Install node if specified with CSBE_NODE_VER
 [ -n "$CSBE_NODE_VER" -a ! -L $CSBE_SANDBOX/node ] && dt-get-software -V $CSBE_NODE_VER node $CSBE_SANDBOX
@@ -26,5 +26,9 @@ SB_ENV_FILE=$3            # name of the environment file to use
 #
 # Note that there is no sandbox process, other than a first time install, that exeutes this hook.
 
+# $CS_API_TOP/sandbox/install-sandbox-software --env-loaded
+# $CS_BROADCASTER_TOP/sandbox/install-sandbox-software --env-loaded
+# $CS_MAILIN_TOP/sandbox/install-sandbox-software --env-loaded
+# $CS_OUTBOUND_EMAIL_TOP/sandbox/install-sandbox-software --env-loaded
 
 exit 0

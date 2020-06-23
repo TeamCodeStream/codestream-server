@@ -15,35 +15,9 @@ if [ "$1" != "--env-loaded" ]; then
 	. $CS_API_TOP/sandbox/$SB_ENV_FILE
 fi
 
-# Install additional git projects
-# cd $CS_API_SANDBOX
-# if [ ! -d cider_tools ]; then
-# 	echo "Cloning cider_tools and installing node modules"
-# 	origin_url=`(cd $CS_API_TOP && git config remote.origin.url)`
-# 	if [ `echo $origin_url|grep -c http` -eq 1 ]; then
-# 		tools_proj=https://github.com/pkt4dev/cider_tools
-# 	else
-# 		origin_proto=`echo $origin_url|cut -f1 -d:`
-# 		tools_proj="$origin_proto:pkt4dev/cider_tools"
-# 	fi
-# 	echo "git clone $tools_proj"
-# 	git clone $tools_proj
-# else
-# 	echo "cider_tools already exists. Not cloning"
-# fiC
-
-
-# Example code to fetch additional software needed for the sandbox and
-# install it. Software is expected to be in the Sandbox Cloud. In this
-# case we're install the mongodb binaries from a tarball.
-
 # Install node if specified with CS_API_NODE_VER
 [ -n "$CS_API_NODE_VER" -a ! -L $CS_API_SANDBOX/node ] && dt-get-software -V $CS_API_NODE_VER node $CS_API_SANDBOX
 
 [ ! -d $CS_API_REPO_ROOT/.git ] && echo "This is a runtime environment installation" && exit 0
-
-# Install secondary git repos
-# echo "Cloning TestRepo"
-# (cd $CS_API_SANDBOX && git clone git@github.com:teamcodestream/TestRepo) || exit 1
 
 exit 0

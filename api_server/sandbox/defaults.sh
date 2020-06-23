@@ -4,11 +4,11 @@
 sandutil_load_options $CS_API_SANDBOX || { echo "failed to load options" >&2 && return 1; }
 
 # node
-[ -z "$CS_API_NODE_VER" ] && export CS_API_NODE_VER=12.14.1
-export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/node_modules/.bin:$PATH
-
+if [ -z "$CSBE_NODE_VER" ]; then
+	[ -z "$CS_API_NODE_VER" ] && export CS_API_NODE_VER=12.14.1
+	export PATH=$CS_API_SANDBOX/node/bin:$CS_API_TOP/node_modules/.bin:$PATH
+fi
 export PATH=$CS_API_TOP/bin:$PATH
-
 export NODE_PATH=$CS_API_TOP/node_modules:$NODE_PATH
 
 [ -z "$CS_API_LOGS" ] && export CS_API_LOGS=$CS_API_SANDBOX/log

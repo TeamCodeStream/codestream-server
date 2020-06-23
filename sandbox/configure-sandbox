@@ -1,6 +1,7 @@
 #!/bin/bash
 
 [ -z "$1" ] && echo "Do not run this script directly. Run dt-configure-sandbox instead." && exit 1
+configArg=$1
 
 # argument:
 #   configure         normal configuration mode. Run on a clean install or reconfigure (mode = configure)
@@ -75,6 +76,12 @@ if [ -d "$CSBE_TOP/hooks" ]; then
 	done
 	echo "."
 fi
+
+# load sub-sandbox
+cd $CS_API_TOP && npm install --no-save
+cd $CS_BROADCASTER_TOP && npm install --no-save
+cd $CS_MAILIN_TOP && npm install --no-save
+cd $CS_OUTBOUND_EMAIL_TOP && npm install --no-save
 
 # You must exit with a status of '0' if the script was successful or '1' otherwise.
 exit 0

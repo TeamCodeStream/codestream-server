@@ -19,11 +19,12 @@ The CodeStream API Service is lovely.
 
 ### Quick Start
 1. If you're using dev_tools on your own computer, bring it up to date
-   (`dt-selfupdate -y`).
-1. Update your secrets (`dt-update-secrets`).
+   (`dt-selfupdate -y`). You don't need to do this if you're using a managed EC2
+   instance.
+1. Update your secrets (`dt-update-secrets -y`).
 1. Select a codestream configuration to use (details documented
-   [here](README.unified-cfg-file.md)). To get up and running quickly, this will
-   select out-of-the-box 'codestream-cloud' as your configuration.
+   [here](README.unified-cfg-file.md)). To get up and running quickly, this
+   command will select out-of-the-box 'codestream-cloud' as your configuration.
 	```
 	$ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 	```
@@ -39,11 +40,10 @@ The CodeStream API Service is lovely.
    without credentials on **localhost** (the default mongo connect url is
    `mongodb://localhost/codestream`).
 1. Install the api sandbox (only specify `-I` if you are *not* using or have not
-   loaded a dev_tools mongo sandbox). We're migrating to a new unified config
-   file format so for now include the `-e` option. The default api sandbox name
-   is `api` so that will be assumed in this documentation:
+   loaded a dev_tools mongo sandbox). A default api sandbox name of `api` is
+   assumed in some tools so we'll use it here (though you can change it):
 	```
-	dt-sb-new-sandbox -yCD [-I] -t cs_api -n api
+	dt-sb-new-sandbox -yCD [-I] -t cs_server -n api -O sb.info.api
 	```
 1. Load your api sandbox:
 	```
