@@ -56,7 +56,7 @@ Installation for development on the CodeStream network.
    sandboxes. This will create a playground with a default name of `csbe` (not
    to be confused with the **csbe** sandbox).
 	```
-	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/default.template
+	$ dt-sb-create-playground -t $CSBE_TOP/sandbox/playgrounds/default.template
 	```
 
 You are ready to go.  From this point forward use the following command to setup
