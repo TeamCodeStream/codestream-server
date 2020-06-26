@@ -1,0 +1,20 @@
+# set up a development environment suitable for testing the build process
+export TCBUILD_API_MONGO_PORT=$MDB_PORT
+export TCBUILD_API_MONGO_SANDBOX_NAME=$MDB_NAME
+export TCBUILD_API_SERVER_ASSET_ENV=$CS_API_ASSET_ENV
+export TCBUILD_API_SERVER_BYPASS=true
+export TCBUILD_API_SERVER_CFG_FILE=`dt-env|grep cs_server|awk '{print $3}'`
+export TCBUILD_API_SERVER_PORT=`get-json-property -j $CSSVC_CFG_FILE -p apiServer.port`
+export TCBUILD_API_SERVER_SANDBOX_NAME=$CS_API_NAME
+export TCBUILD_API_SERVER_VERSION=latest
+export TCBUILD_ARTIFACT_URL_PREFIX=http://assets.codestream.us/artifacts-test
+export TCBUILD_ASSET_TAG=${DT_USER}test
+export TCBUILD_BUILD_BRANCH=develop
+export TCBUILD_BUILD_PROPERTIES_FILE=/home/web/sandboxes/tca/TeamCityAgent-58406/temp/buildTmp/teamcity.build3564446235738745865.properties
+export TCBUILD_CHECKOUT_DIR=$CS_API_REPO_ROOT
+export TCBUILD_CONFIG_PROPERTIES_FILE=/home/web/sandboxes/tca/TeamCityAgent-58406/temp/buildTmp/teamcity.config5314156045944291523.properties
+export TCBUILD_COUNTER=99999
+export TCBUILD_DEFAULTS_SET=true
+export TCBUILD_NEW_SANDBOX_ARGS="-PDO sb.info.api"
+export TCBUILD_SANDBOX_CFG_FILE=`dt-env|grep cs_server|awk '{print $3}'`
+export TCBUILD_SANDBOX_NAME=$CS_API_NAME
