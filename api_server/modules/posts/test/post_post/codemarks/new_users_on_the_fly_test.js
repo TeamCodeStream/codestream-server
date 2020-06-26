@@ -43,6 +43,9 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 		// all the returned users should have been added to the team
 		data.users.forEach(user => {
 			Assert(user.teamIds.includes(this.team.id), 'new user was not added to team');
+			if (!user.isRegistered) {
+				Assert.equal(user.lastInviteType, 'codemarkNotification', 'lastInviteType should be set to codemarkNotification');
+			}
 		});
 
 		// all the added users (including ones who were already on the team) should have been added

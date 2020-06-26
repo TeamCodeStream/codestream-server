@@ -241,6 +241,16 @@ module.exports = {
 		maxLength: 200,
 		description: 'Code used to match a team invite with a given user'
 	},
+	lastInviteType: {
+		type: 'string',
+		maxLength: 25,
+		description: 'Invite type the last time this user was invited, one of: "invitation", "reinvitation", "reviewNotification", "codemarkNotification"'
+	},
+	inviteTrigger: {
+		type: 'string',
+		maxLength: 25,
+		description: 'The ID of the object that triggered the invite, which is a "C" or "R" (for codemark or review), followed by the actual ID'
+	},
 	companyName: {
 		type: 'string',
 		serverOnly: true,
