@@ -15,6 +15,7 @@ class UnregisteredInviteTest extends PostUserTest {
 	// perform a follow-up fetch of the user object that should have been modified
 	// by the invitation
 	run (callback) {
+		this.firstRun = true;
 		BoundAsync.series(this, [
 			super.run,	// just to be sure we'll actually run twice, to get numInvites to increment twice
 			super.run,
@@ -22,6 +23,17 @@ class UnregisteredInviteTest extends PostUserTest {
 			this.confirmUser,
 			this.verifyUserUpdate
 		], callback);
+	}
+
+	// validate the response to the test request
+	validateResponse (data) {
+		if (!this.firstRun) {
+			this.lastInviteType = 'reinvitation';	// this sets the right condition for validating the response in the second test run
+		}
+		else {
+			this.firstRun = false;
+		}
+		super.validateResponse(data);
 	}
 
 	// register the created user, since they were unregistered, and we need

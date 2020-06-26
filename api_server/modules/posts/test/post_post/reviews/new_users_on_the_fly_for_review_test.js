@@ -45,6 +45,9 @@ class NewUsersOnTheFlyForReviewTest extends ReviewersTest {
 		// all the returned users should have been added to the team
 		data.users.forEach(user => {
 			Assert(user.teamIds.includes(this.team.id), 'new user was not added to team');
+			if (!user.isRegistered) {
+				Assert.equal(user.lastInviteType, 'reviewNotification', 'lastInviteType should be set to reviewNotification');
+			}
 		});
 
 		// all the added users (including ones who were already on the team) should have been added

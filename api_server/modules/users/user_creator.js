@@ -44,7 +44,7 @@ class UserCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			optional: {
-				string: ['email', 'password', 'username', 'fullName', 'companyName', 'timeZone', 'confirmationCode', '_pubnubUuid', 'phoneNumber', 'iWorkOn'],
+				string: ['email', 'password', 'username', 'fullName', 'companyName', 'timeZone', 'confirmationCode', '_pubnubUuid', 'phoneNumber', 'iWorkOn', 'inviteTrigger'],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
 				boolean: ['isRegistered'],
 				'array(string)': ['secondaryEmails', 'providerIdentities'],
@@ -149,8 +149,8 @@ class UserCreator extends ModelCreator {
 			this.attributes.externalUserId = this.options.externalUserId;
 		}
 
-		if (!this.options || !this.options.dontSetInviteCode) {
-			this.setInviteCode();				// set an invite code for the user to accept an invite
+		if (this.userBeingAddedToTeamId && (!this.options || !this.options.dontSetInviteCode)) {
+			this.setInviteInfo();			// set an invite code for the user to accept an invite
 		}
 
 		await this.hashPassword();			// hash the user's password, if given
@@ -158,17 +158,32 @@ class UserCreator extends ModelCreator {
 		await super.preSave();
 	}
 
-	// set an invite code for the user to accept an invite, as needed
-	setInviteCode () {
+	// set an invite code and other invite info for the user to accept an invite, as needed
+	setInviteInfo () {
+		// existing registered users don't get an invite code
+		if (this.existingModel && this.existingModel.get('isRegistered')) {
+			return;
+		}
+
 		// if user being added to team, generate an invite code and save it as a signup token
-		if (
-			this.userBeingAddedToTeamId &&
-			(
-				!this.existingModel ||
-				!this.existingModel.get('inviteCode')
-			)
-		) {
+		if (!this.existingModel || !this.existingModel.get('inviteCode')) {
 			this.inviteCode = this.attributes.inviteCode = this.generateInviteCode();
+		}
+
+		// set lastInviteType, can be triggered by a review or codemark notification
+		if (this.attributes.inviteTrigger) {
+			if (this.attributes.inviteTrigger.startsWith('R')) {
+				this.attributes.lastInviteType = 'reviewNotification';
+			}
+			else if (this.attributes.inviteTrigger.startsWith('C')) {
+				this.attributes.lastInviteType = 'codemarkNotification';
+			}
+		}
+		else if (this.existingModel && !this.existingModel.get('isRegistered')) {
+			this.attributes.lastInviteType = 'reinvitation';
+		}
+		else {
+			this.attributes.lastInviteType = 'invitation';
 		}
 	}
 

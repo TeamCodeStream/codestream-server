@@ -142,8 +142,23 @@ class PostCreator extends ModelCreator {
 			dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
 		});
 
+		// trickiness ... we need to include the codemark or review ID in the invited user objects, but we
+		// don't know them yet, and we need to create the users first to make them followers ... so here we
+		// lock down the IDs we will use later in creating the codemark or review
+		let inviteTrigger;
+		if (this.attributes.codemark) {
+			this.codemarkId = this.request.data.codemarks.createId();
+			inviteTrigger = `C${this.codemarkId}`;
+		}
+		if (this.attributes.review) {
+			this.reviewId = this.request.data.reviews.createId();
+			inviteTrigger = `R${this.reviewId}`;
+		}
 		const userData = this.addedUsers.map(email => {
-			return { email };
+			return { 
+				email,
+				inviteTrigger
+			};
 		});
 		this.transforms.invitedUsers = await this.userInviter.inviteUsers(userData);
 	}
@@ -154,6 +169,7 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		const codemarkAttributes = Object.assign({}, this.attributes.codemark, {
+			id: this.codemarkId, // if locked down previously
 			teamId: this.team.id,
 			streamId: this.stream.id,
 			postId: this.attributes.id
@@ -180,6 +196,7 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		const reviewAttributes = Object.assign({}, this.attributes.review, {
+			id: this.reviewId, // if locked down previously
 			teamId: this.team.id,
 			streamId: this.stream.id,
 			postId: this.attributes.id
