@@ -7,16 +7,16 @@
 'use strict';
 
 const PasswordHasher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/password_hasher');
-const Email = process.argv[2];
-const Password = process.argv[3];
 const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const Commander = require('commander');
 
-if (!Email || !Password) {
-	console.log('Usage: cs_set_user_password <email> <password>');
-	process.exit();
-}
+Commander
+	.requiredOption('-e, --email <email>', 'Email of user whose password is to change')
+	.requiredOption('-p, --password <password>', 'Password to change to')
+	.option('--force-set', 'Force the user to change their password next time they log in')
+	.parse(process.argv);
 
 (async function() {
 
@@ -32,20 +32,27 @@ if (!Email || !Password) {
 	}
 	const userCollection = mongoClient.mongoCollections.users;
 
-	const hash = await new PasswordHasher({ password: Password }).hashPassword();
+	const hash = await new PasswordHasher({ password: Commander.password }).hashPassword();
 
 	try {
 		const users = await userCollection.getByQuery(
-			{ searchableEmail: Email.toLowerCase() },
+			{ searchableEmail: Commander.email.toLowerCase() },
 			{ hint: UserIndexes.bySearchableEmail }
 		);
 		if (users.length === 0) {
-			console.error('User not found: ' + Email);
+			console.error('User not found: ' + Commander.email);
 			process.exit();
 		}
+		
+		const set = {
+			passwordHash: hash
+		};
+		if (Commander.forceSet) {
+			set.mustSetPassword = true;
+		}
 		await mongoClient.mongoCollections['users'].updateDirect(
-			{ searchableEmail: Email.toLowerCase() }, 
-			{ $set: { passwordHash: hash } }
+			{ searchableEmail: Commander.email.toLowerCase() }, 
+			{ $set: set }
 		);
 	} 
 	catch (error) {
