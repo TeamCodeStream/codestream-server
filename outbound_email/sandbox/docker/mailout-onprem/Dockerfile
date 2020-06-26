@@ -7,16 +7,17 @@ RUN mkdir /opt/config
 WORKDIR /opt/mailout
 RUN mkdir log tmp pid
 
-WORKDIR /opt/mailout/outbound_email
+WORKDIR /opt/mailout/codestream-server/outbound_email
 
-ADD src /opt/mailout/outbound_email/src
-ADD package.json package-lock.json /opt/mailout/outbound_email/
-ADD bin/outbound_email_server.js /opt/mailout/outbound_email/bin/outbound_email_server.js
+ADD outbound_email/src /opt/mailout/codestream-server/outbound_email/src
+ADD outbound_email/package.json outbound_email/package-lock.json /opt/mailout/codestream-server/outbound_email/
+ADD outbound_email/bin/outbound_email_server.js /opt/mailout/codestream-server/outbound_email/bin/outbound_email_server.js
 
 RUN npm install --no-save
 
 ENV CS_OUTBOUND_EMAIL_TOP=/opt/mailout/outbound_email
 ENV CSSVC_CFG_FILE=/opt/config/codestream-services-config.json
-# ENV CS_OUTBOUND_EMAIL_SHOW_CFG=1
+ENV CSSVC_BACKEND_ROOT=/opt/mailout/codestream-server
+ENV NODE_PATH=/opt/mailout/codestream-server/outbound_email/node_modules
 
 CMD [ "/opt/mailout/outbound_email/bin/outbound_email_server.js" ]

@@ -1,7 +1,11 @@
 
 # dockerImageName=""  # default uses directory name as image name
-dockerBuildDirectory=$CS_API_REPO_ROOT
-[ -z "$CS_API_TOP" ] && pkgJsonDir="." || pkgJsonDir=$CS_API_TOP
+if [ -z "$CS_API_TOP" ]; then
+	pkgJsonDir=api_server
+	dockerBuildDirectory=`pwd`
+else
+	pkgJsonDir=$CS_API_TOP
+fi
 dockerHubOrganization=teamcodestream
 defaultImageVersion=`get-json-property -j $pkgJsonDir/package.json -p version`
 buildParameters=""
