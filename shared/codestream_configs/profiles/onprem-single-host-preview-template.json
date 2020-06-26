@@ -20,13 +20,13 @@
 			"disablePhoneHome": false,
 			"dontWantAWS": true,
 			"logger": {
-				"directory": "/opt/api/log"
+				"directory": "${CS_API_LOGS}"
 			},
 			"marketingSiteUrl": "https://www.codestream.com",
 			"phoneHomeUrl": "https://phone-home.codestream.com",
 			"port": 443,
 			"publicApiUrl": "https://{{FQHN}}",
-			"tmpDirectory": "/opt/api/tmp"
+			"tmpDirectory": "${CS_API_TMP}"
 		},
 		"local": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
@@ -48,13 +48,13 @@
 			"dontWantAWS": true,
 			"ignoreHttps": true,
 			"logger": {
-				"directory": "/opt/api/log"
+				"directory": "${CS_API_LOGS}"
 			},
 			"marketingSiteUrl": "https://www.codestream.com",
 			"phoneHomeUrl": "https://phone-home.codestream.com",
 			"port": 80,
 			"publicApiUrl": "http://{{FQHN}}",
-			"tmpDirectory": "/opt/api/tmp"
+			"tmpDirectory": "${CS_API_TMP}"
 		}
 	},
 	"broadcastEngine": {
@@ -62,7 +62,7 @@
 			"defaultEnv": {
 				"host": "{{FQHN}}",
 				"logger": {
-					"directory": "/opt/broadcaster/log"
+					"directory": "${CS_BROADCASTER_LOGS}"
 				},
 				"port": 12443,
 				"secrets": {
@@ -84,7 +84,7 @@
 				"host": "{{FQHN}}",
 				"ignoreHttps": true,
 				"logger": {
-					"directory": "/opt/broadcaster/log"
+					"directory": "${CS_BROADCASTER_LOGS}"
 				},
 				"port": 12080,
 				"secrets": {
@@ -125,9 +125,10 @@
 	"outboundEmailServer": {
 		"defaultEnv": {
 			"logger": {
-				"directory": "/opt/mailout/log"
+				"directory": "${CS_OUTBOUND_EMAIL_LOGS}"
 			},
-			"showConfig": false
+			"showConfig": false,
+			"tmpDirectory": "${CS_OUTBOUND_EMAIL_TMP}"
 		},
 		"local": {
 			"showConfig": true

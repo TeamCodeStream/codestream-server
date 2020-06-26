@@ -2,4 +2,4 @@
 
 #desc# Display sandbox environment variables
 
-dt-vars --sandbox_dir=$CS_BROADCASTER_SANDBOX "$@"
+dt-vars -p CS_BROADCASTER "$@"
