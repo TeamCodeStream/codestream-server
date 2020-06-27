@@ -21,6 +21,7 @@ EXPOSE 12443
 ENV CSSVC_BACKEND_ROOT=/opt/broadcaster/codestream-server
 ENV CSSVC_CFG_FILE=/opt/config/codestream-services-config.json
 ENV NODE_PATH=/opt/broadcaster/codestream-server/broadcaster/node_modules
+ENV CS_BROADCASTER_TOP=/opt/broadcaster/codestream-server/broadcaster
 ENV CS_BROADCASTER_LOGS=/opt/broadcaster/log
 
 CMD [ "/opt/broadcaster/broadcaster/bin/broadcaster.js" ]

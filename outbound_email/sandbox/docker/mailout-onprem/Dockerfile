@@ -18,6 +18,7 @@ RUN npm install --no-save
 ENV CSSVC_BACKEND_ROOT=/opt/mailout/codestream-server
 ENV CSSVC_CFG_FILE=/opt/config/codestream-services-config.json
 ENV NODE_PATH=/opt/mailout/codestream-server/outbound_email/node_modules
+ENV CS_OUTBOUND_EMAIL_TOP=/opt/mailout/codestream-server/outbound_email
 ENV CS_OUTBOUND_EMAIL_LOGS=/opt/mailout/log
 ENV CS_OUTBOUND_EMAIL_TMP=/opt/mailout/tmp
 

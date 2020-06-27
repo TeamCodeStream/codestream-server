@@ -26,6 +26,7 @@ EXPOSE 443
 ENV CSSVC_BACKEND_ROOT=/opt/api/codestream-server
 ENV CSSVC_CFG_FILE=/opt/config/codestream-services-config.json
 ENV NODE_PATH=/opt/api/codestream-server/api_server/node_modules
+ENV CS_API_TOP=/opt/api/codestream-server/api_server
 ENV CS_API_LOGS=/opt/api/codestream-server/log
 ENV CS_API_TMP=/opt/api/codestream-server/tmp
 
