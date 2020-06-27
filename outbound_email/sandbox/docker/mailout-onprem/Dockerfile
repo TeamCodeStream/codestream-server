@@ -7,7 +7,7 @@ RUN mkdir /opt/config
 WORKDIR /opt/mailout
 RUN mkdir log tmp pid
 
-WORKDIR /opt/mailout/codestream-server/outbound_email
+WORKDIR /opt/mailout/codestream-server
 
 ADD outbound_email/src /opt/mailout/codestream-server/outbound_email/src
 ADD outbound_email/package.json outbound_email/package-lock.json /opt/mailout/codestream-server/outbound_email/

@@ -7,7 +7,7 @@ RUN mkdir /opt/config
 WORKDIR /opt/broadcaster
 RUN mkdir log tmp pid
 
-WORKDIR /opt/broadcaster/broadcaster
+WORKDIR /opt/broadcaster/codestream-server
 
 ADD broadcaster/*.js broadcaster/*.json broadcaster/*.info /opt/broadcaster/codestream-server/broadcaster/
 ADD broadcaster/lib /opt/broadcaster/codestream-server/broadcaster/lib
