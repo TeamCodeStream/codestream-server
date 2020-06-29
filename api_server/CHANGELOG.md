@@ -2,9 +2,9 @@
 
 ## [8.0.3] - 2020-6-29
 
-### Changed
+### Added
 
-- Release bump to support latest API version
+- Adds a script for on-prem admins to set a temporary password for a user, which will also force the user to change it upon signin
 
 ## [8.0.2] - 2020-6-23
 
