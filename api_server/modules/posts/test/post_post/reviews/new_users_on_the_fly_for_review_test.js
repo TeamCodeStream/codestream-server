@@ -47,6 +47,7 @@ class NewUsersOnTheFlyForReviewTest extends ReviewersTest {
 			Assert(user.teamIds.includes(this.team.id), 'new user was not added to team');
 			if (!user.isRegistered) {
 				Assert.equal(user.lastInviteType, 'reviewNotification', 'lastInviteType should be set to reviewNotification');
+				Assert.equal(user.inviteTrigger, `R${data.review.id}`, 'inviteTrigger should be set to "R" plus the review id');
 			}
 		});
 

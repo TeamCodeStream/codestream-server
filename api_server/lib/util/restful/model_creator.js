@@ -122,6 +122,9 @@ class ModelCreator {
 			// override with the attributes passed in, we'll save these
 			this.attributes = Object.assign({}, this.existingModel.attributes, this.attributes);
 		}
+		else if (this.useId) {
+			this.attributes.id = this.useId;
+		}
 		// create a new model with the passed attributes, and let the model pre-save itself ...
 		// this is where pre-save validation of the attributes happens
 		this.model = new this.modelClass(this.attributes);
@@ -205,7 +208,7 @@ class ModelCreator {
 	// requisition an ID for the model we are about to create ... use this if you need
 	// to know the ID ahead of time
 	createId () {
-		this.attributes.id = this.attributes.id || this.collection.createId();
+		this.attributes.id = this.useId || this.collection.createId();
 	}
 
 	// truly create a new document

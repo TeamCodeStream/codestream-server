@@ -45,6 +45,7 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 			Assert(user.teamIds.includes(this.team.id), 'new user was not added to team');
 			if (!user.isRegistered) {
 				Assert.equal(user.lastInviteType, 'codemarkNotification', 'lastInviteType should be set to codemarkNotification');
+				Assert.equal(user.inviteTrigger, `C${data.codemark.id}`, 'inviteTrigger should be set to "C" plus the codemark id');
 			}
 		});
 

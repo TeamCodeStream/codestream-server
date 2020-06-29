@@ -127,6 +127,18 @@ class PostCreator extends ModelCreator {
 
 	// create any added users being mentioned, these users get invited "on-the-fly"
 	async createAddedUsers () {
+		// trickiness ... we need to include the codemark or review ID in the invited user objects, but we
+		// don't know them yet, and we need to create the users first to make them followers ... so here we
+		// lock down the IDs we will use later in creating the codemark or review
+		if (this.attributes.codemark) {
+			this.codemarkId = this.request.data.codemarks.createId();
+			this.inviteTrigger = `C${this.codemarkId}`;
+		}
+		if (this.attributes.review) {
+			this.reviewId = this.request.data.reviews.createId();
+			this.inviteTrigger = `R${this.reviewId}`;
+		}
+
 		if (!this.addedUsers || this.addedUsers.length === 0) {
 			return;
 		}
@@ -142,22 +154,10 @@ class PostCreator extends ModelCreator {
 			dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
 		});
 
-		// trickiness ... we need to include the codemark or review ID in the invited user objects, but we
-		// don't know them yet, and we need to create the users first to make them followers ... so here we
-		// lock down the IDs we will use later in creating the codemark or review
-		let inviteTrigger;
-		if (this.attributes.codemark) {
-			this.codemarkId = this.request.data.codemarks.createId();
-			inviteTrigger = `C${this.codemarkId}`;
-		}
-		if (this.attributes.review) {
-			this.reviewId = this.request.data.reviews.createId();
-			inviteTrigger = `R${this.reviewId}`;
-		}
 		const userData = this.addedUsers.map(email => {
 			return { 
 				email,
-				inviteTrigger
+				inviteTrigger: this.inviteTrigger
 			};
 		});
 		this.transforms.invitedUsers = await this.userInviter.inviteUsers(userData);
@@ -169,7 +169,6 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		const codemarkAttributes = Object.assign({}, this.attributes.codemark, {
-			id: this.codemarkId, // if locked down previously
 			teamId: this.team.id,
 			streamId: this.stream.id,
 			postId: this.attributes.id
@@ -184,7 +183,8 @@ class PostCreator extends ModelCreator {
 			request: this.request,
 			origin: this.attributes.origin,
 			mentionedUserIds,
-			usersBeingAddedToTeam
+			usersBeingAddedToTeam,
+			useId: this.codemarkId // if locked down previously
 		}).createCodemark(codemarkAttributes);
 		delete this.attributes.codemark;
 		this.attributes.codemarkId = this.transforms.createdCodemark.id;
@@ -196,7 +196,6 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		const reviewAttributes = Object.assign({}, this.attributes.review, {
-			id: this.reviewId, // if locked down previously
 			teamId: this.team.id,
 			streamId: this.stream.id,
 			postId: this.attributes.id
@@ -207,7 +206,8 @@ class PostCreator extends ModelCreator {
 			request: this.request,
 			origin: this.attributes.origin,
 			mentionedUserIds: this.attributes.mentionedUserIds || [],
-			usersBeingAddedToTeam
+			usersBeingAddedToTeam,
+			useId: this.reviewId, // if locked down previously
 		}).createReview(reviewAttributes);
 		delete this.attributes.review;
 		this.attributes.reviewId = this.transforms.createdReview.id;
@@ -713,6 +713,9 @@ class PostCreator extends ModelCreator {
 	// get any mentioned users so we can tell who is unregistered
 	async getMentionedUsers () {
 		const userIds = this.attributes.mentionedUserIds || [];
+		if (this.transforms.createdReview && this.transforms.createdReview.get('reviewers')) {
+			userIds.push(...this.transforms.createdReview.get('reviewers'));
+		}
 		if (userIds.length === 0) {
 			return;
 		}
@@ -748,6 +751,13 @@ class PostCreator extends ModelCreator {
 				numMentions: 1
 			}
 		};
+
+		// if a review or codemark was created, update the user's invite trigger and last invite type
+		if (this.inviteTrigger) {
+			update.$set.inviteTrigger = this.inviteTrigger;
+			update.$set.lastInviteType = this.inviteTrigger.startsWith('R') ? 'reviewNotification' : 'codemarkNotification';
+		}
+
 		await this.data.users.updateDirect(
 			{ id: this.data.users.objectIdSafe(user.id) },
 			update

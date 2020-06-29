@@ -148,6 +148,7 @@ const NewUsersMessageToTeamTest = require('./codemarks/new_users_message_to_team
 const NewUserMessageTest = require('./codemarks/new_user_message_test');
 const NewUserInvteTest = require('./codemarks/new_user_invite_test');
 const NumUsersInvitedTest = require('./codemarks/num_users_invited_test');
+const CodemarkInviteTriggerTest = require('./codemarks/codemark_invite_trigger_test');
 
 // concerning reviews...
 const ReviewTest = require('./reviews/review_test');
@@ -208,6 +209,7 @@ const ReplyToAttachedCodemarkNumRepliesTest = require('./reviews/reply_to_attach
 const TotalReviewsTest = require('./reviews/total_reviews_test');
 const ACLRepoTest = require('./reviews/acl_repo_test');
 const NewUsersOnTheFlyForReviewTest = require('./reviews/new_users_on_the_fly_for_review_test');
+const ReviewInviteTriggerTest = require('./reviews/review_invite_trigger_test');
 
 class PostPostRequestTester {
 
@@ -376,6 +378,7 @@ class PostPostRequestTester {
 		new NewUserMessageTest().test();
 		new NewUserInvteTest().test();
 		new NumUsersInvitedTest().test();
+		new CodemarkInviteTriggerTest().test();
 
 		// concerning reviews...
 		// we do a subset of the tests for codemarks, assuming that marker validation 
@@ -439,6 +442,7 @@ class PostPostRequestTester {
 		new TotalReviewsTest().test();
 		new ACLRepoTest().test();
 		new NewUsersOnTheFlyForReviewTest().test();
+		new ReviewInviteTriggerTest().test();
 	}
 }
 
