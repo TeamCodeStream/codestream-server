@@ -5,9 +5,9 @@
 
 'use strict';
 
-const OutboundEmailServerConfig = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/config');
-const SimpleFileLogger = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/server_utils/simple_file_logger');
-const ClusterWrapper = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/server_utils/cluster_wrapper');
+const OutboundEmailServerConfig = require(process.env.CSSVC_BACKEND_ROOT + '/outbound_email/src/config');
+const SimpleFileLogger = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/simple_file_logger');
+const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/cluster_wrapper');
 
 // start up the master, this will launch workers to really get down to work
 (async function() {
@@ -17,7 +17,7 @@ const ClusterWrapper = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/server_
 	const Logger = new SimpleFileLogger(Config.logging);
 
 	// invoke a node cluster master with our configurations provided
-	const ServerClass = require(process.env.CS_OUTBOUND_EMAIL_TOP + '/src/outboundEmailServer');
+	const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/outbound_email/src/outboundEmailServer');
 	const MyClusterWrapper = new ClusterWrapper(
 		ServerClass,
 		{
