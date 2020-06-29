@@ -61,8 +61,6 @@ fi
 # ensure_indexes.js whenever the api service is started
 export CS_API_SETUP_MONGO=true
 
-
-# Multiple installations - mono-repo and individual - have the same repo root ($REPO_ROOT/.git/)
-. $CS_API_SANDBOX/sb.info
-[ -n "$SB_REPO_ROOT" ] && export CS_API_REPO_ROOT=$CS_API_SANDBOX/$SB_REPO_ROOT || export CS_API_REPO_ROOT=$CS_API_TOP
+# Multiple installations possible ($REPO_ROOT/.git/)
+[ -n "$CSBE_TOP" ] && export CS_API_REPO_ROOT=$CSBE_TOP || { . $CS_API_SANDBOX/sb.info; export CS_API_REPO_ROOT=$CS_API_SANDBOX/$SB_REPO_ROOT; }
 [ -z "$CSSVC_BACKEND_ROOT" ] && export CSSVC_BACKEND_ROOT=$CS_API_REPO_ROOT

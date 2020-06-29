@@ -23,6 +23,5 @@ export CS_BROADCASTER_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FIL
 [ -z "$CS_BROADCASTER_ASSET_ENV" ] && echo "The config file does not support the codestream broadcaster as a broadcastEngine. This sandbox is DOA."
 
 # Multiple installations - mono-repo and individual - have the same repo root ($REPO_ROOT/.git/)
-. $CS_BROADCASTER_SANDBOX/sb.info
-[ -n "$SB_REPO_ROOT" ] && export CS_BROADCASTER_REPO_ROOT=$CS_BROADCASTER_SANDBOX/$SB_REPO_ROOT || export CS_BROADCASTER_REPO_ROOT=$CS_BROADCASTER_TOP
+[ -n "$CSBE_TOP" ] && export CS_BROADCASTER_REPO_ROOT=$CSBE_TOP || { . $CS_BROADCASTER_SANDBOX/sb.info; export CS_BROADCASTER_REPO_ROOT=$CS_BROADCASTER_SANDBOX/$SB_REPO_ROOT; }
 [ -z "$CSSVC_BACKEND_ROOT" ] && export CSSVC_BACKEND_ROOT=$CS_BROADCASTER_REPO_ROOT

@@ -12,7 +12,9 @@ WORKDIR /opt/mailout/codestream-server
 ADD outbound_email/src /opt/mailout/codestream-server/outbound_email/src
 ADD outbound_email/package.json outbound_email/package-lock.json /opt/mailout/codestream-server/outbound_email/
 ADD outbound_email/bin/outbound_email_server.js /opt/mailout/codestream-server/outbound_email/bin/outbound_email_server.js
+ADD shared /opt/mailout/codestream-server/shared
 
+WORKDIR /opt/mailout/codestream-server/outbound_email
 RUN npm install --no-save
 
 ENV CSSVC_BACKEND_ROOT=/opt/mailout/codestream-server
@@ -22,4 +24,4 @@ ENV CS_OUTBOUND_EMAIL_TOP=/opt/mailout/codestream-server/outbound_email
 ENV CS_OUTBOUND_EMAIL_LOGS=/opt/mailout/log
 ENV CS_OUTBOUND_EMAIL_TMP=/opt/mailout/tmp
 
-CMD [ "/opt/mailout/outbound_email/bin/outbound_email_server.js" ]
+CMD [ "/opt/mailout/codestream-server/outbound_email/bin/outbound_email_server.js" ]

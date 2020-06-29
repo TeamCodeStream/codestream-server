@@ -32,6 +32,5 @@ export CS_MAILIN_REMOTE_INBOUND_MAIL_SERVER=web@localmail.codestream.us
 export CS_MAILIN_REMOTE_INBOUND_MAIL_DIR=/home/web/codestream-mail/inbound/web/new
 
 # Multiple installations - mono-repo and individual - have the same repo root ($REPO_ROOT/.git/)
-. $CS_MAILIN_SANDBOX/sb.info
-[ -n "$SB_REPO_ROOT" ] && export CS_MAILIN_REPO_ROOT=$CS_MAILIN_SANDBOX/$SB_REPO_ROOT || export CS_MAILIN_REPO_ROOT=$CS_MAILIN_TOP
+[ -n "$CSBE_TOP" ] && export CS_MAILIN_REPO_ROOT=$CSBE_TOP || { . $CS_MAILIN_SANDBOX/sb.info; export CS_MAILIN_REPO_ROOT=$CS_MAILIN_SANDBOX/$SB_REPO_ROOT; }
 [ -z "$CSSVC_BACKEND_ROOT" ] && export CSSVC_BACKEND_ROOT=$CS_MAILIN_REPO_ROOT

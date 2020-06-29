@@ -25,6 +25,5 @@ export CS_OUTBOUND_EMAIL_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_
 export CS_OUTBOUND_EMAIL_SQS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p queuingEngine.awsSQS.outboundEmailQueueName  2>/dev/null)`
 
 # Multiple installations - mono-repo and individual - have the same repo root ($REPO_ROOT/.git/)
-. $CS_OUTBOUND_EMAIL_SANDBOX/sb.info
-[ -n "$SB_REPO_ROOT" ] && export CS_OUTBOUND_EMAIL_REPO_ROOT=$CS_OUTBOUND_EMAIL_SANDBOX/$SB_REPO_ROOT || export CS_OUTBOUND_EMAIL_REPO_ROOT=$CS_OUTBOUND_EMAIL_TOP
+[ -n "$CSBE_TOP" ] && export CS_OUTBOUND_EMAIL_REPO_ROOT=$CSBE_TOP || { . $CS_OUTBOUND_EMAIL_SANDBOX/sb.info; export CS_OUTBOUND_EMAIL_REPO_ROOT=$CS_OUTBOUND_EMAIL_SANDBOX/$SB_REPO_ROOT; }
 [ -z "$CSSVC_BACKEND_ROOT" ] && export CSSVC_BACKEND_ROOT=$CS_OUTBOUND_EMAIL_REPO_ROOT
