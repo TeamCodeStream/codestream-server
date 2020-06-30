@@ -55,11 +55,9 @@ elif args.action == 'pack':
 elif args.action == 'publish':
 	build.publish()                           # publish assets for distribution
 elif args.action == 'tag':
-	print("nothing to tag")
-	# build.tag()                               # update version info and apply tags
+	build.tag()                               # update version info and apply tags
 elif args.action == 'release':
-	print("nothing to release")
-	# build.release()                           # release assets to the general public
+	build.release()                           # release assets to the general public
 else:
 	su.printErr("invalid build args")
 	exit(1)

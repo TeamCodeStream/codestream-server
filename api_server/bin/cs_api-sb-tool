@@ -11,8 +11,6 @@ usage:
     Backend services playground utility. Commands are executed across all 4 projects.
 
     $(sandtool_help_common_args)
-    $c --report                              # reports version from package.json and head changelog
-    $c --set-version {version}               # update changelog and version for all repos
 "
 	exit 1
 }
@@ -29,6 +27,4 @@ ec=0
 SANDTOOL_REPO_LIST="$CS_API_TOP $CS_BROADCASTER_TOP $CS_MAILIN_TOP $CS_OUTBOUND_EMAIL_TOP"
 
 sandtool_process_common_args "$@" && exit
-[ "$1" == "--report" ] && { sandtool_report_pkgver_and_chlog; exit; }
-[ "$1" == "--set-version" ] && { sandtool_update_chlog_and_pkgver $2; exit; }
 usage
