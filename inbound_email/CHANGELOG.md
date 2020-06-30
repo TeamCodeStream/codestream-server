@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.1] - 2020-6-30
+
+### Fixed
+
+- Repaired mono-repo build artifact management
+
 ## [8.0.0] - 2020-6-22
 
 ### Changed
