@@ -41,6 +41,11 @@ Team CodeStream<br/><br/>
 </html>
 `;
 	}
+	
+	// analytics category for this email type
+	getCategory () {
+		return 'email_confirmation';
+	}
 }
 
 module.exports = ConfirmationEmailHandler;

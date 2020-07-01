@@ -132,8 +132,15 @@ class SendGridEmail {
 				)
 			);
 		});
+		
 		// each email type has its own template ID
 		mail.setTemplateId(options.templateId);
+
+		// add category as needed
+		if (options.category) {
+			mail.addCategory({ category: options.category });
+		}
+
 		return mail;
 	}
 

@@ -60,6 +60,11 @@ Team CodeStream<br/>
 </html>
 `;		
 	}
+
+	// analytics category for this email type
+	getCategory () {
+		return this.message.isReinvite ? 'reinvitation' : 'invitation';
+	}
 }
 
 module.exports = InviteEmailHandler;

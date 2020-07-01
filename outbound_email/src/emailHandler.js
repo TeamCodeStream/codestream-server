@@ -42,13 +42,18 @@ class EmailHandler {
 		return '<html></html>';
 	}
 
+	// analytics category, this should be overridden
+	getCategory () {
+	}
+
 	async getSendOptions () {
 		const options = {
 			type: this.message.type,
 			user: this.user,
 			email: this.message.email || this.user.email,
 			subject: this.subject,
-			content: this.content
+			content: this.content,
+			category: this.getCategory()
 		};
 		if (this.message.testing) {
 			options.testCallback = this.testCallback.bind(this);

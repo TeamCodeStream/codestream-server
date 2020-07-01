@@ -16,6 +16,11 @@ ${this.message.url}<br/><br/>
 </html>
 `;
 	}
+
+	// analytics category for this email type
+	getCategory () {
+		return 'password_reset';
+	}
 }
 
 module.exports = ResetPasswordEmailHandler;

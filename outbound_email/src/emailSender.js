@@ -34,7 +34,7 @@ class EmailSender {
 
 	// mailer options common to all mailers
 	getCommonMailOptions(options) {
-		const { user, email, to, from, sender, subject, content, testCallback } = options;
+		const { user, email, to, from, sender, subject, content, category, testCallback } = options;
 		const envelope = {
 			email: to ? to.email : (email || user.email),
 			name: to ? to.name : this.getUserDisplayName(user),
@@ -45,6 +45,7 @@ class EmailSender {
 				(sender ? this.getUserDisplayName(sender) : 'CodeStream'),
 			subject,
 			content,
+			category,
 			testCallback,
 			testOptions: { user },
 			logger: this.logger

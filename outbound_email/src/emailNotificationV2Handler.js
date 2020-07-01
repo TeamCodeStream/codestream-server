@@ -600,7 +600,8 @@ class EmailNotificationV2Handler {
 			stream: this.stream,
 			team: this.team,
 			replyToPostId,
-			isReply
+			isReply,
+			category: user.isRegistered || isReply ? 'notification' : 'notification_invite'
 		};
 		const which = review ? 'review' : 'codemark';
 		try {

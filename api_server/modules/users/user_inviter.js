@@ -52,10 +52,12 @@ class UserInviter {
 			inviteInfo: this.inviteInfo
 		});
 		const createdUser = await userCreator.createUser(userData);
+		const didExist = !!userCreator.existingModel;
 		const wasOnTeam = userCreator.existingModel && userCreator.existingModel.hasTeam(this.team.id);
 		this.invitedUsers.push({
 			user: createdUser,
 			wasOnTeam,
+			didExist,
 			inviteCode: userCreator.inviteCode
 		});
 	}
@@ -147,9 +149,9 @@ class UserInviter {
 
 	// send an invite email to the given user
 	async sendInviteEmail (userData) {
-		const { user } = userData;
+		const { user, wasOnTeam, didExist } = userData;
 		// don't send an email if invited user is already registered and already on a team
-		if (user.get('isRegistered') && userData.wasOnTeam) {
+		if (user.get('isRegistered') && wasOnTeam) {
 			return;
 		}
 
@@ -160,7 +162,8 @@ class UserInviter {
 				type: 'invite',
 				userId: user.id,
 				inviterId: this.user.id,
-				teamName: this.team.get('name')
+				teamName: this.team.get('name'),
+				isReinvite: didExist
 			},
 			{
 				request: this.request,

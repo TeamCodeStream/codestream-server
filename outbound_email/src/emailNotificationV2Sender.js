@@ -6,7 +6,7 @@ class EmailNotificationV2Sender {
 
 	// send an email notification to the user specified
 	async sendEmailNotification (options, outboundEmailServerConfig) {
-		const { user, creator, team, stream, replyToPostId, content, sender } = options;
+		const { user, creator, team, stream, replyToPostId, content, sender, category } = options;
 		const fromName = creator ? `${sender.getUserDisplayName(creator)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
 		const replyTo = outboundEmailServerConfig.inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${team.id}@${outboundEmailServerConfig.replyToDomain}`;
@@ -16,7 +16,8 @@ class EmailNotificationV2Sender {
 			user,
 			replyTo,
 			subject,
-			content
+			content,
+			category
 		});
 	}
 
