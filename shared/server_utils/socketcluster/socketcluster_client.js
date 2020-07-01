@@ -65,6 +65,8 @@ class SocketClusterClient {
 		if (typeof message === 'object') {
 			message.messageId = message.messageId || UUID();
 		}
+
+		this._log('TRANSMITTING: ' + JSON.stringify({ channel, message }, 0, 5));
 		await this.socket.transmit('message', { channel, message });
 	}
 

@@ -445,6 +445,7 @@ class BroadcasterServer {
 
 	// handle an incoming message
 	async handleMessage (data, socket, requestId) {
+		this.log('MESSAGE RECEIVED: ' + JSON.stringify(data, 0, 5));
 		const { channel, message } = data;
 		if (!channel || !message) { return; }
 		const messageId = (typeof message === 'object' && message.messageId) || '???';
