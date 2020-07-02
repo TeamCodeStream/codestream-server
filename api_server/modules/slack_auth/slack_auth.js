@@ -42,7 +42,6 @@ const SHARING_SCOPES = [
 	'chat:write:user',
 	'groups:read',
 	'im:read',
-	'users.profile:write',
 	'users:read',
 	'users:read.email',
 	'mpim:read'
