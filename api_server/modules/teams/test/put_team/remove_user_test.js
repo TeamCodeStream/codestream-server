@@ -78,6 +78,25 @@ class RemoveUserTest extends PutTeamTest {
 		for (let i = 0; i < data.users.length; i++) {
 			Assert(data.users[i].$set.modifiedAt >= this.modifiedAfter, 'user.modifiedAt is not greater than before the team was updated');
 			this.expectedData.users[i].$set.modifiedAt = data.users[i].$set.modifiedAt;
+
+			const originalUser = this.users.find(userData => userData.user.id === data.users[i].id).user;
+			const userUpdate = data.users[i];
+			if (!originalUser.isRegistered) {
+				if (this.unregisteredUserOnOtherTeam && this.unregisteredUserOnOtherTeam.id === originalUser.id) {
+					this.expectedData.users[i].$set.version++;
+					this.expectedData.users[i].$version.before++;
+					this.expectedData.users[i].$version.after++;
+				}
+				else {
+					Assert(userUpdate.$set.email, 'no email update in user who should be deactivated');
+					const match = userUpdate.$set.email.match(/(.+)-deactivated([0-9]+)@(.+)/);
+					Assert(match, 'email update does not seem to be setting email to deactivated');
+					Assert(parseInt(match[2], 10) >= this.modifiedAfter, 'email update deactivated timestamp should be more than the team update time');
+					this.expectedData.users[i].$set.deactivated = true;
+					this.expectedData.users[i].$set.email = userUpdate.$set.email;
+					this.expectedData.users[i].$set.searchableEmail = userUpdate.$set.email.toLowerCase();
+				}
+			}
 		}
 		super.validateResponse(data);
 	}

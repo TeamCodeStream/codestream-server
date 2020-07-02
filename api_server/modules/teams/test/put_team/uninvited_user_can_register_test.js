@@ -8,7 +8,7 @@ const Assert = require('assert');
 class UninvitedUserCanRegisterTest extends PutTeamTest {
 
 	get description () {
-		return 'an unregistered user who is uninvited from their last team should still be able to sign up fresh';
+		return 'an unregistered user who is uninvited from their last team should still be able to sign up fresh, with a new account';
 	}
 
 	// before the test runs...
@@ -66,7 +66,7 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.registerResponse = response;
-				Assert.equal(response.user.id, this.unregisteredUser.user.id, 'user ID does not match after re-register');
+				Assert.equal(response.user.email, this.unregisteredUser.user.email, 'user email does not match after re-register');
 				Assert.equal(response.user.username, this.data.username, 'username does not match the user given on re-register');
 				callback();
 			}
@@ -87,7 +87,7 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.confirmResponse = response;
-				Assert.equal(response.user.id, this.unregisteredUser.user.id, 'user ID does not match after confirm');
+				Assert.equal(response.user.email, this.unregisteredUser.user.email, 'user email does not match after confirm');
 				callback();
 			}
 		);
@@ -106,7 +106,7 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert.equal(response.user.id, this.unregisteredUser.user.id, 'user ID does not match after login');
+				Assert.equal(response.user.email, this.unregisteredUser.user.email, 'user email does not match after login');
 				Assert.equal(response.accessToken, this.confirmResponse.accessToken, 'access token does not match after login');
 				callback();
 			}

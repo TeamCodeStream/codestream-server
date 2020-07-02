@@ -175,6 +175,23 @@ class TeamUpdater extends ModelUpdater {
 				modifiedAt: Date.now()
 			}
 		};
+
+		// unregistered users who are left with no team are simply deactivated
+		if (
+			!user.get('isRegistered') && 
+			user.get('teamIds').length === 1 &&
+			user.get('teamIds')[0] === this.team.id
+		) {
+			const emailParts = user.get('email').split('@');
+			const now = Date.now();
+			const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
+			Object.assign(op.$set, {
+				deactivated: true,
+				email: newEmail,
+				searchableEmail: newEmail.toLowerCase()
+			});
+		}
+
 		const updateOp = await new ModelSaver({
 			request: this.request,
 			collection: this.request.data.users,
