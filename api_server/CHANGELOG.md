@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.5] - 2020-7-2
+
+### Fixed
+
+- Fixes an issue with Slack auth prematurely asking for the user.profile:write permission
+
 ## [8.0.4] - 2020-6-30
 
 ### Fixed
