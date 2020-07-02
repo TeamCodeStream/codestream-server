@@ -448,6 +448,7 @@ class BroadcasterServer {
 		const { channel, message } = data;
 		if (!channel || !message) { return; }
 		const messageId = (typeof message === 'object' && message.messageId) || '???';
+		this.log(`Received message ${messageId} for channel ${channel}`, socket, requestId);
 
 		// pass the message on to clients listening to this channel
 		this.scServer.exchange.transmitPublish(channel, message);
@@ -474,7 +475,7 @@ class BroadcasterServer {
 			this.warn(`Error handling socket message ${messageId}: ${errorMessage}`, socket, requestId);
 		}
  
-		this.log(`Message ${messageId} received, transmitted, and stored for ${channel}`, socket, requestId);
+		this.log(`Message ${messageId} transmitted and stored for ${channel}`, socket, requestId);
 	}
 		
 	// get the message history for the given set of channels and a given socket
