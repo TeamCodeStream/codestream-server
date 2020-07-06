@@ -199,14 +199,17 @@ class CommonInit {
 	}
 
 	getExpectedBitbucketTestCallData () {
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.bitbucket.appClientId;
+		const appClientSecret = this.testHost ? 'testClientSecret' : this.apiConfig.bitbucket.appClientSecret;
 		const parameters = {
 			code: this.code,
 			grant_type: 'authorization_code',
 			redirect_uri: this.redirectUri,
 			state: this.state
 		};
-		const userAuth = Base64.encode(`${this.apiConfig.bitbucket.appClientId}:${this.apiConfig.bitbucket.appClientSecret}`);
-		const url = 'https://bitbucket.org/site/oauth2/access_token';
+		const userAuth = Base64.encode(`${appClientId}:${appClientSecret}`);
+		const host = this.testHost || 'https://bitbucket.org';
+		const url = `${host}/site/oauth2/access_token`;
 		return { url, parameters, userAuth };
 	}
 

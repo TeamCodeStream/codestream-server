@@ -19,6 +19,16 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.bitbucket.org/2.0',
 		hasIssues: true
 	},
+	'bitbucket/selfhosted': {
+		id: 'bitbucket/selfhosted',
+		name: 'bitbucket_selfhosted',
+		isEnterprise: false,
+		forEnterprise: true,
+		host: 'bitbucket/selfhosted',
+		apiHost: 'api.bitbucket.org/2.0',
+		hasIssues: true,
+		scopes: ['account team repository issue:write pullrequest:write']
+	},
 	'github*com': {
 		id: 'github*com',
 		name: 'github',

@@ -23,6 +23,10 @@ const TEST_HOSTS = [
 	{
 		provider: 'gitlab_enterprise',
 		host: 'https://gitlab.codestream.us'
+	},
+	{
+		provider: 'bitbucket_selfhosted',
+		host: 'https://bitbucket.codestream.us'
 	}
 ];
 

@@ -57,6 +57,7 @@ const ThirdPartyProviders = [
 	'asana',
 	'azuredevops',
 	'bitbucket',
+	'bitbucket_selfhosted',
 	'github',
 	'github_enterprise',
 	'gitlab',
@@ -122,6 +123,11 @@ function customConfigFunc(nativeCfg) {
 			appClientId: 'placeholder'
 		},
 		gitlab_enterprise: {
+			// this is needed to be non-null to return provider data to the
+			// client, but is not actually used
+			appClientId: 'placeholder'
+		},
+		bitbucket_selfhosted: {
 			// this is needed to be non-null to return provider data to the
 			// client, but is not actually used
 			appClientId: 'placeholder'
