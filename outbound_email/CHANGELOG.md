@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.3] - 2020-7-9
+
+### Changed
+
+- Changed outbound emails to start using SendGrid categories
+
 ## [8.0.2] - 2020-6-30
 
 ### Fixed

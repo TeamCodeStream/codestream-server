@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.6] - 2020-7-9
+
+### Added
+
+- Adds support for connecting to Bitbucket Server
+
 ## [8.0.5] - 2020-7-2
 
 ### Fixed
