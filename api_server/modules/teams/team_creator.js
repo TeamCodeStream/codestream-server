@@ -262,6 +262,7 @@ class TeamCreator extends ModelCreator {
 							type: 'teamCreated',
 							userId: this.user.id,
 							teamName: this.model.get('name'),
+							companyName: this.company.get('name'),
 							to: email
 						},
 						{
