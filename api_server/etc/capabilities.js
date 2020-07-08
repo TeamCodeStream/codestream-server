@@ -62,5 +62,9 @@ module.exports = {
 	'cr2pr': {
 		description: 'Features supporting opening pull requests after code reviews',
 		version: '7.4.2'
+	},
+	'shareToSlackSupported': {
+		description: 'Whether the share to slack capability is supported, which requires a new scope for the slack app',
+		version: '8.0.6'
 	}
 };
