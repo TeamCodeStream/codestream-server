@@ -60,7 +60,7 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			expectedData = this.getExpectedJiraTestCallData();
 			break;
 		case 'bitbucket':
-		case 'bitbucket_selfhosted':
+		case 'bitbucket_server':
 			expectedData = this.getExpectedBitbucketTestCallData();
 			break;
 		case 'azuredevops':

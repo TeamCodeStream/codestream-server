@@ -38,7 +38,7 @@ const ENTERPRISE_PROVIDERS = {
 	'github_enterprise': 'https://git.codestream.us',
 	'jiraserver': 'https://jira.codestream.us',
 	'gitlab_enterprise': 'https://gitlab.codestream.us',
-	'bitbucket_selfhosted': 'https://bitbucket.codestream.us'
+	'bitbucket_server': 'https://bitbucket.codestream.us'
 };
 
 const AUTH_PROVIDERS = [

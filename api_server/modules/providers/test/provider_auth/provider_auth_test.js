@@ -119,7 +119,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirectData = this.getGitlabRedirectData();
 			break;
 		case 'bitbucket':
-		case 'bitbucket_selfhosted':
+		case 'bitbucket_server':
 			redirectData = this.getBitbucketRedirectData();
 			break;
 		case 'youtrack':
@@ -233,12 +233,13 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getBitbucketRedirectData () {
 		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.bitbucket.appClientId;
+		const scope = this.testHost ? 'projects:read repositories:write' : 'account team repository issue:write pullrequest:write';
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
-			scope: 'account team repository issue:write pullrequest:write'
+			scope
 		};
 		const host = this.testHost || 'https://bitbucket.org';
 		const url = `${host}/site/oauth2/authorize`;

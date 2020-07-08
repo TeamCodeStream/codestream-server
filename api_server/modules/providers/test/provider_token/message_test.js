@@ -70,7 +70,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			expectedTestCallData = this.getExpectedGitlabTestCallData();
 			break;
 		case 'bitbucket':
-		case 'bitbucket_selfhosted':
+		case 'bitbucket_server':
 			expectedTestCallData = this.getExpectedBitbucketTestCallData();
 			break;
 		case 'azuredevops':
@@ -130,7 +130,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const providerSet = message.message.user.$set;
 		const expectedProviderSet = this.message.user.$set;
 
-		if (['jira', 'asana', 'bitbucket', 'bitbucket_selfhosted', 'gitlab', 'gitlab_enterprise', 'azuredevops', 'msteams'].includes(this.provider)) {
+		if (['jira', 'asana', 'bitbucket', 'gitlab', 'gitlab_enterprise', 'azuredevops', 'msteams'].includes(this.provider)) {
 			expectedProviderSet[`${key}.refreshToken`] = 'refreshMe';
 			const expiresIn = ['bitbucket', 'gitlab'].includes(this.provider) ? 7200 : 
 				this.provider === 'azuredevops' ? 3599 : 3600;
