@@ -8,16 +8,16 @@
 
 dt_load {{SBNAME_mongo}} --quiet
 dt_load {{SBNAME_cs_server}}
-if [ "$1" == start ]; then
+if [ "$1" = start ]; then
 	cs_api-cloud-services start
-elif [ "$1" == stop ]; then
+elif [ "$1" = stop ]; then
 	cs_api-cloud-services stop
 fi
 cd $CSBE_TOP
 
 # uncomment these if you use iterm2 and want to colorize your tabs
-. $DT_TOP/lib/iterm2-utils.sh
-it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 45 45
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb csbe 200 45 45
 
 echo "
 Use the 'cs_api-cloud-services' init script to control all services at once.
