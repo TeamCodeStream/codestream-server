@@ -39,7 +39,7 @@ export CS_API_ENV=$CSSVC_ENV
 # local development sets the callback env so external requests can be routed
 # through the network proxy and back to your local VPN IP (codestream version of
 # https://ngrok.com)
-if [ "$CSSVC_ENV" == local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
+if [ "$CSSVC_ENV" = local  -a  -z "$CS_API_CALLBACK_ENV" ]; then
 	TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp,useHyphens)
 	[ -n "$TUNNEL_IP" ] && export CS_API_CALLBACK_ENV="local-$TUNNEL_IP" || echo "could not detect your vpn ip - callbacks won't work" >&2
 	[ -n "$CS_API_CALLBACK_ENV" ] && echo "CS_API_CALLBACK_ENV = $CS_API_CALLBACK_ENV"
@@ -50,7 +50,7 @@ fi
 
 # local development on ec2 instances (remote hosts) should reference their
 # hostname and not 'localhost' when constructing URLs so we set
-if [ "$CSSVC_ENV" == "local" ]; then
+if [ "$CSSVC_ENV" = "local" ]; then
 	if [ $(sandutil_is_network_instance) -eq 1 ]; then
 		export CS_API_PUBLIC_URL="https://`hostname`:$apiPort"
 		echo "CS_API_PUBLIC_URL = $CS_API_PUBLIC_URL [this is a network development host]"
