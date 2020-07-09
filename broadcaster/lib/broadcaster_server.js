@@ -30,6 +30,7 @@ class BroadcasterServer {
 	async start () {
 		this.log('Starting up...');
 		this.workerId = 1;
+		this.setListeners();
 		await this.connectToMongo();
 		if (!this.config.dontListen) {
 			await this.startListening();
