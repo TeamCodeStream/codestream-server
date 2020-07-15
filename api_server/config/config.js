@@ -212,6 +212,10 @@ function customConfigFunc(nativeCfg) {
 		},
 		intercom: {
 			accessToken: null
+		},
+		payments: {
+			...nativeCfg.payments,
+			discountPeriod: 30 * 24 * 60 * 60 * 1000
 		}
 	};
 

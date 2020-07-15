@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>CodeStream</title>
+	<link rel="dns-prefetch" href="https://images.codestream.com">
+	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+	{{> partial_html_head partial_html_head_model}}
+	<script type="text/javascript">
+		!function () {
+			var analytics = window.analytics = window.analytics || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
+				analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "once", "off", "on"]; analytics.factory = function (t) { return function () { var e = Array.prototype.slice.call(arguments); e.unshift(t); analytics.push(e); return analytics } }; for (var t = 0; t < analytics.methods.length; t++) { var e = analytics.methods[t]; analytics[e] = analytics.factory(e) } analytics.load = function (t, e) { var n = document.createElement("script"); n.type = "text/javascript"; n.async = !0; n.src = "https://cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js"; var a = document.getElementsByTagName("script")[0]; a.parentNode.insertBefore(n, a); analytics._loadOptions = e }; analytics.SNIPPET_VERSION = "4.1.0";
+				analytics.load("{{segmentKey}}");
+				analytics.page();
+			}
+		}();
+	</script>
+	<script>
+		var setError = function(error) {
+			const errorElem = document.getElementById("error");
+			let message = {
+				number: "Must be a number.",
+				free: "CodeStream is free for companies of 5 or less.",
+				tooFewSeats: "Your company currently has {{minMemberCount}} users. If you’d like to subscribe with less you will need to remove some."
+			}[error];
+			if (!message) message = "Unknown error.";
+			errorElem.style.display = "block";
+			errorElem.innerHTML = message;
+		};
+
+		var validateForm = function() {
+			const seatsElem = document.getElementById("seats");
+			const seats = seatsElem.value;
+			const numSeats = parseInt(seats, 10);
+			let error;
+			if (numSeats == NaN || numSeats.toString() !== seats.trim()) {
+				setError("number");
+				return false;
+			} else if (numSeats < 6) {
+				setError("free");
+				window.analytics.track("Payment Seats Validation", { Validation: "Less than 6" });
+				return false;
+			} else if (numSeats < {{minMemberCount}}) {
+				setError("tooFewSeats");
+				window.analytics.track("Payment Seats Validation", { Validation: "Less than registered seats" });
+				return false;
+			} else {
+				return numSeats;
+			}
+		};
+
+		window.onload = function() {
+			if ("{{error}}") {
+				setError("{{error}}");
+			}
+		};
+
+	</script>
+</head>
+<body>
+	{{{identifyScript}}}
+	<script>
+		window.analytics.track('Page Viewed', { 'Page Name': 'Payment' });
+	</script>
+
+	{{> partial_menu partial_menu_model}}
+
+	<div class="container-fluid" id="root">
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3">
+				<div class="box-content box-border box-border-sm">
+					<h1>Upgrade to CodeStream Business</h1>
+					<br />
+					<p>Enjoy unlimited integrations, lifetime knowledge retention, and priority support.</p>
+					<br/>
+					{{#if discount}}
+					<p class="special-text">Skip the trial! You are still eligible to "buy now" and save 40%.</p>
+					{{/if}}
+
+					<div class="form-wrapper">
+						<form method="get" action="/web/subscription/checkout" onsubmit="return validateForm()">
+							<input type="hidden" name="companyId" value="{{companyId}}" />
+							<div class="form-group">
+								<label class="label">Please enter number of seats:</label>
+								<input class="form-control bg-dark" id="seats" name="seats" autocomplete="off" type="number" value="{{minMemberCount}}" autofocus />
+								<p id="error" class="error" style="display:none;">error</p>
+								<div class="radio-group">
+									<input type="radio" class="radio" id="pay-annually" name="pay-type" value="annual" checked>
+									{{#if discount}}
+									<label for="pay-annual" class="radio-label">Pay Annually - Only $5.00 per seat with "Buy Now" discount. Regularly $8.33/month.</label><br>
+									{{else}}
+									<label for="pay-annual">Pay Annually - Get 10 months for the price of 12. Just $8.33/month per seat.</label><br>
+									{{/if}}
+									<input type="radio" class="radio" id="pay-monthly" name="pay-type" value="month">
+									{{#if discount}}
+									<label for="pay-monthly" class="radio-label">Pay Monthly - only $6.00 per seat with "Buy Now" discount. Regularly $10.00/month.</label><br>
+									{{else}}
+									<label for="pay-monthly">Pay Monthly - $10/month per seat.</label><br>
+									{{/if}}
+								</div>
+							</div>
+							<div class="form-group">
+								<input type="submit" value="Checkout" class="btn" />
+							</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

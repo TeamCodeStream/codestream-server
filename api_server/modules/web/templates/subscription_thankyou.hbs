@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CodeStream</title>
+    {{> partial_html_head partial_html_head_model}}
+    <script>
+        history.pushState(null, "CodeStream", location.href.split("?")[0]);
+    </script>
+</head>
+
+<body>
+    {{> partial_menu partial_menu_model}}
+    <div class="container-fluid" id="root">
+        <div class="row">
+            <div class="col-sm-6 offset-sm-3">
+                <div class="box-content box-border box-border-sm">
+                    <h1>Thank You</h1>
+                    <p style="text-align:center;">
+                        Your payment to CodeStream has been accepted.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

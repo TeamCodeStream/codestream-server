@@ -47,6 +47,7 @@
     "read-package-json": "2.1.1",
     "socketcluster-client": "16.0.1",
     "strftime": "0.10.0",
+    "stripe": "8.71.0",
     "toposort": "2.0.2",
     "uuid": "3.4.0",
     "xregexp": "4.2.4"

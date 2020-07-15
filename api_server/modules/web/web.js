@@ -166,6 +166,26 @@ const ROUTES = [
 		method: 'get',
 		path: 'robots.txt',
 		requestClass: require('./web_robots_request')
+	},
+	{
+		method: 'get',
+		path: 'web/subscription/upgrade/:companyId',
+		requestClass: require('./web_subscription_upgrade_request')
+	},
+	{
+		method: 'get',
+		path: 'web/subscription/checkout',
+		requestClass: require('./web_subscription_checkout_request')
+	},
+	{
+		method: 'get',
+		path: 'web/subscription/thankyou/:companyId',
+		requestClass: require('./web_subscription_thankyou_request')
+	},
+	{
+		method: 'get',
+		path: 'web/subscription/error',
+		requestClass: require('./subscription_error_request')
 	}
 ];
 

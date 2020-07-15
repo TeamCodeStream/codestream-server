@@ -536,6 +536,28 @@ span.dropdown-item:hover {
 	color: #cc3366;
 }
 
+.radio-group {
+	margin-top: 12px;
+}
+
+.radio {
+	background-color: #7f7f7f;
+}
+
+.radio-group label {
+	padding-left: 3px;
+}
+
+.radio:hover {
+	cursor: pointer;
+}
+
+.special-text {
+	color: #009aef;
+	font-size: 1.3rem;
+	padding-bottom: 10px;
+}
+
 @-webkit-keyframes color-change-2x {
   0% {
     background: rgba(62, 60, 60, 1);
