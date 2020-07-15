@@ -12,7 +12,6 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 
 	async process() {
 		try {
-console.warn('QUERY:', JSON.stringify(this.request.query, 0, 5));
 			await this.requireAndAllow();
 			if (!await this.validate()) {
 				// we've redirected back to the subscription upgrade page, with an error
@@ -43,7 +42,6 @@ console.warn('QUERY:', JSON.stringify(this.request.query, 0, 5));
 			// something bad happened -- redirect to failure screen
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.warn('Error redirecting for payment: ' + message);
-console.warn(error instanceof Error ? error.stack : 'no stack');
 			const code = typeof error === 'object' && error.code;
 			this.redirectError(code);
 			return;
@@ -111,7 +109,6 @@ console.warn(error instanceof Error ? error.stack : 'no stack');
 			};
 		}
 		this.session = await this.stripe.checkout.sessions.create(sessionData);
-console.warn('SESSION:', this.session);
 	}
 
 	// save the session ID with the company so we can reference it later

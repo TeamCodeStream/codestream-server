@@ -24,7 +24,6 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 			// something bad happened -- redirect to failure screen
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.warn('Error redirecting for payment: ' + message);
-console.warn(error instanceof Error ? error.stack : 'no stack');
 			const code = typeof error === 'object' && error.code;
 			this.redirectError(code);
 			return;
@@ -33,7 +32,6 @@ console.warn(error instanceof Error ? error.stack : 'no stack');
 
 	// validate that the plan paid for matches the number of seats
 	async validatePlan () {
-console.warn('companyId=' + this.request.params.companyId);
 		this.company = await this.data.companies.getById(this.request.params.companyId);
 		if (!this.company) {
 			throw this.errorHandler.error('notFound', { info: 'company' });
@@ -49,13 +47,10 @@ console.warn('companyId=' + this.request.params.companyId);
 		if (!this.session.subscription) {
 			throw this.errorHandler.error('notFound', { info: 'subscription' });
 		}
-console.warn('GOT SESSION:', this.session);
 
 		this.subscription = await this.stripe.subscriptions.retrieve(this.session.subscription);
-console.warn('GOT SUBSCRIPTION:', this.subscription);
 
 		this.plan = this.subscription.plan;
-console.warn('GOT PLAN:', this.plan);
 		if (!this.plan) {
 			throw this.errorHandler.error('notFound', { info: 'plan' });
 		}
@@ -64,7 +59,6 @@ console.warn('GOT PLAN:', this.plan);
 		}
 
 		this.customer = await this.stripe.customers.retrieve(this.subscription.customer);
-console.warn('GOT CUSTOMER:', this.customer);
 	}
 
 	// save payment info with the company object
@@ -107,7 +101,6 @@ console.warn('GOT CUSTOMER:', this.customer);
 			company: this.updateOp
 		};
 		try {
-console.warn('PUBLISHING TO CHANNEL ' + channel, JSON.stringify(message, 0, 5));
 			await this.api.services.broadcaster.publish(
 				message,
 				channel,
