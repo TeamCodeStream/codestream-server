@@ -75,6 +75,7 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 				plan: this.plan.id,
 				customer: this.customer && this.customer.id
 			},
+			paidSeats: this.subscription.quantity,
 			modifiedAt: Date.now()
 		};
 

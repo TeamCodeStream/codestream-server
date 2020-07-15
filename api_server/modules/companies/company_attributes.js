@@ -57,6 +57,11 @@ module.exports = {
 		description: 'The frequency of payments, either Monthly or Annual',
 		serverOnly: true
 	},
+	paidSeats: {
+		type: 'number',
+		description: 'Number of paid seats for this company',
+		serverOnly: true
+	},
 	stripeInfo: {
 		type: 'object',
 		maxLength: 1000,
