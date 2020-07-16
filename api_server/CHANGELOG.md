@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.7] - 2020-7-16
+
+### Fixed
+
+- Implements a workaround for [double-pasting issue](https://github.com/microsoft/vscode/issues/101946) in VS Code Insiders
+
 ## [8.0.6] - 2020-7-9
 
 ### Added
