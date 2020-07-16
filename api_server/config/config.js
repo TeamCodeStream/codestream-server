@@ -215,7 +215,8 @@ function customConfigFunc(nativeCfg) {
 		},
 		payments: {
 			...nativeCfg.payments,
-			discountPeriod: 30 * 24 * 60 * 60 * 1000
+			discountPeriod: 7 * 24 * 60 * 60 * 1000, // within one week of creating a company, we offer a discount
+			minPaidSeats: 6
 		}
 	};
 

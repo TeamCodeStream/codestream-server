@@ -51,10 +51,11 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 		}
 
 		const memberCount = await this.company.getCompanyMemberCount(this.data);
-		const minMemberCount = Math.max(6, memberCount);
+		const minMemberCount = Math.max(this.api.config.payments.minPaidSeats, memberCount);
 		const templateProps = {
 			companyId: this.companyId,
 			minMemberCount,
+			minPaidSeats: this.api.config.payments.minPaidSeats,
 			error: this.request.query.error,
 			segmentKey: this.api.config.segment.webToken
 		};

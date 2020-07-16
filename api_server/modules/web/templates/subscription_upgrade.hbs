@@ -4,7 +4,6 @@
 <head>
 	<title>CodeStream</title>
 	<link rel="dns-prefetch" href="https://images.codestream.com">
-	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
 	{{> partial_html_head partial_html_head_model}}
 	<script type="text/javascript">
 		!function () {
@@ -18,9 +17,10 @@
 	<script>
 		var setError = function(error) {
 			const errorElem = document.getElementById("error");
+			const maxFreeSeats = {{minPaidSeats}} - 1;
 			let message = {
 				number: "Must be a number.",
-				free: "CodeStream is free for companies of 5 or less.",
+				free: `CodeStream is free for companies of ${maxFreeSeats} or less.`,
 				tooFewSeats: "Your company currently has {{minMemberCount}} users. If you’d like to subscribe with less you will need to remove some."
 			}[error];
 			if (!message) message = "Unknown error.";
@@ -36,9 +36,9 @@
 			if (numSeats == NaN || numSeats.toString() !== seats.trim()) {
 				setError("number");
 				return false;
-			} else if (numSeats < 6) {
+			} else if (numSeats < {{minPaidSeats}}) {
 				setError("free");
-				window.analytics.track("Payment Seats Validation", { Validation: "Less than 6" });
+				window.analytics.track("Payment Seats Validation", { Validation: "Less than {{minPaidSeats}}" });
 				return false;
 			} else if (numSeats < {{minMemberCount}}) {
 				setError("tooFewSeats");
