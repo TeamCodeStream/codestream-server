@@ -58,6 +58,12 @@ class SignupTokens {
 
 	// find a record for a given signup token
 	async find (token, options) {
+
+		// workaround for VSCode bug, where paste can do a double paste
+		if (token.length === 72 && token.substring(0, 36) === token.substring(36)) {
+			token = token.substring(0, 36);
+		}
+
 		const tokenFound = await this._find(token, options);
 
 		// we always remove old tokens, keeping the signupTokens collection small
