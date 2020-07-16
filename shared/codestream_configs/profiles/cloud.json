@@ -11,10 +11,9 @@
 {
 	"apiServer": {
 		"ci": {
-			"assetEnvironment": "dev"
+			"authOrigin": "https://auth.codestream.us/no-auth"
 		},
 		"defaultEnv": {
-			"assetEnvironment": "dev",
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"helpIsAvailable": true,
 			"phoneHomeUrl": null,
@@ -22,17 +21,14 @@
 			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us"
 		},
 		"local": {
-			"assetEnvironment": "local",
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"helpIsAvailable": true
 		},
 		"pi": {
-			"assetEnvironment": "prod",
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"phoneHomeUrl": null
 		},
 		"prod": {
-			"assetEnvironment": "prod",
 			"logger": {
 				"consoleOk": false
 			},
@@ -42,7 +38,6 @@
 			"publicApiUrl": "https://api.codestream.com"
 		},
 		"qa": {
-			"assetEnvironment": "prod",
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"logger": {
 				"consoleOk": false
@@ -123,23 +118,16 @@
 		}
 	},
 	"inboundEmailServer": {
-		"ci": {
-			"assetEnvironment": "dev"
-		},
+		"ci": {},
 		"defaultEnv": {
-			"assetEnvironment": "dev",
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		},
 		"local": {},
-		"pi": {
-			"assetEnvironment": "prod"
-		},
+		"pi": {},
 		"prod": {
-			"assetEnvironment": "prod",
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		},
 		"qa": {
-			"assetEnvironment": "prod",
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		}
 	},
@@ -264,11 +252,9 @@
 		}
 	},
 	"outboundEmailServer": {
-		"ci": {
-			"assetEnvironment": "dev"
-		},
+		"ci": {},
 		"defaultEnv": {
-			"assetEnvironment": "dev",
+			"showConfig": true,
 			"storage": {
 				"mongo": {
 					"url": "mongodb://${CSSVC_ENV}-api.codestream.us/codestream"
@@ -276,14 +262,18 @@
 			}
 		},
 		"local": {},
-		"pi": {
-			"assetEnvironment": "prod"
-		},
-		"prod": {
-			"assetEnvironment": "prod"
-		},
-		"qa": {
-			"assetEnvironment": "prod"
+		"pi": {},
+		"prod": {},
+		"qa": {}
+	},
+	"payments": {
+		"stripe": {
+			"defaultEnv": {
+				"_loadSecretsFile": "stripe/dev.cfg"
+			},
+			"prod": {
+				"_loadSecretsFile": "stripe/prod.cfg"
+			}
 		}
 	},
 	"queuingEngine": {

@@ -5,6 +5,8 @@ function usage {
     exit 1
 }
 
+[ -n "$CS_BROADCASTER_DOA" ] && echo "The broadcaster is not configured for this sandbox" && exit 1
+
 service_name=bin/broadcaster.js
 [ -z "$1" ] && usage
 [ -z "$CS_BROADCASTER_SANDBOX" ] && echo "sandbox not loaded">&2 && exit 1

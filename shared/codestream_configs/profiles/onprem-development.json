@@ -30,32 +30,32 @@
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
 			"ci": {
-				"assetEnvironment": "dev",
 				"logger": {},
 				"secrets": {
 					"_loadSecretsFile": "codestream/ci-bcast-secrets.cfg"
-				}
+				},
+				"showConfig": false
 			},
 			"defaultEnv": {
-				"assetEnvironment": "dev",
 				"logger": {},
 				"secrets": {
 					"_loadSecretsFile": "codestream/dev-bcast-secrets.cfg"
-				}
+				},
+				"showConfig": false
 			},
 			"local": {
-				"assetEnvironment": "local",
 				"logger": {},
 				"secrets": {
 					"_loadSecretsFile": "codestream/local-bcast-secrets.cfg"
-				}
+				},
+				"showConfig": false
 			},
 			"pi": {
-				"assetEnvironment": "prod",
 				"logger": {},
 				"secrets": {
 					"_loadSecretsFile": "codestream/ci-bcast-secrets.cfg"
-				}
+				},
+				"showConfig": false
 			}
 		}
 	},
@@ -84,13 +84,7 @@
 		}
 	},
 	"inboundEmailServer": {
-		"ci": {
-			"assetEnvironment": "dev"
-		},
-		"defaultEnv": {
-			"assetEnvironment": "dev"
-		},
-		"local": {}
+		"defaultEnv": {}
 	},
 	"integrations": {
 		"asana": {
@@ -170,11 +164,9 @@
 		}
 	},
 	"outboundEmailServer": {
-		"ci": {
-			"assetEnvironment": "dev"
-		},
+		"ci": {},
 		"defaultEnv": {
-			"assetEnvironment": "dev",
+			"showConfig": true,
 			"storage": {
 				"mongo": {
 					"url": "mongodb://${CSSVC_ENV}-api.codestream.us/codestream"

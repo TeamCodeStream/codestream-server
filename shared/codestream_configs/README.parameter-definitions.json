@@ -1,6 +1,5 @@
 {
 	"apiServer": {
-		"assetEnvironment": "environment used to create and retrieve API assets (local, onprem, dev or prod) [CS_API_ASSET_ENV]",
 		"authOrigin": "origin to use for third-party auth callbacks [CS_API_AUTH_ORIGIN]",
 		"callbackEnvironment": "allows for callbacks through VPN to developers' local servers [CS_API_CALLBACK_ENV]",
 		"confirmCodeExpiration": "how long a confirmation code remains valid (in millisecs, default = 1 week) [CS_API_CONFIRM_CODE_EXPIRATION]",
@@ -28,7 +27,6 @@
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
-			"assetEnvironment": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod) [CS_BROADCASTER_ASSET_ENV]",
 			"host": "hostname of the broadcaster service (from client point-of-view)",
 			"ignoreHttps": "set to true to respond to http instead of https [CS_BROADCASTER_IGNORE_HTTPS]",
 			"logger": {
@@ -76,7 +74,6 @@
 		}
 	},
 	"inboundEmailServer": {
-		"assetEnvironment": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...) [CS_MAILIN_ASSET_ENV]",
 		"inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent [CS_MAILIN_INBOUND_EMAIL_DIR]",
 		"inboundEmailDisabled": "true will disable inbound email processing [CS_MAILIN_INBOUND_EMAIL_DISABLED]",
 		"logger": {
@@ -176,7 +173,6 @@
 		}
 	},
 	"outboundEmailServer": {
-		"assetEnvironment": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...) [CS_OUTBOUND_EMAIL_ASSET_ENV]",
 		"logger": {
 			"consoleOk": "allow logging to the console [CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK]",
 			"debugOk": "more verbose logging (debug level) [CS_OUTBOUND_EMAIL_DEBUG_OK]",
@@ -189,6 +185,12 @@
 			}
 		},
 		"tmpDirectory": "temp directory [CS_OUTBOUND_EMAIL_TMP]"
+	},
+	"payments": {
+		"stripe": {
+			"publishableKey": "stripe payment key visible to clients [CSSVC_STRIPE_PUBLISHABLE_KEY]",
+			"secretKey": "stripe payment secret [CSSVC_STRIPE_SECRET_KEY]"
+		}
 	},
 	"queuingEngine": {
 		"awsSQS": {

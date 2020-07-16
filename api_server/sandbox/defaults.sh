@@ -17,16 +17,16 @@ export NODE_PATH=$CS_API_TOP/node_modules:$NODE_PATH
 [ -z "$CS_API_CONFS" ] && export CS_API_CONFS=$CS_API_SANDBOX/conf
 [ -z "$CS_API_DATA" ] && export CS_API_DATA=$CS_API_SANDBOX/data
 
+[ -z "$CS_API_ASSET_ENV" ] && export CS_API_ASSET_ENV=local
+
 if [ -n "$CSSVC_CFG_URL" ]; then
 	echo "looking for config from $CSSVC_CFG_URL"
 	export CSSVC_ENV=`eval echo $(get-json-property --config-url $CSSVC_CFG_URL -p sharedGeneral.runTimeEnvironment)`
-	export CS_API_ASSET_ENV=`eval echo $(get-json-property --config-url $CSSVC_CFG_URL -p apiServer.assetEnvironment)`
-	apiPort=`eval echo $(get-json-property --config-url $CSSVC_CFG_URL -p apiServer.assetEnvironment)`
+	apiPort=`eval echo $(get-json-property --config-url $CSSVC_CFG_URL -p apiServer.port)`
 else
 	[ -n "$CS_API_CFG_FILE" ] && configParm=$CS_API_CFG_FILE || configParm="$CSSVC_CONFIGURATION"
 	[ -z "$CSSVC_CFG_FILE" ] && sandutil_get_codestream_cfg_file "$CS_API_SANDBOX" "$configParm" "$CSSVC_ENV"
 	export CSSVC_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment)`
-	export CS_API_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.assetEnvironment)`
 	apiPort=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.port)`
 fi
 

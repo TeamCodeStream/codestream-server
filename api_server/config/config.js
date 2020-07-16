@@ -78,6 +78,7 @@ function customConfigFunc(nativeCfg) {
 		api: {
 			...nativeCfg.apiServer,
 			runTimeEnvironment: nativeCfg.sharedGeneral.runTimeEnvironment,
+			assetEnvironment: process.env.CS_API_ASSET_ENV,
 			installationId: nativeCfg.sharedGeneral.installationId,
 			authOrigin: nativeCfg.apiServer.authOrigin || `${nativeCfg.apiServer.publicApiUrl}/no-auth`,
 			thirdPartyProviders: ThirdPartyProviders,

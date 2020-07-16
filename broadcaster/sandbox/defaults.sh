@@ -17,10 +17,12 @@ export NODE_PATH=$CS_BROADCASTER_TOP/node_modules:$NODE_PATH
 [ -n "$CS_BROADCASTER_CFG_FILE" -a \( "$CSSVC_CFG_FILE" != "$CS_BROADCASTER_CFG_FILE" \) ] && echo "**** WARNING: CS_BROADCASTER_CFG_FILE != CSSVC_CFG_FILE"
 
 # These variables are used by shell scripts
+[ -z "$CS_BROADCASTER_ASSET_ENV" ] && export CS_BROADCASTER_ASSET_ENV=local
+
 export CS_BROADCASTER_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment 2>/dev/null)`
 export CS_BROADCASTER_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.logger.directory 2>/dev/null)`
-export CS_BROADCASTER_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.assetEnvironment 2>/dev/null)`
-[ -z "$CS_BROADCASTER_ASSET_ENV" ] && echo "The config file does not support the codestream broadcaster as a broadcastEngine. This sandbox is DOA."
+bcHost=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.host 2>/dev/null)`
+[ -z "$bcHost" ] && echo "The config file does not support the codestream broadcaster as a broadcastEngine. This sandbox is DOA." && export CS_BROADCASTER_DOA=1
 
 # Multiple installations - mono-repo and individual - have the same repo root ($REPO_ROOT/.git/)
 [ -n "$CSBE_TOP" ] && export CS_BROADCASTER_REPO_ROOT=$CSBE_TOP || { . $CS_BROADCASTER_SANDBOX/sb.info; export CS_BROADCASTER_REPO_ROOT=$CS_BROADCASTER_SANDBOX/$SB_REPO_ROOT; }

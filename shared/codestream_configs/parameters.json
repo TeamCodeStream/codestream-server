@@ -22,11 +22,6 @@
 
 {
 	"apiServer": {
-		"assetEnvironment": {
-			"default": "local",
-			"desc": "environment used to create and retrieve API assets (local, onprem, dev or prod)",
-			"env": "CS_API_ASSET_ENV"
-		},
 		"authOrigin": {
 			"desc": "origin to use for third-party auth callbacks",
 			"env": "CS_API_AUTH_ORIGIN"
@@ -143,11 +138,6 @@
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
-			"assetEnvironment": {
-				"default": "local",
-				"desc": "environment used to create and retrieve Broadcaster assets (local, onprem, dev or prod)",
-				"env": "CS_BROADCASTER_ASSET_ENV"
-			},
 			"host": {
 				"default": "localhost.codestream.us",
 				"desc": "hostname of the broadcaster service (from client point-of-view)"
@@ -295,11 +285,6 @@
 		}
 	},
 	"inboundEmailServer": {
-		"assetEnvironment": {
-			"default": "local",
-			"desc": "environment used to create and retrieve inbound email service assets (local, onprem, dev, prod, ...)",
-			"env": "CS_MAILIN_ASSET_ENV"
-		},
 		"inboundEmailDirectory": {
 			"default": "${CS_MAILIN_SANDBOX}/mailq/new",
 			"desc": "new email files will be delivered to this directory by the mail agent",
@@ -516,11 +501,6 @@
 		}
 	},
 	"outboundEmailServer": {
-		"assetEnvironment": {
-			"default": "local",
-			"desc": "environment used to create and retrieve outbound email assets (local, onprem, dev, prod, ...)",
-			"env": "CS_OUTBOUND_EMAIL_ASSET_ENV"
-		},
 		"logger": {
 			"consoleOk": {
 				"default": true,
@@ -556,6 +536,18 @@
 			"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp",
 			"desc": "temp directory",
 			"env": "CS_OUTBOUND_EMAIL_TMP"
+		}
+	},
+	"payments": {
+		"stripe": {
+			"publishableKey": {
+				"desc": "stripe payment key visible to clients",
+				"env": "CSSVC_STRIPE_PUBLISHABLE_KEY"
+			},
+			"secretKey": {
+				"desc": "stripe payment secret",
+				"env": "CSSVC_STRIPE_SECRET_KEY"
+			}
 		}
 	},
 	"queuingEngine": {

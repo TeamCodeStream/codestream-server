@@ -17,11 +17,12 @@ export NODE_PATH=$CS_MAILIN_TOP/node_modules:$NODE_PATH
 [ -z "$CSSVC_CFG_FILE" ] && sandutil_get_codestream_cfg_file "$CS_MAILIN_SANDBOX" "$configParm" "$CSSVC_ENV"
 [ -n "$CS_MAILIN_CFG_FILE" -a \( "$CSSVC_CFG_FILE" != "$CS_MAILIN_CFG_FILE" \) ] && echo "**** WARNING: CS_MAILIN_CFG_FILE != CSSVC_CFG_FILE"
 
+[ -z "$CS_MAILIN_ASSET_ENV" ] && export CS_MAILIN_ASSET_ENV=local
+
 # env vars required for aux scripts that don't load the config file directly
 [ -z "$CS_MAILIN_ENV" ] && export CS_MAILIN_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment)`
 export CS_MAILIN_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.logger.directory)`
 export CS_MAILIN_TMP=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.tmpDirectory)`
-export CS_MAILIN_ASSET_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.assetEnvironment)`
 export CS_MAILIN_INBOUND_EMAIL_DIRECTORY=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.inboundEmailDirectory)`
 export CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.tempAttachmentDirectory)`
 export CS_MAILIN_PROCESS_DIRECTORY=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.processDirectory)`
