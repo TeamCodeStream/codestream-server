@@ -28,7 +28,7 @@ module.exports = {
 	'lightningCodeReviews': {
 		description: 'Support for lightning code reviews',
 		version: '1.21.33',
-		supportedIdes: ['VS Code', 'JetBrains', 'VS']
+		supportedIdes: ['VS Code', 'JetBrains']
 	},
 	'xray': {
 		description: 'Support for feature x-ray, to monitor what co-workers are actively working on',
