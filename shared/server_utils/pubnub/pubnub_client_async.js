@@ -4,6 +4,9 @@
 
 const UUID = require('uuid/v4');
 
+const MAX_MESSAGE_LENGTH = 30000; // well under PubNub's 32KB limit
+const MAX_MESSAGE_SLICE_LIMIT = 1000; // effecively setting a 32MB limit on messages
+
 class PubNubClient {
 
 	constructor (options) {
@@ -28,9 +31,15 @@ class PubNubClient {
 			this._log('Would have sent PubNub message to ' + channel, options);
 			return;
 		}
-		if (typeof message === 'object') { 
+		if (typeof message === 'object') {
 			message.messageId = message.messageId || UUID();
 		}
+
+		const json = JSON.stringify(message);
+		if (json.length > MAX_MESSAGE_LENGTH) {
+			return await this.publishParts(json, channel);
+		}
+
 		const result = await this.pubnub.publish(
 			{
 				message: message,
@@ -39,6 +48,40 @@ class PubNubClient {
 		);
 		if (result.error) {
 			throw result.errorData;
+		}
+	}
+
+	// publish a long message in parts
+	async publishParts (json, channel) {
+		const fullMessageId = UUID();
+		let n = 0;
+		let totalParts = Math.floor(json.length / MAX_MESSAGE_LENGTH) + 1;
+		if (json.length % MAX_MESSAGE_LENGTH === 0) {
+			totalParts--;
+		}
+
+		while (json.length > 0 && n < MAX_MESSAGE_SLICE_LIMIT) {
+			const part = json.slice(0, MAX_MESSAGE_LENGTH);
+			json = json.slice(MAX_MESSAGE_LENGTH);
+			if (part.length > 0) {
+				const partialMessage = {
+					messageId: UUID(),
+					fullMessageId,
+					part: n,
+					totalParts,
+					message: part
+				};
+				const result = await this.pubnub.publish(
+					{
+						message: partialMessage,
+						channel: channel
+					}
+				);
+				if (result.error) {
+					throw result.errorData;
+				}
+			}
+			n++;
 		}
 	}
 
@@ -110,7 +153,7 @@ class PubNubClient {
 			{
 				channels: [channel],
 				authKeys: tokens,
-				read: options.read === false ? false: true,
+				read: options.read === false ? false : true,
 				write: options.write === true ? true : false,
 				ttl: options.ttl || 0
 			}
@@ -154,7 +197,7 @@ class PubNubClient {
 		}
 	}
 
-	async _grantMultipleHelper (token, channels, options) { 
+	async _grantMultipleHelper (token, channels, options) {
 		let result;
 		try {
 			result = await this.pubnub.grant(
