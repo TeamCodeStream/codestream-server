@@ -47,7 +47,14 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 		this.company = await this.data.companies.getById(this.companyId);
 		if (!this.company) {
 			this.warn(`Company ${this.companyId} not found`);
-			return this.redirect4040();
+			return this.redirect404();
+		}
+
+		if (this.company.get('plan') !== 'TRIALEXPIRED' && this.company.get('plan') !== 'FREEPLAN') {
+			return super.render('error', {
+				title: 'Subscription Changes',
+				body: `Please contact <a href="mailto:sales@codestream.com">sales@codestream.com</a> if you would like to make changes to your subscription.`
+			});
 		}
 
 		const memberCount = await this.company.getCompanyMemberCount(this.data);
