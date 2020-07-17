@@ -66,19 +66,19 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 		}
 
 		this.numSeats = parseInt(this.request.query.seats, 10);
-		if (this.numSeats == NaN || this.numSeats.toString() !== this.request.query.seats.trim()) {
+		if (this.numSeats == NaN || this.numSeats < 1 || this.numSeats.toString() !== this.request.query.seats.trim()) {
 			throw this.errorHandler.error('invalidParameter', { info: 'seats' });
-		}
-
-		if (this.numSeats < 6) {
-			this.response.redirect(`/web/subscription/upgrade/${this.request.query.companyId}?error=free`);
-			this.responseHandled = true;
-			return false;
 		}
 
 		const memberCount = await this.company.getCompanyMemberCount(this.data);
 		if (memberCount > this.numSeats) {
 			this.response.redirect(`/web/subscription/upgrade/${this.request.query.companyId}?error=tooFewSeats`);
+			this.responseHandled = true;
+			return false;
+		}
+
+		if (this.numSeats < 6) {
+			this.response.redirect(`/web/subscription/upgrade/${this.request.query.companyId}?error=free`);
 			this.responseHandled = true;
 			return false;
 		}

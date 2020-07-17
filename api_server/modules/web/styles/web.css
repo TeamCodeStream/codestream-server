@@ -158,6 +158,9 @@ h6 {
 .box-content-inverse-text a {
 	text-decoration: underline;
 }
+.box-content-subscription-upgrade {
+	width: 65%;
+}
 .box-border {
 	margin-top: 1rem;
 	padding: 1.5rem;
@@ -174,6 +177,10 @@ h1 {
 	font-weight: bold;
 	font-size: 1.35rem;
 	padding-bottom: 0.5rem;
+}
+h2 {
+	font-size: 1.2rem;
+	line-height: 1.4;
 }
 h3 {
 	text-align: center;
@@ -262,6 +269,10 @@ h3 {
     white-space: normal;
 	line-height: 1.42857143;
 	vertical-align: middle
+}
+
+.sm-input {
+	max-width: 100px;
 }
 
 input.bg-dark:-webkit-autofill {
@@ -546,6 +557,7 @@ span.dropdown-item:hover {
 
 .radio-group label {
 	padding-left: 3px;
+	margin-bottom: 0px;
 }
 
 .radio:hover {
@@ -556,6 +568,7 @@ span.dropdown-item:hover {
 	color: #009aef;
 	font-size: 1.3rem;
 	padding-bottom: 10px;
+	line-height: 1.3;
 }
 
 @-webkit-keyframes color-change-2x {

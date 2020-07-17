@@ -50,7 +50,8 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 			return this.redirect404();
 		}
 
-		if (this.company.get('plan') !== 'TRIALEXPIRED' && this.company.get('plan') !== 'FREEPLAN') {
+		const unpaidPlans = ['30DAYTRIAL', 'TRIALEXPIRED', 'FREEPLAN'];
+		if (!unpaidPlans.includes(this.company.get('plan'))) {
 			return super.render('error', {
 				title: 'Subscription Changes',
 				body: `Please contact <a href="mailto:sales@codestream.com">sales@codestream.com</a> if you would like to make changes to your subscription.`
@@ -58,10 +59,10 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 		}
 
 		const memberCount = await this.company.getCompanyMemberCount(this.data);
-		const minMemberCount = Math.max(this.api.config.payments.minPaidSeats, memberCount);
 		const templateProps = {
 			companyId: this.companyId,
-			minMemberCount,
+			companyName: this.company.get('name'),
+			memberCount,
 			minPaidSeats: this.api.config.payments.minPaidSeats,
 			error: this.request.query.error,
 			segmentKey: this.api.config.segment.webToken

@@ -19,9 +19,9 @@
 			const errorElem = document.getElementById("error");
 			const maxFreeSeats = {{minPaidSeats}} - 1;
 			let message = {
-				number: "Must be a number.",
-				free: `CodeStream is free for companies of ${maxFreeSeats} or less.`,
-				tooFewSeats: "Your company currently has {{minMemberCount}} users. If you’d like to subscribe with less you will need to remove some."
+				number: "Must be a positive number.",
+				free: `6-seat minimum. CodeStream is free for companies of ${maxFreeSeats} or less.`,
+				tooFewSeats: "Your company currently has {{memberCount}} users. If you’d like to subscribe with less you will need to remove some."
 			}[error];
 			if (!message) message = "Unknown error.";
 			errorElem.style.display = "block";
@@ -33,16 +33,16 @@
 			const seats = seatsElem.value;
 			const numSeats = parseInt(seats, 10);
 			let error;
-			if (numSeats == NaN || numSeats.toString() !== seats.trim()) {
+			if (numSeats == NaN || numSeats < 1 || numSeats.toString() !== seats.trim()) {
 				setError("number");
+				return false;
+			} else if (numSeats < {{ memberCount }}) {
+				setError("tooFewSeats");
+				window.analytics.track("Payment Seats Validation", { Validation: "Less than registered seats" });
 				return false;
 			} else if (numSeats < {{minPaidSeats}}) {
 				setError("free");
 				window.analytics.track("Payment Seats Validation", { Validation: "Less than {{minPaidSeats}}" });
-				return false;
-			} else if (numSeats < {{minMemberCount}}) {
-				setError("tooFewSeats");
-				window.analytics.track("Payment Seats Validation", { Validation: "Less than registered seats" });
 				return false;
 			} else {
 				return numSeats;
@@ -68,10 +68,10 @@
 	<div class="container-fluid" id="root">
 		<div class="row">
 			<div class="col-sm-6 offset-sm-3">
-				<div class="box-content box-border box-border-sm">
+				<div class="box-content box-border box-content-subscription-upgrade">
 					<h1>Upgrade to CodeStream Business</h1>
 					<br />
-					<p>Enjoy unlimited integrations, lifetime knowledge retention, and priority support.</p>
+					<h2>Enjoy unlimited integrations, lifetime knowledge retention, and priority support.</h2>
 					<br/>
 					{{#if discount}}
 					<p class="special-text">Skip the trial! You are still eligible to "buy now" and save 40%.</p>
@@ -81,24 +81,32 @@
 						<form method="get" action="/web/subscription/checkout" onsubmit="return validateForm()">
 							<input type="hidden" name="companyId" value="{{companyId}}" />
 							<div class="form-group">
-								<label class="label">Please enter number of seats:</label>
-								<input class="form-control bg-dark" id="seats" name="seats" autocomplete="off" type="number" value="{{minMemberCount}}" autofocus />
+								<div style="margin-bottom: 5px;">Company name: <b>{{companyName}}</b></div>
+								<div class="form-group form-inline">
+									<label class="label">Number of seats:&nbsp;&nbsp;</label>
+									<input class="form-control bg-dark sm-input" id="seats" name="seats" autocomplete="off" type="number" value="{{memberCount}}" autofocus />
+								</div>
 								<p id="error" class="error" style="display:none;">error</p>
 								<div class="radio-group">
 									<input type="radio" class="radio" id="pay-annually" name="pay-type" value="annual" checked>
 									{{#if discount}}
-									<label for="pay-annual" class="radio-label">Pay Annually - Only $5.00 per seat with "Buy Now" discount. Regularly $8.33/month.</label><br>
+									<label for="pay-annual">Pay Annually</label>
+									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only $5.00 per seat with "Buy Now" discount. Regularly $8.33/month.</p>
 									{{else}}
-									<label for="pay-annual">Pay Annually - Get 10 months for the price of 12. Just $8.33/month per seat.</label><br>
+									<label for="pay-annual">Pay Annually</label>
+									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get 10 months for the price of 12. Just $8.33/month per seat.</p>
 									{{/if}}
 									<input type="radio" class="radio" id="pay-monthly" name="pay-type" value="month">
 									{{#if discount}}
-									<label for="pay-monthly" class="radio-label">Pay Monthly - only $6.00 per seat with "Buy Now" discount. Regularly $10.00/month.</label><br>
+									<label for="pay-monthly">Pay Monthly</label>
+									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only $6.00 per seat with "Buy Now" discount. Regularly $10.00/month.</p>
 									{{else}}
-									<label for="pay-monthly">Pay Monthly - $10/month per seat.</label><br>
+									<label for="pay-monthly">Pay Monthly</label>
+									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$10/month per seat.</p>
 									{{/if}}
 								</div>
 							</div>
+							<br />
 							<div class="form-group">
 								<input type="submit" value="Checkout" class="btn" />
 							</div>
