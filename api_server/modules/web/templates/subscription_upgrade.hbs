@@ -28,7 +28,7 @@
 			errorElem.innerHTML = message;
 		};
 
-		var validateForm = function() {
+		var checkout = function() {
 			const seatsElem = document.getElementById("seats");
 			const seats = seatsElem.value;
 			const numSeats = parseInt(seats, 10);
@@ -53,8 +53,17 @@
 					"Plan Purchased": "BUSINESS",
 					"Frequency": frequency,
 					"Coupon": {{buyNowDiscount}} ? "{{buyNowCouponCode}}" : ""
-				})
-				return true;
+				}, () => {
+					const params = {
+						companyId: "{{companyId}}",
+						seats: numSeats,
+						"pay-type": payMonthly ? "monthly" : "annual"
+					};
+					document.location = "/web/subscription/checkout?" + Object.keys(params).map(key => {
+						return `${key}=${params[key]}`;
+					}).join('&');
+				});
+				return false;
 			}
 		};
 
@@ -62,16 +71,13 @@
 			if ("{{error}}") {
 				setError("{{error}}");
 			}
+			window.analytics.track('Page Viewed', { 'Page Name': 'Payment' });
 		};
 
 	</script>
 </head>
 <body>
 	{{{identifyScript}}}
-	<script>
-		window.analytics.track('Page Viewed', { 'Page Name': 'Payment' });
-	</script>
-
 	{{> partial_menu partial_menu_model}}
 
 	<div class="container-fluid" id="root">
@@ -87,7 +93,7 @@
 					{{/if}}
 
 					<div class="form-wrapper">
-						<form method="get" action="/web/subscription/checkout" onsubmit="return validateForm()">
+						<form method="get" onsubmit="return checkout();">
 							<input type="hidden" name="companyId" value="{{companyId}}" />
 							<div class="form-group">
 								<div class="form-group form-inline">

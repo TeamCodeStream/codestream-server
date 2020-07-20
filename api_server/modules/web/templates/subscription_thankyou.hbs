@@ -15,13 +15,17 @@
     </script>
     <script>
         history.pushState(null, "CodeStream", location.href.split("?")[0]);
-        window.analytics.track("Payment Completed", {
-            "Company ID": "{{companyId}}",
-            "Seats": "{{seats}}",
-            "Plan Purchased": "BUSINESS",
-            "Frequency": "{{frequency}}",
-            "Coupon": "{{coupon}}"
-        });
+    </script>
+    <script>
+        window.onload = function () {
+            window.analytics.track("Payment Completed", {
+                "Company ID": "{{companyId}}",
+                "Seats": "{{seats}}",
+                "Plan Purchased": "BUSINESS",
+                "Frequency": "{{frequency}}",
+                "Coupon": "{{coupon}}"
+            });
+        };
     </script>
 </head>
 
