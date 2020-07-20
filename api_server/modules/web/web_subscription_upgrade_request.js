@@ -4,6 +4,7 @@
 
 const Identify = require('./identify');
 const WebRequestBase = require('./web_request_base');
+const StripeCouponCodes = require('./stripe_coupon_codes');
 
 class SubscriptionUpgradeRequest extends WebRequestBase {
 
@@ -59,17 +60,17 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 		}
 
 		const memberCount = await this.company.getCompanyMemberCount(this.data);
+		const buyNowDiscount = this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod;
 		const templateProps = {
 			companyId: this.companyId,
 			companyName: this.company.get('name'),
 			memberCount,
 			minPaidSeats: this.api.config.payments.minPaidSeats,
+			buyNowCouponCode: StripeCouponCodes.buyNow,
+			buyNowDiscount,
 			error: this.request.query.error,
 			segmentKey: this.api.config.segment.webToken
 		};
-		if (this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod) {
-			templateProps.discount = true;
-		}
 		this.addIdentifyScript(templateProps);
 
 		await super.render('subscription_upgrade', templateProps);

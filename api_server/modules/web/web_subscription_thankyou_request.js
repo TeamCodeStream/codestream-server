@@ -5,6 +5,7 @@
 const WebRequestBase = require('./web_request_base');
 const Stripe = require('stripe');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const Identify = require('./identify');
 
 class WebSubscriptionThankyouRequest extends WebRequestBase {
 
@@ -17,7 +18,17 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 			await this.validatePlan();
 			await this.savePaymentInfo();
 
-			this.render('subscription_thankyou');
+			const templateProps = {
+				segmentKey: this.api.config.segment.webToken,
+				companyId: this.company.id,
+				seats: this.subscription.quantity,
+				frequency: this.plan.interval === 'year' ? 'Annual' : 'Monthly',
+				coupon: this.coupon
+			};
+			this.addIdentifyScript(templateProps);
+
+			this.render('subscription_thankyou', templateProps);
+
 			this.responseHandled = true;
 		}
 		catch (error) {
@@ -28,6 +39,15 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 			this.redirectError(code);
 			return;
 		}
+	}
+
+	addIdentifyScript(props) {
+		const identifyOptions = {
+			user: this.user,
+			company: this.company,
+			module: this.module
+		};
+		props.identifyScript = Identify(identifyOptions);
 	}
 
 	// validate that the plan paid for matches the number of seats
@@ -63,6 +83,12 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 
 	// save payment info with the company object
 	async savePaymentInfo () {
+		this.coupon = (
+			this.subscription.discount &&
+			this.subscription.discount.coupon &&
+			this.subscription.discount.coupon.id
+		) || '';
+
 		const set = {
 			plan: 'BUSINESS',
 			planStartDate: this.subscription.start_date * 1000,
@@ -75,7 +101,8 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 				plan: this.plan.id,
 				customer: this.customer && this.customer.id
 			},
-			paidSeats: this.subscription.quantity,
+			planPaidSeats: this.subscription.quantity,
+			planCoupon: this.coupon,
 			modifiedAt: Date.now()
 		};
 

@@ -57,9 +57,15 @@ module.exports = {
 		description: 'The frequency of payments, either Monthly or Annual',
 		serverOnly: true
 	},
-	paidSeats: {
+	planPaidSeats: {
 		type: 'number',
 		description: 'Number of paid seats for this company',
+		serverOnly: true
+	},
+	planCoupon: {
+		type: 'string',
+		maxLength: 20,
+		description: 'Discount coupon applied with payment',
 		serverOnly: true
 	},
 	stripeInfo: {

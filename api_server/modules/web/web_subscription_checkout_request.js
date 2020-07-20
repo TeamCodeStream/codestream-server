@@ -3,6 +3,7 @@
 
 const WebRequestBase = require('./web_request_base');
 const Stripe = require('stripe');
+const StripeCouponCodes = require('./stripe_coupon_codes');
 
 class WebSubscriptionCheckoutRequest extends WebRequestBase {
 
@@ -105,7 +106,7 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 		};
 		if (this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod) {
 			sessionData.subscription_data = {
-				coupon: 'vIMHF0yv'
+				coupon: StripeCouponCodes.buyNow
 			};
 		}
 		this.session = await this.stripe.checkout.sessions.create(sessionData);
