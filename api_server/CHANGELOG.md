@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.0.8] - 2020-7-21
+
+### Added
+
+- Adds support for self-serve payments when subscribing to CodeStream
+
 ## [8.0.7] - 2020-7-16
 
 ### Fixed
