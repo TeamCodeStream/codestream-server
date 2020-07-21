@@ -30,5 +30,6 @@ ENV NODE_PATH=/opt/api/codestream-server/api_server/node_modules
 ENV CS_API_TOP=/opt/api/codestream-server/api_server
 ENV CS_API_LOGS=/opt/api/log
 ENV CS_API_TMP=/opt/api/tmp
+ENV CS_API_ASSET_ENV=docker
 
 CMD [ "/opt/api/codestream-server/api_server/bin/cs_api-start-docker" ]
