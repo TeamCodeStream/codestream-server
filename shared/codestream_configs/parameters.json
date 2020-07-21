@@ -540,13 +540,20 @@
 	},
 	"payments": {
 		"stripe": {
+			"annualPlanId": {
+				"desc": "annual payment plan Id"
+			},
+			"buyNowCouponCode": {
+				"desc": "buy-now coupon code"
+			},
+			"monthlyPlanId": {
+				"desc": "monthly payment plan Id"
+			},
 			"publishableKey": {
-				"desc": "stripe payment key visible to clients",
-				"env": "CSSVC_STRIPE_PUBLISHABLE_KEY"
+				"desc": "stripe payment key visible to clients"
 			},
 			"secretKey": {
-				"desc": "stripe payment secret",
-				"env": "CSSVC_STRIPE_SECRET_KEY"
+				"desc": "stripe payment secret"
 			}
 		}
 	},

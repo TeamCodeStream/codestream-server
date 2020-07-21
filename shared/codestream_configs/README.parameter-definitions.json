@@ -188,8 +188,11 @@
 	},
 	"payments": {
 		"stripe": {
-			"publishableKey": "stripe payment key visible to clients [CSSVC_STRIPE_PUBLISHABLE_KEY]",
-			"secretKey": "stripe payment secret [CSSVC_STRIPE_SECRET_KEY]"
+			"annualPlanId": "annual payment plan Id",
+			"buyNowCouponCode": "buy-now coupon code",
+			"monthlyPlanId": "monthly payment plan Id",
+			"publishableKey": "stripe payment key visible to clients",
+			"secretKey": "stripe payment secret"
 		}
 	},
 	"queuingEngine": {
