@@ -4,7 +4,6 @@
 
 const Identify = require('./identify');
 const WebRequestBase = require('./web_request_base');
-const StripeCouponCodes = require('./stripe_coupon_codes');
 
 class SubscriptionUpgradeRequest extends WebRequestBase {
 
@@ -66,7 +65,7 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 			companyName: this.company.get('name'),
 			memberCount,
 			minPaidSeats: this.api.config.payments.minPaidSeats,
-			buyNowCouponCode: StripeCouponCodes.buyNow,
+			buyNowCouponCode: this.api.config.payments.stripe.buyNowCouponCode,
 			buyNowDiscount,
 			error: this.request.query.error,
 			segmentKey: this.api.config.segment.webToken

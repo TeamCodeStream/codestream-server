@@ -3,7 +3,6 @@
 
 const WebRequestBase = require('./web_request_base');
 const Stripe = require('stripe');
-const StripeCouponCodes = require('./stripe_coupon_codes');
 
 class WebSubscriptionCheckoutRequest extends WebRequestBase {
 
@@ -90,7 +89,9 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 	// create a stripe session for handling the payment
 	async createStripeSession () {
 		this.stripe = Stripe(this.api.config.payments.stripe.secretKey);
-		const price = this.request.query['pay-type'] === 'annual' ? 'price_1H0AZ8JRr1pIIxkHdn5OTaWo' : 'plan_HC6pvNVtUBPqR4';
+		const price = this.request.query['pay-type'] === 'annual' ? 
+			this.api.config.payments.stripe.annualPlanId : 
+			this.api.config.payments.stripe.monthlyPlanId;
 		const sessionData = {
 			success_url: `${this.api.config.api.publicApiUrl}/web/subscription/thankyou/${this.company.id}`,
 			cancel_url: `${this.api.config.api.publicApiUrl}/web/subscription/upgrade/${this.company.id}`,
@@ -106,7 +107,7 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 		};
 		if (this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod) {
 			sessionData.subscription_data = {
-				coupon: StripeCouponCodes.buyNow
+				coupon: this.api.config.payments.stripe.buyNowCouponCode
 			};
 		}
 		this.session = await this.stripe.checkout.sessions.create(sessionData);
