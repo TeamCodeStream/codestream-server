@@ -48,6 +48,16 @@ const TEAM_ADDITIONAL_ROUTES = [
 		method: 'delete',
 		path: 'team-tags/:teamId/:id',
 		requestClass: require('./delete_team_tag_request')
+	},
+	{
+		method: 'post',
+		path: 'add-blame-map/:teamId',
+		requestClass: require('./add_blame_map_request')
+	},
+	{
+		method: 'put',
+		path: 'delete-blame-map/:teamId',
+		requestClass: require('./delete_blame_map_request')
 	}
 ];
 

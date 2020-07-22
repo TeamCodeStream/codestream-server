@@ -10,6 +10,8 @@ const teamsRequestTester = new TeamsRequestTester();
 const CreateTagRequestTester = require('./create_tag/test');
 const UpdateTagRequestTester = require('./update_tag/test');
 const DeleteTagRequestTester = require('./delete_tag/test');
+const AddBlameMapRequestTester = require('./add_blame_map/test');
+const DeleteBlameMapRequestTester = require('./delete_blame_map/test');
 
 describe('team requests', function() {
 
@@ -23,4 +25,6 @@ describe('team requests', function() {
 	describe('POST /team-tags/:id', CreateTagRequestTester.test);
 	describe('PUT /team-tags/:teamId/:id', UpdateTagRequestTester.test);
 	describe('DELETE /team-tags/:teamId/:id', DeleteTagRequestTester.test);
+	describe('POST /add-blame-map/:teamId', AddBlameMapRequestTester.test);
+	describe('PUT /delete-blame-map/:teamId', DeleteBlameMapRequestTester.test);
 });
