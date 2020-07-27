@@ -8,6 +8,8 @@ const UUID = require('uuid/v4');
 const ProviderFetcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_fetcher');
 const APICapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/capabilities');
 const VersionErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/errors');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
+const Fetch = require('node-fetch');
 
 class LoginHelper {
 
@@ -24,8 +26,12 @@ class LoginHelper {
 		if (this.user.get('inMaintenanceMode')) {
 			throw this.request.errorHandler.error('inMaintenanceMode');
 		}
-		await this.getInitialData();
-		await this.generateAccessToken();
+
+		await awaitParallel([
+			this.getCountryCode,
+			this.getInitialData,
+			this.generateAccessToken
+		], this);
 		await this.updateLastLogin();
 		this.getThirdPartyProviders();
 		await this.formResponse();
@@ -38,6 +44,22 @@ class LoginHelper {
 	async allowLogin () {
 		await this.generateAccessToken();
 		await this.grantSubscriptionPermissions();
+	}
+
+	// get the country-code associated with this user by IP address of the connection
+	async getCountryCode () {
+		// we hit a free third-party service for this, and it's not mission critial, so
+		// set a strict timeout on it so as not to delay other operations
+		let result;
+		try {
+			const addr = this.request.request.connection.remoteAddress;
+			const ip = addr.split(':').pop();
+			const response = await Fetch('http://ip2c.org/' + ip, { timeout: 500 });
+			result = await response.text();
+			this.countryCode = result.split(';')[1];
+		}
+		catch (error) {
+		}
 	}
 
 	// get the initial data to return in the response, this is a time-saver for the client
@@ -130,6 +152,9 @@ class LoginHelper {
 		}
 		if (this.trueLogin) {
 			op.$set.firstSessionStartedAt = this.user.get('firstSessionStartedAt') === undefined ? Date.now() : 0;
+		}
+		if (this.countryCode) {
+			op.$set.countryCode = this.countryCode;
 		}
 		await this.request.data.users.applyOpById(this.user.id, op);
 	}

@@ -293,5 +293,10 @@ module.exports = {
 		type: 'object',
 		description: 'Object describing user\'s headshot or avatar',
 		maxLength: 300
+	},
+	countryCode: {
+		type: 'string',
+		description: 'Two-letter country code for the user, obtained from the IP on login',
+		maxLength: 2
 	}
 };
