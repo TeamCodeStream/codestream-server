@@ -41,8 +41,7 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 	async show () {
 		this.companyId = this.request.params.companyId.toLowerCase();
 		if (this.user && !this.user.hasCompany(this.companyId)) {
-			this.warn('User requesting subscription upgrade is not a member of company ' + this.companyId);
-			return this.redirect404();
+			this.log('User requesting subscription upgrade is not a member of company ' + this.companyId);
 		}
 		this.company = await this.data.companies.getById(this.companyId);
 		if (!this.company) {
