@@ -71,7 +71,8 @@ class AnalyticsClient {
 				distinct_id: user.id,
 				'$email': user.get('email'),
 				name: user.get('fullName'),
-				'Join Method': user.get('joinMethod')
+				'Join Method': user.get('joinMethod'),
+				'Last Invite Type': user.get('lastInviteType')
 			});
 			if (user.get('registeredAt')) {
 				trackObject['$created'] = new Date(user.get('registeredAt')).toISOString();

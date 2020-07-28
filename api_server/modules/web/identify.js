@@ -7,6 +7,7 @@ module.exports = function(options) {
 	const userId = user && user.id;
 	const email = user && user.get('email');
 	const joinMethod = user && user.get('joinMethod');
+	const lastInviteType = user && user.get('lastInviteType');
 	const userRegisteredAt = user && new Date(user.get('registeredAt')).toISOString();
 	const fullName = user && user.get('fullName');
 	const dateOfLastPost = user && user.get('lastPostCreatedAt') &&
@@ -32,6 +33,7 @@ module.exports = function(options) {
 		userId,
 		email,
 		joinMethod,
+		lastInviteType,
 		userRegisteredAt,
 		fullName,
 		dateOfLastPost,
