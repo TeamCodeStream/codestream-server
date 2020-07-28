@@ -52,6 +52,7 @@ class LoginHelper {
 		// set a strict timeout on it so as not to delay other operations
 		let result;
 		try {
+			if (!this.request.request.connection) { return; }
 			const addr = this.request.request.connection.remoteAddress;
 			const ip = addr.split(':').pop();
 			const response = await Fetch('http://ip2c.org/' + ip, { timeout: 500 });
@@ -61,6 +62,7 @@ class LoginHelper {
 		}
 		catch (error) {
 			this.request.warn('CAUGHT', error);
+			this.request.warn(error.stack);
 		}
 	}
 

@@ -60,6 +60,12 @@ class WebErrorRequest extends WebRequestBase {
 				title: 'Application Missing',
 				body: 'An application for this provider has not been configured. Please refer this issue to your CodeStream administrator.'
 			};
+
+		case 'PRVD-1010':
+			return {
+				title: 'No primary email found',
+				body: 'Please make sure the primary email associated with your GitLab account is public.'
+			};
 		}
 	}
 }

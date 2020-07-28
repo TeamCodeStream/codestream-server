@@ -3,6 +3,7 @@
 'use strict';
 
 const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/oauth/oauth_module.js');
+const BitbucketAuthorizer = require('./bitbucket_authorizer');
 
 const OAUTH_CONFIG = {
 	provider: 'bitbucket',
@@ -15,6 +16,7 @@ const OAUTH_CONFIG = {
 	appIdInAuthorizationHeader: true,
 	mockAccessTokenExpiresIn: 7200,
 	supportsRefresh: true,
+	supportsSignup: true,
 	hasIssues: true
 };
 
@@ -23,6 +25,15 @@ class BitbucketAuth extends OAuthModule {
 	constructor (config) {
 		super(config);
 		this.oauthConfig = OAUTH_CONFIG;
+	}
+
+	// match the given Bitbucket identity to a CodeStream identity
+	async getUserIdentity(options) {
+		const authorizer = new BitbucketAuthorizer({ options });
+		return await authorizer.getBitbucketIdentity(
+			options.accessToken,
+			options.providerInfo
+		);
 	}
 }
 

@@ -42,7 +42,9 @@ const ENTERPRISE_PROVIDERS = {
 };
 
 const AUTH_PROVIDERS = [
-	'github'
+	'github',
+	'gitlab',
+	'bitbucket'
 	// TODO: 'okta'
 ];
 

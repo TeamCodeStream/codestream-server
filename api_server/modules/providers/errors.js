@@ -52,5 +52,10 @@ module.exports = {
 		code: 'PRVD-1009',
 		message: 'This provider is not configured for this environment',
 		description: 'No tokens or credentials exist for this provider'
+	},
+	'gitlabPublicEmail': {
+		code: 'PRVD-1010',
+		message: 'Could not find a public email associated with the GitLab account',
+		description: 'GitLab requires that the user\'s primary email be public for identity matching'
 	}
 };
