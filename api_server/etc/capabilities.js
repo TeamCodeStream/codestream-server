@@ -66,5 +66,9 @@ module.exports = {
 	'shareStatusToSlack': {
 		description: 'Whether the share to slack capability is supported, which requires a new scope for the slack app',
 		version: '8.0.6'
+	},
+	'addBlameMap': {
+		description: 'Supporting adding someone to the blame-map',
+		version: '8.1.1'
 	}
 };
