@@ -20,7 +20,7 @@
 			const maxFreeSeats = {{minPaidSeats}} - 1;
 			let message = {
 				number: "Must be a positive number.",
-				free: `6-seat minimum. CodeStream is free for companies of ${maxFreeSeats} or less.`,
+				free: `{{minPaidSeats}}-seat minimum. CodeStream is free for companies of ${maxFreeSeats} or less.`,
 				tooFewSeats: "Your company currently has {{memberCount}} users. If you’d like to subscribe with less you will need to remove some."
 			}[error];
 			if (!message) message = "Unknown error.";
@@ -47,17 +47,21 @@
 				window.analytics.track("Payment Seats Validation", { Validation: "Less than {{minPaidSeats}}" });
 				return false;
 			} else {
+				const couponCtrl = document.getElementById("coupon");
+				const buyNowCoupon = {{buyNowDiscount}} ? "{{buyNowCouponCode}}": "";
+				const coupon = couponCtrl ? couponCtrl.value : buyNowCoupon;
 				window.analytics.track("Checkout", {
 					"Company ID": "{{companyId}}",
 					"Seats": numSeats,
 					"Plan Purchased": "BUSINESS",
 					"Frequency": frequency,
-					"Coupon": {{buyNowDiscount}} ? "{{buyNowCouponCode}}" : ""
+					"Coupon": coupon
 				}, () => {
 					const params = {
 						companyId: "{{companyId}}",
 						seats: numSeats,
-						"pay-type": payMonthly ? "monthly" : "annual"
+						"pay-type": payMonthly ? "monthly" : "annual",
+						coupon
 					};
 					document.location = "/web/subscription/checkout?" + Object.keys(params).map(key => {
 						return `${key}=${params[key]}`;
@@ -94,31 +98,41 @@
 
 					<div class="form-wrapper">
 						<form method="get" onsubmit="return checkout();">
-							<input type="hidden" name="companyId" value="{{companyId}}" />
 							<div class="form-group">
-								<div class="form-group form-inline">
-									<label class="label">Number of seats:&nbsp;&nbsp;</label>
-									<input class="form-control bg-dark sm-input" id="seats" name="seats" autocomplete="off" type="number" value="{{memberCount}}" autofocus />
+								<input type="hidden" name="companyId" value="{{companyId}}" />
+							</div>
+							<div class="form-group row">
+								<label class="label col-form-label col-sm-4">Number of seats:&nbsp;&nbsp;</label>
+								<div class="col-sm-4">
+									<input class="form-control bg-dark" id="seats" name="seats" autocomplete="off" type="number" value="{{memberCount}}" autofocus />
 								</div>
-								<p id="error" class="error" style="display:none;">error</p>
-								<div class="radio-group">
-									<input type="radio" class="radio" id="pay-annually" name="pay-type" value="annual" checked>
-									{{#if buyNowDiscount}}
-									<label for="pay-annual">Pay Annually</label>
-									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only $5.00 per seat with discount. Regularly $8.33/month.</p>
-									{{else}}
-									<label for="pay-annual">Pay Annually</label>
-									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get 10 months for the price of 12. Just $8.33/month per seat.</p>
-									{{/if}}
-									<input type="radio" class="radio" id="pay-monthly" name="pay-type" value="month">
-									{{#if buyNowDiscount}}
-									<label for="pay-monthly">Pay Monthly</label>
-									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only $6.00 per seat with discount. Regularly $10.00/month.</p>
-									{{else}}
-									<label for="pay-monthly">Pay Monthly</label>
-									<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$10/month per seat.</p>
-									{{/if}}
+							</div>
+							{{#if offerCoupon}}
+							<div class="form-group row">
+								<label class="label col-form-label col-sm-4">Referral code:&nbsp;&nbsp;</label>
+								<div class="col-sm-4">
+									<input class="form-control bg-dark" id="coupon" name="coupon" autocomplete="off" />
 								</div>
+							</div>
+							{{/if}}
+							<p id="error" class="error" style="display:none;">error</p>
+							<div class="radio-group">
+								<input type="radio" class="radio" id="pay-annually" name="pay-type" value="annual" checked>
+								{{#if buyNowDiscount}}
+								<label for="pay-annual">Pay Annually</label>
+								<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only $5.00 per seat with discount. Regularly $8.33/month.</p>
+								{{else}}
+								<label for="pay-annual">Pay Annually</label>
+								<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get 10 months for the price of 12. Just $8.33/month per seat.</p>
+								{{/if}}
+								<input type="radio" class="radio" id="pay-monthly" name="pay-type" value="month">
+								{{#if buyNowDiscount}}
+								<label for="pay-monthly">Pay Monthly</label>
+								<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only $6.00 per seat with discount. Regularly $10.00/month.</p>
+								{{else}}
+								<label for="pay-monthly">Pay Monthly</label>
+								<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$10/month per seat.</p>
+								{{/if}}
 							</div>
 							<br />
 							<div class="form-group">

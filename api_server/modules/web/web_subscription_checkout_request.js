@@ -41,7 +41,13 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 		catch (error) {
 			// something bad happened -- redirect to failure screen
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			if (message.match(/No such coupon/)) {
+				error.code = 'invalid_coupon';
+			}
 			this.warn('Error redirecting for payment: ' + message);
+			if (error instanceof Error) {
+				this.warn(error.stack);
+			}
 			const code = typeof error === 'object' && error.code;
 			this.redirectError(code);
 			return;
@@ -53,7 +59,7 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 			'query',
 			{
 				required: {
-					string: ['companyId', 'seats', 'pay-type']
+					string: ['companyId', 'seats', 'pay-type', 'coupon']
 				}
 			}
 		);
@@ -77,7 +83,7 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 			return false;
 		}
 
-		if (this.numSeats < 6) {
+		if (this.numSeats < this.api.config.payments.minPaidSeats) {
 			this.response.redirect(`/web/subscription/upgrade/${this.request.query.companyId}?error=free`);
 			this.responseHandled = true;
 			return false;
@@ -105,7 +111,12 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 			],
 			mode: 'subscription'
 		};
-		if (this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod) {
+		if (this.request.query.coupon) {
+			sessionData.subscription_data = {
+				coupon: this.request.query.coupon
+			};
+		}
+		else if (this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod) {
 			sessionData.subscription_data = {
 				coupon: this.api.config.payments.stripe.buyNowCouponCode
 			};
