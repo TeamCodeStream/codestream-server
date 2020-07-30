@@ -103,15 +103,21 @@
 							</div>
 							<div class="form-group row">
 								<label class="label col-form-label col-sm-4">Number of seats:&nbsp;&nbsp;</label>
-								<div class="col-sm-4">
+								<div class="col-sm-6">
 									<input class="form-control bg-dark" id="seats" name="seats" autocomplete="off" type="number" value="{{memberCount}}" autofocus />
 								</div>
 							</div>
 							{{#if offerCoupon}}
 							<div class="form-group row">
 								<label class="label col-form-label col-sm-4">Referral code:&nbsp;&nbsp;</label>
-								<div class="col-sm-4">
+								<div class="col-sm-6">
 									<input class="form-control bg-dark" id="coupon" name="coupon" autocomplete="off" />
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-sm-4">&nbsp;</div>
+								<div class="col-sm-8" style="margin-top:-10px">
+									Discounted pricing will be reflected on the checkout page.
 								</div>
 							</div>
 							{{/if}}
@@ -123,7 +129,7 @@
 								<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Only $5.00 per seat with discount. Regularly $8.33/month.</p>
 								{{else}}
 								<label for="pay-annual">Pay Annually</label>
-								<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get 10 months for the price of 12. Just $8.33/month per seat.</p>
+								<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get 12 months for the price of 10. Just $8.33/month per seat.</p>
 								{{/if}}
 								<input type="radio" class="radio" id="pay-monthly" name="pay-type" value="month">
 								{{#if buyNowDiscount}}
