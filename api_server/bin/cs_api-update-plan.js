@@ -11,7 +11,6 @@ const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/c
 const Intercom = require('intercom-client');
 const Indexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
 const Strftime = require('strftime');
-const { CommandCursor } = require('mongodb');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 // need these collections from mongo
