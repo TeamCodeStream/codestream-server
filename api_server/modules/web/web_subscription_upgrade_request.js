@@ -49,7 +49,7 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 			return this.redirect404();
 		}
 
-		const unpaidPlans = ['30DAYTRIAL', 'TRIALEXPIRED', 'FREEPLAN', 'SALES'];
+		const unpaidPlans = ['14DAYTRIAL', '30DAYTRIAL', 'TRIALEXPIRED', 'FREEPLAN', 'SALES'];
 		if (!unpaidPlans.includes(this.company.get('plan'))) {
 			return super.render('error', {
 				title: 'Subscription Changes',

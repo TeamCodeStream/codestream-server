@@ -36,8 +36,8 @@ class PhoneHomeStatsCollector {
 
 	// is this company on a paid plan?
 	companyIsPaid (company) {
-		const plan = company.plan || '30DAYTRIAL';
-		return plan !== 'FREEPLAN' && plan !== '30DAYTRIAL';
+		const plan = company.plan || '14DAYTRIAL';
+		return plan !== 'FREEPLAN' && plan !== '30DAYTRIAL' && plan !== '14DAYTRIAL';
 	}
 
 	// collect all the stats for the given companies

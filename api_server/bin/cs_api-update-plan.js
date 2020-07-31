@@ -11,6 +11,7 @@ const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/c
 const Intercom = require('intercom-client');
 const Indexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
 const Strftime = require('strftime');
+const { CommandCursor } = require('mongodb');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 // need these collections from mongo
@@ -71,7 +72,7 @@ class PlanUpdater {
 	async process () {
 		const result = await this.data.companies.getByQuery(
 			{
-				plan: '30DAYTRIAL',
+				plan: /^[0-9]+DAYTRIAL$/,
 				deactivated: false
 			},
 			{
@@ -91,7 +92,9 @@ class PlanUpdater {
 	}
 
 	// for this company, see if its trial is expired, if so, put it on either:
-	// TRIALEXPIRED, if it has more than 5 members, of FREEPLAN if 5 or fewer members
+	// TRIALEXPIRED or FREEPLAN ... companies that were on 14DAYTRIAL go directly to TRIALEXPIRED,
+	// in other words, there is no FREEPLAN for those companies ... companies on the old 30DAYTRIAL
+	// can go on FREEPLAN if number of members if <= 5
 	async processCompany (company) {
 		const now = Date.now();
 		const date = Strftime('%Y-%m-%d %H:%M:%S.%L');
@@ -101,7 +104,13 @@ class PlanUpdater {
 		}
 
 		const users = await this.getRegisteredUsers(company);
-		let newPlan = users.length > 5 ? 'TRIALEXPIRED' : 'FREEPLAN';
+		let newPlan;
+		if (users.length > 5 || company.plan !== '30DAYTRIAL') {
+			newPlan = 'TRIALEXPIRED';
+		}
+		else {
+			newPlan = 'FREEPLAN';
+		}
 		this.logger.log(`${date}: Updating company ${company._id} ("${company.name}") to ${newPlan}`);
 		await this.updateIntercom(company, newPlan);
 		await this.updateMongo(company, newPlan);

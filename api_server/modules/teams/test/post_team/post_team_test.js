@@ -51,7 +51,8 @@ class PostTeamTest extends CodeStreamAPITest {
 	/* eslint complexity: 0 */
 	// validate the response to the test request
 	validateResponse (data) {
-		const n36Days = 36 * 24 * 60 * 60 * 1000;
+		// const n36Days = 36 * 24 * 60 * 60 * 1000;
+		const n16Days = 16 * 24 * 60 * 60 * 1000;
 		const team = data.team;
 		const trialStartDate = this.attachToCompany ? this.attachToCompany.createdAt : data.company.createdAt;
 		const errors = [];
@@ -65,9 +66,9 @@ class PostTeamTest extends CodeStreamAPITest {
 			((team.memberIds.length === 1 && team.memberIds[0] === this.currentUser.user.id) || errors.push('current user is not the only member')) &&
 			((team.adminIds.length === 1 && team.adminIds[0] === this.currentUser.user.id) || errors.push('current user was not made an admin')) &&
 			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect')) &&
-			((team.plan === '30DAYTRIAL') || errors.push('team plan should be set to 30DAYTRIAL')) &&
+			((team.plan === '14DAYTRIAL') || errors.push('team plan should be set to 14DAYTRIAL')) &&
 			((team.trialStartDate === trialStartDate) || errors.push(`trialStartDate ${team.trialStartDate} not set to createdAt ${trialStartDate}`)) &&
-			((team.trialEndDate === trialStartDate + n36Days) || errors.push(`trialEndDate ${team.trialEndDate} not set to trialStartDate plus 36 days (${trialStartDate + n36Days})`)) &&
+			((team.trialEndDate === trialStartDate + n16Days) || errors.push(`trialEndDate ${team.trialEndDate} not set to trialStartDate plus 16 days (${trialStartDate + n16Days})`)) &&
 			((team.companyMemberCount === 1) || errors.push('companyMemberCount should be 1'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
@@ -79,7 +80,8 @@ class PostTeamTest extends CodeStreamAPITest {
     
 	// validate the company part of the response
 	validateCompany (data) {
-		const n36Days = 36 * 24 * 60 * 60 * 1000;
+		// const n36Days = 36 * 24 * 60 * 60 * 1000;
+		const n16Days = 16 * 24 * 60 * 60 * 1000;
 		if (this.attachToCompany) {
 			return this.validateAttachToCompany(data);
 		}
@@ -106,9 +108,9 @@ class PostTeamTest extends CodeStreamAPITest {
 			((typeof company.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
-			((company.plan === '30DAYTRIAL') || errors.push('company plan should be set to 30DAYTRIAL')) &&
+			((company.plan === '14DAYTRIAL') || errors.push('company plan should be set to 14DAYTRIAL')) &&
 			((company.trialStartDate === company.createdAt) || errors.push('trialStartDate not set to createdAt')) &&
-			((company.trialEndDate === company.createdAt + n36Days) || errors.push('trialEndDate not set to trialStartDate plus 36 days'))
+			((company.trialEndDate === company.createdAt + n16Days) || errors.push('trialEndDate not set to trialStartDate plus 16 days'))
 		);
 		Assert.deepEqual(company.teamIds, [team.id], 'company teamIds is not equal to the array of teams');
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
