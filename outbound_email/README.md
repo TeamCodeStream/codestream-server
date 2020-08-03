@@ -150,3 +150,4 @@ cd src && ./LambdaTest.js
 Once your lambda function and trigger are installed, they will process the 
 registration email event your api service queued above from the ping.
 
+
