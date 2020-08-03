@@ -1,5 +1,12 @@
 # Change Log
 
+## [8.2.0] - 2020-8-3
+
+### Added
+
+- Adds support for authenticating with GitLab or Bitbucket
+- Adds backend support for non-admin team members to map their Git email address to their CodeStream email address
+
 ## [8.1.0] - 2020-7-21
 
 ### Added
