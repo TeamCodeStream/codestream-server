@@ -13,6 +13,7 @@ ADD api_server/modules /opt/api/codestream-server/api_server/modules
 ADD shared /opt/api/codestream-server/shared
 ADD api_server/etc/webmail_companies.js /opt/api/codestream-server/api_server/etc/webmail_companies.js
 ADD api_server/etc/capabilities.js /opt/api/codestream-server/api_server/etc/capabilities.js
+ADD api_server/etc/version_matrix.json /opt/api/codestream-server/api_server/etc/version_matrix.json
 ADD api_server/bin/cs_api-start-docker /opt/api/codestream-server/api_server/bin/cs_api-start-docker
 ADD api_server/bin/*.js /opt/api/codestream-server/api_server/bin/
 ADD api_server/package.json /opt/api/codestream-server/api_server/package.json
