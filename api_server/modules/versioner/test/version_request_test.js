@@ -51,37 +51,8 @@ class VersionRequestTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.connectToMongo,
 			this.createVersionInfo
 		], callback);
-	}
-
-	after (callback) {
-		if (this.mongoClient) {
-			this.mongoClient.close();
-		}
-		super.after(callback);
-	}
-
-	// connect to mongo directly to create the fake plugin, along with version info
-	connectToMongo (callback) {
-		if (this.mockMode) {
-			return callback();	// not applicable in mock mode
-		}
-
-		// set up the mongo client, and open it against the versionMatrix collection
-		this.mongoClientFactory = new MongoClient({ collections: ['versionMatrix'] });
-
-		(async () => {
-			try {
-				this.mongoClient = await this.mongoClientFactory.openMongoClient(this.apiConfig.mongo);
-			}
-			catch (error) {
-				return callback(error);
-			}
-			this.mongoData = this.mongoClient.mongoCollections;
-			callback();
-		})();
 	}
 
 	// create dummy version info for a fake IDE plugin, we'll use this info in issuing a 
@@ -107,15 +78,7 @@ class VersionRequestTest extends CodeStreamAPITest {
 			}
 		};
 
-		(async () => {
-			if (this.mockMode) {
-				return this.sendMockVersionData(versionData, callback);
-			}
-			else {
-				await this.mongoData.versionMatrix.create(versionData);
-				callback();
-			}
-		})();
+		return this.sendMockVersionData(versionData, callback);
 	}
 
 	// send mock version matrix data to the api server

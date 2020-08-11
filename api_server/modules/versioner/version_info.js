@@ -2,7 +2,6 @@
 
 'use strict';
 
-const Indexes = require('./indexes');
 const CompareVersions = require('compare-versions');
 
 class VersionInfo {
@@ -11,28 +10,25 @@ class VersionInfo {
 		Object.assign(this, options);
 	}
 
+	// set the version matrix
+	addVersionMatrix (versionMatrix) {
+		this.versionMatrix = [ ...(this.versionMatrix || []), ...versionMatrix];
+	}
+
 	// given the extension's version information, lookup the matching
 	// version information in our internal version matrix, and determine compatibility
 	async handleVersionCompatibility (inputVersionInfo) {
 		const versionCompatibility = {};
 		const { pluginIDE, pluginVersion } = inputVersionInfo;
-		if (!pluginIDE || !pluginVersion) {
+		if (!pluginIDE || !pluginVersion || !this.versionMatrix) {
 			// if we're not given an IDE or a version, version compatibility is unknown
 			versionCompatibility.versionDisposition = 'unknown';
 			return versionCompatibility;
 		}
 
 		// look up the specific version info for this plugin and release
-		const versionInfo = await this.data.versionMatrix.getByQuery(
-			{
-				clientType: pluginIDE 
-			},
-			{ 
-				hint: Indexes.byClientType,
-				fields: ['currentRelease', 'minimumPreferredRelease', 'earliestSupportedRelease', pluginVersion.replace(/\./g, '*')]
-			}
-		);
-		if (versionInfo.length === 0) {
+		const versionInfo = this.versionMatrix.find(info => info.clientType === pluginIDE);
+		if (!versionInfo) {
 			// if we don't have version info for this IDE, version compatibility is still unknown
 			versionCompatibility.versionDisposition = 'unknownIDE';
 			return versionCompatibility;
@@ -44,7 +40,7 @@ class VersionInfo {
 		versionCompatibility.latestAssetUrl = 
 			`https://assets.codestream.com/${assetEnv}/${ideDir}/codestream-latest.vsix`;
 
-		return await this.matchVersions(versionCompatibility, pluginVersion, versionInfo[0]);
+		return await this.matchVersions(versionCompatibility, pluginVersion, versionInfo);
 	}
 
 	// match the given plugin version information against what we have stored for the plugin in our internal matrix,

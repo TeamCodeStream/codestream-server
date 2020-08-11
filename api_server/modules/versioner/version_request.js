@@ -36,10 +36,7 @@ class VersionRequest extends RestfulRequest {
 		Object.keys(this.request.query).forEach(key => {
 			versionInfo[key] = decodeURIComponent(this.request.query[key]);
 		});
-		this.responseData = await new VersionInfo({
-			api: this.api,
-			data: this.api.data
-		}).handleVersionCompatibility(versionInfo);
+		this.responseData = await this.module.versionInfo.handleVersionCompatibility(versionInfo);
 	}
 
 	// describe this route for help

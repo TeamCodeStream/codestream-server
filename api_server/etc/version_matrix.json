@@ -1,0 +1,26 @@
+[
+	{
+		"clientType": "VS Code",
+		"currentRelease": "8.3.1",
+		"minimumPreferredRelease": "8.1.2",
+		"earliestSupportedRelease": "8.1.2"
+	},
+	{
+		"clientType": "VS",
+		"currentRelease": "8.3.1",
+		"minimumPreferredRelease": "8.1.2",
+		"earliestSupportedRelease": "8.1.2"
+	},
+	{
+		"clientType": "JetBrains",
+		"currentRelease": "8.3.2",
+		"minimumPreferredRelease": "8.1.2",
+		"earliestSupportedRelease": "8.1.2"
+	},
+	{
+		"clientType": "Atom",
+		"currentRelease": "8.3.1",
+		"minimumPreferredRelease": "8.1.2",
+		"earliestSupportedRelease": "8.1.2"
+	}
+]

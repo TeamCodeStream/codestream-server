@@ -25,7 +25,6 @@ const AllModuleIndexes = {
 	reviews: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/indexes'),
 	users: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes'),
 	signupTokens: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/signup_token_indexes'),
-	versionMatrix: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/indexes'),
 	messages: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/indexes'),
 	msteams_conversations: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_conversations/indexes'),
 	msteams_states: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_states/indexes'),

@@ -8,6 +8,8 @@ const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_ut
 const Errors = require('./errors');
 const VersionInfo = require('./version_info');
 const ReadPackageJson = require('read-package-json');
+const FS = require('fs');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 const ROUTES = [
 	{
@@ -135,12 +137,12 @@ class Versioner extends APIServerModule {
 
 	// handle setting a mock version in the compatibility matrix, for testing
 	handleMockVersion (request, response) {
-		if (this.api.config.api.mockMode) {
-			this.api.data.versionMatrix.create(request.body);
+		if (this.api.config.api.runTimeEnvironment !== 'prod') {
+			this.versionInfo.addVersionMatrix([request.body]);
 			response.send({});
 		}
 		else {
-			response.status(401).send('NOT IN MOCK MODE');
+			response.status(401).send('MOCK VERSION NOT SUPPORTED IN PRODUCTION');
 		}
 	}
 
@@ -158,8 +160,19 @@ class Versioner extends APIServerModule {
 			}
 		}
 
-		// read our package.json and extract the API server version,
-		// which we'll return to the client on every request
+		return awaitParallel([
+			// read our package.json and extract the API server version,
+			// which we'll return to the client on every request
+			this.getApiServerVersion,
+
+			// read the version matrix, informing the client what version they 
+			// need to be at to be compatible with this API server
+			this.readVersionMatrix
+		], this);
+	}
+
+	// read package.json for api server version
+	getApiServerVersion () {
 		return new Promise((resolve, reject) => {
 			ReadPackageJson(
 				process.env.CSSVC_BACKEND_ROOT + '/api_server/package.json',
@@ -170,6 +183,28 @@ class Versioner extends APIServerModule {
 					resolve();
 				}
 			);
+		});
+	}
+
+	// read the version matrix from etc directory
+	readVersionMatrix () {
+		return new Promise((resolve, reject) => {
+			try {
+				FS.readFile(
+					process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/version_matrix.json',
+					'utf8',
+					(error, data) => {
+						if (error) throw error;
+						const versionMatrix = JSON.parse(data);
+						this.versionInfo.addVersionMatrix(versionMatrix);
+						resolve();
+					}
+				);
+			}
+			catch (error) {
+				const message = error instanceof Error ? error.message : JSON.stringify(error);
+				reject(`unable to read version matrix: ${message}`);
+			}
 		});
 	}
 
