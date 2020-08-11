@@ -462,8 +462,10 @@ class OAuthModule extends APIServerModule {
 				hasIssues: hasIssues,
 				hasSharing: hasSharing
 			};
-			if (forEnterprise && scopes) {
-				info.scopes = scopes.split(',');
+			if (scopes) {
+				const scopes_comma = scopes.split(',');
+				const scopes_space = scopes.split(' ');
+				info.scopes = scopes_comma.length > scopes_space.length ? scopes_comma : scopes_space;
 			}
 			return info;
 		}

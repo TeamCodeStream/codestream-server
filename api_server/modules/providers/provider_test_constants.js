@@ -17,7 +17,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'bitbucket.org',
 		apiHost: 'api.bitbucket.org/2.0',
-		hasIssues: true
+		hasIssues: true,
+		scopes: ['account', 'team', 'repository', 'issue:write', 'pullrequest:write']
 	},
 	'bitbucket/server': {
 		id: 'bitbucket/server',
@@ -26,7 +27,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		forEnterprise: true,
 		host: 'bitbucket/server',
 		apiHost: 'api.bitbucket.org/2.0',
-		scopes: ['projects:read repositories:write']
+		scopes: ['projects:read', 'repositories:write']
 	},
 	'github*com': {
 		id: 'github*com',
@@ -34,7 +35,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'github.com',
 		apiHost: 'api.github.com',
-		hasIssues: true
+		hasIssues: true,
+		scopes: ['repo', 'read:user', 'user:email', 'notifications']
 	},
 	'github/enterprise': {
 		id: 'github/enterprise',
@@ -51,7 +53,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'gitlab.com',
 		apiHost: 'gitlab.com/api/v4',
-		hasIssues: true 
+		hasIssues: true,
+
 	},
 	'gitlab/enterprise': {
 		id: 'gitlab/enterprise',
@@ -69,7 +72,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'auth.atlassian.com',
 		apiHost: 'api.atlassian.com',
-		hasIssues: true
+		hasIssues: true,
+		scopes: ['read:jira-user', 'read:jira-work', 'write:jira-work', 'offline_access']
 	},
 	'jiraserver/enterprise': {
 		id: 'jiraserver/enterprise',
@@ -86,7 +90,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'trello.com',
 		apiHost: 'api.trello.com/1',
-		hasIssues: true
+		hasIssues: true,
+		scopes: ['read', 'write']
 	},
 	'youtrack*com': {
 		id: 'youtrack*com',
@@ -94,7 +99,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		needsConfigure: true,
 		host: 'youtrack.com',
-		hasIssues: true
+		hasIssues: true,
+		scopes: ['YouTrack']
 	},
 	'app*vssps*visualstudio*com': {
 		id: 'app*vssps*visualstudio*com',
@@ -103,7 +109,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		needsConfigure: true,
 		host: 'app.vssps.visualstudio.com',
 		apiHost: 'dev.azure.com',
-		hasIssues: true
+		hasIssues: true,
+		scopes: ['vso.identity', 'vso.work_write']
 	},
 	'slack*com': {
 		id: 'slack*com',
@@ -111,7 +118,17 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'slack.com',
 		apiHost: 'slack.com/api',
-		hasSharing: true
+		hasSharing: true,
+		scopes: [
+			'channels:read',
+			'chat:write:user',
+			'groups:read',
+			'im:read',
+			'users.profile:write',
+			'users:read',
+			'users:read.email',
+			'mpim:read'
+		]
 	},
 	'login*microsoftonline*com': {
 		id: 'login*microsoftonline*com',
@@ -119,7 +136,12 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'login.microsoftonline.com',
 		apiHost: 'graph.microsoft.com/v1.0',
-		hasSharing: true
+		hasSharing: true,
+		scopes: [
+			'User.Read.All',
+			'Group.ReadWrite.All',
+			'offline_access'
+		]
 	}
 	/*
 	'okta*com': {

@@ -6,37 +6,6 @@ const Fetch = require('node-fetch');
 const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/oauth/oauth_module.js');
 const SlackAuthorizer = require('./slack_authorizer');
 
-const OAUTH_CONFIG = {
-	provider: 'slack',
-	host: 'slack.com',
-	apiHost: 'slack.com/api',
-	authPath: 'oauth/authorize',
-	tokenPath: 'api/oauth.access',
-	exchangeFormat: 'form',
-	scopes: 'identify client',
-	hasSharing: true
-};
-
-const STRICT_SCOPES = [
-	'channels:history',
-	'channels:read',
-	'channels:write',
-	'chat:write:user',
-	'groups:history',
-	'groups:read',
-	'groups:write',
-	'im:history',
-	'im:read',
-	'im:write',
-	'users:read',
-	'users:read.email',
-	'users.profile:read',
-	'reactions:write',
-	'mpim:history',
-	'mpim:read',
-	'mpim:write'
-];
-
 const SHARING_SCOPES = [
 	'channels:read',
 	'chat:write:user',
@@ -47,6 +16,18 @@ const SHARING_SCOPES = [
 	'users:read.email',
 	'mpim:read'
 ];
+
+const OAUTH_CONFIG = {
+	provider: 'slack',
+	host: 'slack.com',
+	apiHost: 'slack.com/api',
+	authPath: 'oauth/authorize',
+	tokenPath: 'api/oauth.access',
+	exchangeFormat: 'form',
+	scopes: SHARING_SCOPES.join(' '),
+	hasSharing: true
+};
+
 
 class SlackAuth extends OAuthModule {
 	constructor (config) {
@@ -59,32 +40,6 @@ class SlackAuth extends OAuthModule {
 			providerInfo,
 			options
 		}).exchangeAndAuthorize();
-	}
-
-	// overrides OAuthModule.getRedirectData to allow for "slack-lite", slack without the
-	// scary "client" scope
-	getRedirectData (options) {
-		const data = super.getRedirectData(options);
-		if (options.access === 'strict') {
-			data.parameters.scope = STRICT_SCOPES.join(' ');
-		} else if (options.sharing) {
-			data.parameters.scope = SHARING_SCOPES.join(' ');
-		}
-		return data;
-	}
-
-	// overrides OAuthModule.getClientInfo to allow for "slack-lite", slack without the
-	// scary "client" scope ... in this case, we use different client ID and secret
-	getClientInfo (options) {
-		const info = super.getClientInfo(options);
-		if (options.access === 'strict') {
-			info.clientId = this.apiConfig.appStrictClientId;
-			info.clientSecret = this.apiConfig.appStrictClientSecret;
-		} else if (options.sharing) {
-			info.clientId = this.apiConfig.appSharingClientId;
-			info.clientSecret = this.apiConfig.appSharingClientSecret;
-		}
-		return info;
 	}
 
 	validateChannelName (name) {
