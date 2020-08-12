@@ -170,8 +170,11 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
-			scope: 'repo,read:user,user:email,notifications'
+			scope: 'repo,read:user,user:email'
 		};
+		if (!this.testHost) {
+			parameters.scope += ',notifications';
+		}
 		const host = this.testHost || 'https://github.com';
 		const url = `${host}/login/oauth/authorize`;
 		return { url, parameters };
@@ -279,7 +282,16 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
-			scope: 'identify client'
+			scope: [
+				'channels:read',
+				'chat:write:user',
+				'groups:read',
+				'im:read',
+				'users.profile:write',
+				'users:read',
+				'users:read.email',
+				'mpim:read'
+			].join(' ')
 		};
 		const url = 'https://slack.com/oauth/authorize';
 		return { url, parameters };
