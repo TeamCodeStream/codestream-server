@@ -1,6 +1,6 @@
 # Outbound Email Build & Deployment Information
 
-TeamCity Project: [Outbound Email Gateway](http://tc.codestream.us/project/OutboundEmailGateway)
+TeamCity Project: [Outbound Email Gateway](http://redirector.codestream.us/builds/outbound_email)
 
 The Outbound Email Gateway can run either as a service on a host OS or as an AWS
 Lambda function.  The _integration_ TC builds (one for development, one for
@@ -21,14 +21,14 @@ Read the [Build Overview](https://teamcodestream.atlassian.net/wiki/x/04BID) pag
 
 | Asset Env | Asset | Location |
 | --- | --- | --- |
-| dev | zip | [TeamCity CI build artifact](http://tc.codestream.us/buildConfiguration/OutboundEmailGateway_Ci) |
-| prod | zip | [TeamCity Production Integration build artifact](http://tc.codestream.us/buildConfiguration/OutboundEmailGateway_ProdIntegration) |
+| dev | zip | [TeamCity CI build](http://redirector.codestream.us/builds/outbound_email/ci) |
+| prod | zip | [TeamCity Production Integration build](http://redirector.codestream.us/builds/outbound_email/pi) |
 | pd | lambda.json, dev zip | [Asset server (pd/outbound-email)](http://assets.codestream.us/artifacts/pd/outbound-email/) |
 | qa | lambda.json, prod zip | [Asset server (qa/outbound-email)](http://assets.codestream.us/artifacts/qa/outbound-email/) |
 | prod | lambda.json, prod zip | [Asset server (prod/outbound-email)](http://assets.codestream.us/artifacts/prod/outbound-email/) |
 | onprem | docker image | Published to docker hub as [teamcodestream/mailout-onprem](https://cloud.docker.com/u/teamcodestream/repository/docker/teamcodestream/mailout-onprem) |
 
 
-## Builds
+## Build Documentation
 
-[see standard builds for descriptions](https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.project-build-types.md#standard-project-builds)
+[TeamCity build documentation](https://github.com/TeamCodeStream/teamcity_tools/tree/master/docs)

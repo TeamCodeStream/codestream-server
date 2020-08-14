@@ -29,34 +29,36 @@ For each extension, these fields are maintained:
 Currently, the version matrix is stored in a json file in the api server repo:
 **api_server/etc/version_matrix.json**. It looks like this:
 
-{\
-	"_id" : ObjectId("5b8082701a3a5d2711f0fc57"),\
-	"clientType" : "VS Code",\
-	"currentRelease" : "7.4.1",\
-	"minimumPreferredRelease" : "7.3.0",\
-	"earliestSupportedRelease" : "7.0.0"\
-}\
-{\
-	"_id" : ObjectId("5d83a95d970e5f999a86139a"),\
-	"clientType" : "VS",\
-	"currentRelease" : "7.4.1",\
-	"minimumPreferredRelease" : "7.3.0",\
-	"earliestSupportedRelease" : "7.0.0"\
-}\
-{\
-	"_id" : ObjectId("5d83a966970e5f999a86139b"),\
-	"clientType" : "JetBrains",\
-	"currentRelease" : "7.4.1",\
-	"minimumPreferredRelease" : "7.3.0",\
-	"earliestSupportedRelease" : "7.0.0"\
-}\
-{\
-	"_id" : ObjectId("5d83a96c970e5f999a86139c"),\
-	"clientType" : "Atom",\
-	"currentRelease" : "7.4.1",\
-	"minimumPreferredRelease" : "7.3.0",\
-	"earliestSupportedRelease" : "7.0.0"\
-}\
+```
+{
+	"_id" : ObjectId("5b8082701a3a5d2711f0fc57"),
+	"clientType" : "VS Code",
+	"currentRelease" : "7.4.1",
+	"minimumPreferredRelease" : "7.3.0",
+	"earliestSupportedRelease" : "7.0.0"
+},
+{
+	"_id" : ObjectId("5d83a95d970e5f999a86139a"),
+	"clientType" : "VS",
+	"currentRelease" : "7.4.1",
+	"minimumPreferredRelease" : "7.3.0",
+	"earliestSupportedRelease" : "7.0.0"
+},
+{
+	"_id" : ObjectId("5d83a966970e5f999a86139b"),
+	"clientType" : "JetBrains",
+	"currentRelease" : "7.4.1",
+	"minimumPreferredRelease" : "7.3.0",
+	"earliestSupportedRelease" : "7.0.0"
+},
+{
+	"_id" : ObjectId("5d83a96c970e5f999a86139c"),
+	"clientType" : "Atom",
+	"currentRelease" : "7.4.1",
+	"minimumPreferredRelease" : "7.3.0",
+	"earliestSupportedRelease" : "7.0.0"
+}
+```
 
 **clientType** refers to the extension type (IDE) for the record in question.
 
