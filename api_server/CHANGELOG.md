@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.1] - 2020-8-14
+
+### Added
+
+- Adds new `notifications` scope for GitHub auth to accomodate upcoming pull-request integration
+
 ## [8.2.0] - 2020-8-3
 
 ### Added
