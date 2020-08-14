@@ -27,7 +27,9 @@ class VersionInfo {
 		}
 
 		// look up the specific version info for this plugin and release
+		this.api.log(`*** LOOKING FOR VERSION OF IDE ${pluginIDE}, VERSION MATRIX IS: ${JSON.stringify(this.versionMatrix, 0, 5)}`);
 		const versionInfo = this.versionMatrix.find(info => info.clientType === pluginIDE);
+		this.api.log(`*** FOUND VERSION INFO: ${JSON.stringify(versionInfo, 0, 5)}`);
 		if (!versionInfo) {
 			// if we don't have version info for this IDE, version compatibility is still unknown
 			versionCompatibility.versionDisposition = 'unknownIDE';
