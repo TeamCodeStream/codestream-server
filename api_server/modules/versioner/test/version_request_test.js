@@ -111,7 +111,7 @@ class VersionRequestTest extends CodeStreamAPITest {
 
 	// validate the version disposition returned with the response to the test request
 	validateDisposition (data) {
-		Assert.equal(data.versionDisposition, this.expectedDisposition, 'version disposition is not correct');
+		Assert.equal(data.versionDisposition, this.expectedDisposition, `version disposition should be "${this.expectedDisposition}", was "${data.versionDisposition}"`);
 	}
 
 	// validate the version info returned with the response to the test request
