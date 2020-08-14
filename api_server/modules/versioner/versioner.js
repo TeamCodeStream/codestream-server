@@ -101,6 +101,7 @@ class Versioner extends APIServerModule {
 			// available, but not required
 			// pluginIDEDetail: request.headers['x-cs-plugin-ide-detail'],
 			pluginVersion: request.headers['x-cs-plugin-version'],
+			readFromDatabase: this.api.config.api.runTimeEnvironment !== 'prod' && request.headers['x-cs-read-version-from-db']
 		});
 		response.set('X-CS-Version-Disposition', versionCompatibility.versionDisposition);
 
@@ -137,10 +138,8 @@ class Versioner extends APIServerModule {
 
 	// handle setting a mock version in the compatibility matrix, for testing
 	handleMockVersion (request, response) {
-		this.api.log('*** ADDING VERSION MATRIX: ' + JSON.stringify(request.body, 0, 5));
 		if (this.api.config.api.runTimeEnvironment !== 'prod') {
-			this.versionInfo.addVersionMatrix([request.body]);
-			this.api.log('*** VERSION MATRIX IS NOW: ' + JSON.stringify(this.versionInfo.versionMatrix, 0, 5));
+			this.api.data.versionMatrix.create(request.body);
 			response.send({});
 		}
 		else {
@@ -198,7 +197,7 @@ class Versioner extends APIServerModule {
 					(error, data) => {
 						if (error) throw error;
 						const versionMatrix = JSON.parse(data);
-						this.versionInfo.addVersionMatrix(versionMatrix);
+						this.versionInfo.setVersionMatrix(versionMatrix);
 						resolve();
 					}
 				);

@@ -11,25 +11,32 @@ class VersionInfo {
 	}
 
 	// set the version matrix
-	addVersionMatrix (versionMatrix) {
-		this.versionMatrix = [ ...(this.versionMatrix || []), ...versionMatrix];
+	setVersionMatrix (versionMatrix) {
+		this.versionMatrix = versionMatrix;
 	}
 
 	// given the extension's version information, lookup the matching
 	// version information in our internal version matrix, and determine compatibility
 	async handleVersionCompatibility (inputVersionInfo) {
 		const versionCompatibility = {};
-		const { pluginIDE, pluginVersion } = inputVersionInfo;
+		const { pluginIDE, pluginVersion, readFromDatabase } = inputVersionInfo;
 		if (!pluginIDE || !pluginVersion || !this.versionMatrix) {
 			// if we're not given an IDE or a version, version compatibility is unknown
 			versionCompatibility.versionDisposition = 'unknown';
 			return versionCompatibility;
 		}
 
-		// look up the specific version info for this plugin and release
-		this.api.log(`*** LOOKING FOR VERSION OF IDE ${pluginIDE}, VERSION MATRIX IS: ${JSON.stringify(this.versionMatrix, 0, 5)}`);
-		const versionInfo = this.versionMatrix.find(info => info.clientType === pluginIDE);
-		this.api.log(`*** FOUND VERSION INFO: ${JSON.stringify(versionInfo, 0, 5)}`);
+		// for test purposes, we read mock version info from the database
+		let versionInfo;
+		if (readFromDatabase) {
+			this.api.log(`NOTE: Reading version info for IDE ${pluginIDE} from database...`);
+			versionInfo = await this.data.versionMatrix.getOneByQuery({ clientType: pluginIDE });
+		}
+		else {
+			// look up the specific version info for this plugin and release
+			versionInfo = this.versionMatrix.find(info => info.clientType === pluginIDE);
+		}
+
 		if (!versionInfo) {
 			// if we don't have version info for this IDE, version compatibility is still unknown
 			versionCompatibility.versionDisposition = 'unknownIDE';

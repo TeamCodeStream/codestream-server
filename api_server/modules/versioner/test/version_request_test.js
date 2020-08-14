@@ -32,6 +32,13 @@ class VersionRequestTest extends CodeStreamAPITest {
 
 		// use this plugin version for the test, override for various tests
 		this.pluginVersion = this.CURRENT_RELEASE;
+
+		// add header to read mock version data from database
+		this.apiRequestOptions = {
+			headers: {
+				'x-cs-read-version-from-db': 'true'
+			}
+		};
 	}
 
 	// don't need an access token for the version request

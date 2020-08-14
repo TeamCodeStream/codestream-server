@@ -72,7 +72,8 @@ class VersionerTest extends CodeStreamAPITest {
 		this.apiRequestOptions = Object.assign({}, this.apiRequestOptions || {}, {
 			headers: {
 				'x-cs-plugin-ide': this.pluginName,
-				'x-cs-plugin-version': this.pluginVersion
+				'x-cs-plugin-version': this.pluginVersion,
+				'x-cs-read-version-from-db': 'true'
 			}
 		});
 
