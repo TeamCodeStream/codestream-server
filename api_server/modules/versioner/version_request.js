@@ -36,6 +36,8 @@ class VersionRequest extends RestfulRequest {
 		Object.keys(this.request.query).forEach(key => {
 			versionInfo[key] = decodeURIComponent(this.request.query[key]);
 		});
+		this.api.log('*** HANDLING VERSION COMPATIBILITY FOR: ' + JSON.stringify(versionInfo, 0, 5));
+		this.api.log('*** VERSION MATRIX IS: ' + JSON.stringify(this.module.versionInfo.versionMatrix, 0, 5));
 		this.responseData = await this.module.versionInfo.handleVersionCompatibility(versionInfo);
 	}
 

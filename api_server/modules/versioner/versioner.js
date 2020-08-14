@@ -137,8 +137,10 @@ class Versioner extends APIServerModule {
 
 	// handle setting a mock version in the compatibility matrix, for testing
 	handleMockVersion (request, response) {
+		this.api.log('*** ADDING VERSION MATRIX: ' + JSON.stringify(request.body, 0, 5));
 		if (this.api.config.api.runTimeEnvironment !== 'prod') {
 			this.versionInfo.addVersionMatrix([request.body]);
+			this.api.log('*** VERSION MATRIX IS NOW: ' + JSON.stringify(this.versionInfo.versionMatrix, 0, 5));
 			response.send({});
 		}
 		else {
