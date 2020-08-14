@@ -114,7 +114,7 @@ class VersionerTest extends CodeStreamAPITest {
 
 	// validate the disposition header returned with the response to the test request
 	validateDisposition () {
-		Assert.equal(this.httpResponse.headers['x-cs-version-disposition'], this.expectedDisposition, 'version disposition is not correct');
+		Assert.equal(this.httpResponse.headers['x-cs-version-disposition'], this.expectedDisposition, `version disposition should be "${this.expectedDisposition}", was "${this.httpResponse.headers['x-cs-version-disposition']}"`);
 	}
 
 	// validate the version headers returned with the response to the test request
