@@ -4,8 +4,10 @@
 
 const UUID = require('uuid/v4');
 
-const MAX_MESSAGE_LENGTH = 30000; // well under PubNub's 32KB limit
-const MAX_MESSAGE_SLICE_LIMIT = 1000; // effecively setting a 32MB limit on messages
+ // PubNub claims a 32KB limit on payload, but experimentation indicates it is a good deal lower than this,
+ // not sure what accounts for the difference, but setting a very safe limit here just in case
+const MAX_MESSAGE_LENGTH = 10000;
+const MAX_MESSAGE_SLICE_LIMIT = 1000; // effecively setting a 10MB upper limit on the total message size
 
 class PubNubClient {
 
@@ -43,9 +45,11 @@ class PubNubClient {
 		const result = await this.pubnub.publish(
 			{
 				message: message,
-				channel: channel
+				channel: channel,
+				sendByPost: true
 			}
 		);
+
 		if (result.error) {
 			throw result.errorData;
 		}
@@ -74,7 +78,8 @@ class PubNubClient {
 				const result = await this.pubnub.publish(
 					{
 						message: partialMessage,
-						channel: channel
+						channel: channel,
+						sendByPost: true
 					}
 				);
 				if (result.error) {
