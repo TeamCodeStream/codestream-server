@@ -45,6 +45,12 @@ class AccessLogger extends APIServerModule {
 		const ide = request.headers['x-cs-plugin-ide'] || '???';
 		const pluginVersion = request.headers['x-cs-plugin-version'] || '???';
 		const ideVersion = request.headers['x-cs-ide-version'] || '???';
+		let ip = request.headers['x-forwarded-for'];
+		if (!ip && request.connection) {
+			const addr = request.connection.remoteAddress;
+			ip = addr.split(':').pop() || '???';
+		}
+	
 		this.logger.log(
 			request.id                     + ' '   +
 			status                         + ' '   +
@@ -54,7 +60,7 @@ class AccessLogger extends APIServerModule {
 			response.statusCode            + ' '   +
 			response.get('content-length') + ' '   +
 			elapsedTime                    + ' '   +
-			request.headers.host           + ' "'  +
+			ip                             + ' "'  +
 			request.headers.referer        + '" "' +
 			request.headers['user-agent']  + '" "' + 
 			ide                            + '" "' +

@@ -53,11 +53,14 @@ class LoginHelper {
 		let result;
 		try {
 			if (!this.request.request.connection) { return; }
-			const addr = this.request.request.connection.remoteAddress;
-			const ip = addr.split(':').pop();
+			let ip = this.request.request.get('x-forwarded-for');
+			if (!ip) {
+				const addr = this.request.request.connection.remoteAddress;
+				ip = addr.split(':').pop();
+			}
 			const response = await Fetch('http://ip2c.org/' + ip, { timeout: 500 });
 			result = await response.text();
-			this.request.log(`******** ip2c response for addr ${addr}: ${result}`);
+			this.request.log(`******** ip2c response for IP ${ip}: ${result}`);
 			this.countryCode = result.split(';')[1];
 		}
 		catch (error) {
