@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.2] - 2020-8-19
+
+### Fixed
+
+- Fixes an issue with PubNub not generating real-time notifications for very large code reviews
+
 ## [8.2.1] - 2020-8-14
 
 ### Added
