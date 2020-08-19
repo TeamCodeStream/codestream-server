@@ -3,7 +3,7 @@
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 
-class GetTeamMember extends CodeStreamAPITest {
+class GetTeamMemberTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
@@ -39,4 +39,4 @@ class GetTeamMember extends CodeStreamAPITest {
 	}
 }
 
-module.exports = GetTeamMember;
+module.exports = GetTeamMemberTest;

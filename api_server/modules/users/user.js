@@ -224,18 +224,25 @@ class User extends CodeStreamModel {
 		) {
 			return request.user;
 		}
-		// users are authorized to access only other users on their teams
-		const otherUser = await request.data.users.getById(id);
-		if (!otherUser) {
-			throw request.errorHandler.error('notFound', { info: 'user' });
+
+		// user are able to access any other user that is a member of their teams,
+		// this includes members that have been removed and are in the removedMemberIds array for that team
+		const teams = await request.data.teams.getByIds(request.user.get('teamIds') || []);
+		const authorized = teams.find(team => {
+			// the requesting user must be a member of this team (not a removed member)
+			if (
+				!(team.get('memberIds') || []).includes(request.user.id) ||
+				(team.get('removedMemberIds') || []).includes(request.user.id)
+			) {
+				return false;
+			}
+			return (team.get('memberIds') || []).includes(id);
+		});
+		let otherUser = false;
+		if (authorized) {
+			otherUser = await request.data.users.getById(id);
 		}
-		// the current user and the user they are trying to access must have
-		// at least one team in common
-		const authorized = ArrayUtilities.hasCommonElement(
-			request.user.get('teamIds') || [],
-			otherUser.get('teamIds') || []
-		);
-		return authorized ? otherUser : false;
+		return otherUser;
 	}
 
 	// authorize the current user for access to a team, as given by IDs in the request

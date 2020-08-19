@@ -11,7 +11,7 @@ class NotFoundTest extends CodeStreamAPITest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1003'
+			code: 'RAPI-1009'
 		};
 	}
 
