@@ -39,7 +39,7 @@ class TeamUpdater extends ModelUpdater {
 			// this is only for test purposes, for now, so can only be done with cheat code
 			delete this.attributes.providerHosts;
 		}
-console.warn('VALIDATING TEAM UPDATE:', JSON.stringify(this.attributes, 0, 5));
+
 		// look for directives applied to memberIds or adminIds, we only allow a single directive at once
 		let finalDirective = null;
 		for (let directive of ['$push', '$pull', '$addToSet']) {
@@ -72,7 +72,7 @@ console.warn('VALIDATING TEAM UPDATE:', JSON.stringify(this.attributes, 0, 5));
 				}
 			}
 		}
-console.warn('FINAL DIRECTIVE:', JSON.stringify(finalDirective, 0, 5));
+
 		if (finalDirective) {
 			Object.assign(this.attributes, finalDirective);
 			if (
