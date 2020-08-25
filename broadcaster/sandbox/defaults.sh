@@ -27,3 +27,4 @@ bcHost=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.code
 # Multiple installations - mono-repo and individual - have the same repo root ($REPO_ROOT/.git/)
 [ -n "$CSBE_TOP" ] && export CS_BROADCASTER_REPO_ROOT=$CSBE_TOP || { . $CS_BROADCASTER_SANDBOX/sb.info; export CS_BROADCASTER_REPO_ROOT=$CS_BROADCASTER_SANDBOX/$SB_REPO_ROOT; }
 [ -z "$CSSVC_BACKEND_ROOT" ] && export CSSVC_BACKEND_ROOT=$CS_BROADCASTER_REPO_ROOT
+return 0

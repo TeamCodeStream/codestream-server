@@ -3,7 +3,7 @@
 /* eslint no-console: 0 */
 
 const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config');
-const MongoUrlParser = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/mongo_url_parser');
+const MongoUrlParser = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_url_parser');
 
 function customConfigFunc(nativeCfg) {
 	const outboundEmailCfg = {

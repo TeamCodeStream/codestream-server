@@ -5,7 +5,7 @@
 /* eslint no-console: 0 */
 
 const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config'); 
-const MongoUrlParser = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/mongo_url_parser');
+const MongoUrlParser = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_url_parser');
 
 /*
 	Returns: c = {
@@ -324,6 +324,8 @@ function customConfigFunc(nativeCfg) {
 		// FIXME api configured to use rabbit but there's no queue name in the rabbit section
 		apiCfg.aws.sqs.outboundEmailQueueName = nativeCfg.queuingEngine.rabbitmq.outboundEmailQueueName;
 	}
+
+	console.log('Native Config:', JSON.stringify(nativeCfg, undefined, 10));
 
 	return apiCfg;
 }
