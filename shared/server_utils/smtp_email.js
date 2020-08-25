@@ -11,16 +11,22 @@ class SMTPEmail {
 	}
 
 	async init () {
+		// FIXME: these properties don't exist in the global config!! I'm guessing
+		// they're for NodeMailer
 		const transportOptions = {
-			service: this.config.service,
-			host: this.config.host,
-			port: this.config.port,
-			secure: this.config.secure
+			// service: this.config.service,
+			// host: this.config.host,
+			// port: this.config.port,
+			// secure: this.config.secure
+			service: this.config.emailDeliveryService.NodeMailer.service,
+			host: this.config.emailDeliveryService.NodeMailer.host,
+			port: this.config.emailDeliveryService.NodeMailer.port,
+			secure: this.config.emailDeliveryService.NodeMailer.secure
 		};
-		if (this.config.username) {
+		if (this.config.emailDeliveryService.NodeMailer.username) {
 			transportOptions.auth = {
-				user: this.config.username,
-				pass: this.config.password
+				user: this.config.emailDeliveryService.NodeMailer.username,
+				pass: this.config.emailDeliveryService.NodeMailer.password
 			};
 		}
 		this.nodeMailer = NodeMailer.createTransport(transportOptions);
@@ -37,11 +43,11 @@ class SMTPEmail {
 			return;
 		}
 
-		if (this.config.emailTo) {
+		if (this.config.email.emailTo) {
 			// we're going to divert this email to a particular address (usually for developer testing)
 			// we'll put the real email address in the subject for debugging
 			options.subject = `{{{${options.to}}}} ${options.subject}`;
-			options.to = this.config.emailTo;
+			options.to = this.config.email.emailTo;
 			if (options.logger) {
 				options.logger.log(`Diverting to ${options.to}`);
 			}

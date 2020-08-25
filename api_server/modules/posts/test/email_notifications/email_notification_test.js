@@ -298,6 +298,9 @@ class EmailNotificationTest extends CodeStreamMessageTest {
 		return true;
 	}
 
+	// FIXME: There is no notificationEmailTemplateId property in the global configuration.
+	//        Either it's being added after the fact, which is a no-no or this is obsolete
+	//        code.
 	// validate the template is correct for an email notification
 	validateTemplateId (message) {
 		Assert.equal(message.templateId, this.apiConfig.email.notificationEmailTemplateId, 'incorrect templateId');

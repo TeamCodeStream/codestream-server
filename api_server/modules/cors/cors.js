@@ -37,13 +37,11 @@ const _parseDomain = url => {
 class CorsModule extends APIServerModule {
 
 	getServiceOrigins () {
-		return [
-			//this.api.config.webclient.host 	// origin for web app
-		];
+		return [];
 	}
 
 	middlewares () {
-		if (this.api.config.api.mockMode) {
+		if (this.api.config.apiServer.mockMode) {
 			return [];
 		}
 		// return a middleware function to handle CORS considerations
@@ -61,7 +59,7 @@ class CorsModule extends APIServerModule {
 				}
 
 				// check against the public api
-				const publicDomain = _parseDomain(this.api.config.api.publicApiUrl || '');
+				const publicDomain = _parseDomain(this.api.config.apiServer.publicApiUrl || '');
 				if (originDomain === publicDomain) {
 					return callback(null, true);
 				}

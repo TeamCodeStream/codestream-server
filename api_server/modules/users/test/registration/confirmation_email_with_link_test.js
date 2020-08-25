@@ -19,6 +19,7 @@ class ConfirmationEmailWithLinkTest extends ConfirmationEmailTest {
 		const gotMessage = message.message;
 
 		// verify a match to the url
+		// FIXME: webclient.host does not exist in the config. Not sure what should go here.
 		const host = this.apiConfig.webclient.host.replace(/\//g, '\\/');
 		const shouldMatch = new RegExp(`${host}\\/confirm-email\\/(.*)$`);
 		const match = gotMessage.url.match(shouldMatch);
@@ -26,7 +27,7 @@ class ConfirmationEmailWithLinkTest extends ConfirmationEmailTest {
 
 		// verify correct payload
 		const token = match[1];
-		const payload = new TokenHandler(this.apiConfig.secrets.auth).verify(token);
+		const payload = new TokenHandler(this.apiConfig.sharedSecrets.auth).verify(token);
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'conf', 'token payload type should be conf');

@@ -19,7 +19,7 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 			await this.savePaymentInfo();
 
 			const templateProps = {
-				segmentKey: this.api.config.segment.webToken,
+				segmentKey: this.api.config.telemetry.segment.webToken,
 				companyId: this.company.id,
 				seats: this.subscription.quantity,
 				frequency: this.plan.interval === 'year' ? 'Annual' : 'Monthly',

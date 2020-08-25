@@ -51,6 +51,10 @@ class ClusterWrapper {
 
 	testPorts (callback) {
 		// here we test our listen port for availability, before we actually start spawning workers to listen
+		// FIXME: not sure if this 'config' is meant to represent the global config. If it does,  we need a way
+		// to generalize the port and host of the service being started by cluster wrapper. The custom config
+		// routine does not consolidate different values for each service into one place so we can't have an
+		// 'express' property. It would have to be defined by the code calling cluster wrapper.
 		const port = this.serverOptions.config && this.serverOptions.config.express && this.serverOptions.config.express.port;
 		if (!port) { return callback(); }
 		const testSocket = Net.connect(port);

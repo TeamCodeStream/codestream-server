@@ -24,8 +24,11 @@ export NODE_PATH=$CS_MAILIN_TOP/node_modules:$NODE_PATH
 export CS_MAILIN_LOGS=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.logger.directory)`
 export CS_MAILIN_TMP=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.tmpDirectory)`
 export CS_MAILIN_INBOUND_EMAIL_DIRECTORY=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.inboundEmailDirectory)`
+[ ! -d $CS_MAILIN_INBOUND_EMAIL_DIRECTORY ] && echo "Creating $CS_MAILIN_INBOUND_EMAIL_DIRECTORY" && mkdir -p $CS_MAILIN_INBOUND_EMAIL_DIRECTORY
 export CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.tempAttachmentDirectory)`
+[ ! -d $CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY ] && echo "Creating $CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY" && mkdir -p $CS_MAILIN_TEMP_ATTACHMENT_DIRECTORY
 export CS_MAILIN_PROCESS_DIRECTORY=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.processDirectory)`
+[ ! -d $CS_MAILIN_PROCESS_DIRECTORY ] && echo "Creating $CS_MAILIN_PROCESS_DIRECTORY" && mkdir $CS_MAILIN_PROCESS_DIRECTORY
 
 # CONSIDER MOVING THIS TO THE CONFIG FILE!!
 # For the local poller service (cs_mailin-local-poller) - development only
@@ -35,3 +38,4 @@ export CS_MAILIN_REMOTE_INBOUND_MAIL_DIR=/home/web/codestream-mail/inbound/web/n
 # Multiple installations - mono-repo and individual - have the same repo root ($REPO_ROOT/.git/)
 [ -n "$CSBE_TOP" ] && export CS_MAILIN_REPO_ROOT=$CSBE_TOP || { . $CS_MAILIN_SANDBOX/sb.info; export CS_MAILIN_REPO_ROOT=$CS_MAILIN_SANDBOX/$SB_REPO_ROOT; }
 [ -z "$CSSVC_BACKEND_ROOT" ] && export CSSVC_BACKEND_ROOT=$CS_MAILIN_REPO_ROOT
+return 0

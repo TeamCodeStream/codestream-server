@@ -42,7 +42,7 @@ class EmailNotificationQueue {
 		const seqNumSetAt = this.stream.get('emailNotificationSeqNumSetAt') || 0;
 		const staleInterval = 2 * Math.max(
 			this.request.api.config.email.notificationInterval, 
-			this.request.api.config.api.sessionAwayTimeout
+			this.request.api.config.apiServer.sessionAwayTimeout
 		);
 		if (
 			seqNum &&
@@ -119,7 +119,7 @@ class EmailNotificationQueue {
 	async backOffAsNeeded () {
 		const staleInterval = 2 * Math.max(
 			this.request.api.config.email.notificationInterval, 
-			this.request.api.config.api.sessionAwayTimeout
+			this.request.api.config.apiServer.sessionAwayTimeout
 		);
 		if (
 			this.foundSeqNum &&

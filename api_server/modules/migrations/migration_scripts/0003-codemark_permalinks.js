@@ -66,7 +66,7 @@ class CodemarkPermalinks extends Migration {
 		/*
 		const info = await new CodemarkLinkCreator({
 			request: this,
-			origin: ApiConfig.publicApiUrl
+			origin: ApiConfig.apiServer.publicApiUrl
 		}).findCodemarkLink(
 			codemark,
 			markers.map(m => new Marker(m))
@@ -81,7 +81,7 @@ class CodemarkPermalinks extends Migration {
 			request: this,
 			codemark: codemark,
 			markers: markers.map(m => new Marker(m)),
-			origin: ApiConfig.publicApiUrl
+			origin: ApiConfig.apiServer.publicApiUrl
 		}).createCodemarkLink();
 		*/
 	}

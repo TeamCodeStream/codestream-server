@@ -33,7 +33,7 @@ class InvitedUserMessageToTeamTest extends CodeStreamMessageTest {
 					email: data.email,
 					fullName: data.fullName,
 					_pubnubUuid: data._pubnubUuid,
-					_confirmationCheat: this.apiConfig.secrets.confirmationCheat
+					_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat
 				},
 				token: this.token
 			},

@@ -28,7 +28,7 @@ class ChangeEmailRequest extends RestfulRequest {
 		await this.ensureUnique();		// ensure the email is not already taken
 
 		// in an environment where confirmation is not required (on-prem), we just change the user's email
-		if (!this.api.config.api.confirmationNotRequired) {
+		if (!this.api.config.apiServer.confirmationNotRequired) {
 			await this.generateToken();		// generate a token for the email
 			await this.saveTokenInfo();		// save the token info
 			await this.sendEmail();			// send the confirmation email
@@ -77,7 +77,7 @@ class ChangeEmailRequest extends RestfulRequest {
 	async generateToken () {
 		// time till expiration can be provided (normally for testing purposes),
 		// or default to configuration
-		let expiresIn = this.api.config.api.confirmationExpiration;
+		let expiresIn = this.api.config.apiServer.confirmationExpiration;
 		if (this.request.body.expiresIn && this.request.body.expiresIn < expiresIn) {
 			this.warn('Overriding configured confirmation expiration to ' + this.request.body.expiresIn);
 			expiresIn = this.request.body.expiresIn;
@@ -93,7 +93,7 @@ class ChangeEmailRequest extends RestfulRequest {
 		);
 		this.minIssuance = this.api.services.tokenHandler.decode(this.token).iat * 1000;
 
-		if (this.request.body._confirmationCheat === this.api.config.secrets.confirmationCheat) {
+		if (this.request.body._confirmationCheat === this.api.config.sharedSecrets.confirmationCheat) {
 			// this allows for testing without actually receiving the email
 			this.log('Confirmation cheat detected, hopefully this was called by test code');
 			this.responseData = {
@@ -125,7 +125,7 @@ class ChangeEmailRequest extends RestfulRequest {
 		}
 
 		// generate the url and send the email
-		const host = this.api.config.api.publicApiUrl;
+		const host = this.api.config.apiServer.publicApiUrl;
 		const url = `${host}/web/confirm-email?t=${encodeURIComponent(this.token)}`;
 		this.log(`Triggering change-email confirmation email to ${this.user.get('email')}...`);
 		await this.api.services.email.queueEmailSend(

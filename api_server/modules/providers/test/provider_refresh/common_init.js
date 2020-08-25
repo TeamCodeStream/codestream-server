@@ -47,7 +47,7 @@ class CommonInit {
 							}
 						}
 					},
-					_confirmationCheat: this.apiConfig.secrets.confirmationCheat
+					_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat
 				},
 				token: this.token
 			},
@@ -67,8 +67,8 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.authCode = response.code;
-				this.redirectUri = `${this.apiConfig.api.authOrigin}/provider-token/${this.provider}`;
-				this.state = `${this.apiConfig.api.callbackEnvironment}!${this.authCode}`;
+				this.redirectUri = `${this.apiConfig.apiServer.authOrigin}/provider-token/${this.provider}`;
+				this.state = `${this.apiConfig.apiServer.callbackEnvironment}!${this.authCode}`;
 				if (this.testHost) {
 					this.state += `!${this.testHost}`;
 				}
@@ -88,7 +88,7 @@ class CommonInit {
 			code: this.code,
 			state: this.state,
 			_mockToken: this.firstMockToken,
-			_secret: this.apiConfig.secrets.confirmationCheat
+			_secret: this.apiConfig.sharedSecrets.confirmationCheat
 		};
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
@@ -177,8 +177,8 @@ class CommonInit {
 	getExpectedAsanaTestCallData () {
 		const parameters = {
 			grant_type: 'refresh_token',
-			client_id: this.apiConfig.asana.appClientId,
-			client_secret: this.apiConfig.asana.appClientSecret,
+			client_id: this.apiConfig.integrationsasana.appClientId,
+			client_secret: this.apiConfig.integrations.asana.appClientSecret,
 			refresh_token: this.refreshToken,
 			redirect_uri: this.redirectUri
 		};
@@ -189,8 +189,8 @@ class CommonInit {
 	getExpectedJiraTestCallData () {
 		const parameters = {
 			grant_type: 'refresh_token',
-			client_id: this.apiConfig.jira.appClientId,
-			client_secret: this.apiConfig.jira.appClientSecret,
+			client_id: this.apiConfig.integrations.jira.appClientId,
+			client_secret: this.apiConfig.integrations.jira.appClientSecret,
 			refresh_token: this.refreshToken,
 			redirect_uri: this.redirectUri
 		};
@@ -199,8 +199,8 @@ class CommonInit {
 	}
 
 	getExpectedGitlabTestCallData () {
-		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.gitlab.appClientId;
-		const appClientSecret = this.testHost ? 'testClientSecret' : this.apiConfig.gitlab.appClientSecret;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.integrations.gitlab.appClientId;
+		const appClientSecret = this.testHost ? 'testClientSecret' : this.apiConfig.integrations.gitlab.appClientSecret;
 		const parameters = {
 			redirect_uri: this.redirectUri,
 			grant_type: 'refresh_token',
@@ -222,7 +222,7 @@ class CommonInit {
 			grant_type: 'refresh_token',
 			redirect_uri: this.redirectUri
 		};
-		const userAuth = Base64.encode(`${this.apiConfig.bitbucket.appClientId}:${this.apiConfig.bitbucket.appClientSecret}`);
+		const userAuth = Base64.encode(`${this.apiConfig.integrations.bitbucket.appClientId}:${this.apiConfig.integrations.bitbucket.appClientSecret}`);
 		const url = 'https://bitbucket.org/site/oauth2/access_token';
 		return { url, parameters, userAuth };
 	}
@@ -231,8 +231,8 @@ class CommonInit {
 		const parameters = {
 			redirect_uri: this.redirectUri,
 			grant_type: 'refresh_token',
-			client_id: this.apiConfig.azuredevops.appClientId,
-			client_assertion: this.apiConfig.azuredevops.appClientSecret,
+			client_id: this.apiConfig.integrations.azuredevops.appClientId,
+			client_assertion: this.apiConfig.integrations.azuredevops.appClientSecret,
 			client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
 			assertion: this.refreshToken
 		};
@@ -244,8 +244,8 @@ class CommonInit {
 		const parameters = {
 			refresh_token: this.refreshToken,
 			grant_type: 'refresh_token',
-			client_id: this.apiConfig.msteams.appClientId,
-			client_secret: this.apiConfig.msteams.appClientSecret,
+			client_id: this.apiConfig.integrations.msteams.appClientId,
+			client_secret: this.apiConfig.integrations.msteams.appClientSecret,
 			redirect_uri: this.redirectUri
 		};
 		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';

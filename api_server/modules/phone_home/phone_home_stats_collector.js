@@ -19,7 +19,7 @@ class PhoneHomeStatsCollector {
 		await this.getCompanies();
 
 		// don't phone home if customer has turned it off, which is only allowed for paid customers
-		if (this.api.config.api.disablePhoneHome && this.customerIsPaid) {
+		if (this.api.config.apiServer.disablePhoneHome && this.customerIsPaid) {
 			this.api.log('Will not phone home, customer has disabled phone-home and is a paying customer');
 			return;
 		}
@@ -46,7 +46,7 @@ class PhoneHomeStatsCollector {
 		const onPremVersion = this.api.serverOptions.onprem && this.api.serverOptions.onprem.onPremVersion;
 		this.stats = {
 			date: date,
-			installationId: this.api.config.api.installationId || 'NA',
+			installationId: this.api.config.sharedGeneral.installationId || 'NA',
 			installationVersion: onPremVersion || 'NA',
 			companies: [],
 			teams: [],
@@ -70,7 +70,7 @@ class PhoneHomeStatsCollector {
 		const integrations = await this.collectIntegrations();
 		this.stats.instance = {
 			outboundEmailEnabled: !this.api.config.email.suppressEmails,
-			slackInteractiveComponentsEnabled: this.api.config.slack.interactiveComponentsEnabled,
+			slackInteractiveComponentsEnabled: this.api.config.integrations.slack.interactiveComponentsEnabled,
 			integrations
 		};
 	}

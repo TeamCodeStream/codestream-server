@@ -19,7 +19,7 @@ class NewUserRegisteredTest extends NewUsersOnTheFlyTest {
 
 	createRegisteredUser (callback) {
 		const data = this.userFactory.getRandomUserData();
-		data._confirmationCheat = this.apiConfig.secrets.confirmationCheat;
+		data._confirmationCheat = this.apiConfig.sharedSecrets.confirmationCheat;
 		this.userFactory.createUser(
 			data,
 			(error, response) => {

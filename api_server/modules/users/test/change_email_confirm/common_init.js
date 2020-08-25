@@ -26,7 +26,7 @@ class CommonInit {
 		const data = {
 			email: this.newEmail,
 			expiresIn: this.expiresIn,
-			_confirmationCheat: this.apiConfig.secrets.confirmationCheat,	// gives us the token in the response
+			_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat,	// gives us the token in the response
 		};
 
 		// issue a forgot-password request, with a secret to allow use to receive the token

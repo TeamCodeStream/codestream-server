@@ -28,17 +28,25 @@ class SocketClusterTester {
 		this.config = await ApiConfig.loadPreferredConfig();
 		if (Commander.host) {
 			console.log(`overriding broadcaster host with ${Commander.host}`);
-			this.config.socketCluster.host = Commander.host;
+			this.config.broadcastEngine.codestreamBroadcaster.host = Commander.host;
 		}
 		if (Commander.port) {
 			console.log(`overriding broadcaster port with ${Commander.host}`);
-			this.config.socketCluster.port = Commander.port;
+			this.config.broadcastEngine.codestreamBroadcaster.port = Commander.port;
 		}
-		this.channel = Commander.channel || `${this.config.socketCluster.host}-tester-default`;
+		this.channel = Commander.channel || `${this.config.broadcastEngine.codestreamBroadcaster.host}-tester-default`;
 	}
 
 	async test () {
-		const scConfig = { ...this.config.socketCluster, uid: 'API' };
+		const scConfig = {
+			host: this.config.broadcastEngine.codestreamBroadcaster.host,
+			port: this.config.broadcastEngine.codestreamBroadcaster.port,
+			authKey: this.config.broadcastEngine.codestreamBroadcaster.secrets.api,
+			ignoreHttps: this.config.broadcastEngine.codestreamBroadcaster.ignoreHttps,
+			strictSSL: this.config.ssl.requireStrictSSL,
+			apiSecret: this.config.broadcastEngine.codestreamBroadcaster.secrets.api,
+			uid: 'API'
+		};
 		this.client = new SocketClusterClient(scConfig);
 
 		try {

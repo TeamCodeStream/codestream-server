@@ -70,7 +70,7 @@ class ProviderRefreshRequest extends RestfulRequest {
 		if (!this.serviceAuth.supportsRefresh()) {
 			throw this.errorHandler.error('readAuth', { reason: 'token refresh not supported by provider' });
 		}
-		const { authOrigin } = this.api.config.api;
+		const { authOrigin } = this.api.config.apiServer;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		if (this.request.query.host) {
 			this.host = decodeURIComponent(this.request.query.host).toLowerCase();

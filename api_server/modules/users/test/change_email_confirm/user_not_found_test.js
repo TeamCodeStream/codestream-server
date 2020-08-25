@@ -20,7 +20,7 @@ class UserNotFoundTest extends ChangeEmailConfirmTest {
 	setData (callback) {
 		// replace the token with a token with a bogus user ID
 		super.setData(() => {
-			const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
+			const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			payload.uid = ObjectID();
 			this.data.token = tokenHandler.generate(payload, 'email');

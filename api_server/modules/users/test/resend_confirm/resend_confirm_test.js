@@ -36,7 +36,7 @@ class ResendConfirmTest extends CodeStreamAPITest {
 			this.userId = data.user.id;
 			this.data = { 
 				email: data.user.email,
-				_confirmationCheat: this.apiConfig.secrets.confirmationCheat
+				_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat
 			};
 			this.originalToken = data.user.confirmationToken;    // returns by providing the confirmation cheat code
 			setTimeout(callback, 2000); // wait a bit for the issuance time to change

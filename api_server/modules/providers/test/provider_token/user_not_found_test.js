@@ -21,7 +21,7 @@ class UserNotFoundTest extends ProviderTokenTest {
 
 	getQueryParameters () {
 		const parameters = super.getQueryParameters();
-		const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
+		const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 		const delimited = this.state.split('!');
 		const payload = tokenHandler.decode(delimited[1]);
 		payload.userId = 'x';

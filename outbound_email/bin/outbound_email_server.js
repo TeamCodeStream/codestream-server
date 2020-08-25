@@ -14,7 +14,7 @@ const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 	const Config = await OutboundEmailServerConfig.loadPreferredConfig();
 
 	// establish our logger
-	const Logger = new SimpleFileLogger(Config.logging);
+	const Logger = new SimpleFileLogger(Config.outboundEmailServer.logger);
 
 	// invoke a node cluster master with our configurations provided
 	const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/outbound_email/src/outboundEmailServer');

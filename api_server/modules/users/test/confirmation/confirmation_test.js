@@ -46,7 +46,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 	registerUser (callback) {
 		const data = this.getUserData();
 		Object.assign(data, {
-			_confirmationCheat: this.apiConfig.secrets.confirmationCheat, // gives us the confirmation code in the response
+			_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat, // gives us the confirmation code in the response
 			_forceConfirmation: true // overrides developer environment, where confirmation might be turned off
 		});
 		if (this.userOptions.wantLink) {

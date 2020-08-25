@@ -33,7 +33,7 @@ class ProviderAuthCodeTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		const expiresIn = (this.expiresIn && this.expiresIn/1000) || 600;
 		// verify correct payload
-		const payload = new TokenHandler(this.apiConfig.secrets.auth).verify(data.code);
+		const payload = new TokenHandler(this.apiConfig.sharedSecrets.auth).verify(data.code);
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'pauth', 'token payload type should be conf');

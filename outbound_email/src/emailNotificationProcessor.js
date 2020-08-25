@@ -163,7 +163,7 @@ class EmailNotificationProcessor {
 			query,
 			{
 				sort: { seqNum: -1 },
-				limit: this.outboundEmailServer.config.maxPostsPerEmail,
+				limit: this.outboundEmailServer.config.outboundEmailServer.maxPostsPerEmail,
 				hint: Index.bySeqNum
 			}
 		);
@@ -174,7 +174,7 @@ class EmailNotificationProcessor {
 	// having gone "away" between the triggering post and their last read post
 	async getEarlierPosts () {
 		// no need to get earlier posts if we've already reached maximum
-		if (this.posts.length === this.outboundEmailServer.config.maxPostsPerEmail) {
+		if (this.posts.length === this.outboundEmailServer.config.outboundEmailServer.maxPostsPerEmail) {
 			return;
 		}
 
@@ -216,7 +216,7 @@ class EmailNotificationProcessor {
 			query,
 			{
 				sort: { seqNum: -1 },
-				limit: this.outboundEmailServer.config.maxPostsPerEmail - this.posts.length,
+				limit: this.outboundEmailServer.config.outboundEmailServer.maxPostsPerEmail - this.posts.length,
 				hint: Index.bySeqNum
 			}
 		);
@@ -570,8 +570,8 @@ class EmailNotificationProcessor {
 			team: this.team,
 			stream: this.stream,
 			mentioned: !!this.mentionsPerUser[user.id],
-			supportEmail: this.outboundEmailServer.config.supportEmail,
-			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailDisabled
+			supportEmail: this.outboundEmailServer.config.email.supportEmail,
+			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailServer.inboundEmailDisabled
 		});
 		html = html.replace(/[\t\n]/g, '');
 		this.renderedEmails.push({ user, html });
@@ -669,7 +669,7 @@ class EmailNotificationProcessor {
 			const now = Date.now();
 			return (
 				session.status === 'online' &&
-				session.updatedAt > now - this.outboundEmailServer.config.sessionAwayTimeout
+				session.updatedAt > now - this.outboundEmailServer.config.apiServer.sessionAwayTimeout
 			);
 		});
 	}

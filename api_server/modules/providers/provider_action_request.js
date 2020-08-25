@@ -113,7 +113,7 @@ class ProviderActionRequest extends RestfulRequest {
 			const apiAppId = request.body.payload.api_app_id;
 			if (!apiAppId) return false;
 
-			const slackSigningSecret = this.api.config.slack.signingSecretsByAppIds[apiAppId];
+			const slackSigningSecret = this.api.config.integrations.slack.signingSecretsByAppIds[apiAppId];
 			if (!slackSigningSecret) {
 				this.api.log(`Could not find signingSecret for appId=${apiAppId}`);
 				return false;

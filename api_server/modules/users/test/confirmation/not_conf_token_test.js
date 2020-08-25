@@ -20,7 +20,7 @@ class NotConfTokenTest extends ConfirmationWithLinkTest {
 		// run the standard setup for a confirmation, but change the type of the token
 		super.before(error => {
 			if (error) { return callback(error); }
-			const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
+			const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			payload.type = 'xyz';
 			this.data.token = tokenHandler.generate(payload, 'xyz');

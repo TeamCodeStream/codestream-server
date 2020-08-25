@@ -19,7 +19,7 @@ class BasePubNubTest extends GenericTest {
 	// called before the actual test
 	async before (callback) {
 		this.config = await ApiConfig.loadPreferredConfig();
-		if (this.config.whichBroadcastEngine !== 'pubnub') {
+		if (this.config.broadcastEngine.selected !== 'pubnub') {
 			console.log('NOTE - Pubnub tests cannot pass if pubnub is not enabled, test will pass superficially');
 			return callback();
 		}
@@ -34,7 +34,7 @@ class BasePubNubTest extends GenericTest {
 
 	// run the test itself
 	run (callback) {
-		if (this.config.whichBroadcastEngine !== 'pubnub') {
+		if (this.config.broadcastEngine.selected !== 'pubnub') {
 			return callback();
 		}
 		super.run(callback);
@@ -59,7 +59,7 @@ class BasePubNubTest extends GenericTest {
 	setClients (callback) {
 		// set up the pubnub client as if we are the server, this give us the right to set permissions
 		// all we have to do here is provide the full config, which includes the secretKey
-		let config = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
+		let config = Object.assign({}, ApiConfig.getPreferredConfig().broadcastEngine.pubnub);
 		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
 		let client = new PubNub(config);
 		this.pubnubForServer = new PubNubClient({
@@ -72,7 +72,7 @@ class BasePubNubTest extends GenericTest {
 		this.authKeys = new Array(this.numClients);
 		this.uuids = new Array(this.numClients);
 		for (let i = 0; i < this.numClients; i++) {
-			let clientConfig = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
+			let clientConfig = Object.assign({}, ApiConfig.getPreferredConfig().broadcastEngine.pubnub);
 			delete clientConfig.secretKey;
 			this.uuids[i] = clientConfig.uuid = `TESTUSER-${this.testNum}-${i}`;
 			this.authKeys[i] = clientConfig.authKey = RandomString.generate(12);

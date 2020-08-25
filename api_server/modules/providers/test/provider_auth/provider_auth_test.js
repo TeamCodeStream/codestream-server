@@ -57,7 +57,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 							}
 						}
 					},
-					_confirmationCheat: this.apiConfig.secrets.confirmationCheat
+					_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat
 				},
 				token: this.token
 			},
@@ -80,11 +80,11 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				if (this.provider === 'jiraserver') {
 					this.mockToken = RandomString.generate(12);
 					this.mockTokenSecret = RandomString.generate(12);
-					this.path += `&_mockToken=${this.mockToken}&_mockTokenSecret=${this.mockTokenSecret}&_secret=${encodeURIComponent(this.apiConfig.secrets.confirmationCheat)}`;
+					this.path += `&_mockToken=${this.mockToken}&_mockTokenSecret=${this.mockTokenSecret}&_secret=${encodeURIComponent(this.apiConfig.sharedSecrets.confirmationCheat)}`;
 				}
-				const authOrigin = this.provider === 'youtrack' ? `${this.apiConfig.api.publicApiUrl}/no-auth` : this.apiConfig.api.authOrigin;
+				const authOrigin = this.provider === 'youtrack' ? `${this.apiConfig.apiServer.publicApiUrl}/no-auth` : this.apiConfig.apiServer.authOrigin;
 				this.redirectUri = `${authOrigin}/provider-token/${this.provider}`;
-				this.state = `${this.apiConfig.api.callbackEnvironment}!${this.authCode}`;
+				this.state = `${this.apiConfig.apiServer.callbackEnvironment}!${this.authCode}`;
 				const testHost = this.testRequestHost || this.testHost;
 				if (testHost) {
 					this.path += `&host=${testHost}`;
@@ -157,14 +157,14 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			name: 'CodeStream',
 			callback_method: 'fragment',
 			return_url: this.redirectUri,
-			key: this.apiConfig.trello.apiKey
+			key: this.apiConfig.integrations.trello.apiKey
 		};
 		const url = 'https://trello.com/1/authorize';
 		return { url, parameters };
 	}
 
 	getGithubRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.github.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.integrations.github.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -182,7 +182,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getAsanaRedirectData () {
 		const parameters = {
-			client_id: this.apiConfig.asana.appClientId,
+			client_id: this.apiConfig.integrations.asana.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state
@@ -192,7 +192,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getJiraRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.jira.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.integrations.jira.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -208,8 +208,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getJiraServerRedirectData () {
-		const encodedSecret = new TokenHandler(this.apiConfig.secrets.auth).generate({ sec: this.mockTokenSecret }, 'oasec');
-		const callback = `${this.apiConfig.api.publicApiUrl}/no-auth/provider-token/${this.provider}?state=${this.state}!${encodedSecret}`;
+		const encodedSecret = new TokenHandler(this.apiConfig.sharedSecrets.auth).generate({ sec: this.mockTokenSecret }, 'oasec');
+		const callback = `${this.apiConfig.apiServer.publicApiUrl}/no-auth/provider-token/${this.provider}?state=${this.state}!${encodedSecret}`;
 		const parameters = {
 			oauth_token: this.mockToken,
 			oauth_callback: callback
@@ -219,7 +219,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getGitlabRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.gitlab.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.integrations.gitlab.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -235,7 +235,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getBitbucketRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.bitbucket.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.integrations.bitbucket.appClientId;
 		const scope = this.testHost ? 'projects:read repositories:write' : 'account team repository issue:write pullrequest:write';
 		const parameters = {
 			client_id: appClientId,
@@ -250,7 +250,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 	}
 
 	getYouTrackRedirectData () {
-		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.youtrack.appClientId;
+		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.integrations.youtrack.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
@@ -266,7 +266,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getAzureDevOpsRedirectData () {
 		const parameters = {
-			client_id: this.apiConfig.azuredevops.appClientId,
+			client_id: this.apiConfig.integrations.azuredevops.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'Assertion',
 			state: this.state,
@@ -278,7 +278,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getSlackRedirectData () {
 		const parameters = {
-			client_id: this.apiConfig.slack.appSharingClientId,
+			client_id: this.apiConfig.integrations.slack.appSharingClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -299,7 +299,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getMSTeamsRedirectData () {
 		const parameters = {
-			client_id: this.apiConfig.msteams.appClientId,
+			client_id: this.apiConfig.integrations.msteams.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
@@ -312,7 +312,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getOktaRedirectData () {
 		const parameters = {
-			client_id: this.apiConfig.okta.appClientId,
+			client_id: this.apiConfig.integrations.okta.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state

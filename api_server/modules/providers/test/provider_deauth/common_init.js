@@ -45,7 +45,7 @@ class CommonInit {
 							}
 						}
 					},
-					_confirmationCheat: this.apiConfig.secrets.confirmationCheat
+					_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat
 				},
 				token: this.token
 			},
@@ -65,14 +65,14 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.authCode = response.code;
-				this.redirectUri = `${this.apiConfig.api.authOrigin}/provider-token/${this.provider}`;
-				this.state = `${this.apiConfig.api.callbackEnvironment}!${this.authCode}`;
+				this.redirectUri = `${this.apiConfig.apiServer.authOrigin}/provider-token/${this.provider}`;
+				this.state = `${this.apiConfig.apiServer.callbackEnvironment}!${this.authCode}`;
 				if (this.testHost) {
 					this.state += `!${this.testHost}`;
 				}
 				if (this.provider === 'jiraserver') {
 					this.oauthTokenSecret = RandomString.generate(10);
-					const encodedSecret = new TokenHandler(this.apiConfig.secrets.auth).generate({ sec: this.oauthTokenSecret }, 'oasec');
+					const encodedSecret = new TokenHandler(this.apiConfig.sharedSecrets.auth).generate({ sec: this.oauthTokenSecret }, 'oasec');
 					this.state += `!${encodedSecret}`;
 				}
 				callback();
@@ -149,7 +149,7 @@ class CommonInit {
 			code: this.code,
 			state: this.state,
 			_mockToken: this.mockToken,
-			_secret: this.apiConfig.secrets.confirmationCheat
+			_secret: this.apiConfig.sharedSecrets.confirmationCheat
 		};
 	}
 }

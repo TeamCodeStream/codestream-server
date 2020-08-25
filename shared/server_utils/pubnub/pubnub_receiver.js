@@ -8,7 +8,7 @@
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const PubNubClient = require('pubnub');
 
-const pubnub = new PubNubClient(ApiConfig.getPreferredConfig().pubnub);
+const pubnub = new PubNubClient(ApiConfig.getPreferredConfig().broadcastEngine.pubnub);
 
 var channels;
 if (process.argv[2]) {

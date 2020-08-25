@@ -34,7 +34,7 @@ class TypedCodemarkPermalinkTest extends PrivatePermalinkTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.path = response.permalink.split(this.apiConfig.api.publicApiUrl)[1];
+				this.path = response.permalink.split(this.apiConfig.apiServer.publicApiUrl)[1];
 				callback();
 			}
 		);

@@ -99,7 +99,7 @@ class Providers extends APIServerModule {
 				return next();
 			}
 
-			if (this.api.config.api.mockMode) {
+			if (this.api.config.apiServer.mockMode) {
 				if (!request.body.payload) {
 					request.body = {};
 					return next();
@@ -153,7 +153,7 @@ class Providers extends APIServerModule {
 
 	initialize () {
 		MSTeamsConversationBot.initialize({
-			publicApiUrl: this.api.config.api.publicApiUrl
+			publicApiUrl: this.api.config.apiServer.publicApiUrl
 		});		 
 	}
 

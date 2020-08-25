@@ -21,14 +21,14 @@ const ROUTES = [
 class Helper extends APIServerModule {
 
 	getRoutes () {
-		if (!this.api.config.api.helpIsAvailable) { 
+		if (!this.api.config.apiServer.helpIsAvailable) { 
 			return [];
 		}
 		return ROUTES;
 	}
 
 	initialize () {
-		if (!this.api.config.api.helpIsAvailable) { 
+		if (!this.api.config.apiServer.helpIsAvailable) { 
 			return;
 		}
 		const root = process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/helper';

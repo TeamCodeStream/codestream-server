@@ -8,6 +8,9 @@ const Fetch = require('node-fetch');
 
 class OktaAuthorizer {
 
+	// FIXME: it is not clear what options represents nor what the config
+	// property in them is.  The apiHost and hostUrl properties which are
+	// refered to in this class do not exist in the global config.
 	constructor (options) {
 		Object.assign(this, options);
 		this.request = options.options.request;

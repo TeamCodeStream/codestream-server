@@ -159,7 +159,7 @@ class Converter {
 	async openMongoClient () {
 		this.mongoClient = new MongoClient({ collections: COLLECTIONS });
 		try {
-			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().mongo);
+			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().storage.mongo);
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {

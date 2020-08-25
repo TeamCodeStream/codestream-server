@@ -52,7 +52,7 @@ class ProviderAuthRequest extends RestfulRequest {
 	async requireAndAllow () {
 		// mock token must be accompanied by secret
 		if (this.request.query._mockToken && this.request.query._mockTokenSecret &&
-			decodeURIComponent(this.request.query._secret || '') !== this.api.config.secrets.confirmationCheat) {
+			decodeURIComponent(this.request.query._secret || '') !== this.api.config.sharedSecrets.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
 			delete this.request.query._mockTokenSecret;
@@ -117,15 +117,15 @@ class ProviderAuthRequest extends RestfulRequest {
 		// set up options for initiating a redirect for the particular service
 		let { host } = this.request.query;
 		const { code, access, sharing } = this.request.query;
-		const { callbackEnvironment } = this.api.config.api;
-		let { authOrigin } = this.api.config.api;
+		const { callbackEnvironment } = this.api.config.apiServer;
+		let { authOrigin } = this.api.config.apiServer;
 
 		// HACK - youtrack won't give us the state as a query parameter in the callback, it puts it in the fragment,
 		// this means we can't proxy to the api server appropriate to the environment ... so bypass the proxy
 		// entirely and go straight to the source ... this won't work for all providers because some only allow a
 		// single redirect uri, which is sucky sucky
 		if (this.provider === 'youtrack') {	
-			authOrigin = `${this.api.config.api.publicApiUrl}/no-auth`;
+			authOrigin = `${this.api.config.apiServer.publicApiUrl}/no-auth`;
 		}
 
 		let state = `${callbackEnvironment}!${code}`;
@@ -160,8 +160,10 @@ class ProviderAuthRequest extends RestfulRequest {
 	async performOauth1Redirect () {
 		let { host } = this.request.query;
 		const { code } = this.request.query;
-		const { callbackEnvironment } = this.api.config.api;
-		const authOrigin = `${this.api.config.api.publicApiUrl}/no-auth`;
+		const { callbackEnvironment } = this.api.config.apiServer;
+		// FIXME: I think this belongs in the custom config function (custom_config.js).
+		//        We should not be modifying configuration parameters outside it.
+		const authOrigin = `${this.api.config.apiServer.publicApiUrl}/no-auth`;
 		let state = `${callbackEnvironment}!${code}`;
 		if (host) {
 			host = decodeURIComponent(host).toLowerCase();

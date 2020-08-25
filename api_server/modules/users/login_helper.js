@@ -193,13 +193,13 @@ class LoginHelper {
 			capabilities: { ...APICapabilities }, // capabilities served by this API server
 			features: {
 				slack: {
-					interactiveComponentsEnabled: this.api.config.slack.interactiveComponentsEnabled
+					interactiveComponentsEnabled: this.api.config.integrations.slack.interactiveComponentsEnabled
 				}
 			},
-			runTimeEnvironment: this.apiConfig.api.runTimeEnvironment
+			runTimeEnvironment: this.apiConfig.sharedGeneral.runTimeEnvironment
 		};
-		if (this.apiConfig.pubnub && this.apiConfig.pubnub.subscribeKey) {
-			this.responseData.pubnubKey = this.apiConfig.pubnub.subscribeKey;	// give them the subscribe key for pubnub
+		if (this.apiConfig.integrations.pubnub && this.apiConfig.integrations.pubnub.subscribeKey) {
+			this.responseData.pubnubKey = this.apiConfig.integrations.pubnub.subscribeKey;	// give them the subscribe key for pubnub
 			this.responseData.pubnubToken = this.pubnubToken;	// token used to subscribe to PubNub channels
 		}
 		if (this.apiConfig.email.suppressEmails) {

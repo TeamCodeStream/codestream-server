@@ -26,7 +26,7 @@ class AuthenticationUserNotFoundTest extends AuthenticationTest {
 	alterUserIdInToken (callback) {
 		// decrypt the token to get payload
 		let payload;
-		const secret = this.apiConfig.secrets.auth;
+		const secret = this.apiConfig.sharedSecrets.auth;
 		try {
 			payload = JSONWebToken.verify(this.token, secret);
 		}

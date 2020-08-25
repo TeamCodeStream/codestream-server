@@ -11,12 +11,12 @@ class Queuer extends APIServerModule {
 	services () {
 		// return a function that, when invoked, returns a service structure with the desired AWS services
 		return async () => {
-			if (!this.api.config.api.dontWantAWS) {
+			if (this.api.config.queuingEngine.selected !== 'rabbitmq') {
 				return {};
 			}
 			this.api.log('Initiating RabbitMQ connection...');
 			try {
-				const { user, password, host, port } = this.api.config.rabbitmq;
+				const { user, password, host, port } = this.api.config.queuingEngine.rabbitmq;
 				const config = {
 					host: `amqp://${user}:${password}@${host}:${port}`,
 					logger: this.api,

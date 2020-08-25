@@ -30,7 +30,7 @@ class TokenAuthenticator {
 				this.pathIsCookieAuth(this.request) &&
 				this.pathIsOptionalAuth(this.request)
 			) {
-				const cookie = this.api.config.api.identityCookie || 't';
+				const cookie = this.api.config.apiServer.identityCookie || 't';
 				this.response.clearCookie(cookie, {
 					secure: true,
 					signed: true
@@ -53,7 +53,7 @@ class TokenAuthenticator {
 
 		// certain paths required cookie authentication
 		if (this.pathIsCookieAuth(this.request)) {
-			const cookie = this.api.config.api.identityCookie || 't';
+			const cookie = this.api.config.apiServer.identityCookie || 't';
 			token = (this.request.signedCookies && this.request.signedCookies[cookie]);
 		}
 
@@ -132,7 +132,7 @@ class TokenAuthenticator {
 	// certain paths signal that no authentication is required,
 	// according to config
 	pathIsNoAuth (request) {
-		const paths = this.api.config.api.unauthenticatedPaths || [];
+		const paths = this.api.config.apiServer.unauthenticatedPaths || [];
 		return paths.find(path => {
 			const regExp = new RegExp(path);
 			return request.path.match(regExp);
@@ -142,7 +142,7 @@ class TokenAuthenticator {
 	// for certain paths, authentication is optional,
 	// according to config
 	pathIsOptionalAuth (request) {
-		const paths = this.api.config.api.optionalAuthenticatedPaths || [];
+		const paths = this.api.config.apiServer.optionalAuthenticatedPaths || [];
 		return paths.find(path => {
 			const regExp = new RegExp(path);
 			return request.path.match(regExp);
@@ -151,7 +151,7 @@ class TokenAuthenticator {
 
 	// for certain paths, cookie authentication is required
 	pathIsCookieAuth (request) {
-		const paths = this.api.config.api.cookieAuthenticatedPaths || [];
+		const paths = this.api.config.apiServer.cookieAuthenticatedPaths || [];
 		return paths.find(path => {
 			const regExp = new RegExp(path);
 			return request.path.match(regExp);

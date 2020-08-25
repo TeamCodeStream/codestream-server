@@ -99,8 +99,8 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 			this.api.config.payments.stripe.annualPlanId : 
 			this.api.config.payments.stripe.monthlyPlanId;
 		const sessionData = {
-			success_url: `${this.api.config.api.publicApiUrl}/web/subscription/thankyou/${this.company.id}`,
-			cancel_url: `${this.api.config.api.publicApiUrl}/web/subscription/upgrade/${this.company.id}`,
+			success_url: `${this.api.config.apiServer.publicApiUrl}/web/subscription/thankyou/${this.company.id}`,
+			cancel_url: `${this.api.config.apiServer.publicApiUrl}/web/subscription/upgrade/${this.company.id}`,
 			client_reference_id: this.company.id,
 			payment_method_types: ['card'],
 			line_items: [

@@ -29,7 +29,7 @@ class DataCollectionTest extends BaseTest {
 				collections: ['test'],
 				mockMode: this.mockMode
 			});
-			ReusableMongoClient = await this.mongoClientFactory.openMongoClient(this.apiConfig.mongo);
+			ReusableMongoClient = await this.mongoClientFactory.openMongoClient(this.apiConfig.storage.mongo);
 		}
 		this.mongoClient = ReusableMongoClient;
 

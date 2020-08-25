@@ -18,7 +18,7 @@ class PresenceTest extends BasePubNubTest {
 
 	// the actual test execution
 	run (callback) {
-		if (this.config.whichBroadcastEngine !== 'pubnub') {
+		if (this.config.broadcastEngine.selected !== 'pubnub') {
 			return callback();
 		}
 		BoundAsync.series(this, [

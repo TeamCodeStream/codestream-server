@@ -135,7 +135,7 @@ class VersionerTest extends CodeStreamAPITest {
 	// validate the asset URL, which tells us where the latest extension lives
 	// (this needs to be updated when we support multiple IDEs)
 	validateAssetUrl () {
-		const assetEnv = this.apiConfig.api.assetEnvironment;
+		const assetEnv = this.apiConfig.sharedGeneral.assetEnvironment;
 		const pluginName = this.pluginName.replace(/ /g, '').toLowerCase();
 		Assert.equal(
 			this.httpResponse.headers['x-cs-latest-asset-url'], 

@@ -45,7 +45,7 @@ class VersionInfo {
 
 		// kind of a hack here, go from "VS Code" to "vscode", will this be a hard and fast rule?
 		const ideDir = pluginIDE.replace(/ /g, '').toLowerCase();
-		const assetEnv = this.api.config.api.assetEnvironment;
+		const assetEnv = this.api.config.sharedGeneral.assetEnvironment;
 		versionCompatibility.latestAssetUrl = 
 			`https://assets.codestream.com/${assetEnv}/${ideDir}/codestream-latest.vsix`;
 

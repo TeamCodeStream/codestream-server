@@ -69,7 +69,7 @@ class PermalinkTest extends CodeStreamAPITest {
 				if (error) { return callback(error); }
 				this.codemarkResponse = response;
 				if (!this.dontWantPermalinkYet) {
-					this.path = response.permalink.split(this.apiConfig.api.publicApiUrl)[1];
+					this.path = response.permalink.split(this.apiConfig.apiServer.publicApiUrl)[1];
 				}
 				callback();
 			}
@@ -91,7 +91,7 @@ class PermalinkTest extends CodeStreamAPITest {
 					noJsonInResponse: true,
 					expectRedirect: true,
 					headers: {
-						'x-csrf-bypass-secret': this.apiConfig.secrets.confirmationCheat
+						'x-csrf-bypass-secret': this.apiConfig.sharedSecrets.confirmationCheat
 					}
 				}
 			},

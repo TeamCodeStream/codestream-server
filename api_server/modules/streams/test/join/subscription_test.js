@@ -71,23 +71,34 @@ class SubscriptionTest extends JoinTest {
 
 	createSocketClusterClient () {
 		const { user, broadcasterToken } = this.currentUser;
-		const config = Object.assign({}, this.apiConfig.socketCluster, {
-			uid: user.id,
-			authKey: broadcasterToken 
-		});
+		const config = Object.assign({},
+			{
+				// formerly socketCluster object
+				host: this.apiConfig.broadcastEngine.codestreamBroadcaster.host,
+				port: this.apiConfig.broadcastEngine.codestreamBroadcaster.port,
+				authKey: this.apiConfig.broadcastEngine.codestreamBroadcaster.secrets.api,
+				ignoreHttps: this.apiConfig.broadcastEngine.codestreamBroadcaster.ignoreHttps,
+				strictSSL: this.apiConfig.ssl.requireStrictSSL,
+				apiSecret: this.apiConfig.broadcastEngine.codestreamBroadcaster.secrets.api			
+			},
+			{
+				uid: user.id,
+				authKey: broadcasterToken 
+			}
+		);
 		return new SocketClusterClient(config);
 	}
 
 	createPubnubClient () { 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		const clientConfig = Object.assign({}, this.apiConfig.pubnub);
+		const clientConfig = Object.assign({}, this.apiConfig.integrations.pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = this.currentUser._pubnubUuid || this.currentUser.user.id;
 		clientConfig.authKey = this.currentUser.broadcasterToken;
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
-			clientConfig.serverId = this.apiConfig.ipc.serverId;
+			clientConfig.serverId = this.apiConfig.apiServer.ipc.serverId;
 		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
 		return new PubNubClient({

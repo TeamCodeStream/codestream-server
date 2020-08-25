@@ -19,7 +19,7 @@ class NoEmailTest extends CheckResetTest {
 	makeQueryData () {
 		// replace the token with a reset token that has no email in it
 		const queryData = super.makeQueryData();
-		queryData.token = new TokenHandler(this.apiConfig.secrets.auth).generate({}, 'rst');
+		queryData.token = new TokenHandler(this.apiConfig.sharedSecrets.auth).generate({}, 'rst');
 		return queryData;
 	}
 }

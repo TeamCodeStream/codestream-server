@@ -38,14 +38,23 @@ const HANDLERS = {
 	notification_v2: EmailNotificationV2Handler
 };
 
+// The OutboundEmailServer is instantiated via the cluster wrapper.
+// Options are passed through from the ClusterWrapper() call made in the
+// main block.
+//
+// These options are required and are promoted to first class properties
+// of the server object:
+//   config: the global configuration
+//   logger: a simple_file_logger object
+//
+// Other options (serverOptions):
+//   dontListen: true will prevent calling the startListening() method
 class OutboundEmailServer {
 
 	constructor (options = {}) {
 		this.serverOptions = options;
 		this.config = options.config || {};
-		if (!this.config.noLogging) {
-			this.logger = options.logger || console;
-		}
+		this.logger = options.logger || console;
 	}
 
 	// start 'er up
@@ -68,17 +77,17 @@ class OutboundEmailServer {
 
 	// start listening for messages
 	async startListening () {
-		this.log(`Trying to listening to ${this.config.outboundEmailQueueName}...`);
+		this.log(`Trying to listening to ${this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName}...`);
 		await this.queuer.listen({
-			name: this.config.outboundEmailQueueName,
+			name: this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName,
 			handler: (this.config.messageHandler || this.processMessage).bind(this)
 		});
-		this.log(`Successfully listening to ${this.config.outboundEmailQueueName}...`);
+		this.log(`Successfully listening to ${this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName}...`);
 	}
 
 	// stop listening for messages
 	stopListening () {
-		this.queuer.stopListening(this.config.outboundEmailQueueName);
+		this.queuer.stopListening(this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName);
 	}
 
 	// handle a message from the master
@@ -95,11 +104,15 @@ class OutboundEmailServer {
 		else if (message.youAre) {
 			// master is telling us our worker ID and helping us identify ourselves in the logs
 			this.workerId = message.youAre;
-			if (this.config.logger) {
-				this.loggerId = 'W' + this.workerId;
-				this.config.logger.loggerId = this.loggerId;
-				this.config.logger.loggerHost = OS.hostname();
-			}
+			this.loggerId = 'W' + this.workerId;
+			// FIXME: This doesn't look right.  config.logger never existed.
+			// I _assume_ loggerId and loggerHost are settable properties of
+			// the simple_file_logger object!
+			//
+			// this.config.logger.loggerId = this.loggerId;
+			// this.config.logger.loggerHost = OS.hostname();
+			this.logger.loggerId = this.loggerId;
+			this.logger.loggerHost = OS.hostname();
 			process.on('SIGINT', () => {});
 			process.on('SIGTERM', () => {});
 		}
@@ -197,7 +210,7 @@ class OutboundEmailServer {
 			collections: MONGO_COLLECTIONS
 		});
 		try {
-			this.mongo = await mongoClient.openMongoClient(this.config.mongo);
+			this.mongo = await mongoClient.openMongoClient(this.config.outboundEmailServer.storage.mongo);
 		}
 		catch (error) {
 			const msg = error instanceof Error ? error.message : JSON.stringify(error);
@@ -209,7 +222,7 @@ class OutboundEmailServer {
 	}
 	
 	async openBroadcasterClient () {
-		if (this.config.socketCluster && this.config.socketCluster.port) {
+		if (this.config.broadcastEngine.selected === 'codestreamBroadcaster') {
 			return await this.openSocketClusterClient();
 		}
 		else {
@@ -219,7 +232,7 @@ class OutboundEmailServer {
 
 	async openPubnubClient () {
 		this.log('Opening connection to Pubnub...');
-		const pubnubOptions = Object.assign({}, this.config.pubnub);
+		const pubnubOptions = Object.assign({}, this.config.broadcastEngine.pubnub);
 		pubnubOptions.uuid = 'OutboundEmail-' + OS.hostname();
 		this.log('pubnub options:', JSON.stringify(pubnubOptions, 0, 5));
 		const pubnub = new PubNub(pubnubOptions);
@@ -242,11 +255,22 @@ class OutboundEmailServer {
 	
 	async openSocketClusterClient () {
 		this.log('Opening connection to SocketCluster...');
-		const config = Object.assign({}, this.config.socketCluster, {
-			logger: this,
-			uid: 'API',
-			authKey: this.config.socketCluster.broadcasterSecret
-		});
+		const config = Object.assign({},
+			{
+				// formerly the socketCluster object
+				host: this.config.broadcastEngine.codestreamBroadcaster.host,
+				port: this.config.broadcastEngine.codestreamBroadcaster.port,
+				authKey: this.config.broadcastEngine.codestreamBroadcaster.secrets.api,
+				ignoreHttps: this.config.broadcastEngine.codestreamBroadcaster.ignoreHttps,
+				strictSSL: this.config.ssl.requireStrictSSL,
+				apiSecret: this.config.broadcastEngine.codestreamBroadcaster.secrets.api
+			},
+			{
+				logger: this,	// FIXME: this can't be good
+				uid: 'API',
+				authKey: this.config.broadcastEngine.codestreamBroadcaster.secrets.api
+			}
+		);
 		this.broadcaster = new SocketClusterClient(config);
 		await TryIndefinitely(async () => {
 			await this.broadcaster.init();
@@ -256,7 +280,7 @@ class OutboundEmailServer {
 	}
 		
 	async openQueuer () {
-		if (this.config.rabbitmq && this.config.rabbitmq.host) {
+		if (this.config.queuingEngine.selected === 'rabbitmq') {
 			await this.openRabbitMQ();
 		}
 		else {
@@ -266,7 +290,7 @@ class OutboundEmailServer {
 	
 	async openRabbitMQ () {
 		this.log('Opening connection to RabbitMQ...');
-		const { user, password, host, port } = this.config.rabbitmq;
+		const { user, password, host, port } = this.config.queuingEngine.rabbitmq;
 		const config = {
 			host: `amqp://${user}:${password}@${host}:${port}`,
 			logger: this,
@@ -275,7 +299,7 @@ class OutboundEmailServer {
 		this.queuer = new RabbitMQClient(config);
 		await TryIndefinitely(async () => {
 			await this.queuer.init();
-			await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
+			await this.queuer.createQueue({ name: this.config.queuingEngine.rabbitmq.outboundEmailQueueName });
 		}, 1000, this, 'Unable to connect to RabbitMQ, retrying...');
 		this.queuerIsRabbitMQ = true;
 		this.log('Successfully connected to RabbitMQ');
@@ -283,10 +307,10 @@ class OutboundEmailServer {
 
 	async openSQS () {
 		this.log('Opening connection to SQS...');
-		const aws = new AWS(this.config.aws);
+		const aws = new AWS(this.config.queuingEngine.awsSQS);
 		this.queuer = new SQSClient({ aws, logger: this.logger });
 		await TryIndefinitely(async () => {
-			await this.queuer.createQueue({ name: this.config.outboundEmailQueueName });
+			await this.queuer.createQueue({ name: this.config.queuingEngine.awsSQS.outboundEmailQueueName });
 		}, 1000, this, 'Unable to connect to SQS, retrying...');
 		this.log('Successfully connected to SQS');
 	}

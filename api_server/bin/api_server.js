@@ -11,6 +11,7 @@ const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/c
 const ModuleDirectory = process.env.CSSVC_BACKEND_ROOT + '/api_server/modules';
 const SimpleFileLogger = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/cluster_wrapper');
+const StringifySortReplacer = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/stringify_sort_replacer');
 const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server');
 const getOnPremSupportData = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_onprem_support_data');
 
@@ -50,13 +51,13 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	const Config = await ApiConfig.loadPreferredConfig();
 
 	// establish our logger
-	const Logger = new SimpleFileLogger(Config.loggerConfig);
+	const Logger = new SimpleFileLogger(Config.apiServer.logger);
 
 	// onprem support data (service versions, docker registry info, on-prem version)
 	let onPremSupportData;
-	if (Config.api.runTimeEnvironment === 'onprem' || (Config.whichBroadcastEngine === 'codestreamBroadcaster' && Config.api.runTimeEnvironment === 'local')) {
+	if (Config.sharedGeneral.runTimeEnvironment === 'onprem' || (Config.broadcastEngine.selected === 'codestreamBroadcaster' && Config.sharedGeneral.runTimeEnvironment === 'local')) {
 		onPremSupportData = await getOnPremSupportData();
-		console.info('OnPrem Config:', JSON.stringify(onPremSupportData, undefined, 10));
+		console.info('OnPrem Config:', JSON.stringify(onPremSupportData, StringifySortReplacer, 8));
 	}
 
 	// invoke a node cluster master with our configurations provided

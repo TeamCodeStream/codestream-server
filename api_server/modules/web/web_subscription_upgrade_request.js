@@ -72,7 +72,7 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 			buyNowDiscount,
 			offerCoupon,
 			error: this.request.query.error,
-			segmentKey: this.api.config.segment.webToken
+			segmentKey: this.api.config.telemetry.segment.webToken
 		};
 		this.addIdentifyScript(templateProps);
 

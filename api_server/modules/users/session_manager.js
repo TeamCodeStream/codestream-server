@@ -22,7 +22,7 @@ class SessionManager {
 	// session data with an updatedAt attribute older than the away timeout, as configured
 	async removeStaleSessions () {
 		const now = Date.now();
-		const awayTimeout = this.sessionAwayTimeout || this.request.api.config.api.sessionAwayTimeout;
+		const awayTimeout = this.sessionAwayTimeout || this.request.api.config.apiServer.sessionAwayTimeout;
 		Object.keys(this.currentSessions).forEach(sessionId => {
 			const session = this.currentSessions[sessionId];
 			if (session.updatedAt < now - awayTimeout) {
@@ -42,7 +42,7 @@ class SessionManager {
 		const now = Date.now();
 		const currentLastActivityAt = this.user.get('lastActivityAt') || 0;
 		let lastActivityAt = 0;
-		const awayTimeout = this.sessionAwayTimeout || this.request.api.config.api.sessionAwayTimeout;
+		const awayTimeout = this.sessionAwayTimeout || this.request.api.config.apiServer.sessionAwayTimeout;
 		const activityAt = now - awayTimeout;
 
 		Object.keys(this.sessionsToUpdate).forEach(sessionId => {
@@ -98,7 +98,7 @@ class SessionManager {
 		}
 		return Object.values(sessions).find(session => {
 			const now = Date.now();
-			const awayTimeout = this.sessionAwayTimeout || this.request.api.config.api.sessionAwayTimeout;
+			const awayTimeout = this.sessionAwayTimeout || this.request.api.config.apiServer.sessionAwayTimeout;
 			return (
 				session.status === 'online' &&
 				session.updatedAt > now - awayTimeout

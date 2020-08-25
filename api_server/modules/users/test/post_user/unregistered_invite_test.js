@@ -46,7 +46,7 @@ class UnregisteredInviteTest extends PostUserTest {
 				email: this.data.email,
 				username: RandomString.generate(12),
 				password: RandomString.generate(12),
-				_confirmationCheat: this.apiConfig.secrets.confirmationCheat,	// gives us the confirmation code in the response
+				_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat,	// gives us the confirmation code in the response
 				_forceConfirmation: true								// this forces confirmation even if not enforced in environment
 			}
 		}, (error, response) => {

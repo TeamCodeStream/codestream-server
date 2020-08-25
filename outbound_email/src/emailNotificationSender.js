@@ -7,11 +7,15 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 class EmailNotificationSender {
 
 	// send an email notification to the user specified
+	// FIXME: this is a problem!! outboundEmailServerConfig is only a partial config and no longer contains all the data we need!!!
 	async sendEmailNotification (options, outboundEmailServerConfig) {
 		const { user, creator, team, stream, content, mentioningAuthor, sender } = options;
 		const author = mentioningAuthor || creator;
 		const fromName = author ? `${sender.getUserDisplayName(author)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
+		// FIXME: In the config, this is config.inboundEmailServer.inboundEmailDisabled. I'm guessing we
+		// don't have access to that property in outboundEmailServerConfig.  replyToDomain is
+		// config.email.replyToDomain.  Again, not in this config object.
 		const replyTo = outboundEmailServerConfig.inboundEmailDisabled ? '' : `${stream.id}.${team.id}@${outboundEmailServerConfig.replyToDomain}`;
 		await sender.sendEmail({
 			type: 'notification',

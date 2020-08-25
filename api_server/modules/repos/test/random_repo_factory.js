@@ -66,7 +66,7 @@ class RandomRepoFactory {
 		}
 		if (options.subscriptionCheat) {
 			// allows unregistered users to subscribe to me-channel, needed for mock email testing
-			data._subscriptionCheat = this.apiConfig.secrets.subscriptionCheat;
+			data._subscriptionCheat = this.apiConfig.sharedSecrets.subscriptionCheat;
 		}
 		if (options.teamId) {
 			// add the repo to a pre-existing team

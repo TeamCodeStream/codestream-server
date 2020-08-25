@@ -62,14 +62,14 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		const gotMessage = message.message;
 
 		// verify a match to the url
-		const host = this.apiConfig.api.publicApiUrl.replace(/\//g, '\\/');
+		const host = this.apiConfig.apiServer.publicApiUrl.replace(/\//g, '\\/');
 		const shouldMatch = new RegExp(`^${host}\\/web\\/confirm-email\\?t=(.+)$`);
 		const match = gotMessage.url.match(shouldMatch);
 		Assert(match && match.length === 2, 'confirmation link url is not correct');
 
 		// verify correct payload
 		const token = match[1];
-		const payload = new TokenHandler(this.apiConfig.secrets.auth).verify(token);
+		const payload = new TokenHandler(this.apiConfig.sharedSecrets.auth).verify(token);
 		Assert.equal(payload.iss, 'CodeStream', 'token payload issuer is not CodeStream');
 		Assert.equal(payload.alg, 'HS256', 'token payload algortihm is not HS256');
 		Assert.equal(payload.type, 'email', 'token payload type should be conf');

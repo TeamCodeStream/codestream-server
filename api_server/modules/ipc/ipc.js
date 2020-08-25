@@ -7,10 +7,10 @@ class IPCModule extends APIServerModule {
 
 	services () {
 		return async () => {
-			if (!this.api.config.api.mockMode) {
+			if (!this.api.config.apiServer.mockMode) {
 				return;	// only needed in "mock mode"
 			}
-			IPC.config.id = this.api.config.ipc.serverId;
+			IPC.config.id = this.api.config.apiServer.ipc.serverId;
 			IPC.config.silent = true;
 			IPC.serve();
 			IPC.server.start();

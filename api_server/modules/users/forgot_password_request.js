@@ -67,7 +67,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 		if (!this.user) { return; }
 		// time till expiration can be provided (normally for testing purposes),
 		// or default to configuration
-		let expiresIn = this.api.config.api.forgotPasswordExpiration;
+		let expiresIn = this.api.config.apiServer.forgotPasswordExpiration;
 		if (this.request.body.expiresIn && this.request.body.expiresIn < expiresIn) {
 			this.warn('Overriding configured reset password expiration to ' + this.request.body.expiresIn);
 			expiresIn = this.request.body.expiresIn;
@@ -111,7 +111,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 		}
 
 		// generate the url		
-		const url = `${this.api.config.api.publicApiUrl}/web/user/password?token=${encodeURIComponent(this.token)}`;
+		const url = `${this.api.config.apiServer.publicApiUrl}/web/user/password?token=${encodeURIComponent(this.token)}`;
 
 		// queue the email for sending
 		this.log(`Triggering forgot-password email for user ${this.user.id} ("${this.user.get('email')}")...`);
@@ -128,7 +128,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 		);
 
 		// send the token back in the response, if we're testing
-		if (this.confirmationCheat === this.api.config.secrets.confirmationCheat) {
+		if (this.confirmationCheat === this.api.config.sharedSecrets.confirmationCheat) {
 			// this allows for testing without actually receiving the email
 			this.log('Confirmation cheat detected for forgot-password, hopefully this was called by test code');
 			this.responseData.token = this.token;

@@ -11,13 +11,16 @@ class AWSModule extends APIServerModule {
 
 	services () {
 		// return a function that, when invoked, returns a service structure with the desired AWS services
-		if (this.api.config.api.dontWantAWS) {
+		// FIXME: is the scope of this class more than just SQS?  dontWantAWS is not a property that
+		// exists in the configuration
+		// if (this.api.config.api.dontWantAWS) {
+		if (this.api.config.queuingEngine.selected !== 'awsSQS') {
 			this.api.log('Not configured to use AWS services');
 			return null;
 		}
 		return async () => {
 			this.api.log('Initiating AWS services...');
-			this.aws = new AWS(this.api.config.aws);
+			this.aws = new AWS(this.api.config.queuingEngine.awsSQS);
 			this.awsServices = {};
 			this.initializeSQS();
 			return this.awsServices;

@@ -16,10 +16,10 @@ class Broadcaster extends APIServerModule {
 		// return a function that, when invoked, returns a service structure with the pubnub client as
 		// the broadcaster service
 		return async () => {
-			if (this.api.config.whichBroadcastEngine === 'codestreamBroadcaster') {
+			if (this.api.config.broadcastEngine.selected === 'codestreamBroadcaster') {
 				return await this.connectToSocketCluster();
 			}
-			else if (this.api.config.pubnub) {
+			else if (this.api.config.broadcastEngine.selected === 'pubnub') {
 				return await this.connectToPubNub();
 			}
 			else {
@@ -29,17 +29,28 @@ class Broadcaster extends APIServerModule {
 	}
 
 	async connectToSocketCluster () {
-		const { host, port } = this.api.config.socketCluster;
+		const host = this.api.config.broadcastEngine.codestreamBroadcaster.host;
+		const port = this.api.config.broadcastEngine.codestreamBroadcaster.port;
 		this.api.log(`Connecting to SocketCluster at ${host}:${port}...`);
-		const config = Object.assign({}, this.api.config.socketCluster, {
-			logger: this.api,
-			uid: 'API'
-		});
+		const config = Object.assign({},
+			{
+				// formerly the socketCluster object
+				host,
+				port,
+				authKey: this.api.config.broadcastEngine.codestreamBroadcaster.secrets.api,
+				ignoreHttps: this.api.config.broadcastEngine.codestreamBroadcaster.ignoreHttps,
+				strictSSL: this.api.config.ssl.requireStrictSSL,
+				apiSecret: this.api.config.broadcastEngine.codestreamBroadcaster.secrets.api
+			},
+			{
+				logger: this.api,
+				uid: 'API'
+			});
 		this.socketClusterClient = new SocketClusterClient(config);
 		await TryIndefinitely(async () => {
 			try {
 				await this.socketClusterClient.init();
-				if (!this.api.config.api.mockMode) {
+				if (!this.api.config.apiServer.mockMode) {
 					await this.socketClusterClient.publish('test', 'test');
 				}
 			}
@@ -54,13 +65,13 @@ class Broadcaster extends APIServerModule {
 
 	async connectToPubNub () {
 		this.api.log('Connecting to PubNub...');
-		let config = Object.assign({}, this.api.config.pubnub);
+		let config = Object.assign({}, this.api.config.broadcastEngine.pubnub);
 		config.uuid = 'API-' + OS.hostname();
-		this.pubnub = this.api.config.api.mockMode ? new MockPubnub(config) : new PubNub(config);
+		this.pubnub = this.api.config.apiServer.mockMode ? new MockPubnub(config) : new PubNub(config);
 		this.pubnubClient = new PubNubClient({
 			pubnub: this.pubnub
 		});
-		if (!this.api.config.api.mockMode) {
+		if (!this.api.config.apiServer.mockMode) {
 			await this.pubnubClient.init();
 			await TryIndefinitely(async () => {
 				await this.pubnubClient.publish('test', 'test');
@@ -70,7 +81,7 @@ class Broadcaster extends APIServerModule {
 	}
 
 	async initialize () {
-		if (this.api.config.api.mockMode) {
+		if (this.api.config.apiServer.mockMode) {
 			await this.connectToMockPubnub();
 		}
 	}
@@ -88,7 +99,10 @@ class Broadcaster extends APIServerModule {
 		this.pubnub.init({
 			isServer: true, 
 			ipc: this.api.services.ipc,
-			serverId: this.api.config.ipc.serverId
+			// FIXME: I'm not entirely certain as to which config object this is. This is the
+			// broadcaster so I wouldn't expect this.api to be defined. If it is, hopefully
+			// it has our global config as its config property????
+			serverId: this.api.config.apiServer.ipc.serverId
 		});
 		await this.pubnubClient.init();
 	}

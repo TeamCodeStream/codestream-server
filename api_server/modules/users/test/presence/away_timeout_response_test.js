@@ -19,7 +19,7 @@ class AwayTimeoutResponseTest extends PresenceTest {
 	validateResponse (data) {
 		// verify we got an awayTimeout ... this is important for the client to know
 		// what the value is for continuing confirmation of their online status
-		Assert.equal(data.awayTimeout, this.apiConfig.api.sessionAwayTimeout, 'returned away timeout not correct');
+		Assert.equal(data.awayTimeout, this.apiConfig.apiServer.sessionAwayTimeout, 'returned away timeout not correct');
 	}
 }
 

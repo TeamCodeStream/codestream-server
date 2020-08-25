@@ -16,7 +16,7 @@ class NoAccessTest extends PubNubTest {
 
 	// run the test
 	run (callback) {
-		if (this.config.whichBroadcastEngine !== 'pubnub') {
+		if (this.config.broadcastEngine.selected !== 'pubnub') {
 			return callback();
 		}
 		// our attempt to listen should get rejected

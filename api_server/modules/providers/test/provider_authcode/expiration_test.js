@@ -28,7 +28,7 @@ class ExpirationTest extends ProviderAuthCodeTest {
 			if (error) { return callback(error); }
 			setTimeout(() => {
 				try {
-					new TokenHandler(this.apiConfig.secrets.auth).verify(this.response.code);
+					new TokenHandler(this.apiConfig.sharedSecrets.auth).verify(this.response.code);
 				}
 				catch (error) {
 					Assert.equal(error.name, 'TokenExpiredError', 'did not receive expiration error');

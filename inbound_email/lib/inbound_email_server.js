@@ -15,14 +15,21 @@ const FileHandler = require('./file_handler');
 const OS = require('os');
 const { callbackWrap } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
+// The InboundEmailServer is instantiated via the cluster wrapper.
+// Options are passed through from the ClusterWrapper() call made in the
+// main block.
+//
+// These options are required and are promoted to first class properties
+// of the server object:
+//   config: the global configuration
+//   logger: a simple_file_logger object
 class InboundEmailServer {
 
+	// FIXME: what are these logger / config objects? Where do they come from?
 	constructor (options = {}) {
 		this.serverOptions = options;
 		this.config = options.config || {};
-		if (!this.config.noLogging) {
-			this.logger = options.logger || console;
-		}
+		this.logger = options.logger || console;
 		this.inProcess = {};
 	}
 
@@ -43,7 +50,7 @@ class InboundEmailServer {
 
 	// start watching for changes to the inbound email directory
 	startWatching () {
-		const path = this.config.inboundEmail.inboundEmailDirectory;
+		const path = this.config.inboundEmailServer.inboundEmailDirectory;
 		this.log(`Watching ${path}...`);
 		FS.watch(path, this.onFileChange.bind(this));
 	}
@@ -67,7 +74,7 @@ class InboundEmailServer {
 			// or even for files that have been "updated", these may have been
 			// created earlier, but processing couldn't proceed because the file
 			// was incomplete
-			const path = this.config.inboundEmail.inboundEmailDirectory;
+			const path = this.config.inboundEmailServer.inboundEmailDirectory;
 			const filePath = Path.join(path, file);
 			this.log('Accessing ' + file);
 			FS.access(filePath, error => {
@@ -105,7 +112,7 @@ class InboundEmailServer {
 		try {
 			files = await callbackWrap(
 				FS.readdir,
-				this.config.inboundEmail.inboundEmailDirectory
+				this.config.inboundEmailServer.inboundEmailDirectory
 			);
 		}
 		catch (error) {
@@ -118,7 +125,7 @@ class InboundEmailServer {
 
 	// touch a single file in the inbound email directory, see above
 	async touchFile (file) {
-		file = Path.join(this.config.inboundEmail.inboundEmailDirectory, file);
+		file = Path.join(this.config.inboundEmailServer.inboundEmailDirectory, file);
 		try {
 			await callbackWrap(
 				ChildProcess.exec,
@@ -144,11 +151,15 @@ class InboundEmailServer {
 		else if (message.youAre) {
 			// master is telling us our worker ID and helping us identify ourselves in the logs
 			this.workerId = message.youAre;
-			if (this.config.logger) {
-				this.loggerId = 'W' + this.workerId;
-				this.config.logger.loggerId = this.loggerId;
-				this.config.logger.loggerHost = OS.hostname();
-			}
+			this.loggerId = 'W' + this.workerId;
+			// FIXME: This doesn't look right.  config.logger never existed.
+			// I _assume_ loggerId and loggerHost are settable properties of
+			// the simple_file_logger object!
+			//
+			// this.config.logger.loggerId = this.loggerId;
+			// this.config.logger.loggerHost = OS.hostname();
+			this.logger.loggerId = this.loggerId;
+			this.logger.loggerHost = OS.hostname();
 		}
 	}
 

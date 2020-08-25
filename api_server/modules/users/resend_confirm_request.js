@@ -24,7 +24,7 @@ class ResendConfirmRequest extends RestfulRequest {
 		await this.generateLinkToken();		// generate a token for the confirm link, as requested
 		await this.saveTokenInfo();			// save the token info to the user object, if we're doing a confirm link
 		await this.sendEmail();				// send the confirmation email with the confirmation code
-		if (this.request.body._confirmationCheat === this.api.config.secrets.confirmationCheat) {
+		if (this.request.body._confirmationCheat === this.api.config.sharedSecrets.confirmationCheat) {
 			// this allows for testing without actually receiving the email
 			this.log('Confirmation cheat detected, hopefully this was called by test code');
 			this.responseData.confirmationToken = this.token;
@@ -71,7 +71,7 @@ class ResendConfirmRequest extends RestfulRequest {
 		// time till expiration can be provided (normally for testing purposes),
 		// or default to configuration
 		const providedExpiresIn = this.request.body.expiresIn;
-		let expiresIn = this.api.config.api.confirmationExpiration;
+		let expiresIn = this.api.config.apiServer.confirmationExpiration;
 		if (providedExpiresIn && providedExpiresIn < expiresIn) {
 			this.warn('Overriding configured confirmation expiration to ' + providedExpiresIn);
 			expiresIn = providedExpiresIn;
@@ -126,6 +126,7 @@ class ResendConfirmRequest extends RestfulRequest {
 		// otherwise send a confirmation email with a link
 		else {
 			// generate the url
+			// FIXME: webclient.host is not a global config property
 			const host = this.api.config.webclient.host;
 			const url = `${host}/confirm-email/${encodeURIComponent(this.token)}`;
 			this.log(`Triggering confirmation email to ${this.user.get('email')}...`);

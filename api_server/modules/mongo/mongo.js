@@ -32,18 +32,18 @@ class Mongo extends APIServerModule {
 		// return a function that, when invoked, will return a service structure with our
 		// mongo client as a service to the API server app
 		return async () => {
-			if (!this.api.config.mongo) {
+			if (!this.api.config.storage.mongo) {
 				this.api.warn('Will not connect to mongo, no mongo configuration supplied');
 				return;
 			}
 			this.mongoClientFactory = new MongoClient({
 				tryIndefinitely: true,
-				mockMode: this.api.config.api.mockMode,
+				mockMode: this.api.config.apiServer.mockMode,
 				logger: this.api.logger,
-				queryLogging: this.api.config.mongo.queryLogging,
+				queryLogging: this.api.config.storage.mongo.queryLogging,
 				collections: this.api.serverOptions.rawCollections
 			});
-			this.mongoClient = await this.mongoClientFactory.openMongoClient(this.api.config.mongo);
+			this.mongoClient = await this.mongoClientFactory.openMongoClient(this.api.config.storage.mongo);
 			return { mongoClient: this.mongoClient };
 		};
 	}
@@ -56,7 +56,7 @@ class Mongo extends APIServerModule {
 	}
 
 	handleClearMockCache (request, response) {
-		if (this.api.config.api.mockMode) {
+		if (this.api.config.apiServer.mockMode) {
 			this.mongoClient.clearMockCache();
 			response.status(200).send({});
 		}

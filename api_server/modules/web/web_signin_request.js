@@ -61,7 +61,7 @@ class WebSigninRequest extends APIRequest {
 			return false;
 		}
 
-		this.response.cookie(this.api.config.api.identityCookie, this.token, {
+		this.response.cookie(this.api.config.apiServer.identityCookie, this.token, {
 			secure: true,
 			signed: true
 		});

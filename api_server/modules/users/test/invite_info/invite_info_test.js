@@ -50,7 +50,7 @@ class InviteInfoTest extends CodeStreamAPITest {
 			email: this.userFactory.randomEmail(),
 			// indicates to send back invite code with the response, 
 			// instead of just using it in an email
-			_confirmationCheat: this.apiConfig.secrets.confirmationCheat	
+			_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat	
 		};
 	}
 

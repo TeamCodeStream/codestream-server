@@ -55,7 +55,7 @@ class UninvitedUserCanRegisterTest extends PutTeamTest {
 			email: this.unregisteredUser.user.email,
 			username: RandomString.generate(8),
 			password: RandomString.generate(8),
-			_confirmationCheat: this.apiConfig.secrets.confirmationCheat
+			_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat
 		};
 		this.doApiRequest(
 			{

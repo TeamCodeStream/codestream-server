@@ -592,7 +592,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	// returns a way for a user to signin if their team is not connected
 	async signin (context) {
 		// NOTE this can also work, but it's styling is a little chunky
-		// const card = CardFactory.signinCard("Sign in", `${this.api.config.api.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id, "Sign in to CodeStream to get started!");
+		// const card = CardFactory.signinCard("Sign in", `${this.api.config.apiServer.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id, "Sign in to CodeStream to get started!");
 		const card = CardFactory.heroCard('', 'Sign in to CodeStream to get started!', null,
 			[
 				{

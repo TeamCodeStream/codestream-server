@@ -9,7 +9,7 @@ class DeleteTeamRequest extends DeleteRequest {
 	// authorize the request for the current user
 	async authorize () {
 		// currently can only be done if a secret is provided
-		if (this.request.headers['x-delete-team-secret'] !== this.api.config.secrets.confirmationCheat) {
+		if (this.request.headers['x-delete-team-secret'] !== this.api.config.sharedSecrets.confirmationCheat) {
 			throw this.errorHandler.error('deleteAuth');
 		}
 	}

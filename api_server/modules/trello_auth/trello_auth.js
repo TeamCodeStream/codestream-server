@@ -37,7 +37,7 @@ class TrelloAuth extends OAuthModule {
 		const { state, redirectUri } = options;
 		data.parameters.return_url = `${redirectUri}?state=${state}`;
 		delete data.parameters.redirect_uri;
-		const { apiKey } = this.api.config.trello;
+		const { apiKey } = this.api.config.integrations.trello;
 		data.parameters.key = apiKey;
 		delete data.parameters.client_id;
 		delete data.parameters.state;

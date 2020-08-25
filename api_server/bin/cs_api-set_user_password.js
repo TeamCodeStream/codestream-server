@@ -24,7 +24,7 @@ Commander
 
 	const mongoClient = new MongoClient({ collections: ['users'] });
 	try {
-		await mongoClient.openMongoClient(ApiConfig.getPreferredConfig().mongo);
+		await mongoClient.openMongoClient(ApiConfig.getPreferredConfig().storage.mongo);
 	}
 	catch (error) {
 		console.error(`unable to open mongo client: ${JSON.stringify(error)}`);

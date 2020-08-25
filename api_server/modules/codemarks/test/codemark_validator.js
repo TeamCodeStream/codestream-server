@@ -81,7 +81,7 @@ class CodemarkValidator {
 	// validate the returned permalink URL is correct
 	validatePermalink (permalink) {
 		const type = this.test.permalinkType === 'public' ? 'p' : 'c';
-		const origin = this.test.apiConfig.api.publicApiUrl.replace(/\//g, '\\/');
+		const origin = this.test.apiConfig.apiServer.publicApiUrl.replace(/\//g, '\\/');
 		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
 		const match = permalink.match(new RegExp(regex));
 		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);

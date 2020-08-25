@@ -96,7 +96,7 @@ class FileHandler {
 	async moveToProcessDirectory () {
 		this.baseName = Path.basename(this.filePath);
 		this.log(`Processing file: ${this.baseName}`);
-		const processDirectory = this.inboundEmailServer.config.inboundEmail.processDirectory;
+		const processDirectory = this.inboundEmailServer.config.inboundEmailServer.processDirectory;
 		this.fileToProcess = Path.join(processDirectory, this.baseName);
 		try {
 			await callbackWrap(
@@ -113,7 +113,7 @@ class FileHandler {
 
 	// create temp directory for any attachment files
 	async createTempDirectoryForAttachments () {
-		this.attachmentPath = Path.join(this.inboundEmailServer.config.inboundEmail.tempAttachmentDirectory, this.baseName);
+		this.attachmentPath = Path.join(this.inboundEmailServer.config.inboundEmailServer.tempAttachmentDirectory, this.baseName);
 		try {
 			await this.ensureDirectory(this.attachmentPath);
 		}
@@ -310,7 +310,7 @@ class FileHandler {
 	// based on the candidate "to" addresses, find the ones that match
 	getApprovedTos (candidateTos) {
 		// form a regex based on our reply-to domain for matching the to address
-		const replyToDomain = this.inboundEmailServer.config.inboundEmail.replyToDomain;
+		const replyToDomain = this.inboundEmailServer.config.email.replyToDomain;
 		const replyToDomainRegEx = replyToDomain.replace(/\./g, '\\.') + '$';
 		const regEx = new RegExp(replyToDomainRegEx);
 		let approvedTos = [];
@@ -439,7 +439,7 @@ class FileHandler {
 		// we'll use a series of regular expressions to look for common reply
 		// scenarios ... we'll cut the text off at the nearest match we get in the text
 		const productName = 'CodeStream';
-		const senderEmail = this.inboundEmailServer.config.inboundEmail.senderEmail;
+		const senderEmail = this.inboundEmailServer.config.email.senderEmail;
 		const qualifiedEmailRegex = `${senderEmail}\\s*(\\(via ${productName}\\))?\\s*(\\[mailto:.*\\])?`;
 		const escapedEmailRegex = qualifiedEmailRegex.replace(/\./, '\\.');
 		const regExpArray = [
@@ -485,7 +485,7 @@ class FileHandler {
 			from: this.headers.get('from').value[0],
 			text: this.text,
 			mailFile: this.baseName,
-			secret: this.inboundEmailServer.config.secrets.mailSecret,
+			secret: this.inboundEmailServer.config.sharedSecrets.mail,
 			attachments: this.attachmentData
 		};
 		await this.sendDataToApiServer(data);
@@ -495,10 +495,10 @@ class FileHandler {
 	// to the stream for which it is intended
 	async sendDataToApiServer (data) {
 		this.log(`Sending email (${data.mailFile}) from ${JSON.stringify(data.from)} to ${JSON.stringify(data.to)} to API server...`);
-		const host = this.inboundEmailServer.config.apiServer.host;
-		const port = this.inboundEmailServer.config.apiServer.port;
-		const protocol = this.inboundEmailServer.config.apiServer.secure ? 'https' : 'http';
-		const netClient = this.inboundEmailServer.config.apiServer.secure ? HTTPS : HTTP;
+		const host = this.inboundEmailServer.config.apiServer.publicApiUrlParsed.host;
+		const port = this.inboundEmailServer.config.apiServer.publicApiUrlParsed.port;
+		const protocol = this.inboundEmailServer.config.apiServer.publicApiUrlParsed.secure ? 'https' : 'http';
+		const netClient = this.inboundEmailServer.config.apiServer.publicApiUrlParsed.secure ? HTTPS : HTTP;
 		const url = `${protocol}://${host}:${port}`;
 		const urlObject = URL.parse(url);
 		const payload = JSON.stringify(data);

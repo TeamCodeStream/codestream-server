@@ -123,7 +123,7 @@ class ProviderIdentityConnector {
 		this.userCreator = new UserCreator({
 			request: this.request,
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
-			subscriptionCheat: this._subscriptionCheat === this.api.config.secrets.subscriptionCheat
+			subscriptionCheat: this._subscriptionCheat === this.api.config.sharedSecrets.subscriptionCheat
 		});
 
 		const userData = {

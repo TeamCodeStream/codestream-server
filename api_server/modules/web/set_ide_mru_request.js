@@ -48,7 +48,7 @@ class SetIdeMruRequest extends WebRequestBase {
 		// that one too
 
 		const cookieName = repoId ? `${defaultCookieName}--${repoId}` : defaultCookieName;
-		const uri = URL.parse(this.request.api.config.api.publicApiUrl);
+		const uri = URL.parse(this.request.api.config.apiServer.publicApiUrl);
 		const cookieDomain = this.getDomain(uri);
 		const cookieData = {
 			secure: true,

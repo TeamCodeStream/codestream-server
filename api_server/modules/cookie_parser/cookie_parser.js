@@ -22,7 +22,7 @@ class CookieParserModule extends APIServerModule {
 
 			(request, response, next) => {
 				// we only need to obtain the parser function once
-				this.cookieParserFunc = this.cookieParserFunc || CookieParser(this.api.config.secrets.cookie);
+				this.cookieParserFunc = this.cookieParserFunc || CookieParser(this.api.config.sharedSecrets.cookie);
 				return this.cookieParserFunc(request, response, next);
 			},
 
@@ -30,7 +30,7 @@ class CookieParserModule extends APIServerModule {
 				if (!this.pathRequiresCsrfProtection(request)) {
 					return next();
 				}
-				if (request.headers['x-csrf-bypass-secret'] === this.api.config.secrets.confirmationCheat) {
+				if (request.headers['x-csrf-bypass-secret'] === this.api.config.sharedSecrets.confirmationCheat) {
 					this.api.warn('Bypassing CSRF check, this has better be a test!');
 					return next();
 				}
@@ -44,7 +44,7 @@ class CookieParserModule extends APIServerModule {
 
 	// for certain paths, cookie authentication is required
 	pathRequiresCsrfProtection (request) {
-		const paths = this.api.config.api.requiresCsrfProtectionPaths || [];
+		const paths = this.api.config.apiServer.requiresCsrfProtectionPaths || [];
 		return paths.find(path => {
 			const regExp = new RegExp(path);
 			return request.path.match(regExp);

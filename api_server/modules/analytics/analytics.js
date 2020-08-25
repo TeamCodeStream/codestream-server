@@ -25,7 +25,7 @@ class Analytics extends APIServerModule {
 		// segment analytics client as the analytics service
 		return async () => {
 			this.api.log('Connecting to Segment Analytics...');
-			const config = Object.assign({}, this.api.config.segment, {
+			const config = Object.assign({}, this.api.config.telemetry.segment, {
 				testCallback: this.testCallback.bind(this),
 				logger: this.api
 			});
@@ -54,19 +54,19 @@ class Analytics extends APIServerModule {
 	// to read anything)
 	handleTelemetryKey (request, response) {
 		const inSecret = decodeURIComponent(request.query.secret || '');
-		if (!inSecret || inSecret !== this.api.config.secrets.telemetry) {
+		if (!inSecret || inSecret !== this.api.config.sharedSecrets.telemetry) {
 			const error = 'incorrect telemetry secret';
 			this.api.warn(error);
 			return response.status(403).send({ error });
 		}
-		const token = this.api.config.segment.token;
+		const token = this.api.config.telemetry.segment.token;
 		if (!token) {
 			const error = 'no telemetry token available';
 			this.api.warn(error);
 			return response.status(403).send({ error });
 		}
 		response.send({
-			key: this.api.config.segment.token
+			key: this.api.config.telemetry.segment.token
 		});
 	}
 

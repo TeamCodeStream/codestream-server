@@ -32,7 +32,7 @@ class CheckResetTest extends CodeStreamAPITest {
 		const data = {
 			email: this.useEmail || this.currentUser.user.email,
 			expiresIn: this.expiresIn,
-			_confirmationCheat: this.apiConfig.secrets.confirmationCheat,	// gives us the token in the response
+			_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat,	// gives us the token in the response
 		};
 		// issue a forgot-password request, with a secret to allow use to receive the token
 		// in the response, rather than having to go through email

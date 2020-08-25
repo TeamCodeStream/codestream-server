@@ -88,8 +88,8 @@ class GetStreamsRequest extends GetManyRequest {
 			limit = parseInt(limit, 10);
 		}
 		limit = limit ?
-			Math.min(limit, this.api.config.limits.maxStreamsPerRequest || 100) :
-			this.api.config.limits.maxStreamsPerRequest;
+			Math.min(limit, this.api.config.apiServer.limits.maxStreamsPerRequest || 100) :
+			this.api.config.apiServer.limits.maxStreamsPerRequest;
 		limit += 1; // always look for one more than the client, so we can set the "more" flag
 		return limit;
 	}

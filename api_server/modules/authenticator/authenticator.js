@@ -17,7 +17,7 @@ class Authenticator extends APIServerModule {
 
 	constructor (config) {
 		super(config);
-		this.tokenHandler = new TokenHandler(this.api.config.secrets.auth);
+		this.tokenHandler = new TokenHandler(this.api.config.sharedSecrets.auth);
 	}
 
 	getDependencies () {
@@ -36,8 +36,10 @@ class Authenticator extends APIServerModule {
 				}).authenticate();
 			}
 			catch (error) {
-				if (this.pathIsWeb(request) && this.api.config.api.webErrorRedirect) {
-					return response.redirect(this.api.config.api.webErrorRedirect + '?code=' + error.code);
+				// FIXME: webErrorRedirect is not defined in the config or custom config func!
+				// it will always be false! (changed api to apiServer to prevent exception)
+				if (this.pathIsWeb(request) && this.api.config.apiServer.webErrorRedirect) {
+					return response.redirect(this.api.config.apiServer.webErrorRedirect + '?code=' + error.code);
 				}
 				// fail with a 401, signalling no authentication at all
 				response.set('WWW-Authenticate', 'Bearer');
@@ -59,7 +61,9 @@ class Authenticator extends APIServerModule {
 
 	// certain paths are associated with web requests, and should be redirected to an error page
 	pathIsWeb (request) {
-		const paths = this.api.config.api.webPaths || [];
+		// FIXME: webPaths is never defined in the config. I changed config.api to config.apiServer
+		// to prevent an exception, but 'paths' will always be an empty list!
+		const paths = this.api.config.apiServer.webPaths || [];
 		return paths.find(path => {
 			const regExp = new RegExp(path);
 			return request.path.match(regExp);

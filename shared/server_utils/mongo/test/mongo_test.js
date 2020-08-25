@@ -24,7 +24,7 @@ class MongoTest extends GenericTest {
 		(async () => {
 			try {
 				await ApiConfig.loadPreferredConfig();
-				this.mongoClient = await this.mongoClientFactory.openMongoClient(ApiConfig.getPreferredConfig().mongo);
+				this.mongoClient = await this.mongoClientFactory.openMongoClient(ApiConfig.getPreferredConfig().storage.mongo);
 			}
 			catch (error) {
 				return callback(error);

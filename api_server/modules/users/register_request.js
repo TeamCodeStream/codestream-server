@@ -20,7 +20,7 @@ class RegisterRequest extends RestfulRequest {
 	constructor (options) {
 		super(options);
 		// confirmation is required as part of environment settings, or forced for unit tests
-		this.confirmationRequired = !this.api.config.api.confirmationNotRequired || this.request.body._forceConfirmation;
+		this.confirmationRequired = !this.api.config.apiServer.confirmationNotRequired || this.request.body._forceConfirmation;
 		delete this.request.body._forceConfirmation;
 		this.errorHandler.add(Errors);
 		this.errorHandler.add(AuthErrors);
@@ -140,8 +140,8 @@ class RegisterRequest extends RestfulRequest {
 			Date.now() >= this.user.get('confirmationCodeUsableUntil')
 		) {
 			this.request.body.confirmationCode = ConfirmCode();
-			let timeout = this.request.body.timeout || this.api.config.api.confirmCodeExpiration;
-			timeout = Math.min(timeout, this.api.config.api.confirmCodeExpiration);
+			let timeout = this.request.body.timeout || this.api.config.apiServer.confirmCodeExpiration;
+			timeout = Math.min(timeout, this.api.config.apiServer.confirmCodeExpiration);
 			this.request.body.confirmationCodeExpiresAt = Date.now() + timeout;
 			let reuseTimeout = this.request.body.reuseTimeout || CONFIRMATION_CODE_USABILITY_WINDOW;
 			reuseTimeout = Math.min(reuseTimeout, CONFIRMATION_CODE_USABILITY_WINDOW);
@@ -181,7 +181,7 @@ class RegisterRequest extends RestfulRequest {
 		this.userCreator = new UserCreator({
 			request: this,
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
-			subscriptionCheat: this._subscriptionCheat === this.api.config.secrets.subscriptionCheat,
+			subscriptionCheat: this._subscriptionCheat === this.api.config.sharedSecrets.subscriptionCheat,
 			existingUser	// triggers finding the existing user at a different email than the one being registered
 		});
 		this.user = await this.userCreator.createUser(this.request.body);
@@ -194,7 +194,7 @@ class RegisterRequest extends RestfulRequest {
 		}
 		// time till expiration can be provided (normally for testing purposes),
 		// or default to configuration
-		let expiresIn = this.api.config.api.confirmationExpiration;
+		let expiresIn = this.api.config.apiServer.confirmationExpiration;
 		if (this.expiresIn && this.expiresIn < expiresIn) {
 			this.warn('Overriding configured confirmation expiration to ' + this.expiresIn);
 			expiresIn = this.expiresIn;
@@ -261,7 +261,7 @@ class RegisterRequest extends RestfulRequest {
 		// this is a security vulnerability
 		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
 			this.responseData = { user: this.user.getSanitizedObjectForMe({ request: this }) };
-			if (this._confirmationCheat === this.api.config.secrets.confirmationCheat) {
+			if (this._confirmationCheat === this.api.config.sharedSecrets.confirmationCheat) {
 				// this allows for testing without actually receiving the email
 				this.log('Confirmation cheat detected, hopefully this was called by test code');
 				this.responseData.user.confirmationCode = this.user.get('confirmationCode');

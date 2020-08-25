@@ -39,7 +39,7 @@ class CommonInit {
 			from: { address: this.users[1].user.email },
 			text: this.postFactory.randomText(),
 			mailFile: 'somefile',	// doesn't really matter
-			secret: this.apiConfig.secrets.mail,
+			secret: this.apiConfig.sharedSecrets.mail,
 			attachments: []
 		};
 		callback();

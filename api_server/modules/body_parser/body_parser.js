@@ -12,7 +12,7 @@ class BodyParserModule extends APIServerModule {
 			
 			// json
 			(request, response, next) => {
-				if (this.api.config.api.mockMode) {
+				if (this.api.config.apiServer.mockMode) {
 					return next();
 				}
 
@@ -26,7 +26,7 @@ class BodyParserModule extends APIServerModule {
 
 			// form-data
 			(request, response, next) => {
-				if (this.api.config.api.mockMode) {
+				if (this.api.config.apiServer.mockMode) {
 					return next();
 				}
 

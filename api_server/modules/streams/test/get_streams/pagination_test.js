@@ -31,8 +31,8 @@ class PaginationTest extends GetStreamsTest {
 			if (error) { return callback(error); }
 
 			// set up additional pagination options
-			this.numStreams = this.defaultPagination ? Math.floor(this.apiConfig.limits.maxStreamsPerRequest * 2.5) : 17;
-			this.streamsPerPage = this.defaultPagination ? this.apiConfig.limits.maxStreamsPerRequest : 5;
+			this.numStreams = this.defaultPagination ? Math.floor(this.apiConfig.apiServer.limits.maxStreamsPerRequest * 2.5) : 17;
+			this.streamsPerPage = this.defaultPagination ? this.apiConfig.apiServer.limits.maxStreamsPerRequest : 5;
 			callback();
 		});
 	}
@@ -78,7 +78,7 @@ class PaginationTest extends GetStreamsTest {
 		if (this.tryOverLimit) {
 			// we'll try to fetch more than the server's limit, we should still get back
 			// the maximum number of streams allowed in a page
-			const limit = this.apiConfig.limits.maxStreamsPerRequest * 2;
+			const limit = this.apiConfig.apiServer.limits.maxStreamsPerRequest * 2;
 			this.path += `&limit=${limit}`;
 		}
 		else if (!this.defaultPagination) {

@@ -1033,7 +1033,7 @@ class SlackReplyFetcher {
 	async openMongoClient () {
 		this.mongoClient = new MongoClient({ collections: COLLECTIONS });
 		try {
-			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().mongo);
+			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().storage.mongo);
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {
@@ -1043,12 +1043,8 @@ class SlackReplyFetcher {
 
 	// open a Pubnub client for broadcasting the changes
 	async openPubnubClient () {
-		let config = Object.assign({}, ApiConfig.getPreferredConfig().pubnub);
-		config.uuid = 'API-' + OS.hostname();
-		this.pubnub = new PubNub(config);
-		this.pubnubClient = new PubNubClient({
-			pubnub: this.pubnub
-		});
+		this.pubnub = new PubNub(Object.assign({}, ApiConfig.getPreferredConfig().broadcastEngine.pubnub, { uuid: 'API-' + OS.hostname() }));
+		this.pubnubClient = new PubNubClient({ pubnub: this.pubnub });
 		await this.pubnubClient.init();
 	}
 }

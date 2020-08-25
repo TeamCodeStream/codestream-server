@@ -61,7 +61,7 @@ class PermalinkCreator {
 
 	// make the actual permalink
 	makePermalink (linkId, isPublic, teamId, isReview) {
-		const origin = this.origin || this.request.api.config.api.publicApiUrl;
+		const origin = this.origin || this.request.api.config.apiServer.publicApiUrl;
 		const linkType = isReview ? 'r' : (isPublic ? 'p' : 'c');
 		linkId = this.encodeLinkId(linkId);
 		teamId = this.encodeLinkId(teamId);

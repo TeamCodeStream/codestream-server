@@ -99,7 +99,7 @@ class PostUserRequest extends PostRequest {
 		this.responseData = { user: user.getSanitizedObject() };
 
 		// send invite code in the response, for testing purposes
-		if (this._confirmationCheat === this.api.config.secrets.confirmationCheat) {
+		if (this._confirmationCheat === this.api.config.sharedSecrets.confirmationCheat) {
 			this.responseData.inviteCode = this.inviteCode;
 		}
 		await super.handleResponse();

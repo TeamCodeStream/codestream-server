@@ -91,8 +91,8 @@ module.exports.createMSTeamsBotFrameworkAdapter = async (request) => {
 	if (initialized) return msTeamsBotFrameworkAdapter;
 
 	msTeamsBotFrameworkAdapter = new BotFrameworkAdapter({
-		appId: request.api.config.msteams.botAppId,
-		appPassword: request.api.config.msteams.botAppPassword
+		appId: request.api.config.integrations.msteams.botAppId,
+		appPassword: request.api.config.integrations.msteams.botAppPassword
 	});
 
 	msTeamsBotFrameworkAdapter.onTurnError = async (context, error) => {

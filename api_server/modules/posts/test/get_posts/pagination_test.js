@@ -24,8 +24,8 @@ class PaginationTest extends GetPostsTest {
 
 			// for default pagination, we'll create "2.5 times the page size" posts,
 			// otherwise we'll do 17 posts in pages of 5
-			this.postOptions.numPosts = this.defaultPagination ? Math.floor(this.apiConfig.limits.maxPostsPerRequest * 2.5) : 17;
-			this.postsPerPage = this.defaultPagination ? this.apiConfig.limits.maxPostsPerRequest : 5;
+			this.postOptions.numPosts = this.defaultPagination ? Math.floor(this.apiConfig.apiServer.limits.maxPostsPerRequest * 2.5) : 17;
+			this.postsPerPage = this.defaultPagination ? this.apiConfig.apiServer.limits.maxPostsPerRequest : 5;
 			this.postOptions.postCreateThrottle = this.mockMode ? 0 : 200;	// slow things down, pubnub gets overwhelmed
 			this.testTimeout = this.postOptions.numPosts * 500 + 20000;
 			callback();
@@ -64,7 +64,7 @@ class PaginationTest extends GetPostsTest {
 		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}`;
 		if (this.tryOverLimit) {
 			// we should get limited to maxPostsPerRequest
-			let limit = this.apiConfig.limits.maxPostsPerRequest * 2;
+			let limit = this.apiConfig.apiServer.limits.maxPostsPerRequest * 2;
 			this.path += `&limit=${limit}`;
 		}
 		else if (!this.defaultPagination) {

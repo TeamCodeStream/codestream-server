@@ -24,7 +24,7 @@ class NoIssuanceTest extends CheckResetTest {
 	makeQueryData () {
 		// replace the token with a reset token that has the other user's email in it
 		const queryData = super.makeQueryData();
-		queryData.token = new TokenHandler(this.apiConfig.secrets.auth).generate({ email: this.users[1].email }, 'rst');
+		queryData.token = new TokenHandler(this.apiConfig.sharedSecrets.auth).generate({ email: this.users[1].email }, 'rst');
 		return queryData;
 	}
 }

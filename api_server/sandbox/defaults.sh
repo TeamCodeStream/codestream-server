@@ -64,3 +64,4 @@ export CS_API_SETUP_MONGO=true
 # Multiple installations possible ($REPO_ROOT/.git/)
 [ -n "$CSBE_TOP" ] && export CS_API_REPO_ROOT=$CSBE_TOP || { . $CS_API_SANDBOX/sb.info; export CS_API_REPO_ROOT=$CS_API_SANDBOX/$SB_REPO_ROOT; }
 [ -z "$CSSVC_BACKEND_ROOT" ] && export CSSVC_BACKEND_ROOT=$CS_API_REPO_ROOT
+return 0

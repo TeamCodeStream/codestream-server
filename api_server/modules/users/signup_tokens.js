@@ -16,7 +16,7 @@ class SignupTokens {
 		if (!this.api) {
 			throw 'API object required for SignupTokens';
 		}
-		this.expirationTime = parseInt(this.api.config.api.signupTokenExpiration, 10);
+		this.expirationTime = parseInt(this.api.config.apiServer.signupTokenExpiration, 10);
 		if (!this.expirationTime) {
 			throw 'no expiration time found for SignupTokens';
 		}

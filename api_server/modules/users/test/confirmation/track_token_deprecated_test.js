@@ -30,8 +30,8 @@ class TrackTokenDeprecatedTest extends CodeStreamMessageTest {
 	registerUser (callback) {
 		const data = this.userFactory.getRandomUserData();
 		Object.assign(data, {
-			_confirmationCheat: this.apiConfig.secrets.confirmationCheat, // gives us the confirmation code in the response
-			_subscriptionCheat: this.apiConfig.secrets.subscriptionCheat, // lets us listen on this user's me-channel
+			_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat, // gives us the confirmation code in the response
+			_subscriptionCheat: this.apiConfig.sharedSecrets.subscriptionCheat, // lets us listen on this user's me-channel
 			_forceConfirmation: true, // overrides developer environment, where confirmation might be turned off
 			wantLink: true
 		});

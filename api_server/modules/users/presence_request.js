@@ -38,7 +38,7 @@ class PresenceRequest extends RestfulRequest {
 		this.responseData = {
 			// we return the away timeout to the client on every call, so the client
 			// can adjust their timer accordingly
-			awayTimeout: this.api.config.api.sessionAwayTimeout
+			awayTimeout: this.api.config.apiServer.sessionAwayTimeout
 		};
 		await new SessionManager({
 			user: this.user,

@@ -16,7 +16,7 @@ class AlreadyRegisteredEmailTest extends ConfirmationEmailTest {
 			if (error) { return callback(error); }
 			this.useEmail = response.user.email;
 			super.makeData(callback);
-		}, { confirmationCheat: this.apiConfig.secrets.confirmationCheat });
+		}, { confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat });
 	}
 
 	// generate the message that starts the test

@@ -22,7 +22,7 @@ class UserNotFound extends ConfirmationWithLinkTest {
 		// run the standard setup for a confirmation, but put in a random uid
 		super.before(error => {
 			if (error) { return callback(error); }
-			const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
+			const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			payload.uid = ObjectID();
 			this.data.token = tokenHandler.generate(payload, 'conf');

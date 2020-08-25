@@ -42,7 +42,7 @@ class Email extends APIServerModule {
 
 		const delay = options.delay ? Math.floor(options.delay / 1000) : 0;
 		await this.api.services.queueService.sendMessage(
-			this.api.config.aws.sqs.outboundEmailQueueName,
+			this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName,
 			message,
 			{ delay }
 		);

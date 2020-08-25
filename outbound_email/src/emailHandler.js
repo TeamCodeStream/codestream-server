@@ -59,7 +59,7 @@ class EmailHandler {
 			options.testCallback = this.testCallback.bind(this);
 		}
 		if (this.message.fromSupport) {
-			options.from = { email: this.outboundEmailHander.config.supportEmail, name: 'CodeStream' };
+			options.from = { email: this.outboundEmailHander.config.email.supportEmail, name: 'CodeStream' };
 		}
 		this.logger.debug('EmailHandler.getSendOptions() returns options:', this.request_id, options);
 		return options;

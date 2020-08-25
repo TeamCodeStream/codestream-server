@@ -97,7 +97,7 @@ function WaitUntilFinished() {
 	let mongoClient, db;
 	try {
 		const config = await ApiConfig.loadPreferredConfig();
-		mongoClient = await MongoClient.connect(config.mongo.url, { useNewUrlParser: true });
+		mongoClient = await MongoClient.connect(config.storage.mongo.url, { useNewUrlParser: true });
 		db = mongoClient.db();
 	}
 	catch (error) {

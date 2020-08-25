@@ -47,8 +47,11 @@ class APIRequestTest extends GenericTest {
 	}
 
 	after (callback) {
+		// FIXME: in this file apiConfig refers to the entire configuration object
+		// not to be confused with OAuthModule where it refers to the provider
+		// integration (sub-)object - we should fix that
 		if (this.ipc) {
-			this.ipc.disconnect(this.apiConfig.ipc.serverId);
+			this.ipc.disconnect(this.apiConfig.apiServer.ipc.serverId);
 		}
 		super.after(callback);
 	}
@@ -59,17 +62,17 @@ class APIRequestTest extends GenericTest {
 				CodeStreamApiConfig = await ApiConfig.loadPreferredConfig();
 			}
 			this.apiConfig = CodeStreamApiConfig;
-			this.usingSocketCluster = this.apiConfig.whichBroadcastEngine === 'codestreamBroadcaster';
+			this.usingSocketCluster = this.apiConfig.broadcastEngine.selected === 'codestreamBroadcaster';
 			callback();
 		})();
 	}
 
 	// connect to IPC in mock mode
 	connectToIpc (callback) {
-		IPC.config.id = this.apiConfig.ipc.clientId;
+		IPC.config.id = this.apiConfig.apiServer.ipc.clientId;
 		IPC.config.silent = true;
-		IPC.connectTo(this.apiConfig.ipc.serverId, () => {
-			IPC.of[this.apiConfig.ipc.serverId].on('response', this.handleIpcResponse.bind(this));
+		IPC.connectTo(this.apiConfig.apiServer.ipc.serverId, () => {
+			IPC.of[this.apiConfig.apiServer.ipc.serverId].on('response', this.handleIpcResponse.bind(this));
 		});
 		this.ipc = IPC;
 		callback();
@@ -79,7 +82,7 @@ class APIRequestTest extends GenericTest {
 	connectedToIpc () {
 		return (
 			this.ipc &&
-			this.ipc.of[this.apiConfig.ipc.serverId]
+			this.ipc.of[this.apiConfig.apiServer.ipc.serverId]
 		);
 	}
 
@@ -103,8 +106,11 @@ class APIRequestTest extends GenericTest {
 		}
 		else {
 			HTTPSBot[method](
-				this.apiConfig.express.host,
-				this.apiConfig.express.port,
+				// FIXME: 'host' was never defined in the config's express object.
+				// I assume it's the host that comes from the publicApiUrl
+				// this.apiConfig.express.host,
+				this.apiConfig.apiServer.publicApiUrlParsed.host,
+				this.apiConfig.apiServer.port,
 				path,
 				data,
 				requestOptions,
@@ -132,7 +138,7 @@ class APIRequestTest extends GenericTest {
 			callback,
 			options: requestOptions
 		};
-		this.ipc.of[this.apiConfig.ipc.serverId].emit('request', message);
+		this.ipc.of[this.apiConfig.apiServer.ipc.serverId].emit('request', message);
 	}
 
 	// handle a request response over IPC, for mock mode

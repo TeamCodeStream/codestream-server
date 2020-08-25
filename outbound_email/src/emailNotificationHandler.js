@@ -111,7 +111,7 @@ class EmailNotificationHandler {
 		// interval has passed since the post's creation
 		else {
 			const timeSinceTriggerTime = this.processingStartedAt - this.message.initialTriggerTime;
-			if (timeSinceTriggerTime <= this.outboundEmailServer.config.sessionAwayTimeout) {
+			if (timeSinceTriggerTime <= this.outboundEmailServer.config.apiServer.sessionAwayTimeout) {
 				this.log(`Mopping up offline users for stream ${this.stream._id}...`);
 				this.fromSeqNum = this.message.seqNum;
 				initialTriggerTime = this.message.initialTriggerTime;
@@ -127,11 +127,11 @@ class EmailNotificationHandler {
 			seqNum: this.fromSeqNum,
 			initialTriggerTime
 		};
-		const delay = Math.floor(this.outboundEmailServer.config.notificationInterval / 1000);
+		const delay = Math.floor(this.outboundEmailServer.config.email.notificationInterval / 1000);
 		this.log(`Triggering email notifications for stream ${this.stream.id} in ${delay} seconds...`);
 		try {
 			await this.queuer.sendMessage(
-				this.outboundEmailServer.config.outboundEmailQueueName,
+				this.outboundEmailServer.config.queuingEngine[this.outboundEmailServer.config.queuingEngine.selected].outboundEmailQueueName,
 				message,
 				{ delay: delay }
 			);

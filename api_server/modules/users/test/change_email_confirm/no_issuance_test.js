@@ -24,7 +24,7 @@ class NoIssuanceTest extends ChangeEmailConfirmTest {
 	setData (callback) {
 		// replace the token with an email token that has the other user's ID in it
 		super.setData(() => {
-			const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
+			const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			payload.uid = this.users[1].user.id;
 			this.data.token = tokenHandler.generate(payload, 'email');

@@ -26,7 +26,7 @@ class GetDeactivatedUsersTest extends GetUsersByTeamIdTest {
 				path: '/users/' + this.deactivatedUser.id,
 				token: this.token,
 				headers: {
-					'x-delete-user-secret': this.apiConfig.secrets.confirmationCheat
+					'x-delete-user-secret': this.apiConfig.sharedSecrets.confirmationCheat
 				}
 			},
 			callback

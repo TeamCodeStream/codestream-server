@@ -33,7 +33,7 @@ class CodemarkLinkTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const { permalink } = data;
 		this.permalink = permalink;
 		const type = this.permalinkType === 'public' ? 'p' : 'c';
-		const origin = this.apiConfig.api.publicApiUrl.replace(/\//g, '\\/');
+		const origin = this.apiConfig.apiServer.publicApiUrl.replace(/\//g, '\\/');
 		const regex = `^${origin}\\/${type}\\/([A-Za-z0-9_-]+)\\/([A-Za-z0-9_-]+)$`;
 		const match = permalink.match(new RegExp(regex));
 		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);

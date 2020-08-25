@@ -47,7 +47,7 @@ class TestTeamCreator {
 
 	createRegisteredUser (n, callback) {
 		const data = this.test.userFactory.getRandomUserData();
-		data._confirmationCheat = this.test.apiConfig.secrets.confirmationCheat;
+		data._confirmationCheat = this.test.apiConfig.sharedSecrets.confirmationCheat;
 		Object.assign(data, (this.userOptions.userData || [])[n] || {});
 		this.test.userFactory.createUser(
 			data,

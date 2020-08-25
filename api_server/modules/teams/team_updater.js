@@ -34,7 +34,7 @@ class TeamUpdater extends ModelUpdater {
 	validateAttributes () {
 		if (
 			this.attributes.providerHosts &&
-			this.attributes._confirmationCheat !== this.api.config.secrets.confirmationCheat
+			this.attributes._confirmationCheat !== this.api.config.sharedSecrets.confirmationCheat
 		) {
 			// this is only for test purposes, for now, so can only be done with cheat code
 			delete this.attributes.providerHosts;

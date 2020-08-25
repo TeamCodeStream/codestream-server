@@ -81,10 +81,10 @@ class Posts extends Restful {
 		// create a queue for handling messages concerning triggering the interval
 		// timer for email notifications
 		if (!this.api.services.queueService) { return; }
-		if (!this.api.config.aws.sqs.outboundEmailQueueName) { return; }
+		if (!this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName) { return; }
 		await TryIndefinitely(async () => {
 			await this.api.services.queueService.createQueue({
-				name: this.api.config.aws.sqs.outboundEmailQueueName,
+				name: this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName,
 				logger: this.api
 			});
 		}, 5000, this.api, 'Unable to create outbound email queue, retrying...');

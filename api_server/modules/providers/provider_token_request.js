@@ -81,7 +81,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// mock token must be accompanied by secret
-		if (this.request.query._mockToken && decodeURIComponent(this.request.query._secret || '') !== this.api.config.secrets.confirmationCheat) {
+		if (this.request.query._mockToken && decodeURIComponent(this.request.query._secret || '') !== this.api.config.sharedSecrets.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete this.request.query._mockToken;
 			delete this.request.query._mockEmail;
@@ -201,7 +201,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (!this.serviceAuth.exchangeRequired()) {
 			return;
 		}
-		const { authOrigin } = this.api.config.api;
+		const { authOrigin } = this.api.config.apiServer;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		const options = {
 			code: this.request.query.code || '',
@@ -397,6 +397,13 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// send the response html
 	async sendResponse () {
+		// FIXME: webclient doesn't exist in the config. Marking host still does, but it's
+		// been under the apiServer section for ages - not sure how this has been working,
+		// nor what it's doing. How does 'host' get set with this kind of syntax? It looks
+		// as if host should evaluate to a boolean.
+		//
+		// I think the code should be this but I'm not sure.
+		// const host = this.api.config.apiServer.marketingHost;
 		const host = this.api.config.webclient && this.api.config.webclient.marketingHost;
 		const authCompletePage = this.serviceAuth.getAuthCompletePage();
 		const redirect = this.tokenPayload && this.tokenPayload.url ?
@@ -417,7 +424,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			this.user.get('accessTokens').web.token;
 		if (!token) { return; }
 
-		this.response.cookie(this.api.config.api.identityCookie, token, {
+		this.response.cookie(this.api.config.apiServer.identityCookie, token, {
 			secure: true,
 			signed: true
 		});

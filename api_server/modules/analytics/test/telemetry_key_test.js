@@ -22,12 +22,12 @@ class TelemetryKeyTest extends CodeStreamAPITest {
 	}
 
 	get path () {
-		return `/no-auth/telemetry-key?secret=${encodeURIComponent(this.apiConfig.secrets.telemetry)}`;
+		return `/no-auth/telemetry-key?secret=${encodeURIComponent(this.apiConfig.sharedSecrets.telemetry)}`;
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.equal(data.key, this.apiConfig.segment.token, 'returned token is not correct');
+		Assert.equal(data.key, this.apiConfig.telemetry.segment.token, 'returned token is not correct');
 	}
 }
 

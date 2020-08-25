@@ -12,8 +12,10 @@ class OAuthModule extends APIServerModule {
 
 	services () {
 		const { provider } = this.oauthConfig;
-		this.apiConfig = this.api.config[provider];
-		if (!this.apiConfig) {
+		this.apiConfig = this.api.config.integrations[provider];
+		// This should _never_ evaluate to true. If it does, we're missing defaults
+		// for the provider in custom_config.js and you should definitely fix that!
+		if (!this.apiConfig) { 
 			this.api.warn(`No configuration for ${provider}, auth service will be unavailable`);
 			return;
 		}
@@ -25,6 +27,7 @@ class OAuthModule extends APIServerModule {
 
 	async initialize () {
 		if (this.apiConfig) {
+			// FIXME: localProviders is never defined anywhere (including the config)
 			this.enterpriseConfig = this.apiConfig.localProviders;
 		}
 	}
@@ -138,7 +141,7 @@ class OAuthModule extends APIServerModule {
 		if (!tokenFromFragment) { return; }
 		const { request, state, mockToken } = options;
 		const { response } = request;
-		const { authOrigin } = this.api.config.api;
+		const { authOrigin } = this.api.config.apiServer;
 		let tokenParams = {};
 		if (mockToken || request.request.query.token) {
 			if (mockToken) {

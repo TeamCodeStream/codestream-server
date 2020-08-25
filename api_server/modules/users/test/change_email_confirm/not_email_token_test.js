@@ -19,7 +19,7 @@ class NotEmailTokenTest extends ChangeEmailConfirmTest {
 	setData (callback) {
 		// replace the token with a token with a bogus type
 		super.setData(() => {
-			const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
+			const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
 			this.data.token = tokenHandler.generate(payload, 'xyz');
 			callback();

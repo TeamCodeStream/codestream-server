@@ -46,7 +46,7 @@ class InviteCodeTest extends RegistrationTest {
 					teamId: this.team.id,
 					email: this.data.email,
 					_pubnubUuid: this.data._pubnubUuid,
-					_confirmationCheat: this.apiConfig.secrets.confirmationCheat,
+					_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat,
 					_inviteCodeExpiresIn: this.inviteCodeExpiresIn
 				},
 				token: this.token

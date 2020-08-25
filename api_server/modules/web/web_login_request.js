@@ -28,7 +28,7 @@ class WebLoginRequest extends APIRequest {
 			gitHubLink += `&url=${finishUrl}`;
 		}
 		const oktaLink = `/web/configure-okta?url=${finishUrl}`;
-		const oktaEnabled = !!this.api.config.okta.appClientId;
+		const oktaEnabled = !!this.api.config.integrations.okta.appClientId;
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,

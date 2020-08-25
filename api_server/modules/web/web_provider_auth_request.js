@@ -32,7 +32,7 @@ class WebProviderAuthRequest extends APIRequest {
 		const expiresAt = Date.now() + expiresIn;
 		const payload = {
 			userId: 'anon',
-			url: `${this.api.config.api.publicApiUrl}/web/provider-auth-complete/${this.provider}`
+			url: `${this.api.config.apiServer.publicApiUrl}/web/provider-auth-complete/${this.provider}`
 		};
 		const payloadMappings = {
 			teamId: 'teamId',
@@ -61,7 +61,7 @@ class WebProviderAuthRequest extends APIRequest {
 		});
 
 		// set up options for initiating a redirect 
-		const { authOrigin, callbackEnvironment } = this.api.config.api;
+		const { authOrigin, callbackEnvironment } = this.api.config.apiServer;
 		let state = `${callbackEnvironment}!${code}`;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		const options = {

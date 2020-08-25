@@ -30,7 +30,7 @@ class TeamMerger {
 	async openMongoClient () {
 		this.mongoClient = new MongoClient({ collections: COLLECTIONS });
 		try {
-			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().mongo);
+			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().storage.mongo);
 		}
 		catch (error) {
 			throw `unable to open mongo client: ${JSON.stringify(error)}`;

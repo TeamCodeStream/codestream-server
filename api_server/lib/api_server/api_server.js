@@ -13,14 +13,20 @@ const FS = require('fs');
 const AwaitUtils = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const IPCResponse = require('./ipc_response');
 
+// The APIServer is instantiated via the cluster wrapper.
+// Options are passed through from the ClusterWrapper() call made in the
+// main block.
+//
+// These options are required and are promoted to first class properties
+// of the server object:
+//   config: the global configuration
+//   logger: a simple_file_logger object
 class APIServer {
 
 	constructor (options) {
 		this.serverOptions = options;
 		this.config = options.config || {};
-		if (!this.config.noLogging) {
-			this.logger = options.logger || console;
-		}
+		this.logger = options.logger || console;
 		this.express = Express();
 		this.services = {};
 		this.integrations = {};
@@ -88,7 +94,7 @@ class APIServer {
 	// register all middleware functions
 	registerMiddleware () {
 		this.log('Registering middleware...');
-		if (this.config.api.mockMode) {
+		if (this.config.apiServer.mockMode) {
 			return this.registerMiddlewareForIpc();
 		}
 		this.express.use(this.setupRequest.bind(this));	// this is always first in the middleware chain
@@ -160,7 +166,7 @@ class APIServer {
 		if (!(middleware instanceof Array)) {
 			middleware = [middleware];
 		}
-		if (this.config.api.mockMode) {
+		if (this.config.apiServer.mockMode) {
 			return this.registerRouteForIpc(routeObject, middleware);
 		}
 		const args = [ routeObject.path, ...middleware, routeObject.func];
@@ -169,31 +175,31 @@ class APIServer {
 
 	// start listening for requests!
 	listen (callback) {
-		if (this.config.api.mockMode) {
+		if (this.config.apiServer.mockMode) {
 			this.listenToIpc();
 		}
 		const serverOptions = this.getServerOptions();
 		if (typeof serverOptions === 'string') {
 			return callback('failed to make server options: ' + serverOptions);
 		}
-		if (this.config.express.https && !this.config.express.ignoreHttps) {
+		if (this.config.ssl && !this.config.apiServer.ignoreHttps) {
 			this.log('Creating HTTPS server...');
 			this.expressServer = HTTPS.createServer(
 				serverOptions,
 				this.express
-			).listen(this.config.express.port);
+			).listen(this.config.apiServer.port);
 		}
 		else {
 			this.log('Creating HTTP server...');
 			this.expressServer = HTTP.createServer(
 				this.express
-			).listen(this.config.express.port);
+			).listen(this.config.apiServer.port);
 		}
 		this.expressServer.on('error', (error) => {
-			return callback(`Unable to start server on port ${this.config.express.port}: ${error}`);
+			return callback(`Unable to start server on port ${this.config.apiServer.port}: ${error}`);
 		});
 		this.expressServer.on('listening', () => {
-			this.log(`Listening on port ${this.config.express.port}...`);
+			this.log(`Listening on port ${this.config.apiServer.port}...`);
 			callback();
 		});
 	}
@@ -217,29 +223,29 @@ class APIServer {
 	makeHttpsOptions (options) {
 		// read in key and cert file
 		if (
-			this.config.express.https &&
-			this.config.express.https.keyfile &&
-			this.config.express.https.certfile
+			this.config.ssl &&
+			this.config.ssl.keyfile &&
+			this.config.ssl.certfile
 		) {
 			try {
-				options.key = FS.readFileSync(this.config.express.https.keyfile);
+				options.key = FS.readFileSync(this.config.ssl.keyfile);
 			}
 			catch(error) {
-				return 'could not read private key file: ' + this.config.express.https.keyfile + ': ' + error;
+				return 'could not read private key file: ' + this.config.ssl.keyfile + ': ' + error;
 			}
 			try {
-				options.cert = FS.readFileSync(this.config.express.https.certfile);
+				options.cert = FS.readFileSync(this.config.ssl.certfile);
 			}
 			catch(error) {
-				return 'could not read certificate file: ' + this.config.express.https.certfile + ': ' + error;
+				return 'could not read certificate file: ' + this.config.ssl.certfile + ': ' + error;
 			}
-			if (this.config.express.https.cafile) {
+			if (this.config.ssl.cafile) {
 				let caCertificate;
 				try {
-					caCertificate = FS.readFileSync(this.config.express.https.cafile);
+					caCertificate = FS.readFileSync(this.config.ssl.cafile);
 				}
 				catch(error) {
-					return 'could not read certificate chain file: ' + this.config.express.https.cafile + ': ' + error;
+					return 'could not read certificate chain file: ' + this.config.ssl.cafile + ': ' + error;
 				}
 				options.ca = caCertificate;
 			}

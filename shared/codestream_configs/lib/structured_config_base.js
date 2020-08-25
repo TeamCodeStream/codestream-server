@@ -3,6 +3,7 @@
 const util = require('util');
 const fs = require('fs');
 const hjson = require('hjson');
+const StringifySortReplacer = require('../../server_utils/stringify_sort_replacer');
 
 const schemas = {};     // schema cache
 
@@ -121,7 +122,7 @@ class StructuredConfigBase {
 				this.showConfig = this.getProperty(this.showConfigProperty);
 			}
 			if (this.showConfig) {
-				console.log('Config:', JSON.stringify(this.getPreferredConfig(), undefined, 10));
+				console.log('Config:', JSON.stringify(this.getPreferredConfig(), StringifySortReplacer, 4));
 			}
 		}
 		else {

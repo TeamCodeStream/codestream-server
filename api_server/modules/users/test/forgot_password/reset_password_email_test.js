@@ -67,7 +67,7 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 		if (!gotMessage.type) { return false; }	// ignore anything not matching
 
 		// verify a match to the url
-		const host = this.apiConfig.api.publicApiUrl.replace(/\//g, '\\/');
+		const host = this.apiConfig.apiServer.publicApiUrl.replace(/\//g, '\\/');
 		const shouldMatch = `${host}\\/web\\/user\\/password\\?token=(.*)$`;
 		const regex = new RegExp(shouldMatch);
 		const match = gotMessage.url.match(regex);

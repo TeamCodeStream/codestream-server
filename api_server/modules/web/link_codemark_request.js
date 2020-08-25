@@ -478,7 +478,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 				createdAtRaw: createdAtRaw,	
 				createdAtIso: new Date(createdAtRaw).toISOString()				
 			},
-			segmentKey: this.api.config.segment.webToken
+			segmentKey: this.api.config.telemetry.segment.webToken
 		};
 
 		if (this.request.query.identify) {

@@ -12,9 +12,13 @@ const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 // start up the master, this will launch workers to really get down to work
 (async function() {
 	const Config = await BroadcasterConfig.loadPreferredConfig();
+	if (Config.broadcastEngine.selected !== 'codestreamBroadcaster') {
+		console.error('this configuration does not support the codestream broadcaster');
+		process.exit(1);
+	}
 
 	// establish our logger
-	const Logger = new SimpleFileLogger(Config.logger);
+	const Logger = new SimpleFileLogger(Config.broadcastEngine.codestreamBroadcaster.logger);
 
 	// invoke a node cluster master with our configurations provided
 	const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/broadcaster/lib/broadcaster_server');

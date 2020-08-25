@@ -113,7 +113,7 @@ class IdentityMatchCommonInit {
 			code: this.code,
 			state: this.state,
 			_mockToken: this.mockToken,
-			_secret: this.apiConfig.secrets.confirmationCheat
+			_secret: this.apiConfig.sharedSecrets.confirmationCheat
 		};
 	}
 

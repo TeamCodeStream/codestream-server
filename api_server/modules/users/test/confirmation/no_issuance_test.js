@@ -31,12 +31,12 @@ class NoIssuanceTest extends ConfirmationWithLinkTest {
 			if (error) { return callback(error); }
 			this.otherUser = response.user;
 			callback();
-		}, { confirmationCheat: this.apiConfig.secrets.confirmationCheat });
+		}, { confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat });
 	}
 
 	// change the token to reference the other user
 	changeToken (callback) {
-		const tokenHandler = new TokenHandler(this.apiConfig.secrets.auth);
+		const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 		const payload = tokenHandler.decode(this.data.token);
 		payload.uid = this.otherUser.id;
 		this.data.token = tokenHandler.generate(payload, 'conf');

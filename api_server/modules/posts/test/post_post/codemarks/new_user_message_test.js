@@ -33,7 +33,7 @@ class NewUserMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) 
 
 	createRegisteredUser (callback) {
 		const data = this.userFactory.getRandomUserData();
-		data._confirmationCheat = this.apiConfig.secrets.confirmationCheat;
+		data._confirmationCheat = this.apiConfig.sharedSecrets.confirmationCheat;
 		this.userFactory.createUser(
 			data,
 			(error, response) => {
@@ -46,7 +46,7 @@ class NewUserMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) 
 
 	addNewUserEmail (callback) {
 		this.data.addedUsers = [this.addedUser.user.email];
-		this.data._subscriptionCheat = this.apiConfig.secrets.subscriptionCheat;
+		this.data._subscriptionCheat = this.apiConfig.sharedSecrets.subscriptionCheat;
 		callback();
 	}
 

@@ -26,7 +26,7 @@ class UserNotFoundTest extends InviteInfoTest {
 					path: '/users/' + this.invitedUser.id,
 					requestOptions: {
 						headers: {
-							'X-Delete-User-Secret': this.apiConfig.secrets.confirmationCheat
+							'X-Delete-User-Secret': this.apiConfig.sharedSecrets.confirmationCheat
 						}
 					},
 					token: this.token

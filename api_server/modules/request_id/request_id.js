@@ -10,7 +10,7 @@ class RequestID extends APIServerModule {
 
 	middlewares () {
 		return (request, response, next) => {
-			if (this.api.config.api.mockMode) {
+			if (this.api.config.apiServer.mockMode) {
 				request.id = UUID();
 				return next();
 			}

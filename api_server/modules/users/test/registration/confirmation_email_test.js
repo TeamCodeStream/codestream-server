@@ -22,7 +22,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 	makeData (callback) {
 		this.data = this.userFactory.getRandomUserData();
 		this.data.email = this.useEmail || this.data.email; // allow sub-class override
-		this.data._subscriptionCheat = this.apiConfig.secrets.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
+		this.data._subscriptionCheat = this.apiConfig.sharedSecrets.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
 		this.data._delayEmail = this.usingSocketCluster ? 1000 : (this.mockMode ? 300 : 8000);	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
 		if (this.wantLink) {
 			this.data.wantLink = true;

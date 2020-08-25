@@ -12,14 +12,23 @@ const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 const OS = require('os');
 const Express = require('express');
 
+// The BroadcasterServer is instantiated via the cluster wrapper.
+// Options are passed through from the ClusterWrapper() call made in the
+// main block.
+//
+// These options are required and are promoted to first class properties
+// of the server object:
+//   config: the global configuration
+//   logger: a simple_file_logger object
+//
+// Other options (serverOptions):
+//   dontListen: true will prevent calling the startListening() method
 class BroadcasterServer {
 
 	constructor (options = {}) {
 		this.serverOptions = options;
 		this.config = options.config || {};
-		if (!this.config.noLogging) {
-			this.logger = options.logger || console;
-		}
+		this.logger = options.logger || console;
 		this.socketsByUserId = {};
 		this.userIdsByTeamChannel = {};
 		this.numOpenRequests = 0;
@@ -32,7 +41,7 @@ class BroadcasterServer {
 		this.workerId = 1;
 		this.setListeners();
 		await this.connectToMongo();
-		if (!this.config.dontListen) {
+		if (!this.serverOptions.dontListen) {
 			await this.startListening();
 		}
 	}
@@ -49,10 +58,10 @@ class BroadcasterServer {
 		this.mongoClient = new MongoClient({ 
 			tryIndefinitely: true,
 			collections,
-			logger: this
+			logger: this	// FIXME: this can't be good
 		});
 		try {
-			await this.mongoClient.openMongoClient(this.config.mongo);
+			await this.mongoClient.openMongoClient(this.config.storage.mongo);
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {
@@ -65,9 +74,13 @@ class BroadcasterServer {
 
 	// start listening for messages
 	async startListening () {
-		const { ignoreHttps } = this.config.https;
+<<<<<<< Updated upstream
+		const ignoreHttps = this.config.broadcastEngine.codestreamBroadcaster.ignoreHttps;
+=======
+		const { ignoreHttps } = this.config.broadcastEngine.codestreamBroadcaster.ignoreHttps;
+>>>>>>> Stashed changes
 		const socketClusterOptions = {
-			authKey: this.config.secrets.auth
+			authKey: this.config.broadcastEngine.codestreamBroadcaster.secrets.auth
 		};
 		const options = ignoreHttps ? {} : this.makeHttpsOptions();
 		const protocol = ignoreHttps ? HTTP : HTTPS;
@@ -77,8 +90,8 @@ class BroadcasterServer {
 		if (ignoreHttps) {
 			this.log('Broadcaster not using SSL');
 		}
-		this.log(`Broadcaster listening on port ${this.config.https.port}`);
-		httpsServer.listen(this.config.https.port);
+		this.log(`Broadcaster listening on port ${this.config.broadcastEngine.codestreamBroadcaster.port.toString()}`);
+		httpsServer.listen(this.config.broadcastEngine.codestreamBroadcaster.port.toString());
 
 		this.express.get('/no-auth/status', ((req, res) => {
 			res.send('OK');
@@ -265,7 +278,7 @@ class BroadcasterServer {
 	// validate a token associated with a socket connection
 	async validateToken (token, uid, subscriptionCheat) {
 		// API connections are special and require a secret
-		if (uid === 'API' && token === this.config.secrets.api) {
+		if (uid === 'API' && token === this.config.broadcastEngine.codestreamBroadcaster.secrets.api) {
 			return;
 		}
 
@@ -285,7 +298,7 @@ class BroadcasterServer {
 		// verify the provided token matches their stored token
 		if (token !== user.broadcasterToken) {
 			// special condition for integration tests
-			if (subscriptionCheat === this.config.secrets.subscriptionCheat) {
+			if (subscriptionCheat === this.config.sharedSecrets.subscriptionCheat) {
 				this.warn('NOTE: Allowing subscription with user ID, this had better be a test!!!');
 			}
 			else {
@@ -583,11 +596,11 @@ class BroadcasterServer {
 	// older than the retention period should to a full reload instead
 	sweepOldMessages () {
 		const now = Date.now();
-		const cutoff = now - this.config.history.retentionPeriod;
+		const cutoff = now - this.config.broadcastEngine.codestreamBroadcaster.history.retentionPeriod;
 		const query = {
 			timestamp: { $lt: cutoff }
 		};
-		if (!this.lastSweep || this.lastSweep < now - this.config.history.sweepPeriod) {
+		if (!this.lastSweep || this.lastSweep < now - this.config.broadcastEngine.codestreamBroadcaster.history.sweepPeriod) {
 			if (!this.data || !this.data.messages) {
 				return;
 			}
@@ -724,29 +737,29 @@ class BroadcasterServer {
 		const options = {};
 		// read in key and cert file
 		if (
-			this.config.https &&
-			this.config.https.keyfile &&
-			this.config.https.certfile
+			this.config.ssl &&
+			this.config.ssl.keyfile &&
+			this.config.ssl.certfile
 		) {
 			try {
-				options.key = FS.readFileSync(this.config.https.keyfile);
+				options.key = FS.readFileSync(this.config.ssl.keyfile);
 			}
 			catch (error) {
-				throw 'could not read private key file: ' + this.config.https.keyfile + ': ' + error;
+				throw 'could not read private key file: ' + this.config.ssl.keyfile + ': ' + error;
 			}
 			try {
-				options.cert = FS.readFileSync(this.config.https.certfile);
+				options.cert = FS.readFileSync(this.config.ssl.certfile);
 			}
 			catch (error) {
-				throw 'could not read certificate file: ' + this.config.https.certfile + ': ' + error;
+				throw 'could not read certificate file: ' + this.config.ssl.certfile + ': ' + error;
 			}
-			if (this.config.https.cafile) {
+			if (this.config.ssl.cafile) {
 				let caCertificate;
 				try {
-					caCertificate = FS.readFileSync(this.config.https.cafile);
+					caCertificate = FS.readFileSync(this.config.ssl.cafile);
 				}
 				catch (error) {
-					throw 'could not read certificate chain file: ' + this.config.https.cafile + ': ' + error;
+					throw 'could not read certificate chain file: ' + this.config.ssl.cafile + ': ' + error;
 				}
 				options.ca = caCertificate;
 			}
@@ -767,6 +780,7 @@ class BroadcasterServer {
 		}
 		else if (message.youAre) {
 			// master is telling us our worker ID and helping us identify ourselves in the logs
+			// FIXME: it is not clear what this config object / config.logger object represents
 			this.workerId = message.youAre;
 			if (this.config.logger) {
 				this.loggerId = 'W' + this.workerId;

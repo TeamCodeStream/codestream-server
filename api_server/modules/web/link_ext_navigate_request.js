@@ -25,7 +25,7 @@ class ExtensionNavigateRequest extends WebRequestBase {
 				ide: 'default',
 				debug: this.request.query.debug === 'true'
 			},
-			segmentKey: this.api.config.segment.webToken,
+			segmentKey: this.api.config.telemetry.segment.webToken,
 			partial_launcher_model: this.createLauncherModel(undefined),
 		};
 		await super.render('ext_navigate', templateProps);

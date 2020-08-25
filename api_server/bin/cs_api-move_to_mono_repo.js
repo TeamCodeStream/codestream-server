@@ -59,7 +59,7 @@ class RepoMerger {
 	async openMongoClient () {
 		this.mongoClient = new MongoClient({ collections: COLLECTIONS });
 		try {
-			await this.mongoClient.openMongoClient(this.config.mongo);
+			await this.mongoClient.openMongoClient(this.config.storage.mongo);
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {

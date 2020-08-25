@@ -53,13 +53,13 @@ const queryCollection = async function(csDb, collection, query) {
 	// console.log('connecting...');
 	try {
 		await ApiConfig.loadPreferredConfig();
-		db = await MongoClient.connect(ApiConfig.getPreferredConfig().mongo.url);
+		db = await MongoClient.connect(ApiConfig.getPreferredConfig().storage.mongo.url);
 	}
 	catch (error) {
 		console.log('mongo connect error', error);
 		process.exit(1);
 	}
-	let csDb = db.db(ApiConfig.getPreferredConfig().mongo.database);
+	let csDb = db.db(ApiConfig.getPreferredConfig().storage.mongo.database);
 
 	// find matching companies
 	let query = Commander.companyId ?

@@ -495,7 +495,7 @@ class EmailNotificationV2Handler {
 		Object.assign(this.renderOptions, {
 			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
-			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailDisabled,
+			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailServer.inboundEmailDisabled,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
 			needButtons: !!this.parentPost || review || (codemark.markerIds || []).length === 1,
 			isReply: !!this.post.parentPostId,
@@ -535,7 +535,7 @@ class EmailNotificationV2Handler {
 	getUnfollowLink (user, thingToUnfollow, isReview) {
 		const expiresIn = this.expiresIn || 30 * 24 * 60 * 60 * 1000; // one month
 		const expiresAt = Date.now() + expiresIn;
-		const token = new TokenHandler(this.outboundEmailServer.config.tokenSecret).generate(
+		const token = new TokenHandler(this.outboundEmailServer.config.sharedSecrets.auth).generate(
 			{
 				uid: user.id
 			},
@@ -545,7 +545,7 @@ class EmailNotificationV2Handler {
 			}
 		);
 		const reviewPathPart = isReview ? 'review/' : '';
-		return `${this.outboundEmailServer.config.apiUrl}/no-auth/unfollow-link/${reviewPathPart}${thingToUnfollow.id}?t=${token}`;
+		return `${this.outboundEmailServer.config.apiServer.publicApiUrl}/no-auth/unfollow-link/${reviewPathPart}${thingToUnfollow.id}?t=${token}`;
 	}
 
 	// send all the email notifications 

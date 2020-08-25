@@ -37,6 +37,10 @@ class SocketClusterClient {
 
 	// authorize the connection with the socketcluster server
 	async authorizeConnection () {
+		// FIXME: this is a potential problem - I've not seen subscriptionCheat passed in to the
+		//        SocketClusterClient constructor anywhere and the config property does not
+		//        represent the global config!  In other words, this.config.subscriptionCheat
+		//        is never defined!
 		this._log('Authorizing socketcluster connection...');
 		try {
 			await this.socket.invoke('auth', {

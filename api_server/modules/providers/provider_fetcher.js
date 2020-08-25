@@ -16,7 +16,7 @@ class ProviderFetcher {
 	}
 
 	getStandardThirdPartyProviders () {
-		const providers = this.request.api.config.api.thirdPartyProviders || [];
+		const providers = this.request.api.config.apiServer.thirdPartyProviders || [];
 		this.standardProviders = providers.reduce((prev, provider) => {
 			const service = `${provider}Auth`;
 			const serviceAuth = this.request.api.services[service];

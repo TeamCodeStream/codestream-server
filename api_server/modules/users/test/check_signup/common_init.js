@@ -23,8 +23,8 @@ class CommonInit {
 		this.signupToken = UUID();
 		const userData = this.userFactory.getRandomUserData();
 		userData.wantLink = true;   // we'll get back a confirmation link 
-		userData._confirmationCheat = this.apiConfig.secrets.confirmationCheat;  // cheat code to get back the confirmation link 
-		userData._subscriptionCheat = this.apiConfig.secrets.subscriptionCheat;
+		userData._confirmationCheat = this.apiConfig.sharedSecrets.confirmationCheat;  // cheat code to get back the confirmation link 
+		userData._subscriptionCheat = this.apiConfig.sharedSecrets.subscriptionCheat;
 		userData.signupToken = this.signupToken;
 		userData.expiresIn = this.expiresIn;
 		this.data = { token: this.signupToken };

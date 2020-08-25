@@ -24,7 +24,7 @@ class UserExistsTest extends RegistrationTest {
 				if (error) { return callback(error); }
 				this.data = this.userFactory.getRandomUserData();
 				this.data.email = data.user.email;
-				this.data._confirmationCheat = this.apiConfig.secrets.confirmationCheat;
+				this.data._confirmationCheat = this.apiConfig.sharedSecrets.confirmationCheat;
 				this.expectedVersion = 2;	// version will be bumped
 				callback();
 			},
