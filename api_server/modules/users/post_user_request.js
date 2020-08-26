@@ -75,7 +75,7 @@ class PostUserRequest extends PostRequest {
 		});
 
 		const userData = {
-			email: this.request.body.email
+			email: this.request.body.email.trim()
 		};
 		['fullName', '_pubnubUuid'].forEach(attribute => {
 			if (this.request.body[attribute]) {

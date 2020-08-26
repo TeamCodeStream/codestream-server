@@ -57,9 +57,10 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const expectedUsername = this.getExpectedUsername();
 		const expectedFullName = this.getExpectedFullName();
 		const expectedCreatorId = this.getExpectedCreatorId();
+		const expectedEmail = this.data.email.trim();
 		const result = (
 			((user.id === user._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
-			((user.email === this.data.email) || errors.push('incorrect email')) &&
+			((user.email === expectedEmail) || errors.push('incorrect email')) &&
 			((user.username === expectedUsername) || errors.push('username is not the first part of the email')) &&
 			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
 			((user.fullName === expectedFullName) || errors.push('incorrect full name')) &&
@@ -92,7 +93,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			return this.existingUserData.user.username;
 		}
 		else {
-			return this.expectedUsername || EmailUtilities.parseEmail(this.data.email).name;
+			return this.expectedUsername || EmailUtilities.parseEmail(this.data.email.trim()).name;
 		}
 	}
 

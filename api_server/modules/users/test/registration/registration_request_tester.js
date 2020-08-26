@@ -24,6 +24,7 @@ const InviteCodeExpiredTest = require('./invite_code_expired_test');
 const InviteCodeRemovedAfterUseTest = require('./invite_code_removed_after_use_test');
 const AlreadyInvitedTest = require('./already_invited_test');
 const InvitedUserMessageToTeamTest = require('./invited_user_message_to_team_test');
+const TrimEmailTest = require('./trim_email_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -60,6 +61,7 @@ class RegistrationRequestTester {
 		new InviteCodeRemovedAfterUseTest().test();
 		new AlreadyInvitedTest().test();
 		new InvitedUserMessageToTeamTest().test();
+		new TrimEmailTest().test();
 	}
 }
 

@@ -58,7 +58,6 @@ class RegisterRequest extends RestfulRequest {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
 		});
-
 		await this.requireAllowParameters(
 			'body',
 			{
@@ -73,6 +72,8 @@ class RegisterRequest extends RestfulRequest {
 				}
 			}
 		);
+
+		this.request.body.email = this.request.body.email.trim();
 	}
 
 	// get the user associated with an invite code, as needed
