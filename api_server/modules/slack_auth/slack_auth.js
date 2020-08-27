@@ -42,6 +42,14 @@ class SlackAuth extends OAuthModule {
 		}).exchangeAndAuthorize();
 	}
 
+	// overrides OAuthModule.getClientInfo to use "sharing model" app
+	getClientInfo(options) {
+		const info = super.getClientInfo(options);
+		info.clientId = this.apiConfig.appSharingClientId;
+		info.clientSecret = this.apiConfig.appSharingClientSecret;
+		return info;
+	}
+
 	validateChannelName (name) {
 		if (name.match(/[^a-z0-9-_[\]{}\\/]/)) {
 			return 'illegal characters in channel name';
