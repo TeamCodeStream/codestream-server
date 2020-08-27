@@ -1,5 +1,15 @@
 # Change Log
 
+## [8.2.3] - 2020-8-27
+
+### Changed
+
+- Automatically strip trailing spaces off of email addresses
+
+### Fixed
+
+- Fixes an issue with incorrect scopes with the CodeStream Slack app
+
 ## [8.2.2] - 2020-8-19
 
 ### Fixed
