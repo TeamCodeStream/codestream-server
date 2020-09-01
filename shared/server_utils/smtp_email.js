@@ -14,19 +14,15 @@ class SMTPEmail {
 		// FIXME: these properties don't exist in the global config!! I'm guessing
 		// they're for NodeMailer
 		const transportOptions = {
-			// service: this.config.service,
-			// host: this.config.host,
-			// port: this.config.port,
-			// secure: this.config.secure
-			service: this.config.emailDeliveryService.NodeMailer.service,
-			host: this.config.emailDeliveryService.NodeMailer.host,
-			port: this.config.emailDeliveryService.NodeMailer.port,
-			secure: this.config.emailDeliveryService.NodeMailer.secure
+			service: this.config.service,
+			host: this.config.host,
+			port: this.config.port,
+			secure: this.config.secure
 		};
-		if (this.config.emailDeliveryService.NodeMailer.username) {
+		if (this.config.username) {
 			transportOptions.auth = {
-				user: this.config.emailDeliveryService.NodeMailer.username,
-				pass: this.config.emailDeliveryService.NodeMailer.password
+				user: this.config.username,
+				pass: this.config.password
 			};
 		}
 		this.nodeMailer = NodeMailer.createTransport(transportOptions);

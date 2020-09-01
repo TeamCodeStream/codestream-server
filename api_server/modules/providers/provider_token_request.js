@@ -397,14 +397,7 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// send the response html
 	async sendResponse () {
-		// FIXME: webclient doesn't exist in the config. Marking host still does, but it's
-		// been under the apiServer section for ages - not sure how this has been working,
-		// nor what it's doing. How does 'host' get set with this kind of syntax? It looks
-		// as if host should evaluate to a boolean.
-		//
-		// I think the code should be this but I'm not sure.
-		// const host = this.api.config.apiServer.marketingHost;
-		const host = this.api.config.webclient && this.api.config.webclient.marketingHost;
+		const host = this.api.config.apiServer.marketingSiteUrl;
 		const authCompletePage = this.serviceAuth.getAuthCompletePage();
 		const redirect = this.tokenPayload && this.tokenPayload.url ?
 			`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :

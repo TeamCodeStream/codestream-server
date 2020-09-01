@@ -106,9 +106,6 @@ class APIRequestTest extends GenericTest {
 		}
 		else {
 			HTTPSBot[method](
-				// FIXME: 'host' was never defined in the config's express object.
-				// I assume it's the host that comes from the publicApiUrl
-				// this.apiConfig.express.host,
 				this.apiConfig.apiServer.publicApiUrlParsed.host,
 				this.apiConfig.apiServer.port,
 				path,

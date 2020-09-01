@@ -33,12 +33,13 @@ module.exports = async function() {
 		if (fs.existsSync(containerVersionFile)) {
 			const containerVersions = fs.readFileSync(containerVersionFile).toString().replace(/"/g, '').split('\n');
 			containerVersions.forEach(versionAssignment => {
-				if (!versionAssignment.startsWith('#')) {
+				if (versionAssignment && !versionAssignment.startsWith('#')) {
 					let [componentName, componentValue] = versionAssignment.split('=');
 					dockerHubInfo[componentName] = componentValue;
 				}
 			});
 			onPremVersion = dockerHubInfo.onPremVersion;
+			delete dockerHubInfo.onPremVersion;
 		}
 	}
 

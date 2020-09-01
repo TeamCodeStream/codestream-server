@@ -36,11 +36,6 @@ class Authenticator extends APIServerModule {
 				}).authenticate();
 			}
 			catch (error) {
-				// FIXME: webErrorRedirect is not defined in the config or custom config func!
-				// it will always be false! (changed api to apiServer to prevent exception)
-				if (this.pathIsWeb(request) && this.api.config.apiServer.webErrorRedirect) {
-					return response.redirect(this.api.config.apiServer.webErrorRedirect + '?code=' + error.code);
-				}
 				// fail with a 401, signalling no authentication at all
 				response.set('WWW-Authenticate', 'Bearer');
 				request.abortWith = {
@@ -57,17 +52,6 @@ class Authenticator extends APIServerModule {
 		return async () => {
 			return { tokenHandler: this.tokenHandler };
 		};
-	}
-
-	// certain paths are associated with web requests, and should be redirected to an error page
-	pathIsWeb (request) {
-		// FIXME: webPaths is never defined in the config. I changed config.api to config.apiServer
-		// to prevent an exception, but 'paths' will always be an empty list!
-		const paths = this.api.config.apiServer.webPaths || [];
-		return paths.find(path => {
-			const regExp = new RegExp(path);
-			return request.path.match(regExp);
-		});
 	}
 
 	// describe any errors associated with this module, for help

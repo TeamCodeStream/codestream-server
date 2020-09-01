@@ -74,11 +74,7 @@ class BroadcasterServer {
 
 	// start listening for messages
 	async startListening () {
-<<<<<<< Updated upstream
 		const ignoreHttps = this.config.broadcastEngine.codestreamBroadcaster.ignoreHttps;
-=======
-		const { ignoreHttps } = this.config.broadcastEngine.codestreamBroadcaster.ignoreHttps;
->>>>>>> Stashed changes
 		const socketClusterOptions = {
 			authKey: this.config.broadcastEngine.codestreamBroadcaster.secrets.auth
 		};

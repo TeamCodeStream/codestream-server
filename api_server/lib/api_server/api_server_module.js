@@ -9,7 +9,6 @@ class APIServerModule {
 	// FIXME: what exactly is this object - there is no logger property in the config object
 	constructor (config = {}) {
 		Object.assign(this, config);
-		this.logger = config.logger || this.api;
 	}
 
 	getRoutes () { }
