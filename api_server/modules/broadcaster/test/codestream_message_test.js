@@ -123,7 +123,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		const token = this.currentUser.broadcasterToken;
 		const user = this.currentUser.user;
 		// FIXME: what is apiConfig
-		let clientConfig = Object.assign({}, this.apiConfig.integrations.pubnub);
+		let clientConfig = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = user._pubnubUuid || user.id;

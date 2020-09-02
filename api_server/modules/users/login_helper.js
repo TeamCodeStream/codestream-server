@@ -198,8 +198,8 @@ class LoginHelper {
 			},
 			runTimeEnvironment: this.apiConfig.sharedGeneral.runTimeEnvironment
 		};
-		if (this.apiConfig.integrations.pubnub && this.apiConfig.integrations.pubnub.subscribeKey) {
-			this.responseData.pubnubKey = this.apiConfig.integrations.pubnub.subscribeKey;	// give them the subscribe key for pubnub
+		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
+			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub
 			this.responseData.pubnubToken = this.pubnubToken;	// token used to subscribe to PubNub channels
 		}
 		if (this.apiConfig.email.suppressEmails) {

@@ -11,8 +11,6 @@ class SMTPEmail {
 	}
 
 	async init () {
-		// FIXME: these properties don't exist in the global config!! I'm guessing
-		// they're for NodeMailer
 		const transportOptions = {
 			service: this.config.service,
 			host: this.config.host,
