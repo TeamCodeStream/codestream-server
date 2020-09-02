@@ -177,7 +177,7 @@ class CommonInit {
 	getExpectedAsanaTestCallData () {
 		const parameters = {
 			grant_type: 'refresh_token',
-			client_id: this.apiConfig.integrationsasana.appClientId,
+			client_id: this.apiConfig.integrations.asana.appClientId,
 			client_secret: this.apiConfig.integrations.asana.appClientSecret,
 			refresh_token: this.refreshToken,
 			redirect_uri: this.redirectUri
