@@ -244,11 +244,6 @@
 					"_loadSecretsFile": "trello/codestreamops.cfg"
 				}
 			}
-		},
-		"youtrack": {
-			"cloud": {
-				"defaultEnv": {}
-			}
 		}
 	},
 	"outboundEmailServer": {
