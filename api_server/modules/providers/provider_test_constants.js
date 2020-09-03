@@ -45,7 +45,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		forEnterprise: true,
 		host: 'github/enterprise',
 		hasIssues: true,
-		scopes: ['repo', 'read:user', 'user:email']
+		scopes: ['repo', 'read:user', 'user:email', 'notifications']
 	},
 	'gitlab*com': {
 		id: 'gitlab*com',

@@ -10,7 +10,7 @@ const OAUTH_CONFIG = {
 	authPath: 'login/oauth/authorize',
 	tokenPath: 'login/oauth/access_token',
 	exchangeFormat: 'query',
-	scopes: 'repo,read:user,user:email',
+	scopes: 'repo,read:user,user:email,notifications',
 	noGrantType: true,
 	hasIssues: true,
 	forEnterprise: true,

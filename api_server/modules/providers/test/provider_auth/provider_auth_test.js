@@ -170,11 +170,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
-			scope: 'repo,read:user,user:email'
+			scope: 'repo,read:user,user:email,notifications'
 		};
-		if (!this.testHost) {
-			parameters.scope += ',notifications';
-		}
 		const host = this.testHost || 'https://github.com';
 		const url = `${host}/login/oauth/authorize`;
 		return { url, parameters };
