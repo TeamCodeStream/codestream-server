@@ -20,9 +20,6 @@ class AddToExistingStreamTest extends CodeStreamMessageTest {
 	}
 
 	before (callback) {
-		if (this.mockMode && this.wantServer) {
-			return callback();
-		}
 		BoundAsync.series(this, [
 			super.before,
 			this.addUserToStream,
@@ -31,6 +28,9 @@ class AddToExistingStreamTest extends CodeStreamMessageTest {
 	}
 
 	addUserToStream (callback) {
+		if (this.mockMode && !this.usingSocketCluster) {
+			return callback();
+		}
 		this.doApiRequest(
 			{
 				method: 'put',

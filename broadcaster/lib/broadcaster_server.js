@@ -11,6 +11,7 @@ const UUID = require('uuid/v4');
 const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
 const OS = require('os');
 const Express = require('express');
+const IPC = require('node-ipc');
 
 // The BroadcasterServer is instantiated via the cluster wrapper.
 // Options are passed through from the ClusterWrapper() call made in the
@@ -33,6 +34,7 @@ class BroadcasterServer {
 		this.userIdsByTeamChannel = {};
 		this.numOpenRequests = 0;
 		this.express = Express();
+		this.ipcRequestInfo = {};
 	}
 
 	// start 'er up
@@ -41,6 +43,9 @@ class BroadcasterServer {
 		this.workerId = 1;
 		this.setListeners();
 		await this.connectToMongo();
+		if (this.config.apiServer.mockMode) {
+			this.connectToIpc();
+		}
 		if (!this.serverOptions.dontListen) {
 			await this.startListening();
 		}
@@ -70,6 +75,30 @@ class BroadcasterServer {
 			throw 'internal database error';
 		}
 		return this.mongoClient;
+	}
+
+	// connect to IPC in mock mode (for test running)
+	connectToIpc (callback) {
+		IPC.config.id = this.config.apiServer.ipc.broadcastServerId;
+		IPC.config.silent = true;
+		IPC.connectTo(this.config.apiServer.ipc.serverId, () => {
+			IPC.of[this.config.apiServer.ipc.serverId].on('response', this.handleIpcResponse.bind(this));
+		});
+		this.ipc = IPC;
+	}
+
+	// handle a request response over IPC, for mock mode
+	handleIpcResponse (response) {
+		const info = this.ipcRequestInfo[response.clientRequestId];
+		if (!info) { return; }
+		const { options, callback } = info;
+		delete this.ipcRequestInfo[response.clientRequestId];
+		if (response.statusCode !== 200) {
+				return callback(`error response, status code was ${response.statusCode}`, response.data, response);
+		}
+		else {
+			return callback(null, response.data, response);
+		}
 	}
 
 	// start listening for messages
@@ -207,7 +236,7 @@ class BroadcasterServer {
 	// a user has closed their last socket, so purge knowledge of this user from local caches
 	async purgeUser (userId, socket, requestId) {
 		this.log(`Last socket for user ${userId}`, socket, requestId);
-		const user = await this.data.users.getById(userId);
+		const user = await this.getData('users', 'getById', userId);
 		if (!user) { return; }
 		for (let teamId of user.teamIds || []) {
 			const userArray = this.userIdsByTeamChannel[`team-${teamId}`];
@@ -281,7 +310,7 @@ class BroadcasterServer {
 		let user;
 		try {
 			// get the user associated with the token
-			user = await this.data.users.getById(uid);
+			user = await this.getData('users', 'getById', uid);
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -388,7 +417,7 @@ class BroadcasterServer {
 		let user;
 		try {
 			// get the user data associated with this subscription
-			user = await this.data.users.getById(uid);
+			user = await this.getData('users', 'getById', uid);
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -423,7 +452,7 @@ class BroadcasterServer {
 		let stream;
 		try {
 			// get the stream
-			stream = await this.data.streams.getById(streamId);
+			stream = await this.getData('streams', 'getById', streamId);
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -566,7 +595,7 @@ class BroadcasterServer {
 
 		// fetch the streams
 		const streamIds = channels.map(channel => channel.split('stream-')[1]);
-		const streams = await this.data.streams.getByIds(streamIds);
+		const streams = await this.getData('streams', 'getByIds', streamIds);
 		if (streams.length !== streamIds.length) {
 			return 'some streams not found';
 		}
@@ -697,7 +726,7 @@ class BroadcasterServer {
 		if (!userId) {
 			return null;
 		}
-		return await this.data.users.getById(userId);
+		return await this.getData('users', 'getById', userId);
 	}
 
 	// categorize channels by type: user, team, and stream
@@ -763,6 +792,44 @@ class BroadcasterServer {
 		return options;
 	}
   
+	// get data from storage ... ordinarily obtained from mongo, but for mock mode running tests,
+	// we request the data over IPC from the api server
+	async getData (collection, func, value) {
+		if (!this.config.apiServer.mockMode) {
+			return this.data[collection][func](value);
+		}
+
+		const clientRequestId = UUID();
+		const params = {
+			secret: this.config.broadcastEngine.codestreamBroadcaster.secrets.api,
+			collection,
+			func,
+			data: value
+		};
+		const query = Object.keys(params).map(key => {
+			return `${key}=${encodeURIComponent(params[key])}`;
+		}).join('&');
+		const path = `/mock-data?${query}`;
+
+		return new Promise((resolve, reject) => {
+			const message = {
+				method: 'get',
+				path,
+				clientRequestId
+			};
+			const callback = (error, data) => {
+				if (error) {
+					reject(error);
+				}
+				else {
+					resolve(data);
+				}
+			}
+			this.ipcRequestInfo[clientRequestId] = { callback };
+			this.ipc.of[this.config.apiServer.ipc.serverId].emit('request', message);
+		});
+	}
+
 	// handle a message from the master
 	handleMasterMessage (message) {
 		if (typeof message !== 'object') { return; }

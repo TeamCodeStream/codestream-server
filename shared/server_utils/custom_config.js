@@ -239,7 +239,8 @@ module.exports = function customConfigFunc(nativeCfg) {
 	// for testing in mock mode
 	Cfg.apiServer.ipc = {
 		serverId: 'codestream_api_ipc_server',
-		clientId: 'codestream_ipc_client'
+		clientId: 'codestream_ipc_client',
+		broadcastServerId: 'codestream_broadcaster_ipc_client'
 	};
 	// serving limits
 	Cfg.apiServer.limits = {

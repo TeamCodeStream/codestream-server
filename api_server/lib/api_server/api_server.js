@@ -154,6 +154,16 @@ class APIServer {
 		this.log('Registering routes...');
 		const routeObjects = this.modules.getRouteObjects();
 		routeObjects.forEach(this.registerRouteObject.bind(this));
+
+		// register a special route for services interacting with the API server to obtain
+		// mock mongo data, as a mock-mode replacement for direct access to mongo
+		if (this.config.apiServer.mockMode) {
+			this.registerRouteForIpc({
+				method: 'get',
+				path: '/mock-data',
+				func: this.handleMockDataRequest.bind(this)
+			});
+		}
 	}
 
 	// register a single route object, the route object can itself have middleware
@@ -383,7 +393,6 @@ class APIServer {
 	// handle an inbound IPC request, which simulates an HTTP request for testing purposes
 	handleIpcRequest (request, socket) {
 		request.params = {};
-		request.query = request.query || {};
 		request.body = request.body || {};
 		request.headers = Object.keys(request.headers || {}).reduce((headers, headerKey) => {
 			headers[headerKey.toLowerCase()] = request.headers[headerKey];
@@ -426,6 +435,18 @@ class APIServer {
 			}
 		};
 		this.ipcMiddleware[0](request, response, next);
+	}
+
+	// handle a service-to-service request for data, that would normally be stored in mongo,
+	// used only for tests running in mock mode
+	async handleMockDataRequest (request, response) {
+		const { secret, collection, func, clientRequestId, data } = request.query;
+		if (secret !== this.config.broadcastEngine.codestreamBroadcaster.secrets.api) {
+			return response.sendStatus(401);
+		}
+
+		const result = await this.data[collection][func](data);
+		response.send(result);
 	}
 
 	// handle any cookies in an incoming IPC request

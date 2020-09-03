@@ -142,18 +142,26 @@ const STANDARD_PROVIDER_HOSTS = {
 			'Group.ReadWrite.All',
 			'offline_access'
 		]
-	}
-	/*
+	},
 	'okta*com': {
 		id: 'okta*com',
 		name: 'okta',
 		isEnterprise: false,
 		host: 'okta.com',
-		apiHost: 'okta.com'
+		apiHost: 'okta.com',
+		scopes: ['openid', 'email', 'profile']
 	}
-	*/
 };
 
-module.exports = {
-	STANDARD_PROVIDER_HOSTS
-};
+const GetStandardProviderHosts = function(config) {
+	const ProviderHosts = JSON.parse(JSON.stringify(STANDARD_PROVIDER_HOSTS));
+	if (
+		!config.integrations.okta ||
+		!config.integrations.okta.appClientId
+	) {
+		delete ProviderHosts['okta*com'];
+	}
+	return ProviderHosts;
+}
+
+module.exports = GetStandardProviderHosts;

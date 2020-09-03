@@ -21,9 +21,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// before the test, set up messaging clients and start listening
 	before (callback) {
-		if (this.mockMode && this.wantServer) {
-			return callback();
-		}
 		this.broadcasterClientsForUser = {};
 		BoundAsync.series(this, [
 			super.before,
@@ -52,7 +49,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// during the test, we send a message and wait for it to arrive
 	run (callback) {
-		if (this.mockMode && this.wantServer) {
+		if (this.mockMode && this.wantServer && !this.usingSocketCluster) {
 			console.warn('NOTE - THIS TEST CAN NOT SIMULATE A SERVER IN MOCK MODE, PASSING SUPERFICIALLY');
 			this.testDidNotRun = true;
 			return callback();
@@ -73,13 +70,13 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		if (this.usingSocketCluster) {
 			return this.makeSocketClusterClientForServer(callback);
 		}
+		if (this.mockMode) {
+			return callback();
+		}
+
 		// all we have to do here is provide the full config, which includes the secretKey
-		// FIXME: what is this.apiConfig ???  Is it the global config object. Not sure what properties it has!
 		let config = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
 		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
-		if (this.mockMode) {
-			throw 'test client can not be a server in mock mode';
-		}
 		let client = new PubNub(config);
 		this.broadcasterForServer = new PubNubClient({
 			pubnub: client
@@ -90,7 +87,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	makeSocketClusterClientForServer (callback) {
 		(async () => {
-			// FIXME: I hope apiConfig represents the global config
 			const config = Object.assign({},
 				{
 					// formerly the socketCluster object
@@ -118,11 +114,13 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		if (this.usingSocketCluster) {
 			return this.makeSocketClusterClientForClient(callback);
 		}
+		else if (this.mockMode) {
+			return callback();
+		}
 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
 		const token = this.currentUser.broadcasterToken;
 		const user = this.currentUser.user;
-		// FIXME: what is apiConfig
 		let clientConfig = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
@@ -142,7 +140,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	makeSocketClusterClientForClient (callback) {
 		const { user, broadcasterToken } = this.currentUser;
-		// FIXME: what is apiConfig?
 		const config = Object.assign({},
 			{
 				// formerly the socketCluster object
@@ -159,7 +156,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			}
 		);
 		if (this.cheatOnSubscription) {
-			// FIXME: what is apiConfig?
 			config.subscriptionCheat = this.apiConfig.sharedSecrets.subscriptionCheat;
 		}
 

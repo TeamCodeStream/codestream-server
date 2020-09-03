@@ -81,7 +81,7 @@ class Broadcaster extends APIServerModule {
 	}
 
 	async initialize () {
-		if (this.api.config.apiServer.mockMode) {
+		if (this.api.config.apiServer.mockMode && this.api.config.broadcastEngine.selected === 'pubnub') {
 			await this.connectToMockPubnub();
 		}
 	}
@@ -99,9 +99,6 @@ class Broadcaster extends APIServerModule {
 		this.pubnub.init({
 			isServer: true, 
 			ipc: this.api.services.ipc,
-			// FIXME: I'm not entirely certain as to which config object this is. This is the
-			// broadcaster so I wouldn't expect this.api to be defined. If it is, hopefully
-			// it has our global config as its config property????
 			serverId: this.api.config.apiServer.ipc.serverId
 		});
 		await this.pubnubClient.init();

@@ -44,7 +44,7 @@ class ClusterWrapper {
 	}
 
 	processArguments () {
-		if (Program.one_worker || this.options.oneWorker || process.env.CS_API_MOCK_MODE) {
+		if (Program.one_worker || this.options.oneWorker) {
 			this.oneWorker = true;
 		}
 	}

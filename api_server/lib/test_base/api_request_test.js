@@ -47,9 +47,6 @@ class APIRequestTest extends GenericTest {
 	}
 
 	after (callback) {
-		// FIXME: in this file apiConfig refers to the entire configuration object
-		// not to be confused with OAuthModule where it refers to the provider
-		// integration (sub-)object - we should fix that
 		if (this.ipc) {
 			this.ipc.disconnect(this.apiConfig.apiServer.ipc.serverId);
 		}

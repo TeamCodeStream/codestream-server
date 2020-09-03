@@ -3,7 +3,7 @@
 const ConfirmationTest = require('./confirmation_test');
 const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
-const STANDARD_PROVIDER_HOSTS = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
+const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
 
 class InitialDataTest extends ConfirmationTest {
 
@@ -44,7 +44,8 @@ class InitialDataTest extends ConfirmationTest {
 		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		Assert(data.repos.length === 1, 'no repo in response');
 		this.validateMatchingObject(this.repo.id, data.repos[0], 'repo');
-		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
+		const providerHosts = GetStandardProviderHosts(this.apiConfig);
+		Assert.deepEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		super.validateResponse(data);
 	}
 }

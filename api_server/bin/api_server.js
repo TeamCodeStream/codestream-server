@@ -70,6 +70,9 @@ const MongoCollections = Object.keys(DataCollections).concat([
 			dataCollections: DataCollections,
 			rawCollections: MongoCollections,
 			onprem: onPremSupportData
+		},
+		{
+			oneWorker: Config.apiServer.mockMode
 		}
 	);
 	try {

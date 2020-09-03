@@ -2,7 +2,7 @@
 
 const GetTeamTest = require('./get_team_test');
 const Assert = require('assert');
-const STANDARD_PROVIDER_HOSTS = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
+const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
 
 class StandardProviderHostsTest extends GetTeamTest {
 
@@ -11,7 +11,8 @@ class StandardProviderHostsTest extends GetTeamTest {
 	}
 
 	validateResponse (data) {
-		Assert.deepEqual(data.team.providerHosts, STANDARD_PROVIDER_HOSTS, 'returned providerHosts is not correct');
+		const providerHosts = GetStandardProviderHosts(this.apiConfig);
+		Assert.deepEqual(data.team.providerHosts, providerHosts, 'returned providerHosts is not correct');
 		super.validateResponse(data);
 	}
 }

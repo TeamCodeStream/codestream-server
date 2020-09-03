@@ -6,7 +6,7 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
-const STANDARD_PROVIDER_HOSTS = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
+const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
 
 class LoginTest extends CodeStreamAPITest {
 
@@ -70,7 +70,8 @@ class LoginTest extends CodeStreamAPITest {
 			delete expectedCapabilities.emailSupport;
 		}
 		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
-		Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
+		const providerHosts = GetStandardProviderHosts(this.apiConfig);
+		Assert.deepEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

@@ -210,10 +210,12 @@ class SocketClusterClient {
 	}
 
 	disconnect () {
-		this.socket.killAllListeners();
-		this.socket.killAllReceivers();
-		this.socket.killAllProcedures();
-		this.socket.disconnect();
+		if (this.socket) {
+			this.socket.killAllListeners();
+			this.socket.killAllReceivers();
+			this.socket.killAllProcedures();
+			this.socket.disconnect();
+		}
 	}
 
 	// handle a message coming in on any channel

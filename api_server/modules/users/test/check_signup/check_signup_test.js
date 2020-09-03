@@ -6,7 +6,7 @@ const UserTestConstants = require('../user_test_constants');
 const CommonInit = require('./common_init');
 const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const STANDARD_PROVIDER_HOSTS = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants').STANDARD_PROVIDER_HOSTS;
+const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
 
 class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -69,7 +69,8 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 		if (!this.dontCreateTeam) {
 			Assert(data.teams.length === 1, 'no team in response');
-			Assert.deepEqual(data.teams[0].providerHosts, STANDARD_PROVIDER_HOSTS, 'returned provider hosts is not correct');
+			const providerHosts = GetStandardProviderHosts(this.apiConfig);
+			Assert.deepEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 			this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		}
 		else {

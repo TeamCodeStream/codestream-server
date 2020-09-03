@@ -14,7 +14,6 @@ class GenericTest {
 	constructor (options) {
 		Object.assign(this, options);
 		this.testNum = ++NumTests;
-		this.mockMode = process.env.CS_API_MOCK_MODE;
 	}
 
 	// override me!
