@@ -15,6 +15,10 @@ Program
 
 class ClusterWrapper {
 
+	// construct a wrapper class around node cluster
+	// serverClass is the class of the server to instantiate for each worker
+	// serverOptions are a black box of options that are passed to the server class upon construction
+	// options are options for ClusterWrapper itself (not a black box)
 	constructor (serverClass, serverOptions = {}, options = {}) {
 		if (!serverClass) {
 			throw new Error('serverClass must be provided in ClusterWrapper constructor');
