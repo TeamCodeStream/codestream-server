@@ -6,19 +6,21 @@ class EmailNotificationV2Sender {
 
 	// send an email notification to the user specified
 	async sendEmailNotification (options, outboundEmailServerConfig) {
-		const { user, creator, team, stream, replyToPostId, content, sender, category } = options;
+		const { user, creator, team, stream, replyToPostId, content, sender, category, requestId } = options;
+		const inboundEmailDisabled = outboundEmailServerConfig.inboundEmailServer.inboundEmailDisabled;
+		const { replyToDomain, senderEmail } = outboundEmailServerConfig.email;
 		const fromName = creator ? `${sender.getUserDisplayName(creator)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
-		// FIXME: This is another case where the config object passed in does not have all the required properties.
-		const replyTo = outboundEmailServerConfig.inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${team.id}@${outboundEmailServerConfig.replyToDomain}`;
+		const replyTo = inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${team.id}@${replyToDomain}`;
 		await sender.sendEmail({
 			type: 'notification',
-			from: { email: outboundEmailServerConfig.senderEmail, name: fromName },
+			from: { email: senderEmail, name: fromName },
 			user,
 			replyTo,
 			subject,
 			content,
-			category
+			category,
+			requestId
 		});
 	}
 

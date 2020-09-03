@@ -601,11 +601,12 @@ class EmailNotificationV2Handler {
 			team: this.team,
 			replyToPostId,
 			isReply,
-			category: user.isRegistered || isReply ? 'notification' : 'notification_invite'
+			category: user.isRegistered || isReply ? 'notification' : 'notification_invite',
+			requestId: this.requestId
 		};
 		const which = review ? 'review' : 'codemark';
 		try {
-			this.logger.log(`Sending ${which}-based email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`);
+			this.logger.log(`Sending ${which}-based email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`, options.requestId);
 			await new EmailNotificationV2Sender().sendEmailNotification(options, this.outboundEmailServer.config);
 		}
 		catch (error) {
@@ -651,11 +652,11 @@ class EmailNotificationV2Handler {
 	}
 
 	log (message) {
-		this.logger.log(message);
+		this.logger.log(message, this.requestId);
 	}
 
 	warn (message) {
-		this.logger.warn(message);
+		this.logger.warn(message, this.requestId);
 	}
 }
 

@@ -26,10 +26,13 @@ class OAuthModule extends APIServerModule {
 	}
 
 	async initialize () {
+		/*
+		This use of "local providers" (on-prem providers created for the installation) is deprecated,
+		but I'm keeping the code around in case we ever need to revisit
 		if (this.apiConfig) {
-			// FIXME: localProviders is never defined anywhere (including the config)
 			this.enterpriseConfig = this.apiConfig.localProviders;
 		}
+		*/
 	}
 
 	// get redirect parameters and url to use in the redirect response

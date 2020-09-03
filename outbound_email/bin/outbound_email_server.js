@@ -22,7 +22,10 @@ const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 		ServerClass,
 		{
 			config: Config,
-			logger: Logger
+			logger: Logger // the logger passed to the constructed API Server
+		},
+		{
+			logger: Logger // the logger passed to the constructed API Server
 		}
 	);
 

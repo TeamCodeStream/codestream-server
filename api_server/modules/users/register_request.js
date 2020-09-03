@@ -257,8 +257,6 @@ class RegisterRequest extends RestfulRequest {
 		}
 		// need to refetch the user, since it may have changed, this should fetch from cache, not database
 		this.user = await this.data.users.getById(this.user.id);
-		// FIXME - we eventually need to deprecate serving the user object completely,
-		// this is a security vulnerability
 		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
 			this.responseData = { user: this.user.getSanitizedObjectForMe({ request: this }) };
 			if (this._confirmationCheat === this.api.config.sharedSecrets.confirmationCheat) {

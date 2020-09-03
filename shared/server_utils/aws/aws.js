@@ -6,9 +6,8 @@ class AWS {
 
 	constructor (options = {}) {
 		// initialize AWS SDK module
-		// FIXME: NO NO NO NO - we do NOT update the config!!!
-		//        Side note: we shouldn't even code the region in here. Let it come from the user's
-		//        AWS environment configuration (built into the AWS SDK)
+		// FIXME: we shouldn't code the region in here. Let it come from the user's
+		// AWS environment configuration (built into the AWS SDK)
 		this.region = options.region || 'us-east-1';
 		AWS_SDK.config.update({
 			region: this.region

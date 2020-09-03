@@ -8,7 +8,6 @@ const AWS = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/a
 const SQSClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/sqs_client');
 const RabbitMQClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/rabbitmq');
 const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client.js');
-const EmailNotificationHandler = require('./emailNotificationHandler');
 const EmailNotificationV2Handler = require('./emailNotificationV2Handler');
 const OS = require('os');
 const PubNub = require('pubnub');
@@ -24,6 +23,7 @@ const TeamCreatedEmailHandler = require('./teamCreatedEmailHandler');
 const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const FS = require('fs');
+const UUID = require('uuid/v4');
 
 const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'reviews', 'markers'];
 
@@ -34,7 +34,6 @@ const HANDLERS = {
 	invite: InviteEmailHandler,
 	resetPassword: ResetPasswordEmailHandler,
 	teamCreated: TeamCreatedEmailHandler,
-	notification: EmailNotificationHandler,
 	notification_v2: EmailNotificationV2Handler
 };
 
@@ -80,7 +79,7 @@ class OutboundEmailServer {
 		this.log(`Trying to listening to ${this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName}...`);
 		await this.queuer.listen({
 			name: this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName,
-			handler: (this.config.messageHandler || this.processMessage).bind(this)
+			handler: (this.serverOptions.messageHandler || this.processMessage).bind(this)
 		});
 		this.log(`Successfully listening to ${this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName}...`);
 	}
@@ -104,15 +103,9 @@ class OutboundEmailServer {
 		else if (message.youAre) {
 			// master is telling us our worker ID and helping us identify ourselves in the logs
 			this.workerId = message.youAre;
-			this.loggerId = 'W' + this.workerId;
-			// FIXME: This doesn't look right.  config.logger never existed.
-			// I _assume_ loggerId and loggerHost are settable properties of
-			// the simple_file_logger object!
-			//
-			// this.config.logger.loggerId = this.loggerId;
-			// this.config.logger.loggerHost = OS.hostname();
-			this.logger.loggerId = this.loggerId;
-			this.logger.loggerHost = OS.hostname();
+			if (this.logger && this.logger.setLoggerId) {
+				this.logger.setLoggerId('W' + this.workerId);
+			}
 			process.on('SIGINT', () => {});
 			process.on('SIGTERM', () => {});
 		}
@@ -151,22 +144,23 @@ class OutboundEmailServer {
 	 * @param {object} message    - message to be processed
 	 * @param {func} callback     - callback functionnode-osx-latest
 	 */
-	async processMessage (message, callback) {
+	async processMessage (message, requestId, callback) {
 		if (callback) { 
 			callback(true);
 		}
+		requestId = requestId || UUID();
 		await this.initAsNeeded();
 		const emailHandlerClass = HANDLERS[message.type];
 		if (!emailHandlerClass) {
-			this.warn(`No email handler for type ${message.type}`);
+			this.warn(`No email handler for type ${message.type}`, requestId);
 			return;
 		}
 		this.numOpenTasks++;
 		if(await OutboundEmailServerConfig.isDirty()) {
-			this.log('reloading config data - cache is dirty');
+			this.log('reloading config data - cache is dirty', requestId);
 			this.config = await OutboundEmailServerConfig.loadPreferredConfig();
 			if (OutboundEmailServerConfig.restartRequired()) {
-				this.log('new config requires a restart or full re-initialization');
+				this.log('new config requires a restart or full re-initialization', requestId);
 				// uh oh!
 			}
 		}
@@ -178,7 +172,8 @@ class OutboundEmailServer {
 			sender: this.emailSender,
 			styles: this.styles,
 			pseudoStyles: this.pseudoStyles,
-			outboundEmailServer: this
+			outboundEmailServer: this,
+			requestId
 		};
 		await new emailHandlerClass(handlerOptions).handleMessage(message);
 		this.numOpenTasks--;
@@ -266,7 +261,7 @@ class OutboundEmailServer {
 				apiSecret: this.config.broadcastEngine.codestreamBroadcaster.secrets.api
 			},
 			{
-				logger: this,	// FIXME: this can't be good
+				logger: this,
 				uid: 'API',
 				authKey: this.config.broadcastEngine.codestreamBroadcaster.secrets.api
 			}

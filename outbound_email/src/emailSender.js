@@ -14,11 +14,18 @@ class EmailSender {
 		}
 		else {
 			this.sendgridEmail = new SendGridEmail(this.outboundEmailServer.config.emailDeliveryService.sendgrid);
+
+			// set address to divert all emails to, for developer testing
+			const { emailTo } = this.outboundEmailServer.config.email;
+			if (emailTo) {
+				this.outboundEmailServer.log('Will divert all SendGrid emails to ' + emailTo)
+				this.sendgridEmail.divertTo(emailTo);
+			}
 		}
 	}
 
 	async sendEmail (options) {
-		this.logger.debug('EmailSender.sendEmail()', this.request_id);
+		this.logger.debug('EmailSender.sendEmail()', options.requestId);
 		if (this.smtpMailer) {
 			return await this.sendSmtpEmail(options);
 		}
@@ -48,13 +55,14 @@ class EmailSender {
 			category,
 			testCallback,
 			testOptions: { user },
-			logger: this.logger
+			logger: this.logger,
+			requestId: options.requestId
 		};
 		return envelope;
 	}
 
 	async sendSendgridEmail (options) {
-		this.logger.debug('EmailSender.sendSendgridEmail(options):', this.request_id, options);
+		this.logger.debug('EmailSender.sendSendgridEmail(options):', options.requestId, options);
 		const { replyTo, type } = options;
 		const mailOptions = this.getCommonMailOptions(options);
 		mailOptions.from = { email: mailOptions.senderEmail, name: mailOptions.senderName };
@@ -62,13 +70,13 @@ class EmailSender {
 		if (replyTo) {
 			mailOptions.replyTo = { email: replyTo, name: 'CodeStream' };
 		}
-		this.logger.debug('EmailSender.sendSendgridEmail(mailOptions):', this.request_id, mailOptions);
-		this.logger.log(`Sending ${type} email through SendGrid to ${mailOptions.email}`);
+		this.logger.debug('EmailSender.sendSendgridEmail(mailOptions):', options.requestId, mailOptions);
+		this.logger.log(`Sending ${type} email through SendGrid to ${mailOptions.email}`, options.requestId);
 		await this.sendgridEmail.sendEmail(mailOptions);
 	}
 
 	async sendSmtpEmail (options) {
-		this.logger.debug('EmailSender.sendSmtpEmail(options):', this.request_id, options);
+		this.logger.debug('EmailSender.sendSmtpEmail(options):', options.requestId, options);
 		const { replyTo, type } = options;
 		const mailOptions = this.getCommonMailOptions(options);
 		mailOptions.from = `"${mailOptions.senderName}" <${mailOptions.senderEmail}>`;
@@ -76,8 +84,8 @@ class EmailSender {
 		if (replyTo) {
 			mailOptions.replyTo = `"CodeStream" <${replyTo}>`;
 		}
-		this.logger.debug('EmailSender.sendSmtpEmail(mailOptions):', this.request_id, mailOptions);
-		this.logger.log(`Sending ${type} email through SMTP to ${mailOptions.email}`);
+		this.logger.debug('EmailSender.sendSmtpEmail(mailOptions):', options.requestId, mailOptions);
+		this.logger.log(`Sending ${type} email through SMTP to ${mailOptions.email}`, options.requestId);
 		await this.smtpMailer.sendEmail(mailOptions);
 	}
 }

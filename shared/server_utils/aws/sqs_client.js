@@ -147,7 +147,7 @@ class SQSClient {
 				this.warn(`Unable to process message ${message.MessageId} on queue ${queue.name}: bad JSON data: ${error}`);
 			}
 			if (queue.handler) {
-				queue.handler(data, done => {
+				queue.handler(data, message.MessageId, done => {
 					if (done) {
 						this._releaseMessage(queue, message, callback);
 					}

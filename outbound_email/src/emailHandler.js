@@ -1,5 +1,7 @@
 'use strict';
 
+const UUID = require('uuid/v4');
+
 class EmailHandler {
 
 	constructor (options) {
@@ -8,8 +10,7 @@ class EmailHandler {
 
 	async handleMessage (message) {
 		this.message = message;
-		this.request_id = 'null-request-id';
-		this.logger.log(`EmailHandler.handleMessage(): Processing a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.request_id);
+		this.logger.log(`Processing a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.requestId);
 		try {
 			await this.getUser();	
 			await this.renderEmail();
@@ -23,15 +24,15 @@ class EmailHandler {
 			else {
 				message = JSON.stringify(error);
 			}
-			return this.logger.warn(`Email handling for ${this.message.type} email failed: ${message}`);
+			return this.logger.warn(`Email handling for ${this.message.type} email failed: ${message}`, this.requestId);
 		}
-		this.logger.log(`EmailHandler.handleMessage(): Successfully processed a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.request_id);
+		this.logger.log(`Successfully processed a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.requestId);
 	}
 
 	// get the user associated with the email
 	async getUser () {
 		this.user = await this.data.users.getById(this.message.userId);
-		this.logger.debug(`EmailHandler.getUser() getById(${this.message.userId} returned this.user:`, this.request_id, this.user);
+		this.logger.debug(`getById(${this.message.userId} returned this.user:`, this.requestId, this.user);
 		if (!this.user) {
 			throw 'user not found:' + this.message.userId;
 		}
@@ -53,7 +54,8 @@ class EmailHandler {
 			email: this.message.email || this.user.email,
 			subject: this.subject,
 			content: this.content,
-			category: this.getCategory()
+			category: this.getCategory(),
+			requestId: this.requestId
 		};
 		if (this.message.testing) {
 			options.testCallback = this.testCallback.bind(this);
@@ -61,7 +63,7 @@ class EmailHandler {
 		if (this.message.fromSupport) {
 			options.from = { email: this.outboundEmailHander.config.email.supportEmail, name: 'CodeStream' };
 		}
-		this.logger.debug('EmailHandler.getSendOptions() returns options:', this.request_id, options);
+		this.logger.debug('EmailHandler.getSendOptions() returns options:', this.requestId, options);
 		return options;
 	}
 
@@ -72,7 +74,7 @@ class EmailHandler {
 			await this.sender.sendEmail(options);
 		}
 		catch (error) {
-			this.logger.warn(`Unable to send ${this.message.type} email to ${this.user.email}: ${JSON.stringify(error)}`);
+			this.logger.warn(`Unable to send ${this.message.type} email to ${this.user.email}: ${JSON.stringify(error)}`, this.requestId);
 		}
 	}
 

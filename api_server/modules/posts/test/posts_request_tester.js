@@ -9,7 +9,6 @@ const PostPostRequestTester = require('./post_post/post_post_request_tester');
 const PutPostRequestTester = require('./put_post/put_post_request_tester');
 const DeletePostRequestTester = require('./delete_post/delete_post_request_tester');
 const ReactRequestTester = require('./react/react_request_tester');
-const EmailNotificationTester = require('./email_notifications/email_notification_tester');
 
 class PostsRequestTester extends Aggregation(
 	GetPostRequestTester,
@@ -17,8 +16,7 @@ class PostsRequestTester extends Aggregation(
 	PostPostRequestTester,
 	PutPostRequestTester,
 	DeletePostRequestTester,
-	ReactRequestTester,
-	EmailNotificationTester
+	ReactRequestTester
 ) {
 }
 

@@ -4,15 +4,10 @@
 
 const AnalyticsNode = require('analytics-node');
 
-// FIXME: the this.config's in this class do not appear to be inline
-// with the global config so I don't know what to do here.
 class AnalyticsClient {
 
 	constructor (config) {
-		// FIXME: the global config has no property called 'token'.
-		//    segment tokens are stored in the global config as
-		//    config.telemetry.segment.token and config.telemetry.segment.webToken
-		//    but I'm pretty sure this is a different config
+		// this config comes from global config.telemetry.segment, plus additional runtime options
 		this.config = config || {};
 		if (this.config.token) {
 			this.segment = new AnalyticsNode(this.config.token);

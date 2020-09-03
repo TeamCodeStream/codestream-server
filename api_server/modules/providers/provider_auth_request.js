@@ -161,8 +161,9 @@ class ProviderAuthRequest extends RestfulRequest {
 		let { host } = this.request.query;
 		const { code } = this.request.query;
 		const { callbackEnvironment } = this.api.config.apiServer;
-		// FIXME: I think this belongs in the custom config function (custom_config.js).
-		//        We should not be modifying configuration parameters outside it.
+		// HACK - OAuth 1.0 doesn't have a sense of state, so we can't use the mechanism we use for OAuth 2.0
+		// to parse the callback environment out of the state variable, which means we can't proxy to the api server
+		// appropriate to the environment ... so bypass the proxy entirely and go straight to the source
 		const authOrigin = `${this.api.config.apiServer.publicApiUrl}/no-auth`;
 		let state = `${callbackEnvironment}!${code}`;
 		if (host) {

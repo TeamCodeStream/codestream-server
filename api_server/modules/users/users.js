@@ -102,11 +102,6 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
-		path: 'no-auth/resend-confirm',
-		requestClass: require('./resend_confirm_request')
-	},
-	{
-		method: 'put',
 		path: 'no-auth/check-signup',
 		requestClass: require('./check_signup_request')
 	},

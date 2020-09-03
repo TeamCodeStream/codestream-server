@@ -65,13 +65,14 @@ const MongoCollections = Object.keys(DataCollections).concat([
 		ServerClass,
 		{
 			config: Config,
-			logger: Logger,
+			logger: Logger, // the logger passed to the constructed API Server
 			moduleDirectory: ModuleDirectory,
 			dataCollections: DataCollections,
 			rawCollections: MongoCollections,
 			onprem: onPremSupportData
 		},
 		{
+			logger: Logger, // the logger used by ClusterWrapper itself
 			oneWorker: Config.apiServer.mockMode
 		}
 	);

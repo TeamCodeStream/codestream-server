@@ -51,7 +51,7 @@ class AccessLogger extends APIServerModule {
 			ip = addr.split(':').pop() || '???';
 		}
 	
-		this.logger.log(
+		this.api.log(
 			request.id                     + ' '   +
 			status                         + ' '   +
 			request.method.toUpperCase()   + ' '   +

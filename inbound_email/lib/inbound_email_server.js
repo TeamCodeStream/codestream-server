@@ -25,7 +25,6 @@ const { callbackWrap } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/serve
 //   logger: a simple_file_logger object
 class InboundEmailServer {
 
-	// FIXME: what are these logger / config objects? Where do they come from?
 	constructor (options = {}) {
 		this.serverOptions = options;
 		this.config = options.config || {};
@@ -151,15 +150,9 @@ class InboundEmailServer {
 		else if (message.youAre) {
 			// master is telling us our worker ID and helping us identify ourselves in the logs
 			this.workerId = message.youAre;
-			this.loggerId = 'W' + this.workerId;
-			// FIXME: This doesn't look right.  config.logger never existed.
-			// I _assume_ loggerId and loggerHost are settable properties of
-			// the simple_file_logger object!
-			//
-			// this.config.logger.loggerId = this.loggerId;
-			// this.config.logger.loggerHost = OS.hostname();
-			this.logger.loggerId = this.loggerId;
-			this.logger.loggerHost = OS.hostname();
+			if (this.logger && this.logger.setLoggerId) {
+				this.logger.setLoggerId('W' + this.workerId);
+			}
 		}
 	}
 

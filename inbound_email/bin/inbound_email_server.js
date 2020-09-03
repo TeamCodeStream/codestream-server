@@ -20,9 +20,10 @@ const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/inbound_email/lib
 		ServerClass,
 		{
 			config: Config,
-			logger: Logger
+			logger: Logger // the logger passed to the constructed server
 		},
 		{
+			logger: Logger, // the logger used by ClusterWrapper itself
 			oneWorker: true
 		}
 	);

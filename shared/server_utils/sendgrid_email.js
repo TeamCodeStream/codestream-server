@@ -27,7 +27,7 @@ class SendGridEmail {
 		for (i = 0; i < 3; i++) {
 			try {
 				if (options.logger) {
-					options.logger.log(`Calling SendGrid API to send email to: ${email}`);
+					options.logger.log(`Calling SendGrid API to send email to: ${email}`, options.requestId);
 				}
 				response = await AwaitUtils.callbackWrap(
 					this.sendgrid.API.bind(this.sendgrid),
@@ -42,7 +42,7 @@ class SendGridEmail {
 			}
 			if (response.statusCode >= 300) {
 				if (options.logger) {
-					options.logger.log(`Got status ${response.statusCode} sending email to ${email}`);
+					options.logger.log(`Got status ${response.statusCode} sending email to ${email}`, options.requestId);
 				}
 				throw `got status ${response.statusCode} calling sendgrid API`;
 			}
@@ -52,14 +52,19 @@ class SendGridEmail {
 		}
 		if (i < 3) {
 			if (options.logger) {
-				options.logger.log(`Successfully sent email to ${email}`);
+				options.logger.log(`Successfully sent email to ${email}`, options.requestId);
 			}
 		}
 		else {
 			if (options.logger) {
-				options.logger.log(`Failed to send email to ${email} after 3 tries`);
+				options.logger.log(`Failed to send email to ${email} after 3 tries`, options.requestId);
 			}
 		}
+	}
+
+	// set email address to divert all emails to, for developer testing
+	divertTo (email) {
+		this.emailTo = email;
 	}
 
 	// check if we're blocking email sends for some reason
@@ -69,7 +74,7 @@ class SendGridEmail {
 			// instead of actually sending it, for testing purposes ... we'll
 			// emit the request body to the callback provided
 			if (options.logger) {
-				options.logger.log(`Diverting email for ${JSON.stringify(options.to)} to test callback`);
+				options.logger.log(`Diverting email for ${JSON.stringify(options.to)} to test callback`, options.requestId);
 			}
 			options.testCallback(request.body, options.testOptions);
 			return true;
@@ -77,7 +82,7 @@ class SendGridEmail {
 		else if (this.requestSaysToBlockEmails(options)) {
 			// we are configured not to actually send out emails, just drop it to the floor
 			if (options.logger) {
-				options.logger.log(`Would have sent to ${JSON.stringify(options.to)}: ${options.subject}`);
+				options.logger.log(`Would have sent to ${JSON.stringify(options.to)}: ${options.subject}`, options.requestId);
 			}
 			return true;
 		}
@@ -109,7 +114,7 @@ class SendGridEmail {
 			subject = `{{{${to}}}} ${subject}`;
 			to = this.emailTo;
 			if (options.logger) {
-				options.logger.log(`Diverting to ${to}`);
+				options.logger.log(`Diverting to ${to}`, options.requestId);
 			}
 		}
 

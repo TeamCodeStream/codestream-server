@@ -63,7 +63,7 @@ class BroadcasterServer {
 		this.mongoClient = new MongoClient({ 
 			tryIndefinitely: true,
 			collections,
-			logger: this	// FIXME: this can't be good
+			logger: this
 		});
 		try {
 			await this.mongoClient.openMongoClient(this.config.storage.mongo);
@@ -843,12 +843,9 @@ class BroadcasterServer {
 		}
 		else if (message.youAre) {
 			// master is telling us our worker ID and helping us identify ourselves in the logs
-			// FIXME: it is not clear what this config object / config.logger object represents
 			this.workerId = message.youAre;
-			if (this.config.logger) {
-				this.loggerId = 'W' + this.workerId;
-				this.config.logger.loggerId = this.loggerId;
-				this.config.logger.loggerHost = OS.hostname();
+			if (this.logger && this.logger.setLoggerId) {
+				this.logger.setLoggerId('W' + this.workerId);
 			}
 			process.on('SIGINT', () => {});
 			process.on('SIGTERM', () => {});

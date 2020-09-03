@@ -18,5 +18,4 @@ describe('post requests', function() {
 	describe('PUT /posts/:id', postsRequestTester.putPostTest);
 	describe('DELETE /posts/:id', postsRequestTester.deletePostTest);
 	describe('PUT /react/:id', postsRequestTester.reactTest);
-	describe('email notifications', postsRequestTester.emailNotificationTest);
 });

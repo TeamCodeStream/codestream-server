@@ -5,9 +5,7 @@
 
 const OS = require('os');
 const Program = require('commander');
-const Net = require('net');
 const Cluster = require('cluster');
-const AwaitUtils = require('./await_utils');
 
 Program
 	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
@@ -26,7 +24,7 @@ class ClusterWrapper {
 		this.serverClass = serverClass;
 		this.serverOptions = serverOptions;
 		this.options = options;
-		this.logger = this.serverOptions.logger || console;
+		this.logger = this.options.logger || console;
 		this.workers = {};
 	}
 
@@ -43,7 +41,6 @@ class ClusterWrapper {
 
 	async startMaster () {
 		this.processArguments();
-		await AwaitUtils.callbackWrap(this.testPorts.bind(this));
 		this.startWorkers();
 	}
 
@@ -51,29 +48,6 @@ class ClusterWrapper {
 		if (Program.one_worker || this.options.oneWorker) {
 			this.oneWorker = true;
 		}
-	}
-
-	testPorts (callback) {
-		// here we test our listen port for availability, before we actually start spawning workers to listen
-		// FIXME: not sure if this 'config' is meant to represent the global config. If it does,  we need a way
-		// to generalize the port and host of the service being started by cluster wrapper. The custom config
-		// routine does not consolidate different values for each service into one place so we can't have an
-		// 'express' property. It would have to be defined by the code calling cluster wrapper.
-		const port = this.serverOptions.config && this.serverOptions.config.express && this.serverOptions.config.express.port;
-		if (!port) { return callback(); }
-		const testSocket = Net.connect(port);
-
-		// error means either there is nothing listening OR we can let the workers reliably trap the
-		// error, for example EACCES
-		testSocket.on('error', () => {
-			testSocket.end();
-			process.nextTick(callback);
-		});
-		// connection made, something is already listening and we need to exit
-		testSocket.on('connect', () => {
-			testSocket.end();
-			callback(`port ${port} is already in use`);
-		});
 	}
 
 	startWorkers () {
