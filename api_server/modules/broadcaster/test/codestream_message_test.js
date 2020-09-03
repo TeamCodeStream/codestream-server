@@ -114,9 +114,6 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		if (this.usingSocketCluster) {
 			return this.makeSocketClusterClientForClient(callback);
 		}
-		else if (this.mockMode) {
-			return callback();
-		}
 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
 		const token = this.currentUser.broadcasterToken;
