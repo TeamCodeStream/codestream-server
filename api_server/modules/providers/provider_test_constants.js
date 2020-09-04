@@ -18,6 +18,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'bitbucket.org',
 		apiHost: 'api.bitbucket.org/2.0',
 		hasIssues: true,
+		hasCodeHosting: true,
 		scopes: ['account', 'team', 'repository', 'issue:write', 'pullrequest:write']
 	},
 	'bitbucket/server': {
@@ -25,6 +26,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		name: 'bitbucket_server',
 		isEnterprise: false,
 		forEnterprise: true,
+		hasIssues: true,
+		hasCodeHosting: true,
 		host: 'bitbucket/server',
 		apiHost: 'api.bitbucket.org/2.0',
 		scopes: ['projects:read', 'repositories:write']
@@ -36,6 +39,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'github.com',
 		apiHost: 'api.github.com',
 		hasIssues: true,
+		hasCodeHosting: true,
 		scopes: ['repo', 'read:user', 'user:email', 'notifications']
 	},
 	'github/enterprise': {
@@ -45,6 +49,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		forEnterprise: true,
 		host: 'github/enterprise',
 		hasIssues: true,
+		hasCodeHosting: true,
 		scopes: ['repo', 'read:user', 'user:email', 'notifications']
 	},
 	'gitlab*com': {
@@ -54,7 +59,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'gitlab.com',
 		apiHost: 'gitlab.com/api/v4',
 		hasIssues: true,
-
+		hasCodeHosting: true
 	},
 	'gitlab/enterprise': {
 		id: 'gitlab/enterprise',
@@ -64,6 +69,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'gitlab/enterprise',
 		apiHost: 'gitlab.com/api/v4',
 		hasIssues: true,
+		hasCodeHosting: true,
 		scopes: ['api']
 	},
 	'auth*atlassian*com': {

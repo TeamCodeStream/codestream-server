@@ -17,7 +17,8 @@ const OAUTH_CONFIG = {
 	mockAccessTokenExpiresIn: 7200,
 	supportsRefresh: true,
 	supportsSignup: true,
-	hasIssues: true
+	hasIssues: true,
+	hasCodeHosting: true
 };
 
 class BitbucketAuth extends OAuthModule {

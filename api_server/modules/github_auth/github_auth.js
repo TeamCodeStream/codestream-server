@@ -15,6 +15,7 @@ const OAUTH_CONFIG = {
 	scopes: 'repo,read:user,user:email,notifications',
 	noGrantType: true,
 	hasIssues: true,
+	hasCodeHosting: true,
 	supportsSignup: true
 };
 

@@ -61,6 +61,9 @@ class CommonInit {
 			hasIssues: true,
 			host: this.controlProviderHostData.host
 		};
+		if (this.hasCodeHosting) {
+			this.expectedTeam.providerHosts[starredControlHost].hasCodeHosting = true;
+		}
 		const starredHost = this.host.replace(/\./g, '*').toLowerCase();
 		const encodedHost = encodeURIComponent(starredHost);
 		this.path = `/provider-host/${this.provider}/${this.team.id}/${encodedHost}`;

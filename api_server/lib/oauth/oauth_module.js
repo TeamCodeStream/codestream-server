@@ -126,6 +126,11 @@ class OAuthModule extends APIServerModule {
 		return this.oauthConfig.hasIssues;
 	}
 
+	// does this provider support code hosting?
+	hasCodeHosting () {
+		return this.oauthConfig.hasCodeHosting;
+	}
+
 	// does this provider gets its token from a url fragment?
 	tokenFromFragment () {
 		return !!this.oauthConfig.tokenFromFragment;
@@ -447,6 +452,7 @@ class OAuthModule extends APIServerModule {
 			provider,
 			apiHost,
 			hasIssues,
+			hasCodeHosting,
 			forEnterprise,
 			needsConfigure,
 			disabled,
@@ -465,8 +471,9 @@ class OAuthModule extends APIServerModule {
 				needsConfigure,
 				host: host.toLowerCase(),
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
-				hasIssues: hasIssues,
-				hasSharing: hasSharing
+				hasIssues,
+				hasCodeHosting,
+				hasSharing
 			};
 			if (scopes) {
 				const scopes_comma = scopes.split(',');
@@ -479,7 +486,7 @@ class OAuthModule extends APIServerModule {
 
 	// get instances of provider hosts according to configuration passed in
 	getInstancesByConfig (config) {
-		const { provider, hasIssues } = this.oauthConfig;
+		const { provider, hasIssues, hasCodeHosting } = this.oauthConfig;
 		const instances = [];
 		Object.keys(config || {}).forEach(host => {
 			const destarredHost = host.replace(/\*/g, '.');
@@ -489,6 +496,7 @@ class OAuthModule extends APIServerModule {
 				isEnterprise: true,
 				host: destarredHost,
 				hasIssues,
+				hasCodeHosting,
 				oauthData: config[host].oauthData
 			});
 		});

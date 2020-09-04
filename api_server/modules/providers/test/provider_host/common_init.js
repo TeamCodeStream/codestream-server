@@ -30,6 +30,9 @@ class CommonInit {
 			hasIssues: true,
 			host: this.host
 		};
+		if (this.hasCodeHosting) {
+			this.providerHostData.hasCodeHosting = true;
+		}
 		this.expectedData = {
 			team: {
 				_id: this.team.id,	// DEPRECATE ME

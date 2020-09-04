@@ -13,7 +13,9 @@ const OAUTH_CONFIG = {
 	exchangeFormat: 'form',
 	scopes: 'projects:read repositories:write',
 	appIdInAuthorizationHeader: true,
-	forEnterprise: true
+	forEnterprise: true,
+	hasIssues: true,
+	hasCodeHosting: true
 };
 
 class BitbucketServerAuth extends OAuthModule {

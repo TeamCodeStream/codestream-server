@@ -16,6 +16,7 @@ const OAUTH_CONFIG = {
 	supportsRefresh: true,
 	accessTokenExpiresIn: 7200,
 	hasIssues: true,
+	hasCodeHosting: true,
 	forEnterprise: true,
 	authCompletePage: 'gitlab'
 };

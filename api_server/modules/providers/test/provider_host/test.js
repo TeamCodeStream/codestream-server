@@ -14,7 +14,8 @@ const MessageToTeamTest = require('./message_to_team_test');
 const TEST_HOSTS = [
 	{
 		provider: 'github_enterprise',
-		host: 'https://git.codestream.us'
+		host: 'https://git.codestream.us',
+		hasCodeHosting: true
 	},
 	{
 		provider: 'jiraserver',
@@ -22,11 +23,13 @@ const TEST_HOSTS = [
 	},
 	{
 		provider: 'gitlab_enterprise',
-		host: 'https://gitlab.codestream.us'
+		host: 'https://gitlab.codestream.us',
+		hasCodeHosting: true
 	},
 	{
 		provider: 'bitbucket_server',
-		host: 'https://bitbucket.codestream.us'
+		host: 'https://bitbucket.codestream.us',
+		hasCodeHosting: true
 	}
 ];
 
@@ -43,30 +46,37 @@ class ProviderHostRequestTester {
 	test () {
 		new ProviderHostTest({ 
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
+			hasCodeHosting: TEST_HOSTS[SameTestHostNum()].hasCodeHosting,
 			host: TEST_HOSTS[NextTestHostNum()].host
 		}).test();
 		new TeamNotFoundTest({
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
+			hasCodeHosting: TEST_HOSTS[SameTestHostNum()].hasCodeHosting,
 			host: TEST_HOSTS[NextTestHostNum()].host
 		}).test();
 		new ACLTest({
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
+			hasCodeHosting: TEST_HOSTS[SameTestHostNum()].hasCodeHosting,
 			host: TEST_HOSTS[NextTestHostNum()].host
 		}).test();
 		new HostRequiredTest({
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
+			hasCodeHosting: TEST_HOSTS[SameTestHostNum()].hasCodeHosting,
 			host: TEST_HOSTS[NextTestHostNum()].host
 		}).test();
 		new UnknownProviderTest({
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
+			hasCodeHosting: TEST_HOSTS[SameTestHostNum()].hasCodeHosting,
 			host: TEST_HOSTS[NextTestHostNum()].host
 		}).test();
 		new FetchTest({
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
+			hasCodeHosting: TEST_HOSTS[SameTestHostNum()].hasCodeHosting,
 			host: TEST_HOSTS[NextTestHostNum()].host
 		}).test();
 		new MessageToTeamTest({
 			provider: TEST_HOSTS[SameTestHostNum()].provider,
+			hasCodeHosting: TEST_HOSTS[SameTestHostNum()].hasCodeHosting,
 			host: TEST_HOSTS[NextTestHostNum()].host
 		}).test();
 	}
