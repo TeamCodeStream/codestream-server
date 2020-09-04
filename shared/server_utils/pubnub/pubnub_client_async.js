@@ -204,24 +204,43 @@ class PubNubClient {
 
 	async _grantMultipleHelper (token, channels, options) {
 		let result;
-		try {
-			result = await this.pubnub.grant(
-				{
-					channels,
-					authKeys: [token],
-					read: options.read === false ? false : true,
-					write: options.write === true ? true : false,
-					ttl: options.ttl || 0
+		let retries = 0;
+		let lastError;
+		while (retries < 3) {
+			try {
+				lastError = null;
+				result = await this.pubnub.grant(
+					{
+						channels,
+						authKeys: [token],
+						read: options.read === false ? false : true,
+						write: options.write === true ? true : false,
+						ttl: options.ttl || 0
+					}
+				);
+				if (Math.random() < 0.4) {
+					result = { error: 'oops', errorData: { error: 'oops' }};
 				}
-			);
+				else {
+				}
+			}
+			catch (error) {
+				this._warn(`Failed to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(error)}`, options);
+				lastError = error;
+				retries++;
+			}
+
+			if (!lastError && result.error) {
+				this._warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(result.errorData)}`, options);
+				lastError = result.errorData;
+				retries++;
+			}
+			else if (!lastError) {
+				break;
+			}
 		}
-		catch (error) {
-			this._warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(error)}`, options);
-			throw error;
-		}
-		if (result.error) {
-			this._warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(result.errorData)}`, options);
-			throw result.errorData;
+		if (lastError) {
+			throw lastError;
 		}
 		this._log(`Successfully granted access for ${token} to ${JSON.stringify(channels, undefined, 3)}`, options);
 	}
@@ -401,14 +420,14 @@ class PubNubClient {
 			typeof options.request === 'object' &&
 			typeof options.request.warn === 'function'
 		) {
-			options.request.warn(message);
+			return options.request.warn(message);
 		}
 		else if (
 			options &&
 			typeof options.logger === 'object' &&
 			typeof options.logger.warn === 'function'
 		) {
-			options.logger.warn(message);
+			return options.logger.warn(message);
 		}
 	}
 }

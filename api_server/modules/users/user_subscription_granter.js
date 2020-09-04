@@ -2,8 +2,8 @@
 
 'use strict';
 
-const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
-const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
+// const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+// const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 class UserSubscriptionGranter  {
 
@@ -19,14 +19,15 @@ class UserSubscriptionGranter  {
 		for (let teamId of this.user.get('teamIds') || []) {
 			this.channels.push({
 				name: `team-${teamId}`,
-				includePresence: true
+				// includePresence: true
 			});
 		}
-		await this.getRepoChannels();			
-		await this.getStreamChannels();		
+		//await this.getRepoChannels();			
+		//await this.getStreamChannels();		
 		await this.grantAllChannels();
 	}
 
+	/*
 	// get the repos owned by the teams the user is a member of
 	async getRepoChannels () {
 		if ((this.user.get('teamIds') || []).length === 0) {
@@ -67,7 +68,7 @@ class UserSubscriptionGranter  {
 			this.channels.push(`stream-${stream.id}`);
 		}
 	}
-
+	
 	// get the streams owned by a given team ... this is restricted to direct
 	// and channel streams, since file-type streams are public to the whole team
 	// and do not have their own channel
@@ -85,25 +86,19 @@ class UserSubscriptionGranter  {
 			}
 		);
 	}
+	*/
 
 	// grant permission for the user to subscribe to a given channel
 	async grantAllChannels () {
-		const tokens = [];
-		// using the access token for PubNub subscription is to be DEPRECATED
-		if (this.user.get('isRegistered')) {
-			tokens.push(this.user.getAccessToken());
-		}
-		if (this.user.get('broadcasterToken')) {
-			tokens.push(this.user.get('broadcasterToken'));
+		if (!this.user.get('broadcasterToken')) {
+			throw `no broadcaster token available for user ${this.user.id}`;
 		}
 		try {
-			await Promise.all(tokens.map(async token => {
-				await this.broadcaster.grantMultiple(
-					token,
-					this.channels,
-					{ request: this.request }
-				);
-			}));
+			await this.broadcaster.grantMultiple(
+				this.user.get('broadcasterToken'),
+				this.channels,
+				{ request: this.request }
+			);
 		}
 		catch (error) {
 			throw `unable to grant user permissions for subscriptions, userId ${this.user.id}: ${error}`;
