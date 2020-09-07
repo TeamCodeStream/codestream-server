@@ -29,7 +29,7 @@ const RemoveUserMessageToStreamTest = require('./remove_user_message_to_stream_t
 const MessageToTeamTest = require('./message_to_team_test');
 const AddUserMessageToTeamTest = require('./add_user_message_to_team_test');
 const RemoveUserMessageToTeamTest = require('./remove_user_message_to_team_test');
-const SubscriptionTest = require('./subscription_test');
+// const SubscriptionTest = require('./subscription_test');
 const UserGetsStreamMessageTest = require('./user_gets_stream_message_test');
 const ArchiveStreamTest = require('./archive_stream_test');
 const RestoreStreamTest = require('./restore_stream_test');
@@ -90,7 +90,7 @@ class PutStreamRequestTester {
 		new MessageToTeamTest().test();
 		new AddUserMessageToTeamTest().test();
 		new RemoveUserMessageToTeamTest().test();
-		new SubscriptionTest().test();
+		// new SubscriptionTest().test(); // subscription to stream channels is deprecated
 		//new SubscriptionRevokedTest().test();	// Putting this off till we support removing members
 		new UserGetsStreamMessageTest().test();
 		new ArchiveStreamTest().test();

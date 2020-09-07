@@ -218,11 +218,6 @@ class PubNubClient {
 						ttl: options.ttl || 0
 					}
 				);
-				if (Math.random() < 0.4) {
-					result = { error: 'oops', errorData: { error: 'oops' }};
-				}
-				else {
-				}
 			}
 			catch (error) {
 				this._warn(`Failed to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(error)}`, options);

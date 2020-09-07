@@ -10,7 +10,7 @@ const NoJoinNonChannelStreamTest = require('./no_join_non_channel_stream_test');
 const NoJoinTeamStreamTest = require('./no_join_team_stream_test');
 const ACLTeamTest = require('./acl_team_test');
 const MessageToTeamTest = require('./message_to_team_test');
-const SubscriptionTest = require('./subscription_test');
+//const SubscriptionTest = require('./subscription_test');
 
 class JoinRequestTester {
 
@@ -24,7 +24,7 @@ class JoinRequestTester {
 		new NoJoinTeamStreamTest().test();
 		new ACLTeamTest().test();
 		new MessageToTeamTest().test();
-		new SubscriptionTest().test();
+		// new SubscriptionTest().test(); // subscribing to stream channels is deprecated
 	}
 }
 

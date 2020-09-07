@@ -34,7 +34,7 @@ class LoginRequestTester {
 		new TokenIsValidTest().test();
 		new SubscriptionTest({ which: 'user' }).test();
 		new SubscriptionTest({ which: 'team' }).test();
-		new SubscriptionTest({ which: 'stream' }).test();
+		// new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new DontUpdateLastLoginFromWebTest().test();
 		new ClearFirstSessionTest().test();
 	}
