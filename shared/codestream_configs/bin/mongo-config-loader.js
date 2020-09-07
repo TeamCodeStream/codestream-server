@@ -6,7 +6,7 @@
 
 const util = require('util');
 const Commander = require('commander');
-const StructuredCfg = require(__dirname + '/../lib/structured_config.js');
+const StructuredCfgFactory = require(__dirname + '/../lib/structured_config.js');
 const fs = require('fs');
 const hjson = require('hjson');
 
@@ -21,7 +21,9 @@ Commander
 	.option('-r, --report-cfg', 'report configuration summary')
 	.option('-s, --schema-version <schemaVersion>', 'override default schema version', cmdrHandleInt)
 	.option('-S, --show-cfg <serialNum>', 'read config for serial number and dump it')
+	.option('-a  --activate-cfg <serialNum>', 'activate the configuration')
 	.option('-D, --delete-cfg <serialNum>', 'delete config for serial number')
+	.option('-L, --load-cfg', 'load config as an application would')
 	.parse(process.argv);
 
 
@@ -31,14 +33,14 @@ if (!Commander.mongoUrl) {
 	console.log(
 		'\nOVERVIEW\nLoad and manage configuration data stored in a mongo database.\n\n' +
 		'EXAMPLES\n  To load a config file into mongo using the current schema version:\n' +
-		'    mongo-config-loader.js --mongo-url mongodb://localhost/codestream  --load-cfg-file $CSSVC_CFG_FILE\n' +
+		'    mongo-config-loader.js --mongo-url mongodb://localhost/codestream  --add-cfg-file $CSSVC_CFG_FILE\n' +
 		'\n  Summary of configs in mongo:\n' +
 		'    mongo-config-loader.js --mongo-url mongodb://localhost/codestream --report-cfg'
 	);
 	process.exit(1);
 }
 
-const CfgData = new StructuredCfg({
+const CfgData = StructuredCfgFactory.create({
 	mongoCfgCollection: Commander.cfgCollectionName,
 	mongoUrl: Commander.mongoUrl
 });
@@ -78,6 +80,13 @@ const CfgData = new StructuredCfg({
 	// delete a config by its serial number
 	else if (Commander.deleteCfg) {
 		await CfgData.deleteConfigFromMongo(Commander.deleteCfg);
+	}
+	// activate a configuration
+	else if (Commander.activateCfg) {
+		await CfgData.activateMongoConfig(Commander.activateCfg);
+	}
+	else if (Commander.loadCfg) {
+		await CfgData.loadPreferredConfig();
 	}
 	else {
 		Commander.help();

@@ -13,14 +13,15 @@ function waitABit() {
 		setTimeout(() => {
 			resolve();
 		}, 1000);
-		console.log('timeout set');
+		this.logger.log('timeout set');
 	});
 }
 
 class StructuredConfigMongo extends StructuredConfigBase {
 	constructor (options = {}) {
 		super(options);
-		this.configCollection = options.mongoCfgCollection || 'structuredConfiguration';
+		this.configCollection = options.mongoCfgCollection || 'structuredConfiguration'; // collection containing configs
+		this.selectedCollection = `${this.configCollection}Selected`; // contains one document which points to the selected config
 	}
 
 	async initialize(initOptions = {}) {
@@ -36,12 +37,12 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			return;
 		}
 		else if (collectionCacheKey && mongoConnections[collectionCacheKey]) {
-			console.log('using cached mongo connection');
+			this.logger.log('using cached mongo connection');
 			this.mongoClient = mongoConnections[collectionCacheKey].mongoClient;
 			this.db = mongoConnections[collectionCacheKey].db;
 			return;
 		}
-		console.log(`connecting to ${this.options.mongoUrl}`);
+		this.logger.log(`connecting to ${this.options.mongoUrl}`);
 		try {
 			this.mongoClient = await MongoClient.connect(this.options.mongoUrl, {
 				reconnectTries: 0,
@@ -55,24 +56,47 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			};
 		}
 		catch (error) {
-			console.warn(`mongo connect error '${error}'. Will retry...`);
+			this.logger.warn(`mongo connect error '${error}'. Will retry...`);
 			await waitABit();
 			await this._connectToMongo(this.options.mongoUrl);
 		}
 	}
 
+	getMongoClient() {
+		return this.mongoClient;
+	};
+
 	// load configuration data from mongo
 	async _loadConfig() {
-		const searchBy = { schemaVersion: this.schemaVersion || this._defaultSchemaVersion() };
-		// console.log(searchBy);
+		const selectedConfig = await this.db.collection(this.selectedCollection).findOne();
+		if (!selectedConfig) {
+			this.logger.warn(`could not find document in ${this.selectedCollection}`);
+		}
 		try {
-			// load the most recent config for this schema version
-			const dataDoc = (await this.db.collection(this.configCollection).find(searchBy).sort({ timeStamp: -1 }).limit(1).toArray())[0];
-			this.mongoConfigTime = dataDoc.timeStamp;
-			return dataDoc.configData;
+			let configDoc;
+			if (selectedConfig) {
+				this.console.debug(`attempting to load config with _id = ${selectedConfig.serialNumber}`);
+				configDoc = await this.db.collection(this.configCollection).findOne({ _id: selectedConfig.serialNumber });
+			}
+			if (!configDoc) {
+				const schemaVersion = this.schemaVersion || this._defaultSchemaVersion();
+				this.console.debug(`attempting to load latest config for schema ${schemaVersion}`);
+				configDoc = (await this.db.collection(this.configCollection).find({ schemaVersion }).sort({ timeStamp: -1 }).limit(1).toArray())[0];
+				if (!configDoc) {
+					this.logger.error('PANIC! No configuration found');
+					return;
+				}
+			}
+			this.logger.log(`config serial ${ObjectID(configDoc._id).toString()} (${new Date(configDoc.timeStamp).toUTCString()}) loaded`);
+			this.mongoConfigDoc = configDoc;
+			if (!selectedConfig) {
+				// activate config since no prior activation was found
+				await this.activateMongoConfig(ObjectID(configDoc._id).toString());
+			}
+			return configDoc.configData;
 		}
 		catch (error) {
-			console.error(`_loadConfigDataFromMongo() failed: ${error}`);
+			this.logger.error(`_loadConfigDataFromMongo() failed: ${error}`);
 			return;
 		}
 	}
@@ -89,10 +113,10 @@ class StructuredConfigMongo extends StructuredConfigBase {
 		try {
 			// load the most recent config for this schema version
 			const dataDocHeader = (await this.db.collection(this.configCollection).find(searchBy).sort({timeStamp: -1}).project({configData: -1}).limit(1).toArray())[0];
-			return dataDocHeader.timeStamp > this.mongoConfigTime;
+			return dataDocHeader.timeStamp > this.mongoConfigDoc.timestamp;
 		}
 		catch (error) {
-			console.error(`_loadConfigDataFromMongo() failed: ${error}`);
+			this.logger.error(`_loadConfigDataFromMongo() failed: ${error}`);
 			return false;
 		}
 	}
@@ -109,7 +133,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			return result.configData;
 		}
 		catch (error) {
-			console.error(`_getConfigBySerial() failed: ${error}`);
+			this.logger.error(`_getConfigBySerial() failed: ${error}`);
 			return;
 		}
 	}
@@ -146,7 +170,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			};
 		}
 		catch (error) {
-			console.error(`addNewConfigToMongo() failed: ${error}`);
+			this.logger.error(`addNewConfigToMongo() failed: ${error}`);
 			return;
 		}
 	}
@@ -165,7 +189,35 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			return true;
 		}
 		catch (error) {
-			console.error(`deleteConfigFromMongo() failed: ${error}`);
+			this.logger.error(`deleteConfigFromMongo() failed: ${error}`);
+			return false;
+		}
+	}
+
+	/**
+	 * activate config for the given serial number. Does not load it!
+
+	 * @param {*} reportOptions 
+	 */
+	async activateMongoConfig(serialNumber) {
+		const replacementDoc = { serialNumber: new ObjectID(serialNumber) };
+		try {
+			const selectedConfig = await this.db.collection(this.selectedCollection).findOne();
+			const filterDoc = selectedConfig
+				? { serialNumber: selectedConfig.serialNumber }
+				: {};
+			const results = await this.db.collection(this.selectedCollection).replaceOne(filterDoc, replacementDoc, { upsert: true });
+			if (results.modifiedCount === 1 || results.upsertedCount === 1) {
+				this.logger.log(`activated config serial number ${serialNumber}`);
+			}
+			else {
+				this.logger.error(`error activating config serial number n=${results.n} ${serialNumber}; ${results}`);
+				return false;
+			}
+			return true;
+		}
+		catch (error) {
+			this.logger.error(`activateMongoConfig() failed: ${error}`);
 			return false;
 		}
 	}
@@ -186,7 +238,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			return results;
 		}
 		catch (error) {
-			console.error(`getConfigSummary() failed: ${error}`);
+			this.logger.error(`getConfigSummary() failed: ${error}`);
 			return;
 		}
 	}

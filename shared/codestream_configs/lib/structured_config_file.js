@@ -10,7 +10,7 @@ class StructuredConfigFile extends StructuredConfigBase {
 	async _loadConfig() {
 		this.configFile = this.options.configFile || process.env.STRUCTURED_CFG_FILE;
 		this.configFileLastModified = fs.statSync(this.configFile).mtime;
-		console.log(`loading config from ${this.configFile}`);
+		this.logger.log(`loading config from ${this.configFile}`);
 		return hjson.parse(fs.readFileSync(this.configFile, 'utf8'));
 	}
 

@@ -3,7 +3,6 @@
 const util = require('util');
 const fs = require('fs');
 const hjson = require('hjson');
-
 const StringifySortReplacer = require('../../server_utils/stringify_sort_replacer');
 
 const schemas = {};     // schema cache
@@ -14,7 +13,7 @@ const schemas = {};     // schema cache
 // evidentally I need this according to some doc on the interwebs
 // for when promises go south
 process.on('unhandledRejection', (err) => { 
-	console.error(err);
+	this.logger.error(err);
 	process.exit(1);
 });
 
@@ -51,13 +50,14 @@ class StructuredConfigBase {
 			lastPreferredConfig: null,	// previous configuration (for comparison)
 			showConfigProperty: options.showConfigProperty || false,   // for logging the config
 			customConfigFunc: options.customConfigFunc,
-			customRestartFunc: options.customRestartFunc
+			customRestartFunc: options.customRestartFunc,
+			logger: options.logger || console
 		});
 	}
 
 	// poor-man's debugging
 	_dump(o) {
-		console.log(util.inspect(o || this, false, null, true /* enable colors */));
+		this.logger.log(util.inspect(o || this, false, null, true /* enable colors */));
 	}
 
 	// default derivation of the schema version
@@ -123,11 +123,11 @@ class StructuredConfigBase {
 				this.showConfig = this.getProperty(this.showConfigProperty);
 			}
 			if (this.showConfig) {
-				console.log('Config:', JSON.stringify(this.getPreferredConfig(), StringifySortReplacer, 4));
+				this.logger.log('Config:', JSON.stringify(this.getPreferredConfig(), StringifySortReplacer, 4));
 			}
 		}
 		else {
-			console.error('_loadConfig() failed', loadOptions);
+			this.logger.error('_loadConfig() failed', loadOptions);
 		}
 		return loadOptions.custom ? this.getPreferredConfig() : this.getNativeConfig();
 	}
@@ -165,7 +165,7 @@ class StructuredConfigBase {
 		}
 		this.schemaFile = this.options.schemaFile || process.env.STRUCTURED_CFG_SCHEMA_FILE || __dirname + '/../parameters.json';
 		if (!schemas.hasOwnProperty(this.schemaFile)) {
-			console.log(`loading schema (${this.schemaFile})`);
+			this.logger.log(`loading schema (${this.schemaFile})`);
 			schemas[this.schemaFile] = hjson.parse(fs.readFileSync(this.schemaFile, 'utf8'));
 		}
 		this.schema = schemas[this.schemaFile];
@@ -185,13 +185,13 @@ class StructuredConfigBase {
 			return p;
 		}
 		let propList = section.split('.');
-		// console.log(propList);
+		// this.logger.log(propList);
 		if (propList[0] === '') {
 			return p;
 		}
 		for(let prop of propList) {
-			// console.log(`_getSection() processing ${prop}`);
-			// console.log(util.inspect(p, false, null, true /* enable colors */));
+			// this.logger.log(`_getSection() processing ${prop}`);
+			// this.logger.log(util.inspect(p, false, null, true /* enable colors */));
 			if(p[prop]) {
 				p = p[prop];
 			}
@@ -200,15 +200,15 @@ class StructuredConfigBase {
 				// we're done traversing the tree.
 				// FIXME: This could be problematic if we're digging to a sub-structure in a repeating block.
 				let repeatingBlockKey = Object.keys(p)[0];
-				// console.log(`repeating block for prop ${prop} with key = ${repeatingBlockKey}`);
+				// this.logger.log(`repeating block for prop ${prop} with key = ${repeatingBlockKey}`);
 				return p[repeatingBlockKey];
 			}
 			else {
-				// console.error(`property ${prop} not found`);
+				// this.logger.error(`property ${prop} not found`);
 				return;
 			}
 		}
-		// console.log('_getSection() is done');
+		// this.logger.log('_getSection() is done');
 		return p;
 	}
 
@@ -229,17 +229,17 @@ class StructuredConfigBase {
 	// and applying a default if need be.
 	_getConfigValue(prop, schema, data) {
 		if (schema[prop].hasOwnProperty('env') && process.env[ schema[prop]['env'] ]) {
-			// console.log(`overriding config value for ${prop} from ${schema[prop]['env']}`);
+			// this.logger.log(`overriding config value for ${prop} from ${schema[prop]['env']}`);
 			return process.env[ schema[prop]['env'] ];
 		}
 		if (data.hasOwnProperty(prop)) {
 			return data[prop];
 		}
 		if(schema[prop].hasOwnProperty('default')) {
-			// console.log(`using default config value for ${prop}`);
+			// this.logger.log(`using default config value for ${prop}`);
 			return this._interpolate(schema[prop]['default'], process.env);
 		}
-		// console.warn(`property ${prop} does not have a value nor a default (it is undefined)`);
+		// this.logger.warn(`property ${prop} does not have a value nor a default (it is undefined)`);
 		return;
 	}
 
@@ -261,18 +261,18 @@ class StructuredConfigBase {
 		if (!data) {
 			return;
 		}
-		// console.log('------------\nschema:', schema);
-		// console.log('data:', data);
+		// this.logger.log('------------\nschema:', schema);
+		// this.logger.log('data:', data);
 		let blockKey = this._isRepeatingBlockKey(schema);
 		for (let prop of Object.keys(data)) {
-			// console.log('prop', prop);
+			// this.logger.log('prop', prop);
 			let schemaProp = blockKey ? blockKey : prop;
-			// console.log('schemaProp =', schemaProp);
+			// this.logger.log('schemaProp =', schemaProp);
 			if (schema[schemaProp].hasOwnProperty('desc')) {
-				// console.log(`leaf node at prop ${prop} -> ${sectionData[prop]}`);
+				// this.logger.log(`leaf node at prop ${prop} -> ${sectionData[prop]}`);
 				sectionData[prop] = this._getConfigValue(prop, schema, data);
 				if (typeof(sectionData[prop]) == 'string') {
-					// console.log(`-- ${sectionData[prop]}`);
+					// this.logger.log(`-- ${sectionData[prop]}`);
 					sectionData[prop] = this._interpolate(sectionData[prop], process.env);
 				}
 			}
@@ -291,7 +291,7 @@ class StructuredConfigBase {
 	 * @returns {object}   section of the config file
 	 */
 	getSection(section = '') {
-		// console.log(util.inspect(section, false, null, true /* enable colors */));
+		// this.logger.log(util.inspect(section, false, null, true /* enable colors */));
 		let schema = this._getSection(this.schema, section);
 		let data = this._getSection(this.sourceConfig, section);
 		let sectionData = {};
