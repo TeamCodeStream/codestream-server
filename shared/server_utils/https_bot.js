@@ -28,7 +28,6 @@ function _SimpleRequest (method, host, port, path, data, options, callback) {
 				let parsed;
 				if (!options.noJsonInResponse) {
 					try {
-						console.warn('PARSING: ' + responseData.substring(0, 1000));
 						parsed = JSON.parse(responseData);
 					}
 					catch(error) {
