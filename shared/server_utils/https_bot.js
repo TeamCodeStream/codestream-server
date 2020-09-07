@@ -31,7 +31,7 @@ function _SimpleRequest (method, host, port, path, data, options, callback) {
 						parsed = JSON.parse(responseData);
 					}
 					catch(error) {
-						return callback(`error parsing JSON data: ${error} :: ${responseData.substring(0, 1000)}...`);
+						return callback(`error parsing JSON data (status=${response.statusCode}): ${error} :: ${responseData.substring(0, 1000)}...`);
 					}
 				}
 				else {
