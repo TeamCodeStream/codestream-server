@@ -2,7 +2,8 @@
 
 'use strict';
 
-var Assert = require('assert');
+const Assert = require('assert');
+const Strftime = require('strftime');
 
 // make eslint happy
 /* globals before, after, it */
@@ -15,6 +16,7 @@ class GenericTest {
 		Object.assign(this, options);
 		this.testNum = ++NumTests;
 		this.mockMode = process.env.CS_API_MOCK_MODE;
+		this.testLogs = [];
 	}
 
 	// override me!
@@ -44,17 +46,36 @@ class GenericTest {
 		}
 
 		before((callback) => {
-			this.before(callback);
+			this.before(error => {
+				if (error) {
+					this.testFailed = true;
+					callback(error);
+				}
+				else {
+					callback();
+				}
+			});
 		});
 
 		after((callback) => {
+			if (!this.testPassed) {
+				this.outputLogs();
+			}
 			this.after(callback);
 		});
 
 		const out = it(
 			this.testNum + ': ' + (this.description || '???'),
 			(callback) => {
-				this.run(callback);
+				this.run(error => {
+					if (error) {
+						callback(error);
+					}
+					else {
+						this.testPassed = true;
+						callback();
+					}
+				});
 			}
 		);
 		if (this.testTimeout) {
@@ -173,6 +194,21 @@ class GenericTest {
 
 	timeout () {
 		return null;
+	}
+
+	testLog (msg) {
+		const time = Strftime('%Y-%m-%d %H:%M:%S.%LZ', new Date());
+		this.testLogs.push(`${time} ${msg}`);
+	}
+
+	outputLogs () {
+		const time = Strftime('%Y-%m-%d %H:%M:%S.%LZ', new Date());
+		console.warn('********************************************************************************');
+		console.warn(`${time} TEST ${this.testNum} FAILED:`);
+		for (const log of this.testLogs) {
+			console.warn(log);
+		}
+		console.warn('********************************************************************************\n');
 	}
 }
 

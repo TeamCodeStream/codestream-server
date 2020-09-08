@@ -92,13 +92,22 @@ class APIRequestTest extends GenericTest {
 		const method = options.method || 'get';
 		const path = options.path || '/';
 		const data = options.data || null;
+		const start = Date.now();
+		const requestCallback = function(error, responseData, response) {
+			const requestId = response.headers['x-request-id'];
+			const result = error ? 'FAIL' : 'OK';
+			const end = Date.now();
+			const took = end - start; 
+			this.testLog(`${requestId} ${method} ${path} ${result} ${response.statusCode} ${took}ms:\n${JSON.stringify(responseData, 0, 10)}\n`);
+			callback(error, responseData, response);
+		}.bind(this);
 		if (this.mockMode) {
 			this.sendIpcRequest({
 				method,
 				path,
 				data,
 				headers: requestOptions.headers
-			}, callback, requestOptions);
+			}, requestCallback, requestOptions);
 
 		}
 		else {
@@ -108,7 +117,7 @@ class APIRequestTest extends GenericTest {
 				path,
 				data,
 				requestOptions,
-				callback
+				requestCallback
 			);
 		}
 	}

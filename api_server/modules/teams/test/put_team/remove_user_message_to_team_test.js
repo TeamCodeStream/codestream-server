@@ -45,6 +45,7 @@ class RemoveUserMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Com
 	}
 
 	waitForSubscribe (callback) {
+		this.testLog(`Waiting 500ms for subscribe...`);
 		setTimeout(callback, 500);
 	}
 

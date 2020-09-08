@@ -185,6 +185,7 @@ class APIRequest {
 		}
 		this.warn(ErrorHandler.log(this.gotError));
 		this.responseData = ErrorHandler.toClient(this.gotError);
+		this.response.set('X-Request-Id', this.request.id);
 		this.response.status(this.statusCode).send(this.responseData);
 	}
 

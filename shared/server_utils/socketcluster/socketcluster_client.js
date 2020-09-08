@@ -68,6 +68,7 @@ class SocketClusterClient {
 
 		this._log(`Transmitting message ${message.messageId} for channel ${channel} to SocketCluster server...`);
 		await this.socket.transmit('message', { channel, message });
+		this._log(`Published ${message.messageId} to ${channel}`);
 	}
 
 	// subscribe to the specified channel, providing a listener callback for the

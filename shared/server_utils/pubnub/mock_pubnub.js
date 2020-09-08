@@ -49,7 +49,9 @@ class MockPubnub {
 			channel: options.channel,
 			message: options.message
 		};
+		this._log(`Transmitting message ${message.message.messageId} for channel ${message.channel} as mock Pubnub server...`, options);
 		this._emit('message', message);
+		this._log(`Published ${message.message.messageId} to ${message.channel}`, options);
 		return {};
 	}
 
@@ -210,6 +212,40 @@ class MockPubnub {
 			return data;
 		}
 		return data;
+	}
+
+	_log(message, options) {
+		if (
+			options &&
+			typeof options.request === 'object' &&
+			typeof options.request.log === 'function'
+		) {
+			options.request.log(message);
+		}
+		else if (
+			options &&
+			typeof options.logger === 'object' &&
+			typeof options.logger.log === 'function'
+		) {
+			options.logger.log(message);
+		}
+	}
+
+	_warn(message, options) {
+		if (
+			options &&
+			typeof options.request === 'object' &&
+			typeof options.request.warn === 'function'
+		) {
+			return options.request.warn(message);
+		}
+		else if (
+			options &&
+			typeof options.logger === 'object' &&
+			typeof options.logger.warn === 'function'
+		) {
+			return options.logger.warn(message);
+		}
 	}
 }
 

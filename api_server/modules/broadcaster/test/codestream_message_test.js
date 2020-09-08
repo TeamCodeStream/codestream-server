@@ -57,7 +57,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		BoundAsync.series(this, [
 			this.listenOnClient,	// start listening first
 			this.waitForSubscribe,	// after listening, wait a bit till we generate the message
-			this.generateMessage,	// now trigger whatever request will cause the message to be sent
+			this.doGenerateMessage,	// now trigger whatever request will cause the message to be sent
 			this.waitForMessage,	// wait for the message to arrive
 			this.clearTimer			// once the message arrives, stop waiting
 		], callback);
@@ -71,10 +71,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			return this.makeSocketClusterClientForServer(callback);
 		}
 		if (this.mockMode) {
+			this.testLog('Cannot make PubNub client for server in mock mode');
 			return callback();
 		}
 
 		// all we have to do here is provide the full config, which includes the secretKey
+		this.testLog('Making PubNub client for server...');
 		let config = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
 		config.uuid = `API-${OS.hostname()}-${this.testNum}`;
 		let client = new PubNub(config);
@@ -86,6 +88,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	}
 
 	makeSocketClusterClientForServer (callback) {
+		this.testLog('Making SocketCluster client for server...');
 		(async () => {
 			const config = Object.assign({},
 				{
@@ -132,6 +135,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			pubnub: client
 		});
 		this.broadcasterClientsForUser[user.id].init();
+		this.testLog(`Made PubNub client for user ${user.id}, token ${token}`);
 		callback();
 	}
 
@@ -160,6 +164,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.broadcasterClientsForUser[user.id] = new SocketClusterClient(config);
 			try {
 				await this.broadcasterClientsForUser[user.id].init();
+				this.testLog(`Made SocketCluster client for user ${user.id}, token ${broadcasterToken}`);
 			}
 			catch (error) {
 				return callback(error);
@@ -181,15 +186,18 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// wait for permissions to be set through pubnub PAM
 	wait (callback) {
 		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 100 : 5000);
+		this.testLog(`Waiting ${time} for message...`);
 		setTimeout(callback, time);
 	}
 
 	// begin listening on the simulated client
 	listenOnClient (callback) {
 		// we'll time out after 5 seconds
+		const timeout = this.messageReceiveTimeout || 5000;
+		this.testLog(`Client listening on ${this.channelName}, will time out after ${timeout} ms...`);
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
-			this.messageReceiveTimeout || 5000
+			timeout
 		);
 
 		(async () => {
@@ -204,8 +212,10 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 						onFail: this.onSubscribeFail ? this.onSubscribeFail.bind(this) : undefined
 					}
 				);
+				this.testLog(`Subscribed to ${this.channelName}`);
 			}
 			catch (error) {
+				this.testLog(`Failed to subscribe to ${this.channelName}`);
 				return callback(error);
 			}
 			callback();
@@ -215,6 +225,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// wait some period after we subscribe before generating the test message
 	// in most cases, we don't need to wait, override this to wait longer
 	waitForSubscribe (callback) {
+		this.testLog(`Waiting 0 for subscribe...`);
 		setTimeout(callback, 0);
 	}
 
@@ -227,17 +238,21 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	messageReceived (error, message) {
 		if (error) { return this.messageCallback(error); }
 		if (message.channel !== this.channelName) {
+			this.testLog(`Received message ${message.messageId} on ${message.channel}, ignoring:\n${JSON.stringify(message, 0, 10)}`);
 			return;	// ignore
 		}
 		else if (!this.validateMessage(message)) {
+			this.testLog(`Received message ${message.messageId} on ${message.channel}, but was not validated:\n${JSON.stringify(message, 0, 10)}`);
 			return; // ignore
 		}
 
 		// the message can actually arrive before we are waiting for it, so in that case signal that we already got it
 		if (this.messageCallback) {
+			this.testLog(`Message ${message.messageId} validated`);
 			this.messageCallback();
 		}
 		else {
+			this.testLog(`Message ${message.messageId} already received`);
 			this.messageAlreadyReceived = true;
 		}
 	}
@@ -254,6 +269,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		return true;
 	}
 
+	// generate the message, and log when we are doing it
+	doGenerateMessage (callback) {
+		this.testLog('Generating message...');
+		this.generateMessage(callback);
+	}
+
 	// generate the message, this could be overriden but by default it just sends a random message
 	generateMessage (callback) {
 		this.sendFromServer(callback);
@@ -262,6 +283,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// send a random message from the server
 	sendFromServer (callback) {
 		this.message = RandomString.generate(100);
+		this.testLog('Publishing message from server...');
 		this.broadcasterForServer.publish(
 			this.message,
 			this.channelName

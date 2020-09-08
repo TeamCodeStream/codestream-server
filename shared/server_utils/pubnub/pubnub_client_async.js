@@ -42,6 +42,7 @@ class PubNubClient {
 			return await this.publishParts(json, channel);
 		}
 
+		this._log(`Transmitting message ${message.messageId} for channel ${channel} to Pubnub server...`);
 		const result = await this.pubnub.publish(
 			{
 				message: message,
@@ -49,6 +50,7 @@ class PubNubClient {
 				sendByPost: true
 			}
 		);
+		this._log(`Published ${message.messageId} to ${channel}`);
 
 		if (result.error) {
 			throw result.errorData;
