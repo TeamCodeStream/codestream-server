@@ -48,7 +48,12 @@ class AccessLogger extends APIServerModule {
 		let ip = request.headers['x-forwarded-for'];
 		if (!ip && request.connection) {
 			const addr = request.connection.remoteAddress;
-			ip = addr.split(':').pop() || '???';
+			if (addr) {
+				ip = addr.split(':').pop() || '???';
+			}
+			else {
+				ip = '???';
+			}
 		}
 	
 		this.api.log(
