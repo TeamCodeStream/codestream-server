@@ -3,7 +3,8 @@
 const util = require('util');
 const fs = require('fs');
 const hjson = require('hjson');
-const StringifySortReplacer = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/stringify_sort_replacer');
+
+const StringifySortReplacer = require('../../server_utils/stringify_sort_replacer');
 
 const schemas = {};     // schema cache
 
