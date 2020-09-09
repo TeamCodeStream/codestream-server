@@ -78,6 +78,11 @@ var _Ops = {
 	}
 };
 
+// identify an object, but only if it is not an array
+var _isObject = function(value) {
+	return typeof value === 'object' && !(value instanceof Array);
+};
+
 // here we support that you can change a value that is within an object, like:
 // { $set: { "object.x", 1 } } ... to any level of nesting
 var _subOp = function(opType, document, op, field) {
@@ -87,7 +92,7 @@ var _subOp = function(opType, document, op, field) {
 		if (typeof document[topField] === 'undefined') {
 			document[topField] = {};
 		}
-		if (typeof document[topField] === 'object') {
+		if (_isObject(document[topField])) {
 			_documentOpsHelper(opType, document[topField], { [subField]: op[field] });
 		}
 		return true;
@@ -117,7 +122,7 @@ var _flattenOp = function(opData, value, rootKey) {
 			return 'too many keys';
 		}
 		const subValue = value[key];
-		if (typeof subValue === 'object') {
+		if (_isObject(subValue)) {
 			const subRoot = `${rootKey}${key}.`;
 			const subOp = _flattenOp(opData, subValue, subRoot);
 			if (typeof subOp === 'string') {
@@ -136,7 +141,7 @@ var _flattenOp = function(opData, value, rootKey) {
 // the op to pass in the database update operation
 var _handleDirective = function(opData, key) {
 	const value = opData.hash[key];
-	if (typeof value !== 'object') {
+	if (!_isObject(value)) {
 		return key;
 	}
 	const subOp = _flattenOp(opData, value, opData.root);
@@ -150,7 +155,7 @@ var _handleNonDirective = function(opData, key) {
 	opData.op.$set = opData.op.$set || {};
 	const subRoot = `${opData.root}${key}.`;
 	const value = opData.hash[key];
-	if (typeof value === 'object') {
+	if (_isObject(value)) {
 		const subOp = _flattenOp(opData, value, subRoot);
 		if (typeof subOp === 'string') {
 			return subOp;	// error
