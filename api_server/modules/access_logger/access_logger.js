@@ -76,4 +76,3 @@ class AccessLogger extends APIServerModule {
 }
 
 module.exports = AccessLogger;
-
