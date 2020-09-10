@@ -13,7 +13,7 @@ const schemas = {};     // schema cache
 // evidentally I need this according to some doc on the interwebs
 // for when promises go south
 process.on('unhandledRejection', (err) => { 
-	this.logger.error(err);
+	console.warn(err);
 	process.exit(1);
 });
 
