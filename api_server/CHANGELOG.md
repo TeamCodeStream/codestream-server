@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.4] - 2020-9-16
+
+### Added
+
+- Adds new `notifications` scope to the GitHub Enterprise instructions to accomodate the pull-request integration
+
 ## [8.2.3] - 2020-8-27
 
 ### Changed
