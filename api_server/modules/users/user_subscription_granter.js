@@ -19,7 +19,9 @@ class UserSubscriptionGranter  {
 		for (let teamId of this.user.get('teamIds') || []) {
 			this.channels.push({
 				name: `team-${teamId}`,
-				// includePresence: true
+				// DEPRECATE ME ... this is no longer needed, but it may break clients not to grant it
+				// we should purge "withPresence" as a condition on the client, then we no longer need this
+				includePresence: true
 			});
 		}
 		//await this.getRepoChannels();			
