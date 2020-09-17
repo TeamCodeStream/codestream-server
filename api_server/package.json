@@ -43,7 +43,7 @@
     "node-fetch": "2.6.0",
     "node-ipc": "9.1.1",
     "oauth": "0.9.15",
-    "pubnub": "4.29.4",
+    "pubnub": "4.29.7",
     "read-package-json": "2.1.1",
     "socketcluster-client": "16.0.1",
     "strftime": "0.10.0",
