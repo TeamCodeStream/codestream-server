@@ -18,10 +18,10 @@ class RemoveUserMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Com
 
 	// form the data for the team update
 	makeTeamData (callback) {
-		// remove current user from the team, that user will then try to subscribe
+		// remove a user from the team, current user will then try to subscribe
 		super.makeTeamData(() => {
 			this.data.$addToSet = {
-				removedMemberIds: this.currentUser.user.id
+				removedMemberIds: this.users[2].user.id
 			};
 			callback();
 		});
