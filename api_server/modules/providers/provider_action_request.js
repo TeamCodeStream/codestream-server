@@ -234,7 +234,7 @@ class ProviderActionRequest extends RestfulRequest {
 		}
 		else if (payload && payload.type === 'view_submission') {
 			return {
-				event: 'Replied to Codemark',
+				event: 'Reply Created',
 				data: {
 					CodemarkId: actionPayload && actionPayload.cId,
 					Endpoint: endpoint || ''
