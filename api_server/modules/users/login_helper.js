@@ -207,13 +207,9 @@ class LoginHelper {
 		}
 		
 		// if using socketcluster for messaging (for on-prem installations), return host info
-		const { socketCluster } = this.apiConfig; 
-		if (socketCluster && socketCluster.host && socketCluster.port) {
-			this.responseData.socketCluster = {
-				host: socketCluster.host,
-				port: socketCluster.port,
-				ignoreHttps: socketCluster.ignoreHttps
-			};
+		if (this.apiConfig.broadcastEngine.selected === 'codestreamBroadcaster') {
+			const { host, port, ignoreHttps } = this.apiConfig.broadcastEngine.codestreamBroadcaster;
+			this.responseData.socketCluster = { host, port, ignoreHttps };
 		}
 		Object.assign(this.responseData, this.initialData);
 	}
