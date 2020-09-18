@@ -638,22 +638,28 @@ class PostCreator extends ModelCreator {
 	// this includes an increase in the post count, and a clearing of the 
 	// author's lastReads for the stream
 	async publishToAuthor () {
-		const channel = `user-${this.user.id}`;
-		const message = {
-			requestId: this.request.request.id,
-			user: this.transforms.updatePostCountOp
-		};
-		try {
-			await this.api.services.broadcaster.publish(
-				message,
-				channel,
-				{ request: this.request }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish author update message to user ${this.user.id}: ${JSON.stringify(error)}`);
-		}
+		// HACK/WORKAROUND ALERT ... this broadcast, along with the broadcast of the actual post, runs into the Pubnub bug
+		// referenced in this support ticket: https://support.pubnub.com/helpdesk/tickets/29566 ...
+		// To get around the bug, we're going to delay the broadcast here for 1 second, until the bug is fixed,
+		// then we can remove this HACK
+		setTimeout(async () => {
+			const channel = `user-${this.user.id}`;
+			const message = {
+				requestId: this.request.request.id,
+				user: this.transforms.updatePostCountOp
+			};
+			try {
+				await this.api.services.broadcaster.publish(
+					message,
+					channel,
+					{ request: this.request }
+				);
+			}
+			catch (error) {
+				// this doesn't break the chain, but it is unfortunate...
+				this.request.warn(`Could not publish author update message to user ${this.user.id}: ${JSON.stringify(error)}`);
+			}
+		}, 1000);
 	}
 
 	// track this post for analytics, with the possibility that the user may have opted out
