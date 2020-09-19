@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.2] - 2020-9-19
+
+### Fixed
+
+- Connection configuration bug
+
 ## [8.2.1] - 2020-9-16
 
 ### Changed
