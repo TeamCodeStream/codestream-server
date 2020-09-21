@@ -7,6 +7,7 @@ module.exports = [
 		emailFile: 'simple',
 		expectedText: 'test'
 	},
+	/*
 	{
 		description: 'an email with no from address',
 		emailFile: 'no_from',
@@ -102,4 +103,5 @@ module.exports = [
 		emailFile: 'no_text',
 		shouldFail: true
 	}
+	*/
 ];

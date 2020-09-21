@@ -85,6 +85,7 @@ this.log(`#${this.testNum} - Making data...`);
 	// create two users for running the test, one who will originate the post (the email is "from" them),
 	// the other will listen for the post on pubnub
 	createUsers (callback) {
+this.log(`#${this.testNum} - Creating users...`);
 		this.userData = [];
 		BoundAsync.timesSeries(
 			this,
@@ -96,6 +97,7 @@ this.log(`#${this.testNum} - Making data...`);
 
 	// create a single user for running the test
 	createUser (n, callback) {
+this.log(`#${this.testNum} - Creating user ${n}...`);
 		BoundAsync.series(this, [
 			this.registerUser,	// register the user
 			this.confirmUser	// confirm the registration
@@ -110,6 +112,7 @@ this.log(`#${this.testNum} - Making data...`);
 			username: RandomString.generate(8),
 			_confirmationCheat: this.config.sharedSecrets.confirmationCheat
 		};
+this.log(`#${this.testNum} - Registering ${data.email}...`);
 		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
 		data._pubnubUuid = `TEST-UUID-${_NextPubnubUuid}`;
 		this.apiRequest(
@@ -134,6 +137,7 @@ this.log(`#${this.testNum} - Making data...`);
 			userId: userData.user.id,
 			confirmationCode: userData.user.confirmationCode
 		};
+this.log(`#${this.testNum} - Confirming ${data.email}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -153,6 +157,7 @@ this.log(`#${this.testNum} - Making data...`);
 		let data = {
 			name: RandomString.generate(10)
 		};
+this.log(`#${this.testNum} - Creating team ${data.name}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -174,6 +179,7 @@ this.log(`#${this.testNum} - Making data...`);
 			teamId: this.team.id,
 			email: this.userData[1].user.email
 		};
+this.log(`#${this.testNum} - Inviting ${data.email}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -193,6 +199,7 @@ this.log(`#${this.testNum} - Making data...`);
 			teamId: this.team.id,
 			memberIds: [this.userData[1].user.id]
 		};
+this.log(`#${this.testNum} - Creating stream ${data.name}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -228,6 +235,7 @@ this.log(`#${this.testNum} - Making data...`);
 				}]
 			}
 		};
+this.log(`#${this.testNum} - Creating codemark ${data.codemark.text}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -250,6 +258,7 @@ this.log(`#${this.testNum} - Making data...`);
 		// processing the inbound email
 		let clientConfig = Object.assign({}, this.config.broadcastEngine.pubnub);
 		let user = this.userData[1].user;
+this.log(`#${this.testNum} - Making Pubnub client ${user._pubnubUuid || user.id}...`);
 		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = this.userData[1].pubnubToken;
 		let client = new PubNub(clientConfig);
