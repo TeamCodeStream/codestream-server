@@ -281,7 +281,7 @@ const then = Date.now();
 			);
 const now = Date.now();
 if (now - then > 1000) {
-	console.warn(`WTF? INSERT OPERATION TOOK ${now - then} MS!!!`);
+	this.melog(`WTF? INSERT OPERATION TOOK ${now - then} MS!!!`);
 }
 		}
 		catch (error) {
@@ -684,6 +684,12 @@ if (now - then > 1000) {
 		}
 		else if (typeof obj[field] === 'object') {
 			obj[field] = {'*': '*'};
+		}
+	}
+
+	melog (msg) {
+		if (this.options.queryLogger) {
+			this.options.queryLogger.log(`${Date.now()} - ${msg}`);
 		}
 	}
 }

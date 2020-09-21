@@ -379,7 +379,9 @@ class DataCollection {
 	}
 
 	melog (msg) {
-		console.log(`${Date.now()} - ${msg}`);
+		if (this.options.logger) {
+			this.options.logger.log(`${Date.now()} - ${msg}`);
+		}
 	}
 }
 

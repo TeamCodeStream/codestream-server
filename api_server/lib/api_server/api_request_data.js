@@ -32,7 +32,8 @@ class APIRequestData {
 		let collection = new DataCollection({
 			databaseCollection: options.api.data[collectionName], // the collection in the master DataSource
 			modelClass: modelClass, // how to create in instance of this collection's models
-			request: options.request
+			request: options.request,
+logger: this[OptionsSymbol].api
 		});
 		this[CollectionsSymbol][collectionName] = collection;
 		this[collectionName] = collection;
@@ -58,7 +59,7 @@ class APIRequestData {
 	}
 
 	melog (msg) {
-		console.log(`${Date.now()} - ${msg}`);
+		this[OptionsSymbol].api.log(`${Date.now()} - ${msg}`);
 	}
 }
 
