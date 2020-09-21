@@ -328,6 +328,7 @@ class DataCollection {
 
 	// create a single document in the database
 	async _createDocument (id) {
+		this.melog(`Creating document ${id}...`);
 		let model = this._getFromCache(id);
 		if (!model) { return; }
 		const createdDocument = await this.databaseCollection.create(
@@ -340,6 +341,7 @@ class DataCollection {
 		);
 		this._addDataToCache(createdDocument);	// update our cache
 		delete this.toCreateIds[id];	// no longer needs to be created!
+		this.melog(`Created document ${id}!!!`);
 	}
 
 	// delete a series of documents in the database
@@ -374,6 +376,10 @@ class DataCollection {
 	// ensure the IDs are in the proper format for the underlying database
 	inQuerySafe (ids) {
 		return this.databaseCollection.inQuerySafe(ids);
+	}
+
+	melog (msg) {
+		console.log(`${Date.now()} - ${msg}`);
 	}
 }
 

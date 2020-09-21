@@ -273,11 +273,16 @@ class MongoCollection {
 
 		// insert the document
 		try {
+const then = Date.now();
 			await this._runQuery(
 				'insertOne',
 				document,
 				options
 			);
+const now = Date.now();
+if (now - then > 1000) {
+	console.warn(`WTF? INSERT OPERATION TOOK ${now - then} MS!!!`);
+}
 		}
 		catch (error) {
 			throw this.errorHandler.dataError(error);

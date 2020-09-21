@@ -39,6 +39,7 @@ class APIRequestData {
 	}
 
 	async persist () {
+		this.melog('PERSISTING ALL COLLECTIONS...');
 		// persist any changes tracked in our local collections
 		const collectionNames = Object.keys(this[CollectionsSymbol]);
 		await Promise.all(
@@ -50,8 +51,14 @@ class APIRequestData {
 
 	async persistCollection (collectionName) {
 		if (this[collectionName]) {
+			this.melog('PERSISTING COLLECTION ' + collectionName);
 			await this[collectionName].persist();
+			this.melog('PERSISTED COLLECTION ' + collectionName);
 		}
+	}
+
+	melog (msg) {
+		console.log(`${Date.now()} - ${msg}`);
 	}
 }
 
