@@ -17,9 +17,12 @@ const Path = require('path');
 // user, that would be bad...
 let _NextPubnubUuid = 0;
 
+var TestNum = 1;
+
 class EmailTest {
 
 	constructor (options) {
+		this.testNum = TestNum++;
 		Object.assign(this, options);
 	}
 
@@ -29,10 +32,10 @@ class EmailTest {
 
 	get it () {
 		if (this.shouldFail) {
-			return `should not create a post from ${this.description}`;
+			return `${this.testNum} - should not create a post from ${this.description}`;
 		}
 		else {
-			return `should create a post originating from ${this.description}`;
+			return `${this.testNum} - should create a post originating from ${this.description}`;
 		}
 	}
 
@@ -69,6 +72,7 @@ class EmailTest {
 
 	// make some API calls to set up the data to use in the test
 	makeData (callback) {
+console.log(`#${this.testNum} - Making data...`);
 		BoundAsync.series(this, [
 			this.createUsers,	// create a couple users, one will originate the post (the email is "from" that user), the other will listen
 			this.createTeam,	// create a team 
@@ -101,7 +105,7 @@ class EmailTest {
 	// register a single user for running the test
 	registerUser (callback) {
 		let data = {
-			email: this.randomEmail(),
+			email: this.testNum + '-' + this.randomEmail(),
 			password: RandomString.generate(8),
 			username: RandomString.generate(8),
 			_confirmationCheat: this.config.sharedSecrets.confirmationCheat
@@ -258,6 +262,7 @@ class EmailTest {
 
 	// read the email file indicated for the test
 	readEmailFile (callback) {
+console.log(`#${this.testNum} - Reading ${this.emailFile}.eml...`);
 		const inputFile = this.emailFile + '.eml';
 		let path = Path.join(process.env.CSSVC_BACKEND_ROOT, 'inbound_email', 'test', 'test_files', inputFile);
 		FS.readFile(
@@ -293,6 +298,7 @@ class EmailTest {
 
 	// begin listening on the simulated client
 	listenOnClient (callback) {
+console.log(`#${this.testNum} - Listening...`);
 		// we'll time out after 10 seconds
 		this.channelName = `stream-${this.stream.id}`;
 		this.messageTimer = setTimeout(
@@ -324,6 +330,7 @@ class EmailTest {
 
 	// called when a message has been received, assert that it matches expectations
 	messageReceived (error, message) {
+console.log(`#${this.testNum} - Received: ${JSON.stringify(message)}`);
 		if (error) { return this.messageCallback(error); }
 		if (message.channel !== this.channelName) {
 			return;	// ignore
@@ -360,7 +367,9 @@ class EmailTest {
 	writeEmailFile (callback) {
 		const outputFile = `${this.emailFile}-${Math.random()}.eml`;
 		let path = Path.join(this.config.inboundEmailServer.inboundEmailDirectory, outputFile);
+console.warn(`#${this.testNum} - Writing ${path}...`);
 		if (FS.existsSync(path)) {
+console.log(`#${this.testNum} which already existed`);
 			FS.unlinkSync(path);
 		}
 		FS.writeFile(path, this.emailData, callback);
