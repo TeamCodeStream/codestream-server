@@ -72,7 +72,7 @@ class EmailTest {
 
 	// make some API calls to set up the data to use in the test
 	makeData (callback) {
-console.log(`#${this.testNum} - Making data...`);
+this.log(`#${this.testNum} - Making data...`);
 		BoundAsync.series(this, [
 			this.createUsers,	// create a couple users, one will originate the post (the email is "from" that user), the other will listen
 			this.createTeam,	// create a team 
@@ -262,7 +262,7 @@ console.log(`#${this.testNum} - Making data...`);
 
 	// read the email file indicated for the test
 	readEmailFile (callback) {
-console.log(`#${this.testNum} - Reading ${this.emailFile}.eml...`);
+this.log(`#${this.testNum} - Reading ${this.emailFile}.eml...`);
 		const inputFile = this.emailFile + '.eml';
 		let path = Path.join(process.env.CSSVC_BACKEND_ROOT, 'inbound_email', 'test', 'test_files', inputFile);
 		FS.readFile(
@@ -298,7 +298,7 @@ console.log(`#${this.testNum} - Reading ${this.emailFile}.eml...`);
 
 	// begin listening on the simulated client
 	listenOnClient (callback) {
-console.log(`#${this.testNum} - Listening...`);
+this.log(`#${this.testNum} - Listening...`);
 		// we'll time out after 10 seconds
 		this.channelName = `stream-${this.stream.id}`;
 		this.messageTimer = setTimeout(
@@ -330,7 +330,7 @@ console.log(`#${this.testNum} - Listening...`);
 
 	// called when a message has been received, assert that it matches expectations
 	messageReceived (error, message) {
-console.log(`#${this.testNum} - Received: ${JSON.stringify(message)}`);
+this.log(`#${this.testNum} - Received: ${JSON.stringify(message)}`);
 		if (error) { return this.messageCallback(error); }
 		if (message.channel !== this.channelName) {
 			return;	// ignore
@@ -367,9 +367,9 @@ console.log(`#${this.testNum} - Received: ${JSON.stringify(message)}`);
 	writeEmailFile (callback) {
 		const outputFile = `${this.emailFile}-${Math.random()}.eml`;
 		let path = Path.join(this.config.inboundEmailServer.inboundEmailDirectory, outputFile);
-console.warn(`#${this.testNum} - Writing ${path}...`);
+this.log(`#${this.testNum} - Writing ${path}...`);
 		if (FS.existsSync(path)) {
-console.log(`#${this.testNum} which already existed`);
+this.log(`#${this.testNum} which already existed`);
 			FS.unlinkSync(path);
 		}
 		FS.writeFile(path, this.emailData, callback);
@@ -432,6 +432,10 @@ console.log(`#${this.testNum} which already existed`);
 			options,
 			callback
 		);
+	}
+
+	log (msg) {
+		console.log(`#${this.testNum} - ${Date.now()} - ${msg}`);
 	}
 }
 
