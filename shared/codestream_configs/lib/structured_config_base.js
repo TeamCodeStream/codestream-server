@@ -7,6 +7,12 @@ const StringifySortReplacer = require('../../server_utils/stringify_sort_replace
 
 const schemas = {};     // schema cache
 
+const ConfigTypes = {
+	base: 'base',
+	file: 'file',
+	mongo: 'mongo'
+};
+
 /* eslint no-console: 0 */
 /* eslint no-prototype-builtins: 0 */
 
@@ -45,6 +51,7 @@ class StructuredConfigBase {
 	constructor (options = {}) {
 		Object.assign(this, {
 			options,
+			configType: options.configType || ConfigTypes.base,
 			showConfig: options.showConfig || false,
 			sourceConfig: null,			// active, native configuration as read in from the source
 			lastPreferredConfig: null,	// previous configuration (for comparison)
@@ -53,6 +60,19 @@ class StructuredConfigBase {
 			customRestartFunc: options.customRestartFunc,
 			logger: options.logger || console
 		});
+	}
+
+	// configTypes() {
+	// 	return ConfigTypes;
+	// }
+
+	// getConfigType() {
+	// 	return this.configType;
+	// }
+
+	// this is meant to be optional but will always be defined
+	getConfigMetaDocument() {
+		return null;
 	}
 
 	// poor-man's debugging

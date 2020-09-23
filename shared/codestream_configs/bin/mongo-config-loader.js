@@ -17,6 +17,7 @@ function cmdrHandleInt(value) {
 Commander
 	.option('-m, --mongo-url <mongoUrl>', 'mongo url (required)')
 	.option('-l, --add-cfg-file <addCfgFile>', 'add this config file into mongo')
+	.option('-d, --desc <>', 'config description')
 	.option('-c, --cfg-collection-name <cfgCollectionName>', 'configuration collection name (def = structuredConfiguration)')
 	.option('-r, --report-cfg', 'report configuration summary')
 	.option('-s, --schema-version <schemaVersion>', 'override default schema version', cmdrHandleInt)
@@ -25,7 +26,6 @@ Commander
 	.option('-D, --delete-cfg <serialNum>', 'delete config for serial number')
 	.option('-L, --load-cfg', 'load config as an application would')
 	.parse(process.argv);
-
 
 if (!Commander.mongoUrl) {
 	console.error('mongoUrl required');
@@ -52,7 +52,7 @@ const CfgData = StructuredCfgFactory.create({
 	if (Commander.addCfgFile) {
 		const dataHeader = await CfgData.addNewConfigToMongo(
 			hjson.parse(fs.readFileSync(Commander.addCfgFile, 'utf8')),
-			{ schemaVersion: Commander.schemaVersion }
+			{ schemaVersion: Commander.schemaVersion, desc: Commander.desc }
 		);
 		if (!dataHeader) {
 			console.error('config load failed');
@@ -67,9 +67,14 @@ const CfgData = StructuredCfgFactory.create({
 	else if (Commander.reportCfg) {
 		const configSummary = await CfgData.getConfigSummary({schemaVersion: Commander.schemaVersion});
 		if (configSummary) {
-			console.log('Serial Number               Schema    Time Stamp');
-			console.log('-------------               ------    ----------');
-			configSummary.forEach(cfg => console.log(`${cfg.serialNumber.padStart(20)}  ${cfg.schemaVersion.toString().padStart(6)}      ${new Date(cfg.timeStamp).toUTCString()}`));
+			console.log('Serial Number             Time Stamp                     Schema  Revision  Desc');
+			console.log('------------------------  -----------------------------  ------  --------  -----------------------');
+			configSummary.forEach(cfg => {
+				// console.log(`${cfg.serialNumber.padStart(20)}  ${cfg.schemaVersion.toString().padStart(6)}      ${new Date(cfg.timeStamp).toUTCString()}`);
+				console.log(`${cfg.serialNumber}  ${new Date(cfg.timeStamp).toUTCString()}  ${cfg.schemaVersion.toString()} ${cfg.revision}  ${cfg.desc}`);
+				// const m = util.format('%20s  %5d   %s', cfg.serialNumber, cfg.schemaVersion, new Date(cfg.timeStamp).toUTCString());
+				// console.log(m);
+			});
 		}
 	}
 	// dump a config by its serial number
