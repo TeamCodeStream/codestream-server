@@ -7,6 +7,7 @@ const UUID = require('uuid/v4');
 const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const Crypto = require('crypto');
+const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/test/company_test_constants');
 
 const LINK_TYPES_TO_ACTION = {
 	'web': 'Opened on Web',
@@ -101,6 +102,8 @@ class CommonInit {
 			api_app_id: this.apiConfig.integrations.slack.appSharingId			
 		};
 
+		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const properties = {
 			distinct_id: this.user ? this.user.id : this.mockUserId,
 			'Team ID': this.team.id,
@@ -109,18 +112,22 @@ class CommonInit {
 			'Company ID': this.company.id,
 			'Team Size': 1,
 			'Team Created Date': new Date(this.team.createdAt).toISOString(),
-			'Plan': '14DAYTRIAL',
+			'Plan': plan,
 			'Reporting Group': '',
 			Endpoint: 'Slack',
 			company: {
 				id: this.company.id,
 				name: this.company.name,
 				created_at: new Date(this.company.createdAt).toISOString(),
-				plan: '14DAYTRIAL',
-				trialStart_at: new Date(this.company.trialStartDate).toISOString(),
-				trialEnd_at: new Date(this.company.trialEndDate).toISOString()
+				plan
 			}
 		};
+		if (trial) {
+			Object.assign(properties, {
+				trialStart_at: new Date(this.company.trialStartDate).toISOString(),
+				trialEnd_at: new Date(this.company.trialEndDate).toISOString()
+			});
+		}
 		if (!this.dontCreateUser) {
 			Object.assign(properties, {
 				'$email': this.user.email,

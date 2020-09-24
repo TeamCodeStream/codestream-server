@@ -4,6 +4,7 @@ const Assert = require('assert');
 const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 const CommonInit = require('./common_init');
+const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/test/company_test_constants');
 
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -49,6 +50,9 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		if (type !== 'track') {
 			return false;
 		}
+
+		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const expectedMessage = {
 			userId: this.currentUser.user.id,
 			event: 'Notification Change',
@@ -61,7 +65,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				'Team Size': 3,
 				'Team Name': this.team.name,
 				'Team Created Date': new Date(this.team.createdAt).toISOString(),
-				Plan: '14DAYTRIAL',
+				Plan: plan,
 				'Company Name': this.company.name,
 				'Company ID': this.company.id,
 				'Reporting Group': '',
@@ -72,12 +76,16 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					id: this.company.id,
 					name: this.company.name,
 					created_at: new Date(this.company.createdAt).toISOString(),
-					plan: '14DAYTRIAL',
-					trialStart_at: new Date(this.company.trialStartDate).toISOString(),
-					trialEnd_at: new Date(this.company.trialEndDate).toISOString()
+					plan
 				}
 			}
 		};
+		if (trial) {
+			Object.assign(expectedMessage.properties.company, {
+				trialStart_at: new Date(this.company.trialStartDate).toISOString(),
+				trialEnd_at: new Date(this.company.trialEndDate).toISOString()
+			});
+		}
 		Assert.deepEqual(data, expectedMessage, 'tracking data not correct');
 		return true;
 	}

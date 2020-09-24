@@ -176,6 +176,16 @@ class CodeStreamAPITest extends APIRequestTest {
 			callback();
 		});
 	}
+
+	isOnPrem () {
+		return (
+			this.apiConfig.sharedGeneral.runTimeEnvironment === 'onprem' ||
+			(
+				this.apiConfig.broadcastEngine.selected === 'codestreamBroadcaster' &&
+				this.apiConfig.sharedGeneral.runTimeEnvironment === 'local'
+			)
+		);
+	}
 }
 
 module.exports = CodeStreamAPITest;

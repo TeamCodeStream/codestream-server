@@ -5,6 +5,7 @@ const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/test/company_test_constants');
 
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -72,8 +73,10 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const { properties } = data;
 		const registered = !!this.existingUserIsRegistered;
 		const firstInvite = !this.subsequentInvite;
+		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const errors = [];
-		const result = (
+		let result = (
 			((data.userId === this.currentUser.user.id) || errors.push('userId not correct')) &&
 			((data.event === 'Team Member Invited') || errors.push('event not correct')) &&
 			((properties.distinct_id === this.currentUser.user.id) || errors.push('distinct_id not set to request originator\'s ID')) &&
@@ -87,7 +90,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties['Team Size'] === this.team.memberIds.length + 1) || errors.push('Team Size not correct')) &&
 			((properties['Team Name'] === this.team.name) || errors.push('Team Name not correct')) &&
 			((properties['Team Created Date'] === new Date(this.team.createdAt).toISOString()) || errors.push('Team Created Date not correct')) &&
-			((properties['Plan'] === '14DAYTRIAL') || errors.push('Plan not equal to 14DAYTRIAL')) &&			
+			((properties['Plan'] === plan) || errors.push('Plan not equal to FREEPLAN')) &&			
 			((properties['Company Name'] === this.company.name) || errors.push('incorrect company name')) &&
 			((properties['Company ID'] === this.company.id) || errors.push('incorrect company ID')) &&
 			((properties['Endpoint'] === 'Unknown IDE') || errors.push('IDE should be unknown')) &&
@@ -98,11 +101,14 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			((properties.company.id === this.company.id) || errors.push('company.id not correct')) &&
 			((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
 			((properties.company.created_at === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
-			((properties.company.plan === '14DAYTRIAL') || errors.push('company.plan not correct')) &&
-			((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
-			((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
-
+			((properties.company.plan === plan) || errors.push('company.plan not correct'))
 		);
+		if (trial) {
+			result = result && (
+				((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
+				((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
+			);
+		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;
 	}

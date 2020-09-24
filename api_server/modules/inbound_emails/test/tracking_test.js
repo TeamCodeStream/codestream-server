@@ -2,6 +2,7 @@
 
 const InboundEmailMessageTest = require('./inbound_email_message_test');
 const Assert = require('assert');
+const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/test/company_test_constants');
 
 class TrackingTest extends InboundEmailMessageTest {
 
@@ -82,6 +83,8 @@ class TrackingTest extends InboundEmailMessageTest {
 		}
 		const parentId = this.expectedParentId || this.postData[0].codemark.id;
 		const parentType = this.expectedParentType || 'Codemark';
+		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const { properties } = data;
 		const errors = [];
 		let result = (
@@ -98,7 +101,7 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&			
 			((properties['Team Size'] === this.team.memberIds.length) || errors.push('Team Size does not match number of members in team')) &&
 			((properties['Team Created Date'] === new Date(this.team.createdAt).toISOString()) || errors.push('Team Created Date not correct')) &&
-			((properties['Plan'] === '14DAYTRIAL') || errors.push('Plan not equal to 14DAYTRIAL')) &&
+			((properties['Plan'] === plan) || errors.push('Plan not correct')) &&
 			((properties['Company Name'] === this.company.name) || errors.push('Company Name does not match name of company')) &&
 			((properties['Company ID'] === this.company.id) || errors.push('Company ID does not match ID of company')) &&
 			((properties.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&
@@ -109,10 +112,14 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties.company.id === this.company.id) || errors.push('company.id not correct')) &&
 			((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
 			((properties.company.created_at === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
-			((properties.company.plan === '14DAYTRIAL') || errors.push('company.plan not correct')) &&
-			((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
-			((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
+			((properties.company.plan === plan) || errors.push('company.plan not correct'))
 		);
+		if (trial) {
+			result = result && (
+				((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
+				((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
+			);
+		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;
 	}

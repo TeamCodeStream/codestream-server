@@ -7,6 +7,7 @@ const TeamTestConstants = require('../team_test_constants');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const DefaultTags = require('../../default_tags');
+const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/test/company_test_constants');
 
 class PostTeamTest extends CodeStreamAPITest {
 
@@ -54,9 +55,11 @@ class PostTeamTest extends CodeStreamAPITest {
 		// const n36Days = 36 * 24 * 60 * 60 * 1000;
 		const n16Days = 16 * 24 * 60 * 60 * 1000;
 		const team = data.team;
+		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const trialStartDate = this.attachToCompany ? this.attachToCompany.createdAt : data.company.createdAt;
 		const errors = [];
-		const result = (
+		let result = (
 			((team.id === team._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((team.name === this.data.name) || errors.push('name does not match')) &&
 			((team.deactivated === false) || errors.push('deactivated not false')) &&
@@ -66,11 +69,15 @@ class PostTeamTest extends CodeStreamAPITest {
 			((team.memberIds.length === 1 && team.memberIds[0] === this.currentUser.user.id) || errors.push('current user is not the only member')) &&
 			((team.adminIds.length === 1 && team.adminIds[0] === this.currentUser.user.id) || errors.push('current user was not made an admin')) &&
 			((team.primaryReferral === (this.teamReferral || 'external')) || errors.push('primaryReferral is incorrect')) &&
-			((team.plan === '14DAYTRIAL') || errors.push('team plan should be set to 14DAYTRIAL')) &&
-			((team.trialStartDate === trialStartDate) || errors.push(`trialStartDate ${team.trialStartDate} not set to createdAt ${trialStartDate}`)) &&
-			((team.trialEndDate === trialStartDate + n16Days) || errors.push(`trialEndDate ${team.trialEndDate} not set to trialStartDate plus 16 days (${trialStartDate + n16Days})`)) &&
+			((team.plan === plan) || errors.push('team plan is not correct')) &&
 			((team.companyMemberCount === 1) || errors.push('companyMemberCount should be 1'))
 		);
+		if (trial) {
+			result = result && (
+				((team.trialStartDate === trialStartDate) || errors.push(`trialStartDate ${team.trialStartDate} not set to createdAt ${trialStartDate}`)) &&
+				((team.trialEndDate === trialStartDate + n16Days) || errors.push(`trialEndDate ${team.trialEndDate} not set to trialStartDate plus 16 days (${trialStartDate + n16Days})`))
+			);
+		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(team.tags, DefaultTags, 'tags not set to defaults');
 		this.validateCompany(data);
@@ -82,6 +89,8 @@ class PostTeamTest extends CodeStreamAPITest {
 	validateCompany (data) {
 		// const n36Days = 36 * 24 * 60 * 60 * 1000;
 		const n16Days = 16 * 24 * 60 * 60 * 1000;
+		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		if (this.attachToCompany) {
 			return this.validateAttachToCompany(data);
 		}
@@ -100,7 +109,7 @@ class PostTeamTest extends CodeStreamAPITest {
 					EmailUtilities.parseEmail(this.currentUser.user.email).domain
 			);
 		const errors = [];
-		const result = (
+		let result = (
 			((company.id === company._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((company.name === companyName) || errors.push('company name not correct')) &&
 			((company.id === team.companyId) || errors.push('company ID not the same as team.companyId')) &&
@@ -108,10 +117,14 @@ class PostTeamTest extends CodeStreamAPITest {
 			((typeof company.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
-			((company.plan === '14DAYTRIAL') || errors.push('company plan should be set to 14DAYTRIAL')) &&
-			((company.trialStartDate === company.createdAt) || errors.push('trialStartDate not set to createdAt')) &&
-			((company.trialEndDate === company.createdAt + n16Days) || errors.push('trialEndDate not set to trialStartDate plus 16 days'))
+			((company.plan === plan) || errors.push('company plan is incorrect'))
 		);
+		if (trial) {
+			result = result && (
+				((company.trialStartDate === company.createdAt) || errors.push('trialStartDate not set to createdAt')) &&
+				((company.trialEndDate === company.createdAt + n16Days) || errors.push('trialEndDate not set to trialStartDate plus 16 days'))
+			);
+		}
 		Assert.deepEqual(company.teamIds, [team.id], 'company teamIds is not equal to the array of teams');
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validateSanitized(company, TeamTestConstants.UNSANITIZED_COMPANY_ATTRIBUTES);

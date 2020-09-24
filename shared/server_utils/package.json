@@ -34,7 +34,7 @@
 		"markdown-it-slack": "1.2.0",
 		"mongodb": "3.5.9",
 		"nodemailer": "6.4.8",
-		"pubnub": "4.28.0",
+		"pubnub": "4.29.7",
 		"randomstring": "1.1.5",
 		"sendgrid": "5.2.3",
 		"socketcluster-client": "16.0.1",

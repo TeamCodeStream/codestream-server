@@ -42,9 +42,12 @@ class CompanyCreator extends ModelCreator {
 
 		// default this team to a 14-day trial
 		// now that we have createdAt, start the trial ticket from that time forward
-		this.attributes.plan = '14DAYTRIAL';
-		this.attributes.trialStartDate = this.attributes.createdAt;
-		this.attributes.trialEndDate = this.attributes.trialStartDate + TRIAL_PERIOD_FOR_14_DAY_TRIAL;
+		const onPrem = this.isOnPrem();
+		this.attributes.plan = onPrem ? '14DAYTRIAL' : 'FREEPLAN';
+		if (onPrem) {
+			this.attributes.trialStartDate = this.attributes.createdAt;
+			this.attributes.trialEndDate = this.attributes.trialStartDate + TRIAL_PERIOD_FOR_14_DAY_TRIAL;
+		}
 
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
@@ -74,6 +77,17 @@ class CompanyCreator extends ModelCreator {
 			collection: this.data.users,
 			id: this.user.id
 		}).save(op);
+	}
+
+	// is this an on-prem installation?
+	isOnPrem () {
+		return (
+			this.request.api.config.sharedGeneral.runTimeEnvironment === 'onprem' || 
+			(
+				this.request.api.config.broadcastEngine.selected === 'codestreamBroadcaster' && 
+				this.request.api.config.sharedGeneral.runTimeEnvironment === 'local'
+			)
+		);
 	}
 }
 
