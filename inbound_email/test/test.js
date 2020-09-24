@@ -30,13 +30,13 @@ melog('GLOBAL DESCRIBE');
 melog('In before, Config? ' + (Config ? 'y' : 'n'));
 		Config = Config || await InboundEmailServerConfig.loadPreferredConfig();
 melog('Config loaded');
-melog('waiting 5000...');
+melog('waiting 30000...');
 		await new Promise(resolve => {
 			setTimeout(() => {
-melog('waited 5000');
+melog('waited 30000');
 				resolve();
 
-			}, 5000);
+			}, 30000);
 		});
 melog('Done with before');
 	});
