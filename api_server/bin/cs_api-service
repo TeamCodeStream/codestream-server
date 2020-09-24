@@ -35,7 +35,8 @@ function startup {
 	if [ $run_fg -eq 1 ]; then
 		$CS_API_TOP/bin/api_server.js $server_args
 	else
-		nohup $CS_API_TOP/bin/api_server.js $server_args >/dev/null 2>&1 </dev/null &
+		echo "`date`: cs_api-service is starting the API" | tee -a $CS_API_LOGS/init.err.log >>$CS_API_LOGS/init.out.log
+		nohup $CS_API_TOP/bin/api_server.js $server_args >>$CS_API_LOGS/init.out.log 2>>$CS_API_LOGS/init.err.log </dev/null &
 		sleep 1
 		service_status $CS_API_TOP/bin/api_server.js
 	fi

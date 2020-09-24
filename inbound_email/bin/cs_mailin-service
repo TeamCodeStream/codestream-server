@@ -19,7 +19,8 @@ case "$1" in
 			echo "$service_name is aleady running"
 			service_status $service_name
 		else
-			nohup $CS_MAILIN_TOP/bin/$service_name $server_args >/dev/null 2>&1 </dev/null &
+			echo "`date`: cs_mailin-service is starting the inbound email server" | tee -a $CS_MAILIN_LOGS/init.err.log >>$CS_MAILIN_LOGS/init.out.log
+			nohup $CS_MAILIN_TOP/bin/$service_name $server_args >>$CS_MAILIN_LOGS/init.out.log 2>>$CS_MAILIN_LOGS/init.err.log </dev/null &
 			sleep 1
 			service_status $service_name
 			ec=$?
