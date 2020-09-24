@@ -13,9 +13,9 @@
 	},
 	{
 		"clientType": "JetBrains",
-		"currentRelease": "8.3.2",
-		"minimumPreferredRelease": "8.1.2",
-		"earliestSupportedRelease": "8.1.2"
+		"currentRelease": "10.0.0",
+		"minimumPreferredRelease": "10.0.0",
+		"earliestSupportedRelease": "10.0.0"
 	},
 	{
 		"clientType": "Atom",
