@@ -97,6 +97,11 @@ class MongoClient {
 						this.config.url,
 						settings
 					);
+					this.mongoClient.on('serverHeartbeatFailed', () => {
+						if (this.options.logger) {
+							this.options.logger.warn('Mongo server heartbeat failed');
+						}
+					});
 				}, 5000, this.options.logger, 'Unable to connect to Mongo, retrying...');
 			}
 			else {
