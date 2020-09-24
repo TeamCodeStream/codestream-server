@@ -578,6 +578,7 @@ class PostCreator extends ModelCreator {
 	
 	// publish the post to the appropriate broadcaster channel
 	async publishPost (customData) {
+this.request.log('PUBLISHING POST...');
 		await new PostPublisher({
 			request: this.request,
 			data: customData || this.request.responseData,

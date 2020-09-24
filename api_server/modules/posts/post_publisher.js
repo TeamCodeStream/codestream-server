@@ -29,6 +29,7 @@ class PostPublisher {
 			requestId: this.request.request.id
 		});
 		try {
+this.request.log('PUBLISHING POST TO ' + channel, JSON.stringify(message, 0, 5));
 			await this.broadcaster.publish(
 				message,
 				channel,
