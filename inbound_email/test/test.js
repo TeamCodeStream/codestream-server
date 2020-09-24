@@ -23,20 +23,20 @@ const melog = function(msg) {
 // tests where we expect processing the file to fail, and we expect no post as
 // as result
 describe('Inbound Email', function() {
-	this.timeout(10000);
+	this.timeout(30000);
 
 melog('GLOBAL DESCRIBE');
 	before(async () => {
 melog('In before, Config? ' + (Config ? 'y' : 'n'));
 		Config = Config || await InboundEmailServerConfig.loadPreferredConfig();
 melog('Config loaded');
-melog('waiting 30000...');
+melog('waiting 20000...');
 		await new Promise(resolve => {
 			setTimeout(() => {
-melog('waited 30000');
+melog('waited 20000');
 				resolve();
 
-			}, 30000);
+			}, 20000);
 		});
 melog('Done with before');
 	});
