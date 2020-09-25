@@ -89,8 +89,7 @@ class MongoClient {
 			}
 			const settings = Object.assign({}, this.config.settings, {
 				useNewUrlParser: true,
-				useUnifiedTopology: true,
-				poolSize: 10	// TEMPORARY!!!
+				useUnifiedTopology: true
 			});
 			if (this.options.tryIndefinitely) {
 				await TryIndefinitely(async () => {
