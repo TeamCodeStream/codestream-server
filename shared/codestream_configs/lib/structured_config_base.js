@@ -66,9 +66,9 @@ class StructuredConfigBase {
 	// 	return ConfigTypes;
 	// }
 
-	// getConfigType() {
-	// 	return this.configType;
-	// }
+	getConfigType() {
+		return this.configType;
+	}
 
 	// this is meant to be optional but will always be defined
 	getConfigMetaDocument() {

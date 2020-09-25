@@ -67,15 +67,22 @@ class StructuredConfigMongo extends StructuredConfigBase {
 
 	// load configuration data from mongo
 	async _loadConfig() {
-		const selectedConfig = await this.db.collection(this.selectedCollection).findOne();
-		if (!selectedConfig) {
-			this.logger.warn(`could not find document in ${this.selectedCollection}`);
+		let activeConfig = await this.db.collection(this.selectedCollection).findOne();
+		if (!activeConfig) {
+			this.logger.warn(`no config appears to have been activated. could not find any document in ${this.selectedCollection}`);
+		}
+		else {
+			this.logger.debug(`active config serial is ${activeConfig.serialNumber}`);
 		}
 		try {
 			let configDoc;
-			if (selectedConfig) {
-				this.logger.debug(`attempting to load config with _id = ${selectedConfig.serialNumber}`);
-				configDoc = await this.db.collection(this.configCollection).findOne({ _id: selectedConfig.serialNumber });
+			if (activeConfig) {
+				this.logger.debug(`attempting to load config with serialNumber = ${activeConfig.serialNumber}`);
+				configDoc = await this.db.collection(this.configCollection).findOne({ _id: new ObjectID(activeConfig.serialNumber) });
+				if (!configDoc) {
+					this.logger.error(`active config ${activeConfig.serialNumber} not found`);
+					activeConfig = null;
+				}
 			}
 			if (!configDoc) {
 				const schemaVersion = this.schemaVersion || this._defaultSchemaVersion();
@@ -87,9 +94,10 @@ class StructuredConfigMongo extends StructuredConfigBase {
 				}
 			}
 			this.logger.log(`config serial ${ObjectID(configDoc._id).toString()} (${new Date(configDoc.timeStamp).toUTCString()}) loaded`);
-			this.mongoConfigDoc = configDoc;
-			if (!selectedConfig) {
+			this.mongoConfigDoc = { ...configDoc, serialNumber: ObjectID(configDoc._id).toString() };
+			if (!activeConfig) {
 				// activate config since no prior activation was found
+				this.logger.warn(`activating config just loaded ${ObjectID(configDoc._id).toString()} to preserve integrtiry`);
 				await this.activateMongoConfig(ObjectID(configDoc._id).toString());
 			}
 			return configDoc.configData;
@@ -99,7 +107,12 @@ class StructuredConfigMongo extends StructuredConfigBase {
 		}
 	}
 
-	getConfigMetaDocument() {
+	getConfigMetaDocument(options = {}) {
+		if (options.excludeConfigData) {
+			const meta = Object.assign({}, this.mongoConfigDoc);
+			delete meta.configData;
+			return meta;
+		}
 		return this.mongoConfigDoc;
 	}
 
@@ -129,13 +142,20 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	 *
 	 * @param {string} serialNumber    - serial number of config to fetch
 	 */
-	async getConfigBySerial(serialNumber) {
+	async getConfigBySerial(serialNumber, options={}) {
 		const docId = { _id: new ObjectID(serialNumber) };
 		try {
 			const result = await this.db.collection(this.configCollection).findOne(docId);
+			if (!result) {
+				this.logger.error(`getConfigBySerial() failed: serial ${serialNumber} not found`);
+				return;
+			}
+			if (options.includeMetaData) {
+				return result;
+			}
 			return result.configData;
 		} catch (error) {
-			this.logger.error(`_getConfigBySerial() failed: ${error}`);
+			this.logger.error(`getConfigBySerial() failed: ${error}`);
 			return;
 		}
 	}
@@ -185,6 +205,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			await this.db.collection(this.configCollection).createIndex({ schemaVersion: 1, timeStamp: -1 }, { name: 'bySchema' });
 			return {
 				serialNumber: result.insertedId,
+				revision: configDoc.revision,
 				timeStamp: configDoc.timeStamp,
 				schemaVersion: configDoc.schemaVersion,
 				desc: configDoc.desc,
@@ -219,10 +240,15 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	 * @param {*} reportOptions 
 	 */
 	async activateMongoConfig(serialNumber) {
+		const newConfig = await this.db.collection(this.configCollection).findOne({_id: new ObjectID(serialNumber)});
+		if (!newConfig) {
+			this.logger.error(`activation of config ${serialNumber} failed. That config does not exist.`);
+			return false;
+		}
 		const replacementDoc = { serialNumber: new ObjectID(serialNumber) };
 		try {
-			const selectedConfig = await this.db.collection(this.selectedCollection).findOne();
-			const filterDoc = selectedConfig ? { serialNumber: selectedConfig.serialNumber } : {};
+			const activeConfig = await this.db.collection(this.selectedCollection).findOne();
+			const filterDoc = activeConfig ? { serialNumber: activeConfig.serialNumber } : {};
 			const results = await this.db.collection(this.selectedCollection).replaceOne(filterDoc, replacementDoc, { upsert: true });
 			if (results.modifiedCount === 1 || results.upsertedCount === 1) {
 				this.logger.log(`activated config serial number ${serialNumber}`);
