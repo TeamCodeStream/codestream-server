@@ -43,6 +43,7 @@ export PATH=$OPADM_SANDBOX/node/bin:$OPADM_TOP/node_modules/.bin:$PATH
 
 # Add $MY_SANDBOX/bin to the search path
 export PATH=$OPADM_TOP/bin:$PATH
+export NODE_PATH=$OPADM_TOP/node_modules:$NODE_PATH
 
 # if you want to short circuit the sandbox hooks (see hooks/git_hooks.sh) either uncomment
 # this in defaults.sh or add 'OPADM_DISABLE_GIT_HOOKS=1' to OPADM_SANDBOX/sb.options
@@ -70,3 +71,46 @@ export OPADM_PIDS=$OPADM_SANDBOX/pid    # pid files directory
 # https://github.com/TeamCodeStream/dev_tools/blob/master/README/README.deployments.md)
 [ -z "$OPADM_ENV" ] && export OPADM_ENV=local
 # [ -z "$OPADM_ENV" ] && export OPADM_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.runTimeEnvironment)`
+
+if [ -n "$CSSVC_CFG_URL" ]; then
+	echo "looking for config from $CSSVC_CFG_URL"
+	export CSSVC_ENV=`eval echo $(get-json-property --config-url $CSSVC_CFG_URL -p sharedGeneral.runTimeEnvironment)`
+	# apiPort=`eval echo $(get-json-property --config-url $CSSVC_CFG_URL -p apiServer.port)`
+else
+	[ -n "$OPADM_CFG_FILE" ] && configParm=$OPADM_CFG_FILE || configParm="$CSSVC_CONFIGURATION"
+	[ -z "$CSSVC_CFG_FILE" ] && sandutil_get_codestream_cfg_file "$OPADM_SANDBOX" "$configParm" "$CSSVC_ENV"
+	export CSSVC_ENV=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p sharedGeneral.runTimeEnvironment)`
+	# apiPort=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p apiServer.port)`
+fi
+
+# sanity check
+[ -n "$OPADM_CFG_FILE" -a \( "$CSSVC_CFG_FILE" != "$OPADM_CFG_FILE" \) ] && echo "**** WARNING: OPADM_CFG_FILE != CSSVC_CFG_FILE"
+
+# needed for the build process
+export OPADM_ENV=$CSSVC_ENV
+
+# local development sets the callback env so external requests can be routed
+# through the network proxy and back to your local VPN IP (codestream version of
+# https://ngrok.com)
+if [ "$CSSVC_ENV" = local  -a  -z "$OPADM_CALLBACK_ENV" ]; then
+	TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp,useHyphens)
+	[ -n "$TUNNEL_IP" ] && export OPADM_CALLBACK_ENV="local-$TUNNEL_IP" || echo "could not detect your vpn ip - callbacks won't work" >&2
+	[ -n "$OPADM_CALLBACK_ENV" ] && echo "OPADM_CALLBACK_ENV = $OPADM_CALLBACK_ENV"
+elif [ -z "$OPADM_CALLBACK_ENV" ]; then
+	export OPADM_CALLBACK_ENV=$CSSVC_ENV
+fi
+
+
+# local development on ec2 instances (remote hosts) should reference their
+# hostname and not 'localhost' when constructing URLs so we set
+if [ "$CSSVC_ENV" = "local" ]; then
+	if [ $(sandutil_is_network_instance) -eq 1 ]; then
+		export OPADM_PUBLIC_URL="https://`hostname`:$apiPort"
+		echo "OPADM_PUBLIC_URL = $OPADM_PUBLIC_URL [this is a network development host]"
+	fi
+fi
+
+# Multiple installations possible ($REPO_ROOT/.git/)
+[ -n "$CSBE_TOP" ] && export OPADM_REPO_ROOT=$CSBE_TOP || { . $OPADM_SANDBOX/sb.info; export OPADM_REPO_ROOT=$OPADM_SANDBOX/$SB_REPO_ROOT; }
+[ -z "$CSSVC_BACKEND_ROOT" ] && export CSSVC_BACKEND_ROOT=$OPADM_REPO_ROOT
+return 0

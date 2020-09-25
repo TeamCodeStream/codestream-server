@@ -76,6 +76,7 @@ ExpressServer.get('*', (req, res) => res.send(`bad url: ${req.url}`));
 	// SHOULD BE READ-ONLY!!!!
 	GlobalData.AdminConfig = AdminConfig;
 	const Config = await AdminConfig.loadPreferredConfig();
+	console.log(Config);
 	GlobalData.Logger = new SimpleFileLogger(Config.adminServer.logger);
 	if (Config.adminServer.adminServerDisabled) {
 		GlobalData.Logger.error('The admin server is disabled in the config. Good bye.');

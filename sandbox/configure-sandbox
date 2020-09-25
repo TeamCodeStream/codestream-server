@@ -82,6 +82,7 @@ cd $CS_API_TOP && npm install --no-save
 cd $CS_BROADCASTER_TOP && npm install --no-save
 cd $CS_MAILIN_TOP && npm install --no-save
 cd $CS_OUTBOUND_EMAIL_TOP && npm install --no-save
+cd $OPADM_TOP && npm install --no-save
 
 # You must exit with a status of '0' if the script was successful or '1' otherwise.
 exit 0
