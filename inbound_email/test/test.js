@@ -19,14 +19,14 @@ var Config;
 // tests where we expect processing the file to fail, and we expect no post as
 // as result
 describe('Inbound Email', function() {
-	this.timeout(10000);
+	this.timeout(30000);
 
 	before(async () => {
 		Config = Config || await InboundEmailServerConfig.loadPreferredConfig();
 		await new Promise(resolve => {
 			setTimeout(() => {
 				resolve();
-			}, 5000);
+			}, 15000);
 		});
 	});
 
