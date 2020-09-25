@@ -6,6 +6,11 @@ const fs = require('fs');
 const hjson = require('hjson');
 
 class StructuredConfigFile extends StructuredConfigBase {
+	constructor(options = {}) {
+		// the configType MUST match structured_config_base.ConfigTypes.file
+		super({ ...options, configType: 'file' });
+	}
+
 	// load the config data from a file
 	async _loadConfig() {
 		this.configFile = this.options.configFile || process.env.STRUCTURED_CFG_FILE;
