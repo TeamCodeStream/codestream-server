@@ -79,8 +79,8 @@ class MongoCollection {
 		const logQuery = () => {
 			const time = Date.now() - startTime;
 			if (time > 2000) {
-				if (options.queryLogger) {
-					options.queryLogger.warn(`WTF? QUERY TOOK ${time} MS!!!`);
+				if (this.options.queryLogger) {
+					this.options.queryLogger.warn(`WTF? QUERY TOOK ${time} MS!!!`);
 				}
 			}
 			const logOptions = { query, mongoFunc, time, requestId, error };
