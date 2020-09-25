@@ -23,7 +23,7 @@ const melog = function(msg) {
 // tests where we expect processing the file to fail, and we expect no post as
 // as result
 describe('Inbound Email', function() {
-	this.timeout(30000);
+	this.timeout(10000);
 
 melog('GLOBAL DESCRIBE');
 	before(async () => {
@@ -36,7 +36,7 @@ melog('waiting 20000...');
 melog('waited 20000');
 				resolve();
 
-			}, 20000);
+			}, 5000);
 		});
 melog('Done with before');
 	});
