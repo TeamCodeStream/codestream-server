@@ -78,23 +78,20 @@ class MongoCollection {
 		let results, error;
 		const logQuery = () => {
 			const time = Date.now() - startTime;
-if (time >= 2000) {
-	this.melog(`WTF? A QUERY TOOK ${time} MS!!!`);
-}
+			if (time > 2000) {
+				if (options.queryLogger) {
+					options.queryLogger.warn(`WTF? QUERY TOOK ${time} MS!!!`);
+				}
+			}
 			const logOptions = { query, mongoFunc, time, requestId, error };
 			logOptions.queryOptions = options;
 			this._logMongoQuery(logOptions, args);
 		};
 		try {
-const xThen = Date.now();
 			results = await this.dbCollection[mongoFunc].apply(
 				this.dbCollection,
 				mongoArgs
 			);
-const xNow = Date.now();
-if (xNow - xThen >= 2000) {
-	this.melog(`WTF? WTF? A MONGO QUERY TOOK ${xNow - xThen} MS!!!`);
-}
 			logQuery();
 			return results;
 		}
@@ -281,16 +278,11 @@ if (xNow - xThen >= 2000) {
 
 		// insert the document
 		try {
-const then = Date.now();
 			await this._runQuery(
 				'insertOne',
 				document,
 				options
 			);
-const now = Date.now();
-if (now - then > 1000) {
-	this.melog(`WTF? INSERT OPERATION TOOK ${now - then} MS!!!`);
-}
 		}
 		catch (error) {
 			throw this.errorHandler.dataError(error);
@@ -692,12 +684,6 @@ if (now - then > 1000) {
 		}
 		else if (typeof obj[field] === 'object') {
 			obj[field] = {'*': '*'};
-		}
-	}
-
-	melog (msg) {
-		if (this.options.queryLogger) {
-			this.options.queryLogger.log(`${Date.now()} - ${msg}`);
 		}
 	}
 }

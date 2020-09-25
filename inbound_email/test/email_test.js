@@ -72,7 +72,6 @@ class EmailTest {
 
 	// make some API calls to set up the data to use in the test
 	makeData (callback) {
-this.log(`#${this.testNum} - Making data...`);
 		BoundAsync.series(this, [
 			this.createUsers,	// create a couple users, one will originate the post (the email is "from" that user), the other will listen
 			this.createTeam,	// create a team 
@@ -85,7 +84,6 @@ this.log(`#${this.testNum} - Making data...`);
 	// create two users for running the test, one who will originate the post (the email is "from" them),
 	// the other will listen for the post on pubnub
 	createUsers (callback) {
-this.log(`#${this.testNum} - Creating users...`);
 		this.userData = [];
 		BoundAsync.timesSeries(
 			this,
@@ -97,7 +95,6 @@ this.log(`#${this.testNum} - Creating users...`);
 
 	// create a single user for running the test
 	createUser (n, callback) {
-this.log(`#${this.testNum} - Creating user ${n}...`);
 		BoundAsync.series(this, [
 			this.registerUser,	// register the user
 			this.confirmUser	// confirm the registration
@@ -112,7 +109,6 @@ this.log(`#${this.testNum} - Creating user ${n}...`);
 			username: RandomString.generate(8),
 			_confirmationCheat: this.config.sharedSecrets.confirmationCheat
 		};
-this.log(`#${this.testNum} - Registering ${data.email}...`);
 		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
 		data._pubnubUuid = `TEST-UUID-${_NextPubnubUuid}`;
 		this.apiRequest(
@@ -137,7 +133,6 @@ this.log(`#${this.testNum} - Registering ${data.email}...`);
 			userId: userData.user.id,
 			confirmationCode: userData.user.confirmationCode
 		};
-this.log(`#${this.testNum} - Confirming ${data.email}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -157,7 +152,6 @@ this.log(`#${this.testNum} - Confirming ${data.email}...`);
 		let data = {
 			name: RandomString.generate(10)
 		};
-this.log(`#${this.testNum} - Creating team ${data.name}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -179,7 +173,6 @@ this.log(`#${this.testNum} - Creating team ${data.name}...`);
 			teamId: this.team.id,
 			email: this.userData[1].user.email
 		};
-this.log(`#${this.testNum} - Inviting ${data.email}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -199,7 +192,6 @@ this.log(`#${this.testNum} - Inviting ${data.email}...`);
 			teamId: this.team.id,
 			memberIds: [this.userData[1].user.id]
 		};
-this.log(`#${this.testNum} - Creating stream ${data.name}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -235,7 +227,6 @@ this.log(`#${this.testNum} - Creating stream ${data.name}...`);
 				}]
 			}
 		};
-this.log(`#${this.testNum} - Creating codemark ${data.codemark.text}...`);
 		this.apiRequest(
 			{
 				method: 'post',
@@ -258,7 +249,6 @@ this.log(`#${this.testNum} - Creating codemark ${data.codemark.text}...`);
 		// processing the inbound email
 		let clientConfig = Object.assign({}, this.config.broadcastEngine.pubnub);
 		let user = this.userData[1].user;
-this.log(`#${this.testNum} - Making Pubnub client ${user._pubnubUuid || user.id}...`);
 		clientConfig.uuid = user._pubnubUuid || user.id;
 		clientConfig.authKey = this.userData[1].pubnubToken;
 		let client = new PubNub(clientConfig);
@@ -271,7 +261,6 @@ this.log(`#${this.testNum} - Making Pubnub client ${user._pubnubUuid || user.id}
 
 	// read the email file indicated for the test
 	readEmailFile (callback) {
-this.log(`#${this.testNum} - Reading ${this.emailFile}.eml...`);
 		const inputFile = this.emailFile + '.eml';
 		let path = Path.join(process.env.CSSVC_BACKEND_ROOT, 'inbound_email', 'test', 'test_files', inputFile);
 		FS.readFile(
@@ -307,7 +296,6 @@ this.log(`#${this.testNum} - Reading ${this.emailFile}.eml...`);
 
 	// begin listening on the simulated client
 	listenOnClient (callback) {
-this.log(`#${this.testNum} - Listening...`);
 		// we'll time out after 10 seconds
 		this.channelName = `stream-${this.stream.id}`;
 		this.messageTimer = setTimeout(
@@ -339,7 +327,6 @@ this.log(`#${this.testNum} - Listening...`);
 
 	// called when a message has been received, assert that it matches expectations
 	messageReceived (error, message) {
-this.log(`#${this.testNum} - Received: ${JSON.stringify(message)}`);
 		if (error) { return this.messageCallback(error); }
 		if (message.channel !== this.channelName) {
 			return;	// ignore
@@ -376,9 +363,7 @@ this.log(`#${this.testNum} - Received: ${JSON.stringify(message)}`);
 	writeEmailFile (callback) {
 		const outputFile = `${this.emailFile}-${Math.random()}.eml`;
 		let path = Path.join(this.config.inboundEmailServer.inboundEmailDirectory, outputFile);
-this.log(`#${this.testNum} - Writing ${path}...`);
 		if (FS.existsSync(path)) {
-this.log(`#${this.testNum} which already existed`);
 			FS.unlinkSync(path);
 		}
 		FS.writeFile(path, this.emailData, callback);
@@ -441,10 +426,6 @@ this.log(`#${this.testNum} which already existed`);
 			options,
 			callback
 		);
-	}
-
-	log (msg) {
-		console.log(`#${this.testNum} - ${Date.now()} - ${msg}`);
 	}
 }
 

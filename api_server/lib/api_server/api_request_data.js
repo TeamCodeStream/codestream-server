@@ -32,15 +32,13 @@ class APIRequestData {
 		let collection = new DataCollection({
 			databaseCollection: options.api.data[collectionName], // the collection in the master DataSource
 			modelClass: modelClass, // how to create in instance of this collection's models
-			request: options.request,
-logger: this[OptionsSymbol].api
+			request: options.request
 		});
 		this[CollectionsSymbol][collectionName] = collection;
 		this[collectionName] = collection;
 	}
 
 	async persist () {
-		this.melog('PERSISTING ALL COLLECTIONS...');
 		// persist any changes tracked in our local collections
 		const collectionNames = Object.keys(this[CollectionsSymbol]);
 		await Promise.all(
@@ -52,14 +50,8 @@ logger: this[OptionsSymbol].api
 
 	async persistCollection (collectionName) {
 		if (this[collectionName]) {
-			this.melog('PERSISTING COLLECTION ' + collectionName);
 			await this[collectionName].persist();
-			this.melog('PERSISTED COLLECTION ' + collectionName);
 		}
-	}
-
-	melog (msg) {
-		this[OptionsSymbol].api.log(`${Date.now()} - ${msg}`);
 	}
 }
 
