@@ -1,0 +1,167 @@
+
+/* font-family: 'Source Code Pro', monospace; */
+/* https://fonts.google.com/specimen/Source+Code+Pro?category=Monospace&query=source&selection.family=Source+Code+Pro:ital,wght@0,300;0,500;0,700;1,300;1,500;1,700&sidebar.open */
+/* @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,300;0,500;0,700;1,300;1,500;1,700'); */
+/* font-family: 'Open Sans', sans-serif; */
+/* https://fonts.google.com/specimen/Open+Sans?category=Sans+Serif&selection.family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&sidebar.open */
+/* @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,300;0,500;0,700;1,300;1,500;1,700');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800'); */
+
+/* @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,300;0,500;0,700;1,300;1,500;1,700'); */
+/* |Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800 */
+
+:root {
+/* 	
+	--blue: #007bff;
+	--indigo: #6610f2;
+	--purple: #6f42c1;
+	--pink: #e83e8c;
+	--red: #dc3545;
+	--orange: #fd7e14;
+	--yellow: #ffc107;
+	--green: #28a745;
+	--teal: #20c997;
+	--cyan: #17a2b8;
+	--white: #fff;
+	--gray: #6c757d;
+	--gray-dark: #343a40;
+
+	--primary: #007bff;
+	--secondary: #6c757d;
+	--success: #28a745;
+	--info: #17a2b8;
+	--warning: #ffc107;
+	--danger: #dc3545;
+	--light: #f8f9fa;
+	--dark: #343a40;
+
+	--breakpoint-xs: 0;
+	--breakpoint-sm: 576px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 992px;
+	--breakpoint-xl: 1200px;
+
+	--font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+	--font-family-monospace: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+	 */
+
+	/* Override Variables */
+	--font-family-sans-serif: 'Open Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';
+	--font-family-monospace: 'Source Code Pro',SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+
+	/* Custom Variables */
+	--codestream-dark: #282c34;
+	--codestream-blue: #009aef;
+	--color-text: var(--gray-dark);
+	--font-family-text: var(--font-family-sans-serif);
+}
+
+.family-sans {
+	font-family: var(--font-family-sans-serif);
+}
+
+/* .Header {
+	background: url(../images/hero.svg);
+	background-position: center center;
+	background-size: cover;
+} */
+
+.layout-footer .layout-icon {
+	font-size: 2em;
+}
+
+/* .navbar-dark.navbar-nav.nav-link.nav-item-selected {
+	color: var(--yellow);
+}
+
+.aria-current {
+	color: var(--yellow);
+} */
+
+.layout-pane {
+	color: var(--grey-light);
+}
+
+body {
+	font-family: var(--font-family-text);
+	color: var(--color-text);
+	font-weight: 300;
+}
+
+/* :not(nav) a:link, a:visited {
+	color: cyan;
+	text-decoration: underline;
+} */
+
+ul.list-style-no-bullets {
+  list-style-type: none;
+}
+
+/* 
+.accordion .card-header {
+	position: relative;
+}
+  
+.card-header::after {
+	content: "\f107";
+	//color: #333;
+	top: -2px;
+	right: 0px;
+	position: absolute;
+	font-family: 'Font Awesome 5 Free';
+}
+
+.card-header[aria-expanded="true"]::after {
+	content: "\f106";
+} */
+
+.Table .icon-image {
+	width: 18px;
+}
+
+/* accordion.scss */
+.accordion {
+	margin-top: 10px;
+	margin-bottom: 40px;
+}
+.accordion .card {
+	border: none;
+	margin-bottom: 5px;
+}
+.accordion .card h5 {
+	/* background: url(/s/images/arrow-up-black.png) no-repeat calc(100% - 10px) center; */
+	background: url(/s/fa/svgs/solid/chevron-down.svg.png) no-repeat calc(100% - 10px) center;
+	background-size: 20px;
+	cursor: pointer;
+	margin-top: 5px;
+	font-size: 18px;
+}
+.accordion .card h5.collapsed {
+	/* background-image: url(/s/images/arrow-down-black.png); */
+	background-image: url(/s/fa/svgs/solid/chevron-up.svg.png);
+}
+.accordion .card-body {
+	margin-top: 5px;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+
+/* .tight-grid [class*="col-"] {
+	padding-left:0;
+	padding-right:0;
+}
+.tight-grid .row {
+	margin-left:0;
+	margin-right:0;
+} */
+
+/* container adjusted */
+/* .tight-grid .container-fluid {
+	width:100%;
+	max-width:none;
+	padding:0;
+	margin-left:0;
+	margin-right:0;
+} */

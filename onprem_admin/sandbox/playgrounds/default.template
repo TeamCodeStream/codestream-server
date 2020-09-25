@@ -1,0 +1,15 @@
+
+#desc# mongo/opadm playground
+
+#playgroundName# opadm
+#sandboxTypes# mongo,opadm
+#sandboxes# {{SBNAME_mongo}},{{SBNAME_opadm}}
+#environment# local
+
+dt_load {{SBNAME_mongo}} --quiet
+dt_load {{SBNAME_opadm}}
+cd $OPADM_TOP
+
+# uncomment these if you use iterm2 and want to colorize your tabs
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 28 45

@@ -1,0 +1,5 @@
+SB_TYPE=opadm
+SB_PREFIX=OPADM
+GIT_ORIGIN=git@github.com:teamcodestream/onprem-admin
+SB_PROJECT_PATH=onprem-admin
+# SB_DEPS=a:b:c

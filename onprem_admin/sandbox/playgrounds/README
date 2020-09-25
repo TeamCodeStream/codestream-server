@@ -1,0 +1,3 @@
+These are playground templates. They are used (dt-sb-create-playground) to
+create playground files from pre-loaded sandboxes.  There should be a
+single 'default.template' for each sandbox.

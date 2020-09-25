@@ -1,0 +1,22 @@
+
+
+.accordion {
+	margin-top: 40px;
+	.card {
+		border: none;
+		margin-bottom: 20px;
+		h2 {
+			background: url(https://cdn0.iconfinder.com/data/icons/entypo/91/arrow56-512.png) no-repeat calc(100% - 10px) center;
+		background-size: 20px;
+			cursor: pointer;
+			font-size: 18px;
+			&.collapsed {
+				background-image: url(https://cdn0.iconfinder.com/data/icons/arrows-android-l-lollipop-icon-pack/24/expand2-256.png);
+			}
+		}
+		&-body {
+			padding-left: 0;
+			padding-right: 0;
+		}
+	}
+}

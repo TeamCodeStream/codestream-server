@@ -1,0 +1,56 @@
+'use strict';
+
+import React from 'react';
+// import PropTypes from 'prop-types';
+
+class _replaceMe_Component extends React.Component {
+	// state = {};
+
+	// lifecycle methods
+	componentDidMount() {
+		// dom has been mounted in browser successfully
+		// ajax calls, set timers & listeners, etc...
+	}
+
+	componentWillUnmount() {
+		// component is about to be unmounted
+		// cleanup timers & listeners
+	}
+
+	render() {
+		return (
+			<div className="_replaceMe_Component">
+			</div>
+		);
+	}
+}
+
+_replaceMe_Component.propTypes = {
+	pageHeader: PropTypes.string,
+	initialState: PropTypes.object
+};
+
+_replaceMe_Component.defaultProps = {
+	pageHeader: 'CodeStream On-Prem Administration',
+	initialState: {}
+};
+
+// returns data needed for this component
+// const mapStateToProps = function() {
+// 	return {};
+// }
+
+// returns behavior for the component
+// const mapDispatchToProps = function() {
+// 	return {};
+// }
+
+// const _replaceMe_ = connect(mapStateToProps, mapDispatchToProps)(_replaceMe_Component);
+export default _replaceMe_;
+
+// _replaceMe_.propTypes = {
+// 	config: PropTypes.object,
+// 	contests: PropTypes.array.isRequired,
+// };
+
+export default _replaceMe_;

@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+
+# desc# Standard interface to CodeStream's build process
+
+# https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.md#Structured_Builds
+
+import os
+import sys
+
+sys.path.append(os.environ['DT_TOP'] + "/lib")
+import sysUtils as su
+import buildUtils
+
+su.printErr("this script needs to be customized")
+exit(1)
+
+# 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
+assetExtensionList = ['tgz']
+
+# 2. add any additional repos to be included (do not include primary repo)
+additionalRepos = []
+
+# 3. choose the build type (npm, intellijPlugin, custom)
+#    https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.project-build-types.md
+buildType = buildUtils.buildType.npm
+
+args = buildUtils.parseStandardBuildArgs()
+buildOptions = {
+	'verbose': args.verbose,
+	'assetExtensionList': assetExtensionList,
+	# 'buildDirectory': '...',        # execute build in this subdirectory relative to repo root
+	# 'useDistDir': True,             # assets are created/managed in 'dist/' directory
+	'additionalRepos': additionalRepos
+}
+
+# 4. Set this if you want your applied git tags to be something other than 'v' (v1.2.3)
+# buildOptions['gitTagPrefix'] = "mytag-"
+
+if args.verbose:
+	print("buildstep running with", args.action)
+
+build = buildUtils.build(buildType, **buildOptions)
+if not build:
+	su.printErr("could not get a build object")
+	exit(1)
+
+# 5. Make sure the default actions apply, if not make changes as necessary.
+#    Use 'build.execCmd("command string")' to execute custom actions.
+#    https://github.com/TeamCodeStream/teamcity_tools/blob/master/README.build-configurations.md
+if args.action == 'prep':
+	build.prep()                              # set teamcity variables / parameters
+elif args.action == 'build':
+	build.build()                             # complete build so services can be started
+elif args.action == 'citest':
+	build.citest()                            # run the continuous integration test suite
+elif args.action == 'pack':
+	build.pack()                              # create asset info file and package assets
+elif args.action == 'publish':
+	build.publish()                           # publish assets for distribution
+elif args.action == 'tag':
+	build.tag()                               # update version info and apply tags
+elif args.action == 'release':
+	build.release()                           # release assets to the general public
+else:
+	su.printErr("invalid build args")
+	exit(1)
+
+exit(0)

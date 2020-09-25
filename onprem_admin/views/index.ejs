@@ -1,0 +1,13 @@
+<!-- this is how we get initial data from the server into the app. -->
+<!-- it's a little kludgy, but I'm good with it. We only use it once. -->
+<script type="text/javascript">
+	window.__PRELOADED_STATE__ = <%- JSON.stringify(initialState) -%>
+</script>
+
+<!-- a hypen (as opposed to an equal) will NOT escape content -->
+<%- include('header') -%>
+
+<!-- all elements on the following line MUST be on one line!! -->
+<div id="root"><%- content -%></div>
+
+<%- include('footer') -%>
