@@ -601,12 +601,18 @@ class PostCreator extends ModelCreator {
 		if (this.transforms.updatedReviews) {
 			data.reviews = this.transforms.updatedReviews;
 		}
-		await new PostPublisher({
-			request: this.request,
-			data,
-			broadcaster: this.api.services.broadcaster,
-			stream: this.stream.attributes	// assuming stream for the parent post is the same as for the reply
-		}).publishPost();
+		// HACK/WORKAROUND ALERT ... this broadcast, along with the broadcast of the actual post, runs into the Pubnub bug
+		// referenced in this support ticket: https://support.pubnub.com/helpdesk/tickets/29566 ...
+		// To get around the bug, we're going to delay the broadcast here for 1/2 second, until the bug is fixed,
+		// then we can remove this HACK
+		setTimeout(async () => {
+			await new PostPublisher({
+				request: this.request,
+				data,
+				broadcaster: this.api.services.broadcaster,
+				stream: this.stream.attributes	// assuming stream for the parent post is the same as for the reply
+			}).publishPost();
+		}, 500);
 	}
 
 	// send an email notification as needed to users who are offline
