@@ -25,11 +25,12 @@ class Analytics extends APIServerModule {
 		// segment analytics client as the analytics service
 		return async () => {
 			this.api.log('Connecting to Segment Analytics...');
-			const config = Object.assign({}, this.api.config.telemetry.segment, {
+			let segmentConfig = (this.api.config.telemetry && this.api.config.telemetry.segment) || {};
+			segmentConfig = Object.assign({}, segmentConfig, {
 				testCallback: this.testCallback.bind(this),
 				logger: this.api
 			});
-			this.analyticsClient = new AnalyticsClient(config);
+			this.analyticsClient = new AnalyticsClient(segmentConfig);
 			return { analytics: this.analyticsClient };
 		};
 	}

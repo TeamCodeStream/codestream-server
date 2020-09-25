@@ -151,7 +151,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
 	// eg. provider: jira, installation: cloud
-	Object.keys(Cfg.integrations).forEach(provider => {
+	Object.keys(Cfg.integrations || {}).forEach(provider => {
 		const configProvider = (provider === 'devops') ? 'azuredevops' : provider;
 		Object.keys(Cfg.integrations[provider]).forEach(installation => {
 			Object.assign(integrations[configProvider], Cfg.integrations[provider][installation])
