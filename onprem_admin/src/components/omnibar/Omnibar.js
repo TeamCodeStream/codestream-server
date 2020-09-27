@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { SystemStatuses } from '../../store/actions/status';
+import { saveConfiguration } from '../../store/actions/presentation';
 
 class Omnibar extends Component {
 	displaySystemStatusElement() {
@@ -38,7 +39,7 @@ class Omnibar extends Component {
 						<span>System Status: </span>
 						{this.displaySystemStatusElement()}
 					</span>
-					{this.props.unsavedChanges && <span className="btn btn-info btn-sm">Save Changes</span>}
+					{this.props.unsavedChanges && <span className="btn btn-info btn-sm" onClick={() => this.props.saveConfiguration()}>Save Changes</span>}
 				</div>
 			</section>
 		);
@@ -53,4 +54,8 @@ const mapState = state => ({
 	unsavedChanges: state.status.unsavedChanges,
 });
 
-export default connect(mapState)(Omnibar);
+const mapDispatch = dispatch => ({
+	saveConfiguration: () => dispatch(saveConfiguration()),
+});
+
+export default connect(mapState, mapDispatch)(Omnibar);

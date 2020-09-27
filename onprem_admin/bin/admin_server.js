@@ -1,6 +1,7 @@
 'use strict';
 
 import express from 'express';
+// import bodyParser from 'body-parser';
 import Api from '../api';
 import ServerRenderApp from '../lib/serverRenderApp';
 import AdminConfig from '../config/config';
@@ -13,8 +14,12 @@ import GlobalData from '../config/globalData';
 // at which point the client fires up and loads the App component.
 async function displayApp(req, res) {
 	try {
-		// give the client something to display while the app is starting up
+		// FIXME: why doesn't this work - Logger is defined!!!??
+		// console.log(Object.keys(GlobalData), GlobalData.Logger);
+		// GlobalData.Logger.info('displayApp req url ', req.originalUrl);
 		console.log('displayApp req url ', req.originalUrl);
+
+		// give the client something to display while the app is starting up
 		const { initialAppHtml, initialState } = await ServerRenderApp(req.originalUrl);
 		res.render('index', {	// render with views/index.js
 			content: initialAppHtml,
@@ -28,10 +33,18 @@ async function displayApp(req, res) {
 
 const ExpressServer = express();
 
-// templating engine - defaults to 'views' directory for templates
+// --- templating engine
+
+// ejs defaults to 'views' directory for templates
 ExpressServer.set('view engine', 'ejs');
 
-// server routing
+// --- middleware
+
+// we shall be uploading data in json form, so let's have it nicely parsed for us
+ExpressServer.use(express.json());
+ExpressServer.use(express.urlencoded({ extended: true }));
+
+// --- server routing
 
 // admin api
 ExpressServer.use('/api', Api);
@@ -39,7 +52,7 @@ ExpressServer.use('/api', Api);
 // static files - /s/* routes are read from directory public/
 ExpressServer.use('/s', express.static('public'));
 
-// All possible entry points into the app (bookmark-able) route to the same function
+// All possible entry points into the app (bookmark-able) call the same function
 const EntryRoutes = [
 	'/status',
 	'/configuration/topology',
@@ -53,7 +66,8 @@ const EntryRoutes = [
 ];
 EntryRoutes.forEach(route => ExpressServer.get(route, (req, res) => displayApp(req, res)));
 
-// Redirects
+// --- Redirects
+
 const RedirectRoutes = {
 	'/': '/status',
 	'/configuration': '/configuration/topology'
@@ -62,11 +76,13 @@ for (const [route, to] of Object.entries(RedirectRoutes)) {
 	ExpressServer.get(route, (req, res) => res.redirect(to));
 }
 
+// --- Last resort
+
 // uh oh!  Any other routes fail with 'bad url'
 ExpressServer.get('*', (req, res) => res.send(`bad url: ${req.url}`));
 
 
-// load the config data, setup a logger and launch the server
+// load the config data, setup a logger and fire up the server
 (async function() {
 	// I know, globals are bad. But in this case, really convenient.
 	// There is only one global object (defined in config/globalData.js)
@@ -76,7 +92,6 @@ ExpressServer.get('*', (req, res) => res.send(`bad url: ${req.url}`));
 	// SHOULD BE READ-ONLY!!!!
 	GlobalData.AdminConfig = AdminConfig;
 	const Config = await AdminConfig.loadPreferredConfig();
-	console.log(Config);
 	GlobalData.Logger = new SimpleFileLogger(Config.adminServer.logger);
 	if (Config.adminServer.adminServerDisabled) {
 		GlobalData.Logger.error('The admin server is disabled in the config. Good bye.');

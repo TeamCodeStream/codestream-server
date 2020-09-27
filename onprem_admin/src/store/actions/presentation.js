@@ -3,6 +3,7 @@
 import axios from 'axios';
 import StatusActions from './status';
 import ConfigActions from './config';
+import PresentationActions from './presentation';
 import OriginalConfigActions from './originalConfig';
 
 import ModalContinueOrCancel from '../../components/lib/ModalContinueOrCancel';
@@ -15,8 +16,11 @@ const Actions = {
 	// PRESENTATION_CONFIG_INTGR_TOGGLE_CARD: 'PRESENTATION_CONFIG_INTGR_TOGGLE_CARD',
 
 	PRESENTATION_CONFIG_HIST_LOAD: 'PRESENTATION_CONFIG_HIST_LOAD',
+	PRESENTATION_CONFIG_HIST_REFRESH_ONE: 'PRESENTATION_CONFIG_HIST_REFRESH_ONE',
 	PRESENTATION_CONFIG_HIST_DELETE: 'PRESENTATION_CONFIG_HIST_DELETE',
 	PRESENTATION_CONFIG_HIST_ACTIVATE: 'PRESENTATION_CONFIG_HIST_ACTIVATE',
+
+	PRESENTATION_CONFIG_GEN_TELEMETRY_SET_DISABLED: 'PRESENTATION_CONFIG_GEN_TELEMETRY_SET_DISABLED',
 	// PRESENTATION_: 'PRESENTATION_',
 };
 
@@ -78,6 +82,27 @@ function activateConfiguration(serialNumber) {
 	}
 };
 
+// sequence of events needed to load a new configuration
+function dispatchLoadConfiguration(dispatch, state, configData, serialNumber, revision) {
+	dispatch({ type: ConfigActions.CONFIG_LOAD_NEW_CONFIG, payload: configData });
+	dispatch({ type: OriginalConfigActions.ORIGINAL_CFG_LOAD_NEW_CONFIG, payload: configData });
+	const entry = draft.configuration.history.summary.filter((cfg) => {
+		return cfg.serialNumber === action.payload.serialNumber;
+	})[0];
+	refreshConfigurationSpecialProps(dispatch, state, entry);
+	dispatch({ type: PresentationActions.PRESENTATION_CONFIG_HIST_REFRESH_ONE, payload: {
+		serialNumber,
+		entry,
+	}});
+	dispatch({
+		type: StatusActions.STATUS_NEW_CONFIG_LOADED,
+		payload: {
+			serialNumber,
+			revision,
+		},
+	});
+}
+
 function loadConfiguration(serialNumber) {
 	return (dispatch, getState) => {	// triggers thunk middleware
 		console.debug(`loadConfiguration(${serialNumber})`);
@@ -85,20 +110,7 @@ function loadConfiguration(serialNumber) {
 			.get(`/api/config/${serialNumber}`)
 			.then(resp => {
 				if (resp.status == 200) {
-					// state.config
-					dispatch({ type: ConfigActions.CONFIG_LOAD_NEW_CONFIG, payload: resp.data.configData });
-					// state.originalConfig
-					dispatch({ type: OriginalConfigActions.ORIGINAL_CFG_LOAD_NEW_CONFIG, payload: resp.data.configData });
-					// state.status.unsavedChanges = false
-					// state.status.baselineRevision
-					// state.status.serialLastLoaded
-					dispatch({
-						type: StatusActions.STATUS_NEW_CONFIG_LOADED,
-						payload: {
-							serialNumber,
-							revision: resp.data.revision,
-						},
-					});
+					dispatchLoadConfiguration(dispatch, state, resp.data.configData, serialNumber, resp.data.revision)
 				} else {
 					console.error(`loadConfiguration(${serialNumber} failed`, resp.data);
 				}
@@ -106,6 +118,85 @@ function loadConfiguration(serialNumber) {
 			.catch(console.error);
 	}
 };
+
+export function saveConfiguration(activate = false, desc = null) {
+	return (dispatch, getState) => {	// triggers thunk middleware
+		const state = getState();
+		console.debug(`saveConfiguration()`);
+		axios
+			.post(activate ? '/api/config/activte' : '/api/config', {
+				configData: state.config,
+				desc })
+			.then((resp) => {
+				console.debug('saveConfiguration(): response data', resp.data);
+				if (resp.data?.success) {
+					const configDoc = resp.data.response.configDoc;
+					if (activate) {
+						dispatch({ type: StatusActions.STATUS_ACTIVATE_CONFIG, payload: configDoc.serialNumber});
+					}
+					dispatchLoadConfiguration(dispatch, state, state.config, configDoc.serialNumber, configDoc.revision)
+					// dispatch(loadConfigurationHistory)
+				}
+				else {
+					console.error(`ssaveConfiguration() failed`, resp.data);
+				}
+			})
+			.catch(console.error);
+	}
+};
+
+function refreshConfigurationSpecialProps(dispatch, state, entry) {
+	Object.assign(entry, {
+		dateString: new Date(entry.timeStamp).toUTCString(),
+		// tooltips for 'standard' properties
+		tooltip: {
+			// desc: `Serial number ${entry.serialNumber}`,
+			schemaVersion: `Your API server is using schema ${state.status.codeSchemaVersion}. You can activate any config with that version.`,
+			revision: `Serial number ${entry.serialNumber}`,
+			dateString: `Serial number ${entry.serialNumber}`,
+			desc: `Serial number ${entry.serialNumber}`,
+		},
+		// these are 'special' properties for the Table component
+		deletable: {
+			on: entry.serialNumber !== state.status.activeConfigSerialNumber,
+			onClick: {
+				whenOn: () => dispatch(deleteConfiguration(entry.serialNumber)),
+			},
+			tooltip: {
+				whenOn: `Delete configuration ${entry.schemaVersion}.${entry.revision} from the database.`,
+				whenOff: 'You cannot delete the active configuration',
+				whenDisabled: null,
+			},
+		},
+		loadable: {
+			on: !(state.status.serialLastLoaded === entry.serialNumber && !state.status.unsavedChanges),
+			onClick: {
+				whenOn: () => dispatch(loadConfiguration(entry.serialNumber)),
+			},
+			tooltip: {
+				whenOn: `Load configuration ${entry.schemaVersion}.${entry.revision} into the app for editing.`,
+			},
+		},
+		active:
+			entry.schemaVersion !== state.status.codeSchemaVersion
+				? {
+						on: null,
+						tooltip: {
+							whenDisabled: 'This schema version is not compatible with the server software.',
+						},
+					}
+				: {
+						on: entry.serialNumber === state.status.activeConfigSerialNumber,
+						onClick: {
+							whenOff: () => dispatch(activateConfiguration(entry.serialNumber)),
+						},
+						tooltip: {
+							whenOn: `Activate a different configuration in order to deactivate this one.`,
+							whenOff: `Activate configuration ${entry.schemaVersion}.${entry.revision}. Restart needed for changes to take effect.`,
+						},
+					},
+	});
+}
 
 export function loadConfigurationHistory() {
 	return (dispatch, getState) => {
@@ -115,62 +206,12 @@ export function loadConfigurationHistory() {
 		axios
 			.get(`/api/config/summary/${state.status.codeSchemaVersion}`)
 			.then((resp) => {
-				// we add presentation data to the configuration list
 				const configSummary = resp.data;
 				configSummary.map((entry) => {
-					Object.assign(entry, {
-						dateString: new Date(entry.timeStamp).toUTCString(),
-						// tooltips for 'standard' properties
-						tooltip: {
-							// desc: `Serial number ${entry.serialNumber}`,
-							schemaVersion: `Your API server is using schema ${state.status.codeSchemaVersion}. You can activate any config with that version.`,
-							revision: `Serial number ${entry.serialNumber}`,
-							dateString: `Serial number ${entry.serialNumber}`,
-							desc: `Serial number ${entry.serialNumber}`,
-						},
-						// these are 'special' properties for the Table component
-						deletable: {
-							on: entry.serialNumber !== state.status.activeConfigSerialNumber,
-							onClick: {
-								whenOn: () => dispatch(deleteConfiguration(entry.serialNumber)),
-							},
-							tooltip: {
-								whenOn: `Delete configuration ${entry.schemaVersion}.${entry.revision} from the database.`,
-								whenOff: 'You cannot delete the active configuration',
-								whenDisabled: null,
-							},
-						},
-						loadable: {
-							on: !(state.status.serialLastLoaded === entry.serialNumber && !state.status.unsavedChanges),
-							onClick: {
-								whenOn: () => dispatch(loadConfiguration(entry.serialNumber)),
-							},
-							tooltip: {
-								whenOn: `Load configuration ${entry.schemaVersion}.${entry.revision} into the app for editing.`,
-							},
-						},
-						active:
-							entry.schemaVersion !== state.status.codeSchemaVersion
-								? {
-										on: null,
-										tooltip: {
-											whenDisabled: 'This schema version is not compatible with the server software.',
-										},
-								  }
-								: {
-										on: entry.serialNumber === state.status.activeConfigSerialNumber,
-										onClick: {
-											whenOff: () => dispatch(activateConfiguration(entry.serialNumber)),
-										},
-										tooltip: {
-											whenOn: `Activate a different configuration in order to deactivate this one.`,
-											whenOff: `Activate configuration ${entry.schemaVersion}.${entry.revision}. Restart needed for changes to take effect.`,
-										},
-								  },
-					});
+					refreshConfigurationSpecialProps(dispatch, state, entry);
 				});
 				dispatch({ type: Actions.PRESENTATION_CONFIG_HIST_LOAD, payload: configSummary });
-				console.debug('loadConfigurationHistory: new config summary:', configSummary);
+				console.debug('refreshConfigurationHistory: new config summary:', configSummary);
 			})
 			.catch(console.error);
 	};

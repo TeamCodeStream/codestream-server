@@ -5,8 +5,8 @@ read
 
 set -x
 
-../../shared/codestream_configs/bin/mongo-config-loader.js --mongo-url mongodb://localhost/codestream --add-cfg-file $CSSVC_CFG_FILE --desc "Original version for schema"
+$OPADM_TOP/../shared/codestream_configs/bin/mongo-config-loader.js --mongo-url mongodb://localhost/codestream --add-cfg-file $CSSVC_CFG_FILE --desc "Original version for schema"
 for r in `seq 1 8`; do
-	../../shared/codestream_configs/bin/mongo-config-loader.js --mongo-url mongodb://localhost/codestream --add-cfg-file $CSSVC_CFG_FILE --desc "revision number $r"
+	$OPADM_TOP/../shared/codestream_configs/bin/mongo-config-loader.js --mongo-url mongodb://localhost/codestream --add-cfg-file $CSSVC_CFG_FILE --desc "revision number $r"
 done
-../../shared/codestream_configs/bin/mongo-config-loader.js --mongo-url mongodb://localhost/codestream --report-cfg --schema-version 14
+$OPADM_TOP/../shared/codestream_configs/bin/mongo-config-loader.js --mongo-url mongodb://localhost/codestream --report-cfg --schema-version 14

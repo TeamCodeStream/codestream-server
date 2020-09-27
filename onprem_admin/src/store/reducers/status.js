@@ -9,7 +9,7 @@ import Actions from '../actions/status';
 
 // Reducers only see a 'reduced' state
 export default (state=null, action) => produce(state, draft => {
-	// console.debug(`reducer(status): ${action.type}`);
+	console.debug(`reducer(status): ${action.type}`);
 	switch (action.type) {
 		case Actions.STATUS_SET_UNSAVED_CHANGES:
 			draft.unsavedChanges = action.payload;

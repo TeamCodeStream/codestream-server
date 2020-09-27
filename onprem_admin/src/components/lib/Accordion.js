@@ -15,15 +15,11 @@ const AccordionHeader = ({ header, status, value }) => {
 const AccordionCard = props => {
 	return (
 		<div className="card">
-			<div className="card-head text-dark" id={props.id}>
-				<h5 className="mb-0" data-toggle="collapse" data-target={`#${props.id}Collapse`} aria-expanded="false" aria-controls={`${props.id}Collapse`}>
-					<AccordionHeader header={props.header} value={props.badgeValue} status={props.badgeStatus} />
-				</h5>
-			</div>
-			<div id={`${props.id}Collapse`} className="collapse show" aria-labelledby={props.id} data-parent={`#${props.accordionId}`}>
-				<div className="card-body bg-dark">
-					{props.children}
-				</div>
+			<h5 id={props.id} className="card-head text-dark mb-0 collapsed" data-toggle="collapse" data-target={`#${props.id}Collapse`} aria-expanded="false" aria-controls={`${props.id}Collapse`}>
+				<AccordionHeader header={props.header} value={props.badgeValue} status={props.badgeStatus} />
+			</h5>
+			<div id={`${props.id}Collapse`} className="card-body bg-dark collapse" aria-labelledby={props.id} data-parent={`#${props.accordionId}`}>
+				{props.children}
 			</div>
 		</div>
 	);

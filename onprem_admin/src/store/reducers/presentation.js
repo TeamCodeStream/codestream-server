@@ -27,6 +27,12 @@ export default (state = {}, action) =>
 					return cfg.serialNumber !== action.payload;
 				});
 				return;
+			case Actions.PRESENTATION_CONFIG_HIST_REFRESH_ONE:
+				const entry = draft.configuration.history.summary.filter((cfg) => {
+					return cfg.serialNumber === action.payload.serialNumber;
+				})[0];
+				Object.assign(entry, action.payload.entry);
+				return;
 			case Actions.PRESENTATION_CONFIG_HIST_ACTIVATE:
 				// it's tecnically possible for there not to be an active configuration
 				if (action.payload.currentActivatedConfigSerial) {
@@ -41,6 +47,9 @@ export default (state = {}, action) =>
 				});
 				newRef[0].active.on = true;
 				newRef[0].deletable.on = false;
+				return;
+			case Actions.PRESENTATION_CONFIG_GEN_TELEMETRY_SET_DISABLED:
+				draft.configuration.general.telemetryDisabled = action.payload;
 				return;
 		}
 	}

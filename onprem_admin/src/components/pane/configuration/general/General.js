@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 // import TelemetryActions, { telemetryDataIsMissing } from '../../../../store/actions/config/telemetry';
 // import ApiServerActions from '../../../../store/actions/config/apiServer';
 import ConfigActions, { telemetryDataIsMissing } from '../../../../store/actions/config';
+import PresentationActions from '../../../../store/actions/presentation';
 
 export class General extends React.Component {
 	render() {
@@ -72,7 +73,8 @@ const mapState = state => {
 	return {
 		telemetrySelectable,
 		telemetryEnabled: telemetrySelectable // TODO: shouldn't this always be set?
-			? !(state.config.telemetry.disabled || false)
+			// ? !(state.config.telemetry.disabled || false)
+			? !(state.presentation.configuration.general.telemetryDisabled || false)
 			: false,
 		phoneHomeEnabled: !(state.config.apiServer.disablePhoneHome || false),
 		phoneHomeSelectable: false,
@@ -91,7 +93,7 @@ const mapDispatch = dispatch => {
 		// },
 		toggleTelemetry: (e) =>
 			dispatch({
-				type: ConfigActions.CONFIG_TELEMETRY_SET_DISABLED,
+				type: PresentationActions.PRESENTATION_CONFIG_GEN_TELEMETRY_SET_DISABLED,
 				payload: !e.target.checked,
 			}),
 		// togglePhoneHome: (e) => {

@@ -28,6 +28,7 @@ async function serverRenderApp(requestedRoute="") {
 			history: {
 				summary: [],
 			},
+			general: {}
 		},
 		updates: {},
 		support: {},

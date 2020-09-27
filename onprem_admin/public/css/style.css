@@ -89,10 +89,17 @@ body {
 	font-weight: 300;
 }
 
-/* :not(nav) a:link, a:visited {
+/* all links except the nav menus */
+a {
 	color: cyan;
 	text-decoration: underline;
-} */
+}
+nav a {
+	color: var(--color-text);
+	text-decoration: none;
+}
+
+
 
 ul.list-style-no-bullets {
   list-style-type: none;
@@ -120,7 +127,8 @@ ul.list-style-no-bullets {
 	width: 18px;
 }
 
-/* accordion.scss */
+/* accordion.scss; display up/down arrows
+*/
 .accordion {
 	margin-top: 10px;
 	margin-bottom: 40px;
@@ -129,17 +137,19 @@ ul.list-style-no-bullets {
 	border: none;
 	margin-bottom: 5px;
 }
-.accordion .card h5 {
-	/* background: url(/s/images/arrow-up-black.png) no-repeat calc(100% - 10px) center; */
-	background: url(/s/fa/svgs/solid/chevron-down.svg.png) no-repeat calc(100% - 10px) center;
+.accordion .card h5[aria-expanded=false] {
+	background: url(/s/fa/svgs/solid/chevron-down.svg.png) no-repeat calc(100% - 10px);
 	background-size: 20px;
 	cursor: pointer;
 	margin-top: 5px;
 	font-size: 18px;
 }
-.accordion .card h5.collapsed {
-	/* background-image: url(/s/images/arrow-down-black.png); */
-	background-image: url(/s/fa/svgs/solid/chevron-up.svg.png);
+.accordion .card h5[aria-expanded=true] {
+	background: url(/s/fa/svgs/solid/chevron-up.svg.png) no-repeat calc(100% - 10px);
+	background-size: 20px;
+	cursor: pointer;
+	margin-top: 5px;
+	font-size: 18px;
 }
 .accordion .card-body {
 	margin-top: 5px;
