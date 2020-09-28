@@ -9,22 +9,18 @@ const TrelloFormFieldSet = [
 		{
 			id: 'trelloApiKey',
 			label: 'App Key',
-			mutedText: (
-				<a href={DocRefs.integrations.trello} target="_blank">
-					Documentation reference
-				</a>
-			),
+			// mutedText: (
+			// 	<a href={DocRefs.integrations.trello} target="_blank">
+			// 		Documentation reference
+			// 	</a>
+			// ),
 			width: 'col-10',
 		},
 	],
 ];
 
 const TrelloForm = props => {
-	return (
-		<form className="form">
-			<FormFieldSet fieldset={TrelloFormFieldSet} />
-		</form>
-	);
+	return <FormFieldSet fieldset={TrelloFormFieldSet} helpDoc={DocRefs.integrations.trello} />;
 };
 
 export default TrelloForm;

@@ -40,8 +40,23 @@ export const configNavItems = {
 	history: 'history',
 }
 
+export const integrationStatuses = {
+	disabled: 'disabled',
+	on: 'on',
+	off: 'off',
+};
 
 // Action Creators
+
+// Config > Integrations
+// disabled, on, off
+export function slackIntegrationStatus(state) {
+	const slackProps = state.config.integrations.slack.cloud;
+	if (!(slackProps.appClientId && slackProps.appClientSecret && slackProps.appId && slackProps.appSigningSecret)) {
+		return integrationStatuses.disabled;
+	}
+	return !slackProps.disabled ? integrationStatuses.on : integrationStatuses.off;
+}
 
 // Config > History
 // --------------------------------------------------------------------------

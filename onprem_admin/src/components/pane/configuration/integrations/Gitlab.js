@@ -13,22 +13,18 @@ const GitlabFormFieldSet = [
 		{
 			id: 'gitlabSecret',
 			label: 'Secret',
-			mutedText: (
-				<a href={DocRefs.integrations.gitlab} target="_blank">
-					Documentation reference
-				</a>
-			),
+			// mutedText: (
+			// 	<a href={DocRefs.integrations.gitlab} target="_blank">
+			// 		Documentation reference
+			// 	</a>
+			// ),
 			width: 'col-10',
 		},
 	],
 ];
 
 const GitlabForm = props => {
-	return (
-		<form className="form">
-			<FormFieldSet fieldset={GitlabFormFieldSet} />
-		</form>
-	);
+	return <FormFieldSet fieldset={GitlabFormFieldSet} helpDoc={DocRefs.integrations.gitlab} />;
 };
 
 export default GitlabForm;

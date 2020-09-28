@@ -14,22 +14,18 @@ const OktaFormFieldSet = [
 		{
 			id: 'oktaClientSecret',
 			label: 'Client Secret',
-			mutedText: (
-				<a href={DocRefs.integrations.okta} target="_blank">
-					Documentation reference
-				</a>
-			),
+			// mutedText: (
+			// 	<a href={DocRefs.integrations.okta} target="_blank">
+			// 		Documentation reference
+			// 	</a>
+			// ),
 			width: 'col-10',
 		},
 	],
 ];
 
 const OktaForm = props => {
-	return (
-		<form className="form">
-			<FormFieldSet fieldset={OktaFormFieldSet} />
-		</form>
-	);
+	return <FormFieldSet fieldset={OktaFormFieldSet} helpDoc={DocRefs.integrations.okta} />;
 };
 
 export default OktaForm;

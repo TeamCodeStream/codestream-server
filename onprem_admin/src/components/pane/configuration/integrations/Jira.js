@@ -14,22 +14,18 @@ const JiraFormFieldSet = [
 		{
 			id: 'jiraClientSecret',
 			label: 'Secret',
-			mutedText: (
-				<a href={DocRefs.integrations.jira} target="_blank">
-					Documentation reference
-				</a>
-			),
+			// mutedText: (
+			// 	<a href={DocRefs.integrations.jira} target="_blank">
+			// 		Documentation reference
+			// 	</a>
+			// ),
 			width: 'col-10',
 		},
 	],
 ];
 
 const JiraForm = props => {
-	return (
-		<form className="form">
-			<FormFieldSet fieldset={JiraFormFieldSet} />
-		</form>
-	);
+	return <FormFieldSet fieldset={JiraFormFieldSet} helpDoc={DocRefs.integrations.jira} />;
 };
 
 export default JiraForm;

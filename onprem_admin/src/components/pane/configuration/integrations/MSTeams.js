@@ -25,11 +25,7 @@ const MSTeamsFormFieldSet = [
 ];
 
 const MSTeamsForm = props => {
-	return (
-		<form className="form">
-			<FormFieldSet fieldset={MSTeamsFormFieldSet} />
-		</form>
-	);
+	return <FormFieldSet fieldset={MSTeamsFormFieldSet} helpDoc={DocRefs.integrations.msteams} />;
 };
 
 export default MSTeamsForm;

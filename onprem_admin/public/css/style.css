@@ -124,7 +124,19 @@ ul.list-style-no-bullets {
 } */
 
 .Table .icon-image {
-	width: 18px;
+	width: 20px;
+}
+.icon-image {
+	height: 20px;
+	width: 20px;
+}
+.icon-image-large {
+	height: 30px;
+	width: 30px;
+}
+.icon-image-25x20 {
+	height: 25px;
+	width: 20px;
 }
 
 /* accordion.scss; display up/down arrows

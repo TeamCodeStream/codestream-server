@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Accordion from '../../../lib/Accordion';
 import SlackForm from './Slack';
@@ -13,6 +13,8 @@ import BitbucketForm from './Bitbucket';
 import GitlabForm from './Gitlab';
 import DevopsForm from './Devops';
 import OktaForm from './Okta';
+
+import { integrationStatuses, slackIntegrationStatus } from '../../../../store/actions/presentation';
 
 const accordions = [
 	{
@@ -98,8 +100,8 @@ class Integrations extends React.Component {
 					return (
 						<div key={a.id}>
 							<h5>{a.title}</h5>
-							<p>{a.desc}</p>
-							<Accordion accordionId={a.id} cards={a.cards} statuses={this.props.statuses}/>
+							{/* <p>{a.desc}</p> */}
+							<Accordion accordionId={a.id} message={a.desc} cards={a.cards} statuses={this.props.statuses}/>
 						</div>
 					);
 				})}
@@ -108,25 +110,41 @@ class Integrations extends React.Component {
 	}
 }
 
+// return object for Accordion component status properties
+function setIntegrationStatuses(state) {
+	const integrationStatuses = {
+		intgrMsgSlack: slackIntegrationStatus(state),
+	};
+	const integrationStatusData = {};
+	for (const integrationId in integrationStatuses) {
+		integrationStatusData[integrationId] = {};
+		switch (integrationStatuses[integrationId]) {
+			case integrationStatuses.on:
+				// integrationStatusData[integrationId].badgeStatus = 'success';
+				// integrationStatusData[integrationId].badgeValue = 'CONFIGURAED';
+				integrationStatusData[integrationId].icon = '/s/fa/svgs/solid/toggle-on.svg.green.png';
+				break;
+			case integrationStatuses.off:
+				// integrationStatusData[integrationId].badgeStatus = 'dark';
+				// integrationStatusData[integrationId].badgeValue = 'UNCONFIGURAED';
+				integrationStatusData[integrationId].icon = '/s/fa/svgs/solid/toggle-off.svg.on-white.png';
+				break;
+			default:	// integrationStatuses.disabled
+				integrationStatusData[integrationId].icon = '/s/fa/svgs/solid/toggle-off.svg.grey2-8e8e8e.solid-back.png';
+				break;
+		}
+	};
+	return integrationStatusData;
+};
 
 const mapState = state => {
-	console.debug('Integrations/mapState(integrations', state.presentation.configuration.integrations);
+	console.debug('Integrations/mapState(integrations)', state.presentation.configuration.integrations);
 	return {
 		integrations: state.presentation.configuration.integrations,
-		statuses: {	// state.presentation.integrations.statuses
-			intgrMsgSlack: {
-				status: 'success',
-				value: 'CONFIGURED',
-			},
-			intgrMSTeams: {
-				status: 'dark',
-				value: 'UNCONFIGURED',
-			},
-		}
+		statuses: setIntegrationStatuses(state),
 	};
 };
 
-const mapDispatch = dispatch => ({
-});
+const mapDispatch = dispatch => ({});
 
 export default connect(mapState, mapDispatch)(Integrations);

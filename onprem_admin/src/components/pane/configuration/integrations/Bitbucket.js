@@ -13,22 +13,18 @@ const BitbucketFormFieldSet = [
 		{
 			id: 'bitbucketSecret',
 			label: 'Secret',
-			mutedText: (
-				<a href={DocRefs.integrations.bitbucket} target="_blank">
-					Documentation reference
-				</a>
-			),
+			// mutedText: (
+			// 	<a href={DocRefs.integrations.bitbucket} target="_blank">
+			// 		Documentation reference
+			// 	</a>
+			// ),
 			width: 'col-10',
 		},
 	],
 ];
 
 const BitbucketForm = props => {
-	return (
-		<form className="form">
-			<FormFieldSet fieldset={BitbucketFormFieldSet} />
-		</form>
-	);
+	return <FormFieldSet fieldset={BitbucketFormFieldSet} helpDoc={DocRefs.integrations.bitbucket} />;
 };
 
 export default BitbucketForm;
