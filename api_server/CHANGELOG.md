@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.5] - 2020-9-26
+
+### Changed
+
+- All new teams created on CodeStream are now automatically placed on the Free Plan.
+
 ## [8.2.4] - 2020-9-16
 
 ### Added
