@@ -2,13 +2,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import ConfigActions from '../../../../store/actions/config';
 import { DocRefs } from '../../../../config';
 import FormFieldSet from '../../../lib/FormFieldSet';
 
 function validateInput(input, field) {
-	console.debug('validateInput()');
+	console.debug('validateInput()', input, field);
 	if (field.type === 'text') {
 		if (input.length < field.validation.minLength || input.length > field.validation.maxLength) {
+			console.debug('string length out of range');
 			return `string length must be between ${field.validation.minLength} and ${field.validation.maxLength} characters.`;
 		}
 	}
@@ -24,9 +26,12 @@ const SlackFormFieldSet = [
 			validation: {
 				minLength: 8,
 				maxLength: 12,
-				errorMsg: null,
 				onBlur: validateInput,
-			}
+			},
+			updateAction: ConfigActions.CONFIG_INTG_SLACK_APP_ID, // update config state
+			// These props will be set in the mapState routine
+			// value,
+			// revertValue
 		},
 	],
 	[
@@ -34,6 +39,13 @@ const SlackFormFieldSet = [
 			id: 'slackClientId',
 			label: 'Client ID',
 			width: 'col-10',
+			type: 'text',
+			validation: {
+				minLength: 15,
+				maxLength: 100,
+				onBlur: validateInput,
+			},
+			updateAction: ConfigActions.CONFIG_INTG_SLACK_CLIENT_ID, // update config state
 		},
 	],
 	[
@@ -42,6 +54,13 @@ const SlackFormFieldSet = [
 			label: 'Client Secret',
 			width: 'col-10',
 			mutedText: 'this is nice',
+			type: 'text',
+			validation: {
+				minLength: 15,
+				maxLength: 100,
+				onBlur: validateInput,
+			},
+			updateAction: ConfigActions.CONFIG_INTG_SLACK_CLIENT_SECRET, // update config state
 		},
 	],
 	[
@@ -49,6 +68,13 @@ const SlackFormFieldSet = [
 			id: 'slackSigningSecret',
 			label: 'Signing Secret',
 			width: 'col-10',
+			type: 'text',
+			validation: {
+				minLength: 15,
+				maxLength: 100,
+				onBlur: validateInput,
+			},
+			updateAction: ConfigActions.CONFIG_INTG_SLACK_SIGNING_SECRET, // update config state
 			// mutedText: (
 			// 	<a href={DocRefs.integrations.slack} target="_blank">
 			// 		Documentation reference
@@ -74,10 +100,17 @@ const SlackForm = props => {
 };
 
 const mapState = (state) => {
+	// Add the data needed from the state to the SlackFormFieldSet data object
 	fieldById().slackAppId.value = state.config.integrations?.slack?.cloud?.appId;
 	fieldById().slackClientId.value = state.config.integrations?.slack?.cloud?.appClientId;
 	fieldById().slackClientSecret.value = state.config.integrations?.slack?.cloud?.appClientSecret;
 	fieldById().slackSigningSecret.value = state.config.integrations?.slack?.cloud?.appSigningSecret;
+	// revert value comes from the original config we loaded
+	fieldById().slackAppId.revertValue = state.originalConfig.integrations?.slack?.cloud?.appId;
+	fieldById().slackClientId.revertValue = state.originalConfig.integrations?.slack?.cloud?.appClientId;
+	fieldById().slackClientSecret.revertValue = state.originalConfig.integrations?.slack?.cloud?.appClientSecret;
+	fieldById().slackSigningSecret.revertValue = state.originalConfig.integrations?.slack?.cloud?.appSigningSecret;
+
 	console.debug('Slack.js(mapState)', SlackFormFieldSet);
 	return {
 		fieldset: SlackFormFieldSet,
