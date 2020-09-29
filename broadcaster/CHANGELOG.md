@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.4] - 2020-9-29
+
+### Fixed
+
+- OnPrem quickstart configuration not loading properly
+
 ## [8.2.3] - 2020-9-26
 
 ### Changed
