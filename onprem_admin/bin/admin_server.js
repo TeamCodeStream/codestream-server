@@ -51,6 +51,8 @@ ExpressServer.use('/api', Api);
 
 // static files - /s/* routes are read from directory public/
 ExpressServer.use('/s', express.static('public'));
+ExpressServer.use('/s/jquery', express.static('node_modules/jquery/dist'));
+ExpressServer.use('/s/bootstrap', express.static('node_modules/bootstrap/dist'));
 
 // All possible entry points into the app (bookmark-able) call the same function
 const EntryRoutes = [
