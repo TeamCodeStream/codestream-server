@@ -73,6 +73,11 @@ module.exports = function customConfigFunc(nativeCfg) {
 	selectQueuingEngine(Cfg);
 	selectEmailDeliveryService(Cfg);
 
+	// telemetry
+	if(Cfg.telemetry && Cfg.telemetry.disabled) {
+		delete Cfg.telemetry;
+	}
+
 	// mongo
 	Object.assign(Cfg.storage.mongo, {
 		database: MongoUrlParser(nativeCfg.storage.mongo.url).database,
@@ -151,7 +156,9 @@ module.exports = function customConfigFunc(nativeCfg) {
 	Object.keys(Cfg.integrations || {}).forEach(provider => {
 		const configProvider = (provider === 'devops') ? 'azuredevops' : provider;
 		Object.keys(Cfg.integrations[provider]).forEach(installation => {
-			Object.assign(integrations[configProvider], Cfg.integrations[provider][installation])
+			if (!Cfg.integrations[provider][installation].disabled) {
+				Object.assign(integrations[configProvider], Cfg.integrations[provider][installation])
+			}
 		});
 	});
 
