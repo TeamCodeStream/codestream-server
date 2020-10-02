@@ -28,6 +28,11 @@ const ROUTES = [
 		requestClass: require('./provider_token_request')
 	},
 	{
+		method: 'post',
+		path: '/no-auth/provider-token/:provider',
+		requestClass: require('./provider_token_request')
+	},
+	{
 		method: 'get',
 		path: '/provider-auth-code',
 		requestClass: require('./provider_authcode_request')

@@ -24,10 +24,16 @@ class ProviderTokenRequest extends RestfulRequest {
 	async process () {
 		try {
 			// determine the authorization service to use, based on the provider
+			this.isClientToken = this.request.method.toLowerCase() === 'post';
 			this.provider = this.request.params.provider.toLowerCase();
 			this.serviceAuth = this.api.services[`${this.provider}Auth`];
 			if (!this.serviceAuth) {
 				throw this.errorHandler.error('unknownProvider', { info: this.provider });
+			}
+
+			// this method of setting a provider token is only supported for github right now
+			if (this.isClientToken && this.provider !== 'github') {
+				throw this.errorHandler.error('providerNotAllowed', { info: this.provider });
 			}
 
 			await this.requireAndAllow();		// require certain parameters, discard unknown parameters
@@ -53,6 +59,9 @@ class ProviderTokenRequest extends RestfulRequest {
 			await this.sendResponse();			// send the response html
 		}
 		catch (error) {
+			if (this.isClientToken) {
+				throw error;
+			}
 			this.warn(ErrorHandler.log(error));
 			this.errorCode = typeof error === 'object' && error.code ? error.code : WebErrors['unknownError'].code;
 			// if we have a url to redirect to, redirect with an error, rather
@@ -80,22 +89,47 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
-		// mock token must be accompanied by secret
-		if (this.request.query._mockToken && decodeURIComponent(this.request.query._secret || '') !== this.api.config.sharedSecrets.confirmationCheat) {
-			this.warn('Deleting mock token because incorrect secret sent');
-			delete this.request.query._mockToken;
-			delete this.request.query._mockEmail;
-		}
-		delete this.request.query._secret;
+		const which = this.isClientToken ? 'body' : 'query';
+		const input = this.isClientToken ? this.request.body : this.request.query;
 
-		await this.requireAllowParameters(
-			'query',
-			{
-				optional: {
-					string: ['state', 'token', 'code', 'token_type', 'expires_in', 'scope', 'error', 'oauth_token', '_mockToken', '_mockEmail']
-				}
+		// mock token must be accompanied by secret
+		if (input._mockToken && decodeURIComponent(input._secret || '') !== this.api.config.sharedSecrets.confirmationCheat) {
+			this.warn('Deleting mock token because incorrect secret sent');
+			delete input._mockToken;
+			delete input._mockEmail;
+		}
+		delete input._secret;
+
+		const requireAllow = {
+			optional: {
+				boolean: [
+					'no_signup'
+				],
+				string: [
+					'state',
+					'token',
+					'code',
+					'token_type',
+					'expires_in',
+					'scope',
+					'error',
+					'oauth_token',
+					'signup_token',
+					'invite_code',
+					'_mockToken',
+					'_mockEmail'
+				],
+				object: [
+					'data'
+				]
 			}
-		);
+		}
+		if (this.isClientToken) {
+			requireAllow.required = {
+				string: ['token']
+			};
+		}
+		await this.requireAllowParameters(which, requireAllow);
 	}
 
 	async extractFromFragmentAsNeeded () {
@@ -124,6 +158,13 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// decode the state token and validate
 	async validateState () {
+		if (this.isClientToken) {
+			this.userId = 'anon';
+			this.stateToken = this.request.body.signup_token;
+			this.inviteCode = this.request.body.invite_code;
+			this.noSignup = this.request.body.no_signup;
+			return;
+		}
 		if (!this.request.query.state) {
 			throw this.errorHandler.error('parameterRequired', { info: 'state' });
 		}
@@ -195,6 +236,9 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// perform an exchange of auth code for access token, as needed
 	async exchangeAuthCodeForToken () {
+		if (this.isClientToken) {
+			return;
+		}
 		if (this.serviceAuth.usesOauth1()) {
 			return await this.getOauth1AccessToken();
 		}
@@ -263,11 +307,15 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// save the provided token for the user
 	async saveToken () {
-		const token = (this.tokenData && this.tokenData.accessToken) || this.request.query.token;
+		const input = this.isClientToken ? this.request.query : this.request.body;
+		const token = (this.tokenData && this.tokenData.accessToken) || input.token;
 		if (!token) {
 			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider, tokenData is ' + JSON.stringify(this.tokenData) });
 		}
 		this.tokenData = this.tokenData || { accessToken: token };
+		if (this.request.body.data) {
+			this.tokenData.data = this.request.body.data;
+		}
 		const modifiedAt = Date.now();
 		let setKey = `providerInfo.${this.team.id}.${this.provider}`;
 		// add sub-keys for enterprise hosts
@@ -322,7 +370,8 @@ class ProviderTokenRequest extends RestfulRequest {
 	// and possibly create one if needed
 	async matchOrCreateUser () {
 		// get access token
-		const token = (this.tokenData && this.tokenData.accessToken) || this.request.query.token;
+		const input = this.isClientToken ? this.request.body : this.request.query;
+		const token = (this.tokenData && this.tokenData.accessToken) || input.token;
 		if (!token) {
 			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider, tokenData is ' + JSON.stringify(this.tokenData) });
 		}
@@ -336,8 +385,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			accessToken: token,
 			apiConfig: this.api.config[this.provider],
 			providerInfo: {
-				code: this.request.query.code,
-				mockEmail: this.request.query._mockEmail
+				code: input.code,
+				mockEmail: input._mockEmail
 			},
 			hostUrl: this.hostUrl,
 			request: this
@@ -349,6 +398,11 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// match the identifying information with an existing CodeStream user
 	async matchUser (userIdentity) {
+		if (this.request.body.data) {
+			this.tokenData = this.tokenData || {};
+			this.tokenData.data = this.tokenData.data || {};
+			Object.assign(this.tokenData.data, this.request.body.data);
+		}
 		this.connector = new ProviderIdentityConnector({
 			request: this,
 			provider: this.provider,
@@ -397,6 +451,9 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// send the response html
 	async sendResponse () {
+		if (this.isClientToken) {
+			return;
+		}
 		const host = this.api.config.apiServer.marketingSiteUrl;
 		const authCompletePage = this.serviceAuth.getAuthCompletePage();
 		const redirect = this.tokenPayload && this.tokenPayload.url ?

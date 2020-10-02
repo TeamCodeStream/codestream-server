@@ -57,5 +57,10 @@ module.exports = {
 		code: 'PRVD-1010',
 		message: 'Could not find a public email associated with the GitLab account',
 		description: 'GitLab requires that the user\'s primary email be public for identity matching'
+	},
+	'providerNotAllowed': {
+		code: 'PRVD-1011',
+		message: 'The functionality attempted for this provider is not allowed',
+		description: 'Functionality was attempted to be invoked for a provider that does not support said functionality'
 	}
 };
