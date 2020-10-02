@@ -4,24 +4,6 @@
 import StructuredConfigFactory from '../../shared/codestream_configs/lib/structured_config';
 import customConfigFunc from '../../shared/server_utils/custom_config';
 
-function adminCustomConfigFunc(nativeCfg) {
-	const cfg = customConfigFunc(nativeCfg);
-	cfg.adminServer = {
-		adminServerDisabled: false,
-		port: 8080,
-		showConfig: true,
-		logger: {}
-	};
-	Object.assign(cfg.adminServer.logger,
-		cfg.apiServer.logger,
-		{
-			directory: process.env.OPADM_LOGS,
-			basename: 'opadm'
-		}
-	);
-	return cfg;
-}
-
 // The restartRequired() method is meant to compare two configurations (prior &
 // current) in order to determine if a 'restart' (defined by the application) is
 // required.
@@ -40,5 +22,5 @@ module.exports = StructuredConfigFactory.create({
 	mongoUrl: process.env.CSSVC_CFG_URL,
 	showConfigProperty: 'adminServer.showConfig',
 	// customRestartFunc,
-	customConfigFunc: adminCustomConfigFunc
+	customConfigFunc
 });

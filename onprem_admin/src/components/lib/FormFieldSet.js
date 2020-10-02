@@ -7,30 +7,38 @@ import PropTypes from 'prop-types';
 const MiniHelpAndValidationMsg = (props) => {
 	const { mutedText } = props.field;
 	const { errorMsg, ariaDescribedBy } = props.inputState;
-	if (mutedText && errorMsg) {
-		return (
-			<small id={ariaDescribedBy} className="form-text ml-2">
-				<span className="text-warning">{errorMsg}</span>
-				<br />
-				{mutedText}
-			</small>
-		);
-	}
-	if (mutedText) {
-		return (
-			<small id={ariaDescribedBy} className="form-text ml-2">
-				{mutedText}
-			</small>
-		);
-	}
-	if (errorMsg) {
-		return (
-			<small id={ariaDescribedBy} className="form-text ml-2">
-				<span className="text-warning">{errorMsg}</span>
-			</small>
-		);
-	}
-	return <></>;
+	if (!mutedText && !errorMsg) return <></>;
+	return (
+		<small id={ariaDescribedBy} className="form-text ml-2">
+			{!mutedText && <span className="text-warning">{errorMsg}</span>}
+			{mutedText && errorMsg && <br />}
+			{mutedText}
+		</small>
+	);
+	// if (mutedText && errorMsg) {
+	// 	return (
+	// 		<small id={ariaDescribedBy} className="form-text ml-2">
+	// 			<span className="text-warning">{errorMsg}</span>
+	// 			<br />
+	// 			{mutedText}
+	// 		</small>
+	// 	);
+	// }
+	// if (mutedText) {
+	// 	return (
+	// 		<small id={ariaDescribedBy} className="form-text ml-2">
+	// 			{mutedText}
+	// 		</small>
+	// 	);
+	// }
+	// if (errorMsg) {
+	// 	return (
+	// 		<small id={ariaDescribedBy} className="form-text ml-2">
+	// 			<span className="text-warning">{errorMsg}</span>
+	// 		</small>
+	// 	);
+	// }
+	// return <></>;
 };
 
 // --------------------------------------------------------------
@@ -87,8 +95,7 @@ class FieldGroupComponent extends React.Component {
 			value: this.props.field.value,
 			ariaDescribedBy: this.props.field.placeholder ? placeholder + 'Help' : undefined,
 		};
-		// make 'this.setState()' inside of updateState work when passed to
-		// children as props.
+		// necessary when function calls this.getState() and we pass it to a child component
 		this.updateState = this.updateState.bind(this);
 	}
 
@@ -103,7 +110,6 @@ class FieldGroupComponent extends React.Component {
 	render() {
 		const { id, label, type, placeholder, disabled } = this.props.field;
 		const ariaDescribedBy = placeholder ? placeholder + 'Help' : undefined;
-		// const ariaDescribedBy = placeholder ? placeholder + 'Help' : undefined;
 		return (
 			<span className="col-12">
 				<label className="form-control-label" htmlFor={id}>
@@ -111,8 +117,14 @@ class FieldGroupComponent extends React.Component {
 				</label>
 				<span className="input-group">
 					<TheInputElement field={this.props.field} updateState={this.updateState} inputState={this.state} />
+					{/* Revert button */}
 					<span className="input-group-addon">
-						<img className="icon-image-large ml-1 mt-1" src="/s/fa/svgs/solid/undo-alt.svg.white.png" onClick={() => this.revertField()} />
+						<img
+							className="icon-image-large ml-1 mt-1"
+							src="/s/fa/svgs/solid/undo-alt.svg.white.png"
+							style={{ cursor: 'pointer' }}
+							onClick={() => this.revertField()}
+						/>
 					</span>
 				</span>
 				<MiniHelpAndValidationMsg field={this.props.field} inputState={this.state} />

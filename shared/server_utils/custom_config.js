@@ -33,17 +33,6 @@ function selectBroadcastEngine(cfg) {
 		console.error(`FATAL: no config data for broadcast engine ${cfg.broadcastEngine.selected}`);
 		process.exit(1);
 	}
-	// meh - matbe we should eliminate this object. I dunno.
-	// if (cfg.broadcastEngine.selected === 'codestreamBroadcaster') {
-	// 	cfg.broadcastEngine.codestreamBroadcaster.socketCluster = {
-	// 		host: cfg.broadcastEngine.codestreamBroadcaster.host,
-	// 		port: cfg.broadcastEngine.codestreamBroadcaster.port,
-	// 		authKey: cfg.broadcastEngine.codestreamBroadcaster.secrets.api,
-	// 		ignoreHttps: cfg.broadcastEngine.codestreamBroadcaster.ignoreHttps,
-	// 		strictSSL: cfg.ssl.requireStrictSSL,
-	// 		apiSecret: cfg.broadcastEngine.codestreamBroadcaster.secrets.api
-	// 	};
-	// }
 }
 
 // Read the structured config to determine which queuing engine we'll use and
@@ -181,6 +170,11 @@ module.exports = function customConfigFunc(nativeCfg) {
 		minPaidSeats: 1,
 		...Cfg.payments || {}
 	});
+
+	// admin
+	if (Object.keys(Cfg.adminServer).length > 0) {
+		Cfg.adminServer.logger.basename = 'opadm'
+	}
 
 	// api
 	Cfg.apiServer.publicApiUrlParsed = parseUrl(Cfg.apiServer.publicApiUrl);

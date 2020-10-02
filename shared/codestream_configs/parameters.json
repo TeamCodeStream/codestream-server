@@ -21,7 +21,47 @@
 //     Github Enterprise Server on-prem)
 
 {
+	"adminServer": {
+		"logger": {
+			"consoleOk": {
+				"default": true,
+				"desc": "allow logging to the console",
+				"env": "OPADM_LOG_CONSOLE_OK"
+			},
+			"debugOk": {
+				"default": false,
+				"desc": "more verbose logging (debug level)",
+				"env": "OPADM_DEBUG_OK"
+			},
+			"directory": {
+				"default": "${OPADM_LOGS}",
+				"desc": "directory for the onprem admin server logs",
+				"env": "OPADM_LOGS",
+				"envRequired": true
+			}
+		},
+		"port": {
+			"default": 12076,
+			"desc": "admin server port",
+			"env": "OPADM_PORT"
+		},
+		"securePort": {
+			"default": 12077,
+			"desc": "admin server secure port",
+			"env": "OPADM_SECURE_PORT"
+		},
+		"showConfig": {
+			"default": false,
+			"desc": "dump configuration data to console",
+			"env": "OPADM_SHOW_CFG"
+		}
+	},
 	"apiServer": {
+		"altBroadcasterHost": {
+			"default": null,
+			"desc": "alternate hostname for api -> broadcaster communication",
+			"env": "CS_API_ALT_BROADCASTER_HOST"
+		},
 		"authOrigin": {
 			"desc": "origin to use for third-party auth callbacks",
 			"env": "CS_API_AUTH_ORIGIN"
@@ -114,6 +154,11 @@
 			"desc": "public url to access the API server from beyond",
 			"env": "CS_API_PUBLIC_URL"
 		},
+		"securePort": {
+			"default": 12078,
+			"desc": "Secure network port for the api service",
+			"env": "CS_API_SECURE_PORT"
+		},
 		"sessionAwayTimeout": {
 			"default": 600000,
 			"desc": "how long before we call a user 'away' from keyboard (in millisecs)",
@@ -138,6 +183,11 @@
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
+			"altApiHost": {
+				"default": null,
+				"desc": "alternate hostname to use to make api requests",
+				"env": "CS_BROADCASTER_ALT_API_HOST"
+			},
 			"host": {
 				"default": "localhost.codestream.us",
 				"desc": "hostname of the broadcaster service (from client point-of-view)"
@@ -181,6 +231,11 @@
 					"env": "CSSVC_BROADCASTER_AUTH_SECRET",
 					"required": true
 				}
+			},
+			"securePort": {
+				"default": 12075,
+				"desc": "Secure network port for the broadcaster service",
+				"env": "CSSVC_BROADCASTER_SECURE_PORT"
 			},
 			"showConfig": {
 				"default": false,
@@ -340,6 +395,10 @@
 				},
 				"appClientSecret": {
 					"desc": "Asana secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -350,6 +409,10 @@
 				},
 				"appClientSecret": {
 					"desc": "Bitbucket API secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -362,6 +425,10 @@
 				"appClientSecret": {
 					"desc": "MS Azure DevOps API secret",
 					"env": "CSSVC_DEVOPS_CLIENT_SECRET"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -372,6 +439,10 @@
 				},
 				"appClientSecret": {
 					"desc": "Github API secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -382,6 +453,10 @@
 				},
 				"appClientSecret": {
 					"desc": "GitLab API secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -392,6 +467,10 @@
 				},
 				"appClientSecret": {
 					"desc": "Glip API secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -402,6 +481,10 @@
 				},
 				"appClientSecret": {
 					"desc": "Jira API secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -422,6 +505,10 @@
 				"botAppPassword": {
 					"desc": "Sharing MS Teams Bot App Password",
 					"env": "CSSVC_MSTEAMS_BOT_APP_PASS"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -432,6 +519,10 @@
 				},
 				"appClientSecret": {
 					"desc": "Okta API secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -476,6 +567,10 @@
 					"default": null,
 					"desc": "Slack strict app signing secret"
 				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
+				},
 				"interactiveComponentsEnabled": {
 					"default": false,
 					"desc": "configures Slack app interactive callback capabilities"
@@ -486,6 +581,10 @@
 			"<appProvider>": {
 				"apiKey": {
 					"desc": "Trello API key"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		},
@@ -496,6 +595,10 @@
 				},
 				"appClientSecret": {
 					"desc": "YouTrack API secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
 				}
 			}
 		}
@@ -664,6 +767,33 @@
 			"desc": "require client-side strict SSL certificate verification"
 		}
 	},
+	"sslCertificates": {
+		"<certId>": {
+			"caChain": {
+				"desc": "certificate authority trust chain"
+			},
+			"cert": {
+				"desc": "signed certificate"
+			},
+			"expirationDate": {
+				"desc": "certificate expiration date"
+			},
+			"key": {
+				"desc": "private key"
+			},
+			"privateCA": {
+				"default": false,
+				"desc": "true indicates certificate signed by private CA"
+			},
+			"selfSigned": {
+				"default": false,
+				"desc": "true indicates certificate is self-signed"
+			},
+			"targetName": {
+				"desc": "certificate's target host name"
+			}
+		}
+	},
 	"storage": {
 		"mongo": {
 			"url": {
@@ -674,6 +804,11 @@
 		}
 	},
 	"telemetry": {
+		"disabled": {
+			"default": true,
+			"desc": "disable telemetry",
+			"env": "CSSVC_TELEMETRY_DISABLED"
+		},
 		"intercom": {
 			"token": {
 				"desc": "Intercom Access Token"
