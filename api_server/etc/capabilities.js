@@ -70,5 +70,9 @@ module.exports = {
 	'addBlameMap': {
 		description: 'Supporting adding someone to the blame-map',
 		version: '8.1.1'
+	},
+	'vsCodeGithubSignin': {
+		description: 'Supports whether special VSCode GitHub signin is supported in the auth flow',
+		version: '8.2.7'
 	}
 };
