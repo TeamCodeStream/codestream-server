@@ -48,7 +48,6 @@ class GenericTest {
 		before((callback) => {
 			this.before(error => {
 				if (error) {
-					this.testFailed = true;
 					callback(error);
 				}
 				else {

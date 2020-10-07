@@ -123,9 +123,15 @@ class RepoMatcher {
 			op.$push.remotes = [...op.$push.remotes, ...remotesToPush];
 		}
 		if (newCommitHashes.length > 0) {
-			op.$addToSet = op.$addToSet || {};
-			op.$addToSet.knownCommitHashes = op.$addToSet.knownCommitHashes || [];
-			op.$addToSet.knownCommitHashes = [...op.$addToSet.knownCommitHashes, ...newCommitHashes];
+			const addCommitHashes = ArrayUtilities.difference(
+				newCommitHashes,
+				((op.$addToSet || {}).knownCommitHashes || [])
+			);
+			if (addCommitHashes.length > 0) {
+				op.$addToSet = op.$addToSet || {};
+				op.$addToSet.knownCommitHashes = op.$addToSet.knownCommitHashes || [];
+				op.$addToSet.knownCommitHashes = [...op.$addToSet.knownCommitHashes, ...addCommitHashes];
+			}
 		}
 
 		if (!existingRepoUpdateOp) {

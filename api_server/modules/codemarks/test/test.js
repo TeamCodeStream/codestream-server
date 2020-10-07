@@ -22,6 +22,7 @@ const RemoveTagRequestTester = require('./remove_tag/test');
 const FollowRequestTester = require('./follow/test');
 const UnfollowRequestTester = require('./unfollow/test');
 const UnfollowLinkRequestTester = require('./unfollow_link/test');
+const AddMarkersRequestTester = require('./add_markers/test');
 
 describe('codemark requests', function() {
 
@@ -44,4 +45,5 @@ describe('codemark requests', function() {
 	describe('PUT /codemarks/follow/:id', FollowRequestTester.test);
 	describe('PUT /codemarks/unfollow/:id', UnfollowRequestTester.test);
 	describe('GET /no-auth/unfollow-link/:id', UnfollowLinkRequestTester.test);
+	describe('PUT /codemarks/:id/add-markers', AddMarkersRequestTester.test);
 });

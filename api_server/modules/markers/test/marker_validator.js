@@ -7,6 +7,7 @@ const Path = require('path');
 const MarkerTestConstants = require('./marker_test_constants');
 const StreamTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/test/stream_test_constants');
 const RepoTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/test/repo_test_constants');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class MarkerValidator {
 
@@ -17,8 +18,9 @@ class MarkerValidator {
 	/* eslint complexity: 0 */
 	// validate markers created in association with a codemark or a code review
 	validateMarkers (data) {
-		const outputObject = data[this.objectName];
-		const inputMarker = this.inputObject.markers && this.inputObject.markers[0];
+		const outputObject = this.outputObject || data[this.objectName];
+		this.inputMarkers = this.inputMarkers || this.inputObject.markers;
+		const inputMarker = this.inputMarkers[0];
 		this.validateEachMarker(data);
 		this.validateMarkerLocations(data);
 
@@ -61,14 +63,15 @@ class MarkerValidator {
 	// validate the nth marker created as a result of the codemark or review with markers
 	validateMarker (data, n) {
 		let errors = [];
-		const outputObject = data[this.objectName];
+		const outputObject = this.outputObject || data[this.objectName];
 		const marker = data.markers[n];
-		const inputMarker = this.inputObject.markers[n];
+		const inputMarker = this.inputMarkers[n];
 		const repoUrl = this.getExpectedRepoUrl(inputMarker);
-		const file = this.getExpectedFile(inputMarker);
+		const file = this.getExpectedFile(inputMarker, n);
 		const repoId = this.getExpectedRepoId(data, n);
 		const fileStreamId = this.getExpectedFileStreamId(data, n);
 		const commitHash = this.getExpectedCommitHash(inputMarker);
+		const outputMarkerOffset = this.outputMarkerOffset || 0;
 		let result = (
 			((marker.id === marker._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((marker.teamId === this.test.team.id) || errors.push('teamId does not match the team')) &&
@@ -106,8 +109,8 @@ class MarkerValidator {
 		}
 
 		Assert.deepEqual(marker.locationWhenCreated, inputMarker.location, 'marker location does not match the given location');
-		Assert.equal(outputObject.markerIds[n], marker.id, `${this.objectName} ${n}th element of markerIds does not match the ${n}th marker`);
-		Assert.equal(outputObject.fileStreamIds[n], marker.fileStreamId || null, `${this.objectName} ${n}th element of fileStreamIds does not match the file streams of the ${n}th marker`);
+		Assert.equal(outputObject.markerIds[n + outputMarkerOffset], marker.id, `${this.objectName} ${n}th element of markerIds does not match the ${n}th marker`);
+		Assert.equal(outputObject.fileStreamIds[n + outputMarkerOffset], marker.fileStreamId || null, `${this.objectName} ${n}th element of fileStreamIds does not match the file streams of the ${n}th marker`);
 		if (inputMarker.remotes) {
 			Assert.deepEqual(marker.remotesWhenCreated, inputMarker.remotes, 'remotesWhenCreated should be equal to the remotes passed in');
 		}
@@ -123,7 +126,7 @@ class MarkerValidator {
 	// validate the reference locations, containing the commit hash and location plus
 	// any other additional commit hashes and locations supplied at post creation time
 	validateReferenceLocations (marker, n) {
-		const markerData = this.inputObject.markers[n];
+		const markerData = this.inputMarkers[n];
 		const expectedReferenceLocations = (markerData.referenceLocations || []).map(rl => {
 			const expected = {
 				...rl
@@ -161,12 +164,15 @@ class MarkerValidator {
 	}
 
 	// get the file we expect to see in the marker
-	getExpectedFile (inputMarker) {
+	getExpectedFile (inputMarker, n) {
 		if (this.test.streamOnTheFly) {
 			return inputMarker.file;
 		}
 		else if (this.test.expectedFile) {
 			return this.test.expectedFile;
+		}
+		else if (this.test.expectedFiles && this.test.expectedFiles[n]) {
+			return this.test.expectedFiles[n];
 		}
 		else if (!this.test.dontExpectFile && this.test.repoStreams && this.test.repoStreams[0]) {
 			return this.test.repoStreams[0].file;
@@ -179,7 +185,7 @@ class MarkerValidator {
 	// get the repo ID we expect to see in the marker
 	getExpectedRepoId (data, n) {
 		if (this.test.repoOnTheFly) {
-			return data.repos[n].id;
+			return this.test.markersHaveSameRepo ? data.repos[0].id : data.repos[n].id;
 		}
 		else if (!this.test.dontExpectRepoId && this.test.repo) {
 			return this.test.repo.id;
@@ -192,7 +198,7 @@ class MarkerValidator {
 	// get the file stream ID we expect to see in the marker
 	getExpectedFileStreamId (data, n) {
 		if (this.test.streamOnTheFly) {
-			return data.streams[n].id;
+			return this.test.markersHaveSameFileStream ? data.streams[0].id : data.streams[n].id;
 		}
 		else if (!this.test.dontExpectFileStreamId && this.test.repoStreams && this.test.repoStreams[0]) {
 			return this.test.repoStreams[0].id;
@@ -204,8 +210,9 @@ class MarkerValidator {
 
 	// get the commit hash we expect to see in the marker
 	getExpectedCommitHash (inputMarker) {
-		if (!this.test.dontExpectCommitHash && inputMarker.commitHash) {
-			return inputMarker.commitHash.toLowerCase();
+		if (!this.test.dontExpectCommitHash && (inputMarker.commitHash || inputMarker.commitHashWhenCreated)) {
+			const commitHash = inputMarker.commitHash || inputMarker.commitHashWhenCreated;
+			return commitHash.toLowerCase();
 		}
 		else {
 			return undefined;
@@ -214,8 +221,8 @@ class MarkerValidator {
 
 	// validate that the marker locations structure matches expectations for a created marker
 	validateMarkerLocations (data) {
-		const noCommitHashOrLocations = !this.inputObject.markers.find(inputMarker => {
-			return inputMarker.commitHash && inputMarker.location;
+		const noCommitHashOrLocations = !this.inputMarkers.find(inputMarker => {
+			return (inputMarker.commitHash || inputMarker.commitHashWhenCreated) && inputMarker.location;
 		});
 		if (this.test.dontExpectMarkerLocations || noCommitHashOrLocations) { 
 			Assert.equal(typeof data.markerLocations, 'undefined', 'markerLocations should be undefined');
@@ -224,20 +231,27 @@ class MarkerValidator {
 		const expectedMarkerLocations = [];
 		for (let i = 0; i < this.test.expectMarkers; i++) {
 			const marker = data.markers[i];
-			const inputMarker = this.inputObject.markers[i];
-			if (!inputMarker.commitHash || !inputMarker.location) { 
+			const inputMarker = this.inputMarkers[i];
+			if ((!inputMarker.commitHash && !inputMarker.commitHashWhenCreated) || !inputMarker.location) { 
 				continue;
 			}
 
-			expectedMarkerLocations.push({
-				teamId: this.test.team.id,
-				streamId: marker.fileStreamId,
-				commitHash: marker.commitHashWhenCreated,
-				locations: {
-					[marker.id]: inputMarker.location
-				}
+			const existingMarkerLocation = expectedMarkerLocations.find(ml => {
+				return ml.commitHash === marker.commitHashWhenCreated && ml.streamId === marker.fileStreamId;
 			});
-	
+			if (existingMarkerLocation) {
+				existingMarkerLocation.locations[marker.id] = inputMarker.location;
+			} else {
+				expectedMarkerLocations.push({
+					teamId: this.test.team.id,
+					streamId: marker.fileStreamId,
+					commitHash: marker.commitHashWhenCreated,
+					locations: {
+						[marker.id]: inputMarker.location
+					}
+				});
+			}
+
 			(inputMarker.referenceLocations || []).forEach(rl => {
 				if (rl.commitHash) {
 					expectedMarkerLocations.push({
@@ -261,7 +275,7 @@ class MarkerValidator {
 		const stream = data.streams.find(stream => stream.createdAt);
 		const repo = this.test.repoOnTheFly ? data.repos[0] : this.test.repo;
 		const marker = data.markers[0];
-		const inputMarker = this.inputObject.markers[0];
+		const inputMarker = this.inputMarkers[0];
 		const file = this.test.streamOnTheFly ? inputMarker.file : this.test.repoStreams[0].file;
 		let result = (
 			((stream.teamId === this.test.team.id) || errors.push('stream teamId does not match')) &&
@@ -282,7 +296,7 @@ class MarkerValidator {
 		const repo = data.repos[0];
 		const stream = this.test.streamOnTheFly ? data.streams[0] : this.repoStreams[0];
 		const marker = data.markers[0];
-		const inputMarker = this.inputObject.markers[0];
+		const inputMarker = this.inputMarkers[0];
 		let result = (
 			((repo.teamId === this.test.team.id) || errors.push('repo teamId does not match')) &&
 			((repo.id === marker.repoId) || errors.push('marker repoId does not match the created repo')) &&
@@ -307,7 +321,7 @@ class MarkerValidator {
 			const repoHashes = [...repo.knownCommitHashes];
 			repoHashes.sort();
 			const sentHashes = inputMarker.knownCommitHashes.map(hash => hash.toLowerCase());
-			sentHashes.push(inputMarker.commitHash.toLowerCase());
+			sentHashes.push((inputMarker.commitHash || inputMarker.commitHashWhenCreated).toLowerCase());
 			sentHashes.sort();
 			Assert.deepEqual(repoHashes, sentHashes, 'known commit hashes in returned repo do not match commit hashes sent with the marker');
 		}
@@ -319,7 +333,6 @@ class MarkerValidator {
 	// validate that the repo was updated with the marker's commit hash as a known commit hash
 	validateRepoUpdatedWithCommitHash (data) {
 		const repo = data.repos[0];
-		const inputMarker = this.inputObject.markers[0];
 		const expectedVersion = this.test.expectedRepoVersion || 2;
 		const expectedRepo = {
 			id: this.test.repo.id,
@@ -335,20 +348,24 @@ class MarkerValidator {
 		};
 		if (!this.test.expectMatchByCommitHash) {
 			expectedRepo.$addToSet = {
-				knownCommitHashes: this.inputObject.markers.map(marker => marker.commitHash.toLowerCase())
+				knownCommitHashes: ArrayUtilities.unique(
+					this.inputMarkers.map(marker => (marker.commitHash || marker.commitHashWhenCreated).toLowerCase())
+				)
 			};
 		}
 		if (this.test.expectMatchByKnownCommitHashes) {
-			const normalizedRemote = NormalizeURL(inputMarker.remotes[0]);
-			const companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(normalizedRemote);
-			expectedRepo.$push = expectedRepo.$push || {};
-			expectedRepo.$push.remotes = [
-				{
-					url: normalizedRemote,
-					normalizedUrl: normalizedRemote,
-					companyIdentifier
+			this.inputMarkers.forEach(inputMarker => {
+				const normalizedRemote = NormalizeURL(inputMarker.remotes[0]);
+				const companyIdentifier = ExtractCompanyIdentifier.getCompanyIdentifier(normalizedRemote);
+				expectedRepo.$push = expectedRepo.$push || { remotes: [] };
+				if (!expectedRepo.$push.remotes.find(remote => remote.url === normalizedRemote)) {
+					expectedRepo.$push.remotes.push({
+						url: normalizedRemote,
+						normalizedUrl: normalizedRemote,
+						companyIdentifier
+					});
 				}
-			];
+			});
 		}
 		if (this.test.remotesAdded) {
 			expectedRepo.$push = expectedRepo.$push || {};
@@ -363,7 +380,7 @@ class MarkerValidator {
 				});
 			}
 		}
-		const outputObjectCreated = this.test.codemarkCreatedAfter || this.test.reviewCreatedAfter || this.test.postCreatedAfter;
+		const outputObjectCreated = this.test.codemarkCreatedAfter || this.test.reviewCreatedAfter || this.test.postCreatedAfter || this.test.modifiedAfter;
 		Assert(repo.$set.modifiedAt >= outputObjectCreated, `modifiedAt of repo should be set to timestamp greater than or equal to the creation time of the ${this.objectName}`);
 		expectedRepo.$set.modifiedAt = repo.$set.modifiedAt;
 		Assert.deepEqual(repo, expectedRepo, 'repo in response is not correct');
