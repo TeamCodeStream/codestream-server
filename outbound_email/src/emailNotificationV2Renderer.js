@@ -21,7 +21,7 @@ class EmailNotificationV2Renderer {
 			userBeingAddedToTeam,
 			teamName
 		} = options;
-		const what = review ? 'review' : 'codemark';
+		const what = review ? 'feedback request' : 'codemark';
 
 		const installWithInviteCode = `
 <br/>
@@ -75,7 +75,7 @@ class EmailNotificationV2Renderer {
 				firstFooterDiv = `
 <div class="ensure-white">
 	<br/>
-	Perform this code review in your IDE using CodeStream.<br/>
+	Review these changes in your IDE using CodeStream.<br/>
 	${installWithInviteCode}
 </div>
 `;
