@@ -191,7 +191,7 @@ class TestStreamCreator {
 	}
 
 	setMarkerOptions (options) {
-		options.wantMarkers = options.wantMarkers || 1;
+		options.wantMarkers = options.wantMarkers || this.postOptions.wantMarkers || 1;
 		if (typeof this.postOptions.markerStreamId !== 'undefined') {
 			if (
 				typeof this.postOptions.markerStreamId === 'number' &&

@@ -9,6 +9,7 @@ const MarkersRequestTester = require('./markers_request_tester');
 
 const ReferenceLocationRequestTester = require('./reference_location/test');
 const MoveRequestTester = require('./move_marker/test');
+const DeleteMarkerRequestTester = require('./delete_marker/test');
 
 const markersRequestTester = new MarkersRequestTester();
 
@@ -21,4 +22,5 @@ describe('marker requests', function() {
 	describe('PUT /markers/:id', markersRequestTester.putMarkerTest);
 	describe('PUT /markers/:id/referenceLocation', ReferenceLocationRequestTester.test);
 	describe('PUT /markers/:id/move', MoveRequestTester.test);
+	describe('DELETE /markers/:id', DeleteMarkerRequestTester.test);
 });

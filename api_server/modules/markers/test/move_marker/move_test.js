@@ -129,7 +129,8 @@ class MoveTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 				after: 2
 			},
 			$push: {
-				markerIds: createdMarker.id
+				markerIds: createdMarker.id,
+				fileStreamIds: createdMarker.fileStreamId
 			}
 		};
 	}

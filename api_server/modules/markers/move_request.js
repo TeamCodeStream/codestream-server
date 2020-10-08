@@ -88,7 +88,8 @@ class MoveRequest extends RestfulRequest {
 	async updateCodemark () {
 		const op = {
 			$push: {
-				markerIds: this.transforms.createdMarker.id
+				markerIds: this.transforms.createdMarker.id,
+				fileStreamIds: this.transforms.createdMarker.get('fileStreamId')
 			},
 			$set: {
 				modifiedAt: Date.now()

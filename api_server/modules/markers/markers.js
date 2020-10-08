@@ -5,16 +5,18 @@
 const Restful = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful');
 const MarkerCreator = require('./marker_creator');
 const MarkerUpdater = require('./marker_updater');
+const MarkerDeleter = require('./marker_deleter');
 const Marker = require('./marker');
 
 // expose these restful routes
 const MARKER_STANDARD_ROUTES = {
-	want: ['get', 'getMany', 'put'],
+	want: ['get', 'getMany', 'put', 'delete'],
 	baseRouteName: 'markers',
 	requestClasses: {
 		'get': require('./get_marker_request'),
 		'getMany': require('./get_markers_request'),
-		'put': require('./put_marker_request')
+		'put': require('./put_marker_request'),
+		'delete': require('./delete_marker_request')
 	}
 };
 
@@ -56,6 +58,10 @@ class Markers extends Restful {
 
 	get updaterClass () {
 		return MarkerUpdater;
+	}
+
+	get deleterClass () {
+		return MarkerDeleter;
 	}
 
 	// get all routes exposed by this module
