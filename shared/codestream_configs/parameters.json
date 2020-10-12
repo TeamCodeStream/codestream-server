@@ -305,6 +305,10 @@
 	},
 	"emailDeliveryService": {
 		"NodeMailer": {
+			"disabled": {
+				"default": false,
+				"desc": "disable nodeMailer delivery service"
+			},
 			"host": {
 				"desc": "smtp mailer host",
 				"required": true
@@ -332,6 +336,10 @@
 			"apiKey": {
 				"desc": "key to access sendgrid API",
 				"required": true
+			},
+			"disabled": {
+				"default": false,
+				"desc": "disable sendgrid delivery service"
 			},
 			"url": {
 				"default": "/v3/mail/send",

@@ -1,72 +1,162 @@
 'use strict';
 
 import React from 'react';
+import { connect } from 'react-redux';
 import { DocRefs } from '../../../../config';
+import FormFieldSet from '../../../lib/FormFieldSet';
+import { validateInput } from '../../../../lib/validation';
+import ConfigActions from '../../../../store/actions/config';
 
-const NodeMailerForm = props => {
+// host, password, port, secure, service, username
+const NodeMailerFormFieldSet = [
+	[
+		{
+			id: 'NodeMailerHost',
+			label: 'SMTP Host',
+			width: 'col-7',
+			type: 'text',
+			mutedText: 'SMTP server accepting email from CodeStream',
+			validation: {
+				isHostName: true,
+				minLength: 1,
+				maxLength: 200,
+				onBlur: validateInput,
+			},
+			dispatchNullForEmpty: true,
+			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
+			updateActionPayload: {
+				// value: ...   this will come from the form input
+				property: 'emailDeliveryService.NodeMailer.host',
+				updateEmailSettings: true,
+			},
+		},
+		{
+			id: 'NodeMailerPort',
+			label: 'Port',
+			width: 'col-3',
+			type: 'number',
+			validation: {
+				minValue: 1,
+				maxValue: 32767,
+				onBlur: validateInput,
+			},
+			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
+			updateActionPayload: {
+				// value: ...   this will come from the form input
+				property: 'emailDeliveryService.NodeMailer.port',
+				updateEmailSettings: true,
+			},
+		},
+	],
+	[
+		{
+			id: 'NodeMailerUser',
+			label: 'User',
+			width: 'col-5',
+			type: 'text',
+			mutedText: 'SMTP user account',
+			validation: {
+				isHostName: true,
+				minLength: 1,
+				maxLength: 200,
+				onBlur: validateInput,
+			},
+			dispatchNullForEmpty: true,
+			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
+			updateActionPayload: {
+				// value: ...   this will come from the form input
+				property: 'emailDeliveryService.NodeMailer.username',
+				updateEmailSettings: true,
+			},
+		},
+		{
+			id: 'NodeMailerPass',
+			label: 'Password',
+			width: 'col-5',
+			type: 'text',
+			mutedText: 'SMTP user account password',
+			validation: {
+				isHostName: true,
+				minLength: 1,
+				maxLength: 200,
+				onBlur: validateInput,
+			},
+			dispatchNullForEmpty: true,
+			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
+			updateActionPayload: {
+				// value: ...   this will come from the form input
+				property: 'emailDeliveryService.NodeMailer.password',
+				updateEmailSettings: true,
+			},
+		},
+	],
+	[
+		{
+			id: 'NodeMailerService',
+			label: 'Service',
+			width: 'col-10',
+			type: 'text',
+			validation: {
+				minLength: 0,
+				maxLength: 200,
+				onBlur: validateInput,
+			},
+			dispatchNullForEmpty: true,
+			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
+			updateActionPayload: {
+				property: 'emailDeliveryService.NodeMailer.service',
+				updateEmailSettings: true,
+			},
+		},
+	],
+	[
+		{
+			id: 'NodeMailerSecure',
+			label: 'Enable secure communications',
+			width: 'col-10',
+			type: 'checkbox',
+			onClickAction: ConfigActions.CONFIG_TOGGLE_DOTTED_BOOLEAN,
+			onClickActionPayload: {
+				property: 'emailDeliveryService.NodeMailer.secure',
+				updateEmailSettings: true,
+			},
+		},
+	],
+];
+
+const NodeMailerForm = (props) => {
+	console.debug('NodeMailerForm(render) props =', props);
 	return (
-		<form className="container">
-			<div className="form-group row">
-				<label htmlFor="inputEmail3" className="col-sm-2 col-form-label">
-					Email
-				</label>
-				<div className="col-sm-10">
-					<input type="email" className="form-control" id="inputEmail3" />
-				</div>
-			</div>
-			<div className="form-group row">
-				<label htmlFor="inputPassword3" className="col-sm-2 col-form-label">
-					Password
-				</label>
-				<div className="col-sm-10">
-					<input type="password" className="form-control" id="inputPassword3" />
-				</div>
-			</div>
-			<fieldset className="form-group">
-				<div className="row">
-					<legend className="col-form-label col-sm-2 pt-0">Radios</legend>
-					<div className="col-sm-10">
-						<div className="form-check">
-							<input className="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked />
-							<label className="form-check-label" htmlFor="gridRadios1">
-								First radio
-							</label>
-						</div>
-						<div className="form-check">
-							<input className="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="option2" />
-							<label className="form-check-label" htmlFor="gridRadios2">
-								Second radio
-							</label>
-						</div>
-						<div className="form-check disabled">
-							<input className="form-check-input" type="radio" name="gridRadios" id="gridRadios3" value="option3" disabled />
-							<label className="form-check-label" htmlFor="gridRadios3">
-								Third disabled radio
-							</label>
-						</div>
-					</div>
-				</div>
-			</fieldset>
-			<div className="form-group row">
-				<div className="col-sm-2">Checkbox</div>
-				<div className="col-sm-10">
-					<div className="form-check">
-						<input className="form-check-input" type="checkbox" id="gridCheck1" />
-						<label className="form-check-label" htmlFor="gridCheck1">
-							Example checkbox
-						</label>
-					</div>
-				</div>
-			</div>
-			<div className="form-group row">
-				<div className="col-sm-10">
-					<button type="submit" className="btn btn-primary">
-						Sign in
-					</button>
-				</div>
-			</div>
-		</form>
+		<FormFieldSet
+			fieldset={NodeMailerFormFieldSet}
+			formData={props.formData} 
+			dispatch={props.dispatch}
+			helpDoc={DocRefs.mailout}
+		/>
 	);
 };
 
-export default NodeMailerForm;
+const mapState = (state) => ({
+	formData: {
+		values: {
+			NodeMailerHost: state.config.emailDeliveryService?.NodeMailer?.host,
+			NodeMailerPort: state.config.emailDeliveryService?.NodeMailer?.port,
+			NodeMailerUser: state.config.emailDeliveryService?.NodeMailer?.username,
+			NodeMailerPass: state.config.emailDeliveryService?.NodeMailer?.password,
+			NodeMailerService: state.config.emailDeliveryService?.NodeMailer?.service,
+			NodeMailerSecure: state.config.emailDeliveryService?.NodeMailer?.secure,
+		},
+		revertValues: {
+			NodeMailerHost: state.originalConfig.emailDeliveryService?.NodeMailer?.host,
+			NodeMailerPort: state.originalConfig.emailDeliveryService?.NodeMailer?.port,
+			NodeMailerUser: state.originalConfig.emailDeliveryService?.NodeMailer?.username,
+			NodeMailerPass: state.originalConfig.emailDeliveryService?.NodeMailer?.password,
+			NodeMailerService: state.originalConfig.emailDeliveryService?.NodeMailer?.service,
+			NodeMailerSecure: state.originalConfig.emailDeliveryService?.NodeMailer?.secure,
+		},
+	},
+});
+
+const mapDispatch = (dispatch) => ({ dispatch });
+
+export default connect(mapState, mapDispatch)(NodeMailerForm);

@@ -8,6 +8,7 @@ if (!global._GlobalData) {
 		Installation: null, // data about the installation (versions, type, ...)
 		Logger: null, // simple file logger object (server-side logging)
 		MongoClient: null, // for mongo connections
+		SystemStatusMonitor: null,	// system status monitor
 	};
 }
 

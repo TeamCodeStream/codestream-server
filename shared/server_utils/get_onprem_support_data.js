@@ -13,6 +13,7 @@
 // the cloud, kubernetes, etc...).
 
 const fs = require('fs');
+const { integrationStatuses } = require('../../onprem_admin/src/store/actions/presentation');
 
 const installationType = 'Single Linux Host';
 
@@ -43,11 +44,13 @@ module.exports = async function() {
 		}
 	}
 
-	return {
+	const installationData = {
 		installationType,
 		dockerHubInfo,
 		onPremVersion,
 		release,
 		installationBranch
 	};
+	console.log('installaionData', installationData);
+	return installationData;
 };

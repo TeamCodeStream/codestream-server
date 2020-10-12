@@ -1,4 +1,4 @@
-import { AdminConfig, Installation, MongoStructuredConfig } from '../config/globalData';
+import { SystemStatusMonitor, AdminConfig, Installation, MongoStructuredConfig } from '../config/globalData';
 
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
@@ -51,12 +51,19 @@ async function serverRenderApp(requestedRoute="") {
 	await MongoStructuredConfig.loadConfig({ reload: true });
 	const activeConfigSerialNumber = MongoStructuredConfig.getConfigMetaDocument().serialNumber;
 	console.debug(`serverRenderApp(): active config serial is ${activeConfigSerialNumber}`);
+	console.debug(`system status is ${SystemStatusMonitor.systemStatus}`);
 	const status = {
-		systemStatus: SystemStatuses.pending,
+		systemStatus: {
+			status: SystemStatusMonitor.systemStatus,
+			message: SystemStatusMonitor.systemStatusMsg,
+		},
+
 		// activeConfigInfo: MongoStructuredConfig.getConfigMetaDocument({ excludeConfigData: true }),
 		activeConfigSerialNumber: activeConfigSerialNumber,
-		// activeConfig: MongoStructuredConfig.getNativeConfig(),
+
 		codeSchemaVersion: AdminConfig.getSchemaVersion(), // schemaVersion of the code base
+		runningRevision: AdminConfig.getConfigType() === 'mongo' ? AdminConfig.getConfigMetaDocument().revision : null, // config rev of running server (null for file)
+
 		unsavedChanges: null, // true if unsaved changes were made, false if not
 		serialLastLoaded: null, // serial number of config last loaded
 	};
@@ -68,7 +75,6 @@ async function serverRenderApp(requestedRoute="") {
 		presentation,
 		status,
 	});
-	// console.log(Installation);
 
 	// Render the App (root element)
 	const initialAppHtml = await ReactDOMServer.renderToString(

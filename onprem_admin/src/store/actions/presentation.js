@@ -27,7 +27,7 @@ const Actions = {
 export const globalNavItems = {
 	status: 'status',
 	configuration: 'configuration',
-	update: 'updates',
+	updates: 'updates',
 	support: 'support',
 	license: 'license',
 }
@@ -48,14 +48,34 @@ export const integrationStatuses = {
 
 // Action Creators
 
-// Config > Integrations
+// Config > Email
 // disabled, on, off
-export function slackIntegrationStatus(state) {
-	const slackProps = state.config.integrations.slack.cloud;
-	if (!(slackProps.appClientId && slackProps.appClientSecret && slackProps.appId && slackProps.appSigningSecret)) {
+export function nodeMailerStatus(state) {
+	const nodeMailerProps = state.config.emailDeliveryService?.NodeMailer;
+	if (!nodeMailerProps || !(nodeMailerProps.host && nodeMailerProps.port)) {
 		return integrationStatuses.disabled;
 	}
-	return !slackProps.disabled ? integrationStatuses.on : integrationStatuses.off;
+	return !nodeMailerProps.disabled ? integrationStatuses.on : integrationStatuses.off;
+}
+
+export function sendGridStatus(state) {
+	console.debug('sendGridStatus(state.config.emailDeliveryService)', state.config.emailDeliveryService);
+	const sendGridProps = state.config.emailDeliveryService?.sendgrid;
+	if (!sendGridProps || !sendGridProps.apiKey) {
+		return integrationStatuses.disabled;
+	}
+	return !sendGridProps.disabled ? integrationStatuses.on : integrationStatuses.off;
+}
+
+// Config > Integrations
+// disabled, on, off
+export function standardIntegrationStatus(state, integrationSource, subSection = 'cloud') {
+	// console.debug(`standardIntegrationStatus() src=${integrationSource}  subSection=${subSection}`);
+	const integration = state.config.integrations?.[integrationSource]?.[subSection];
+	if (!integration || !(integration.appClientId && integration.appClientSecret)) {
+		return integrationStatuses.disabled;
+	}
+	return !integration.disabled ? integrationStatuses.on : integrationStatuses.off;
 }
 
 // Config > History
@@ -97,18 +117,33 @@ function activateConfiguration(serialNumber) {
 	}
 };
 
-// sequence of events needed to load a new configuration
-function dispatchLoadConfiguration(dispatch, state, configData, serialNumber, revision) {
+// dispatch a sequence of events needed to load a new configuration
+function dispatchLoadConfiguration(dispatch, state, configDoc ) {
+	const { configData, serialNumber, revision } = configDoc;
+	console.debug('dispatchLoadConfiguration()  state =', state);
 	dispatch({ type: ConfigActions.CONFIG_LOAD_NEW_CONFIG, payload: configData });
 	dispatch({ type: OriginalConfigActions.ORIGINAL_CFG_LOAD_NEW_CONFIG, payload: configData });
-	const entry = draft.configuration.history.summary.filter((cfg) => {
-		return cfg.serialNumber === action.payload.serialNumber;
+
+	let entry = state.presentation.configuration.history.summary.filter((cfg) => {
+		return cfg.serialNumber === serialNumber;
 	})[0];
-	refreshConfigurationSpecialProps(dispatch, state, entry);
-	dispatch({ type: PresentationActions.PRESENTATION_CONFIG_HIST_REFRESH_ONE, payload: {
-		serialNumber,
-		entry,
-	}});
+	// it is possible for this config (serialNumber) not to be in the summary
+	// so we add an entry to the history (no api call needed)
+	if (!entry) {
+		console.debug('adding new serialnumber to config history. configDoc =', configDoc);
+		entry = {
+			...configDoc,
+			_id: configDoc.serialNumber,
+		};
+	}
+	console.debug(`dispatchLoadConfiguration()  serial=${serialNumber} entry =`, entry);
+	dispatch({
+		type: PresentationActions.PRESENTATION_CONFIG_HIST_REFRESH_ONE,
+		payload: {
+			serialNumber,
+			entry: refreshConfigurationSpecialProps(dispatch, state, entry),
+		},
+	});
 	dispatch({
 		type: StatusActions.STATUS_NEW_CONFIG_LOADED,
 		payload: {
@@ -125,7 +160,7 @@ function loadConfiguration(serialNumber) {
 			.get(`/api/config/${serialNumber}`)
 			.then(resp => {
 				if (resp.status == 200) {
-					dispatchLoadConfiguration(dispatch, state, resp.data.configData, serialNumber, resp.data.revision)
+					dispatchLoadConfiguration(dispatch, getState(), resp.data);
 				} else {
 					console.error(`loadConfiguration(${serialNumber} failed`, resp.data);
 				}
@@ -135,33 +170,37 @@ function loadConfiguration(serialNumber) {
 };
 
 export function saveConfiguration(activate = false, desc = null) {
-	return (dispatch, getState) => {	// triggers thunk middleware
+	return (dispatch, getState) => {
+		// triggers thunk middleware
 		const state = getState();
 		console.debug(`saveConfiguration()`);
 		axios
 			.post(activate ? '/api/config/activte' : '/api/config', {
 				configData: state.config,
-				desc })
+				desc,
+			})
 			.then((resp) => {
 				console.debug('saveConfiguration(): response data', resp.data);
 				if (resp.data?.success) {
 					const configDoc = resp.data.response.configDoc;
 					if (activate) {
-						dispatch({ type: StatusActions.STATUS_ACTIVATE_CONFIG, payload: configDoc.serialNumber});
+						dispatch({ type: StatusActions.STATUS_ACTIVATE_CONFIG, payload: configDoc.serialNumber });
 					}
-					dispatchLoadConfiguration(dispatch, state, state.config, configDoc.serialNumber, configDoc.revision)
+					dispatchLoadConfiguration(dispatch, state, {
+						...configDoc,
+						configData: state.config,
+					});
 					// dispatch(loadConfigurationHistory)
-				}
-				else {
+				} else {
 					console.error(`ssaveConfiguration() failed`, resp.data);
 				}
 			})
 			.catch(console.error);
-	}
+	};
 };
 
 function refreshConfigurationSpecialProps(dispatch, state, entry) {
-	Object.assign(entry, {
+	return Object.assign({}, entry, {
 		dateString: new Date(entry.timeStamp).toUTCString(),
 		// tooltips for 'standard' properties
 		tooltip: {
@@ -199,7 +238,7 @@ function refreshConfigurationSpecialProps(dispatch, state, entry) {
 						tooltip: {
 							whenDisabled: 'This schema version is not compatible with the server software.',
 						},
-					}
+				  }
 				: {
 						on: entry.serialNumber === state.status.activeConfigSerialNumber,
 						onClick: {
@@ -209,7 +248,7 @@ function refreshConfigurationSpecialProps(dispatch, state, entry) {
 							whenOn: `Activate a different configuration in order to deactivate this one.`,
 							whenOff: `Activate configuration ${entry.schemaVersion}.${entry.revision}. Restart needed for changes to take effect.`,
 						},
-					},
+				  },
 	});
 }
 
@@ -221,9 +260,9 @@ export function loadConfigurationHistory() {
 		axios
 			.get(`/api/config/summary/${state.status.codeSchemaVersion}`)
 			.then((resp) => {
-				const configSummary = resp.data;
-				configSummary.map((entry) => {
-					refreshConfigurationSpecialProps(dispatch, state, entry);
+				const configSummary = [];
+				resp.data.map((entry) => {
+					configSummary.push(refreshConfigurationSpecialProps(dispatch, state, entry));
 				});
 				dispatch({ type: Actions.PRESENTATION_CONFIG_HIST_LOAD, payload: configSummary });
 				console.debug('refreshConfigurationHistory: new config summary:', configSummary);

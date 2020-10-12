@@ -77,11 +77,12 @@ class Nav extends React.Component {
 							configuration
 						</Link>
 						<Link
-							className={`nav-item nav-link ${this.props.activePane === globalNavItems.update ? 'active' : ''}`}
+							className={`nav-item nav-link ${this.props.activePane === globalNavItems.updates ? 'active' : ''}`}
 							to="/updates"
-							onClick={() => this.props.selectGlobalPane(globalNavItems.update)}
+							onClick={() => this.props.selectGlobalPane(globalNavItems.updates)}
 						>
 							updates
+							{this.props.pendingUpdates && <span className="badge badge-pill badge-primary mb-1">*</span>}
 						</Link>
 						<Link
 							className={`nav-item nav-link ${this.props.activePane === globalNavItems.support ? 'active' : ''}`}
@@ -106,9 +107,10 @@ class Nav extends React.Component {
 
 const mapState = state => ({
 	activePane: state.presentation.nav.paneSelected,
+	pendingUpdates: state.status.pendingUpdates || false,
 });
 
-const mapDispatch = dispatch => ({
+const mapDispatch = (dispatch) => ({
 	selectGlobalPane: (pane) => dispatch({ type: Actions.PRESENTATION_NAV_GLOBAL_SELECT, payload: pane }),
 });
 

@@ -6,11 +6,17 @@ export const SystemStatuses = {
 	attention: 'ATTENTION', // something's wrong
 	pending: 'PENDING',	// updating status
 }
+export function worstStatus(alertA, alertB) {
+	if (alertA === SystemStatuses.ok) return alertB;
+	if (alertA === SystemStatuses.pending && alertB !== SystemStatuses.ok) return alertB;
+	return alertA;
+}
 
 const Actions = {
 	STATUS_SET_UNSAVED_CHANGES: 'STATUS_SET_UNSAVED_CHANGES',
 	STATUS_ACTIVATE_CONFIG: 'STATUS_ACTIVATE_CONFIG',
 	STATUS_NEW_CONFIG_LOADED: 'STATUS_NEW_CONFIG_LOADED',
+	STATUS_REFRESH_SYSTEM_STATUS: 'STATUS_REFRESH_SYSTEM_STATUS',
 	// STATUS_: 'STATUS_',
 };
 

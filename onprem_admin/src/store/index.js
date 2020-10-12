@@ -9,14 +9,14 @@ import thunk from 'redux-thunk';
 // teaching moment...redux Middleware
 // Report any general messages to the console
 const consoleMessages = store => next => action => {
-	console.debug('Middleware(consoleMessages): before dispatch');
+	// console.debug('Middleware(consoleMessages): before dispatch');
 
 	// report unknown actions
 	if(! action.type.startsWith("@@redux/") && !(action.type in Actions) ) {
 		console.warn(`reducer(config/apiServer): unhandled type ${action.type}`);
 	}
 	let result = next(action);	// dispatch the action
-	console.debug('consoleMessages(after dispatch): state = ', store.getState());
+	// console.debug('consoleMessages(after dispatch): state = ', store.getState());
 	return result;
 };
 

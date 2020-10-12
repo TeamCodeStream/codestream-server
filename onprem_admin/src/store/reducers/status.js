@@ -8,19 +8,23 @@ import Actions from '../actions/status';
 // next state.
 
 // Reducers only see a 'reduced' state
-export default (state=null, action) => produce(state, draft => {
-	console.debug(`reducer(status): ${action.type}`);
-	switch (action.type) {
-		case Actions.STATUS_SET_UNSAVED_CHANGES:
-			draft.unsavedChanges = action.payload;
-			break;
-		case Actions.STATUS_ACTIVATE_CONFIG:
-			draft.activeConfigSerialNumber = action.payload;
-			break;
-		case Actions.STATUS_NEW_CONFIG_LOADED:
-			draft.serialLastLoaded = action.payload.serialNumber;
-			draft.baselineRevision = action.payload.revision;
-			draft.unsavedChanges = false;
-			break;
+export default (state = null, action) =>
+	produce(state, (draft) => {
+		// console.debug(`reducer(status): ${action.type}`);
+		switch (action.type) {
+			case Actions.STATUS_SET_UNSAVED_CHANGES:
+				draft.unsavedChanges = action.payload;
+				break;
+			case Actions.STATUS_ACTIVATE_CONFIG:
+				draft.activeConfigSerialNumber = action.payload;
+				break;
+			case Actions.STATUS_NEW_CONFIG_LOADED:
+				draft.serialLastLoaded = action.payload.serialNumber;
+				draft.revisionLastLoaded = action.payload.revision;
+				draft.unsavedChanges = false;
+				break;
+			case Actions.STATUS_REFRESH_SYSTEM_STATUS:
+				draft.systemStatus = action.payload;
+				break;
 		}
-});
+	});

@@ -30,7 +30,7 @@ export default (state = {}, action) =>
 			case Actions.PRESENTATION_CONFIG_HIST_REFRESH_ONE:
 				const entry = draft.configuration.history.summary.filter((cfg) => {
 					return cfg.serialNumber === action.payload.serialNumber;
-				})[0];
+				})[0] || {};
 				Object.assign(entry, action.payload.entry);
 				return;
 			case Actions.PRESENTATION_CONFIG_HIST_ACTIVATE:

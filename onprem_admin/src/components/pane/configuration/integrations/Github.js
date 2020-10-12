@@ -1,31 +1,64 @@
 'use strict';
 
 import React from 'react';
+import { connect } from 'react-redux';
+
+import ConfigActions from '../../../../store/actions/config';
 import { DocRefs } from '../../../../config';
 import FormFieldSet from '../../../lib/FormFieldSet';
+import { validateInput } from '../../../../lib/validation';
 
 const GithubFormFieldSet = [
 	[
 		{
-			id: 'githubClientId',
+			id: 'githubAppClientId',
 			label: 'Client ID',
 			width: 'col-10',
+			type: 'text',
+			validation: {
+				minLength: 8,
+				maxLength: 100,
+				onBlur: validateInput,
+			},
+			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
+			updateActionPayload: {
+				property: 'integrations.github.cloud.appClientId',
+			},
 		},
 		{
-			id: 'githubClientSecret',
+			id: 'githubAppClientSecret',
 			label: 'Client Secret',
-			// mutedText: (
-			// 	<a href={DocRefs.integrations.github} target="_blank">
-			// 		Documentation reference
-			// 	</a>
-			// ),
 			width: 'col-10',
+			type: 'text',
+			validation: {
+				minLength: 8,
+				maxLength: 100,
+				onBlur: validateInput,
+			},
+			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
+			updateActionPayload: {
+				property: 'integrations.github.cloud.appClientSecret',
+			},
 		},
 	],
 ];
 
-const GithubForm = props => {
-	return <FormFieldSet fieldset={GithubFormFieldSet} helpDoc={DocRefs.integrations.github} />;
+const GithubForm = (props) => {
+	return <FormFieldSet fieldset={GithubFormFieldSet} formData={props.formData} helpDoc={DocRefs.integrations.github} dispatch={props.dispatch} />;
 };
 
-export default GithubForm;
+const mapState = (state) => ({
+	formData: {
+		values: {
+			githubAppClientId: state.config.integrations?.github?.cloud?.appClientId,
+			githubAppClientSecret: state.config.integrations?.github?.cloud?.appClientSecret,
+		},
+		revertValues: {
+			githubAppClientId: state.config.integrations?.github?.cloud?.appClientId,
+			githubAppClientSecret: state.config.integrations?.github?.cloud?.appClientSecret,
+		},
+	},
+});
+const mapDispatch = (dispatch) => ({ dispatch });
+
+export default connect(mapState, mapDispatch)(GithubForm);

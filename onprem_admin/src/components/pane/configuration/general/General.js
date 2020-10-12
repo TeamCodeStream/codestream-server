@@ -33,7 +33,7 @@ export class General extends React.Component {
 								disabled={!this.props.telemetrySelectable}
 							/>
 							<label className="form-check-label" htmlFor="telemetryEnabled">
-								Enable anonymous telemetry to help make CodeStream a better experience for everyone.
+								Enable telemetry to help make CodeStream a better experience for everyone.
 							</label>
 						</div>
 						<div className="form-check">
@@ -47,7 +47,7 @@ export class General extends React.Component {
 								disabled={!this.props.phoneHomeSelectable}
 							/>
 							<label className="form-check-label text-light" htmlFor="phoneHomeEnabled">
-								Enable <em>Phone Home</em> reporting (your license doesn't allow you to disable this).
+								Enable <strong>Phone Home</strong> reporting (your license doesn't allow you to disable this).
 							</label>
 						</div>
 					</div>

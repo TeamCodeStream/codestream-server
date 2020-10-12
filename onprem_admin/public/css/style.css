@@ -99,7 +99,11 @@ nav a {
 	text-decoration: none;
 }
 
-
+/* FIXME: this doesn't work! */
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #009aef;
+  opacity: 1; /* Firefox */
+}
 
 ul.list-style-no-bullets {
   list-style-type: none;

@@ -29,28 +29,45 @@ class Omnibar extends Component {
 						<strong>{this.props.onPremVersion}</strong>
 					</span>
 					<span className="mt-1">
-						<span>Schema: </span>
-						<strong>{this.props.schemaVersion}</strong>
+						{typeof this.props.runningRevision === 'number' ? (
+							<span>
+								Running Config:
+								<strong>
+									{this.props.codeSchemaVersion}.{this.props.runningRevision}
+								</strong>
+							</span>
+						) : (
+							<span>
+								Schema: <strong>{this.props.codeSchemaVersion}</strong>
+								<span className="badge badge-warning mt-1 ml-1">FILE</span>
+							</span>
+						)}
 					</span>
 					<span className="mt-1">
-						Editing Revision: {this.props.revision ? <strong>{this.props.revision}</strong> : <span className="badge badge-warning mt-1">?</span>}
+						Editing Revision:{' '}
+						{typeof(this.props.revisionLastLoaded) === 'number' ? <strong>{this.props.revisionLastLoaded}</strong> : <span className="badge badge-warning mt-1">?</span>}
 					</span>
 					<span className="mt-1">
 						<span>System Status: </span>
 						{this.displaySystemStatusElement()}
 					</span>
-					{this.props.unsavedChanges && <span className="btn btn-info btn-sm" onClick={() => this.props.saveConfiguration()}>Save Changes</span>}
+					{this.props.unsavedChanges && (
+						<span className="btn btn-info btn-sm" onClick={() => this.props.saveConfiguration()}>
+							Save Changes
+						</span>
+					)}
 				</div>
 			</section>
 		);
 	}
 }
 
-const mapState = state => ({
+const mapState = (state) => ({
 	onPremVersion: state.installation.onPremVersion,
-	systemStatus: state.status.systemStatus,
-	schemaVersion: state.status.codeSchemaVersion,
-	revision: state.status.baselineRevision,
+	systemStatus: state.status.systemStatus.status,
+	codeSchemaVersion: state.status.codeSchemaVersion,
+	runningRevision: state.status.runningRevision,
+	revisionLastLoaded: state.status.revisionLastLoaded,
 	unsavedChanges: state.status.unsavedChanges,
 });
 

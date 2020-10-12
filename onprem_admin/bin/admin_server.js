@@ -1,9 +1,12 @@
 'use strict';
 
+import http from 'http';
+import socketIo from 'socket.io';
 import express from 'express';
 // import bodyParser from 'body-parser';
 import Api from '../api';
 import ServerRenderApp from '../lib/serverRenderApp';
+import systemStatusFactory from '../lib/systemStatus';
 import AdminConfig from '../config/config';
 import StructuredConfigFactory from '../../shared/codestream_configs/lib/structured_config';
 import OnPremSupportData from '../../shared/server_utils/get_onprem_support_data';
@@ -84,7 +87,7 @@ for (const [route, to] of Object.entries(RedirectRoutes)) {
 ExpressServer.get('*', (req, res) => res.send(`bad url: ${req.url}`));
 
 
-// load the config data, setup a logger and fire up the server
+// load the config data, setup a logger and fire up the web server
 (async function() {
 	// I know, globals are bad. But in this case, really convenient.
 	// There is only one global object (defined in config/globalData.js)
@@ -105,17 +108,41 @@ ExpressServer.get('*', (req, res) => res.send(`bad url: ${req.url}`));
 	if (adminConfigIsMongo) {
 		GlobalData.MongoStructuredConfig = AdminConfig;
 		GlobalData.MongoClient = AdminConfig.getMongoClient();
-	}
-	else {
+	} else {
 		GlobalData.MongoStructuredConfig = StructuredConfigFactory.create({ mongoUrl: Config.storage.mongo.url });
 		await GlobalData.MongoStructuredConfig.initialize();
 		// await GlobalData.MongoStructuredConfig.loadConfig();
 		GlobalData.MongoClient = GlobalData.MongoStructuredConfig.getMongoClient();
 	}
-
+	// this starts the status monitor sub-service
+	GlobalData.SystemStatusMonitor = systemStatusFactory({ logger: GlobalData.Logger });
 	// console.log('admin-server(GlobalData)', GlobalData);
+
+	// setup socket.io serverm listening for connections and emiting system
+	// status updates for a heartbeat
+	const httpServer = http.createServer(ExpressServer);
+	const io = socketIo(httpServer);
+	let statusHeartBeat;
+	io.on('connection', (socket) => {
+		console.log('New client connected');
+		if (statusHeartBeat) {
+			clearInterval(statusHeartBeat);
+		}
+		statusHeartBeat = setInterval(function () {
+			console.log('emitting systemStatus');
+			socket.emit('systemStatus', {
+				status: GlobalData.SystemStatusMonitor.systemStatus,
+				message: GlobalData.SystemStatusMonitor.systemStatusMsg,
+			});
+		}, 60000);
+		socket.on('disconnect', () => {
+			clearInterval(statusHeartBeat);
+			console.log('Client disconnected');
+		});
+	});
+
 	// and away we go!
-	ExpressServer.listen(Config.adminServer.port, () => {
+	httpServer.listen(Config.adminServer.port, () => {
 		console.info(`express server listening on port ${Config.adminServer.port}`);
 	});
 })();
