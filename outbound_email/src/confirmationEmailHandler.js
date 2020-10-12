@@ -35,7 +35,7 @@ ${this.message.url}<br/><br/>
 		const code = this.user.confirmationCode;
 		this.content = `
 <html>
-Before you get started on CodeStream, please take a second to make sure we've got the right email address. Enter the following code in the CodeStream pane in your IDE.<br/><br/>
+Enter the following code in the CodeStream pane in your IDE.<br/><br/>
 ${code}<br/><br/>
 Team CodeStream<br/><br/>
 </html>
