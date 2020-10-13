@@ -9,7 +9,7 @@ class PutUserRequest extends PutRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-this.warn('PUT USER: ' + JSON.stringify(this.request.body, 0, 10));
+console.warn('PUT USER: ' + JSON.stringify(this.request.body, 0, 10));
 		// only the user themself can update themself
 		const userId = this.request.params.id.toLowerCase();
 		if (userId !== 'me' && userId !== this.user.id) {
