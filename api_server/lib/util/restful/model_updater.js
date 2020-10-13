@@ -77,12 +77,14 @@ class ModelUpdater {
 
 	// do the actual update
 	async update () {
+this.request.warn('UPDATE ATTRIBUTES:' + JSON.stringify(this.attributes, 0, 10));
 		this.updateOp = await new ModelSaver({
 			request: this.request,
 			collection: this.collection,
 			modelClass: this.modelClass,
 			id: this.id
 		}).save(this.attributes);
+this.request.warn('UPDATE OP:' + JSON.stringify(this.updateOp, undefined, 5));
 	}
 
 	// override to do stuff after the document has been saved
