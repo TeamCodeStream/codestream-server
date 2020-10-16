@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.4] - 2020-10-16
+
+### Changed
+
+- Simplified copy in confirmation email
+
 ## [8.2.3] - 2020-9-29
 
 ### Fixed
