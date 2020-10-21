@@ -30,7 +30,7 @@ class EmailNotificationV2Renderer {
 &nbsp;&nbsp;&nbsp;&nbsp;<b>${inviteCode}</b><br/>
 `;
 
-		let firstFooterDiv = '', secondFooterDiv = '';
+		let firstFooterDiv = '', secondFooterDiv = '', inviteDiv = '';
 		if (userIsRegistered) {
 			if (userBeingAddedToTeam) {
 				firstFooterDiv = `
@@ -72,20 +72,21 @@ class EmailNotificationV2Renderer {
 			}
 
 			if (review) {
-				firstFooterDiv = `
+				inviteDiv = `
 <div class="ensure-white">
-	<br/>
 	Review these changes in your IDE using CodeStream.<br/>
 	${installWithInviteCode}
+	<br/>
 </div>
 `;
 			}
 			else {
 				const replyPart = inboundEmailDisabled ? 'I' : 'Reply to this email or i';
-				firstFooterDiv = `
+				inviteDiv = `
 <div class="ensure-white">
 	${replyPart}nstall codestream to view in your IDE.<br/>
 	${installWithInviteCode}
+	<br/>
 </div>
 `;
 			}
@@ -119,6 +120,7 @@ class EmailNotificationV2Renderer {
 							<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-400x60.png" />
 						</a>
 						<!--[if mso]><br><br><![endif]-->
+						${inviteDiv}
 						<div class="content">	
 						<!--[if mso]><table border="0" cellspacing="5" cellpadding="5" bordercolor="#282828" bgcolor="#282828" width="100%"><![endif]-->							
 						<!--[if !mso]> <!--><table border="0" cellspacing="0" cellpadding="0" bordercolor="#282828" bgcolor="#282828" width="100%"><!-- <![endif]-->
