@@ -75,6 +75,7 @@
 	},
 	"emailDeliveryService": {
 		"NodeMailer": {
+			"disabled": "disable nodeMailer delivery service",
 			"host": "smtp mailer host",
 			"password": "smtp authentication password",
 			"port": "Email submission port",
@@ -84,6 +85,7 @@
 		},
 		"sendgrid": {
 			"apiKey": "key to access sendgrid API",
+			"disabled": "disable sendgrid delivery service",
 			"url": "sendgrid api uri"
 		}
 	},

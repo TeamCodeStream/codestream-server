@@ -17,7 +17,11 @@
 
 {
 	"adminServer": {
-		"defaultEnv": {}
+		"defaultEnv": {},
+		"pdop": {
+			"port": 8080,
+			"securePort": 8443
+		}
 	},
 	"apiServer": {
 		"defaultEnv": {
@@ -28,6 +32,15 @@
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
 			"helpIsAvailable": true
+		},
+		"pdop": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"dontWantAWS": true,
+			"helpIsAvailable": true,
+			"ignoreHttps": true,
+			"port": 80,
+			"publicApiUrl": "http://${CSSVC_ENV}.codestream.us",
+			"securePort": 443
 		}
 	},
 	"broadcastEngine": {
@@ -51,6 +64,18 @@
 				"secrets": {
 					"_loadSecretsFile": "codestream/local-bcast-secrets.cfg"
 				},
+				"showConfig": false
+			},
+			"pdop": {
+				"host": "${CSSVC_ENV}.codestream.us",
+				"ignoreHttps": true,
+				"installationId": "00000000-1111-2222-3333-444444444444",
+				"logger": {},
+				"port": 12080,
+				"secrets": {
+					"_loadSecretsFile": "codestream/dev-bcast-secrets.cfg"
+				},
+				"securePort": 12443,
 				"showConfig": false
 			},
 			"pi": {
@@ -171,7 +196,8 @@
 				}
 			}
 		},
-		"local": {}
+		"local": {},
+		"pdop": {}
 	},
 	"queuingEngine": {
 		"ci": {
@@ -186,6 +212,9 @@
 		},
 		"local": {
 			"rabbitmq": {}
+		},
+		"pdop": {
+			"rabbitmq": {}
 		}
 	},
 	"sharedGeneral": {
@@ -198,6 +227,9 @@
 		},
 		"local": {
 			"runTimeEnvironment": "local"
+		},
+		"pdop": {
+			"runTimeEnvironment": "pdop"
 		},
 		"pi": {
 			"runTimeEnvironment": "pi"
@@ -220,11 +252,15 @@
 			"certfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt",
 			"keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-key"
 		},
-		"local": {}
+		"local": {},
+		"pdop": {}
 	},
 	"storage": {
 		"mongo": {
-			"defaultEnv": {}
+			"defaultEnv": {},
+			"pdop": {
+				"url": "mongodb://pd-api.codestream.us/codestream"
+			}
 		}
 	},
 	"telemetry": {
