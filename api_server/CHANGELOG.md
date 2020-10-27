@@ -1,11 +1,12 @@
 # Change Log
 
-## [8.2.7] - 2020-10-16
+## [8.2.7] - 2020-10-28
 
 ### Changed
 
 - Eliminated skip-the-trial discount on payment page based on new pricing model
 - Backend support for adding or removing a range from a codemark
+- Backend support for new GitHub authentication flow in VS Code extension
 
 ## [8.2.6] - 2020-9-29
 

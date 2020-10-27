@@ -1,10 +1,14 @@
 # Change Log
 
-## [8.2.4] - 2020-10-16
+## [8.2.4] - 2020-10-28
 
 ### Changed
 
 - Simplified copy in confirmation email
+
+### Fixed
+
+- Fixes an issue with the confirmation email not being sent when trying to change your email address
 
 ## [8.2.3] - 2020-9-29
 
