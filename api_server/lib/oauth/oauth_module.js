@@ -512,8 +512,10 @@ class OAuthModule extends APIServerModule {
 				return resolve({ oauthToken: mockToken, oauthTokenSecret: mockTokenSecret});
 			}
 			try {
+				process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 				oauthConsumer.getOAuthRequestToken(
 					(error, oauthToken, oauthTokenSecret) => {
+						delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
 						if (error) {
 							const message = error instanceof Error ? error.message : JSON.stringify(error);
 							const rejectError = options.request && options.request.errorHandler ?
@@ -543,11 +545,13 @@ class OAuthModule extends APIServerModule {
 			if (options.mockToken) {
 				return resolve({ accessToken: options.mockToken, oauthTokenSecret: options.oauthTokenSecret });
 			}
+			process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 			oauthConsumer.getOAuthAccessToken(
 				options.oauthToken,
 				options.oauthTokenSecret,
 				null,
 				(error, accessToken) => {
+					delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
 					if (error) {
 						error = options.request && options.request.errorHandler ?
 							options.request.errorHandler.error('tokenInvalid') : error;
