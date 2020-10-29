@@ -41,7 +41,7 @@ class EmailNotificationV2Renderer {
 				const replyPart = inboundEmailDisabled ? 'G' : 'Reply to this email, or g';
 				secondFooterDiv = `
 <div class="ensure-white">
-	${replyPart}o to the team by selecting “Switch Teams” under the ellipses menu in the CodeStream extension.
+	${replyPart}o to the team by selecting “Switch Teams” under the headshot menu in the CodeStream extension.
 </div>
 `;
 
