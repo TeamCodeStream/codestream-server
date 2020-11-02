@@ -14,7 +14,7 @@ const OAUTH_CONFIG = {
 	scopes: 'projects:read repositories:write',
 	appIdInAuthorizationHeader: true,
 	forEnterprise: true,
-	hasIssues: true,
+	//hasIssues: true,
 	hasCodeHosting: true
 };
 
