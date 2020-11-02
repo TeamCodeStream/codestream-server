@@ -26,7 +26,6 @@ const STANDARD_PROVIDER_HOSTS = {
 		name: 'bitbucket_server',
 		isEnterprise: false,
 		forEnterprise: true,
-		hasIssues: true,
 		hasCodeHosting: true,
 		host: 'bitbucket/server',
 		apiHost: 'api.bitbucket.org/2.0',
