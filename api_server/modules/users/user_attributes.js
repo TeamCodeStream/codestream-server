@@ -284,6 +284,12 @@ module.exports = {
 		description: 'Last modified timestamp for modifiedRepos, by team',
 		maxLength: 1000
 	},
+	compactModifiedRepos: {
+		type: 'object',
+		description: 'Files the user has made local modifications to, compactified, by team',
+		maxLength: 10000,
+		maxObjectLength: 1000000
+	},
 	status: {
 		type: 'object',
 		description: 'User settable status that other team members can see',

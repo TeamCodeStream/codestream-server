@@ -8,7 +8,8 @@ const UserTestConstants = require('../user_test_constants');
 class ModifiedReposFetchTest extends ModifiedReposTest {
 
 	get description () {
-		return 'should properly update a user with modifiedRepos when requested, checked by fetching the user';
+		const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
+		return `should properly update a user with ${which} when requested, checked by fetching the user`;
 	}
 
 	get method () {
@@ -16,7 +17,8 @@ class ModifiedReposFetchTest extends ModifiedReposTest {
 	}
 
 	getExpectedFields () {
-		return { user: ['modifiedRepos', 'modifiedReposModifiedAt', ...UserTestConstants.EXPECTED_USER_FIELDS] };
+		const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
+		return { user: [which, 'modifiedReposModifiedAt', ...UserTestConstants.EXPECTED_USER_FIELDS] };
 	}
 
 	// before the test runs...
@@ -29,7 +31,8 @@ class ModifiedReposFetchTest extends ModifiedReposTest {
 
 	// validate that the response is correct
 	validateResponse (data) {
-		delete this.expectedUser[`modifiedRepos.${this.team.id}`];
+		const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
+		delete this.expectedUser[`${which}.${this.team.id}`];
 		const modifiedAt = this.expectedUser[`modifiedReposModifiedAt.${this.team.id}`];
 		delete this.expectedUser[`modifiedReposModifiedAt.${this.team.id}`];
 		this.expectedUser.modifiedReposModifiedAt = { [this.team.id]: modifiedAt };

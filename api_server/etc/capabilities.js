@@ -74,5 +74,9 @@ module.exports = {
 	'vsCodeGithubSignin': {
 		description: 'Supports whether special VSCode GitHub signin is supported in the auth flow',
 		version: '8.2.7'
+	},
+	'compactModifiedRepos': {
+		description: 'Supports compact modifiedRepos structure',
+		version: '8.2.8'
 	}
 };

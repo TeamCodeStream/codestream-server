@@ -6,13 +6,15 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 class ModifiedReposACLTest extends ModifiedReposTest {
 
 	get description () {
-		return 'should return an error when trying to update the modifiedRepos for a team the user is not a member of';
+		const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
+		return `should return an error when trying to update the ${which} for a team the user is not a member of`;
 	}
 
 	getExpectedError () {
+		const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
 		return {
 			code: 'RAPI-1010',
-			reason: 'user can not set modifiedRepos for team'
+			reason: `user can not set ${which} for team`
 		};
 	}
 
@@ -28,8 +30,9 @@ class ModifiedReposACLTest extends ModifiedReposTest {
 		this.teamFactory.createRandomTeam(
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.data.modifiedRepos = { 
-					[response.team.id]: this.data.modifiedRepos[this.team.id]
+				const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
+				this.data[which] = { 
+					[response.team.id]: this.data[which][this.team.id]
 				};
 				callback();
 			},

@@ -49,7 +49,8 @@ class PutUserRequest extends PutRequest {
 				'iWorkOn': '<What ths user works on>',
 				'status': '<User\'s status object, defined by client>',
 				'avatar': '<User\'s headshot or avatar object, as defined by client>',
-				'modifiedRepos': '<Object describing what the user is current working on by repo, object defined by client>'
+				'modifiedRepos': '<Object describing what the user is currently working on by repo, object defined by client>',
+				'compactModifiedRepos': '<Object describing what the user is currently working on by repo, in compactified form, object defined by client>'
 			}
 		};
 		description.publishes = {

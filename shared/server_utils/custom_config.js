@@ -115,7 +115,15 @@ module.exports = function customConfigFunc(nativeCfg) {
 				},
 				{
 					collection: 'users',
-					fields: ['providerInfo.*.*.accessToken', 'providerInfo.*.*.refreshToken', 'accessTokens.*.token', 'pubNubToken', 'broadcasterToken', 'modifiedRepos']
+					fields: [
+						'providerInfo.*.*.accessToken',
+						'providerInfo.*.*.refreshToken',
+						'accessTokens.*.token',
+						'pubNubToken',
+						'broadcasterToken',
+						'modifiedRepos',
+						'compactModifiedRepos'
+					]
 				},
 				{
 					collection: 'reviews',

@@ -16,6 +16,11 @@ const ModifiedReposTest = require('./modified_repos_test');
 const ModifiedReposFetchTest = require('./modified_repos_fetch_test');
 const ModifiedReposACLTest = require('./modified_repos_acl_test');
 const ModifiedReposInvalidTeamTest = require('./modified_repos_invalid_team_test');
+const CompactModifiedReposTest = require('./compact_modified_repos_test');
+const CompactModifiedReposFetchTest = require('./compact_modified_repos_fetch_test');
+const CompactModifiedReposACLTest = require('./compact_modified_repos_acl_test');
+const CompactModifiedReposInvalidTeamTest = require('./compact_modified_repos_invalid_team_test');
+const NoCompactAndModifiedReposTest = require('./no_compact_and_modified_repos_test');
 
 const UserAttributes = require('../../user_attributes');
 const CAN_UPDATE_ATTRIBUTES = ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn', 'status', 'avatar'];
@@ -36,7 +41,7 @@ class PutUserRequestTester {
 		new ACLTeamTest().test();
 		new MessageToTeamTest().test();
 		Object.keys(UserAttributes).forEach(attribute => {
-			if (attribute === 'modifiedRepos') { return; } // this is handled separately
+			if (attribute === 'modifiedRepos' || attribute === 'compactModifiedRepos') { return; } // this is handled separately
 			if (!CAN_UPDATE_ATTRIBUTES.includes(attribute)) {
 				new NoUpdateOtherAttributeTest({ 
 					otherAttribute: attribute, 
@@ -51,6 +56,11 @@ class PutUserRequestTester {
 		new ModifiedReposFetchTest().test();
 		new ModifiedReposACLTest().test();
 		new ModifiedReposInvalidTeamTest().test();
+		new CompactModifiedReposTest().test();
+		new CompactModifiedReposFetchTest().test();
+		new CompactModifiedReposACLTest().test();
+		new CompactModifiedReposInvalidTeamTest().test();
+		new NoCompactAndModifiedReposTest().test();
 	}
 }
 

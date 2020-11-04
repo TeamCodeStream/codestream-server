@@ -6,12 +6,14 @@ const Assert = require('assert');
 class ModifiedReposTest extends PutUserTest {
 
 	get description () {
-		return 'should be able to set modifiedRepos for a given team';
+		const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
+		return `should be able to set ${which} for a given team`;
 	}
 
 	// form the data for the post update
 	makeUserData (callback) {
 		super.makeUserData(() => {
+			const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
 			const data = [{
 				a: 'a',
 				b: 2
@@ -19,11 +21,11 @@ class ModifiedReposTest extends PutUserTest {
 				c: 'c',
 				d: 3
 			}];
-			this.data.modifiedRepos = {
+			this.data[which] = {
 				[this.team.id]: data
 			};
-			this.expectedData.user.$set[`modifiedRepos.${this.team.id}`] = data;
-			this.expectedUser.modifiedRepos = { [this.team.id]: data };
+			this.expectedData.user.$set[`${which}.${this.team.id}`] = data;
+			this.expectedUser[which] = { [this.team.id]: data };
 			callback();
 		});
 	}

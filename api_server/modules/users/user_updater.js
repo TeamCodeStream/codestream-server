@@ -31,7 +31,7 @@ class UserUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'],
-			object: ['modifiedRepos', 'status', 'avatar']
+			object: ['modifiedRepos', 'compactModifiedRepos', 'status', 'avatar']
 		};
 	}
 
@@ -58,20 +58,24 @@ class UserUpdater extends ModelUpdater {
 
 	// if the user is sending modifiedRepos, this is per-team
 	async handleModifiedRepos () {
-		if (!this.attributes.modifiedRepos) {
+		if (!this.attributes.modifiedRepos && !this.attributes.compactModifiedRepos) {
 			return;
+		}
+		if (this.attributes.compactModifiedRepos && this.attributes.modifiedRepos) {
+			throw this.errorHandler.error('validation', { reason: 'cannot provide modifiedRepos and compactModifiedRepos at the same time' });
 		}
 
 		const now = Date.now();
 		this.attributes.$set = {};
-		Object.keys(this.attributes.modifiedRepos).forEach(teamId => {
+		const which = this.attributes.modifiedRepos ? 'modifiedRepos' : 'compactModifiedRepos';
+		Object.keys(this.attributes[which]).forEach(teamId => {
 			if (!this.user.hasTeam(teamId)) {
-				throw this.errorHandler.error('updateAuth', { reason: `user can not set modifiedRepos for team ${teamId} since they are not a member` });
+				throw this.errorHandler.error('updateAuth', { reason: `user can not set ${which} for team ${teamId} since they are not a member` });
 			}
-			this.attributes.$set[`modifiedRepos.${teamId}`] = this.attributes.modifiedRepos[teamId];
+			this.attributes.$set[`${which}.${teamId}`] = this.attributes[which][teamId];
 			this.attributes.$set[`modifiedReposModifiedAt.${teamId}`] = now;
 		});
-		delete this.attributes.modifiedRepos;
+		delete this.attributes[which];
 	}
 
 	// if the user is changing their username, we need to check if the name is unique
