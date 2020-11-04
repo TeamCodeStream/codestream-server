@@ -85,7 +85,6 @@ class APIRequestTest extends GenericTest {
 
 	// the guts of making an API server request
 	doApiRequest (options = {}, callback = null) {
-console.warn('DOING API REQUEST: ' + method + ' ' + path);
 		let requestOptions = Object.assign({}, options.requestOptions || {});
 		requestOptions.rejectUnauthorized = false;	// avoid complaints about security
 		this.makeHeaderOptions(options, requestOptions);
@@ -95,8 +94,6 @@ console.warn('DOING API REQUEST: ' + method + ' ' + path);
 		const data = options.data || null;
 		const start = Date.now();
 		const requestCallback = function(error, responseData, response) {
-console.warn('CALLBACK HAS ERROR:', error);
-console.warn('RESPONSE:', responseData);
 			const requestId = response.headers['x-request-id'];
 			const result = error ? 'FAIL' : 'OK';
 			const end = Date.now();
@@ -105,7 +102,6 @@ console.warn('RESPONSE:', responseData);
 			callback(error, responseData, response);
 		}.bind(this);
 		if (this.mockMode) {
-console.warn('SENDING IPC REQUEST...');
 			this.sendIpcRequest({
 				method,
 				path,
