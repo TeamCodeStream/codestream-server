@@ -6,12 +6,9 @@
 /* globals describe */
 
 describe('modules', () => {
-	/*
 	require('./authenticator/test/test.js');
 	require('./versioner/test/test.js');
-	*/
 	require('./analytics/test/test.js');
-	/*
 	require('./broadcaster/test/test.js');
 	require('./users/test/test.js');
 	require('./providers/test/test.js');
@@ -26,5 +23,4 @@ describe('modules', () => {
 	require('./web/test/test.js');
 	require('./inbound_emails/test/test.js');
 	require('./marker_locations/test/test.js');
-	*/
 });

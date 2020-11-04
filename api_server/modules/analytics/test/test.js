@@ -12,9 +12,7 @@ const IncorrectSecretTest = require('./incorrect_secret_test');
 describe('analytics', function() {
 
 	new TelemetryKeyTest().test();
-	/*
 	new NoSecretTest().test();
 	new IncorrectSecretTest().test();
-	*/
 
 });
