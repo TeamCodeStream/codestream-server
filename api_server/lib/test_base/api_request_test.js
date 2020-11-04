@@ -85,7 +85,7 @@ class APIRequestTest extends GenericTest {
 
 	// the guts of making an API server request
 	doApiRequest (options = {}, callback = null) {
-console.warn('DOING API REQUEST: ' + options.method + ' ' + options.path);
+console.warn('DOING API REQUEST: ' + method + ' ' + path);
 		let requestOptions = Object.assign({}, options.requestOptions || {});
 		requestOptions.rejectUnauthorized = false;	// avoid complaints about security
 		this.makeHeaderOptions(options, requestOptions);
