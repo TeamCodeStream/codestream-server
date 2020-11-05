@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.5] - 2020-11-5
+
+### Fixed
+
+- Fixes an issue with copy in invitation email referring to old ellipses menu
+
 ## [8.2.4] - 2020-10-28
 
 ### Changed

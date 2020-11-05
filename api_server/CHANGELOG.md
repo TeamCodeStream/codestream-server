@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.8] - 2020-11-5
+
+### Fixed
+
+- Fixes an issue where Bitbucket Server was incorrectly listed as an issue-tracking service
+
 ## [8.2.7] - 2020-10-28
 
 ### Changed
