@@ -13,7 +13,7 @@
 // the cloud, kubernetes, etc...).
 
 const fs = require('fs');
-const { integrationStatuses } = require('../../onprem_admin/src/store/actions/presentation');
+// const { integrationStatuses } = require('../../onprem_admin/src/store/actions/presentation');
 
 const installationType = 'Single Linux Host';
 
