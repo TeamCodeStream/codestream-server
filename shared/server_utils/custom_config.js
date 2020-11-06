@@ -179,7 +179,8 @@ module.exports = function customConfigFunc(nativeCfg) {
 	});
 
 	// admin
-	if (Object.keys(Cfg.adminServer).length > 0) {
+	if (Cfg.adminServer) {
+		console.log(Cfg.adminServer);
 		Cfg.adminServer.logger.basename = 'opadm'
 	}
 
