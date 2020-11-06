@@ -69,7 +69,6 @@
 			"pdop": {
 				"host": "${CSSVC_ENV}.codestream.us",
 				"ignoreHttps": true,
-				"installationId": "00000000-1111-2222-3333-444444444444",
 				"logger": {},
 				"port": 12080,
 				"secrets": {
@@ -229,6 +228,7 @@
 			"runTimeEnvironment": "local"
 		},
 		"pdop": {
+			"installationId": "00000000-1111-2222-3333-444444444444",
 			"runTimeEnvironment": "pdop"
 		},
 		"pi": {
