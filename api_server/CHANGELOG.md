@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.9] - 2020-11-13
+
+### Changed
+
+- Backend work to make the "Work in Progress" section of the CodeStream pane more performant, with reduced api requests
+
 ## [8.2.8] - 2020-11-5
 
 ### Fixed
