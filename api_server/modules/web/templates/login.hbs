@@ -67,7 +67,7 @@
 		<div class="row">
 			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
 				<div class="box-content box-border">
-					<button class="btn btn-with-icon" onclick="window.location.href='{{gitHubLink}}'">
+					<button class="btn btn-with-icon" onclick="window.location.href='{{gitHubLink}}'" style="margin-bottom:2px">
 						<span class="icon float-left">
 						{{#with gitHubIcon}}
 							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
@@ -77,6 +77,34 @@
 						</span>	
 						<span class="copy">Sign in with GitHub</span>
 						<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16" class="octicon octicon-chevron-right" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path></svg></span>
+					</button>
+					<button class="btn btn-with-icon" onclick="window.location.href='{{gitLabLink}}'" style="margin-bottom:2px">
+						<span class="icon float-left">
+							{{#with gitLabIcon}}
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
+								{{{path}}}
+							</svg>
+							{{/with}}
+						</span>
+						<span class="copy">Sign in with GitLab</span>
+						<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16"
+								class="octicon octicon-chevron-right" aria-hidden="true">
+								<path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path>
+							</svg></span>
+					</button>
+					<button class="btn btn-with-icon" onclick="window.location.href='{{bitbucketLink}}'" style="margin-bottom:2px">
+						<span class="icon float-left">
+							{{#with bitbucketIcon}}
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
+								{{{path}}}
+							</svg>
+							{{/with}}
+						</span>
+						<span class="copy">Sign in with Bitbucket</span>
+						<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16"
+								class="octicon octicon-chevron-right" aria-hidden="true">
+								<path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path>
+							</svg></span>
 					</button>
 					{{#if oktaEnabled}}
 						<button class="btn btn-with-icon" style="margin-top:15px" onclick="window.location.href='{{oktaLink}}'">

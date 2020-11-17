@@ -18,15 +18,19 @@ class WebLoginRequest extends APIRequest {
 		const error = this.request.query.error ? this.handleError() : '';
 		const finishUrl = decodeURIComponent(this.request.query.url || '');
 		const tenantId = decodeURIComponent(this.request.query.tenantId || '');
-		let gitHubLink = '/web/provider-auth/github?noSignup=1';
-		if (tenantId) {
-			// if you have a tenantId, you cannot redirect elsewhere
-			gitHubLink += `&tenantId=${tenantId}`;
-		}
-		else if (finishUrl) {
-			// since GitHub isn't POSTed, we attach the finishUrl here
-			gitHubLink += `&url=${finishUrl}`;
-		}
+		const links = [];
+		['github', 'gitlab', 'bitbucket'].forEach(provider => {
+			let link = `/web/provider-auth/${provider}?noSignup=1`;
+			if (tenantId) {
+				// if you have a tenantId, you cannot redirect elsewhere
+				link += `&tenantId=${tenantId}`;
+			}
+			else if (finishUrl) {
+				// since we're not POSTed, we attach the finishUrl here
+				link += `&url=${finishUrl}`;
+			}
+			links.push(link);
+		});
 		const oktaLink = `/web/configure-okta?url=${finishUrl}`;
 		const oktaEnabled = !!this.api.config.integrations.okta.appClientId;
 		this.module.evalTemplate(this, 'login', { 
@@ -37,9 +41,13 @@ class WebLoginRequest extends APIRequest {
 			tenantId:  tenantId,
 			version: this.module.versionInfo(),
 			codeStreamIcon: Icons['codestream'],
-			gitHubLink,
+			gitHubLink: links[0],
+			gitLabLink: links[1],
+			bitbucketLink: links[2],
 			oktaLink,
 			gitHubIcon: Icons['github'],
+			gitLabIcon: Icons['gitlab'],
+			bitbucketIcon: Icons['bitbucket'],
 			oktaIcon: Icons['okta'],
 			oktaEnabled,
 			csrf
