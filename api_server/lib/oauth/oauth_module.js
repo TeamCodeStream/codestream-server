@@ -37,7 +37,7 @@ class OAuthModule extends APIServerModule {
 
 	// get redirect parameters and url to use in the redirect response
 	getRedirectData (options) {
-		const { authPath, scopes, additionalAuthCodeParameters } = this.oauthConfig;
+		const { authPath, scopes, additionalAuthCodeParameters, scopeParameter } = this.oauthConfig;
 		const clientInfo = this.getClientInfo(options);
 		const { redirectUri, state } = options;
 		const parameters = {
@@ -47,7 +47,8 @@ class OAuthModule extends APIServerModule {
 			state
 		};
 		if (scopes) {
-			parameters.scope = scopes;
+			const scopeParam = scopeParameter || 'scope';
+			parameters[scopeParam] = scopes;
 		}
 		if (additionalAuthCodeParameters) {
 			Object.assign(parameters, additionalAuthCodeParameters);
