@@ -135,7 +135,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		hasSharing: true,
 		scopes: [
 			'channels:read',
-			'chat:write:user',
+			'chat:write',
 			'groups:read',
 			'im:read',
 			'users.profile:write',
