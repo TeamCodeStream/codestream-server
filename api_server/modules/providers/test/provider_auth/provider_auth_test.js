@@ -279,9 +279,9 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
-			scope: [
+			user_scope: [
 				'channels:read',
-				'chat:write:user',
+				'chat:write',
 				'groups:read',
 				'im:read',
 				'users.profile:write',
@@ -290,7 +290,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				'mpim:read'
 			].join(' ')
 		};
-		const url = 'https://slack.com/oauth/authorize';
+		const url = 'https://slack.com/oauth/v2/authorize';
 		return { url, parameters };
 	}
 
