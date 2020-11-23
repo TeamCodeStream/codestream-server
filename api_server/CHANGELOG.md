@@ -1,5 +1,19 @@
 # Change Log
 
+## [8.2.10] - 2020-11-24
+
+### Added
+
+- Adds backend support for the new Clubhouse integration
+
+### Changed
+
+- Migrate to Slack OAuth v2.
+
+### Fixed
+
+- Fixes an issue where buttons to sign in with GitLab and Bitbucket were missing from the web login form
+
 ## [8.2.9] - 2020-11-13
 
 ### Changed
