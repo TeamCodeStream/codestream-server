@@ -31,6 +31,15 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.bitbucket.org/2.0',
 		scopes: ['projects:read', 'repositories:write']
 	},
+	'api*clubhouse*io/api/v3': {
+		id: 'api*clubhouse*io/api/v3',
+		name: 'clubhouse',
+		isEnterprise: false,
+		host: 'api.clubhouse.io/api/v3',
+		apiHost: 'api.clubhouse.io/api/v3',
+		needsConfigure: true,
+		hasIssues: true
+	},
 	'github*com': {
 		id: 'github*com',
 		name: 'github',

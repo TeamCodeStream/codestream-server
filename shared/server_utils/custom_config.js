@@ -149,6 +149,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		github_enterprise: { appClientId: 'placeholder' },
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
+		clubhouse: { appClientId: 'placeholder' }
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
@@ -216,7 +217,8 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'slack',
 		'trello',
 		'youtrack',
-		'okta'
+		'okta',
+		'clubhouse'
 	];
 	// matching these paths means Authorization header is not required
 	Cfg.apiServer.unauthenticatedPaths = [
