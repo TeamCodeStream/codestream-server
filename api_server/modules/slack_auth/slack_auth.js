@@ -8,7 +8,7 @@ const SlackAuthorizer = require('./slack_authorizer');
 
 const SHARING_SCOPES = [
 	'channels:read',
-	'chat:write',
+	'chat:write:user',
 	'groups:read',
 	'im:read',
 	'users.profile:write',
@@ -21,12 +21,11 @@ const OAUTH_CONFIG = {
 	provider: 'slack',
 	host: 'slack.com',
 	apiHost: 'slack.com/api',
-	authPath: 'oauth/v2/authorize',
-	tokenPath: 'api/oauth.v2.access',
+	authPath: 'oauth/authorize',
+	tokenPath: 'api/oauth.access',
 	exchangeFormat: 'form',
 	scopes: SHARING_SCOPES.join(' '),
-	hasSharing: true,
-	scopeParameter: 'user_scope'
+	hasSharing: true
 };
 
 
@@ -49,17 +48,6 @@ class SlackAuth extends OAuthModule {
 		info.clientId = this.apiConfig.appSharingClientId;
 		info.clientSecret = this.apiConfig.appSharingClientSecret;
 		return info;
-	}
-
-	// overrides OAuthModule.normalizeTokenDataResponse, to get the buried access token and other info
-	// since Slack updated their OAuth API to v2, we're trying to make this look like the data we got back from V1,
-	// so we don't have to do a client update ... see https://api.slack.com/authentication/migration
-	normalizeTokenDataResponse (responseData) {
-		responseData.access_token = (responseData.authed_user || {}).access_token;
-		responseData.user_id = (responseData.authed_user || {}).id;
-		responseData.team_id = (responseData.team || {}).id;
-		responseData.team_name = (responseData.team || {}).name;
-		return super.normalizeTokenDataResponse(responseData);
 	}
 
 	validateChannelName (name) {
