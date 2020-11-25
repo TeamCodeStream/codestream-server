@@ -43,6 +43,8 @@ class CommonInit {
 					modifiedAt: this.modifiedAfter,
 					version: 6
 				},
+				$unset: {
+				},
 				$version: {
 					before: 5,
 					after: 6
@@ -61,6 +63,7 @@ class CommonInit {
 		};
 		this.expectedData.user.$set[`${setKey}.accessToken`] = this.data.token;
 		this.expectedData.user.$set[`${setKey}.data`] = this.data.data;
+		this.expectedData.user.$unset[`${setKey}.tokenError`] = true;
 		if (this.testHost) {
 			this.expectedUser.providerInfo[this.team.id][this.provider].hosts = {
 				[starredHost]: setData

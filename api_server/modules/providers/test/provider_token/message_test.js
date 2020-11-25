@@ -106,6 +106,8 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					version: 5,
 					modifiedAt: Date.now()
 				},
+				$unset: {
+				},
 				$version: {
 					before: 4,
 					after: 5
@@ -116,6 +118,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			const setKey = key + `.${dataKey}`;
 			this.message.user.$set[setKey] = expectedData[dataKey];
 		}
+		this.message.user.$unset[`${key}.tokenError`] = true;
 		callback();
 	}
 

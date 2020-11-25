@@ -78,5 +78,9 @@ module.exports = {
 	'compactModifiedRepos': {
 		description: 'Supports compact modifiedRepos structure',
 		version: '8.2.8'
+	},
+	'providerReauth': {
+		description: 'Supports re-authentication for providers if tokens are found to be invalid',
+		version: '8.2.11'
 	}
 };

@@ -317,15 +317,27 @@ class ProviderTokenRequest extends RestfulRequest {
 			this.tokenData.data = this.request.body.data;
 		}
 		const modifiedAt = Date.now();
-		let setKey = `providerInfo.${this.team.id}.${this.provider}`;
-		// add sub-keys for enterprise hosts
-		if (this.host) {
-			const host = this.host.replace(/\./g, '*');
-			setKey += `.hosts.${host}`;
+
+		// if (and only if) the user previously had credentials above the team level (as in, they used the provider for sign-in),
+		// ignore the team parameter and set the data at that level ... this supports a re-auth in case their original token starts failing
+		let setKey;
+		if (
+			(this.user.get('providerInfo') || {})[this.provider] &&
+			(this.user.get('providerInfo') || {})[this.provider].accessToken
+		) {
+			setKey = `providerInfo.${this.provider}`;
+		} else {
+			setKey = `providerInfo.${this.team.id}.${this.provider}`;
+			if (this.host) {
+				const host = this.host.replace(/\./g, '*');
+				setKey += `.hosts.${host}`;
+			}
 		}
+
+		// add sub-keys for enterprise hosts
 		// add sub-keys for providers that support multiple access tokens, only allowed in sharing model
 		let multiKeys = {};
-		const op = { $set: {} };
+		const op = { $set: {}, $unset: {} };
 		if (this.sharing) {
 			const multiAuthExtraData = await this.serviceAuth.getMultiAuthExtraData(this.tokenData, { request: this });
 			if (multiAuthExtraData) {
@@ -356,6 +368,9 @@ class ProviderTokenRequest extends RestfulRequest {
 			if (multiKeys[multiKey]) {
 				op.$set[`${multiKey}.extra`] = Object.assign({}, op.$set[`${multiKey}.extra`] || {}, multiKeys[multiKey]);
 			}
+
+			// remove any previous token error
+			op.$unset[`${multiKey}.tokenError`] = true;
 		}
 
 		op.$set.modifiedAt = modifiedAt;

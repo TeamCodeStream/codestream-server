@@ -10,6 +10,8 @@ const ParameterRequiredTest = require('./parameter_required_test');
 const UnknownProviderTest = require('./unknown_provider_test');
 const FetchTest = require('./fetch_test');
 const MessageToUserTest = require('./message_to_user_test');
+const TokenErorTest = require('./token_error_test');
+const AccessTokenClearsTokenErorTest = require('./access_token_clears_token_error_test');
 
 class ProviderInfoRequestTester {
 
@@ -23,6 +25,8 @@ class ProviderInfoRequestTester {
 		new UnknownProviderTest({ provider: 'unknown' }).test();
 		new FetchTest({ provider: 'youtrack' }).test();
 		new MessageToUserTest({ provider: 'slack' }).test();
+		new TokenErorTest({ provider: 'github' }).test();
+		new AccessTokenClearsTokenErorTest({ provider: 'github' }).test();
 	}
 }
 

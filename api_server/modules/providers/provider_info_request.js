@@ -66,10 +66,21 @@ class ProviderInfoRequest extends RestfulRequest {
 	// save the provided token for the user
 	async saveInfo () {
 		const modifiedAt = Date.now();
-		let key = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.request.body.host) {
-			const starredHost = this.request.body.host.toLowerCase().replace(/\./g, '*');
-			key += `.hosts.${starredHost}`;
+
+		// if the user has credentials above the team level (as in, they used the provider for sign-in),
+		// ignore the team parameter and set the data at that level
+		let key;
+		if (
+			(this.user.get('providerInfo') || {})[this.provider] &&
+			(this.user.get('providerInfo') || {})[this.provider].accessToken
+		) {
+			key = `providerInfo.${this.provider}`;
+		} else {
+			key = `providerInfo.${this.team.id}.${this.provider}`;
+			if (this.request.body.host) {
+				const starredHost = this.request.body.host.toLowerCase().replace(/\./g, '*');
+				key += `.hosts.${starredHost}`;
+			}
 		}
 
 		const op = {
@@ -80,6 +91,11 @@ class ProviderInfoRequest extends RestfulRequest {
 
 		Object.keys(this.request.body.data).forEach(dataKey => {
 			op.$set[`${key}.${dataKey}`] = this.request.body.data[dataKey];
+			if (dataKey === 'accessToken') {
+				op.$unset = {
+					[`${key}.tokenError`]: true
+				};
+			}
 		});
 
 		this.transforms.userUpdate = await new ModelSaver({
