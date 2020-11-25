@@ -59,7 +59,6 @@ class SlackAuth extends OAuthModule {
 		responseData.user_id = (responseData.authed_user || {}).id;
 		responseData.team_id = (responseData.team || {}).id;
 		responseData.team_name = (responseData.team || {}).name;
-		responseData.scope = (responseData.authed_user || {}).scope;
 		return super.normalizeTokenDataResponse(responseData);
 	}
 
