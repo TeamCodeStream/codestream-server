@@ -236,7 +236,7 @@ class CommonInit {
 			redirect_uri: this.redirectUri,
 			state: this.state
 		};
-		const url = 'https://slack.com/api/oauth.v2.access';
+		const url = 'https://slack.com/api/oauth.access';
 		return { url, parameters  };
 	}
 
