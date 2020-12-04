@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.12] - 2020-12-4
+
+### Added
+
+- Adds backend support for letting users know (via banner in the client) that there is a problem with their GitHub connection.
+
 ## [8.2.11] - 2020-11-24
 
 ### Changed
