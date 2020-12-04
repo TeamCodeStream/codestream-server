@@ -98,21 +98,37 @@ class ProviderRefreshRequest extends RestfulRequest {
 		if (!this.tokenData || !this.tokenData.accessToken) {
 			throw this.errorHandler.error('readAuth', { reason: 'token not returned from provider' });
 		}
-		const modifiedAt = Date.now();
-		let existingProviderInfo = ((this.user.get('providerInfo') || {})[this.team.id] || {})[this.provider] || {};
-		let providerInfoKey = `providerInfo.${this.team.id}.${this.provider}`;
-		if (this.host) {
-			const starredHost = this.host.replace(/\./g, '*');
-			providerInfoKey += `.hosts.${starredHost}`;
-			existingProviderInfo = (existingProviderInfo.hosts || {})[starredHost] || {};
+
+		// if the user has credentials above the team level (as in, they used the provider for sign-in),
+		// ignore the team parameter and set the data at that level
+		let providerInfoKey, existingProviderInfo;
+		const providerInfo = this.user.get('providerInfo') || {};
+		if (
+			providerInfo[this.provider] &&
+			providerInfo[this.provider].accessToken
+		) {
+			providerInfoKey = `providerInfo.${this.provider}`;
+			existingProviderInfo = providerInfo[this.provider];
+		} else {
+			providerInfoKey = `providerInfo.${this.team.id}.${this.provider}`;
+			if (this.host) {
+				const starredHost = this.host.replace(/\./g, '*');
+				providerInfoKey += `.hosts.${starredHost}`;
+				existingProviderInfo = (providerInfo[this.teamId][this.provider].hosts || {})[starredHost] || {};
+			}
+			else {
+				existingProviderInfo = providerInfo[this.teamId][this.provider];
+			}
 		}
+
+		const modifiedAt = Date.now();
 		let op;
 		if (this.sharing) {			
 			if (!this.subId)
 				throw this.errorHandler.error('parameterRequired', { info: 'subId' });
 
 			op = { $set: {} };
-			const existingData = existingProviderInfo.multiple[this.subId];
+			const existingData = (existingProviderInfo.multiple || {})[this.subId];
 			const extra = existingData && existingData.extra;
 			op.$set[`${providerInfoKey}.multiple.${this.subId}`] = { ...this.tokenData, extra: extra };
 			op.$set.modifiedAt = modifiedAt;
