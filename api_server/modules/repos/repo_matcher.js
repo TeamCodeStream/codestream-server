@@ -91,6 +91,12 @@ class RepoMatcher {
 		this.transforms.createdRepos = this.transforms.createdRepos || [];
 		this.transforms.createdRepos.push(newRepo);
 		this.teamRepos.push(newRepo);
+
+		// also save new known commit hashes
+		if (repoInfo.knownCommitHashes && repoInfo.knownCommitHashes.length > 0) {
+			await this.saveRepoCommitHashes(newRepo.id, repoInfo.knownCommitHashes);
+		}
+
 		return newRepo;
 	}
 
@@ -122,8 +128,10 @@ class RepoMatcher {
 			op.$push.remotes = op.$push.remotes || [];
 			op.$push.remotes = [...op.$push.remotes, ...remotesToPush];
 		}
+
+		let addCommitHashes = [];
 		if (newCommitHashes.length > 0) {
-			const addCommitHashes = ArrayUtilities.difference(
+			addCommitHashes = ArrayUtilities.difference(
 				newCommitHashes,
 				((op.$addToSet || {}).knownCommitHashes || [])
 			);
@@ -142,6 +150,11 @@ class RepoMatcher {
 			}).save(op);
 			this.transforms.repoUpdates = this.transforms.repoUpdates || [];
 			this.transforms.repoUpdates.push(repoUpdateOp);
+		}
+
+		// also save new known commit hashes 
+		if (addCommitHashes.length > 0) {
+			await this.saveRepoCommitHashes(repo.id, addCommitHashes);
 		}
 	}
 
@@ -165,6 +178,14 @@ class RepoMatcher {
 			}
 		}
 		return { newRemotes, newCommitHashes, existingRepoUpdateOp };
+	}
+
+	// save commit hashes associated with their repo ID
+	async saveRepoCommitHashes (repoId, commitHashes) {
+		const documents = commitHashes.map(commitHash => {
+			return { repoId, commitHash }
+		});
+		await this.request.data.reposByCommitHash.createMany(documents, { noVersion: true });
 	}
 }
 

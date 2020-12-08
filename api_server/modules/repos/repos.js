@@ -23,6 +23,11 @@ const REPOS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'repos/match/:teamId',
 		requestClass: require('./match_repos_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/team-lookup',
+		requestClass: require('./team_lookup_request')
 	}
 ];
 

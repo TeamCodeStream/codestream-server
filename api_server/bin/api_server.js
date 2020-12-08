@@ -32,6 +32,7 @@ const DataCollections = {
 	msteams_conversations: require(ModuleDirectory + '/msteams_conversations/msteams_conversation'),
 	msteams_states: require(ModuleDirectory + '/msteams_states/msteams_state'),
 	msteams_teams: require(ModuleDirectory + '/msteams_teams/msteams_team'),
+	reposByCommitHash: require(ModuleDirectory + '/repos/repo_by_commit_hash')
 };
 
 // establish our mongo collections, these include our DataCollections, but 

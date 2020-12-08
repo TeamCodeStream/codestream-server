@@ -92,7 +92,9 @@ class DataCollection {
 		const id = (data.id || this.createId()).toString();
 		data.id = id;
 		data._id = id;	// DEPRECATE ME
-		data.version = 1;
+		if (!options.noVersion) {
+			data.version = 1;
+		}
 		const model = new this.modelClass(data);
 		this.addModelToCache(model);
 		// if we're creating a model, it pretty much obviates anything else we've done to it
@@ -104,6 +106,13 @@ class DataCollection {
 			this.documentOptions[id] = Object.assign(this.documentOptions[id] || {}, options);
 		}
 		return model;
+	}
+
+	// create many models using the data passed in
+	async createMany (documents, options = {}) {
+		await Promise.all(documents.map(async document => {
+			await this.create(document, options);
+		}));
 	}
 
 	// generate an ID for a new model

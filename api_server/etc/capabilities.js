@@ -82,5 +82,9 @@ module.exports = {
 	'providerReauth': {
 		description: 'Supports re-authentication for providers if tokens are found to be invalid',
 		version: '8.2.11'
+	},
+	'autoJoin': {
+		description: 'Supports auto-join API call, to auto-join a team based on open repos in IDE',
+		version: '8.2.13'
 	}
 };
