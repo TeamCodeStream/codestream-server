@@ -402,8 +402,12 @@ class APIServer {
 		request.url = request.path;
 		request.path = request.url.split('?')[0];
 		request.query = (request.url.split('?')[1] || '').split('&').reduce((query, param) => {
-			const keyValue = param.split('=');
-			query[decodeURIComponent(keyValue[0])] = keyValue[1] ? decodeURIComponent(keyValue[1]) : true;
+			if (param.indexOf('=') !== -1) {
+				const keyValue = param.split('=');
+				query[decodeURIComponent(keyValue[0])] = decodeURIComponent(keyValue[1]);
+			} else {
+				query[decodeURIComponent(param)] = true;
+			}
 			return query;
 		}, {});
 		const response = new IPCResponse({

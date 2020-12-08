@@ -100,7 +100,7 @@ class TeamLookupRequest extends RestfulRequest {
 				admins: this.admins.map(user => user.getSanitizedObject({ request: this }))
 			};
 		}
-		return await super.handleResponse();
+		return super.handleResponse();
 	}
 
 	// describe this route for help

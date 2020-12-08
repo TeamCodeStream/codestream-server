@@ -10,7 +10,7 @@ class EmptyParameterTest extends TeamLookupTest {
 
 	getExpectedError() {
 		return {
-			code: 'RAPI-1012',
+			code: 'RAPI-1001',
 			info: this.parameter
 		};
 	}

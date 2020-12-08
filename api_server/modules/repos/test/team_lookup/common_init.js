@@ -32,9 +32,9 @@ class CommonInit {
 
 	// make the path to be used during the test request
 	makePath (callback) {
-		this.data = this.getRequestData();
-		this.path = '/no-auth/team-lookup?' + Object.keys(this.data).map(key => {
-			return `${key}=${encodeURIComponent(this.data[key])}`
+		const data = this.getRequestData();
+		this.path = '/no-auth/team-lookup?' + Object.keys(data).map(key => {
+			return `${key}=${encodeURIComponent(data[key])}`
 		}).join('&');
 		this.modifiedAfter = Date.now();
 		return callback();
