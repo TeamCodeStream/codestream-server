@@ -182,6 +182,7 @@ class RepoMatcher {
 
 	// save commit hashes associated with their repo ID
 	async saveRepoCommitHashes (repoId, commitHashes) {
+		commitHashes = ArrayUtilities.unique(commitHashes);
 		await Promise.all(commitHashes.map(async commitHash => {
 			const op = {
 				$set: {

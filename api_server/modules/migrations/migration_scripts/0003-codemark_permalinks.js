@@ -94,6 +94,7 @@ class CodemarkPermalinks extends Migration {
 	}
 
 	async verify () {
+		/*
 		const codemark = await this.data.codemarks.getOneByQuery(
 			{ permalink: { $exists: false } },
 			{ overrideHintRequired: true }
@@ -101,6 +102,7 @@ class CodemarkPermalinks extends Migration {
 		if (codemark) { 
 			throw 'found a codemark with no permalink after running migration';
 		}
+		*/
 	}
 }
 

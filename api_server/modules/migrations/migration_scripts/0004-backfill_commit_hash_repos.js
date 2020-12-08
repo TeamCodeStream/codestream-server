@@ -1,6 +1,7 @@
 'use strict';
 
 const Migration = require('./migration');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 const ThrottleTime = 100;
 
@@ -42,10 +43,11 @@ class BackfillCommitHashRepos extends Migration {
 	}
 
 	async processRepo (repo) {
-		const commitHashes = repo.knownCommitHashes || [];
-		if (repo.firstCommitHash && !commitHashes.includes(repofirstCommitHash)) {
+		let commitHashes = repo.knownCommitHashes || [];
+		if (repo.firstCommitHash && !commitHashes.includes(repo.firstCommitHash)) {
 			commitHashes.push(repo.firstCommitHash);
 		}
+		commitHashes = ArrayUtilities.unique(commitHashes);
 
 		this.log(`Writing ${commitHashes.length} commit hash entries for repo ${repo.id}...`);
 		await Promise.all(commitHashes.map(async commitHash => {
