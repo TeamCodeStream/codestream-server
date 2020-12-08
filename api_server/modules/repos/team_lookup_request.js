@@ -4,7 +4,6 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
-const RepoByCommitHashIndexes = require('./repo_by_commit_hash_indexes');
 
 class TeamLookupRequest extends RestfulRequest {
 
@@ -44,14 +43,7 @@ class TeamLookupRequest extends RestfulRequest {
 		if (commitHashes.length === 0) {
 			throw this.errorHandler.error('parameterRequired', { info: 'commitHashes' });
 		}
-		const repos = await this.data.reposByCommitHash.getByQuery(
-			{ 
-				commitHash: { $in: commitHashes }
-			},
-			{
-				hint: RepoByCommitHashIndexes.byCommitHash
-			}
-		);
+		const repos = await this.data.reposByCommitHash.getByIds(commitHashes, { noIdSafe: true });
 		if (repos.length === 0) {
 			return false;
 		} else if (repos.length > 1) {

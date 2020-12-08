@@ -8,13 +8,6 @@ module.exports = {
 		description: 'ID of the @@#repo#repo@@ with which this commit hash is associated',
 		required: true
 	},
-	commitHash: {
-		type: 'string',
-		minLength: 40,
-		maxLength: 40,
-		required: true,
-		description: 'Commit hash to associate with the repo'
-	},
 	_forTesting: {
 		type: 'boolean',
 		serverOnly: true

@@ -104,7 +104,7 @@ class MongoCollection {
 	// get a document by its ID, we'll shield the caller from having to maintain
 	// a mongo ID; they can use a simple string instead
 	async getById (id, options = {}) {
-		id = this.objectIdSafe(id);	// convert to mongo ID
+		id = options.noIdSafe ? id : this.objectIdSafe(id);	// convert to mongo ID
 		if (!id) {
 			// no document if no ID!
 			return null;

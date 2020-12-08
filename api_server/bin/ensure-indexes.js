@@ -28,8 +28,7 @@ const AllModuleIndexes = {
 	messages: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/indexes'),
 	msteams_conversations: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_conversations/indexes'),
 	msteams_states: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_states/indexes'),
-	msteams_teams: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_teams/indexes'),
-	reposByCommitHash: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_by_commit_hash_indexes')
+	msteams_teams: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_teams/indexes')
 };
 
 const AllFinished = {
