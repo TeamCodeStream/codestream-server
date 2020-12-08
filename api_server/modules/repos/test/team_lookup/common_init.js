@@ -48,7 +48,7 @@ class CommonInit {
 				path: `/team-settings/${this.team.id}`,
 				token: this.users[1].accessToken,
 				data: {
-					autoJoinEnabled: true
+					autoJoinRepos: [this.repo.id]
 				}
 			},
 			callback

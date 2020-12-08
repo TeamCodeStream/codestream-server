@@ -65,8 +65,8 @@ class TeamLookupRequest extends RestfulRequest {
 
 		// check if the team has the auto-join setting on, if not, this feature is not permitted
 		const settings = this.team.get('settings') || {};
-		if (!settings.autoJoinEnabled) {
-			throw this.errorHandler.error('readAuth', { reason: 'Auto-join is not enabled for this team' });
+		if (!(settings.autoJoinRepos instanceof Array) || !settings.autoJoinRepos.includes(this.repo.id)) {
+			throw this.errorHandler.error('readAuth', { reason: 'Auto-join is not enabled for this repo and team' });
 		}
 	}
 

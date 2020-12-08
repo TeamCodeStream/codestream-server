@@ -11,7 +11,7 @@ class TeamMustHaveAutoJoinTest extends TeamLookupTest {
 	getExpectedError() {
 		return {
 			code: 'RAPI-1009',
-			reason: 'Auto-join is not enabled for this team'
+			reason: 'Auto-join is not enabled for this repo and team'
 		};
 	}
 

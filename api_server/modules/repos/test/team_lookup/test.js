@@ -8,6 +8,7 @@ const ParameterRequiredTest = require('./parameter_required_test');
 const EmptyParameterTest = require('./empty_parameter_test');
 const EmptyLookupTest = require('./empty_lookup_test');
 const TeamMustHaveAutoJoinTest = require('./team_must_have_auto_join_test');
+const RepoMustHaveAutoJoinTest = require('./repo_must_have_auto_join_test');
 const AddedCommitHashTest = require('./added_commit_hash_test');
 
 class TeamLookupRequestTester {
@@ -18,6 +19,7 @@ class TeamLookupRequestTester {
 		new EmptyParameterTest({ parameter: 'commitHashes' }).test();
 		new EmptyLookupTest().test();
 		new TeamMustHaveAutoJoinTest().test();
+		new RepoMustHaveAutoJoinTest().test();
 		new AddedCommitHashTest().test();
 	}
 }
