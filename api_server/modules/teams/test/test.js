@@ -12,6 +12,7 @@ const UpdateTagRequestTester = require('./update_tag/test');
 const DeleteTagRequestTester = require('./delete_tag/test');
 const AddBlameMapRequestTester = require('./add_blame_map/test');
 const DeleteBlameMapRequestTester = require('./delete_blame_map/test');
+const GetAuthSettingsRequestTester = require('./get_auth_settings/test');
 
 describe('team requests', function() {
 
@@ -27,4 +28,5 @@ describe('team requests', function() {
 	describe('DELETE /team-tags/:teamId/:id', DeleteTagRequestTester.test);
 	describe('POST /add-blame-map/:teamId', AddBlameMapRequestTester.test);
 	describe('PUT /delete-blame-map/:teamId', DeleteBlameMapRequestTester.test);
+	describe('GET /no-auth/teams/:teamId/auth-settings', GetAuthSettingsRequestTester.test);
 });

@@ -58,6 +58,11 @@ const TEAM_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'delete-blame-map/:teamId',
 		requestClass: require('./delete_blame_map_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/teams/:teamId/auth-settings',
+		requestClass: require('./get_team_auth_settings_request')
 	}
 ];
 
