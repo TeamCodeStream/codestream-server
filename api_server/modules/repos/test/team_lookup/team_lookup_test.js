@@ -25,13 +25,13 @@ class TeamLookupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	// validate the response to the test request
 	validateResponse(data) {
 		if (this.expectEmpty) {
-			Assert.deepStrictEqual(data, {}, 'expected empty object');
+			Assert.deepStrictEqual(data, [], 'expected empty array');
 			return;
 		}
-		Assert.strictEqual(data.repo.id, this.repo.id, 'returned repo should match the test repo');
-		Assert.strictEqual(data.team.id, this.team.id, 'returned team should match the test team');
+		Assert.strictEqual(data[0].repo.id, this.repo.id, 'returned repo should match the test repo');
+		Assert.strictEqual(data[0].team.id, this.team.id, 'returned team should match the test team');
 		const expectedAdminIds = [this.users[1].user.id];
-		Assert.deepStrictEqual(data.admins.map(a => a.id), expectedAdminIds, 'returned admins should match the team creator');
+		Assert.deepStrictEqual(data[0].admins.map(a => a.id), expectedAdminIds, 'returned admins should match the team creator');
 	}
 }
 

@@ -50,19 +50,13 @@ class BackfillCommitHashRepos extends Migration {
 		commitHashes = ArrayUtilities.unique(commitHashes);
 
 		this.log(`Writing ${commitHashes.length} commit hash entries for repo ${repo.id}...`);
-		await Promise.all(commitHashes.map(async commitHash => {
-			const op = {
-				$set: {
-					repoId: repo.id,
-				}
-			};
-			await this.data.reposByCommitHash.updateDirect(
-				{ id: commitHash },
-				op,
-				{ upsert: true }
-			);
-		}));
-
+		const records = commitHashes.map(commitHash => {
+			return {
+				commitHash,
+				repoId: repo.id
+			}
+		});
+		await this.data.reposByCommitHash.createMany(records, { noVersion: true });
 		await this.data.repos.updateDirect(
 			{ id: this.data.repos.objectIdSafe(repo.id) },
 			{$set: { commitHashMapComplete: true } }
@@ -70,6 +64,13 @@ class BackfillCommitHashRepos extends Migration {
 	}
 
 	async verify () {
+		const repos = await this.data.repos.getByQuery(
+			{ commitHashMapComplete: { $ne: true } },
+			{ overrideHintRequired: true }
+		);
+		if (repos.length > 0) {
+			throw 'one or more repos dont have the commitHashMapComplete flag set';
+		}
 	}
 }
 

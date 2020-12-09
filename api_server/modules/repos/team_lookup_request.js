@@ -4,6 +4,8 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
+const RepoByCommitHashIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_by_commit_hash_indexes');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class TeamLookupRequest extends RestfulRequest {
 
@@ -15,11 +17,12 @@ class TeamLookupRequest extends RestfulRequest {
 
 	// process the request...
 	async process() {
+		this.responseData = [];
 		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
-		if (!await this.lookupRepo()) { // lookup the repo according to commit hash
+		if (!await this.lookupRepos()) { // lookup the repo according to commit hash
 			return;
 		}		
-		await this.getTeam();			// get the team that owns this repo
+		await this.getTeams();			// get the team that owns this repo
 		await this.getAdmins();			// get the admin users for this team
 	}
 
@@ -36,72 +39,76 @@ class TeamLookupRequest extends RestfulRequest {
 	}
 
 	// lookup the repo according to the commit hash
-	async lookupRepo () {
+	async lookupRepos () {
 		// look for repos represented by the passed commit hashes, hopefully only one matches
 		let commitHashes = decodeURIComponent(this.request.query.commitHashes.toLowerCase()).split(',');
 		commitHashes = commitHashes.filter(hash => hash);
 		if (commitHashes.length === 0) {
 			throw this.errorHandler.error('parameterRequired', { info: 'commitHashes' });
 		}
-		const repos = await this.data.reposByCommitHash.getByIds(commitHashes, { noIdSafe: true });
-		if (repos.length === 0) {
+		const records = await this.data.reposByCommitHash.getByQuery(
+			{ commitHash: { $in: commitHashes } },
+			{ hint: RepoByCommitHashIndexes.byCommitHash }
+		);
+		let repoIds = records.map(repo => repo.get('repoId'));
+		repoIds = ArrayUtilities.unique(repoIds);
+		if (repoIds.length === 0) {
 			return false;
-		} else if (repos.length > 1) {
-			this.warn(`Found more than one repo matching commit hashes, only first will be returned: ${commitHashes}`);
-		}
-		this.repo = await this.data.repos.getById(repos[0].get('repoId'));
-		if (!this.repo || this.repo.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'repoId' }); // shouldn't happen
-		}
+		} 
+
+		this.repos = (await this.data.repos.getByIds(repoIds)).filter(repo => !repo.get('deactivated'));
 		return true;
 	}
 
-	// get the team that owns the repo found
-	async getTeam () {
-		this.team = await this.data.teams.getById(this.repo.get('teamId'));
-		if (!this.team || this.team.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'team' }); // shouldn't happen
-		}
+	// get the teams that own the repos found
+	async getTeams () {
+		let teamIds = this.repos.map(repo => repo.get('teamId'));
+		teamIds = ArrayUtilities.unique(teamIds);
+		this.teams = await this.data.teams.getByIds(teamIds);
 
-		// check if the team has the auto-join setting on, if not, this feature is not permitted
-		const settings = this.team.get('settings') || {};
-		if (!(settings.autoJoinRepos instanceof Array) || !settings.autoJoinRepos.includes(this.repo.id)) {
-			throw this.errorHandler.error('readAuth', { reason: 'Auto-join is not enabled for this repo and team' });
-		}
+		// for each repo, check if the owning team has the auto-join setting on
+		this.repos.forEach(repo => {
+			const team = this.teams.find(team => team.id === repo.get('teamId'));
+			if (!team) return;
+			const settings = team.get('settings') || {};
+			if ((settings.autoJoinRepos instanceof Array) && settings.autoJoinRepos.includes(repo.id)) {
+				this.responseData.push({
+					repo: repo.getSanitizedObject({ request: this }),
+					team: team.getSanitizedObject({ request: this }),
+					admins: []
+				});
+			}
+		});
 	}
 
-	// get the admin users on this team
+	// get the admin users for all the teams
 	async getAdmins () {
-		const adminIds = this.team.get('adminIds') || [];
+		let adminIds = [];
+		this.responseData.forEach(entry => {
+			adminIds = adminIds.concat(entry.team.adminIds || []);
+		});
 		if (adminIds.length === 0) {
-			this.admins = []; // tough luck, i guess
-			return;
+			return; 
 		}
-		this.admins = await this.data.users.getByIds(this.team.get('adminIds') || []);
-	}
+		this.admins = await this.data.users.getByIds(adminIds);
 
-	// handle returning the response
-	async handleResponse() {
-		if (this.gotError) {
-			return await super.handleResponse();
-		}
-		if (this.repo) {
-			this.responseData = {
-				repo: this.repo.getSanitizedObject({ request: this }),
-				team: this.team.getSanitizedObject({ request: this }),
-				admins: this.admins.map(user => user.getSanitizedObject({ request: this }))
-			};
-		}
-		return super.handleResponse();
+		this.responseData.forEach(entry => {
+			(entry.team.adminIds || []).forEach(adminId => {
+				const admin = this.admins.find(admin => admin.id === adminId);
+				if (admin) {
+					entry.admins.push(admin.getSanitizedObject({ request: this }));
+				}
+			});
+		});
 	}
 
 	// describe this route for help
 	static describe() {
 		return {
 			tag: 'team-lookup',
-			summary: 'Lookup team and repo info associated with the repo associated with the given commit hashes',
-			access: 'No access rules, but team that owns the matching repo must have auto-join feature turned on',
-			description: 'Will search the entire list of known repos for one that matches one or more of the given commit hashes; if found, will return info associated with that repo, including the repo, the team that owns it, and admin users on that team',
+			summary: 'Lookup team and repo info associated with the repo(s) associated with the given commit hashes',
+			access: 'No access rules, but teams that own the matching repos must have auto-join feature turned on for the given repo',
+			description: 'Will search the entire list of known repos for one that matches one or more of the given commit hashes; if found, will return an array of info associated with each matching repo, including the repo, the team that owns it, and admin users on that team',
 			input: {
 				summary: 'Specify an array of commit hashes as comma-separated values in the query',
 				looksLike: {
@@ -109,7 +116,7 @@ class TeamLookupRequest extends RestfulRequest {
 				}
 			},
 			returns: {
-				summary: 'The repo that matched, the team that owns the repo, and the admin users on the team',
+				summary: 'An array of structures including the repo that matched, the team that owns the repo, and the admin users on the team',
 				looksLike: {
 					repo: '<matching repo>',
 					team: '<owning team>',
@@ -117,7 +124,6 @@ class TeamLookupRequest extends RestfulRequest {
 				}
 			},
 			errors: [
-				'readAuth',
 				'parameterRequired'
 			]
 		};

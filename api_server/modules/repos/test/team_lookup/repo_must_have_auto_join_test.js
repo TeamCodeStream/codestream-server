@@ -6,18 +6,12 @@ const ObjectID = require('mongodb').ObjectID;
 class RepoMustHaveAutoJoinTest extends TeamLookupTest {
 
 	get description() {
-		return `should return an error when trying to lookup a team by repo and the repo does not have auto-join enabled for the team`;
+		return 'should return an empty array when trying to lookup a team by repo and the repo does not have auto-join enabled for the team';
 	}
 
-	getExpectedError() {
-		return {
-			code: 'RAPI-1009',
-			reason: 'Auto-join is not enabled for this repo and team'
-		};
-	}
-
-	// override the default call to set team settings, override by doing nothing
+	// override the default call to set team settings, override by setting auto-join for some random ID
 	setTeamSettings(callback) {
+		this.expectEmpty = true;
 		this.doApiRequest(
 			{
 				method: 'put',

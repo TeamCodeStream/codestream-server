@@ -183,21 +183,13 @@ class RepoMatcher {
 	// save commit hashes associated with their repo ID
 	async saveRepoCommitHashes (repoId, commitHashes) {
 		commitHashes = ArrayUtilities.unique(commitHashes);
-		await Promise.all(commitHashes.map(async commitHash => {
-			const op = {
-				$set: {
-					repoId: repoId.toLowerCase(),
-				}
+		const records = commitHashes.map(commitHash => {
+			return {
+				repoId: repoId.toLowerCase(),
+				commitHash
 			};
-			if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
-				op.$set._forTesting = true;
-			}
-			await this.data.reposByCommitHash.updateDirectWhenPersist(
-				{ id: commitHash },
-				op,
-				{ upsert: true }
-			);
-		}));
+		});
+		await this.data.reposByCommitHash.createMany(records, { noVersion: true });
 	}
 }
 

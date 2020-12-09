@@ -10,6 +10,9 @@ const EmptyLookupTest = require('./empty_lookup_test');
 const TeamMustHaveAutoJoinTest = require('./team_must_have_auto_join_test');
 const RepoMustHaveAutoJoinTest = require('./repo_must_have_auto_join_test');
 const AddedCommitHashTest = require('./added_commit_hash_test');
+const NoTokenTest = require('./no_token_test');
+const MultiTeamTest = require('./multi_team_test');
+const MultiTeamNoAutoJoinTest = require('./multi_team_no_auto_join_test');
 
 class TeamLookupRequestTester {
 
@@ -21,6 +24,9 @@ class TeamLookupRequestTester {
 		new TeamMustHaveAutoJoinTest().test();
 		new RepoMustHaveAutoJoinTest().test();
 		new AddedCommitHashTest().test();
+		new NoTokenTest().test();
+		new MultiTeamTest().test();
+		new MultiTeamNoAutoJoinTest().test();
 	}
 }
 
