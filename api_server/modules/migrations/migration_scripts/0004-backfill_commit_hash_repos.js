@@ -56,7 +56,9 @@ class BackfillCommitHashRepos extends Migration {
 				repoId: repo.id
 			}
 		});
-		await this.data.reposByCommitHash.createMany(records, { noVersion: true });
+		if (records.length > 0) {
+			await this.data.reposByCommitHash.createMany(records, { noVersion: true });
+		}
 		await this.data.repos.updateDirect(
 			{ id: this.data.repos.objectIdSafe(repo.id) },
 			{$set: { commitHashMapComplete: true } }
