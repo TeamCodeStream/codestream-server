@@ -11,6 +11,7 @@ const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules
 const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/errors');
 const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 
 // how long we can use the same confirmation code for
 const CONFIRMATION_CODE_USABILITY_WINDOW = 60 * 60 * 1000;
@@ -34,6 +35,7 @@ class RegisterRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
+		await this.confirmRepoSignup();		// for signup by virtue of access to a repo, confirm this is allowed
 		await this.getInvitedUser();		// get the user associated with an invite code, as needed
 		await this.getExistingUser();		// get the existing user matching this email, if any
 		if (await this.doLogin()) {			// under some circumstances, confirmation is not necessary,
@@ -41,6 +43,7 @@ class RegisterRequest extends RestfulRequest {
 		}
 		await this.generateConfirmCode();	// generate a confirmation code, as requested
 		await this.saveUser();				// save user to database
+		await this.addUserToTeam();			// add the user to a team, as needed
 		await this.generateLinkToken();		// generate a token for the confirm link, as requested
 		await this.saveTokenInfo();			// save the token info to the user object, if we're doing a confirm link
 		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
@@ -54,7 +57,18 @@ class RegisterRequest extends RestfulRequest {
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
 		// many attributes that are allowed but don't become attributes of the created user
-		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', 'wantLink', 'expiresIn', 'signupToken', 'inviteCode'].forEach(parameter => {
+		[
+			'_confirmationCheat',
+			'_subscriptionCheat',
+			'_delayEmail',
+			'wantLink',
+			'expiresIn',
+			'signupToken',
+			'inviteCode',
+			'teamId',
+			'repoId',
+			'commitHash'
+		].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
 		});
@@ -74,6 +88,45 @@ class RegisterRequest extends RestfulRequest {
 		);
 
 		this.request.body.email = this.request.body.email.trim();
+	}
+
+	// for signup by virtue of access to a repo, confirm this is allowed
+	async confirmRepoSignup() {
+		if (!this.teamId) return;
+
+		// if a team ID is given, this is a repo-based signup, and we must also have a repoID and a known commit hash
+		if (!this.repoId || typeof this.repoId !== 'string') {
+			throw this.errorHandler.error('parameterRequired', { info: 'repoId' });
+		}
+		if (!this.commitHash || typeof this.commitHash !== 'string') {
+			throw this.errorHandler.error('parameterRequired', { info: 'commitHash' });
+		}
+
+		// get the team
+		this.team = await this.data.teams.getById(this.teamId.toLowerCase());
+		if (!this.team || this.team.get('deactivated')) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+
+		// get the repo, and ensure it is owned by the team
+		this.repo = await this.data.repos.getById(this.repoId.toLowerCase());
+		if (!this.repo || this.repo.get('deactivated')) {
+			throw this.errorHandler.error('notFound', { info: 'repo' });
+		}
+		if (this.repo.get('teamId') !== this.team.id) {
+			throw this.errorHandler.error('createAuth', { reason: 'given repo is not owned by the given team' });
+		}
+
+		// the team must have auto-signup for that repo enabled
+		const settings = this.team.get('settings') || {};
+		if (!(settings.autoJoinRepos || []).includes(this.repo.id)) {
+			throw this.errorHandler.error('createAuth', { reason: 'auto-join is not turned on for this repo' });
+		}
+
+		// ensure the commit hash passed is a known commit hash for this repo
+		if (!this.repo.haveKnownCommitHashes([this.commitHash.toLowerCase()])) {
+			throw this.errorHandler.error('createAuth', { reason: 'commit hash is incorrect for this repo' });
+		}
 	}
 
 	// get the user associated with an invite code, as needed
@@ -180,11 +233,29 @@ class RegisterRequest extends RestfulRequest {
 
 		this.userCreator = new UserCreator({
 			request: this,
+			teamIds: this.team ? [this.team.id] : undefined,
+			userBeingAddedToTeamId: this.team ? this.team.id : undefined,
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
 			subscriptionCheat: this._subscriptionCheat === this.api.config.sharedSecrets.subscriptionCheat,
-			existingUser	// triggers finding the existing user at a different email than the one being registered
+			existingUser,	// triggers finding the existing user at a different email than the one being registered
+			dontSetInviteCode: true // suppress the default behavior for creating a user on a team
 		});
 		this.user = await this.userCreator.createUser(this.request.body);
+	}
+
+	// add the created user to the team indicated, for signup-by-repo
+	async addUserToTeam() {
+		if (!this.team) return;
+
+		await new AddTeamMembers({
+			request: this,
+			addUsers: [this.user],
+			team: this.team,
+			subscriptionCheat: this._subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
+		}).addTeamMembers();
+
+		// refetch the user since they changed when added to team
+		this.user = await this.data.users.getById(this.user.id);
 	}
 
 	// generate a token for the confirm link, if the client wants an email with a link rather than a code
@@ -392,7 +463,10 @@ class RegisterRequest extends RestfulRequest {
 					'preferences': '<Object representing any preferences the user wants to set as they register>',
 					'wantLink': '<Set this to send a confirmation email with a link instead of a code>',
 					'signupToken': '<Client-generated signup token, passed to signup on the web, to associate an IDE session with the new user>',
-					'inviteCode': '<Invite code associated with an invitation to this user>'
+					'inviteCode': '<Invite code associated with an invitation to this user>',
+					'teamId': '<For repo-based signup, specify team the user is joining>',
+					'repoId': '<For repo-based signup, a repo owned by the team must be passed>',
+					'commitHash': '<For repo-based signup, a commit hash known for that repo must be passed>'
 				}
 			},
 			returns: {
@@ -413,7 +487,9 @@ class RegisterRequest extends RestfulRequest {
 				'exists',
 				'validation',
 				'inviteMismatch',
-				'alreadyAccepted'
+				'alreadyAccepted',
+				'notFound',
+				'createAuth'
 			]
 		};
 	}

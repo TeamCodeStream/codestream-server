@@ -24,12 +24,20 @@ const InviteCodeRemovedAfterUseTest = require('./invite_code_removed_after_use_t
 const AlreadyInvitedTest = require('./already_invited_test');
 const InvitedUserMessageToTeamTest = require('./invited_user_message_to_team_test');
 const TrimEmailTest = require('./trim_email_test');
+const RepoBasedSignupTest = require('./repo_based_signup_test');
+const RepoBasedSignupParameterRequiredTest = require('./repo_based_signup_parameter_required_test');
+const RepoBasedSignupInvalidRepoIdTest = require('./repo_based_signup_invalid_repo_id_test');
+const RepoBasedSignupInvalidCommitHashTest = require('./repo_based_signup_invalid_commit_hash_test');
+const RepoBasedSignupTeamNotFoundTest = require('./repo_based_signup_team_not_found_test');
+const RepoBasedSignupMismatchedRepoTest = require('./repo_based_signup_mismatched_repo_test');
+const RepoBasedSignupNoAutoJoinTest = require('./repo_based_signup_no_auto_join_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class RegistrationRequestTester {
 
 	registrationTest () {
+		/*
 		new RegistrationTest().test();
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'password' }).test();
@@ -60,6 +68,15 @@ class RegistrationRequestTester {
 		new AlreadyInvitedTest().test();
 		new InvitedUserMessageToTeamTest().test();
 		new TrimEmailTest().test();
+		*/
+		new RepoBasedSignupTest().test();
+		new RepoBasedSignupParameterRequiredTest({ attribute: 'repoId' }).test();
+		new RepoBasedSignupParameterRequiredTest({ attribute: 'commitHash' }).test();
+		new RepoBasedSignupInvalidRepoIdTest().test();
+		new RepoBasedSignupInvalidCommitHashTest().test();
+		new RepoBasedSignupTeamNotFoundTest().test();
+		new RepoBasedSignupMismatchedRepoTest().test();
+		new RepoBasedSignupNoAutoJoinTest().test();
 	}
 }
 

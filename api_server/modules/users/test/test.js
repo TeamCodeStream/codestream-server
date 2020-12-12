@@ -24,6 +24,7 @@ describe('user requests', function() {
 	this.timeout(20000);
 
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
+	/*
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /no-auth/login', userRequestTester.loginTest);
 	describe('PUT /login', userRequestTester.rawLoginTest);
@@ -46,4 +47,5 @@ describe('user requests', function() {
 	describe('PUT /bump-posts', BumpPostsRequestTester.test);
 	describe('GET /no-auth/invite-info', InviteInfoRequestTester.test);
 	describe('DELETE /users/:id', DeleteUserRequestTester.test);
+	*/
 });
