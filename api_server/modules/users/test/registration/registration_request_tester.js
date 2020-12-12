@@ -31,13 +31,14 @@ const RepoBasedSignupInvalidCommitHashTest = require('./repo_based_signup_invali
 const RepoBasedSignupTeamNotFoundTest = require('./repo_based_signup_team_not_found_test');
 const RepoBasedSignupMismatchedRepoTest = require('./repo_based_signup_mismatched_repo_test');
 const RepoBasedSignupNoAutoJoinTest = require('./repo_based_signup_no_auto_join_test');
+const RepoBasedSignupMessageToTeamTest = require('./repo_based_signup_message_to_team_test');
+const RepoBasedSignupConfirmationEmailTest = require('./repo_based_signup_confirmation_email_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class RegistrationRequestTester {
 
 	registrationTest () {
-		/*
 		new RegistrationTest().test();
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'password' }).test();
@@ -55,7 +56,8 @@ class RegistrationRequestTester {
 		// if they are run in parallel
 		SerializeTests([
 			ConfirmationEmailTest,
-			AlreadyRegisteredEmailTest
+			AlreadyRegisteredEmailTest,
+			RepoBasedSignupConfirmationEmailTest
 		]);
 		new PreferencesTest().test();
 		new ReuseConfirmationCodeTest().test();
@@ -68,7 +70,6 @@ class RegistrationRequestTester {
 		new AlreadyInvitedTest().test();
 		new InvitedUserMessageToTeamTest().test();
 		new TrimEmailTest().test();
-		*/
 		new RepoBasedSignupTest().test();
 		new RepoBasedSignupParameterRequiredTest({ attribute: 'repoId' }).test();
 		new RepoBasedSignupParameterRequiredTest({ attribute: 'commitHash' }).test();
@@ -77,6 +78,7 @@ class RegistrationRequestTester {
 		new RepoBasedSignupTeamNotFoundTest().test();
 		new RepoBasedSignupMismatchedRepoTest().test();
 		new RepoBasedSignupNoAutoJoinTest().test();
+		new RepoBasedSignupMessageToTeamTest().test();
 	}
 }
 
