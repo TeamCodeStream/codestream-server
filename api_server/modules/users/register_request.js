@@ -12,6 +12,7 @@ const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules
 const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const ConfirmRepoSignup = require('./confirm_repo_signup');
 
 // how long we can use the same confirmation code for
 const CONFIRMATION_CODE_USABILITY_WINDOW = 60 * 60 * 1000;
@@ -92,41 +93,13 @@ class RegisterRequest extends RestfulRequest {
 
 	// for signup by virtue of access to a repo, confirm this is allowed
 	async confirmRepoSignup() {
-		if (!this.teamId) return;
-
-		// if a team ID is given, this is a repo-based signup, and we must also have a repoID and a known commit hash
-		if (!this.repoId || typeof this.repoId !== 'string') {
-			throw this.errorHandler.error('parameterRequired', { info: 'repoId' });
-		}
-		if (!this.commitHash || typeof this.commitHash !== 'string') {
-			throw this.errorHandler.error('parameterRequired', { info: 'commitHash' });
-		}
-
-		// get the team
-		this.team = await this.data.teams.getById(this.teamId.toLowerCase());
-		if (!this.team || this.team.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'team' });
-		}
-
-		// get the repo, and ensure it is owned by the team
-		this.repo = await this.data.repos.getById(this.repoId.toLowerCase());
-		if (!this.repo || this.repo.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'repo' });
-		}
-		if (this.repo.get('teamId') !== this.team.id) {
-			throw this.errorHandler.error('createAuth', { reason: 'given repo is not owned by the given team' });
-		}
-
-		// the team must have auto-signup for that repo enabled
-		const settings = this.team.get('settings') || {};
-		if (!(settings.autoJoinRepos || []).includes(this.repo.id)) {
-			throw this.errorHandler.error('createAuth', { reason: 'auto-join is not turned on for this repo' });
-		}
-
-		// ensure the commit hash passed is a known commit hash for this repo
-		if (!this.repo.haveKnownCommitHashes([this.commitHash.toLowerCase()])) {
-			throw this.errorHandler.error('createAuth', { reason: 'commit hash is incorrect for this repo' });
-		}
+		const info = await ConfirmRepoSignup({
+			teamId: this.teamId,
+			repoId: this.repoId,
+			commitHash: this.commitHash,
+			request: this
+		});
+		Object.assign(this, info);
 	}
 
 	// get the user associated with an invite code, as needed

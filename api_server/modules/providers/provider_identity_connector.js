@@ -145,8 +145,9 @@ class ProviderIdentityConnector {
 
 	// if user was invited to a team, add them to that team
 	async addUserToTeamAsNeeded () {
-		if (!this.signupToken || !this.signupToken.teamId) { return; }
-		this.team = await this.data.teams.getById(this.signupToken.teamId);
+		if (!this.teamId && (!this.signupToken || !this.signupToken.teamId)) { return; }
+		this.teamId = this.teamId || this.signupToken.teamId;
+		this.team = await this.data.teams.getById(this.teamId);
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}

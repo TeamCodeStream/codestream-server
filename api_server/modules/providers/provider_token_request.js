@@ -7,6 +7,7 @@ const WebErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
+const ConfirmRepoSignup = require('../users/confirm_repo_signup');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 
 class ProviderTokenRequest extends RestfulRequest {
@@ -41,6 +42,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				return;
 			}
 			await this.validateState();			// decode the state token and validate
+			await this.validateRepoInfo();		// validate repo info received in the payload
 			if (this.handleError()) {			// check for error condition passed in
 				return;
 			}
@@ -116,6 +118,7 @@ class ProviderTokenRequest extends RestfulRequest {
 					'oauth_token',
 					'signup_token',
 					'invite_code',
+					'repo_info',
 					'_mockToken',
 					'_mockEmail'
 				],
@@ -162,6 +165,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			this.userId = 'anon';
 			this.stateToken = this.request.body.signup_token;
 			this.inviteCode = this.request.body.invite_code;
+			this.repoInfo = this.request.body.repo_info;
 			this.noSignup = this.request.body.no_signup;
 			return;
 		}
@@ -198,6 +202,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.sharing = this.tokenPayload.sm;
 		this.noAllowSignup = !this.tokenPayload.suok && !this.serviceAuth.supportsSignup();
 		this.inviteCode = this.tokenPayload.ic;
+		this.repoInfo = this.tokenPayload.ri;
 		this.noSignup = this.tokenPayload.nosu;
 		this.hostUrl = this.tokenPayload.hu;
 
@@ -216,6 +221,19 @@ class ProviderTokenRequest extends RestfulRequest {
 				oauthToken: decodeURIComponent(this.request.query.oauth_token),
 				oauthTokenSecret: secretPayload.sec
 			};
+		}
+	}
+
+	// validate any repo info received in the token payload
+	async validateRepoInfo () {
+		if (this.repoInfo) {
+			const repoInfo = decodeURIComponent(this.repoInfo).split('|');
+			this.repoInfo = await ConfirmRepoSignup({
+				teamId: repoInfo[0],
+				repoId: repoInfo[1],
+				commitHash: repoInfo[2],
+				request: this
+			});
 		}
 	}
 
@@ -424,7 +442,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			okToCreateUser: this.userId === 'anon' && !this.noSignup,
 			inviteCode: this.inviteCode,
 			tokenData: this.tokenData,
-			hostUrl: this.hostUrl
+			hostUrl: this.hostUrl,
+			teamId: this.repoInfo && this.repoInfo.team && this.repoInfo.team.id
 		});
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;

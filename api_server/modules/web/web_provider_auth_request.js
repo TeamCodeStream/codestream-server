@@ -42,7 +42,8 @@ class WebProviderAuthRequest extends APIRequest {
 			inviteCode: 'ic',
 			noSignup: 'nosu',
 			tenantId: 'tid',
-			hostUrl: 'hu'
+			hostUrl: 'hu',
+			repoInfo: 'ri'
 		};
 		Object.keys(payloadMappings).forEach(mapping => {
 			if (this.request.query[mapping]) {
