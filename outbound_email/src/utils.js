@@ -502,7 +502,7 @@ const Utils = {
 		if (!permalink) {
 			return '';
 		}		
-		let url = `${permalink}?ide=default`;
+		let url = `${permalink}?ide=default&src=Email`;
 		if (additional) {
 			for (const k of Object.keys(additional)) {
 				url +=`&${k}=${additional[k]}`;
