@@ -11,7 +11,7 @@
     "async": "2.6.2",
     "aws-sdk": "2.615.0",
     "base-64": "0.1.0",
-    "bcrypt": "3.0.8",
+    "bcrypt": "5.0.0",
     "body-parser": "1.19.0",
     "botbuilder": "4.7.2",
     "commander": "4.1.1",
