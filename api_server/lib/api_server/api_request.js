@@ -202,7 +202,7 @@ class APIRequest {
 		return !!(
 			this.request &&
 			this.request.headers &&
-			this.request.headers['x-cs-for-testing']
+			this.request.headers['x-cs-test-num']
 		);
 	}
 

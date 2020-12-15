@@ -156,25 +156,14 @@ class PubNubClient {
 		else {
 			this._log(`Granting access for ${tokens} to ${channel}`, options);
 		}
-		const result = await this.pubnub.grant(
-			{
-				channels: [channel],
-				authKeys: tokens,
-				read: options.read === false ? false : true,
-				write: options.write === true ? true : false,
-				ttl: options.ttl || 0
-			}
-		);
 
-		if (result.error) {
-			this._warn(`Unable to grant access for ${tokens} to ${channel}: ${JSON.stringify(result.errorData)}`, options);
-			throw result.errorData;
-		}
-		this._log(`Successfully granted access for ${tokens} to ${channel}`, options);
-		if (options.includePresence) {
-			// doing presence requires granting access to this channel as well
-			await this.grant(tokens, channel + '-pnpres', { request: options.request });
-		}
+		return Promise.all(tokens.map(async token => {
+			const channels = [channel];
+			if (options.includePresence) {
+				channels.push(`${channel}-pnpres`);
+			}
+			await this._grantMultipleHelper(token, channels, options);
+		}));
 	}
 
 	// grant read and/or write permission to multiple channels for the specified token

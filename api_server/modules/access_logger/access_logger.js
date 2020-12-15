@@ -55,7 +55,8 @@ class AccessLogger extends APIServerModule {
 				ip = '???';
 			}
 		}
-	
+		const testNum = request.headers['x-cs-test-num'] || '';
+
 		this.api.log(
 			request.id                     + ' '   +
 			status                         + ' '   +
@@ -70,7 +71,8 @@ class AccessLogger extends APIServerModule {
 			request.headers['user-agent']  + '" "' + 
 			ide                            + '" "' +
 			pluginVersion                  + '" "' + 
-			ideVersion                     + '"' 						
+			ideVersion                     + '" '  +
+			testNum					
 		);
 	}
 }

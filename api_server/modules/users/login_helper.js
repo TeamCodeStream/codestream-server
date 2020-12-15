@@ -53,6 +53,7 @@ class LoginHelper {
 		let result;
 		try {
 			if (!this.request.request.connection) { return; }
+			if (this.request.request.headers['x-cs-test-num']) { return; }
 			let ip = this.request.request.get('x-forwarded-for');
 			if (!ip) {
 				const addr = this.request.request.connection.remoteAddress;

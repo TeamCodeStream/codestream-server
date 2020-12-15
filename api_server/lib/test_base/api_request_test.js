@@ -213,7 +213,7 @@ class APIRequestTest extends GenericTest {
 			// bot to a pubnub channel that we'll listen on
 			requestOptions.headers['X-CS-Test-Bot-Out'] = true;
 		}
-		requestOptions.headers['X-CS-For-Testing'] = true;	// makes it easy to wipe test data later on
+		requestOptions.headers['X-CS-Test-Num'] = `API-${this.testNum}`;	// makes it easy to log requests associated with particular tests
 	}
 
 	// make an API requet, and check the response for validity

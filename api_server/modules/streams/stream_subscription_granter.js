@@ -62,7 +62,7 @@ class StreamSubscriptionGranter  {
 			);
 		}
 		catch (error) {
-			throw `unable to grant permissions for subscription (${channel}): ${error}`;
+			throw `unable to ${func} permissions for subscription (${channel}): ${error}`;
 		}
 	}
 }

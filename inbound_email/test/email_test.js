@@ -413,7 +413,7 @@ class EmailTest {
 		options.headers['X-CS-Block-Email-Sends'] = true;
 		options.headers['X-CS-Block-Tracking'] = true;
 		options.headers['X-CS-Block-Bot-Out'] = true;
-		options.headers['X-CS-For-Testing'] = true;	
+		options.headers['X-CS-Test-Num'] = `IBE-${this.testNum}`;	
 
 		const method = options.method || 'get';
 		const path = options.path || '/';
