@@ -1,7 +1,5 @@
 'use strict';
 
-const { describe } = require("../../register_request");
-
 const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 const User = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');

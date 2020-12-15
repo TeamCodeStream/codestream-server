@@ -27,7 +27,7 @@ class PostProviderTokenRequestTester {
 			new NoSignUpTest({ provider }).test();
 			new ExistingUnregisteredUserTest({ provider }).test();
 			new ExistingRegisteredUserTest({ provider }).test();
-			});
+		});
 		new UnknownProviderTest().test();
 		new InvalidProviderTest().test();
 		new TokenRequiredTest({ provider: 'github' }).test();

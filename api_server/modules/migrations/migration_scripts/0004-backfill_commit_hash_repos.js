@@ -54,7 +54,7 @@ class BackfillCommitHashRepos extends Migration {
 			return {
 				commitHash,
 				repoId: repo.id
-			}
+			};
 		});
 		if (records.length > 0) {
 			await this.data.reposByCommitHash.createMany(records, { noVersion: true });

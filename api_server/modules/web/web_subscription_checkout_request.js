@@ -72,7 +72,7 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 		}
 
 		this.numSeats = parseInt(this.request.query.seats, 10);
-		if (this.numSeats == NaN || this.numSeats < 1 || this.numSeats.toString() !== this.request.query.seats.trim()) {
+		if (isNaN(this.numSeats) || this.numSeats < 1 || this.numSeats.toString() !== this.request.query.seats.trim()) {
 			throw this.errorHandler.error('invalidParameter', { info: 'seats' });
 		}
 

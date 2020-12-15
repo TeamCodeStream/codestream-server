@@ -444,7 +444,7 @@ class APIServer {
 	// handle a service-to-service request for data, that would normally be stored in mongo,
 	// used only for tests running in mock mode
 	async handleMockDataRequest (request, response) {
-		const { secret, collection, func, clientRequestId, data } = request.query;
+		const { secret, collection, func, data } = request.query;
 		if (secret !== this.config.broadcastEngine.codestreamBroadcaster.secrets.api) {
 			return response.sendStatus(401);
 		}

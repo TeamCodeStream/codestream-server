@@ -100,7 +100,7 @@ class CommonInit {
 				...newFileStreamsPlaceholder
 			];
 
-			this.expectedResponse = {
+		this.expectedResponse = {
 			codemark: {
 				_id: this.codemark.id,	// DEPRECATE ME
 				id: this.codemark.id,

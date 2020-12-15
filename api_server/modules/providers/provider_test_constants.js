@@ -176,6 +176,6 @@ const GetStandardProviderHosts = function(config) {
 		delete ProviderHosts['okta*com'];
 	}
 	return ProviderHosts;
-}
+};
 
 module.exports = GetStandardProviderHosts;

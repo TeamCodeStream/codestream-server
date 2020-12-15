@@ -41,6 +41,6 @@ const ConfirmRepoSignup = async options => {
 	}
 
 	return { team, repo };
-}
+};
 
 module.exports = ConfirmRepoSignup;

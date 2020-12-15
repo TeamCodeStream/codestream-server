@@ -5,7 +5,7 @@ const RepoBasedSignupTest = require('./repo_based_signup_test');
 class RepoBasedSignupInvalidCommitHashTest extends RepoBasedSignupTest {
 
 	get description() {
-		return `should return error when registering using repo-based signup with a commit hash that does not match the known commit hashes for the repo`;
+		return 'should return error when registering using repo-based signup with a commit hash that does not match the known commit hashes for the repo';
 	}
 
 	getExpectedError() {

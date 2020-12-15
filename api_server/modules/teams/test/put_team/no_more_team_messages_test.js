@@ -46,7 +46,7 @@ class NoMoreTeamMessagesTest extends Aggregation(CodeStreamMessageTest, CommonIn
 	// message ... this seems necessary to ensure we get the proper revoke
 	// message once permission is revoked by the server
 	waitForSubscribe (callback) {
-		this.testLog(`Waiting 3000ms for subscribe...`);
+		this.testLog('Waiting 3000ms for subscribe...');
 		setTimeout(callback, 3000);
 	}
 

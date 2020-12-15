@@ -19,7 +19,7 @@ class BitbucketAuthorizer {
 		this.accessToken = accessToken;
 		this.providerInfo = this.providerInfo || providerInfo;
 		const userData = await this.bitbucketApiRequest('user');
-		const emailData = await this.bitbucketApiRequest(`user/emails`);
+		const emailData = await this.bitbucketApiRequest('user/emails');
 		this.request.log('user data: ' + JSON.stringify(userData, undefined, 5));
 		this.request.log('email data: ' + JSON.stringify(emailData, undefined, 5));
 		if (!userData || !emailData) {

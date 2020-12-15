@@ -6,7 +6,7 @@ const ObjectID = require('mongodb').ObjectID;
 class RepoBasedSignupTeamNotFoundTest extends RepoBasedSignupTest {
 
 	get description() {
-		return `should return error when registering using repo-based signup with a team ID for a team that does not exist`;
+		return 'should return error when registering using repo-based signup with a team ID for a team that does not exist';
 	}
 
 	getExpectedError() {

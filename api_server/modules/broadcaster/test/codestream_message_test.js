@@ -225,7 +225,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	// wait some period after we subscribe before generating the test message
 	// in most cases, we don't need to wait, override this to wait longer
 	waitForSubscribe (callback) {
-		this.testLog(`Waiting 0 for subscribe...`);
+		this.testLog('Waiting 0 for subscribe...');
 		setTimeout(callback, 0);
 	}
 

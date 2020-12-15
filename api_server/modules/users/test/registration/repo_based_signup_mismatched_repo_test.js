@@ -6,7 +6,7 @@ const TestTeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/li
 class RepoBasedSignupMismatchedRepoTest extends RepoBasedSignupTest {
 
 	get description() {
-		return `should return error when registering using repo-based signup with a repo ID for a repo not owned by the team`;
+		return 'should return error when registering using repo-based signup with a repo ID for a repo not owned by the team';
 	}
 
 	getExpectedError() {
@@ -31,7 +31,7 @@ class RepoBasedSignupMismatchedRepoTest extends RepoBasedSignupTest {
 				callback();
 			});
 
-		})
+		});
 	}
 }
 

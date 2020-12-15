@@ -4,7 +4,6 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
-const VersionInfo = require('./version_info');
 
 class VersionRequest extends RestfulRequest {
 	

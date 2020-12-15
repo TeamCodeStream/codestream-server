@@ -59,7 +59,7 @@ class UnregisteredOnTwoTeamsTest extends RemoveUsersTest {
 	// run the actual test...
 	run (callback) {
 		super.run(callback);
-/*
+		/*
 		// in running the test, we'll take the unregistered user who was removed from a team (their last team),
 		// and go through a normal sign-up flow ... this should work without a hitch
 		BoundAsync.series(this, [

@@ -34,7 +34,7 @@ class CommonInit {
 	makePath (callback) {
 		const data = this.getRequestData();
 		this.path = '/no-auth/team-lookup?' + Object.keys(data).map(key => {
-			return `${key}=${encodeURIComponent(data[key])}`
+			return `${key}=${encodeURIComponent(data[key])}`;
 		}).join('&');
 		this.modifiedAfter = Date.now();
 		return callback();

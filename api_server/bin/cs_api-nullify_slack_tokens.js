@@ -134,7 +134,7 @@ class Nullifier {
 					before: user.version,
 					after: user.version + 1
 				}
-		 	}),
+			}),
 			requestId
 		};
 		const channel = `user-${user.id}`;

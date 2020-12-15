@@ -53,7 +53,7 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 		if (!unpaidPlans.includes(this.company.get('plan'))) {
 			return super.render('error', {
 				title: 'Subscription Changes',
-				body: `Please contact <a href="mailto:sales@codestream.com">sales@codestream.com</a> if you would like to make changes to your subscription.`
+				body: 'Please contact <a href="mailto:sales@codestream.com">sales@codestream.com</a> if you would like to make changes to your subscription.'
 			});
 		}
 

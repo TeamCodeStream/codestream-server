@@ -126,7 +126,7 @@ class ProviderTokenRequest extends RestfulRequest {
 					'data'
 				]
 			}
-		}
+		};
 		if (this.isClientToken) {
 			requireAllow.required = {
 				string: ['token']
@@ -324,6 +324,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	}
 
 	// save the provided token for the user
+	/* eslint complexity: 0 */
 	async saveToken () {
 		const input = this.isClientToken ? this.request.query : this.request.body;
 		const token = (this.tokenData && this.tokenData.accessToken) || input.token;

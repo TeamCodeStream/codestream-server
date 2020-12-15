@@ -6,7 +6,7 @@ const ObjectID = require('mongodb').ObjectID;
 class RepoBasedSignupInvalidRepoIdTest extends RepoBasedSignupTest {
 
 	get description() {
-		return `should return error when registering using repo-based signup with a repo ID for a repo that does not exist`;
+		return 'should return error when registering using repo-based signup with a repo ID for a repo that does not exist';
 	}
 
 	getExpectedError() {
