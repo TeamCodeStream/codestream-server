@@ -79,7 +79,7 @@ class RepoCreator extends ModelCreator {
 			return;
 		}
 		const parsedPath = Path.parse(this.attributes.remotes[0].normalizedUrl);
-		this.attributes.name = parsedPath.name;
+		this.attributes.name = parsedPath.name + (parsedPath.ext || '');
 	}
 }
 
