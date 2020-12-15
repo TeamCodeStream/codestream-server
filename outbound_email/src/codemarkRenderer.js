@@ -106,10 +106,10 @@ class CodemarkRenderer extends RendererBase {
 
 	// render the author line
 	renderAuthorDiv (options) {
-		const { codemark, creator, timeZone } = options;
+		const { codemark, codemarkCreator, timeZone } = options;
 		const authorOptions = {
 			time: codemark.createdAt,
-			creator,
+			creator: codemarkCreator,
 			timeZone,
 			datetimeField: 'datetime'
 		};

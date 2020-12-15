@@ -347,14 +347,21 @@ class EmailNotificationV2Handler {
 		};
 		// HACK ugh, don't want to do this here...	
 		this.renderOptions.clickUrl = Utils.getIDEUrl(((this.renderOptions.review || this.renderOptions.codemark) || {}).permalink, null);
+
 		if (this.post.parentPostId) {
-			const creatorId = (this.parentCodemark || this.parentReview).creatorId;
+			let creatorId;
+			if (this.grandparentPost) {
+				creatorId = this.parentPost.creatorId;
+			} else {
+				creatorId = (this.parentCodemark || this.parentReview).creatorId;
+			}
 			this.renderOptions.parentObjectCreator = this.teamMembers.find(member => member.id === creatorId);
 
 			if (this.parentReview) {
 				if (this.codemark) {
 					// new codemark for a review
 					this.renderOptions.parentObject = this.parentReview;
+					this.renderOptions.codemarkCreator = this.renderOptions.creator;
 					const reviewContent = new ReviewRenderer().renderCollapsed(this.renderOptions);
 					const codemarkContent = new CodemarkRenderer().render({ ...this.renderOptions, 
 						suppressNewContent: true 
@@ -365,7 +372,8 @@ class EmailNotificationV2Handler {
 				else if (this.parentCodemark) {
 					// new reply to a codemark in a review
 					// here, we aren't showing the full review object, just the review header in the codemark
-					this.renderOptions.parentObject = this.parentCodemark;					
+					this.renderOptions.parentObject = this.parentCodemark;
+					this.renderOptions.codemarkCreator = this.renderOptions.parentObjectCreator;
 					const parentCodemark = new CodemarkRenderer().render({ ...this.renderOptions, 
 						includeActivity: true,
 						suppressNewContent: true, 
@@ -385,6 +393,7 @@ class EmailNotificationV2Handler {
 			else if (this.parentCodemark) {
 				// new reply to a codemark
 				this.renderOptions.parentObject = this.parentCodemark;
+				this.renderOptions.codemarkCreator = this.renderOptions.parentObjectCreator;
 				const codemarkContent = new CodemarkRenderer().renderCollapsed({...this.renderOptions, includeActivity: true});
 				this.renderedHtml = new ReplyRenderer().render(this.renderOptions, codemarkContent);
 				return;
@@ -392,6 +401,7 @@ class EmailNotificationV2Handler {
 		}
 		else if (this.codemark) {
 			// new codemark
+			this.renderOptions.codemarkCreator = this.renderOptions.creator;
 			this.renderedHtml = new CodemarkRenderer().render(this.renderOptions);
 			return;
 		}
