@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.10] - 2020-12-17
+
+### Fixed
+
+- Fixes an issue with the attribution of replies to codemarks in a feedback request
+
 ## [8.2.9] - 2020-12-4
 
 ### Changed

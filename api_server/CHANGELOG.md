@@ -1,5 +1,16 @@
 # Change Log
 
+## [8.2.13] - 2020-12-17
+
+### Added
+
+- Adds backend support for people joining teams based on repository access
+- Adds backend support for admins restricting available integrations and authentication options
+
+### Fixed
+
+- Fixes an issue with the refreshing of Bitbucket tokens
+
 ## [8.2.12] - 2020-12-4
 
 ### Added
