@@ -13,6 +13,7 @@ const AddedCommitHashTest = require('./added_commit_hash_test');
 const NoTokenTest = require('./no_token_test');
 const MultiTeamTest = require('./multi_team_test');
 const MultiTeamNoAutoJoinTest = require('./multi_team_no_auto_join_test');
+const RepoUpdateTest = require('./repo_update_test');
 
 class TeamLookupRequestTester {
 
@@ -27,6 +28,7 @@ class TeamLookupRequestTester {
 		new NoTokenTest().test();
 		new MultiTeamTest().test();
 		new MultiTeamNoAutoJoinTest().test();
+		new RepoUpdateTest().test();
 	}
 }
 

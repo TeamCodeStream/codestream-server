@@ -8,13 +8,14 @@ const ExtractCompanyIdentifier = require(process.env.CSSVC_BACKEND_ROOT + '/api_
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const RepoCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_creator');
 const NormalizeURL = require('./normalize_url');
+const AddCommitHashesByRepo = require('./add_commit_hashes_by_repo');
 
 class RepoMatcher {
 
 	constructor (options) {
 		Object.assign(this, options);
-		if (!this.teamId) {
-			throw 'must provide teamId when matching repos';
+		if (!this.team) {
+			throw 'must provide team when matching repos';
 		}
 		['transforms', 'data', 'errorHandler'].forEach(prop => {
 			this[prop] = this.request[prop];
@@ -22,8 +23,8 @@ class RepoMatcher {
 	}
 
 	async findOrCreateRepo (repoInfo) {
-		if (!this.teamId) {
-			throw 'must provide teamId when matching repos';
+		if (!this.team) {
+			throw 'must provide team when matching repos';
 		}
 		if (!this.teamRepos) {
 			await this.getTeamRepos();
@@ -74,7 +75,7 @@ class RepoMatcher {
 	async getTeamRepos () {
 		this.teamRepos = await this.data.repos.getByQuery(
 			{ 
-				teamId: this.teamId
+				teamId: this.team.id
 			},
 			{ 
 				hint: RepoIndexes.byTeamId 
@@ -84,19 +85,13 @@ class RepoMatcher {
 
 	// create a new repo with the given remotes
 	async createRepo (repoInfo) {
-		const repoData = Object.assign({}, repoInfo, { teamId: this.teamId });
+		const repoData = Object.assign({}, repoInfo, { teamId: this.team.id });
 		const newRepo = await new RepoCreator({
 			request: this.request
 		}).createRepo(repoData);
 		this.transforms.createdRepos = this.transforms.createdRepos || [];
 		this.transforms.createdRepos.push(newRepo);
 		this.teamRepos.push(newRepo);
-
-		// also save new known commit hashes
-		if (repoInfo.knownCommitHashes && repoInfo.knownCommitHashes.length > 0) {
-			await this.saveRepoCommitHashes(newRepo.id, repoInfo.knownCommitHashes);
-		}
-
 		return newRepo;
 	}
 
@@ -152,9 +147,13 @@ class RepoMatcher {
 			this.transforms.repoUpdates.push(repoUpdateOp);
 		}
 
-		// also save new known commit hashes 
+		// if this repo is on the "auto-join" list for the team, save new known commit hashes 
 		if (addCommitHashes.length > 0) {
-			await this.saveRepoCommitHashes(repo.id, addCommitHashes);
+			const settings = this.team.get('settings') || {};
+			const autoJoinRepos = settings.autoJoinRepos || [];
+			if (autoJoinRepos.includes(repo.id)) {
+				await AddCommitHashesByRepo(repo, this.data);
+			}
 		}
 	}
 
@@ -178,18 +177,6 @@ class RepoMatcher {
 			}
 		}
 		return { newRemotes, newCommitHashes, existingRepoUpdateOp };
-	}
-
-	// save commit hashes associated with their repo ID
-	async saveRepoCommitHashes (repoId, commitHashes) {
-		commitHashes = ArrayUtilities.unique(commitHashes);
-		const records = commitHashes.map(commitHash => {
-			return {
-				repoId: repoId.toLowerCase(),
-				commitHash
-			};
-		});
-		await this.data.reposByCommitHash.createMany(records, { noVersion: true });
 	}
 }
 

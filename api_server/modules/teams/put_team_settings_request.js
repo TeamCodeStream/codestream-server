@@ -5,6 +5,7 @@
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const { opFromHash } = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/model_ops');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const AddCommitHashesByRepo = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/add_commit_hashes_by_repo');
 
 const MAX_KEYS = 100;
 
@@ -30,6 +31,10 @@ class PutTeamSettingsRequest extends RestfulRequest {
 		if (typeof op === 'string') {
 			throw this.errorHandler.error('invalidParameter', { info: op });
 		}
+
+		// handle autoJoinRepos, which triggers saving the commit hash mappings for the repos added
+		await this.handleAutoJoinRepos(op);
+
 		op.$set = op.$set || {};
 		op.$set.modifiedAt = Date.now();
 		this.updateOp = await new ModelSaver({
@@ -37,6 +42,23 @@ class PutTeamSettingsRequest extends RestfulRequest {
 			collection: this.data.teams,
 			id: this.team.id
 		}).save(op);
+	}
+
+	// handle autoJoinRepos, which triggers saving the commit hash mappings for the repos added
+	async handleAutoJoinRepos (op) {
+		const autoJoinRepos = (op.$set || {})['settings.autoJoinRepos'] || [];
+		if (autoJoinRepos.length === 0) {
+			return;
+		}
+
+		// get the repos for which auto-join is being turned on, make sure they are all owned by this team
+		let repos = await this.data.repos.getByIds(op.$set['settings.autoJoinRepos']);
+		repos = repos.filter(repo => repo.get('teamId') === this.team.id);
+
+		// for each repo, look for known commit hashes that aren't already mapped, and map them
+		await Promise.all(repos.map(async repo => {
+			await AddCommitHashesByRepo(repo, this.data);
+		}));
 	}
 
 	// handle returning the response

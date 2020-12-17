@@ -19,10 +19,14 @@ class MatchReposRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
+		const team = await this.data.teams.getById(this.teamId);
+		if (!team) {
+			throw this.errorHandler.error('notFound', { info: this.team }); // shouldn't happen
+		}
 
 		const repoMatcher = new RepoMatcher({
 			request: this,
-			teamId: this.teamId
+			team
 		});
 		this.repoIds = [];
 		for (let repo of this.request.body.repos) {

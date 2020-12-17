@@ -99,7 +99,7 @@ class AddMarkersRequest extends RestfulRequest {
 		);
 		this.repoMatcher = new RepoMatcher({
 			request: this,
-			teamId: this.team.id,
+			team: this.team,
 			teamRepos: this.teamRepos
 		});
 	}	

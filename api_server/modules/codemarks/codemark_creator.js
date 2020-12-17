@@ -138,7 +138,7 @@ class CodemarkCreator extends ModelCreator {
 			await this.getTeamRepos();
 			this.repoMatcher = new RepoMatcher({
 				request: this.request,
-				teamId: this.team.id,
+				team: this.team,
 				teamRepos: this.teamRepos
 			});
 		}

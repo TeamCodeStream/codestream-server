@@ -21,10 +21,19 @@ class MoveRequest extends RestfulRequest {
 
 	// process the request...
 	async process () {
+		await this.getTeam();			// get the team, required for marker creation
 		await this.getTeamRepos();		// get all the repos for a team, required for marker creation
 		await this.createNewMarker();	// create a new marker, this supersedes the previous marker
 		await this.updateMarker();		// update the superseded marker with the new marker
 		await this.updateCodemark();	// update the markers pointed to by the codemark
+	}
+
+	// get the team
+	async getTeam () {
+		this.team = await this.data.teams.getById(this.marker.get('teamId'));
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'team' }); // shouldn't happen
+		}
 	}
 
 	// get all the repos known to this team, we'll try to match the repo that any
@@ -32,7 +41,7 @@ class MoveRequest extends RestfulRequest {
 	async getTeamRepos () {
 		this.teamRepos = await this.data.repos.getByQuery(
 			{ 
-				teamId: this.marker.get('teamId')
+				teamId: this.team.id
 			},
 			{ 
 				hint: RepoIndexes.byTeamId 
@@ -40,7 +49,7 @@ class MoveRequest extends RestfulRequest {
 		);
 		this.repoMatcher = new RepoMatcher({
 			request: this,
-			teamId: this.marker.get('teamId'),
+			team: this.team,
 			teamRepos: this.teamRepo
 		});
 	}
@@ -154,8 +163,7 @@ class MoveRequest extends RestfulRequest {
 
 	// publish the change in marker data to the team
 	async publishMarker () {
-		const teamId = this.marker.get('teamId');
-		const channel = 'team-' + teamId;
+		const channel = `team-${this.team.id}`;
 		const message = {
 			...this.responseData,
 			requestId: this.request.id
@@ -169,7 +177,7 @@ class MoveRequest extends RestfulRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish marker move message to team ${teamId}: ${JSON.stringify(error)}`);
+			this.warn(`Could not publish marker move message to team ${this.team.id}: ${JSON.stringify(error)}`);
 		}
 	}
 

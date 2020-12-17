@@ -201,13 +201,15 @@ class GenericTest {
 	}
 
 	outputLogs () {
-		const time = Strftime('%Y-%m-%d %H:%M:%S.%LZ', new Date());
-		console.warn('********************************************************************************');
-		console.warn(`${time} TEST ${this.testNum} FAILED:`);
-		for (const log of this.testLogs) {
-			console.warn(log);
+		if (!process.env.SUPPRESS_TEST_LOGGING) {
+			const time = Strftime('%Y-%m-%d %H:%M:%S.%LZ', new Date());
+			console.warn('********************************************************************************');
+			console.warn(`${time} TEST ${this.testNum} FAILED:`);
+			for (const log of this.testLogs) {
+				console.warn(log);
+			}
+			console.warn('********************************************************************************\n');
 		}
-		console.warn('********************************************************************************\n');
 	}
 }
 
