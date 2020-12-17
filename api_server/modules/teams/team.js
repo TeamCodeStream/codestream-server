@@ -40,15 +40,6 @@ class Team extends CodeStreamModel {
 		}
 		return object;
 	}
-
-	// return whether a user is a current member of this team, notably returns false if the user
-	// has been removed
-	hasMember (userId) {
-		return (
-			(this.get('memberIds') || []).includes(userId) &&
-			!(this.get('removedMemberIds') || []).includes(userId)
-		);
-	}
 }
 
 module.exports = Team;

@@ -151,7 +151,7 @@ class ProviderIdentityConnector {
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
-		if (this.team.hasMember(this.user.id)) {
+		if (this.team.get('memberIds').includes(this.user.id)) {
 			return;
 		}
 		await new AddTeamMembers({
