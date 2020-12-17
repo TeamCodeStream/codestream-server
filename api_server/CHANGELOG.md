@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.14] - 2020-12-17
+
+### Changed
+
+- Update to repo-matching logic for new repo-based joining feature
+
 ## [8.2.13] - 2020-12-17
 
 ### Added
