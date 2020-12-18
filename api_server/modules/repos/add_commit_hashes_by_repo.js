@@ -11,7 +11,6 @@ const AddCommitHashesByRepo = async function (repo, data) {
 		commitHashes.push(repo.get('firstCommitHash'));
 	}
 	commitHashes = ArrayUtilities.unique(commitHashes);
-console.warn('commitHashes for repo are', commitHashes);
 
 	// look for existing records, we don't want to create duplicates
 	// (for instance, if the repo was added then removed from auto-join, then it will already have records)
@@ -19,17 +18,14 @@ console.warn('commitHashes for repo are', commitHashes);
 		{ commitHash: { $in: commitHashes } },
 		{ hint: RepoByCommitHashIndexes.byCommitHash }
 	);
-console.warn('existing records:', records);
 
 	// reduce to the records relevant to this repo
 	records = records.filter(record => record.get('repoId') === repo.id); 
-console.warn('records owned by repo', records);
 
 	// reduce to the commit hashes we don't have mappings for, for this repo
 	const needCommitHashes = commitHashes.filter(commitHash => {
 		return !records.find(record => record.get('commitHash') === commitHash);
 	});
-console.warn('need commit hashes:', needCommitHashes);
 
 	if (needCommitHashes.length > 0) {
 		// create the mappings
@@ -39,7 +35,6 @@ console.warn('need commit hashes:', needCommitHashes);
 				commitHash
 			};
 		});
-console.warn('ADDING:', records)
 		await data.reposByCommitHash.createMany(recordsToAdd, { noVersion: true });
 	}
 };
