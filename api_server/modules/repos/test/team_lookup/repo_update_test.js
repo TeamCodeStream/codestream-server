@@ -20,7 +20,6 @@ class RepoUpdateTest extends TeamLookupTest {
 	// add a new known commit hash to the test repo by posting a new codemark to it, using the commit hash
 	updateRepo (callback) {
 		this.useCommitHash = this.markerFactory.randomCommitHash();
-console.warn('UPDATING REPO WITH COMMIT HASH', this.useCommitHash);
 		this.postFactory.createRandomPost(
 			callback,
 			{
@@ -37,7 +36,6 @@ console.warn('UPDATING REPO WITH COMMIT HASH', this.useCommitHash);
 	// get the data to be used for the test request
 	getRequestData () {
 		if (this.useCommitHash) {
-console.warn('GETTING REQUEST DATA WITH THS USED COMMIT HASH:', this.useCommitHash);
 			return { 
 				commitHashes: [this.useCommitHash]
 			};

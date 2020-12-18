@@ -58,7 +58,7 @@ class MultiTeamTest extends TeamLookupTest {
 	validateResponse(data, ignoreSecond=false) {
 		if (!ignoreSecond) {
 			data.sort((a, b) => {
-				return a.repo.id.localeCompare(b.repo.id);
+				return a.repo.createdAt > b.repo.createdAt ? 1 : -1;
 			});
 			Assert.strictEqual(data[1].repo.id, this.secondRepo.id, 'returned repo should match the second repo');
 			Assert.strictEqual(data[1].team.id, this.secondTeam.id, 'returned team should match the second team');
