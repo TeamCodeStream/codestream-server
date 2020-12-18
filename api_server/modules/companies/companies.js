@@ -16,6 +16,15 @@ const COMPANY_STANDARD_ROUTES = {
 	}
 };
 
+// expose additional routes
+const COMPANY_ADDITIONAL_ROUTES = [
+	{
+		method: 'put',
+		path: '/company-test-group/:id',
+		requestClass: require('./put_company_test_group_request')
+	}
+];
+
 class Companies extends Restful {
 
 	get collectionName () {
@@ -44,10 +53,12 @@ class Companies extends Restful {
 	}
 */
 
+	// compile all the routes to expose
 	getRoutes () {
-		// routes the module will expose
-		return super.getRoutes(COMPANY_STANDARD_ROUTES);
+		let standardRoutes = super.getRoutes(COMPANY_STANDARD_ROUTES);
+		return [...standardRoutes, ...COMPANY_ADDITIONAL_ROUTES];
 	}
+
 }
 
 module.exports = Companies;

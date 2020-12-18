@@ -73,5 +73,10 @@ module.exports = {
 		maxLength: 1000,
 		description: 'Info associated with the stripe payment',
 		serverOnly: true
+	},
+	testGroups: {
+		type: 'object',
+		maxLength: 200,
+		description: 'Info indicating random test group assignments'
 	}
 };

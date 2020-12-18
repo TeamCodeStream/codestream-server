@@ -86,5 +86,9 @@ module.exports = {
 	'autoJoin': {
 		description: 'Supports auto-join API call, to auto-join a team based on open repos in IDE',
 		version: '8.2.13'
+	},
+	'testGroups': {
+		description: 'Supports the /company-test-groups/:id call, to set randomized test groups for a company',
+		version: '8.2.15'
 	}
 };
