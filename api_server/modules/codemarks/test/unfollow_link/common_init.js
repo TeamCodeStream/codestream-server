@@ -47,7 +47,7 @@ class CommonInit {
 	// since test group data becomes super-properties in the telemetry tracking, we use
 	// this to make sure the appropriate super-properties are set
 	makeCompanyTestGroups (callback) {
-		if (!this.makeTestGroupData) { return; }
+		if (!this.makeTestGroupData) { return callback(); }
 		this.testGroupData = {
 			'testGroup1': 'A',
 			'testGroup2': 'B'
