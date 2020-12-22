@@ -11,6 +11,7 @@ class TrackingTest extends InboundEmailMessageTest {
 	}
 
 	setTestOptions (callback) {
+		this.makeTestGroupData = true;
 		super.setTestOptions(() => {
 			this.teamOptions.creatorIndex = 0;
 			this.repoOptions.creatorIndex = 0;
@@ -85,6 +86,9 @@ class TrackingTest extends InboundEmailMessageTest {
 		const parentType = this.expectedParentType || 'Codemark';
 		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
 		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
+		const abTest = Object.keys(this.testGroupData).map(key => {
+			return `${key}|${this.testGroupData[key]}`;
+		});
 		const { properties } = data;
 		const errors = [];
 		let result = (
@@ -120,6 +124,7 @@ class TrackingTest extends InboundEmailMessageTest {
 				((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
 			);
 		}
+		Assert.deepStrictEqual(properties['AB Test'], abTest, 'AB Test is not correct');
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		return true;
 	}

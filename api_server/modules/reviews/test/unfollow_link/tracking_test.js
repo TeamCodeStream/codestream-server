@@ -14,6 +14,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// before the test runs...
 	makeData (callback) {
+		this.makeTestGroupData = true;
 		this.init(callback);
 	}
 
@@ -77,7 +78,10 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					name: this.company.name,
 					created_at: new Date(this.company.createdAt).toISOString(),
 					plan
-				}
+				},
+				'AB Test': Object.keys(this.testGroupData).map(key => {
+					return `${key}|${this.testGroupData[key]}`;
+				})
 			}
 		};
 		if (trial) {

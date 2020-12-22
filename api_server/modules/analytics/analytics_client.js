@@ -110,6 +110,11 @@ class AnalyticsClient {
 			if (company.get('trialEndDate')) {
 				trackObject.company.trialEnd_at = new Date(company.get('trialEndDate')).toISOString();
 			}
+			if (company.get('testGroups')) {
+				trackObject['AB Test'] = Object.keys(company.get('testGroups')).map(key => {
+					return `${key}|${company.get('testGroups')[key]}`;
+				});
+			}
 		}
 
 		Object.assign(trackObject, data);

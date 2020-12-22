@@ -21,12 +21,17 @@ module.exports = function(options) {
 	const companyId = company && company.id;
 	const companyPlan = company && company.get('plan');
 	const companyCreatedAt = company && new Date(company.get('createdAt')).toISOString();
-	let trialStartAt, trialEndAt;
+	let trialStartAt, trialEndAt, abTest;
 	if (company && company.get('trialStartDate')) {
 		trialStartAt = new Date(company.get('trialStartDate')).toISOString();
 	}
 	if (company && company.get('trialEndDate')) {
 		trialEndAt = new Date(company.get('trialEndDate')).toISOString();
+	}
+	if (company && company.get('testGroups')) {
+		abTest = Object.keys(company.get('testGroups')).map(key => {
+			return `${key}|${company.get('testGroups')[key]}`;
+		});
 	}
 
 	const props = {
@@ -47,7 +52,8 @@ module.exports = function(options) {
 		companyId,
 		companyCreatedAt,
 		trialStartAt,
-		trialEndAt
+		trialEndAt,
+		abTest
 	};
 	return module.evalTemplateNoSend('identify_script', props);
 };

@@ -11,6 +11,7 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
+			this.makeCompanyTestGroups,
 			this.makePostData		
 		], callback);
 	}
@@ -29,6 +30,26 @@ class CommonInit {
 			this.repoOptions.creatorIndex = 1;
 		}
 		callback();
+	}
+
+	// make some company test group data, as needed
+	// since test group data becomes super-properties in the telemetry tracking, we use
+	// this to make sure the appropriate super-properties are set
+	makeCompanyTestGroups (callback) {
+		if (!this.makeTestGroupData) { return; }
+		this.testGroupData = {
+			'testGroup1': 'A',
+			'testGroup2': 'B'
+		};
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/company-test-group/' + this.company.id,
+				token: this.currentUser.accessToken,
+				data: this.testGroupData
+			},
+			callback
+		);
 	}
 
 	// make the data to be used in the request that triggers the message
