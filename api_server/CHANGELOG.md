@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.15] - 2020-12-22
+
+### Changed
+
+- Update to use V2 OAuth 2.0 flow for Slack authentication
+
 ## [8.2.14] - 2020-12-17
 
 ### Changed
