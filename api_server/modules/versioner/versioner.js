@@ -101,7 +101,8 @@ class Versioner extends APIServerModule {
 			// available, but not required
 			// pluginIDEDetail: request.headers['x-cs-plugin-ide-detail'],
 			pluginVersion: request.headers['x-cs-plugin-version'],
-			readFromDatabase: this.api.config.sharedGeneral.runTimeEnvironment !== 'prod' && request.headers['x-cs-read-version-from-db']
+			// FIXME: env based logic should be moved to custom_config.js and prod-only execution should be eliminated
+			readFromDatabase: !this.api.config.sharedGeneral.isProductionCloud && request.headers['x-cs-read-version-from-db']
 		});
 		response.set('X-CS-Version-Disposition', versionCompatibility.versionDisposition);
 
@@ -138,7 +139,8 @@ class Versioner extends APIServerModule {
 
 	// handle setting a mock version in the compatibility matrix, for testing
 	handleMockVersion (request, response) {
-		if (this.api.config.sharedGeneral.runTimeEnvironment !== 'prod') {
+		// FIXME: env based logic should be moved to custom_config.js and prod-only execution should be eliminated
+		if (!this.api.config.sharedGeneral.isProductionCloud) {
 			this.api.data.versionMatrix.create(request.body);
 			response.send({});
 		}
@@ -149,7 +151,7 @@ class Versioner extends APIServerModule {
 
 	// initialize this module
 	async initialize () {
-		if (this.api.config.sharedGeneral.runTimeEnvironment !== 'prod') {
+		if (!this.api.config.sharedGeneral.isProductionCloud) {
 			const apiTestVersion = await this.api.data.versionMatrix.getOneByQuery(
 				{ apiTestVersion: { $exists: true } },
 				{ overrideHintRequired: true }

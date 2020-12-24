@@ -181,8 +181,11 @@ module.exports = function customConfigFunc(nativeCfg) {
 
 	// admin
 	if (Cfg.adminServer) {
-		console.log(Cfg.adminServer);
+		// console.log(Cfg.adminServer);
 		Cfg.adminServer.logger.basename = 'opadm'
+	}
+	else {
+		Cfg.adminServer = { adminServerDisabled: true }
 	}
 
 	// api
@@ -291,6 +294,12 @@ module.exports = function customConfigFunc(nativeCfg) {
 	// inbound email service
 	Cfg.inboundEmailServer.logger.basename = 'inbound-email';
 	Cfg.inboundEmailServer.logger.retentionPeriod = 30 * 24 * 60 * 60 * 1000;	// retain log files for this many milliseconds
+
+	// Environment-specific logic
+	Cfg.apiServer.autoMigrations = !Cfg.sharedGeneral.runTimeEnvironment.match(/^(prod|qa)$/i);
+	Cfg.sharedGeneral.isProductionCloud = Cfg.sharedGeneral.runTimeEnvironment === 'prod';
+	// we need a better way to determine if the client is running against an on-prem installation but this will do for now
+	Cfg.sharedGeneral.isOnPrem = Cfg.adminServer.adminServerDisabled;
 
 	return Cfg;
 }

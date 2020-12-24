@@ -56,7 +56,7 @@ const MongoCollections = Object.keys(DataCollections).concat([
 
 	// onprem support data (service versions, docker registry info, on-prem version)
 	let onPremSupportData;
-	if (Config.sharedGeneral.runTimeEnvironment === 'onprem' || (Config.broadcastEngine.selected === 'codestreamBroadcaster' && Config.sharedGeneral.runTimeEnvironment === 'local')) {
+	if (!Config.adminServer.adminServerDisabled) {
 		onPremSupportData = await getOnPremSupportData();
 		console.info('OnPrem Config:', JSON.stringify(onPremSupportData, StringifySortReplacer, 8));
 	}

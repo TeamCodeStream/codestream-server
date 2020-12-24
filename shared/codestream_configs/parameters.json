@@ -22,6 +22,11 @@
 
 {
 	"adminServer": {
+		"adminServerDisabled": {
+			"default": false,
+			"desc": "true will disable admin server and related functionality",
+			"env": "OPADM_DISABLED"
+		},
 		"logger": {
 			"consoleOk": {
 				"default": true,

@@ -1,0 +1,16 @@
+{
+	"name": "codestream-server",
+	"version": "1.0.0",
+	"description": "CodeStream server components",
+	"scripts": {
+		"install-all": "echo API && cd api_server && npm i --no-save && echo BROADCASTER && cd ../broadcaster && npm i --no-save && echo INBOUND_EMAIL && cd ../inbound_email && npm i --no-save && echo OUTBOUND_EMAIL && cd ../outbound_email && npm i --no-save && echo ONPREM_ADMIN && cd ../onprem_admin && npm i --no-save"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/teamcodestream/codestream-server.git"
+	},
+	"bugs": {
+		"url": "https://github.com/teamcodestream/codestream-server/issues"
+	},
+	"homepage": "https://github.com/teamcodestream/codestream-server#readme"
+}

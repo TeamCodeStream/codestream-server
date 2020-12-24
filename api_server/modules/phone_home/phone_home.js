@@ -20,9 +20,8 @@ class PhoneHome extends APIServerModule {
 		// phone home as a service to the API server app ... the phone home service itself
 		// runs on an interval timer
 		return async () => {
-			// only applies to on-prem installations
-			if (this.api.config.sharedGeneral.runTimeEnvironment !== 'onprem' && !process.env.CS_API_TEST_PHONE_HOME) {
-				this.api.log('Not doing phone home because this is not an on-prem installation');
+			if (this.api.config.apiServer.disablePhoneHome) {
+				this.api.log('phone home reporting disabled');
 				return;
 			}
 			this.api.log('Initiating phone home for on-prem installation...');

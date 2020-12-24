@@ -178,13 +178,7 @@ class CodeStreamAPITest extends APIRequestTest {
 	}
 
 	isOnPrem () {
-		return (
-			this.apiConfig.sharedGeneral.runTimeEnvironment === 'onprem' ||
-			(
-				this.apiConfig.broadcastEngine.selected === 'codestreamBroadcaster' &&
-				this.apiConfig.sharedGeneral.runTimeEnvironment === 'local'
-			)
-		);
+		return this.apiConfig.sharedGeneral.isOnPrem;
 	}
 }
 

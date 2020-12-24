@@ -81,13 +81,7 @@ class CompanyCreator extends ModelCreator {
 
 	// is this an on-prem installation?
 	isOnPrem () {
-		return (
-			this.request.api.config.sharedGeneral.runTimeEnvironment === 'onprem' || 
-			(
-				this.request.api.config.broadcastEngine.selected === 'codestreamBroadcaster' && 
-				this.request.api.config.sharedGeneral.runTimeEnvironment === 'local'
-			)
-		);
+		return this.request.api.config.sharedGeneral.isOnPrem;
 	}
 }
 
