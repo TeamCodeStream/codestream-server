@@ -13,8 +13,11 @@ class DeleteReviewMarkersTest extends DeleteReviewTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.wantReview = true;
-			this.postOptions.wantMarkers = 3;
+			Object.assign(this.postOptions, {
+				wantReview: true,
+				wantMarkers: 3,
+				numChanges: 2
+			})
 			callback();
 		});
 	}

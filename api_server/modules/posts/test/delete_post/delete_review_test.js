@@ -13,7 +13,9 @@ class DeleteReviewTest extends DeletePostTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
+			this.repoOptions.creatorIndex = 1;
 			this.postOptions.wantReview = true;
+			this.postOptions.numChanges = 2;
 			callback();
 		});
 	}

@@ -39,6 +39,7 @@ class CommonInit {
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			wantReview: true,
+			numChanges: 2,
 			wantMarkers: 2
 		});
 		callback();

@@ -11,7 +11,11 @@ class NumRepliesReviewTest extends NumRepliesTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.postData[0].wantReview = true;
+			this.repoOptions.creatorIndex = 1;
+			Object.assign(this.postOptions.postData[0], {
+				wantReview: true,
+				numChanges: 2
+			});
 			callback();
 		});
 	}

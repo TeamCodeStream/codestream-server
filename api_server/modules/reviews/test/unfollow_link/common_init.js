@@ -14,10 +14,12 @@ class CommonInit {
 		this.streamOptions.creatorIndex = 1;
 		this.streamOptions.type = this.streamType || 'channel';
 		this.streamOptions.isTeamStream = this.isTeamStream || false;
+		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			numPosts: 1,
 			creatorIndex: 1,
 			wantReview: true,
+			numChanges: 2,
 			wantMarkers: 2
 		});
 

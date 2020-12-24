@@ -15,7 +15,8 @@ class GetReviewsTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: 10,
 			creatorIndex: 1,
-			wantReview: true
+			wantReview: true,
+			numChanges: 2
 		});
 	}
 

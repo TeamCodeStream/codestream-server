@@ -37,14 +37,15 @@ class ReviewCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'streamId', 'postId', 'title']
+				string: ['teamId', 'streamId', 'postId', 'title'],
+				'array(object)': ['reviewChangesets']
 			},
 			optional: {
 				string: ['text', 'status'],
 				object: ['authorsById'],
 				boolean: ['allReviewersMustApprove', '_dontCreatePermalink'],
 				'array(string)': ['reviewers', 'followerIds', 'fileStreamIds', 'tags'],
-				'array(object)': ['reviewChangesets', 'markers']
+				'array(object)': ['markers']
 			}
 		};
 	}
@@ -77,6 +78,11 @@ class ReviewCreator extends ModelCreator {
 
 	// right before the document is saved...
 	async preSave () {
+		// can not accept empty reviewChangesets
+		if (this.attributes.reviewChangesets.length === 0) {
+			throw this.errorHandler.error('invalidParameter', { reason: 'reviewChangesets cannot be empty' });
+		}
+
 		// special for-testing header for easy wiping of test data
 		if (this.request.isForTesting()) {
 			this.attributes._forTesting = true;

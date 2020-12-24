@@ -53,6 +53,7 @@ class GetReviewsByStreamIdTest extends GetReviewsWithMarkersTest {
 				streamId: this.otherStream.id,
 				token: this.users[1].accessToken,
 				wantReview: true,
+				numChanges: 2,
 				changesetRepoId: this.repo.id
 			}
 		);
