@@ -12,9 +12,11 @@ class ReviewReplyTest extends InboundEmailTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
+			this.repoOptions.creatorIndex = 1;
 			Object.assign(this.postOptions, {
 				creatorIndex: 0,
 				wantReview: true,
+				numChanges: 2,
 				wantMarkers: 1
 			});
 			callback();

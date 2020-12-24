@@ -10,9 +10,11 @@ class TrackingReplyToReviewTest extends TrackingTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
+			this.repoOptions.creatorIndex = 0;
 			Object.assign(this.postOptions, {
 				creatorIndex: 0,
 				wantReview: true,
+				numChanges: 2,
 				wantMarkers: 1,
 				wantCodemark: undefined
 			});
