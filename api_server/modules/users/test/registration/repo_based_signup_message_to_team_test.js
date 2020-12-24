@@ -86,12 +86,12 @@ class RepoBasedSignupMessageToTeamTest extends CodeStreamMessageTest {
 			// no way of knowing what this will be, so just set it to what we receive before we compare
 			this.message.users[0]._id = this.message.users[0].id = message.message.users[0].id;
 			this.message.users[0].creatorId = this.message.users[0].id;
-			Assert(this.message.users[0].modifiedAt >= this.requestSentAt, 'modifiedAt is not greater than or equal to when the request was sent');
-			Assert(this.message.users[0].createdAt >= this.requestSentAt, 'createdAt is not greater than or equal to when the request was sent');
+			Assert(message.message.users[0].modifiedAt >= this.requestSentAt, 'modifiedAt is not greater than or equal to when the request was sent');
+			Assert(message.message.users[0].createdAt >= this.requestSentAt, 'createdAt is not greater than or equal to when the request was sent');
 			this.message.users[0].modifiedAt = message.message.users[0].modifiedAt;
 			this.message.users[0].createdAt = message.message.users[0].createdAt;
 		}
-		super.messageReceived(error, message);
+		return super.messageReceived(error, message);
 	}
 }
 
