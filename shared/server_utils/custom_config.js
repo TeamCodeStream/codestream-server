@@ -138,6 +138,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		github: {},
 		gitlab: {},
 		jira: {},
+		linear: {},
 		msteams: {},
 		okta: {},
 		slack: {},

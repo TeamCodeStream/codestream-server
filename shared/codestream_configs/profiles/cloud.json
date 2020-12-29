@@ -195,6 +195,19 @@
 				}
 			}
 		},
+		"linear": {
+			"cloud": {
+				"defaultEnv": {
+					"_loadSecretsFile": "linear/dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "linear/prod.cfg"
+				},
+				"qa": {
+					"_loadSecretsFile": "linear/qa.cfg"
+				}
+			}
+		},
 		"msteams": {
 			"cloud": {
 				"defaultEnv": {

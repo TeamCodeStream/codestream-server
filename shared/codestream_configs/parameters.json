@@ -501,6 +501,20 @@
 				}
 			}
 		},
+		"linear": {
+			"<appProvider>": {
+				"appClientId": {
+					"desc": "Linear API client Id"
+				},
+				"appClientSecret": {
+					"desc": "Linear API secret"
+				},
+				"disabled": {
+					"default": false,
+					"desc": "disable integration"
+				}
+			}
+		},
 		"msteams": {
 			"<appProvider>": {
 				"appClientId": {

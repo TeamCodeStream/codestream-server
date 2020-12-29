@@ -1,5 +1,6 @@
 {
 	"adminServer": {
+		"adminServerDisabled": "true will disable admin server and related functionality [OPADM_DISABLED]",
 		"logger": {
 			"consoleOk": "allow logging to the console [OPADM_LOG_CONSOLE_OK]",
 			"debugOk": "more verbose logging (debug level) [OPADM_DEBUG_OK]",
@@ -149,6 +150,13 @@
 			"<appProvider>": {
 				"appClientId": "Jira API client Id",
 				"appClientSecret": "Jira API secret",
+				"disabled": "disable integration"
+			}
+		},
+		"linear": {
+			"<appProvider>": {
+				"appClientId": "Linear API client Id",
+				"appClientSecret": "Linear API secret",
 				"disabled": "disable integration"
 			}
 		},

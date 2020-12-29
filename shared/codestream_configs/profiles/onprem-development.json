@@ -156,6 +156,13 @@
 				}
 			}
 		},
+		"linear": {
+			"cloud": {
+				"defaultEnv": {
+					"_loadSecretsFile": "linear/dev.cfg"
+				}
+			}
+		},
 		"msteams": {
 			"cloud": {
 				"defaultEnv": {
