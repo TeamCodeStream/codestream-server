@@ -143,6 +143,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		okta: {},
 		slack: {},
 		trello: {},
+		linear: {},
 		// These providers need appClientId to be defined so the api knows those providers can be configured.
 		// Their respective APIs do not require a client ID so they're not actually used.
 		youtrack: { appClientId: 'placeholder' },
@@ -150,7 +151,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		github_enterprise: { appClientId: 'placeholder' },
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
-		clubhouse: { appClientId: 'placeholder' }
+		clubhouse: { appClientId: 'placeholder' },
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
@@ -222,7 +223,8 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'trello',
 		'youtrack',
 		'okta',
-		'clubhouse'
+		'clubhouse',
+		'linear'
 	];
 	// matching these paths means Authorization header is not required
 	Cfg.apiServer.unauthenticatedPaths = [

@@ -40,6 +40,15 @@ const STANDARD_PROVIDER_HOSTS = {
 		needsConfigure: true,
 		hasIssues: true
 	},
+	'linear*app': {
+		apiHost: 'api.linear.app',
+		hasIssues: true,
+		host: 'linear.app',
+		id: 'linear*app',
+		isEnterprise: false,
+		name: 'linear',
+		scopes: ['read', 'issues:create']
+	},
 	'github*com': {
 		id: 'github*com',
 		name: 'github',

@@ -88,7 +88,8 @@ class OAuthModule extends APIServerModule {
 		}
 
 		if (!host) {
-			host = options.hostUrl || `https://${this.oauthConfig.host}`; 
+			const infoHost = options.forTokenExchange && this.oauthConfig.useApiHostForTokenExchange ? this.oauthConfig.apiHost : this.oauthConfig.host;
+			host = options.hostUrl || `https://${infoHost}`; 
 		}
 
 		if (!noClientIdOk && (!clientInfo.appClientId || !clientInfo.appClientSecret)) {
@@ -209,7 +210,7 @@ class OAuthModule extends APIServerModule {
 	async exchangeAuthCodeForToken (options) {
 		const { mockToken } = options;
 		const { tokenPath, exchangeFormat } = this.oauthConfig;
-		const clientInfo = this.getClientInfo(options);
+		const clientInfo = this.getClientInfo(Object.assign({}, options, { forTokenExchange: true }));
 
 		// must exchange the provided authorization code for an access token,
 		// prepare parameters for the token exchange request
