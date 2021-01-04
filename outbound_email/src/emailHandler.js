@@ -74,7 +74,9 @@ class EmailHandler {
 			await this.sender.sendEmail(options);
 		}
 		catch (error) {
-			this.logger.warn(`Unable to send ${this.message.type} email to ${this.user.email}: ${JSON.stringify(error)}`, this.requestId);
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			const trace = error instanceof Error ? error.stack : '';
+			this.logger.warn(`Unable to send ${this.message.type} email to ${this.user.email}: ${message}\n${trace}`, this.requestId);
 		}
 	}
 
