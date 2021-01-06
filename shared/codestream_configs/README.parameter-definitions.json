@@ -246,7 +246,7 @@
 	},
 	"sharedGeneral": {
 		"installationId": "unique identifier for the onprem installation [CSSVC_INSTALLATION_ID]",
-		"runTimeEnvironment": "run-time environment (local, prod, qa, pd, ...) [CSSVC_ENV]"
+		"runTimeEnvironment": "run-time environment (local, onprem, prod, qa, pd, ...) [CSSVC_ENV]"
 	},
 	"sharedSecrets": {
 		"auth": "secret used for authentication [CSSVC_AUTH_SECRET]",

@@ -20,6 +20,9 @@
 // 	{ h_id: '5', city: 'New York', state: 'NY', zip: '00010', price: '962500' },
 // ];
 //
+// THIS SORTS THE LIST IN PLACE
+// Each arg can be either a string (the name of the field to sort) or an object
+// for the field if a reverse sort is desired, or it needs a primer
 // homes.sort(sort_by('city', { name: 'price', primer: parseInt, reverse: true }));
 // homes.sort(sort_by('h_id'));
 // homes.sort(sort_by({ name: 'state' }, { name: 'h_id', reverse: true }));

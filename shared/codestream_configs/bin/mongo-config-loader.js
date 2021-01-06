@@ -50,8 +50,11 @@ const CfgData = StructuredCfgFactory.create({
 	await CfgData.initialize({connectOnly: true});
 	// Add a new config to the collection from a file
 	if (Commander.addCfgFile) {
+		const CfgFile = StructuredCfgFactory.create({ configFile: Commander.addCfgFile });
+		const configToLoad = await CfgFile.loadConfig();
 		const dataHeader = await CfgData.addNewConfigToMongo(
-			hjson.parse(fs.readFileSync(Commander.addCfgFile, 'utf8')),
+			// hjson.parse(fs.readFileSync(Commander.addCfgFile, 'utf8')),
+			configToLoad,
 			{ schemaVersion: Commander.schemaVersion, desc: Commander.desc }
 		);
 		if (!dataHeader) {

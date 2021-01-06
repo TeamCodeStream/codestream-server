@@ -101,14 +101,22 @@ elif [ -z "$OPADM_CALLBACK_ENV" ]; then
 fi
 
 
-# local development on ec2 instances (remote hosts) should reference their
-# hostname and not 'localhost' when constructing URLs so we set
 if [ "$CSSVC_ENV" = "local" ]; then
+	# local development on ec2 instances (remote hosts) should reference their
+	# hostname and not 'localhost' when constructing URLs so we set
 	if [ $(sandutil_is_network_instance) -eq 1 ]; then
 		export OPADM_PUBLIC_URL="https://`hostname`:$apiPort"
 		echo "OPADM_PUBLIC_URL = $OPADM_PUBLIC_URL [this is a network development host]"
 	fi
+	# Local development defaults to using dummy installation data
+	export OPADM_USE_DUMMY_INSTALL_DATA=1
 fi
+
+if [ -z "$CSSVC_ONPREM_INSTALL_DATA" -a -n "$OPADM_USE_DUMMY_INSTALL_DATA" ]; then
+	# Provide dummy installation data for the onprem-admin service
+	export CSSVC_ONPREM_INSTALL_DATA=$OPADM_TOP/etc/onprem-installation-data
+fi
+
 
 # Multiple installations possible ($REPO_ROOT/.git/)
 [ -n "$CSBE_TOP" ] && export OPADM_REPO_ROOT=$CSBE_TOP || { . $OPADM_SANDBOX/sb.info; export OPADM_REPO_ROOT=$OPADM_SANDBOX/$SB_REPO_ROOT; }

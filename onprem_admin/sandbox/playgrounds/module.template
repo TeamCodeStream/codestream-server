@@ -1,12 +1,11 @@
 
-#desc# mongo/opadm playground
+#desc# opadm playground installed with module
 
 #playgroundName# opadm
-#sandboxTypes# mongo,opadm
-#sandboxes# {{SBNAME_mongo}},{{SBNAME_opadm}}
+#sandboxTypes# opadm
+#sandboxes# {{SBNAME_opadm}}
 #environment# {{CSSVC_ENV}}
 
-dt_load {{SBNAME_mongo}} --quiet
 dt_load {{SBNAME_opadm}}
 cd $OPADM_TOP
 

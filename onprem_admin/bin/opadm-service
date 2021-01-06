@@ -7,9 +7,7 @@ function usage {
     exit 1
 }
 
-echo "This is just a template - this script needs to be edited"; exit 1
-
-service_name=XXXXX
+service_name=bin/admin_server.js
 [ -z "$1" ] && usage
 [ -z "$OPADM_SANDBOX" ] && echo "sandbox not loaded">&2 && exit 1
 . $DT_TOP/lib/init_funcs.sh
@@ -17,12 +15,14 @@ service_name=XXXXX
 ec=0
 case "$1" in
 	start)
-		# start the service here
+		cd $OPADM_TOP
+		nohup babel-node bin/admin_server.js >>$OPADM_LOGS/opadm-init.log 2>&1 </dev/null &
+		sleep 1
 		service_status $service_name
 		ec=$?
 		;;
 	stop)
-		service_stop $service_name
+		service_stop_2 $service_name "" "" "" useForce
 		ec=$?
 		sleep 2
 		service_status $service_name

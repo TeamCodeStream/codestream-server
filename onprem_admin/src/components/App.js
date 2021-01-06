@@ -3,6 +3,7 @@
 import React from 'react';
 // import PropTypes from 'prop-types';
 // import $ from 'jquery';
+import { connect } from 'react-redux';
 
 // my components
 import Header from './header/Header';
@@ -10,6 +11,7 @@ import Omnibar from './omnibar/Omnibar';
 import Pane from './pane/Pane';
 import Footer from './footer/Footer';
 import SubNav from './subnav/SubNav';
+import { loadSystemMessageHistory } from '../store/actions/status'
 // import BSTest1 from './pane/configuration/layoutTests/BSTest1';
 // import AccordionArrows from './pane/configuration/layoutTests/AccordionArrows';
 // import Accordion from './lib/Accordion';
@@ -17,6 +19,7 @@ import SubNav from './subnav/SubNav';
 
 class App extends React.Component {
 	componentDidMount() {
+		this.props.dispatch(loadSystemMessageHistory());
 		// enable bootstrap tooltips
 		// $(function () {
 		// 	$('[data-toggle="tooltip"]').tooltip();
@@ -77,26 +80,13 @@ class App extends React.Component {
 	}
 };
 
-// AppComponent.propTypes = {
-// 	pageHeader: PropTypes.string,
-// 	initialState: PropTypes.object
-// };
+const mapState = (state) => ({
+	statusMessages: state.status.statusMessages,
+});
 
-// AppComponent.defaultProps = {
-// 	pageHeader: 'CodeStream On-Prem Administration',
-// 	initialState: {}
-// };
+const mapDispatch = (dispatch) => ({
+	dispatch,
+	loadSystemMessageHistory: (e) => dispatch(loadSystemMessageHistory()),
+});
 
-// returns data needed for this component
-// const mapStateToProps = function() {
-// 	return {};
-// }
-
-// returns behavior for the component
-// const mapDispatchToProps = function() {
-// 	return {};
-// }
-
-// const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
-// const App = connect(mapStateToProps)(AppComponent);
-export default App;
+export default connect(mapState, mapDispatch)(App);

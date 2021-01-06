@@ -1,6 +1,8 @@
 
 import produce from 'immer';
 import Actions from '../actions/status';
+import findObjectsBy from '../../lib/findObjectInObjectList';
+import sortBy from '../../lib/sortObjectListByProps';
 
 // 'produce' creates a mutable object called 'draft' which you can consider a
 // deep copy of the state. 'draft' should be modified to reflect the next state.
@@ -24,7 +26,33 @@ export default (state = null, action) =>
 				draft.unsavedChanges = false;
 				break;
 			case Actions.STATUS_REFRESH_SYSTEM_STATUS:
+				// console.log('STATUS_REFRESH_SYSTEM_STATUS', action.payload);
 				draft.systemStatus = action.payload;
+				break;
+			case Actions.STATUS_PROCESS_MESSAGE_EVENT:
+				// FIXME: we need to create enumerated type here
+				switch (action.payload.msgType) {
+					case 'add':
+						if (findObjectsBy(state.statusMessages, { and: { msgId: action.payload.msgId } }).length > 0) {
+							console.error(`${Actions.STATUS_PROCESS_MESSAGE_EVENT} Reducer dropping duplicate message`, {
+								payload: action.payload,
+								beforeState: Object.assign({}, state.statusMessages)
+							});
+							// console.error("X=", x);
+						} else {
+							// console.log('adding message', action.payload);
+							draft.statusMessages.unshift(action.payload);
+						}
+						break;
+					default:
+						console.error(`${Actions.STATUS_PROCESS_MESSAGE_EVENT} Reducer got bad msgType`, action.payload);
+						break;
+				}
+				// console.log('STATUS_PROCESS_MESSAGE_EVENT', { payload: action.payload, store: draft.statusMessages });
+				break;
+			case Actions.STATUS_LOAD_SYSTEM_MESSAGE_HISTORY:
+				draft.statusMessages = action.payload;
+				// console.log('STATUS_LOAD_SYSTEM_MESSAGE_HISTORY', action.payload);
 				break;
 		}
 	});

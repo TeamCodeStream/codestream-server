@@ -21,11 +21,11 @@ abort_on_fail=1
 # Place any commands needed to prepare the sandbox for use here. Assume the
 # environment is set
 
-cd $OPADM_TOP
-[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
+# Specific to mono-repo
+[ ! -d $OPADM_REPO_ROOT/.git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
+[ -f $OPADM_REPO_ROOT/.gitmodules ] && echo "updating submodules" && (cd $OPADM_REPO_ROOT && git submodule update --init --recursive)
 
-# Install git submodules
-[ -f .gitmodules ] && echo "Updating submodules" && git submodule update --init --recursive
+cd $OPADM_TOP
 
 # Exmaple: expanding templates
 # $DT_TOP/bin/create-file-from-template.py -t $XYZ_SANDBOX/git_project/etc/httpd.conf.template -o $XYZ_SANDBOX/conf/httpd.conf
@@ -69,19 +69,14 @@ fi
 
 
 # Add git hooks as needed
-if [ -d "$OPADM_TOP/hooks" ]; then
-	echo -n "Installing git hooks as sym links"
-	cd $OPADM_TOP/.git/hooks
-	for hook in post-checkout post-merge post-rewrite
-	do
-		if [ -f $OPADM_TOP/hooks/$hook ]; then
-			echo -n "...$hook"
-			/bin/rm -f $hook
-			ln -sf ../../hooks/$hook
-		fi
-	done
-	echo "."
-fi
+cd $OPADM_REPO_ROOT/.git/hooks
+[ -d ../../onprem_admin/hooks ] && hooksDir=../../onprem_admin/hooks || hooksDir=../../hooks
+for hook in post-checkout post-merge post-rewrite
+do
+	echo -n "__ $hooksDir/$hook __"
+	ln -snf $hooksDir/$hook
+done
+echo
 
 # You must exit with a status of '0' if the script was successful or '1' otherwise.
 exit 0

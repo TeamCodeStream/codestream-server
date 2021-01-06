@@ -6,8 +6,9 @@ import ReactDOMServer from 'react-dom/server';
 import App from '../src/components/App';
 import { Provider } from 'react-redux';
 import StoreFactory from '../src/store';
-import { SystemStatuses } from '../src/store/actions/status';
+// import { SystemStatuses } from '../src/store/actions/status';
 import { globalNavItems, configNavItems } from '../src/store/actions/presentation';
+import { SystemStatuses } from '../src/store/actions/status';
 
 async function serverRenderApp(requestedRoute="") {
 	// Here we initialize our state (on the server). initialization should not
@@ -56,7 +57,13 @@ async function serverRenderApp(requestedRoute="") {
 		systemStatus: {
 			status: SystemStatusMonitor.systemStatus,
 			message: SystemStatusMonitor.systemStatusMsg,
+			alerts: SystemStatusMonitor.activeAlerts,
 		},
+
+		// SystemStatusMonitor history and other messages.
+		// FIXME: we need a way to prune this list. We may also want to consider having these
+		// persist in mongo
+		statusMessages: [],
 
 		// activeConfigInfo: MongoStructuredConfig.getConfigMetaDocument({ excludeConfigData: true }),
 		activeConfigSerialNumber: activeConfigSerialNumber,

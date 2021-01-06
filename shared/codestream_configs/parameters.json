@@ -736,7 +736,7 @@
 		},
 		"runTimeEnvironment": {
 			"default": "${CSSVC_ENV}",
-			"desc": "run-time environment (local, prod, qa, pd, ...)",
+			"desc": "run-time environment (local, onprem, prod, qa, pd, ...)",
 			"env": "CSSVC_ENV",
 			"required": true
 		}

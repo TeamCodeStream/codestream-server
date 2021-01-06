@@ -13,34 +13,43 @@
 //   - Queuing:        rabbitMQ via docker
 //         mac:             docker run -d -P --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0
 //         remote-linux:    docker run -d -P --network="host" --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0
-//   - Outbound mail:  NodeMailer/smtp (via your codestream gmail account)
+//   - Outbound mail:  codestream mail relay
 
 {
 	"adminServer": {
-		"defaultEnv": {},
-		"pdop": {
-			"port": 8080,
-			"securePort": 8443
-		}
+		"defaultEnv": {
+			"port": 8888,
+			"securePort": 4443
+		},
+		"local": {}
 	},
 	"apiServer": {
+		"ci": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"dontWantAWS": true,
+			"port": 8443,
+			"publicApiUrl": "http://${CSSVC_ENV}.codestream.us",
+			"securePort": 8443
+		},
 		"defaultEnv": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
-			"dontWantAWS": true
+			"dontWantAWS": true,
+			"helpIsAvailable": true,
+			"port": 8443,
+			"publicApiUrl": "http://${CSSVC_ENV}-api.codestream.us",
+			"securePort": 8443
 		},
 		"local": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
 			"helpIsAvailable": true
 		},
-		"pdop": {
+		"pi": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
-			"helpIsAvailable": true,
-			"ignoreHttps": true,
-			"port": 80,
+			"port": 8443,
 			"publicApiUrl": "http://${CSSVC_ENV}.codestream.us",
-			"securePort": 443
+			"securePort": 8443
 		}
 	},
 	"broadcastEngine": {
@@ -66,17 +75,6 @@
 				},
 				"showConfig": false
 			},
-			"pdop": {
-				"host": "${CSSVC_ENV}.codestream.us",
-				"ignoreHttps": true,
-				"logger": {},
-				"port": 12080,
-				"secrets": {
-					"_loadSecretsFile": "codestream/dev-bcast-secrets.cfg"
-				},
-				"securePort": 12443,
-				"showConfig": false
-			},
 			"pi": {
 				"logger": {},
 				"secrets": {
@@ -88,6 +86,7 @@
 	},
 	"email": {
 		"ci": {
+			"emailTo": null,
 			"replyToDomain": "ci.codestream.com",
 			"senderEmail": "ci_alerts@codestream.com",
 			"supportEmail": "ci_support@codestream.com"
@@ -99,7 +98,13 @@
 			"supportEmail": "${CSSVC_ENV}_support@codestream.com",
 			"suppressEmails": false
 		},
-		"local": {}
+		"local": {},
+		"pi": {
+			"emailTo": null,
+			"replyToDomain": "pi.codestream.com",
+			"senderEmail": "pi_alerts@codestream.com",
+			"supportEmail": "pi_support@codestream.com"
+		}
 	},
 	"emailDeliveryService": {
 		"defaultEnv": {
@@ -110,9 +115,7 @@
 			}
 		}
 	},
-	"inboundEmailServer": {
-		"defaultEnv": {}
-	},
+	"inboundEmailServer": {},
 	"integrations": {
 		"asana": {
 			"cloud": {
@@ -192,54 +195,21 @@
 			}
 		}
 	},
-	"outboundEmailServer": {
-		"ci": {},
-		"defaultEnv": {
-			"showConfig": true,
-			"storage": {
-				"mongo": {
-					"url": "mongodb://${CSSVC_ENV}-api.codestream.us/codestream"
-				}
-			}
-		},
-		"local": {},
-		"pdop": {}
-	},
+	"outboundEmailServer": {},
 	"queuingEngine": {
-		"ci": {
-			"awsSQS": {
-				"outboundEmailQueueName": "ci_outboundEmail"
-			}
-		},
-		"defaultEnv": {
-			"awsSQS": {
-				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
-			}
-		},
-		"local": {
-			"rabbitmq": {}
-		},
-		"pdop": {
-			"rabbitmq": {}
-		}
+		"rabbitmq": {}
 	},
 	"sharedGeneral": {
-		"ci": {
-			"runTimeEnvironment": "ci"
+		"defaultEnv": {
+			"installationId": "00000000-1111-2222-3333-444444444444",
+			"runTimeEnvironment": "onprem"
 		},
-		"defaultEnv": {},
 		"dev": {
-			"runTimeEnvironment": "dev"
+			"installationId": "00000000-1111-2222-3333-444444444444"
 		},
 		"local": {
-			"runTimeEnvironment": "local"
-		},
-		"pdop": {
 			"installationId": "00000000-1111-2222-3333-444444444444",
-			"runTimeEnvironment": "pdop"
-		},
-		"pi": {
-			"runTimeEnvironment": "pi"
+			"runTimeEnvironment": "local"
 		}
 	},
 	"sharedSecrets": {
@@ -259,27 +229,15 @@
 			"certfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt",
 			"keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-key"
 		},
-		"local": {},
-		"pdop": {}
+		"local": {}
 	},
-	"storage": {
-		"mongo": {
-			"defaultEnv": {},
-			"pdop": {
-				"url": "mongodb://pd-api.codestream.us/codestream"
-			}
-		}
-	},
+	"storage": {},
 	"telemetry": {
 		"intercom": {
-			"defaultEnv": {
-				"_loadSecretsFile": "intercom/dev.cfg"
-			}
+			"_loadSecretsFile": "intercom/dev.cfg"
 		},
 		"segment": {
-			"defaultEnv": {
-				"_loadSecretsFile": "segment/dev-api.cfg"
-			}
+			"_loadSecretsFile": "segment/dev-api.cfg"
 		}
 	}
 }

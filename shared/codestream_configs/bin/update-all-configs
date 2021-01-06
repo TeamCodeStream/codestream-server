@@ -72,7 +72,7 @@ do
 done
 
 # onprem development configurations
-for csEnv in "local" ci pi dev pdop
+for csEnv in "local" ci pi dev
 do
 	[ -n "$verbose" ] && echo $binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x
 	$binDir/process-profile --profile $repoRoot/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x

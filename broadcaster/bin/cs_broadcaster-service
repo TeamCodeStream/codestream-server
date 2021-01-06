@@ -16,9 +16,9 @@ ec=0
 case "$1" in
 	start)
 		# start the service here
-        cd $CS_BROADCASTER_TOP
-        nohup $CS_BROADCASTER_TOP/bin/broadcaster.js >>$CS_BROADCASTER_LOGS/init.log 2>&1 </dev/null &
-        sleep 1
+		cd $CS_BROADCASTER_TOP
+		nohup $CS_BROADCASTER_TOP/bin/broadcaster.js >>$CS_BROADCASTER_LOGS/init.log 2>&1 </dev/null &
+		sleep 1
 		service_status $service_name
 		ec=$?
 		;;

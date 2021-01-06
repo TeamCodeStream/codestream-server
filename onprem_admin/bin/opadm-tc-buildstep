@@ -11,9 +11,6 @@ sys.path.append(os.environ['DT_TOP'] + "/lib")
 import sysUtils as su
 import buildUtils
 
-su.printErr("this script needs to be customized")
-exit(1)
-
 # 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
 assetExtensionList = ['tgz']
 
@@ -34,7 +31,7 @@ buildOptions = {
 }
 
 # 4. Set this if you want your applied git tags to be something other than 'v' (v1.2.3)
-# buildOptions['gitTagPrefix'] = "mytag-"
+buildOptions['gitTagPrefix'] = "opadm-"
 
 if args.verbose:
 	print("buildstep running with", args.action)
@@ -52,9 +49,10 @@ if args.action == 'prep':
 elif args.action == 'build':
 	build.build()                             # complete build so services can be started
 elif args.action == 'citest':
-	build.citest()                            # run the continuous integration test suite
+	print("there's nothing to test")
+	# build.citest()                            # run the continuous integration test suite
 elif args.action == 'pack':
-	build.pack()                              # create asset info file and package assets
+	build.pack(csServerMonoRepoDir='onprem_admin')   # create asset info file and package assets
 elif args.action == 'publish':
 	build.publish()                           # publish assets for distribution
 elif args.action == 'tag':

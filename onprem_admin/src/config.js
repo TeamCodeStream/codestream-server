@@ -14,3 +14,7 @@ export const DocRefs = {
 		okta: 'https://docs.codestream.com/onprem/otherintegrations/okta/',
 	},
 };
+
+export const SupportInfo = {
+	email: 'support@codestream.com'
+};

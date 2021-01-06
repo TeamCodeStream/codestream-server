@@ -70,6 +70,14 @@ class StructuredConfigBase {
 		return this.configType;
 	}
 
+	configIsFile() {
+		return this.configType === ConfigTypes.file;
+	}
+
+	configIsMongo() {
+		return this.configType === ConfigTypes.mongo;
+	}
+
 	// this is meant to be optional but will always be defined
 	getConfigMetaDocument() {
 		return null;

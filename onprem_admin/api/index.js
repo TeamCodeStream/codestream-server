@@ -1,7 +1,7 @@
 'use strict';
 
 import express from 'express';
-import { Logger, MongoStructuredConfig } from '../config/GlobalData';
+import { Logger, MongoStructuredConfig, SystemStatusMonitor } from '../config/globalData';
 
 const ApiRouter = express.Router();
 
@@ -81,6 +81,11 @@ ApiRouter.post('/config/:activate?', (req, res) => {
 		}
 		res.send({success: true, response: { configDoc }});
 	})();
+});
+
+ApiRouter.get('/status/history', (req, res) => {
+	Logger.log(`api(get):/status/history`);
+	res.send(SystemStatusMonitor.statusHistory);
 });
 
 export default ApiRouter;

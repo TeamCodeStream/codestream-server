@@ -1,36 +1,115 @@
 'use strict';
 
 import React from 'react';
-import PropTypes from 'prop-types';
-
+// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-// // my actions
-// import Actions from '../actions';
-// // my reducers
-// import reducer from '../reducers';
-
-// import Store from '../../../store';
+import { SystemStatuses } from '../../../store/actions/status';
 
 class Status extends React.Component {
+	displayStatus(status, inColor=true) {
+		switch (status) {
+			case SystemStatuses.ok:
+				return <span className={inColor ? 'badge badge-success' : 'badge badge-light'}>OK</span>;
+			case SystemStatuses.attention:
+				return <span className={inColor ? 'badge badge-danger' : 'badge badge-light'}>ATTN</span>;
+			case SystemStatuses.pending:
+				return <span className={inColor ? 'badge badge-warning' : 'badge badge-light'}>WARN</span>;
+			default:
+				return <span className='badge badge-light'>NOTICE</span>;
+		}
+	}
+
 	render() {
+		const alertTableData = [];
+		this.props.alerts.forEach((a) => {
+			alertTableData.push([a.msgId, new Date(a.lastCheck).toISOString(), a.watcherId, a.status, a.message]);
+		});
+
+		const installTableData = [
+			['Product Type:', this.props.productType === 'On-Prem Development' ? this.props.productType + ` (${this.props.runTimeEnvironment})` : this.props.productType],
+			['Installation ID:', this.props.installationId],
+			['API:', this.props.apiUrl],
+			['Database:', this.props.mongoUrl]
+		];
+		if (this.props.release) {
+			installTableData.push(['Release:', this.props.release]);
+		}
+		if (this.props.installationBranch) {
+			installTableData.push(['Installation Branch:', this.props.installationBranch]);
+		}
+
+		const statusMsgTableData = [];
+		this.props.statusMessages.forEach((m) => {
+			statusMsgTableData.push([m.msgId, new Date(m.lastCheck).toISOString(), m.watcherId, m.status, m.message]);
+		});
+
 		return (
 			<div className="Status layout-pane-status container-fluid">
 				<div className="row justify-content-center">
-					<div className="col-11 col-sm-10 col-md-12">
-						<p>
-							here is some text for the status pane. Justo eirmod diam justo ut dolores ea clita invidunt accusam. Sit sit dolor stet voluptua duo
-							rebum, justo sea sit. Takimata et sanctus voluptua clita ipsum accusam est sea sit, sed erat tempor amet no dolore et gubergren et,
-							labore.
-						</p>
-						<div className="d-flex justify-content-center">
-							<ul>
-								<li>Product: {this.props.installationType}</li>
-								<li>API: {this.props.apiUrl} </li>
-								<li>Database: {this.props.mongUrl}</li>
-								<li>Installation ID: {this.props.installationId}</li>
-								<li>OnPrem Version: {this.props.onPremVersion}</li>
-							</ul>
-						</div>
+					<div className="col-10">
+						<center>
+							<h5>Active Alerts</h5>
+							<table className="table table-dark table-striped">
+								<tbody>
+									{alertTableData.length ? (
+										alertTableData.map((row) => (
+											<tr key={row[0]}>
+												<td className="px-2 py-1">{row[1]}</td>
+												<td className="px-2 py-1">{row[2]}</td>
+												<td className="px-2 py-1">{this.displayStatus(row[3])}</td>
+												<td className="px-2 py-1">{row[4]}</td>
+											</tr>
+										))
+									) : (
+										<tr>
+											<td className="text-center">No alert conditions detected. The system is operating normally.</td>
+										</tr>
+									)}
+								</tbody>
+							</table>
+						</center>
+					</div>
+				</div>
+				<div className="row justify-content-center mt-3">
+					<div className="col-10">
+						<center>
+							<h5>Product Data</h5>
+							<table className="table table-dark table-striped">
+								<tbody>
+									{installTableData.map((row) => (
+										<tr key={row[0]}>
+											<td className="text-right px-2 py-1">{row[0]}</td>
+											<td className="px-2 py-1">{row[1]}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</center>
+					</div>
+				</div>
+				<div className="row justify-content-center mt-3">
+					<div className="col-10">
+						<center>
+							<h5>Status Messages and Alert History</h5>
+							<table className="table table-dark table-striped">
+								<tbody>
+									{statusMsgTableData.length ? (
+										statusMsgTableData.map((row) => (
+											<tr key={row[0]}>
+												<td className="px-2 py-1">{row[1]}</td>
+												<td className="px-2 py-1">{row[2]}</td>
+												<td className="px-2 py-1">{this.displayStatus(row[3], false)}</td>
+												<td className="px-2 py-1">{row[4]}</td>
+											</tr>
+										))
+									) : (
+										<tr>
+											<td className="text-center">No messages</td>
+										</tr>
+									)}
+								</tbody>
+							</table>
+						</center>
 					</div>
 				</div>
 			</div>
@@ -38,23 +117,27 @@ class Status extends React.Component {
 	}
 }
 
-Status.propTypes = {
-	installationId: PropTypes.string.isRequired,
-	installationType: PropTypes.string.isRequired,
-	onPremVersion: PropTypes.string.isRequired,
-	apiUrl: PropTypes.string.isRequired,
-	mongoUrl: PropTypes.string.isRequired,
-};
+// Status.propTypes = {
+// 	installationId: PropTypes.string.isRequired,
+// 	productType: PropTypes.string.isRequired,
+// 	// onPremVersion: PropTypes.string.isRequired,
+// 	apiUrl: PropTypes.string.isRequired,
+// 	mongoUrl: PropTypes.string.isRequired,
+// };
 
 // StatusComponent.defaultProps = {};
 
 // returns data needed for this component
 const mapState = (state) => ({
 	installationId: state.config.sharedGeneral.installationId || '00000000-0000-0000-0000-000000000000',
-	installationType: state.installation.installationType,
-	onPremVersion: state.installation.onPremVersion,
+	productType: state.installation.productType,
+	runTimeEnvironment: state.config.sharedGeneral.runTimeEnvironment,
+	release: state.installation.release,
+	installationBranch: state.installation.installationBranch,
 	apiUrl: state.config.apiServer.publicApiUrl,
 	mongoUrl: state.config.storage.mongo.url,
+	alerts: state.status.systemStatus.alerts,
+	statusMessages: state.status.statusMessages,
 });
 
 // returns behavior for the component

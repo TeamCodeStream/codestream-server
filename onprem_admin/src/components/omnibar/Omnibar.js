@@ -39,7 +39,7 @@ class Omnibar extends Component {
 						) : (
 							<span>
 								Schema: <strong>{this.props.codeSchemaVersion}</strong>
-								<span className="badge badge-warning mt-1 ml-1">FILE</span>
+								<span className="badge badge-light mt-1 ml-1">FILE</span>
 							</span>
 						)}
 					</span>

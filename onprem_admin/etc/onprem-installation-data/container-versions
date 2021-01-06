@@ -1,0 +1,11 @@
+apiDockerVersion=8.2.13-2413
+apiRepo=teamcodestream/api-onprem-dev
+broadcasterDockerVersion=8.2.11-165
+broadcasterRepo=teamcodestream/broadcaster-onprem-dev
+dtPython3DockerVersion=0.0.0
+mailoutDockerVersion=8.2.10-58
+mailoutRepo=teamcodestream/mailout-onprem-dev
+mongoDockerVersion=3.4.9
+onPremVersion=1.2.3
+rabbitDockerVersion=0.0.0
+rabbitmqRepo=teamcodestream/rabbitmq-onprem-dev
