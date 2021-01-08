@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.16] - 2021-1-8
+
+### Added
+
+- Adds backend support for the new integration with Linear
+
 ## [8.2.15] - 2020-12-22
 
 ### Changed
