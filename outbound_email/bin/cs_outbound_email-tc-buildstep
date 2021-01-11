@@ -16,7 +16,7 @@ runTimeEnvironment = su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV')
 print(f"CS_OUTBOUND_EMAIL_ENV={runTimeEnvironment}" or "")
 
 # 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
-assetExtensionList = ['tgz'] if runtTimeEnvironment in ['ci', 'pi'] else ['zip']
+assetExtensionList = ['tgz'] if runTimeEnvironment in ['ci', 'pi'] else ['zip']
 
 # 2. add any additional repos to be included (do not include primary repo)
 additionalRepos = []
