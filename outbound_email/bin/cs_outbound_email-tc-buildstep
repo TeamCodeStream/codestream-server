@@ -14,9 +14,12 @@ import buildUtils
 
 runTimeEnvironment = su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV')
 print(f"CS_OUTBOUND_EMAIL_ENV={runTimeEnvironment}" or "")
+cssvcEnvironment = su.someValueOrNone(os.environ, 'CSSVC_ENV')
+print(f"CSSVC_ENV={cssvcEnvironment}" or "")
 
 # 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
-assetExtensionList = ['tgz'] if runTimeEnvironment in ['ci', 'pi'] else ['zip']
+# assetExtensionList = ['tgz'] if runTimeEnvironment in ['ci', 'pi'] else ['zip']
+assetExtensionList = ['zip']
 
 # 2. add any additional repos to be included (do not include primary repo)
 additionalRepos = []
@@ -42,9 +45,6 @@ if not build:
 	su.printErr("could not get a build object")
 	exit(1)
 
-cssvcEnvironment = su.someValueOrNone(os.environ, 'CSSVC_ENV')
-print(f"CSSVC_ENV={cssvcEnvironment}" or "")
-
 buildName = build.getDisplayVersion("name")          # outbound-email
 fullName = build.getDisplayVersion("full")           # [prefix-]outbound-email-1.2.3+1000
 
@@ -62,14 +62,14 @@ elif args.action == 'citest':
 elif args.action == 'pack':
 	# build.pack()                              # create asset info file and package assets
 	if runTimeEnvironment in ['ci', 'pi']:
-		# for ci/pi builds we create an asset similar to the other codestream-server sandboxes
-		build.pack(csServerMonoRepoDir='outbound_email')
-	else:
-		# for other builds, create assets suitable for lambda deployment
-		build.execCmd("npm run pack")
-		os.rename(f"./dist/{buildName}.zip", f"{fullName}.zip")
-		build.getMD5SumsForAssets()
-		build.writeAssetInfo()
+		# for ci/pi builds we also create an asset for deployment as a codestream-server sandbox
+		build.addAssetExtensionList(['tgz'])
+		build.pack(csServerMonoRepoDir='outbound_email', packOnly=True)
+	# create asset suitable for awsLambda buildstep
+	build.execCmd(f"npm run {'pack' if runTimeEnvironment not in ['ci', 'pi'] else 'pack_without_config'}")
+	os.rename(f"./dist/{buildName}.zip", f"{fullName}.zip")
+	build.getMD5SumsForAssets()
+	build.writeAssetInfo()
 elif args.action == 'publish':
 	# we publish the vanilla asset (w/out a codestream or lambda config files) for CI and PI builds
 	# while lambda assets are published under their runTimeEnvironment
