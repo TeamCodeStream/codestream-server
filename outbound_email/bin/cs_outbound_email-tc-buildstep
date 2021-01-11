@@ -12,8 +12,11 @@ sys.path.append(os.environ['DT_TOP'] + "/lib")
 import sysUtils as su
 import buildUtils
 
+runTimeEnvironment = su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV')
+print(f"CS_OUTBOUND_EMAIL_ENV={runTimeEnvironment}" or "")
+
 # 1. add filename extensions for all assets created (tgz, vsix, zip, ...)
-assetExtensionList = ['zip']
+assetExtensionList = ['tgz'] if runtTimeEnvironment in ['ci', 'pi'] else ['zip']
 
 # 2. add any additional repos to be included (do not include primary repo)
 additionalRepos = []
@@ -39,8 +42,6 @@ if not build:
 	su.printErr("could not get a build object")
 	exit(1)
 
-runTimeEnvironment = su.someValueOrNone(os.environ, 'CS_OUTBOUND_EMAIL_ENV')
-print(f"CS_OUTBOUND_EMAIL_ENV={runTimeEnvironment}" or "")
 cssvcEnvironment = su.someValueOrNone(os.environ, 'CSSVC_ENV')
 print(f"CSSVC_ENV={cssvcEnvironment}" or "")
 
