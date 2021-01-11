@@ -60,10 +60,15 @@ elif args.action == 'citest':
 	print("testing not configured")
 elif args.action == 'pack':
 	# build.pack()                              # create asset info file and package assets
-	build.execCmd(f"npm run {'pack' if runTimeEnvironment not in ['ci', 'pi'] else 'pack_without_config'}")
-	os.rename(f"./dist/{buildName}.zip", f"{fullName}.zip")
-	build.getMD5SumsForAssets()
-	build.writeAssetInfo()
+	if runTimeEnvironment in ['ci', 'pi']:
+		# for ci/pi builds we create an asset similar to the other codestream-server sandboxes
+		build.pack(csServerMonoRepoDir='outbound_email')
+	else:
+		# for other builds, create assets suitable for lambda deployment
+		build.execCmd("npm run pack")
+		os.rename(f"./dist/{buildName}.zip", f"{fullName}.zip")
+		build.getMD5SumsForAssets()
+		build.writeAssetInfo()
 elif args.action == 'publish':
 	# we publish the vanilla asset (w/out a codestream or lambda config files) for CI and PI builds
 	# while lambda assets are published under their runTimeEnvironment
