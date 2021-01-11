@@ -377,5 +377,20 @@
 				"_loadSecretsFile": "segment/prod-api.cfg"
 			}
 		}
+	},
+	"uploadEngine": {
+		"s3": {
+			"defaultEnv": {
+				"bucket": "codestream-dev",
+				"keyPrefix": "usercontent/${CSSVC_ENV}",
+				"publicUrl": "http://codestream-dev.s3.us-east-1.amazonaws.com/usercontent/${CSSVC_ENV}"
+			},
+			"local": {},
+			"prod": {
+				"bucket": "codestream-prod",
+				"keyPrefix": "usercontent",
+				"publicUrl": "https://usercontent.codestream.com"
+			}
+		}
 	}
 }

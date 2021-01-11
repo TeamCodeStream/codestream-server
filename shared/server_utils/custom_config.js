@@ -65,6 +65,21 @@ function selectEmailDeliveryService(cfg) {
 	}
 }
 
+function selectUploadEngine(cfg) {
+	if (cfg.uploadEngine && !cfg.uploadEngine.selected) {
+		if(cfg.uploadEngine.s3) {
+			cfg.uploadEngine.selected = 's3';
+		}
+	}
+	else if (cfg.uploadEngine && !cfg.uploadEngine[cfg.uploadEngine.selected]) {
+		console.log(`uploadEngine ${cfg.uploadEngine.selected} parameters are missing. Disabling it.`);
+		cfg.uploadEngine.selected = null;
+	}
+	else {
+		cfg.uploadEngine = { selected: null };
+	}
+}
+
 // produce one unified config object for all backend services
 module.exports = function customConfigFunc(nativeCfg) {
 	const Cfg = JSON.parse(JSON.stringify(nativeCfg));
@@ -72,6 +87,8 @@ module.exports = function customConfigFunc(nativeCfg) {
 	selectBroadcastEngine(Cfg);
 	selectQueuingEngine(Cfg);
 	selectEmailDeliveryService(Cfg);
+	// use Config.uploadEngine.selected to determine if an uploadEngine is available (null || 's3')
+	selectUploadEngine(Cfg);
 
 	// telemetry
 	if(Cfg.telemetry && Cfg.telemetry.disabled) {

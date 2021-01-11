@@ -854,5 +854,33 @@
 				"desc": "segment web token for the web app"
 			}
 		}
+	},
+	"uploadEngine": {
+		"s3": {
+			"bucket": {
+				"default": "codestream-dev",
+				"desc": "S3 bucket name",
+				"env": "CSSVC_S3_BUCKET_NAME"
+			},
+			"disableSse": {
+				"default": false,
+				"desc": "disable server-side-encryption when copying images to S3",
+				"env": "CSSVC_S3_DISABLE_SSE"
+			},
+			"keyPrefix": {
+				"default": "usercontent/users/${DT_USER}",
+				"desc": "S3 object key prefix (no trailing /)",
+				"env": "CSSVC_S3_KEY_PREFIX"
+			},
+			"publicUrl": {
+				"default": "http://codestream-dev.s3.us-east-1.amazonaws.com/usercontent/users/${DT_USER}",
+				"desc": "public-facing url and prefix for serving images from S3",
+				"env": "CSSVC_S3_PUBLIC_URL"
+			}
+		},
+		"selected": {
+			"desc": "selected upload engine (s3)",
+			"env": "CSSVC_UPLOAD_ENGINE"
+		}
 	}
 }
