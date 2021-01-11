@@ -1,19 +1,21 @@
 
-#desc# outbound email playground
+#desc# outbound email playground installed with module
 
 #playgroundName# mailout
 #sandboxTypes# cs_mailout
 #sandboxes# {{SBNAME_cs_mailout}}
-#environment# local
+#environment# {{CSSVC_ENV}}
 
 dt_load {{SBNAME_cs_mailout}}
+cd $CS_OUTBOUND_EMAIL_TOP
+
 if [ "$1" == start ]; then
 	cs_outbound_email-service start
 elif [ "$1" == stop ]; then
 	cs_outbound_email-service stop
+	sleep 3
 fi
-cd $CS_OUTBOUND_EMAIL_TOP
 
 # uncomment these if you use iterm2 and want to colorize your tabs
 # . $DT_TOP/lib/iterm2-utils.sh
-# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 88 45
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 28 45
