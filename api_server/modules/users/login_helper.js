@@ -187,6 +187,9 @@ class LoginHelper {
 		if (this.notTrueLogin) {
 			return;
 		}
+
+		const { isOnPrem, runTimeEnvironment } = this.apiConfig.sharedGeneral;
+
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
@@ -197,16 +200,29 @@ class LoginHelper {
 					interactiveComponentsEnabled: this.api.config.integrations.slack.interactiveComponentsEnabled
 				}
 			},
-			runTimeEnvironment: this.apiConfig.sharedGeneral.isOnPrem ? 'onprem' : this.apiConfig.sharedGeneral.runTimeEnvironment
+			runtimeEnvironment: isOnPrem ? 'onprem' : runTimeEnvironment
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub
 			this.responseData.pubnubToken = this.pubnubToken;	// token used to subscribe to PubNub channels
 		}
+
+		// handle capabilities
 		if (this.apiConfig.email.suppressEmails) {
+			// remove capability for outbound email support if suppressEmails is set in configuration
 			delete this.responseData.capabilities.emailSupport;
 		}
 		
+		// if on-prem, remove any capabilities marked as cloud only
+		if (isOnPrem) {
+			Object.keys(this.responseData.capabilities).forEach(key => {
+				const capability = this.responseData.capabilities[key];
+				if (capability.cloudOnly) {
+					delete this.responseData.capabilities[key];
+				}
+			});
+		}
+
 		// if using socketcluster for messaging (for on-prem installations), return host info
 		if (this.apiConfig.broadcastEngine.selected === 'codestreamBroadcaster') {
 			const { host, port, ignoreHttps } = this.apiConfig.broadcastEngine.codestreamBroadcaster;

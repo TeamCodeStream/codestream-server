@@ -18,7 +18,7 @@ class AWSModule extends APIServerModule {
 		return async () => {
 			this.api.log('Initiating SQS connection...');
 			this.aws = new AWS(this.api.config.queuingEngine.awsSQS);
-			this.awsServices = {};
+			this.awsServices = { aws: this.aws };
 			this.initializeSQS();
 			return this.awsServices;
 		};

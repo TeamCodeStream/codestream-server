@@ -87,7 +87,7 @@ class CodemarkCreator extends ModelCreator {
 				boolean: ['isChangeRequest', '_dontCreatePermalink'],
 				string: ['postId', 'streamId', 'parentPostId', 'providerType', 'status', 'color', 'title', 'text', 'externalProvider', 'externalProviderHost', 'externalProviderUrl', 'createPermalink'],
 				object: ['remoteCodeUrl', 'threadUrl'],
-				'array(object)': ['markers', 'externalAssignees'],
+				'array(object)': ['markers', 'externalAssignees', 'attachments'],
 				'array(string)': ['assignees', 'relatedCodemarkIds', 'tags', 'followerIds']
 			}
 		};

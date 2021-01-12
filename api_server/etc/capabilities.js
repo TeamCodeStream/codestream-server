@@ -90,5 +90,10 @@ module.exports = {
 	'testGroups': {
 		description: 'Supports the /company-test-groups/:id call, to set randomized test groups for a company',
 		version: '8.2.15'
+	},
+	'fileUploads': {
+		description: 'Supports file uploading',
+		version: '8.2.17',
+		cloudOnly: true
 	}
 };
