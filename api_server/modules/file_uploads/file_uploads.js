@@ -23,6 +23,7 @@ const DEPENDENCIES = [
 class FileUploads extends APIServerModule {
 
 	async initialize () {
+this.api.log('Initializing S3:', this.api.config.uploadEngine);
 		if (this.api.config.uploadEngine.selected !== 's3') {
 			this.api.log('S3 is not the selected upload engine');
 			return;
@@ -32,9 +33,11 @@ class FileUploads extends APIServerModule {
 			s3: this.api.services.aws.s3,
 			bucket,
 			acl: 'public-read', // over my objection :) - Colin
-			serverSideEncryption: disableSse ? undefined : 'AES256',
 			key: this.makeFilename.bind(this)
 		};
+		if (!disableSse) {
+			options.serverSideEncryption = 'AES256';
+		}
 		this.multer = Multer({ storage: MulterS3(options) });
 	}
 
