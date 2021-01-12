@@ -23,7 +23,6 @@ const DEPENDENCIES = [
 class FileUploads extends APIServerModule {
 
 	async initialize () {
-this.api.log('Initializing S3: ' + JSON.stringify(this.api.config.uploadEngine));
 		if (this.api.config.uploadEngine.selected !== 's3') {
 			this.api.log('S3 is not the selected upload engine');
 			return;
@@ -32,7 +31,6 @@ this.api.log('Initializing S3: ' + JSON.stringify(this.api.config.uploadEngine))
 		const options = {
 			s3: this.api.services.aws.s3,
 			bucket,
-			acl: 'public-read', // over my objection :) - Colin
 			key: this.makeFilename.bind(this)
 		};
 		if (!disableSse) {
@@ -82,7 +80,6 @@ this.api.log('Initializing S3: ' + JSON.stringify(this.api.config.uploadEngine))
 		const teamId = match[1].toLowerCase();
 		const key = UUID();
 		const filename = `${keyPrefix}/${teamId}/${key}/${file.originalname}`;
-		this.api.log(`Uploading to S3 file ${filename}`);
 		return callback(null, filename);
 	}
 
