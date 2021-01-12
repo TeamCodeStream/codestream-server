@@ -35,9 +35,11 @@ this.api.log('Initializing S3: ' + JSON.stringify(this.api.config.uploadEngine))
 			acl: 'public-read', // over my objection :) - Colin
 			key: this.makeFilename.bind(this)
 		};
+		/*
 		if (!disableSse) {
 			options.serverSideEncryption = 'AES256';
 		}
+		*/
 		this.multer = Multer({ storage: MulterS3(options) });
 	}
 
