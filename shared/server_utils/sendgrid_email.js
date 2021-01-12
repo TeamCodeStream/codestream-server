@@ -62,11 +62,6 @@ class SendGridEmail {
 		}
 	}
 
-	// set email address to divert all emails to, for developer testing
-	divertTo (email) {
-		this.emailTo = email;
-	}
-
 	// check if we're blocking email sends for some reason
 	checkBlocking (request, options) {
 		if (options.testCallback) {

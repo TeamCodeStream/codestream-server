@@ -37,11 +37,11 @@ class SMTPEmail {
 			return;
 		}
 
-		if (this.config.email.emailTo) {
+		if (this.config.emailTo) {
 			// we're going to divert this email to a particular address (usually for developer testing)
 			// we'll put the real email address in the subject for debugging
 			options.subject = `{{{${options.to}}}} ${options.subject}`;
-			options.to = this.config.email.emailTo;
+			options.to = this.config.emailTo;
 			if (options.logger) {
 				options.logger.log(`Diverting to ${options.to}`);
 			}
