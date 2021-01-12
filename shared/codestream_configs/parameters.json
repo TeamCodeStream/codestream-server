@@ -873,7 +873,7 @@
 				"env": "CSSVC_S3_KEY_PREFIX"
 			},
 			"publicUrl": {
-				"default": "http://codestream-dev.s3.us-east-1.amazonaws.com/usercontent/users/${DT_USER}",
+				"default": "http://codestream-dev.s3.us-east-1.amazonaws.com",
 				"desc": "public-facing url and prefix for serving images from S3",
 				"env": "CSSVC_S3_PUBLIC_URL"
 			}
