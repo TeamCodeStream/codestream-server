@@ -49,7 +49,8 @@ class UserInviter {
 			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			userBeingAddedToTeamId: this.team.id,
 			inviteCodeExpiresIn: this.inviteCodeExpiresIn,
-			inviteInfo: this.inviteInfo
+			inviteInfo: this.inviteInfo,
+			inviteType: this.inviteType
 		});
 		const createdUser = await userCreator.createUser(userData);
 		const didExist = !!userCreator.existingModel;

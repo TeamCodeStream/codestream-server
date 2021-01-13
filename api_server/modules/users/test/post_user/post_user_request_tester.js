@@ -42,6 +42,7 @@ const AdminsCanInviteTest = require('./admins_can_invite_test');
 const DuplicateUsernameOkTest = require('./duplicate_username_ok_test');
 const NumUsersInvitedTest = require('./num_users_invited_test');
 const TrimEmailTest = require('./trim_email_test');
+const ManualInviteTypeTest = require('./manual_invite_type_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -94,6 +95,7 @@ class PostUserRequestTester {
 		new DuplicateUsernameOkTest().test();
 		new NumUsersInvitedTest().test();
 		new TrimEmailTest().test();
+		new ManualInviteTypeTest().test();
 	}
 }
 

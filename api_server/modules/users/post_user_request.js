@@ -38,7 +38,7 @@ class PostUserRequest extends PostRequest {
 	// require certain parameters, and discard unknown parameters
 	async requireAndAllow () {
 		// many attributes that are allowed but don't become attributes of the created user
-		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn'].forEach(parameter => {
+		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn', 'inviteType'].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
 		});
@@ -50,7 +50,7 @@ class PostUserRequest extends PostRequest {
 					string: ['teamId', 'email']
 				},
 				optional: {
-					string: ['_pubnubUuid', 'fullName'],
+					string: ['_pubnubUuid', 'fullName', 'inviteType'],
 					object: ['inviteInfo'],
 					boolean: ['dontSendEmail']
 				}
@@ -70,6 +70,7 @@ class PostUserRequest extends PostRequest {
 			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
 			delayEmail: this._delayEmail,
 			inviteInfo: this.inviteInfo,
+			inviteType: this.inviteType,
 			user: this.user,
 			dontSendEmail: this.dontSendEmail
 		});

@@ -171,7 +171,10 @@ class UserCreator extends ModelCreator {
 		}
 
 		// set lastInviteType, can be triggered by a review or codemark notification
-		if (this.attributes.inviteTrigger) {
+		if (this.options.inviteType) {
+			this.attributes.lastInviteType = this.options.inviteType;
+		}
+		else if (this.attributes.inviteTrigger) {
 			if (this.attributes.inviteTrigger.startsWith('R')) {
 				this.attributes.lastInviteType = 'reviewNotification';
 			}
