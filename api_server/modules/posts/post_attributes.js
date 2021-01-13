@@ -72,5 +72,11 @@ module.exports = {
 	reviewCheckpoint: {
 		type: 'number',
 		description: 'Checkpoint number of the review this post is associated with'
+	},
+	files: {
+		type: 'arrayOfObjects',
+		maxLength: 20,
+		maxObjectLength: 500,
+		description: 'Attachments to this codemark'
 	}
 };

@@ -171,11 +171,5 @@ module.exports = {
 	isChangeRequest: {
 		type: 'boolean',
 		description: 'Whether this codemark represents a change request against its attached code review'
-	},
-	attachments: {
-		type: 'arrayOfObjects',
-		maxLength: 20,
-		maxObjectLength: 500,
-		description: 'Attachments to this codemark'
 	}
 };
