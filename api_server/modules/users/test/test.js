@@ -23,7 +23,6 @@ describe('user requests', function() {
 
 	this.timeout(20000);
 
-	/*
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /no-auth/login', userRequestTester.loginTest);
@@ -35,9 +34,7 @@ describe('user requests', function() {
 	describe('GET /preferences', userRequestTester.getPreferencesTest);
 	describe('PUT /preferences', userRequestTester.putPreferencesTest);
 	describe('PUT /users/:id', userRequestTester.putUserTest);
-	*/
 	describe('POST /users', userRequestTester.postUserTest);
-	/*
 	describe('PUT /grant/:channel', userRequestTester.grantTest);
 	describe('GET /sessions', GetSessionsRequestTester.test);
 	describe('PUT /presence', PresenceRequestTester.test);
@@ -49,5 +46,4 @@ describe('user requests', function() {
 	describe('PUT /bump-posts', BumpPostsRequestTester.test);
 	describe('GET /no-auth/invite-info', InviteInfoRequestTester.test);
 	describe('DELETE /users/:id', DeleteUserRequestTester.test);
-	*/
 });
