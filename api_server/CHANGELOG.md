@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.17] - 2021-1-13
+
+### Fixed
+
+- Fixes [#41](https://github.com/TeamCodeStream/codestream-server/issues/41) &mdash; Cannot send email using generic STMP
+
 ## [8.2.16] - 2021-1-8
 
 ### Added
