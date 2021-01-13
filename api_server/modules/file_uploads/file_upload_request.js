@@ -23,7 +23,7 @@ class UploadFileRequest extends RestfulRequest {
 		this.responseData = {
 			url: `${publicUrl}/${file.key}`,
 			name: file.originalname,
-			type: file.mimetype,
+			mimetype: file.mimetype,
 			size: file.size
 		};
 		return super.handleResponse();
