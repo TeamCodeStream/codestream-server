@@ -10,6 +10,8 @@ module.exports = {
 	'slack': 'Slack',
 	'msteams': 'Microsoft Teams',
 	'azuredevops': 'Azure DevOps',
-	'vsts': 'Visual Studio Team Services'
+	'vsts': 'Visual Studio Team Services',
+	'linear': 'Linear',
+	'clubhouse': 'Clubhouse'
 };
 
