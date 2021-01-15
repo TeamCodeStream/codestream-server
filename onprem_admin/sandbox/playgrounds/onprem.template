@@ -1,0 +1,10 @@
+
+#desc# onprem playground installed with module (all server sandboxes)
+
+for pg in mongo broadcaster api mailout; do [ -f $DT_PLAYGROUNDS/$pg ] && dt_load $pg --quiet; done
+dt_load opadm
+cd $OPADM_TOP
+
+# uncomment these if you use iterm2 and want to colorize your tabs
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 28 45

@@ -1,0 +1,20 @@
+
+#desc# broadcaster playground installed with module
+
+#playgroundName# broadcaster
+#sandboxTypes# broadcast
+#sandboxes# {{SBNAME_broadcast}}
+#environment# {{CSSVC_ENV}}
+
+dt_load {{SBNAME_broadcast}}
+cd $CS_BROADCASTER_TOP
+
+if [ "$1" == start ]; then
+	cs_broadcaster-service start
+elif [ "$1" == stop ]; then
+	cs_broadcaster-service stop
+fi
+
+# uncomment these if you use iterm2 and want to colorize your tabs
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 88 45
