@@ -124,6 +124,7 @@ function dispatchLoadConfiguration(dispatch, state, configDoc ) {
 	dispatch({ type: ConfigActions.CONFIG_LOAD_NEW_CONFIG, payload: configData });
 	dispatch({ type: OriginalConfigActions.ORIGINAL_CFG_LOAD_NEW_CONFIG, payload: configData });
 
+	// locate the entry in the config history with the active serial number
 	let entry = state.presentation.configuration.history.summary.filter((cfg) => {
 		return cfg.serialNumber === serialNumber;
 	})[0];

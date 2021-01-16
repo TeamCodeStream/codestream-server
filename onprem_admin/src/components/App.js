@@ -8,9 +8,10 @@ import { connect } from 'react-redux';
 // my components
 import Header from './header/Header';
 import Omnibar from './omnibar/Omnibar';
+import SubNav from './subnav/SubNav';
+import Login from './login/Login';
 import Pane from './pane/Pane';
 import Footer from './footer/Footer';
-import SubNav from './subnav/SubNav';
 import { loadSystemMessageHistory } from '../store/actions/status'
 // import BSTest1 from './pane/configuration/layoutTests/BSTest1';
 // import AccordionArrows from './pane/configuration/layoutTests/AccordionArrows';
@@ -19,7 +20,12 @@ import { loadSystemMessageHistory } from '../store/actions/status'
 
 class App extends React.Component {
 	componentDidMount() {
-		this.props.dispatch(loadSystemMessageHistory());
+		if (this.props.loggedIn) {
+			this.props.dispatch(loadSystemMessageHistory());
+		}
+		else {
+			console.debug('we are NOT logged in');
+		}
 		// enable bootstrap tooltips
 		// $(function () {
 		// 	$('[data-toggle="tooltip"]').tooltip();
@@ -33,6 +39,7 @@ class App extends React.Component {
 
 	// layout-*: classes for defining layout sections
 	render() {
+		// console.log('App(render()):', this.props);
 		return (
 			// <div className="App container-fluid p-0 text-light bg-secondary">
 			<div className="App container-fluid p-0 d-flex vh-100 h-100 flex-column text-light bg-secondary">
@@ -51,10 +58,10 @@ class App extends React.Component {
 					</span>
 				</div>
 
-				{/* The 'onmibar' is a section below the navbar and above the pane which will exist for all screens. */}
+				{/* The 'SubNav' is a section below the omnibar that provides a sub-menu for selected panes. */}
 				<div className="row row-cols-1">
 					<span className="col">
-						<SubNav />
+						{this.props.loggedIn ? <SubNav /> : <></>}
 					</span>
 				</div>
 
@@ -63,7 +70,8 @@ class App extends React.Component {
 				{/* <span className="col"> */}
 				<div className="row row-cols-1 flex-fill d-flex overflow-auto">
 					<span className="col portlet-conteainer portlet-dropzone">
-						<Pane />
+						{this.props.loggedIn ? <Pane /> : <Login />}
+						{/* <Pane /> */}
 						{/* <Accordion /> */}
 						{/* <BSTest1 /> */}
 					</span>
@@ -81,7 +89,7 @@ class App extends React.Component {
 };
 
 const mapState = (state) => ({
-	statusMessages: state.status.statusMessages,
+	loggedIn: state.status.loggedIn,
 });
 
 const mapDispatch = (dispatch) => ({

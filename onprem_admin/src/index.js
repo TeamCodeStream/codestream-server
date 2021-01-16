@@ -3,8 +3,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-// import socketIOClient from 'socket.io-client';
-import socketIOClientHandler from './lib/socketIOClient';
+import setupSocketClientHandler from './lib/socketIOClient';
 
 import StringifySortReplacer from '../../shared/server_utils/stringify_sort_replacer';
 import StoreFactory from './store';
@@ -55,14 +54,14 @@ Store.subscribe(() => {
 
 // each client creates a socketIO connection to the admin server and receives
 // regular updates of the system status as a heart beat
-socketIOClientHandler(Store);
+const socket = setupSocketClientHandler(Store);
 
 // https://stackoverflow.com/questions/46865880/react-16-warning-expected-server-html-to-contain-a-matching-div-in-div-due
 // console.log(`module.hot: ${module.hot}`);
 // const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate;
 ReactDOM.render(
 	<Provider store={Store}>
-		<App />
+		<App socket={socket} />
 	</Provider>,
 	document.getElementById('root')
 );

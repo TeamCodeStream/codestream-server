@@ -2,7 +2,7 @@
 
 import http from 'http';
 import socketIO from 'socket.io';
-import AdminServer from '../lib/adminServer';
+import prepareAdminServer from '../lib/adminServer';
 import startSocketIOServer from '../lib/socketIOServer';
 import systemStatusFactory from '../lib/systemStatus';
 import AdminConfig from '../config/config';
@@ -45,8 +45,10 @@ import GlobalData from '../config/globalData';
 	// Use the mongo structured config object's mongo client for all things mongo
 	GlobalData.MongoClient = GlobalData.MongoStructuredConfig.getMongoClient();
 
+	const adminServer = await prepareAdminServer();
+
 	// Create a socket IO server
-	const httpServer = http.createServer(AdminServer);
+	const httpServer = http.createServer(adminServer);
 	const io = socketIO(httpServer);
 
 	// start accepting connections on the socket io server
@@ -59,7 +61,7 @@ import GlobalData from '../config/globalData';
 	// Make the socketIO accessible inside express middleware and the AdminServer itself
 	//   available to middleware as req.app.get('io')
 	//   available elsewhere as require('./adminServer').get('io')
-	AdminServer.set('io', io);
+	adminServer.set('io', io);
 
 	// and away we go!
 	httpServer.listen(Config.adminServer.port, () => {

@@ -200,6 +200,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 				? (await this.db.collection(this.configCollection).countDocuments({ schemaVersion: configDoc.schemaVersion })) || 0
 				: result.maxRevision + 1;
 
+			// FIXME: we've got to do something better than reindex the collection with every write
 			// write the new config and create an index
 			result = await this.db.collection(this.configCollection).insertOne(configDoc);
 			await this.db.collection(this.configCollection).createIndex({ schemaVersion: 1, timeStamp: -1 }, { name: 'bySchema' });

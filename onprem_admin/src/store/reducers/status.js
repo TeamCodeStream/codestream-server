@@ -2,7 +2,7 @@
 import produce from 'immer';
 import Actions from '../actions/status';
 import findObjectsBy from '../../lib/findObjectInObjectList';
-import sortBy from '../../lib/sortObjectListByProps';
+// import sortBy from '../../lib/sortObjectListByProps';
 
 // 'produce' creates a mutable object called 'draft' which you can consider a
 // deep copy of the state. 'draft' should be modified to reflect the next state.
@@ -53,6 +53,13 @@ export default (state = null, action) =>
 			case Actions.STATUS_LOAD_SYSTEM_MESSAGE_HISTORY:
 				draft.statusMessages = action.payload;
 				// console.log('STATUS_LOAD_SYSTEM_MESSAGE_HISTORY', action.payload);
+				break;
+			case Actions.STATUS_LOGIN:
+				draft.loggedIn = true;
+				draft.adminAccoutExists = true;
+				draft.activeConfigSerialNumber = action.payload.activeConfigSerialNumber;
+				draft.codeSchemaVersion = action.payload.codeSchemaVersion;
+				draft.runningRevision = action.payload.runningRevision;
 				break;
 		}
 	});

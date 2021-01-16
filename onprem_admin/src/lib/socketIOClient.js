@@ -3,7 +3,7 @@
 import socketIOClient from 'socket.io-client';
 import Actions from '../store/actions';
 
-function socketClientHandler(Store) {
+function setupSocketClientHandler(Store) {
 	// each client creates a socketIO connection to the admin server and receives
 	// regular updates of the system status as a heart beat
 	const socket = socketIOClient(window.location.origin);
@@ -16,7 +16,9 @@ function socketClientHandler(Store) {
 	socket.on('statusMessage', (data) => {
 		console.debug('got a statusMessage event', data);
 		Store.dispatch({ type: Actions.STATUS_PROCESS_MESSAGE_EVENT, payload: data });
-	})
+	});
+
+	return socket;
 }
 
-export default socketClientHandler;
+export default setupSocketClientHandler;
