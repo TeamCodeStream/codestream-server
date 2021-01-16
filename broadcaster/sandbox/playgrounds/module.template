@@ -1,7 +1,7 @@
 
 #desc# broadcaster playground installed with module
 
-#playgroundName# broadcaster
+#playgroundName# bc
 #sandboxTypes# broadcast
 #sandboxes# {{SBNAME_broadcast}}
 #environment# {{CSSVC_ENV}}
