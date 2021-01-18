@@ -38,6 +38,9 @@ class LinkReviewRequest extends WebRequestBase {
 			if (this.request.query.errorData) {
 				redirect += `&errorData=${this.request.query.errorData}`;
 			}
+			if (this.request.query.src) {
+				redirect += `&src=${this.request.query.src}`;
+			}
 			this.response.redirect(redirect);
 			this.responseHandled = true;
 			return false;

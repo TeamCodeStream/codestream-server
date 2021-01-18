@@ -48,6 +48,9 @@ class WebSigninRequest extends APIRequest {
 		if (this.request.body.tenantId) {
 			redirect += '&tenantId=' + encodeURIComponent(this.request.body.tenantId || '');
 		}
+		if (this.request.body.src) {
+			redirect += '&src=' + encodeURIComponent(this.request.body.src || '');
+		}
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
@@ -74,7 +77,9 @@ class WebSigninRequest extends APIRequest {
 			this.responseHandled = true;
 		}
 		else {
-			this.responseHandled = new SigninFlowUtils(this).finish(this.request.body.finishUrl);
+			this.responseHandled = new SigninFlowUtils(this).finish(this.request.body.finishUrl, {
+				src: this.request.body.src
+			});
 		}
 	}
 }

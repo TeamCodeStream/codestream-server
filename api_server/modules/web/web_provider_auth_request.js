@@ -112,7 +112,8 @@ class WebProviderAuthRequest extends APIRequest {
 
 	redirectLogin (error) {
 		const url = encodeURIComponent(this.request.query.url);
-		this.response.redirect(`/web/login?error=${error}&url=${url}`);
+		const src = encodeURIComponent(this.request.query.src);
+		this.response.redirect(`/web/login?error=${error}&url=${url}&src=${src}`);
 		this.responseHandled = true;
 	}
 

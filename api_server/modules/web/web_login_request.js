@@ -18,6 +18,7 @@ class WebLoginRequest extends APIRequest {
 		const error = this.request.query.error ? this.handleError() : '';
 		const finishUrl = decodeURIComponent(this.request.query.url || '');
 		const tenantId = decodeURIComponent(this.request.query.tenantId || '');
+		const src = decodeURIComponent(this.request.query.src || "");
 		const links = [];
 		['github', 'gitlab', 'bitbucket'].forEach(provider => {
 			let link = `/web/provider-auth/${provider}?noSignup=1`;
@@ -28,6 +29,9 @@ class WebLoginRequest extends APIRequest {
 			else if (finishUrl) {
 				// since we're not POSTed, we attach the finishUrl here
 				link += `&url=${finishUrl}`;
+			}
+			if (src) {
+				link += `&src=${src}`;
 			}
 			links.push(link);
 		});
@@ -50,7 +54,9 @@ class WebLoginRequest extends APIRequest {
 			bitbucketIcon: Icons['bitbucket'],
 			oktaIcon: Icons['okta'],
 			oktaEnabled,
-			csrf
+			csrf,
+			src: src,
+			segmentKey: this.api.config.telemetry.segment.webToken
 		});
 	}
 
