@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.18] - 2021-1-19
+
+### Fixed
+
+- Fixes with the fetching of too much history data from PubNub if client clock is inaccurately set
+
 ## [8.2.17] - 2021-1-13
 
 ### Fixed
