@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- Fixes with the fetching of too much history data from PubNub if client clock is inaccurately set
+- Minor bug fixes and improvements
 
 ## [8.2.17] - 2021-1-13
 
