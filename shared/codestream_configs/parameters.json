@@ -691,14 +691,20 @@
 		"awsSQS": {
 			"outboundEmailQueueName": {
 				"default": "local_${DT_USER}_outboundEmail",
-				"desc": "SQS queue name",
+				"desc": "SQS outbound email queue name",
 				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
-				"envRequred": true
+				"envRequred": false
 			},
 			"region": {
 				"default": "us-east-1",
 				"desc": "AWS region where queue resides",
 				"env": "AWS_REGION"
+			},
+			"reinviteEmailQueueName": {
+				"default": "local_${DT_USER}_reinviteEmail",
+				"desc": "SQS reinvite email queue name",
+				"env": "CSSVC_REINVITE_EMAIL_QUEUE_NAME",
+				"envRequred": false
 			}
 		},
 		"rabbitmq": {
@@ -721,6 +727,12 @@
 				"default": 5672,
 				"desc": "network port for rabbitmq service",
 				"env": "CSSVC_RABBITMQ_PORT"
+			},
+			"reinviteEmailQueueName": {
+				"default": "reinviteEmail",
+				"desc": "SQS reinvite email queue name",
+				"env": "CSSVC_REINVITE_EMAIL_QUEUE_NAME",
+				"envRequred": false
 			},
 			"user": {
 				"default": "code",

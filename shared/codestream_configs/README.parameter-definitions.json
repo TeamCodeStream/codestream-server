@@ -233,14 +233,16 @@
 	},
 	"queuingEngine": {
 		"awsSQS": {
-			"outboundEmailQueueName": "SQS queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
-			"region": "AWS region where queue resides [AWS_REGION]"
+			"outboundEmailQueueName": "SQS outbound email queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
+			"region": "AWS region where queue resides [AWS_REGION]",
+			"reinviteEmailQueueName": "SQS reinvite email queue name [CSSVC_REINVITE_EMAIL_QUEUE_NAME]"
 		},
 		"rabbitmq": {
 			"host": "hostname of rabbitMQ service",
 			"outboundEmailQueueName": "RabbitMQ queue name [CSSVC_OUTBOUND_EMAIL_QUEUE_NAME]",
 			"password": "rabbitmq password for authentication [CSSVC_RABBITMQ_PASS]",
 			"port": "network port for rabbitmq service [CSSVC_RABBITMQ_PORT]",
+			"reinviteEmailQueueName": "SQS reinvite email queue name [CSSVC_REINVITE_EMAIL_QUEUE_NAME]",
 			"user": "rabbitmq user for authentication [CSSVC_RABBITMQ_USER]"
 		}
 	},

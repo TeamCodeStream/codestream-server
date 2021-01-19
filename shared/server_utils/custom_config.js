@@ -44,6 +44,9 @@ function selectQueuingEngine(cfg) {
 	if (!cfg.queuingEngine[cfg.queuingEngine.selected].outboundEmailQueueName) {
 		cfg.queuingEngine[cfg.queuingEngine.selected].outboundEmailQueueName = 'outboundEmail';
 	}
+	if (!cfg.queuingEngine[cfg.queuingEngine.selected].reinviteEmailQueueName) {
+		cfg.queuingEngine[cfg.queuingEngine.selected].reinviteEmailQueueName = 'reinviteEmail';
+	}
 }
 
 // Read the structured config to determine which email delivery service we'll
