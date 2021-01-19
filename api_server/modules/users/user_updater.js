@@ -31,7 +31,8 @@ class UserUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'],
-			object: ['modifiedRepos', 'compactModifiedRepos', 'status', 'avatar']
+			object: ['modifiedRepos', 'compactModifiedRepos', 'status', 'avatar'],
+			boolean: ['hasGitLens']
 		};
 	}
 

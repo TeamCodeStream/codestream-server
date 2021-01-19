@@ -304,5 +304,9 @@ module.exports = {
 		type: 'string',
 		description: 'Two-letter country code for the user, obtained from the IP on login',
 		maxLength: 2
+	},
+	hasGitLens: {
+		type: 'boolean',
+		description: 'Indicates that user has GitLens installed'
 	}
 };

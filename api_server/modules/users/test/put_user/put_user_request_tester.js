@@ -23,7 +23,7 @@ const CompactModifiedReposInvalidTeamTest = require('./compact_modified_repos_in
 const NoCompactAndModifiedReposTest = require('./no_compact_and_modified_repos_test');
 
 const UserAttributes = require('../../user_attributes');
-const CAN_UPDATE_ATTRIBUTES = ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn', 'status', 'avatar'];
+const CAN_UPDATE_ATTRIBUTES = ['username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn', 'status', 'avatar', 'hasGitLens'];
 
 class PutUserRequestTester {
 

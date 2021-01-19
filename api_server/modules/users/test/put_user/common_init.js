@@ -55,6 +55,9 @@ class CommonInit {
 			case 'object':
 				value = { x: 1, y: 'two' };
 				break;
+			case 'boolean':
+				value = true;
+				break;
 			}
 			this.data[attribute] = value;
 		});
