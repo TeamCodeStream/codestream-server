@@ -38,14 +38,16 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 		});
 		addedUsers.sort();
 
-		Assert.deepEqual(newEmails, addedUsers, 'returned users did not match the new users sent in the request');
+		Assert.deepStrictEqual(newEmails, addedUsers, 'returned users did not match the new users sent in the request');
 
 		// all the returned users should have been added to the team
-		data.users.forEach(user => {
+		data.users.forEach((user, i) => {
 			Assert(user.teamIds.includes(this.team.id), 'new user was not added to team');
 			if (!user.isRegistered) {
-				Assert.equal(user.lastInviteType, 'codemarkNotification', 'lastInviteType should be set to codemarkNotification');
-				Assert.equal(user.inviteTrigger, `C${data.codemark.id}`, 'inviteTrigger should be set to "C" plus the codemark id');
+				const firstInviteType = this.noFirstInviteType && this.noFirstInviteType[i] ? undefined : 'codemarkNotification';
+				Assert.strictEqual(user.lastInviteType, 'codemarkNotification', 'lastInviteType should be set to codemarkNotification');
+				Assert.strictEqual(user.firstInviteType, firstInviteType, 'firstInviteType should be set to ' + (firstInviteType || 'undefined'));
+				Assert.strictEqual(user.inviteTrigger, `C${data.codemark.id}`, 'inviteTrigger should be set to "C" plus the codemark id');
 			}
 		});
 

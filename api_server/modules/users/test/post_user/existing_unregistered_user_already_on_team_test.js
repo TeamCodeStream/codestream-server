@@ -8,6 +8,7 @@ class ExistingUnregisteredUserAlreadyOnTeamTest extends PostUserTest {
 		super(options);
 		this.wantExistingUser = true;
 		this.existingUserAlreadyOnTeam = true;
+		this.noFirstInviteType = true;
 	}
 
 	get description () {

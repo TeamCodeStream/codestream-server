@@ -12,7 +12,7 @@ class ManualInviteTypeTest extends PostUserTest {
 	// form the data for the user update
 	makeUserData (callback) {
 		// set a manual invite type
-		this.lastInviteType = RandomString.generate(10);
+		this.firstInviteType = this.lastInviteType = RandomString.generate(10);
 		super.makeUserData(() => {
 			this.data.inviteType = this.lastInviteType;
 			callback();

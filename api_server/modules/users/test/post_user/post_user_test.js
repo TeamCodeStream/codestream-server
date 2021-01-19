@@ -78,7 +78,9 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		if (!this.existingUserIsRegistered) {
 			Assert(user.inviteCode, 'user does not have an invite code');
 			const lastInviteType = this.lastInviteType || (this.wantExistingUser ? 'reinvitation' : 'invitation');
-			Assert.equal(user.lastInviteType, lastInviteType, 'lastInvteType not correct');
+			Assert.strictEqual(user.lastInviteType, lastInviteType, 'lastInvteType not correct');
+			const firstInviteType = this.noFirstInviteType ? undefined : (this.firstInviteType || 'invitation');
+			Assert.strictEqual(user.firstInviteType, firstInviteType, 'firstInviteType not correct');
 		}
 		else {
 			Assert(!user.inviteCode, 'user has an invite code but there should not be one');

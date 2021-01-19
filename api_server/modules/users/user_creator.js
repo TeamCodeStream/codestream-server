@@ -188,6 +188,11 @@ class UserCreator extends ModelCreator {
 		else {
 			this.attributes.lastInviteType = 'invitation';
 		}
+
+		// set firstInviteType, only for new users
+		if (this.attributes.lastInviteType && !this.existingModel) {
+			this.attributes.firstInviteType = this.attributes.lastInviteType;
+		}
 	}
 
 	// generate an invite code ... this might be a simple GUID, or it might have baked-in

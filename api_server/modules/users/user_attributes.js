@@ -246,6 +246,11 @@ module.exports = {
 		maxLength: 25,
 		description: 'Invite type the last time this user was invited, one of: "invitation", "reinvitation", "reviewNotification", "codemarkNotification"'
 	},
+	firstInviteType: {
+		type: 'string',
+		maxLength: 25,
+		description: 'Invite type the first time this user was invited, one of: "invitation", "reinvitation", "reviewNotification", "codemarkNotification"'
+	},
 	inviteTrigger: {
 		type: 'string',
 		maxLength: 25,
