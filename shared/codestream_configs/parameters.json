@@ -876,6 +876,11 @@
 				"default": "http://codestream-dev.s3.us-east-1.amazonaws.com",
 				"desc": "public-facing url and prefix for serving images from S3",
 				"env": "CSSVC_S3_PUBLIC_URL"
+			},
+			"stripKeyPrefixFromUrl": {
+				"default": false,
+				"desc": "determines if file urls saved in mongo include the keyPrefix",
+				"env": "CSSVC_S3_STRIP_KEY_PREFIX"
 			}
 		},
 		"selected": {

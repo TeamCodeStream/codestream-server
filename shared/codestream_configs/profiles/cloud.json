@@ -383,13 +383,15 @@
 			"defaultEnv": {
 				"bucket": "codestream-dev",
 				"keyPrefix": "usercontent/${CSSVC_ENV}",
-				"publicUrl": "http://codestream-dev.s3.us-east-1.amazonaws.com"
+				"publicUrl": "http://codestream-dev.s3.us-east-1.amazonaws.com",
+				"stripKeyPrefixFromUrl": false
 			},
 			"local": {},
 			"prod": {
 				"bucket": "codestream-prod",
 				"keyPrefix": "usercontent",
-				"publicUrl": "https://usercontent.codestream.com"
+				"publicUrl": "https://usercontent.codestream.com",
+				"stripKeyPrefixFromUrl": true
 			}
 		}
 	}
