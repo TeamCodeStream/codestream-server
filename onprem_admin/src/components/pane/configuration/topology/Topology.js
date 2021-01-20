@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import FormFieldSet from '../../../lib/FormFieldSet';
 import Accordion from '../../../lib/Accordion';
 import ConfigActions from '../../../../store/actions/config';
+import PresentationActions from '../../../../store/actions/presentation';
 import SslCertForm from './SslCertForm';
 import { validateInput } from '../../../../lib/validation';
 
@@ -211,6 +212,18 @@ const sslCertAccordion = {
 	title: 'SSL Certificates',
 	desc: 'Secure communications, when configured, will use these certificates',
 	cards: [],
+	// newCard: {
+	// 	id: 'newSSLCard',
+	// 	header: null,
+	// 	bodyComponent: <xyz />,
+	// 	statusSwitch: {
+	// 		onClickAction: null,
+	// 		onClickActionPayload: null,
+	// 		getStatusFromState: (state) => {
+	// 			return standardIntegrationStatus(state, 'xyz');
+	// 		},
+	// 	},
+	// },
 };
 
 class Topology extends React.Component {
@@ -255,6 +268,7 @@ class Topology extends React.Component {
 								accordionId={sslCertAccordion.id}
 								message={sslCertAccordion.desc}
 								cards={this.props.sslCerts.cards}
+								// newCard={}
 								// statuses={this.props.sslCerts.statuses}
 								dispatch={this.props.dispatch}
 								onClickPlus={this.props.addNewSSlCertificate}
@@ -270,18 +284,27 @@ class Topology extends React.Component {
 // create a list of of accordion cards for each ssl cert in the config state
 function refreshSslCertCardsInAccordion(state) {
 	const cardList = [];
+	if (state.presentation.configuration.topology.newCert) {
+		cardList.push({
+			id: 'newCert',
+			header: 'New Certificate',
+			bodyComponent: <SslCertForm id="newCert" />
+		});
+	}
 	if (state.config?.sslCertificates) {
 		Object.keys(state.config.sslCertificates).forEach(certId => {
 			console.debug('refreshSslCertCardsInAccordion() certId=', certId);
 			cardList.push({
 				id: certId,
-				header: certId === 'newCert' ? 'New Certificate' : state.config.sslCertificates[certId].targetName,
+				// header: certId === 'newCert' ? 'New Certificate' : state.config.sslCertificates[certId].targetName,
+				header: state.config.sslCertificates[certId].targetName,
 				bodyComponent: <SslCertForm id={certId} />,
 			});
 		});
 	}
 	return cardList;
 }
+
 
 const mapState = (state) => {
 	const x = {
@@ -330,7 +353,7 @@ const mapState = (state) => {
 };
 const mapDispatch = dispatch => ({
 	dispatch,
-	addNewSSlCertificate: () => dispatch({ type: ConfigActions.CONFIG_SSLCERT_NEW_CERT }),
+	addNewSSlCertificate: () => dispatch({ type: PresentationActions.PRESENTATION_CONFIG_TOPOLOGY_NEW_CERT }),
 });
 
 export default connect(mapState, mapDispatch)(Topology);

@@ -130,6 +130,12 @@ AccordionCard.propTypes = {
 	cardStatus: PropTypes.object,
 };
 
+
+// An unruly, data-driven Accordion component that's disconnect from the redux
+// store. The Topology.js and Integrations.js components contain a good examples
+// of what the data set used to drive this component look like.  Properties are
+// defined next to the Accordion.propTypes definition below.
+
 class Accordion extends React.Component {
 	constructor(props) {
 		// FIXME: deprecated - https://reactjs.org/docs/context.html
@@ -256,6 +262,21 @@ class Accordion extends React.Component {
 				</div>
 				<div className="row">
 					<div className="accordion col-12" id={this.props.accordionId}>
+						{/* {Object.keys(this.props.newCardData).length ? (
+							<AccordionCard
+								key="newCard"
+								card={this.props.newCardData}
+								accordionId={this.props.accordionId}
+								cardStatus={this.props.statuses?.newCard}
+								dispatch={this.props.dispatch}
+								inputState={this.state}
+								toggleAccordionCard={this.toggleAccordionCard}
+							>
+								<span>{React.cloneElement(c.bodyComponent, c.bodyComponentProps)}</span>
+							</AccordionCard>
+						) : (
+							<></>
+						)} */}
 						{this.props.cards.map((c) => (
 							<AccordionCard
 								key={c.id}
@@ -279,15 +300,16 @@ class Accordion extends React.Component {
 }
 
 Accordion.propTypes = {
-	accordionId: PropTypes.string.isRequired,
-	cards: PropTypes.array.isRequired,
-	statuses: PropTypes.object,
-	message: PropTypes.string,
-	onClickPlus: PropTypes.func,
-	expandAllToggle: PropTypes.bool,
+	accordionId: PropTypes.string.isRequired, // every accordion must have a unique identifier
+	cards: PropTypes.array.isRequired, // list of card data, each driving a single card in the accordion
+	statuses: PropTypes.object, // each card has an associated status which is displayed/manipulated on the card header
+	message: PropTypes.string, // text displayed to the left of the open/close all and add buttons at the top of the accordion
+	expandAllToggle: PropTypes.bool, // this darn thing still doesn't work right!!
+	onClickPlus: PropTypes.func, // accordion add button handler. If not defined, the add button won't be displayed
+	newCardData: PropTypes.object, // new cards use this object to process with their form
 };
 
-// this is more for documentation...
+// this is more for documentation purposes...
 Accordion.defaultProps = {
 	cards: [
 		{

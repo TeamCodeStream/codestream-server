@@ -4,6 +4,7 @@ import React from 'react';
 // import PropTypes, { number } from 'prop-types';
 import { connect } from 'react-redux';
 import ConfigActions from '../../../../store/actions/config';
+import PresentationActions from '../../../../store/actions/presentation';
 
 const certificateFormIsValid = (formData) => {
 	console.debug('certificateFormIsValid(): formData = ', formData);
@@ -25,6 +26,7 @@ class SslCertForm extends React.Component {
 			data: this.props.data,	// form input values
 			errors: {},	// each form input can exist here with validation error text
 		};
+		this.isNewCertificate = this.props.id === 'newCert';
 		this.updateState = this.updateState.bind(this);
 	}
 
@@ -38,6 +40,12 @@ class SslCertForm extends React.Component {
 		});
 	}
 
+	genNewCertId() {
+		let newId = this.state.data.targetName;
+		newId.replace(/[^0-9a-zA-Z]/g, '');
+		return newId;
+	}
+
 	addCertificateBtnHandler() {
 		console.debug('addCertificateBtnHandler pressed. state', this.state);
 		const errors = certificateFormIsValid(this.state.data);
@@ -49,19 +57,22 @@ class SslCertForm extends React.Component {
 		// if we're adding a new certificate, the temporary certificate ID of
 		// 'newCert' will be changed to match a variant of the target hostname.
 		// This is calculated here.  Local state must be updated as well.
-		let newId = this.state.id;
-		let newCert = false;
-		if (newId === 'newCert') {
-			newCert = true;
-			newId = this.state.data.targetName;
-			newId.replace(/[^0-9a-zA-Z]/g, '');
-			console.debug(`addCertificateBtnHandler  newId=${newId}`);
+		// let newId = this.state.id;
+		// let newCert = false;
+		// if (newId === 'newCert') {
+		// 	newCert = true;
+		// 	newId = this.state.data.targetName;
+		// 	newId.replace(/[^0-9a-zA-Z]/g, '');
+		// 	console.debug(`addCertificateBtnHandler  newId=${newId}`);
+		// }
+		const saveId = this.isNewCertificate ? this.genNewCertId() : this.state.id;
+		console.debug(`addCertificateBtnHandler  Id=${saveId}`);
+		this.updateState({ id: saveId, errors: {} });
+		this.props.dispatch({ type: ConfigActions.CONFIG_SSLCERT_UPDATE_CERT, payload: { ...this.state.data, id: saveId } });
+		if (this.isNewCertificate) {
+			this.props.dispatch({ type: PresentationActions.PRESENTATION_CONFIG_TOPOLOGY_NO_NEW_CERT });
+			this.isNewCertificate = false;
 		}
-		this.updateState({ id: newId, errors: {} });
-		this.props.dispatch({
-			type: ConfigActions.CONFIG_SSLCERT_UPDATE_CERT,
-			payload: { ...this.state.data, id: newId, newCert },
-		});
 	}
 
 	deleteCertificateBtnHandler() {
@@ -72,11 +83,11 @@ class SslCertForm extends React.Component {
 	}
 
 	render() {
-		console.debug('SslCertForm(render)  local state = ', this.state);
+		// console.debug('SslCertForm(render)  local state = ', this.state);
 		const { id } = this.state;
 		const inputTextColor = (propName) => (this.state.errors[propName] ? 'text-danger' : '');
-		const isNewCertificate = id === 'newCert';
-		const buttonText = isNewCertificate ? 'Add Certificate' : 'Update Certificate';
+		// const isNewCertificate = id === 'newCert';
+		const buttonText = this.isNewCertificate ? 'Add Certificate' : 'Update Certificate';
 		return (
 			<form className="container">
 				{/* <div className="form-group row">
@@ -187,7 +198,7 @@ class SslCertForm extends React.Component {
 				<div className="form-group row">
 					<div className="col-sm-10">
 						<input type="button" className="btn btn-info" onClick={() => this.addCertificateBtnHandler()} value={buttonText} />
-						{!isNewCertificate && (
+						{!this.isNewCertificate && (
 							<input type="button" className="btn btn-info ml-3" onClick={() => this.deleteCertificateBtnHandler()} value="Delete Certificate" />
 						)}
 					</div>
@@ -197,14 +208,23 @@ class SslCertForm extends React.Component {
 	}
 }
 
+// ownProps are the properties that were passed to the react component
 const mapState = (state, ownProps) => {
 	return {
-		data: {
-			targetName: state.config.sslCertificates[ownProps.id].targetName,
-			caChain: state.config.sslCertificates[ownProps.id].caChain,
-			cert: state.config.sslCertificates[ownProps.id].cert,
-			key: state.config.sslCertificates[ownProps.id].key,
-		}
+		data:
+			ownProps.id !== 'newCert'
+				? {
+						targetName: state.config.sslCertificates[ownProps.id].targetName,
+						caChain: state.config.sslCertificates[ownProps.id].caChain,
+						cert: state.config.sslCertificates[ownProps.id].cert,
+						key: state.config.sslCertificates[ownProps.id].key,
+				  }
+				: {
+						targetName: state.presentation.configuration.topology.newCert.targetName,
+						caChain: state.presentation.configuration.topology.newCert.caChain,
+						cert: state.presentation.configuration.topology.newCert.cert,
+						key: state.presentation.configuration.topology.newCert.key,
+				  },
 	};
 };
 const mapDispatch = (dispatch) => ({
