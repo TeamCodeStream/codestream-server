@@ -19,9 +19,18 @@ class UploadFileRequest extends RestfulRequest {
 
 		// ignore all but the first file
 		const file = this.request.files[0];
-		const { publicUrl } = this.request.api.config.uploadEngine.s3;
+		let { key } = file;
+		const { publicUrl, stripKeyPrefixFromUrl, keyPrefix } = this.request.api.config.uploadEngine.s3;
+
+		// for cloudfront distributions, we don't want the key prefix in the url
+		if (stripKeyPrefixFromUrl) {
+			if (key.startsWith(keyPrefix)) { // should always be the case
+				key = key.substring(keyPrefix.length + 1);
+			}
+		}
+
 		this.responseData = {
-			url: `${publicUrl}/${file.key}`,
+			url: `${publicUrl}/${key}`,
 			name: file.originalname,
 			mimetype: file.mimetype,
 			size: file.size
