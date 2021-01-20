@@ -296,7 +296,8 @@
 			"bucket": "S3 bucket name [CSSVC_S3_BUCKET_NAME]",
 			"disableSse": "disable server-side-encryption when copying images to S3 [CSSVC_S3_DISABLE_SSE]",
 			"keyPrefix": "S3 object key prefix (no trailing /) [CSSVC_S3_KEY_PREFIX]",
-			"publicUrl": "public-facing url and prefix for serving images from S3 [CSSVC_S3_PUBLIC_URL]"
+			"publicUrl": "public-facing url and prefix for serving images from S3 [CSSVC_S3_PUBLIC_URL]",
+			"stripKeyPrefixFromUrl": "determines if file urls saved in mongo include the keyPrefix [CSSVC_S3_STRIP_KEY_PREFIX]"
 		},
 		"selected": "selected upload engine (s3) [CSSVC_UPLOAD_ENGINE]"
 	}
