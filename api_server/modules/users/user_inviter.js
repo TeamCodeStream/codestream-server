@@ -146,7 +146,7 @@ class UserInviter {
 				await this.sendInviteEmail(userData);
 			}
 			if (!this.dontSendEmail) {
-				await this.updateInvites(userData.user);
+				await this.updateInvites(userData);
 			}
 		}));
 	}
@@ -204,19 +204,34 @@ class UserInviter {
 
 	// for an unregistered user, we track that they've been invited
 	// and how many times for analytics purposes
-	async updateInvites (user) {
+	async updateInvites (userData) {
+		const { user, didExist } = userData;
 		if (user.get('isRegistered')) {
 			return;	// we only do this for unregistered users
 		}
 		const update = {
 			$set: {
 				internalMethod: 'invitation',
-				internalMethodDetail: this.user.id
+				internalMethodDetail: this.user.id,
+				lastInviteSentAt: Date.now(),
 			},
 			$inc: {
 				numInvites: 1
 			}
 		};
+
+		// only trigger a re-invite cycle if this is a brand new user
+		if (!didExist) {
+			Object.assign(update.$set, {
+				needsAutoReinvites: 2,
+				autoReinviteInfo: {
+					inviterId: this.user.id,
+					teamName: this.team.get('name'),
+					isReinvite: true
+				}
+			});
+		}
+
 		await this.data.users.updateDirect(
 			{ id: this.data.users.objectIdSafe(user.id) },
 			update
