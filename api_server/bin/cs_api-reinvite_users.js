@@ -16,10 +16,11 @@ const AWS = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/a
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 // need these collections from mongo
-const COLLECTIONS = ['users'];
+const COLLECTIONS = ['users', 'reinviteUsersLastRunAt'];
 
 const THROTTLE_TIME = 100;
 const REINVITE_INTERVAL = 24 * 60 * 60 * 1000;
+const RUN_INTERVAL = 50 * 60 * 1000;
 
 // wait this number of milliseconds
 const Wait = function (time) {
@@ -37,12 +38,25 @@ class Reinviter {
 		Object.assign(this, options);
 		this.logger = this.logger || console;
 		await this.openMongoClient();
+		if (await this.abortIfDoneAlready()) {
+			this.log('Not running, another process has already run');
+			process.exit();
+		}
 		await this.openPubnubClient();
 		await this.openSQSClient();
+		await this.updateLastRunAt();
 		await this.process();
 		this.log(`${this.numProcessed} users processed`);
 		this.log(`${this.numInvited} users invited`);
 		process.exit();
+	}
+
+	// if another instance of this script already ran, just abort
+	async abortIfDoneAlready () {
+		const lastRunAt = await this.data.reinviteUsersLastRunAt.getByQuery({}, { overrideHintRequired: true });
+		if (lastRunAt && lastRunAt[0] && lastRunAt[0].lastRunAt > Date.now() - RUN_INTERVAL) {
+			return true;
+		}
 	}
 
 	// open a mongo client to read from
@@ -116,7 +130,7 @@ class Reinviter {
 		} else if (user.deactivated) {
 			this.log(`User ${user.email} has been deactivated, not re-inviting`);
 			clearUser = true;
-		} else if (user.needsAutoReinvites == 0) {
+		} else if (!user.needsAutoReinvites) {
 			this.log(`User ${user.email} has no more auto-reinvites, not re-inviting`);
 			clearUser = true;
 		} else if (user.lastInviteSentAt > Date.now() - REINVITE_INTERVAL) {
@@ -226,6 +240,15 @@ class Reinviter {
 			default:
 				return false;
 		}
+	}
+
+	// update when this script was last run so other running instances don't try
+	async updateLastRunAt () {
+		await this.data.reinviteUsersLastRunAt.updateDirect(
+			{ }, 
+			{ $set: { lastRunAt: Date.now() } },
+			{ upsert: true}
+		);
 	}
 
 	log (msg) {
