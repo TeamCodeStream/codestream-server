@@ -9,6 +9,7 @@ const FS = require('fs');
 const SocketClusterServer = require('socketcluster-server');
 const UUID = require('uuid/v4');
 const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
+const getAssetInfo = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_asset_data');
 const OS = require('os');
 const Express = require('express');
 const IPC = require('node-ipc');
@@ -121,6 +122,10 @@ class BroadcasterServer {
 		this.express.get('/no-auth/status', ((req, res) => {
 			res.send('OK');
 		}));
+
+		this.express.get('/no-auth/asset-info', async (req, res) => {
+			res.send(await getAssetInfo());
+		});
 
 		// start listening for connections
 		(async () => {

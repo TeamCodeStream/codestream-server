@@ -4,8 +4,13 @@ import express from 'express';
 import passport from 'passport';
 import { Logger, MongoStructuredConfig, AdminConfig, SystemStatusMonitor, MongoClient } from '../config/globalData';
 import adminAccess from '../lib/adminAccess';
+import getAssetData from '../../shared/server_utils/get_asset_data';
 
 const ApiRouter = express.Router();
+
+ApiRouter.get('/no-auth/asset-info', async (req, res) => {
+	res.send(await getAssetData());
+});
 
 // list of config meta docs
 ApiRouter.get('/config/summary/:schemaVersion?', async (req, res) => {

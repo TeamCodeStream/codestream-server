@@ -18,6 +18,10 @@ function setupSocketClientHandler(Store) {
 		Store.dispatch({ type: Actions.STATUS_PROCESS_MESSAGE_EVENT, payload: data });
 	});
 
+	socket.on('assetUpdate', (data) => {
+		console.debug('git an asset update event', data);
+		Store.dispatch({ type: Actions.INSTALLATION_UPDATE, payload: data })
+	})
 	return socket;
 }
 

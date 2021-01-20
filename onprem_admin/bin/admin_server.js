@@ -7,6 +7,7 @@ import startSocketIOServer from '../lib/socketIOServer';
 import systemStatusFactory from '../lib/systemStatus';
 import AdminConfig from '../config/config';
 import StructuredConfigFactory from '../../shared/codestream_configs/lib/structured_config';
+import getAssetData from '../../shared/server_utils/get_asset_data';
 import OnPremSupportData from '../../shared/server_utils/get_onprem_support_data';
 import SimpleFileLogger from '../../shared/server_utils/simple_file_logger';
 import GlobalData from '../config/globalData';
@@ -22,6 +23,8 @@ import GlobalData from '../config/globalData';
 
 	// Logger object
 	GlobalData.Logger = new SimpleFileLogger(Config.adminServer.logger);
+	await GlobalData.Logger.initialize();
+
 	if (Config.adminServer.adminServerDisabled) {
 		GlobalData.Logger.error('The admin server is disabled in the config. Good bye.');
 		process.exit(1);
@@ -29,6 +32,17 @@ import GlobalData from '../config/globalData';
 
 	// Initialize installation data - this is updated dynamically
 	GlobalData.Installation = await OnPremSupportData(GlobalData.Logger);
+
+	// assetInfo from other services will come from the system status service watchers
+	const assetData = await getAssetData({ logger: GlobalData.Logger });
+	GlobalData.Installation.assetInfo['onprem-admin'] =
+		assetData.assetInfo?.fullName
+			? `${assetData.assetInfo.fullName} (${assetData.assetInfo.assetEnvironment})`
+			: process.env.OPADM_SANDBOX
+			? `dtops sandbox repo (${process.env.OPADM_ASSET_ENV})`
+			: `development sandbox`;
+
+	GlobalData.Logger.info('installaionData', null, GlobalData.Installation);
 
 	// AdminConfig is the structured config object used by the admin server
 	// MongoStructuredConfig is the structured config object used for editing configs
@@ -55,7 +69,7 @@ import GlobalData from '../config/globalData';
 	startSocketIOServer(io);
 
 	// this creates and starts the status monitor service
-	GlobalData.SystemStatusMonitor = systemStatusFactory({ logger: GlobalData.Logger, io });
+	GlobalData.SystemStatusMonitor = systemStatusFactory(Config, GlobalData.Installation, { logger: GlobalData.Logger, io });
 	// console.log('admin-server(GlobalData)', GlobalData);
 
 	// Make the socketIO accessible inside express middleware and the AdminServer itself

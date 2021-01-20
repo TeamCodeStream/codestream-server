@@ -19,32 +19,58 @@
 // socketIO service.
 
 import Fs from 'fs';
+import Path from 'path';
 import Hjson from 'hjson';
+import axios from 'axios';
 import { SystemStatuses } from '../src/store/actions/status';
 import sortBy from '../src/lib/sortObjectListByProps';
 
 const WatchInterval = 30000;
-const watchers = {
-	// a fake file watcher used in development. status are read from a json file
-	fauxStatusFile: { // watcherId
-		type: 'file',
-		file: `${process.env.OPADM_TMP}/fauxStatusFile.json`,
-		// msgId, (auto-generated, do not override)
-		// lastCheck: Date.now(), (default)
-		// status,
-		// message,
+
+// maybe this should be defined in config??
+const getWatchers = (config, installation) => {
+	const watchers = {};
+	if (installation.productType === 'On-Prem Development') {
+		// a fake file watcher used in development. status, lastCheck and message are read from a json file
+		watchers.fauxStatusFile = {
+			// watcherId
+			type: 'file',
+			warnTimeOut: 65,
+			attnTimeOut: 125, // seconds
+			file: `${process.env.OPADM_TMP}/fauxStatusFile.json`,
+			// msgId, (auto-generated, do not override)
+			// lastCheck: Date.now(), (default)
+			// status,
+			// message,
+		};
 	}
-}
+	// get assetInfo from API
+	watchers.apiAssetInfo = {
+		type: 'assetInfo',
+		url: `${config.apiServer.publicApiUrl}/no-auth/asset-info`,
+		serviceName: 'api-server'
+	};
+	if (config.broadcastEngine.selected === 'codestreamBroadcaster') {
+		// get assetInfo from broadcaster
+		watchers.broadcastAssetInfo = {
+			type: 'assetInfo',
+			url: `${config.broadcastEngine.codestreamBroadcaster.ignoreHttps ? 'http' : 'https'}://${config.broadcastEngine.codestreamBroadcaster.host}:${config.broadcastEngine.codestreamBroadcaster.port}/no-auth/asset-info`,
+			serviceName: 'broadcaster'
+		}
+	};
+	return watchers;
+};
 
 class systemStatus {
-	constructor(options = {}) {
+	constructor(config, installation, options = {}) {
+		this.config = config;
+		this.installation = installation;	// asset info returned from watchers will be added to this object
 		this.logger = options.logger || console;
 		this.io = options.io || null; // provide socketIO server if we want messages broadcasted
 		this.watcherStatus = {};
 		this.statusHistory = [];
+		this.watchers = getWatchers(this.config, this.installation);
 		this._activeAlertsGetter();
-		// this._systemStatusGetter();
-		// this._systemStatusMsgGetter();
 		Object.defineProperty(this, 'systemStatus', {
 			get() {
 				return this._systemStatus().status;
@@ -103,9 +129,9 @@ class systemStatus {
 		};
 	}
 
-	_broadcastStatusMessage(data) {
+	_broadcastMessage(msgType, data) {
 		if (this.io) {
-			this.io.emit('statusMessage', data);
+			this.io.emit(msgType, data);
 		}
 	}
 
@@ -123,6 +149,9 @@ class systemStatus {
 		return statusInfo.status !== this.watcherStatus[statusInfo.watcherId].status || statusInfo.message !== this.watcherStatus[statusInfo.watcherId].message;
 	}
 
+	// process a status update. This involves assigning an id (msgId), detecting
+	// any change in system status, adding the message to the message history
+	// and broadcasting any new information if need be.
 	async _update(statusData) {
 		const statusInfo = Object.assign({}, { ...statusData, msgId: (Date.now() + Math.random()).toString() });
 		let broadcast = false;
@@ -131,7 +160,7 @@ class systemStatus {
 		}
 		if (statusInfo.status == SystemStatuses.notice) {
 			this.statusHistory.unshift(statusInfo);
-			this._broadcastStatusMessage({ ...statusInfo, msgType: 'add' });
+			this._broadcastMessage('statusMessage', { ...statusInfo, msgType: 'add' });
 		}
 		else if (statusInfo.watcherId) {
 			if (statusInfo.watcherId in this.watcherStatus) {
@@ -155,8 +184,11 @@ class systemStatus {
 			this.logger.error(`serverStatus._update(): watcherId not specified for status ${statusInfo.status}`);
 		}
 		if (broadcast) {
-			this._broadcastStatusMessage({ ...statusInfo, msgType: 'add' });
+			this._broadcastMessage('statusMessage', { ...statusInfo, msgType: 'add' });
 			this.broadcastSystemStatus();
+			if (statusData.serviceName) {
+				this._broadcastMessage('assetUpdate', { serviceName: statusData.serviceName, fullName: statusData.fullName });
+			}
 		}
 		// console.log("leaving _update", statusInfo);
 	}
@@ -181,34 +213,84 @@ class systemStatusService extends systemStatus {
 	watchFile(watcherId) {
 		// the file watcher reads its data from a json file with the properties
 		// 'status' and 'statusMsg'
-		this.logger.debug(`watching ${watcherId}`);
-		const watcher = watchers[watcherId];
+		const watcher = this.watchers[watcherId];
+		this.logger.debug(`watching file ${watcher.file} for ${watcherId}`);
 		const newWatchData = { watcherId };
-		if (Fs.existsSync(watcher.file)) {
+		const now = Date.now();
+		const fileTime = parseInt(Fs.statSync(watcher.file).mtimeMs);
+		const fileAgeInSecs = parseInt((now - fileTime) / 1000);
+		if (fileAgeInSecs > (watcher.attnTimeOut || 125)) {
+			// file hasn't been updated in a while
+			newWatchData.status = SystemStatuses.attention;
+			newWatchData.message = `watched file ${Path.basename(watcher.file)} hasn't been updated in ${parseInt(fileAgeInSecs / 60)} minutes`;
+			newWatchData.lastCheck = now;
+		}
+		else if (fileAgeInSecs > (watcher.warnTimeOut || 65)) {
+			// file hasn't been updated in a while
+			newWatchData.status = SystemStatuses.pending;
+			newWatchData.message = `watched file ${Path.basename(watcher.file)} hasn't been updated in ${parseInt(fileAgeInSecs / 60)} minutes`;
+			newWatchData.lastCheck = now;
+		}
+		else if (Fs.existsSync(watcher.file)) {
 			const data = Hjson.parse(Fs.readFileSync(watcher.file, 'utf8'));
 			newWatchData.status = data.status;
 			newWatchData.message = data.message;
-			newWatchData.lastCheck = data.lastCheck || parseInt(Fs.statSync(watcher.file).mtimeMs);
+			newWatchData.lastCheck = data.lastCheck || fileTime;
 		}
 		else {
+			// warning state if file does not exist
 			newWatchData.status = SystemStatuses.pending;
 			newWatchData.message = `watched file ${watcher.file} does not exist`;
-			newWatchData.lastCheck = Date.now();
+			newWatchData.lastCheck = now;
 		}
 		this._update(newWatchData);
+	}
+
+	fetchAssetInfo(watcherId) {
+		// the assetInfo watcher fetches asset info data from a target service via
+		// an http(s) call.
+		const watcher = this.watchers[watcherId];
+		this.logger.debug(`watching assetInfo for ${watcherId} at ${watcher.url}`);
+		const newWatchData = { watcherId };
+		const now = Date.now();
+		(async () => {
+			try {
+				const res = await axios.get(watcher.url);
+				this.logger.debug(`fetch ${watcher.url} returned`, null, res.data);
+				const fullName = res.data.assetInfo?.fullName ? res.data.assetInfo.fullName : 'development sandbox';
+				newWatchData.status = SystemStatuses.ok;
+				newWatchData.message = `${watcher.serviceName} service: ${fullName}`;
+				newWatchData.lastCheck = now;
+				newWatchData.serviceName = watcher.serviceName;
+				newWatchData.fullName = fullName;
+				// update the global installation object
+				this.installation.assetInfo[watcher.serviceName] = fullName;
+			} catch (error) {
+				newWatchData.status = SystemStatuses.attention;
+				newWatchData.message = `request of asset info failed with ${error}`;
+				newWatchData.lastCheck = now;
+			}
+			this._update(newWatchData);
+		})();
 	}
 
 	start() {
 		(async () => {
 			await this.notify('System status monitor starting up');
-			this.logger.info('watchers -', watchers);
-			for (const watcherId in watchers) {
+			this.logger.info('watchers -', this.watchers);
+			for (const watcherId in this.watchers) {
 				this.logger.info(`watcher id = ${watcherId}`);
-				switch (watchers[watcherId].type) {
+				switch (this.watchers[watcherId].type) {
 					case 'file':
-						this.logger.info('case file');
-						watchers[watcherId].intervalTimer = setInterval(() => {
+						this.logger.info('watching file');
+						this.watchers[watcherId].intervalTimer = setInterval(() => {
 							this.watchFile(watcherId);
+						}, WatchInterval - 1000);
+						break;
+					case 'assetInfo':
+						this.logger.info('watching assetInfo');
+						this.watchers[watcherId].intervalTimer = setInterval(() => {
+							this.fetchAssetInfo(watcherId);
 						}, WatchInterval - 1000);
 						break;
 					default:
@@ -222,8 +304,8 @@ class systemStatusService extends systemStatus {
 
 	stop() {
 		this.notify('System status monitor shutting down');
-		Object.keys(watchers).forEach((watcherId) => {
-			const watcher = watchers[watcherId];
+		Object.keys(this.watchers).forEach((watcherId) => {
+			const watcher = this.watchers[watcherId];
 			if (watcher.intervalTimer) {
 				this.logger.info(`clearing watcher id ${watcherId}`);
 				clearInterval(intervalTimer);
@@ -234,9 +316,8 @@ class systemStatusService extends systemStatus {
 	}
 }
 
-const systemStatusFactory = (options) => {
-	const logger = options.logger || console;
-	const statusMonitor = new systemStatusService(options);
+const systemStatusFactory = (config, installation, options) => {
+	const statusMonitor = new systemStatusService(config, installation, options);
 	statusMonitor.start();
 	return statusMonitor;
 }

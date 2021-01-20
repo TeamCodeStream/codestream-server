@@ -1,7 +1,7 @@
 'use strict';
 
 import express from 'express';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import session from 'express-session';
 import connectMongo from 'connect-mongo';
 import passport from 'passport';
