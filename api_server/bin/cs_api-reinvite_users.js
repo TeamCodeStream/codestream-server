@@ -19,7 +19,7 @@ const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const COLLECTIONS = ['users'];
 
 const THROTTLE_TIME = 100;
-const REINVITE_INTERVAL = 30 * 1000; /*24 * 60 * 60 * 1000;*/
+const REINVITE_INTERVAL = 24 * 60 * 60 * 1000;
 
 // wait this number of milliseconds
 const Wait = function (time) {
@@ -81,6 +81,10 @@ class Reinviter {
 
 	// set flag for the given user or all the users in the given team
 	async process () {
+		if (this.isWeekend()) {
+			this.log('It is local weekend, not running');
+			return;
+		}
 		const result = await this.data.users.getByQuery(
 			{
 				needsAutoReinvites: { $gt: 0 }
@@ -201,6 +205,29 @@ class Reinviter {
 		this.numInvited++;
 	}
 	
+	// is it the weekend now? we don't work weekends
+	// weekend defined as starting at 6 PM Friday, ending at 8 AM Monday
+	isWeekend () {
+		const now = new Date();
+		const day = now.getDay();
+		const hour = now.getHours();
+
+		switch (day) {
+			case 0: // sunday
+			case 7: // saturday
+				return true;
+
+			case 1: // monday
+				return hour < 8;
+
+			case 6: // friday
+				return hour >= 18;
+
+			default:
+				return false;
+		}
+	}
+
 	log (msg) {
 		const now = new Date().toISOString();
 		this.logger.log(`${now} - ${msg}`);

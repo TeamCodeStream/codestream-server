@@ -9,7 +9,6 @@ const AddTeamPublisher = require('./add_team_publisher');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
-const REINVITE_INTERVAL = 24 * 60 * 60 * 1000;
 const REINVITE_REPEATS = 2;
 
 class UserInviter {
@@ -223,7 +222,7 @@ class UserInviter {
 		// only trigger a re-invite cycle if this is a brand new user
 		if (!didExist) {
 			Object.assign(update.$set, {
-				needsAutoReinvites: 2,
+				needsAutoReinvites: REINVITE_REPEATS,
 				autoReinviteInfo: {
 					inviterId: this.user.id,
 					teamName: this.team.get('name'),
