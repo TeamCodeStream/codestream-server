@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.16] - 2021-1-20
+
+### Fixed
+
+- add uploadEngine.s3.stripKeyPrefixFromUrl property for serving file uploads via Cloud Front
+
 ## [8.2.15] - 2021-1-19
 
 ### Changed
