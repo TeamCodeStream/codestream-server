@@ -26,7 +26,7 @@ class GitLensReferralTest extends RegistrationTest {
 	}
 
 	hash (s) {
-		return Crypto.createHash('sha1').update(`gitlens:${s.trim()}`).digest('hex');
+		return Crypto.createHash('sha1').update(`gitlens:${s.trim().toLowerCase()}`).digest('hex').toLowerCase();
 	}
 
 	// send a request which will associate the email with a GitLens user

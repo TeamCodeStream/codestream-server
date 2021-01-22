@@ -26,7 +26,7 @@ class GitLensUserTest extends CodeStreamAPITest {
 	}
 
 	hash (s) {
-		return Crypto.createHash('sha1').update(`gitlens:${s.trim()}`).digest('hex');
+		return Crypto.createHash('sha1').update(`gitlens:${s.trim().toLowerCase()}`).digest('hex').toLowerCase();
 	}
 
 	// before the test runs...

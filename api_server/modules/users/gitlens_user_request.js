@@ -4,6 +4,7 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
+const GitLensUserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/gitlens_user_indexes');
 
 class GitLensUserRequest extends RestfulRequest {
 
@@ -42,11 +43,19 @@ class GitLensUserRequest extends RestfulRequest {
 	// add the GitLens user to our database
 	async addGitLensUser () {
 		const document = {
-			emailHash: this.request.body.emailHash
+			emailHash: this.request.body.emailHash.toLowerCase()
 		};
 		if (this.request.body.machineIdHash) {
-			document.machineIdHash = this.request.body.machineIdHash;
+			document.machineIdHash = this.request.body.machineIdHash.toLowerCase();
 		}
+
+		// prevent duplicates
+		const existing = await this.api.data.gitLensUsers.getOneByQuery(document, { hint: GitLensUserIndexes.byEmailHash });
+		if (existing) {
+			return;
+		}
+
+		document.createdAt = Date.now();
 		return this.api.data.gitLensUsers.create(document, { noVersion: true });
 	}
 
