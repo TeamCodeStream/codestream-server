@@ -328,5 +328,10 @@ module.exports = {
 		type: 'object',
 		description: 'Info about auto re-invitations to users (what team, etc)',
 		serverOnly: true
+	},
+	source: {
+		type: 'string',
+		description: 'Source of the referral for this user',
+		maxLength: 12
 	}
 };

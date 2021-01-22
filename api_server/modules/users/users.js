@@ -119,6 +119,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'bump-posts',
 		requestClass: require('./bump_posts_request')
+	},
+	{
+		method: 'post',
+		path: 'no-auth/gitlens-user',
+		requestClass: require('./gitlens_user_request')
 	}
 ];
 

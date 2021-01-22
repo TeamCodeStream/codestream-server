@@ -29,7 +29,8 @@ const AllModuleIndexes = {
 	msteams_conversations: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_conversations/indexes'),
 	msteams_states: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_states/indexes'),
 	msteams_teams: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_teams/indexes'),
-	reposByCommitHash: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_by_commit_hash_indexes')
+	reposByCommitHash: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_by_commit_hash_indexes'),
+	gitLensUsers: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/gitlens_user_indexes')
 };
 
 const AllFinished = {

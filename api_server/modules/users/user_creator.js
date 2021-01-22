@@ -44,7 +44,7 @@ class UserCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			optional: {
-				string: ['email', 'password', 'username', 'fullName', 'companyName', 'timeZone', 'confirmationCode', '_pubnubUuid', 'phoneNumber', 'iWorkOn', 'inviteTrigger'],
+				string: ['email', 'password', 'username', 'fullName', 'companyName', 'timeZone', 'confirmationCode', '_pubnubUuid', 'phoneNumber', 'iWorkOn', 'inviteTrigger', 'source'],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
 				boolean: ['isRegistered'],
 				'array(string)': ['secondaryEmails', 'providerIdentities'],
