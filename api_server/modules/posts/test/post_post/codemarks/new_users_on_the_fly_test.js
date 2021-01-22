@@ -21,6 +21,7 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 				this.userFactory.randomEmail(),
 				this.userFactory.randomEmail()
 			];
+			console.warn('ADDING THESE USERS WHILE CREATING THE CODEMARK:', this.data.addedUsers);
 			callback();
 		});
 	}
@@ -29,6 +30,7 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 		// expect the new users to be in the returned response
 		const newEmails = (data.users || []).map(u => u.email);
 		newEmails.sort();
+		console.warn('newEmails:', newEmails);
 
 		// except ... users who were already on the team
 		const addedUsers = this.data.addedUsers.filter(email => {
@@ -37,6 +39,7 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 			});
 		});
 		addedUsers.sort();
+		console.warn('addedUsers:', addedUsers);
 
 		Assert.deepStrictEqual(newEmails, addedUsers, 'returned users did not match the new users sent in the request');
 
@@ -46,6 +49,7 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 			if (!user.isRegistered) {
 				const firstInviteType = this.noFirstInviteType && this.noFirstInviteType[i] ? undefined : 'codemarkNotification';
 				Assert.strictEqual(user.lastInviteType, 'codemarkNotification', 'lastInviteType should be set to codemarkNotification');
+				console.warn(`for user ${user.email}, expect firstInviteType to be ${firstInviteType}`);
 				Assert.strictEqual(user.firstInviteType, firstInviteType, 'firstInviteType should be set to ' + (firstInviteType || 'undefined'));
 				Assert.strictEqual(user.inviteTrigger, `C${data.codemark.id}`, 'inviteTrigger should be set to "C" plus the codemark id');
 			}
