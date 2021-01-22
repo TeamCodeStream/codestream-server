@@ -1,7 +1,5 @@
 'use strict';
 
-const UUID = require('uuid/v4');
-
 class EmailHandler {
 
 	constructor (options) {
