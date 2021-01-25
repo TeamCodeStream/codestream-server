@@ -95,9 +95,9 @@ module.exports = {
 		description: 'Supports file uploading',
 		version: '8.2.17',
 		cloudOnly: true
-	},
+	}/*,
 	'autoFR': {
 		description: 'Supports automatic generation of feedback requests',
 		version: '8.2.20'
-	}
+	}*/
 };
