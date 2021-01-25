@@ -1,7 +1,8 @@
 
 'use strict';
 
-const hjson = require('hjson');
+const hjson = require("hjson");
+const fs = require("fs");
 
 // Load OnPrem support data
 
@@ -17,19 +18,16 @@ const hjson = require('hjson');
 // resources upon which CodeStream is deployed (docker on one host, docker in
 // the cloud, kubernetes, etc...).
 
-const fs = require('fs');
-// const { integrationStatuses } = require('../../onprem_admin/src/store/actions/presentation');
 
 function getProductType(logger) {
-	let onPremInstallationDirectory = process.env.CSSVC_ONPREM_INSTALL_DATA || '/opt/config'
+	let onPremInstallationDirectory = process.env.OPADM_ONPREM_INSTALL_DIR || '/opt/config'
 	let productType;
+	// if (!fs.existsSync(onPremInstallationDirectory)) {
+	// 	console.log(`${onPremInstallationDirectory} does not exist. Falling back to etc/onprem-installation-data with dummy data`);
+	// 	onPremInstallationDirectory = 'etc/onprem-installation-data';
+	// }
 	if (!fs.existsSync(onPremInstallationDirectory)) {
-		console.log(`${onPremInstallationDirectory} does not exist. Falling back to etc/onprem-installation-data with dummy data`);
-		onPremInstallationDirectory = 'etc/onprem-installation-data';
-	}
-	if (!fs.existsSync(onPremInstallationDirectory)) {
-		console.log(`installation directory ${onPremInstallationDirectory} does not exist. done trying`);
-		process.exit(1);
+		onPremInstallationDirectory = null;
 	}
 	if (onPremInstallationDirectory === '/opt/config') {
 		// dockerized version of CS running on a single linux host
@@ -46,43 +44,35 @@ module.exports = async function(logger) {
 	let onPremVersion = '0.0.0', release = null, installationBranch = null, assetInfo = {}, dockerInfo = {};
 	const { onPremInstallationDirectory, productType } = getProductType(logger);
 
-	const releaseFile = `${onPremInstallationDirectory}/release`;
-	release = fs.existsSync(releaseFile) ? fs.readFileSync(releaseFile).toString().trim() : 'GA';
-
-	const installationBranchFile = `${onPremInstallationDirectory}/installation-branch`;
-	installationBranch = fs.existsSync(installationBranchFile) ? fs.readFileSync(installationBranchFile).toString().trim() : 'master';
-
 	// on-prem version and docker image info contained here
-	const containerVersionFile = `${onPremInstallationDirectory}/container-versions`;
-	if (fs.existsSync(containerVersionFile)) {
-		const containerVersions = fs.readFileSync(containerVersionFile).toString().replace(/"/g, '').split('\n');
-		containerVersions.forEach(versionAssignment => {
-			if (versionAssignment && !versionAssignment.startsWith('#')) {
-				let [componentName, componentValue] = versionAssignment.split('=');
-				dockerInfo[componentName] = componentValue;
-			}
-		});
-		onPremVersion = dockerInfo.onPremVersion;
-		delete dockerInfo.onPremVersion;
-	}
+	if (onPremInstallationDirectory) {
+		const releaseFile = `${onPremInstallationDirectory}/release`;
+		release = fs.existsSync(releaseFile) ? fs.readFileSync(releaseFile).toString().trim() : 'GA';
 
-	// most of the asset info is not available to the onprem admin server directly
-	if (fs.existsSync('onprem-admin.info')) {
-		const infoData = hjson.parse(fs.readFileSync('onprem-admin.info', 'utf8'));
-		assetInfo['onprem-admin'] = `${infoData.fullName} (${infoData.assetEnvironment})`;
-	}
-	else {
-		assetInfo['onprem-admin'] = `sandbox repo (${process.env.OPADM_ASSET_ENV})`;
+		const installationBranchFile = `${onPremInstallationDirectory}/installation-branch`;
+		installationBranch = fs.existsSync(installationBranchFile) ? fs.readFileSync(installationBranchFile).toString().trim() : 'master';
+
+		const containerVersionFile = `${onPremInstallationDirectory}/container-versions`;
+		if (fs.existsSync(containerVersionFile)) {
+			const containerVersions = fs.readFileSync(containerVersionFile).toString().replace(/"/g, '').split('\n');
+			containerVersions.forEach(versionAssignment => {
+				if (versionAssignment && !versionAssignment.startsWith('#')) {
+					let [componentName, componentValue] = versionAssignment.split('=');
+					dockerInfo[componentName] = componentValue;
+				}
+			});
+			onPremVersion = dockerInfo.onPremVersion;
+			delete dockerInfo.onPremVersion;
+		}
 	}
 
 	const installationData = {
 		productType,
-		assetInfo,
 		dockerInfo,
+		assetInfo,
 		onPremVersion,
 		release,
 		installationBranch
 	};
-	logger.log("installaionData", installationData);
 	return installationData;
 };

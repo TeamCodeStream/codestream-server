@@ -11,6 +11,7 @@ class NewUserUnregisteredTest extends NewUsersOnTheFlyTest {
 	
 	// form the data we'll use in creating the post
 	makePostData (callback) {
+		this.noFirstInviteType = [false, true];
 		BoundAsync.series(this, [
 			super.makePostData,
 			this.createUnregisteredUser

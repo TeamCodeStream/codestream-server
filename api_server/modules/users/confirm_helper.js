@@ -118,7 +118,9 @@ class ConfirmHelper {
 				confirmationAttempts: true,
 				confirmationCodeExpiresAt: true,
 				'accessTokens.conf': true,
-				inviteCode: true
+				inviteCode: true,
+				needsAutoReinvites: true,
+				autoReinviteInfo: true
 			}
 		};
 

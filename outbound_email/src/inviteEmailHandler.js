@@ -6,15 +6,22 @@ class InviteEmailHandler extends EmailHandler {
 
 	async getSendOptions () {
 		const options = await super.getSendOptions();
+		/*
 		options.sender = await this.data.users.getById(this.message.inviterId);
 		if (!options.sender) {
 			throw 'Inviter not found: ' + this.message.inviterId;
 		}
+		*/
 		return options;
 	}
 
 	async renderEmail () {
-		this.subject = `Invitation to collaborate with ${this.message.teamName}`;
+		const inviter = await this.data.users.getById(this.message.inviterId);
+		if (!inviter || inviter.deactivated) {
+			throw 'Inviter not found: ' + this.message.inviterId;
+		}
+		const inviterName = inviter.fullName || inviter.email;
+		this.subject = `${inviterName} invited you to collaborate with ${this.message.teamName}`;
 		if (this.user.isRegistered) {
 			return await this.renderForRegisteredUser();
 		}

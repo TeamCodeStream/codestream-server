@@ -167,6 +167,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			this.inviteCode = this.request.body.invite_code;
 			this.repoInfo = this.request.body.repo_info;
 			this.noSignup = this.request.body.no_signup;
+			this.machineId = this.request.body.machine_id;
 			return;
 		}
 		if (!this.request.query.state) {
@@ -205,6 +206,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.repoInfo = this.tokenPayload.ri;
 		this.noSignup = this.tokenPayload.nosu;
 		this.hostUrl = this.tokenPayload.hu;
+		this.machineId = this.tokenPayload.mi;
 
 		if (this.serviceAuth.usesOauth1()) {
 			let secretPayload;
@@ -444,7 +446,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			inviteCode: this.inviteCode,
 			tokenData: this.tokenData,
 			hostUrl: this.hostUrl,
-			teamId: this.repoInfo && this.repoInfo.team && this.repoInfo.team.id
+			teamId: this.repoInfo && this.repoInfo.team && this.repoInfo.team.id,
+			machineId: this.machineId
 		});
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;

@@ -3,6 +3,7 @@
 import produce from 'immer';
 import Actions from '../actions/config';
 import dotPropertyInit, { getDottedProperty } from '../../lib/nestedObjectInit';
+import actions from '../actions';
 
 // handle the ssl certificate config setting dependencies across all services
 export function sslConfigurationUpdate(config, payload={}) {
@@ -92,34 +93,47 @@ export default (state = null, action) =>
 			// 	draft.telemetry.disabled = action.payload;
 			// 	break;
 
-			case Actions.CONFIG_SSLCERT_NEW_CERT:
+			// case Actions.CONFIG_SSLCERT_NEW_CERT:
+			// 	if (!draft.sslCertificates) draft.sslCertificates = {};
+			// 	console.debug('reducer(config): CONFIG_SSLCERT_NEW_CERT');
+			// 	draft.sslCertificates.newCert = {};
+			// 	break;
+			// case Actions.XXX_CONFIG_SSLCERT_UPDATE_CERT: {
+			// 	// the strategy here is to replace the entire
+			// 	// draft.sslCertificates object with a new one. The 'newCert'
+			// 	// property (if it exists) is deleted. We have to create
+			// 	// an entirely new object so the state change is
+			// 	// properly recognized by React.
+			// 	const newCerts = Object.assign({}, draft.sslCertificates);
+			// 	console.debug('reducer(config) CONFIG_SSLCERT_UPDATE_CERT  payload:', action.payload);
+			// 	const newCertId = action.payload.id;
+			// 	if (!newCerts[newCertId]) newCerts[newCertId] = {};
+			// 	newCerts[newCertId].targetName = action.payload.targetName;
+			// 	newCerts[newCertId].cert = action.payload.cert;
+			// 	newCerts[newCertId].key = action.payload.key;
+			// 	if (action.payload.caChain) newCerts[newCertId].caChain = action.payload.caChain;
+			// 	if ('newCert' in newCerts) delete newCerts.newCert;
+			// 	console.debug('NEWCERTS:', newCerts);
+			// 	draft.sslCertificates = newCerts;
+			// 	break;
+			// }
+			case Actions.CONFIG_SSLCERT_UPDATE_CERT:
+				const newCertData = {
+					targetName: action.payload.targetName,
+					cert: action.payload.cert,
+					key: action.payload.key,					
+				};
+				['expirationDate', 'privateCA', 'selfSigned', 'caChain'].forEach((p) => {
+					if (p in action.payload) newCertData[p] = action.payload[p];
+				});
 				if (!draft.sslCertificates) draft.sslCertificates = {};
-				console.debug('reducer(config): CONFIG_SSLCERT_NEW_CERT');
-				draft.sslCertificates.newCert = {};
-				break;
-			case Actions.CONFIG_SSLCERT_UPDATE_CERT: {
-				// the strategy here is to replace the entire
-				// draft.sslCertificates object with a new one. The 'newCert'
-				// property (if it exists) is deleted. We have to create
-				// an entirely new object so the state change is
-				// properly recognized by React.
-				const newCerts = Object.assign({}, draft.sslCertificates);
-				console.debug('reducer(config) CONFIG_SSLCERT_UPDATE_CERT  payload:', action.payload);
-				const newCertId = action.payload.id;
-				if (!newCerts[newCertId]) newCerts[newCertId] = {};
-				newCerts[newCertId].targetName = action.payload.targetName;
-				newCerts[newCertId].cert = action.payload.cert;
-				newCerts[newCertId].key = action.payload.key;
-				if (action.payload.caChain) newCerts[newCertId].caChain = action.payload.caChain;
-				if ('newCert' in newCerts) delete newCerts.newCert;
-				console.debug('NEWCERTS:', newCerts);
-				draft.sslCertificates = newCerts;
-				break;
-			}
+				draft.sslCertificates[action.payload.id] = newCertData;
+				return;
 			case Actions.CONFIG_SSLCERT_DELETE_CERT: {
-				const newCerts = Object.assign({}, draft.sslCertificates);
-				delete newCerts[action.payload];
-				draft.sslCertificates = newCerts;
+				// const newCerts = Object.assign({}, draft.sslCertificates);
+				// delete newCerts[action.payload];
+				// draft.sslCertificates = newCerts;
+				delete draft.sslCertificates[action.payload];
 				break;
 			}
 

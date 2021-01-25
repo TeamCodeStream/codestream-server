@@ -26,6 +26,11 @@ const ROUTES = [
 		method: 'get',
 		path: '/no-auth/capabilities',
 		requestClass: require('./capabilities_request')
+	},
+	{
+		method: 'get',
+		path: '/no-auth/asset-info',
+		requestClass: require('./asset_info')
 	}
 ];
 

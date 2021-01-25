@@ -31,7 +31,8 @@ async function serverRenderApp(req) {
 			history: {
 				summary: [],
 			},
-			general: {}
+			general: {},
+			topology: {}
 		},
 		updates: {},
 		support: {},

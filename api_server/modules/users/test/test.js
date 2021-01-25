@@ -16,6 +16,7 @@ const ChangeEmailRequestTester = require('./change_email/test');
 const BumpPostsRequestTester = require('./bump_posts/test');
 const InviteInfoRequestTester = require('./invite_info/test');
 const DeleteUserRequestTester = require('./delete_user/test');
+const GitLensUserRequestTester = require('./gitlens_user/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -46,4 +47,6 @@ describe('user requests', function() {
 	describe('PUT /bump-posts', BumpPostsRequestTester.test);
 	describe('GET /no-auth/invite-info', InviteInfoRequestTester.test);
 	describe('DELETE /users/:id', DeleteUserRequestTester.test);
+	describe('POST /no-auth/gitlens-user', GitLensUserRequestTester.test);
+
 });

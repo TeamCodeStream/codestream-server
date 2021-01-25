@@ -13,6 +13,7 @@ const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const ConfirmRepoSignup = require('./confirm_repo_signup');
+const GitLensReferralLookup = require('./gitlens_referral_lookup');
 
 // how long we can use the same confirmation code for
 const CONFIRMATION_CODE_USABILITY_WINDOW = 60 * 60 * 1000;
@@ -43,6 +44,7 @@ class RegisterRequest extends RestfulRequest {
 			return;							// and we just log the user in
 		}
 		await this.generateConfirmCode();	// generate a confirmation code, as requested
+		await this.lookForGitLensReferral(); /// match against any GitLens referral, as needed
 		await this.saveUser();				// save user to database
 		await this.addUserToTeam();			// add the user to a team, as needed
 		await this.generateLinkToken();		// generate a token for the confirm link, as requested
@@ -68,7 +70,8 @@ class RegisterRequest extends RestfulRequest {
 			'inviteCode',
 			'teamId',
 			'repoId',
-			'commitHash'
+			'commitHash',
+			'machineId'
 		].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
@@ -176,6 +179,13 @@ class RegisterRequest extends RestfulRequest {
 		delete this.request.body.timeout;
 		delete this.request.body.reuseTimeout;
 		this.request.body.confirmationAttempts = 0;
+	}
+
+	// match this signup against any GitLens referral, as needed
+	async lookForGitLensReferral () {
+		if (await GitLensReferralLookup(this.api.data, this.request.body.email, this.machineId)) {
+			this.request.body.source = 'GitLens';
+		}
 	}
 
 	// save the user to the database, given the attributes in the request body

@@ -9,6 +9,8 @@ const AddTeamPublisher = require('./add_team_publisher');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
+const REINVITE_REPEATS = 2;
+
 class UserInviter {
 
 	constructor (options) {
@@ -143,7 +145,7 @@ class UserInviter {
 				await this.sendInviteEmail(userData);
 			}
 			if (!this.dontSendEmail) {
-				await this.updateInvites(userData.user);
+				await this.updateInvites(userData);
 			}
 		}));
 	}
@@ -171,23 +173,64 @@ class UserInviter {
 				user
 			}
 		);
+
+		// This is disabled since SQS doesn't support long enough message delays,
+		//  but since it might be applicable for on-prem with RabbitMQ, I'm leaving the code in place
+		/*
+		// for unregistered users, queue resending the invite every given interval until they accept, or we reach 
+		// a maximum number of invites
+		if (!user.get('isRegistered')) {
+			for (let i = 0; i < REINVITE_REPEATS; i++) {
+				const reinviteTime = REINVITE_INTERVAL * (i+1);
+				this.request.log(`Triggering reinvite in ${reinviteTime} ms...`);
+				await this.api.services.email.queueReinvite(
+					{
+						userId: user.id,
+						inviterId: this.user.id,
+						teamName: this.team.get('name'),
+						isReinvite: didExist
+					},
+					{
+						request: this.request,
+						user,
+						delay: reinviteTime
+					}
+				);
+			}
+		}
+		*/
 	}
 
 	// for an unregistered user, we track that they've been invited
 	// and how many times for analytics purposes
-	async updateInvites (user) {
+	async updateInvites (userData) {
+		const { user, didExist } = userData;
 		if (user.get('isRegistered')) {
 			return;	// we only do this for unregistered users
 		}
 		const update = {
 			$set: {
 				internalMethod: 'invitation',
-				internalMethodDetail: this.user.id
+				internalMethodDetail: this.user.id,
+				lastInviteSentAt: Date.now(),
 			},
 			$inc: {
 				numInvites: 1
 			}
 		};
+
+		// only trigger a re-invite cycle if this is a brand new user
+		if (!didExist) {
+			Object.assign(update.$set, {
+				needsAutoReinvites: REINVITE_REPEATS,
+				autoReinviteInfo: {
+					inviterId: this.user.id,
+					teamName: this.team.get('name'),
+					isReinvite: true
+				}
+			});
+		}
+
 		await this.data.users.updateDirect(
 			{ id: this.data.users.objectIdSafe(user.id) },
 			update

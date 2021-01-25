@@ -33,6 +33,8 @@ const RepoBasedSignupMismatchedRepoTest = require('./repo_based_signup_mismatche
 const RepoBasedSignupNoAutoJoinTest = require('./repo_based_signup_no_auto_join_test');
 const RepoBasedSignupMessageToTeamTest = require('./repo_based_signup_message_to_team_test');
 const RepoBasedSignupConfirmationEmailTest = require('./repo_based_signup_confirmation_email_test');
+const GitLensReferralTest = require('./gitlens_referral_test');
+const GitLensReferralMachineIdTest = require('./gitlens_referral_machine_id_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -79,6 +81,8 @@ class RegistrationRequestTester {
 		new RepoBasedSignupMismatchedRepoTest().test();
 		new RepoBasedSignupNoAutoJoinTest().test();
 		new RepoBasedSignupMessageToTeamTest().test();
+		new GitLensReferralTest().test();
+		new GitLensReferralMachineIdTest().test();
 	}
 }
 

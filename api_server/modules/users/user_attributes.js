@@ -246,6 +246,11 @@ module.exports = {
 		maxLength: 25,
 		description: 'Invite type the last time this user was invited, one of: "invitation", "reinvitation", "reviewNotification", "codemarkNotification"'
 	},
+	firstInviteType: {
+		type: 'string',
+		maxLength: 25,
+		description: 'Invite type the first time this user was invited, one of: "invitation", "reinvitation", "reviewNotification", "codemarkNotification"'
+	},
 	inviteTrigger: {
 		type: 'string',
 		maxLength: 25,
@@ -308,5 +313,25 @@ module.exports = {
 	hasGitLens: {
 		type: 'boolean',
 		description: 'Indicates that user has GitLens installed'
+	},
+	needsAutoReinvites: {
+		type: 'number',
+		description: 'Indicates how many automatic reinvites are to be sent till we give up',
+		serverOnly: true
+    },
+	lastInviteSentAt: {
+		type: 'number',
+		description: 'Last time an invite email was sent to this user',
+		serverOnly: true
+	},
+	autoReinviteInfo: {
+		type: 'object',
+		description: 'Info about auto re-invitations to users (what team, etc)',
+		serverOnly: true
+	},
+	source: {
+		type: 'string',
+		description: 'Source of the referral for this user',
+		maxLength: 12
 	}
 };

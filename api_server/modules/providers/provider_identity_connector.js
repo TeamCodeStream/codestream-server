@@ -9,6 +9,7 @@ const Indexes = require('../users/indexes');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ConfirmHelper = require('../users/confirm_helper');
+const GitLensReferralLookup = require('../users/gitlens_referral_lookup');
 
 class ProviderIdentityConnector {
 
@@ -140,6 +141,12 @@ class ProviderIdentityConnector {
 				image: this.providerInfo.avatarUrl
 			};
 		}
+
+		// if this user came from GitLens, update source attribute
+		if (await GitLensReferralLookup(this.request.api.data, userData.email, this.machineId)) {
+			userData.source = 'GitLens';
+		}
+
 		this.user = this.createdUser = await this.userCreator.createUser(userData);
 	}
 

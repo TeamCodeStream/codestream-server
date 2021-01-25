@@ -1,5 +1,15 @@
 # Change Log
 
+## [8.2.20] - 2021-1-25
+
+### Added
+
+- Backend support for deeper GitLens integration
+
+### Changed
+
+- Changed subject of invitation email
+
 ## [8.2.19] - 2021-1-20
 
 ### Fixed

@@ -28,6 +28,7 @@ class UnregisteredInviteTest extends PostUserTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		if (!this.firstRun) {
+			this.firstInviteType = 'invitation';
 			this.lastInviteType = 'reinvitation';	// this sets the right condition for validating the response in the second test run
 		}
 		else {

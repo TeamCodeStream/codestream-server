@@ -18,5 +18,8 @@ module.exports = {
 	},
 	byExternalUserId: {
 		externalUserId: 1
+	},
+	byNeedsAutoReinvites: {
+		needsAutoReinvites: 1
 	}
 };

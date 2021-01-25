@@ -74,7 +74,7 @@ const mapState = state => {
 		telemetrySelectable,
 		telemetryEnabled: telemetrySelectable // TODO: shouldn't this always be set?
 			// ? !(state.config.telemetry.disabled || false)
-			? !(state.presentation.configuration.general.telemetryDisabled || false)
+			? !(state.config.telemetry.disabled || false)
 			: false,
 		phoneHomeEnabled: !(state.config.apiServer.disablePhoneHome || false),
 		phoneHomeSelectable: false,
@@ -93,8 +93,8 @@ const mapDispatch = dispatch => {
 		// },
 		toggleTelemetry: (e) =>
 			dispatch({
-				type: PresentationActions.PRESENTATION_CONFIG_GEN_TELEMETRY_SET_DISABLED,
-				payload: !e.target.checked,
+				type: ConfigActions.CONFIG_TOGGLE_DOTTED_BOOLEAN,
+				payload: { property: 'telemetry.disabled' },
 			}),
 		// togglePhoneHome: (e) => {
 		// 	dispatch(updateConfig(ApiServerActions.CONFIG_API_SERVER_SET_PHONEHOME_DISABLED, { payload: !e.target.checked }));
