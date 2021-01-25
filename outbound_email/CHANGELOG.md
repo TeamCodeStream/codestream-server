@@ -1,14 +1,11 @@
 # Change Log
 
-<<<<<<< HEAD
-=======
 ## [8.2.17] - 2021-1-25
 
 ### Changed
 
 - Release bump to support latest API version
 
->>>>>>> origin
 ## [8.2.16] - 2021-1-20
 
 ### Fixed
