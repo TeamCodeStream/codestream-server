@@ -27,7 +27,8 @@ class GitLensUserRequest extends RestfulRequest {
 					string: ['emailHash']
 				},
 				optional: {
-					string: ['machineIdHash']
+					string: ['machineIdHash'],
+					boolean: ['installed']
 				}
 			}
 		);
@@ -52,10 +53,21 @@ class GitLensUserRequest extends RestfulRequest {
 		// prevent duplicates
 		const existing = await this.api.data.gitLensUsers.getOneByQuery(document, { hint: GitLensUserIndexes.byEmailHash });
 		if (existing) {
-			return;
+			// but update the "installed" flag if provided
+			if (this.request.body.installed && !existing.installed) {
+				return this.api.data.gitLensUsers.updateDirect(
+					{ _id: this.api.data.gitLensUsers.objectIdSafe(existing._id) },
+					{ $set: { installed: true } }
+				);
+			} else {
+				return;
+			}
 		}
 
 		document.createdAt = Date.now();
+		if (this.request.body.installed) {
+			document.installed = true;
+		}
 		return this.api.data.gitLensUsers.create(document, { noVersion: true });
 	}
 
