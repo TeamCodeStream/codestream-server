@@ -48,5 +48,4 @@ describe('user requests', function() {
 	describe('GET /no-auth/invite-info', InviteInfoRequestTester.test);
 	describe('DELETE /users/:id', DeleteUserRequestTester.test);
 	describe('POST /no-auth/gitlens-user', GitLensUserRequestTester.test);
-
 });

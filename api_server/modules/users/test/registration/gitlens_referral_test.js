@@ -37,7 +37,7 @@ class GitLensReferralTest extends RegistrationTest {
 				method: 'post',
 				path: '/no-auth/gitlens-user',
 				data: {
-					emailHash
+					emailHashes: [emailHash]
 				}
 			},
 			callback
