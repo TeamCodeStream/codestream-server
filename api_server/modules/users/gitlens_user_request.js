@@ -15,7 +15,7 @@ class GitLensUserRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
-		await this.addGitLensUser();		// add the GitLens user to our database
+		await this.addGitLensUsers();		// add one or more GitLens users to our database
 	}
 
 	// require certain parameters, discard unknown parameters
@@ -24,7 +24,7 @@ class GitLensUserRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['emailHash']
+					'array(string)': ['emailHashes']
 				},
 				optional: {
 					string: ['machineIdHash'],
@@ -33,28 +33,36 @@ class GitLensUserRequest extends RestfulRequest {
 			}
 		);
 
-		if (this.request.body.emailHash.length > 200) {
-			throw this.errorHandler.error('invalidParameter', { reason: 'emailHash must be less than 200 characters'});
+		if (this.request.body.emailHashes.length > 50) {
+			throw this.errorHandler.error('invalidParameter', { reason: 'cannot send more than 50 email hashes'})
+		}
+		if (this.request.body.emailHashes.find(hash => hash.length > 200)) {
+			throw this.errorHandler.error('invalidParameter', { reason: 'email hash must be less than 200 characters'});
 		}
 		if (this.request.body.machineIdHash && this.request.body.machineIdHash.length > 200) {
 			throw this.errorHandler.error('invalidParameter', { reason: 'machineIdHash must be less than 200 characters'})
 		} 
 	}
 
-	// add the GitLens user to our database
-	async addGitLensUser () {
-		const document = {
-			emailHash: this.request.body.emailHash.toLowerCase()
-		};
-		if (this.request.body.machineIdHash) {
-			document.machineIdHash = this.request.body.machineIdHash.toLowerCase();
+	// add one or more GitLens users to our database
+	async addGitLensUsers () {
+		return Promise.all(this.request.body.emailHashes.map(async emailHash => {
+			await this.addGitLensUser(emailHash);
+		}));
+	}
+	
+	async addGitLensUser (emailHash) {
+		const { machineIdHash, installed } = this.request.body;
+		const document = { emailHash };
+		if (machineIdHash) {
+			document.machineIdHash = machineIdHash.toLowerCase();
 		}
 
 		// prevent duplicates
 		const existing = await this.api.data.gitLensUsers.getOneByQuery(document, { hint: GitLensUserIndexes.byEmailHash });
 		if (existing) {
 			// but update the "installed" flag if provided
-			if (this.request.body.installed && !existing.installed) {
+			if (installed && !existing.installed) {
 				return this.api.data.gitLensUsers.updateDirect(
 					{ _id: this.api.data.gitLensUsers.objectIdSafe(existing._id) },
 					{ $set: { installed: true } }
@@ -65,7 +73,7 @@ class GitLensUserRequest extends RestfulRequest {
 		}
 
 		document.createdAt = Date.now();
-		if (this.request.body.installed) {
+		if (installed) {
 			document.installed = true;
 		}
 		return this.api.data.gitLensUsers.create(document, { noVersion: true });

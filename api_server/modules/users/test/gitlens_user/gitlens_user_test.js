@@ -37,7 +37,7 @@ class GitLensUserTest extends CodeStreamAPITest {
 			const emailHash = this.hash(email);	
 			const machineId = RandomString.generate(12);
 			const machineIdHash = this.hash(machineId);
-			this.data = { emailHash, machineIdHash };
+			this.data = { emailHashes: [emailHash], machineIdHash };
 			callback();
 		});
 	}

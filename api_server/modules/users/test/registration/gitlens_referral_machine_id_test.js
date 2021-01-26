@@ -20,7 +20,7 @@ class GitLensReferralMachineIdTest extends GitLensReferralTest {
 				method: 'post',
 				path: '/no-auth/gitlens-user',
 				data: {
-					emailHash,
+					emailHashes: [emailHash],
 					machineIdHash
 				}
 			},
