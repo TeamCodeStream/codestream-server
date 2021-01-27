@@ -1,17 +1,27 @@
-// Profile: creates the on-prem single host preview template
+// THIS FILE IS AUTOMTICALLY GENERATED - DO NOT EDIT !!
+// Profile: shared/codestream_configs/profiles/onprem-single-host-preview-template.json
 //
-// - Storage:        mongo
-// - Broadcast:      codestream broadcaster
-// - Queuing:        rabbitMQ
-// - Outbound SMTP:  NodeMailer
-// - Telemetry:      Segment production
+// CodeStream On-Prem Config
 //
-// - environments (profiles):
+// - Storage:          mongo
+// - Broadcaster:      codestream broadcaster
+// - Queuing:          rabbitMQ
+// - Outbound SMTP:    NodeMailer
+//
+// - environments:
 // -    minimal (default): onprem template that includes ssl and outbound email
 // -    quickstart:        onprem template without ssl or email
-// -    local:             local development template
+// -    local:             local development template (codestream sandbox)
+// -    open:              open core development (new database default)
 
 {
+	"adminServer": {
+		"defaultEnv": {},
+		"open": {
+			"port": 12002,
+			"securePort": 12003
+		}
+	},
 	"apiServer": {
 		"defaultEnv": {
 			"authOrigin": null,
@@ -36,6 +46,19 @@
 			"phoneHomeUrl": "https://phone-home.codestream.us",
 			"port": 12079,
 			"publicApiUrl": "http://localhost.codestream.us:12079",
+			"showConfig": true
+		},
+		"open": {
+			"confirmationNotRequired": true,
+			"disablePhoneHome": true,
+			"dontWantAWS": true,
+			"helpIsAvailable": true,
+			"ignoreHttps": true,
+			"marketingSiteUrl": "https://www.codestream.com",
+			"phoneHomeUrl": "http://localhost:12006",
+			"port": 12000,
+			"publicApiUrl": "http://localhost:12000",
+			"securePort": 12001,
 			"showConfig": true
 		},
 		"quickstart": {
@@ -78,6 +101,17 @@
 				},
 				"showConfig": true
 			},
+			"open": {
+				"host": "localhost",
+				"ignoreHttps": true,
+				"port": 12004,
+				"secrets": {
+					"api": "broadcastApiSecret",
+					"auth": "broadcastAuthSecret"
+				},
+				"securePort": 12005,
+				"showConfig": false
+			},
 			"quickstart": {
 				"host": "{{FQHN}}",
 				"ignoreHttps": true,
@@ -103,6 +137,12 @@
 		"local": {
 			"suppressEmails": true
 		},
+		"open": {
+			"emailTo": null,
+			"replyToDomain": null,
+			"senderEmail": null,
+			"supportEmail": null
+		},
 		"quickstart": {
 			"emailTo": null,
 			"replyToDomain": "{{FQHN}}",
@@ -113,7 +153,10 @@
 	},
 	"emailDeliveryService": {
 		"NodeMailer": {
-			"defaultEnv": {}
+			"defaultEnv": {},
+			"open": {
+				"disabled": true
+			}
 		}
 	},
 	"inboundEmailServer": {
@@ -138,6 +181,9 @@
 			},
 			"local": {
 				"host": "localhost.codestream.us"
+			},
+			"open": {
+				"host": "localhost"
 			}
 		}
 	},
@@ -149,6 +195,10 @@
 		"local": {
 			"installationId": "00000000-0000-0000-0000-000000000000",
 			"runTimeEnvironment": "onprem"
+		},
+		"open": {
+			"installationId": null,
+			"runTimeEnvironment": "local"
 		}
 	},
 	"sharedSecrets": {
@@ -162,6 +212,14 @@
 		},
 		"local": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
+		},
+		"open": {
+			"auth": "secretAuth",
+			"confirmationCheat": "secretConfirmationCheat",
+			"cookie": "secretCookie",
+			"mail": "secretMail",
+			"subscriptionCheat": "secretSubscriptionCheat",
+			"telemetry": "84$gTe^._qHm,#D"
 		}
 	},
 	"ssl": {
@@ -172,6 +230,12 @@
 			"requireStrictSSL": false
 		},
 		"local": {
+			"cafile": null,
+			"certfile": null,
+			"keyfile": null,
+			"requireStrictSSL": false
+		},
+		"open": {
 			"cafile": null,
 			"certfile": null,
 			"keyfile": null,
@@ -191,6 +255,9 @@
 			},
 			"local": {
 				"url": "mongodb://localhost.codestream.us/codestream"
+			},
+			"open": {
+				"url": "mongodb://localhost/codestream"
 			}
 		}
 	},
@@ -198,7 +265,8 @@
 		"segment": {
 			"defaultEnv": {
 				"_loadSecretsFile": "segment/prod-api.cfg"
-			}
+			},
+			"open": {}
 		}
 	}
 }

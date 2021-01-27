@@ -19,11 +19,12 @@ import GlobalData from '../config/globalData';
 
 	// Our operational structured config object (could be a file or mongo)
 	GlobalData.AdminConfig = AdminConfig;
-	const Config = await AdminConfig.loadPreferredConfig();
+	const Config = await AdminConfig.loadPreferredConfig({ wait: true });
 
 	// Logger object
 	GlobalData.Logger = new SimpleFileLogger(Config.adminServer.logger);
 	await GlobalData.Logger.initialize();
+	AdminConfig.logger = GlobalData.Logger;
 
 	if (Config.adminServer.adminServerDisabled) {
 		GlobalData.Logger.error('The admin server is disabled in the config. Good bye.');

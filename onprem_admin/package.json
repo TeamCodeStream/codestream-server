@@ -7,7 +7,8 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "nodemon --exec babel-node bin/admin_server.js --ignore sessions/ --ignore public/ --delay 1.5",
-		"cibuild": "webpack --env production",
+		"cibuild": "webpack --mode=production",
+		"build": "webpack --mode=development",
 		"dev": "webpack -wd"
 	},
 	"keywords": [],

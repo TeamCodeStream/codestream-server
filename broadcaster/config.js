@@ -2,39 +2,6 @@
 
 'use strict';
 
-/* eslint no-console: 0 */
-
-// const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config'); 
-// const MongoUrlParser = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_url_parser');
-
-// function customConfigFunc(nativeCfg) {
-// 	const broadcasterCfg = {
-// 		history: {
-// 			retentionPeriod: 30 * 24 * 60 * 60 * 1000,
-// 			sweepPeriod: 60 * 60 * 1000
-// 		},
-// 		mongo: {
-// 			...nativeCfg.storage.mongo
-// 		},
-// 		logger: {
-// 			basename: 'broadcaster',						// use this for the basename of the log file
-// 			retentionPeriod: 30 * 24 * 60 * 60 * 1000,		// retain log files for this many milliseconds
-// 			...nativeCfg.broadcastEngine.codestreamBroadcaster.logger
-// 		},
-// 		secrets: {
-// 			...nativeCfg.broadcastEngine.codestreamBroadcaster.secrets,
-// 			subscriptionCheat: nativeCfg.sharedSecrets.subscriptionCheat
-// 		},
-// 		https: {
-// 			...nativeCfg.ssl,
-// 			port: nativeCfg.broadcastEngine.codestreamBroadcaster.port.toString(),
-// 			ignoreHttps: nativeCfg.broadcastEngine.codestreamBroadcaster.ignoreHttps
-// 		}
-// 	};
-// 	broadcasterCfg.database = MongoUrlParser(broadcasterCfg.mongo.url).database;
-// 	return broadcasterCfg;
-// }
-
 const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config'); 
 const customConfigFunc = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_config');
 
@@ -51,10 +18,16 @@ const customConfigFunc = require(process.env.CSSVC_BACKEND_ROOT + '/shared/serve
 // function customRestartFunc(priorConfig, currentConfig) {
 // }
 
-module.exports = StructuredConfigFactory.create({
-	configFile: process.env.CS_BROADCASTER_CFG_FILE || process.env.CSSVC_CFG_FILE,
-	mongoUrl: process.env.CSSVC_CFG_URL,
-	showConfigProperty: 'broadcastEngine.codestreamBroadcaster.showConfig',
-	// customRestartFunc,
-	customConfigFunc
-});
+var Config;
+
+Config =
+	Config ||
+	StructuredConfigFactory.create({
+		configFile: process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE,
+		mongoUrl: process.env.CSSVC_CFG_URL,
+		showConfigProperty: 'broadcastEngine.codestreamBroadcaster.showConfig',
+		// customRestartFunc,
+		customConfigFunc,
+	});
+
+module.exports = Config;

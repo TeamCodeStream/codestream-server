@@ -66,30 +66,35 @@ export CSSVC_BACKEND_ROOT=$CSBE_TOP
 
 # These variables are defined by the sandbox-env-loader.sh script which won't be
 # called for the individual services
+echo "Loading api environment..."
 export CS_API_NAME=$CSBE_NAME
 export CS_API_SANDBOX=$CSBE_SANDBOX
 export CS_API_TOP=$CSBE_TOP/api_server
 # CS_API_DEPS=....
 . $CS_API_TOP/sandbox/defaults.sh
 
+echo "Loading broadcaster environment..."
 export CS_BROADCASTER_NAME=$CSBE_NAME
 export CS_BROADCASTER_SANDBOX=$CSBE_SANDBOX
 export CS_BROADCASTER_TOP=$CSBE_TOP/broadcaster
 # CS_BROADCASTER_DEPS=....
 . $CS_BROADCASTER_TOP/sandbox/defaults.sh
 
+echo "Loading mailin environment..."
 export CS_MAILIN_NAME=$CSBE_NAME
 export CS_MAILIN_SANDBOX=$CSBE_SANDBOX
 export CS_MAILIN_TOP=$CSBE_TOP/inbound_email
 # CS_MAILIN_DEPS=....
 . $CS_MAILIN_TOP/sandbox/defaults.sh
 
+echo "Loading mailout environment..."
 export CS_OUTBOUND_EMAIL_NAME=$CSBE_NAME
 export CS_OUTBOUND_EMAIL_SANDBOX=$CSBE_SANDBOX
 export CS_OUTBOUND_EMAIL_TOP=$CSBE_TOP/outbound_email
 # CS_OUTBOUND_EMAIL_DEPS=....
 . $CS_OUTBOUND_EMAIL_TOP/sandbox/defaults.sh
 
+echo "Loading onprem-admin environment..."
 export OPADM_NAME=$CSBE_NAME
 export OPADM_SANDBOX=$CSBE_SANDBOX
 export OPADM_TOP=$CSBE_TOP/onprem_admin

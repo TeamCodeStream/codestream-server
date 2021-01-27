@@ -30,14 +30,15 @@ const WatchInterval = 30000;
 // maybe this should be defined in config??
 const getWatchers = (config, installation) => {
 	const watchers = {};
-	if (installation.productType === 'On-Prem Development') {
+	if (process.env.OPADM_FAUX_STATUS_FILE && installation.productType === 'On-Prem Development') {
 		// a fake file watcher used in development. status, lastCheck and message are read from a json file
 		watchers.fauxStatusFile = {
 			// watcherId
 			type: 'file',
 			warnTimeOut: 65,
 			attnTimeOut: 125, // seconds
-			file: `${process.env.OPADM_TMP}/fauxStatusFile.json`,
+			file: process.env.OPADM_FAUX_STATUS_FILE,
+			// file: `${process.env.OPADM_TMP}/fauxStatusFile.json`,
 			// msgId, (auto-generated, do not override)
 			// lastCheck: Date.now(), (default)
 			// status,

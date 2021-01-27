@@ -1,16 +1,38 @@
 {
 	"name": "codestream-server",
 	"version": "1.0.0",
-	"description": "CodeStream server components",
+	"description": "CodeStream Server Services",
 	"scripts": {
-		"install-all": "echo API && cd api_server && npm i --no-save && echo BROADCASTER && cd ../broadcaster && npm i --no-save && echo INBOUND_EMAIL && cd ../inbound_email && npm i --no-save && echo OUTBOUND_EMAIL && cd ../outbound_email && npm i --no-save && echo ONPREM_ADMIN && cd ../onprem_admin && npm i --no-save"
+		"install:api": "echo API && cd api_server && npm i --no-save",
+		"install:broadcaster": "echo BROADCASTER && cd broadcaster && npm i --no-save",
+		"install:mailin": "echo INBOUND_EMAIL && cd inbound_email && npm i --no-save",
+		"install:mailout": "echo OUTBOUND_EMAIL && cd outbound_email && npm i --no-save",
+		"install:opadm": "echo ONPREM_ADMIN && cd onprem_admin && npm i --no-save",
+		"runtime-dirs": "[ ! -d log ] && mkdir log || true",
+		"install:all": "npm run runtime-dirs && npm run install:api && npm run install:broadcaster && npm run install:mailin && npm run install:mailout && npm run install:opadm",
+		"start:api": "cd api_server && npm run start",
+		"start:broadcaster": "cd broadcaster && npm run start",
+		"start:mailin": "cd inbound_email && npm run start",
+		"start:mailout": "cd outbound_email && npm run start",
+		"start:opadm": "cd onprem_admin && npm run build && npm run start",
+
+		"run:docker:csrabbitmq": "docker run -d -p 5672:5672 -p 15672:15672 --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0",
+		"start:docker:csrabbitmq": "docker start csrabbitmq",
+		"stop:docker:csrabbitmq": "docker stop csrabbitmq",
+		"rm:docker:csrabbitmq": "docker rm csrabbitmq",
+
+		"run:docker:csmongo": "docker run -d -p 27017:27017 --name csmongo -v csmongodata:/data/db mongo:3.4.9",
+		"start:docker:csmongo": "docker start csmongo",
+		"stop:docker:csmongo": "docker stop csmongo",
+		"rm:docker:csmongo": "docker rm csmongo",
+		"docker:remove-all-vols": "docker volume rm $(docker volume ls|awk '{print $2}'|grep -v VOL)"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/teamcodestream/codestream-server.git"
 	},
 	"bugs": {
-		"url": "https://github.com/teamcodestream/codestream-server/issues"
+		"url": "https://github.com/teamcodestream/codestream/issues"
 	},
 	"homepage": "https://github.com/teamcodestream/codestream-server#readme"
 }

@@ -36,7 +36,7 @@
 			"debugOk": {
 				"default": false,
 				"desc": "more verbose logging (debug level)",
-				"env": "OPADM_DEBUG_OK"
+				"env": "OPADM_LOG_DEBUG_OK"
 			},
 			"directory": {
 				"default": "${OPADM_LOGS}",

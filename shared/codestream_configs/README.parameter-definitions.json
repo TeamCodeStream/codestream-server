@@ -3,7 +3,7 @@
 		"adminServerDisabled": "true will disable admin server and related functionality [OPADM_DISABLED]",
 		"logger": {
 			"consoleOk": "allow logging to the console [OPADM_LOG_CONSOLE_OK]",
-			"debugOk": "more verbose logging (debug level) [OPADM_DEBUG_OK]",
+			"debugOk": "more verbose logging (debug level) [OPADM_LOG_DEBUG_OK]",
 			"directory": "directory for the onprem admin server logs [OPADM_LOGS]"
 		},
 		"port": "admin server port [OPADM_PORT]",

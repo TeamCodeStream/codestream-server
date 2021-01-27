@@ -6,6 +6,8 @@
 
 'use strict';
 
+const UUID = require('uuid').v4;
+
 // load configurations
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const ModuleDirectory = process.env.CSSVC_BACKEND_ROOT + '/api_server/modules';
@@ -14,6 +16,7 @@ const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const StringifySortReplacer = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/stringify_sort_replacer');
 const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server');
 const getOnPremSupportData = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_onprem_support_data');
+const customSchemaMigrationMatrix = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_schema_migration');
 
 // establish our data collections
 const DataCollections = {
@@ -49,15 +52,30 @@ const MongoCollections = Object.keys(DataCollections).concat([
 ]);
 
 (async function() {
+	if (ApiConfig.configIsMongo()) {
+		// set option so structured config will perform a schema version migration if needed upon initial load
+		ApiConfig.performMigrationUsing(customSchemaMigrationMatrix);
+		// set option to create a new config using the supplied default in the event no configs exist (empty database)
+		ApiConfig.loadDefaultConfigIfNoneFrom(
+			process.env.CS_API_DEFAULT_CFG_FILE ||
+				process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/configs/default.json',
+			// generate installation id for first time start-up
+			(cfg) => {
+				if (!cfg.sharedGeneral.installationId) cfg.sharedGeneral.installationId = UUID();
+			}
+		);
+	}
+
 	// changes to Config will be available globally via the /config/writeable.js module
-	const Config = await ApiConfig.loadPreferredConfig();
+	const Config = await ApiConfig.loadPreferredConfig({ wait: true });
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.apiServer.logger);
+	ApiConfig.logger = Logger;
 
 	// onprem support data (service versions, docker registry info, on-prem version)
 	let onPremSupportData;
-	if (!Config.adminServer.adminServerDisabled) {
+	if (Config.isOnPrem) {
 		onPremSupportData = await getOnPremSupportData(Logger);
 		console.info('OnPrem Config:', JSON.stringify(onPremSupportData, StringifySortReplacer, 8));
 	}
