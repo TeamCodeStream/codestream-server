@@ -25,7 +25,7 @@ case "$1" in
 		ec=$?
 		;;
 	stop)
-		service_stop $service_name
+		service_stop $service_name useForce
 		ec=$?
 		sleep 2
 		service_status $service_name

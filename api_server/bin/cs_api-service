@@ -3,12 +3,12 @@
 #desc# CodeStream API service init script
 
 function usage {
-    echo "usage: $0 { start | stop | status | restart } [-if1] [-- server-args]" >&2
-    echo >&2
-    echo "   -f  run in foreground"
+	echo "usage: $0 { start | stop | status | restart } [-if1] [-- server-args]" >&2
+	echo >&2
+	echo "   -f  run in foreground"
 	echo "   -1  add the server-arg --one_worker"
 	echo "   -i  force index recreation"
-    exit 1
+	exit 1
 }
 
 function startup {
@@ -58,30 +58,30 @@ reindex=0
 OPTIND=2
 while getopts "f1i" arg
 do
-    case $arg in
+	case $arg in
 		i) reindex=1;;
 		1) server_args="--one_worker";;
-        f) run_fg=1;;
-        *) usage;;
-    esac
+		f) run_fg=1;;
+		*) usage;;
+	esac
 done
 shift `expr $OPTIND - 1`
 
 ec=0
 server_args="$server_args $*"
 case "$action" in
-    start)
+	start)
 		startup
 		;;
-    stop)
-        service_stop $CS_API_TOP/bin/api_server.js "$CS_API_INIT_STOP_OPTS" "$CS_API_INIT_FAIL_MSG"
-        ec=$?
-        sleep 5
-        service_status $CS_API_TOP/bin/api_server.js
-        ;;
-    status)
-        service_status $CS_API_TOP/bin/api_server.js
-        ;;
+	stop)
+		service_stop $CS_API_TOP/bin/api_server.js "$CS_API_INIT_STOP_OPTS" "$CS_API_INIT_FAIL_MSG"
+		ec=$?
+		sleep 5
+		service_status $CS_API_TOP/bin/api_server.js
+		;;
+	status)
+		service_status $CS_API_TOP/bin/api_server.js
+		;;
 	restart)
 		service_stop $CS_API_TOP/bin/api_server.js "$CS_API_INIT_STOP_OPTS" "$CS_API_INIT_FAIL_MSG"
 		if [ $ec -ne 0 ]; then
@@ -90,8 +90,8 @@ case "$action" in
 			startup
 		fi
 		;;
-    *)
-        usage
-        ;;
+	*)
+		usage
+		;;
 esac
 exit $ec
