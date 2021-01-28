@@ -276,7 +276,7 @@ class EmailNotificationV2Handler {
 		if (this.message.isReminder) {
 			// for review reminders, check if the user has that option specifically turned off
 			// (note that "undefined" means they have not set that preference, which defaults to on)
-			if (preferences.reviewReminders === false) {
+			if (preferences.reviewReminderDelivery === false) {
 				this.log(`User ${user.id}:${user.email} has the option to remind them of reviews turned off`);
 				return false;
 			} 
