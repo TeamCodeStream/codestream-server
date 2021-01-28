@@ -2,6 +2,7 @@
 
 const CodemarkMarkerTest = require('./codemark_marker_test');
 const Assert = require('assert');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 
 class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 
@@ -28,17 +29,22 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 
 	validateResponse (data) {
 		// expect the new users to be in the returned response
-		const newEmails = (data.users || []).map(u => u.email);
+		let newEmails = (data.users || []).map(u => u.email);
 		newEmails.sort();
 		console.warn('newEmails:', newEmails);
 
-		// except ... users who were already on the team
-		const addedUsers = this.data.addedUsers.filter(email => {
+		// for testing invalid emails, filter out any emails that aren't valid
+		const addedValidUsers =  this.data.addedUsers.filter(email => {
+			return typeof EmailUtilities.parseEmail(email) === 'object';
+		});
+		addedValidUsers.sort();
+
+		// and filter out any users who were already on the team
+		const addedUsers = addedValidUsers.filter(email => {
 			return !this.users.find(userData => {
 				return userData.user.email === email && userData.user.teamIds.includes(this.team.id);
 			});
 		});
-		addedUsers.sort();
 		console.warn('addedUsers:', addedUsers);
 
 		Assert.deepStrictEqual(newEmails, addedUsers, 'returned users did not match the new users sent in the request');
@@ -57,7 +63,7 @@ class NewUsersOnTheFlyTest extends CodemarkMarkerTest {
 
 		// all the added users (including ones who were already on the team) should have been added
 		// as followers of the codemark
-		const addedUserIds = this.data.addedUsers.map(email => {
+		const addedUserIds = addedValidUsers.map(email => {
 			const foundUser = (
 				data.users.find(user => user.email === email) ||
 				this.users.map(userData => userData.user).find(user => user.email === email)
