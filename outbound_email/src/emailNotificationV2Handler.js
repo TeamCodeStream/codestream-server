@@ -694,6 +694,10 @@ class EmailNotificationV2Handler {
 		if (!user.hasReceivedFirstEmail) {
 			op.$set.hasReceivedFirstEmail = true;
 		}
+		if (this.message.isReminder && !user.isRegistered) {
+			op.$set.lastInviteType = 'reviewReminder';
+			op.$set.lastInviteSentAt = Date.now();
+		}
 		try {
 			await this.data.users.updateDirect(
 				{ id: this.data.users.objectIdSafe(user.id) },
