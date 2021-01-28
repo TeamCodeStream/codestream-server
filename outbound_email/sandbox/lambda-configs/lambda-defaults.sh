@@ -2,6 +2,7 @@
 # configure shell for lambda function deployment
 . $DT_TOP/lib/sandbox_utils.sh
 
+[ -z "$CS_OUTBOUND_EMAIL_SQS" -a -n "$CSSVC_CFG_FILE" ] && export CS_OUTBOUND_EMAIL_SQS=`get-json-property -j $CSSVC_CFG_FILE -p queuingEngine.awsSQS.outboundEmailQueueName`
 [ -z "$CS_OUTBOUND_EMAIL_SQS" ] && echo "AWS SQS is not configured as the queing engine. That is a pre-req for deploying as a lambda function." && return 1
 
 export CS_OUTBOUND_EMAIL_CFG_FILE=./codestream-services-config.json

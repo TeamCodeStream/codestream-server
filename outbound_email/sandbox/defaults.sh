@@ -22,10 +22,11 @@ sbcfg_initialize CS_OUTBOUND_EMAIL
 if [ -n "$CSSVC_CFG_URL" ]; then
 	# Hopefully these match the config in mongo
 	[ -z "$CS_OUTBOUND_EMAIL_SQS" ] && export CS_OUTBOUND_EMAIL_SQS="local_${DT_USER}_outboundEmail"
-else
-	sbcfg_check_cfg_prop outboundEmailServer.logger.directory CS_OUTBOUND_EMAIL_LOGS
-	sbcfg_check_cfg_prop outboundEmailServer.tmpDirectory CS_OUTBOUND_EMAIL_TMP
-	sbcfg_check_cfg_prop queuingEngine.awsSQS.outboundEmailQueueName CS_OUTBOUND_EMAIL_SQS 2>/dev/null
 fi
+# else
+	# sbcfg_check_cfg_prop outboundEmailServer.logger.directory CS_OUTBOUND_EMAIL_LOGS
+	# sbcfg_check_cfg_prop outboundEmailServer.tmpDirectory CS_OUTBOUND_EMAIL_TMP
+	# sbcfg_check_cfg_prop queuingEngine.awsSQS.outboundEmailQueueName CS_OUTBOUND_EMAIL_SQS 2>/dev/null
+# fi
 
 return 0

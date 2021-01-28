@@ -86,7 +86,7 @@ function sbcfg_initialize {
 
 		# ---- Config File Sanity Check
 		[ -n "$sbCfgFile" -a \( "$CSSVC_CFG_FILE" != "$sbCfgFile" \) ] && echo "**** WARNING: ${sbPrefix}_CFG_FILE != CSSVC_CFG_FILE"
-		sbcfg_check_cfg_prop sharedGeneral.runTimeEnvironment CSSVC_ENV || return 1
+		# sbcfg_check_cfg_prop sharedGeneral.runTimeEnvironment CSSVC_ENV || return 1
 
 		echo "CSSVC_CFG_FILE=$CSSVC_CFG_FILE"
 	fi
