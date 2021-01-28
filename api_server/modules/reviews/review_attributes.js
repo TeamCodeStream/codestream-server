@@ -152,5 +152,10 @@ module.exports = {
 		type: 'string',
 		maxLength: 50,
 		description: 'Identifies the third-party provider hosting the ticket or issue associated with this review'
+	},
+	lastReminderSentAt: {
+		type: 'timestamp',
+		description: 'Indicates the last time a reminder email was sent for this review',
+		serverOnly: true
 	}
 };

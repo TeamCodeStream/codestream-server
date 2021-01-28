@@ -15,5 +15,10 @@ module.exports = {
 	byLastActivityAt: {
 		teamId: 1,
 		lastActivityAt: -1
+	},
+	byStatus: {
+		status: 1,
+		lastReminderSentAt: 1,
+		lastActivityAt: -1
 	}
 };
