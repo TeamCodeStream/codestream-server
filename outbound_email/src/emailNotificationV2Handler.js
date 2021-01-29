@@ -545,6 +545,7 @@ class EmailNotificationV2Handler {
 		const unfollowLink = this.getUnfollowLink(user, thingToUnfollow, isReview);
 		const userBeingAddedToTeam = (this.message.usersBeingAddedToTeam || []).includes(user.id);
 		Object.assign(this.renderOptions, {
+			user: user,
 			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
 			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailServer.inboundEmailDisabled,
