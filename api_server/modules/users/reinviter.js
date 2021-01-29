@@ -2,7 +2,6 @@
 
 const Scheduler = require('node-schedule');
 const Indexes = require('./indexes');
-const UUID = require('uuid/v4');
 
 const THROTTLE_TIME = 100;
 const REINVITE_INTERVAL = 24 * 60 * 60 * 1000;
@@ -27,8 +26,7 @@ class Reinviter {
 		const randomMinutes = Math.floor(Math.random() * 50);
 		const randomSeconds = Math.floor(Math.random() * 60);
 		this.api.log(`Triggering auto re-invites for execution at :${randomMinutes}m:${randomSeconds}s for every hour`);
-//		this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 8-18 * * 1-5`, this.doReinvites.bind(this));
-		this.job = Scheduler.scheduleJob(`${randomSeconds} * * * * *`, this.doReinvites.bind(this));
+		this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 8-17 * * 1-5`, this.doReinvites.bind(this));
 	}
 
 	// look for users to be reinvited
@@ -36,8 +34,12 @@ class Reinviter {
 		this.api.log(`Reinvite check triggered`);
 		this.numInvited = 0;
 		this.numProcessed = 0;
+		if (this.api.config.email.suppressEmails) {
+			this.api.log('Emails are disabled in configuration, not running auto re-invites');
+			return;
+		}
 		if (await this.abortIfDoneAlready()) {
-			this.api.log('Reinvite check already handled by another worker, not running');
+			this.api.log('Reinvite check already handled by another worker, not running auto re-invites');
 			return;
 		}
 
@@ -86,15 +88,13 @@ class Reinviter {
 		} else if (user._forTesting) {
 			this.api.log(`User ${user.email} is a test user, not re-inviting`);
 			clearUser = true;
-		} else if (user.lastInviteSentAt > Date.now()/* - REINVITE_INTERVAL*/) {
+		} else if (user.lastInviteSentAt > Date.now() - REINVITE_INTERVAL) {
 			this.api.log(`User ${user.email} has had an invite within ${REINVITE_INTERVAL} ms, not re-inviting (yet)`);
 			this.numProcessed++;
 			return;
 		}
 
-console.warn('CLEAR USER:', clearUser);
 		if (clearUser) {
-console.warn('YES, CLEAR THIS FUCKING USER');
 			return this.clearUser(user);
 		} else {
 			return this.reinviteUser(user);
@@ -109,7 +109,6 @@ console.warn('YES, CLEAR THIS FUCKING USER');
 				autoReinviteInfo: true
 			}
 		};
-console.warn('UPDATING USER ' + user.id, op);
 		await this.api.data.users.updateDirect({ _id: this.api.data.users.objectIdSafe(user.id) }, op);
 		this.numProcessed++;
 	}

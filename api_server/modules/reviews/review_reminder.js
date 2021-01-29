@@ -26,6 +26,11 @@ class ReviewReminder {
 
 		this.api.log(`Reminder check triggered`);
 
+		if (this.api.config.email.suppressEmails) {
+			this.api.log('Emails are disabled in configuration, not running auto re-invites');
+			return;
+		}
+
 		// get open reviews for which there has been no activity for 24 hours, and
 		// for which we have not sent a reminder yet 
 		let reviews = await this.api.data.reviews.getByQuery(
