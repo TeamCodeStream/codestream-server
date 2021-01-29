@@ -48,7 +48,8 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'test',
 	'phoneHomeJobs',
 	'phoneHomeStats',
-	'gitLensUsers'
+	'gitLensUsers',
+	'reinviteUsersLastRunAt'
 ]);
 
 (async function() {
