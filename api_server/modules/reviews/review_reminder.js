@@ -15,7 +15,7 @@ class ReviewReminder {
 		const randomMinutes = Math.floor(Math.random() * 60);
 		const randomSeconds = Math.floor(Math.random() * 60);
 		this.api.log(`Triggering review reminders for execution at :${randomMinutes}m:${randomSeconds}s for every hour`);
-		this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} * * * *`, this.remind.bind(this));
+		this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} * * * 1-5`, this.remind.bind(this));
 	}
 
 	// look for reviews which need reminders, and trigger message to outbound email server for each
