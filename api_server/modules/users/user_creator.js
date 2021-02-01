@@ -190,7 +190,7 @@ class UserCreator extends ModelCreator {
 		}
 
 		// set firstInviteType, only for new users
-		if (this.attributes.lastInviteType && !this.existingModel) {
+		if (this.attributes.lastInviteType && (!this.existingModel || !this.existingModel.get('isRegistered'))) {
 			this.attributes.firstInviteType = this.attributes.lastInviteType;
 		}
 	}
