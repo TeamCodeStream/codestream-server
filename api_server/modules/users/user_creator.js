@@ -171,6 +171,8 @@ class UserCreator extends ModelCreator {
 		}
 
 		// set lastInviteType, can be triggered by a review or codemark notification
+		const existingLastInviteType = this.existingModel && this.existingModel.get('lastInviteType');
+		const existingFirstInviteType = this.existingModel && this.existingModel.get('firstInviteType');
 		if (this.options.inviteType) {
 			this.attributes.lastInviteType = this.options.inviteType;
 		}
@@ -182,15 +184,15 @@ class UserCreator extends ModelCreator {
 				this.attributes.lastInviteType = 'codemarkNotification';
 			}
 		}
-		else if (this.existingModel && !this.existingModel.get('isRegistered')) {
+		else if (existingLastInviteType) {
 			this.attributes.lastInviteType = 'reinvitation';
 		}
-		else {
+		else if (this.userBeingAddedToTeamId) {
 			this.attributes.lastInviteType = 'invitation';
 		}
 
-		// set firstInviteType, only for new users
-		if (this.attributes.lastInviteType && (!this.existingModel || !this.existingModel.get('isRegistered'))) {
+		// set firstInviteType, only for new users where it hasn't yet been set
+		if (this.attributes.lastInviteType && !existingFirstInviteType) {
 			this.attributes.firstInviteType = this.attributes.lastInviteType;
 		}
 	}
