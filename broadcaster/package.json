@@ -1,7 +1,7 @@
 {
   "name": "broadcaster",
   "description": "CodeStream broadcaster service",
-  "version": "8.2.19",
+  "version": "8.2.20",
   "dependencies": {
     "commander": "4.1.1",
     "connect": "3.7.0",
@@ -16,7 +16,8 @@
   },
   "scripts": {
     "eslint": "eslint .",
-    "docker:build": "cd .. && dt-docker-build -a build -D broadcaster/sandbox/docker/broadcaster-onprem -V 0.0.0"
+    "docker:build": "cd .. && dt-docker-build -a build -D broadcaster/sandbox/docker/broadcaster-onprem -V 0.0.0",
+    "start": "bin/broadcaster.js --one_worker"
   },
   "pre-commit": [
     "eslint"

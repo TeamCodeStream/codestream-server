@@ -6,16 +6,7 @@ const RandomString = require('randomstring');
 class InvalidEmailTest extends NewUsersOnTheFlyTest {
 
 	get description () {
-		return 'should return an error if a codemark is being created with a post, and new users are being added, but one of the emails is not a valid email';
-	}
-
-	getExpectedError () {
-		return {
-			code: 'RAPI-1005',
-			info: {
-				email: 'invalid email'
-			}
-		};
+		return 'should quietly filter out the invalid email, if a codemark is being created with a post, and new users are being added, but one of the emails is not a valid email';
 	}
 
 	makePostData (callback) {

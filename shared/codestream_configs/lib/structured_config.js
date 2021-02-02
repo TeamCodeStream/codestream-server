@@ -10,10 +10,18 @@ class StructuredConfigFactory {
 			return new StructuredConfigFile(options);
 		}
 		else if(options.mongoUrl) {
-			return new StructuredConfigMongo(options);
+			if (options.mongoUrl.startsWith('mongodb://')) {
+				return new StructuredConfigMongo(options);
+			}
+			else if (options.mongoUrl.startsWith('file://')) {
+				return new StructuredConfigFile(options);
+			}
+			else {
+				console.error(`Unknown config type for ${options.mongoUrl}. Should start with mongodb:// or file://`);
+			}
 		}
 		else {
-			console.error('you need a config reference (configFile or mongoUrl) to get a config from the factory')
+			console.error('No config specified');
 		}
 	}
 }

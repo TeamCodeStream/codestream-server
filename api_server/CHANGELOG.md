@@ -1,5 +1,21 @@
 # Change Log
 
+## [8.2.22] - 2021-2-2
+
+### Added
+
+- Adds a new one-time email/toast notification when you have an open feedback request assigned to you that hasn't had activity in 24 hours
+- Adds new reminder invitations for teammates that haven't yet joined CodeStream
+
+### Changed
+
+- New subject for initial feedback request notifications going to unregistered users
+- Suppressed "Open in IDE" buttons in email notifications to unregistered users
+
+### Fixed
+
+- Fixes an issue with commenting on code where the git blame returns an author with no email address
+
 ## [8.2.21] - 2021-1-26
 
 ### Added

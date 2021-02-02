@@ -224,7 +224,20 @@ class EmailNotificationV2Handler {
 
 	// get all members of the team, and all members of the stream as warranted
 	async getAllMembers () {
-		const currentMemberIds = ArrayUtilities.difference(this.team.memberIds, this.team.removedMemberIds || []);
+		let currentMemberIds;
+		if (this.message.isReminder && this.review) {
+			// special case for review reminders ... in this case the "members" are the reviewers
+			currentMemberIds = this.review.reviewers || [];
+		} else {
+			currentMemberIds = this.team.memberIds;
+		}
+		currentMemberIds = ArrayUtilities.difference(currentMemberIds, this.team.removedMemberIds || []);
+
+		// always get the creator, even if removed from the team
+		if (!currentMemberIds.includes(this.post.creatorId)) {
+			currentMemberIds.push(this.post.creatorId);
+		}
+
 		this.teamMembers = await this.data.users.getByIds(currentMemberIds);
 		if (this.stream.type === 'file' || this.stream.isTeamStream) {
 			this.streamMembers = this.teamMembers;
@@ -252,20 +265,44 @@ class EmailNotificationV2Handler {
 			return false;
 		}
 
-		// first, if the user has emails turned off as delivery preference, don't send an email
+		// users who have been removed from the team never get emails
+		if ((this.team.removedMemberIds || []).includes(user.id)) {
+			this.log(`User ${user.id}:${user.email} has been removed from team so will not receive an email notification`);
+			return false;
+		}
+
 		const preferences = user.preferences || {};
-		if (preferences.notificationDelivery === 'off' || preferences.notificationDelivery === 'toastOnly') {
+
+		if (this.message.isReminder) {
+			// for review reminders, check if the user has that option specifically turned off
+			// (note that "undefined" means they have not set that preference, which defaults to on)
+			if (preferences.reviewReminderDelivery === false) {
+				this.log(`User ${user.id}:${user.email} has the option to remind them of reviews turned off`);
+				return false;
+			} 
+		}
+
+		// for ordinary notifications, if the user has emails turned off as delivery preference, don't send an email
+		else if (preferences.notificationDelivery === 'off' || preferences.notificationDelivery === 'toastOnly') {
 			this.log(`User ${user.id}:${user.email} has notification delivery of emails turned off`);
 			return false;
 		}
 		
 		// next, check if they're following the thing the post refers to
+		// note that, for review reminders, this means they've specifically opted out of reviewing this review,
+		// so we shouldn't send a reminder
 		const thingToFollow = this.post.parentPostId ?
 			(this.parentReview || this.parentCodemark) :
 			(this.review || this.codemark);
 		const followerIds = (thingToFollow && thingToFollow.followerIds) || [];
 		if (followerIds.indexOf(user.id) !== -1) {
 			return true;
+		}
+
+		// if we've reached here for a review reminder, the user is not following the review anymore
+		if (this.message.isReminder) {
+			this.log(`User ${user.id}:${user.email} has opted out of following this review, so will not be sent a reminder`);
+			return false;
 		}
 
 		// otherwise, only send emails if they are mentioned
@@ -292,6 +329,11 @@ class EmailNotificationV2Handler {
 			if (this.post.creatorId === user.id) {
 				this.log(`User ${user.id}:${user.email} is the post creator so will not receive an email notification`);
 				return false;
+			}
+
+			// review reminders are always sent, regardless of activity
+			else if (this.message.isReminder) {
+				return true;
 			}
 
 			// guard against the user already having been sent an email notification for this post
@@ -406,7 +448,7 @@ class EmailNotificationV2Handler {
 			return;
 		}
 		else if (this.review) {
-			// new review
+			// new review, or a review reminder
 			this.renderedHtml = new ReviewRenderer().render(this.renderOptions);
 			return;
 		}
@@ -503,6 +545,7 @@ class EmailNotificationV2Handler {
 		const unfollowLink = this.getUnfollowLink(user, thingToUnfollow, isReview);
 		const userBeingAddedToTeam = (this.message.usersBeingAddedToTeam || []).includes(user.id);
 		Object.assign(this.renderOptions, {
+			user: user,
 			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
 			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailServer.inboundEmailDisabled,
@@ -612,11 +655,13 @@ class EmailNotificationV2Handler {
 			replyToPostId,
 			isReply,
 			category: user.isRegistered || isReply ? 'notification' : 'notification_invite',
+			isReminder: this.message.isReminder,
 			requestId: this.requestId
 		};
 		const which = review ? 'review' : 'codemark';
+		const reminder = this.message.isReminder ? 'reminder ' : '';
 		try {
-			this.logger.log(`Sending ${which}-based email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`, options.requestId);
+			this.logger.log(`Sending ${which}-based ${reminder}email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`, options.requestId);
 			await new EmailNotificationV2Sender().sendEmailNotification(options, this.outboundEmailServer.config);
 		}
 		catch (error) {
@@ -627,7 +672,7 @@ class EmailNotificationV2Handler {
 			else {
 				message = JSON.stringify(error);
 			}
-			this.logger.warn(`Unable to send ${which}-based email notification to ${user.email}: ${message}`);
+			this.logger.warn(`Unable to send ${which}-based ${reminder}email notification to ${user.email}: ${message}`);
 		}
 	}
 
@@ -649,6 +694,10 @@ class EmailNotificationV2Handler {
 		};
 		if (!user.hasReceivedFirstEmail) {
 			op.$set.hasReceivedFirstEmail = true;
+		}
+		if (this.message.isReminder && !user.isRegistered) {
+			op.$set.lastInviteType = 'reviewReminder';
+			op.$set.lastInviteSentAt = Date.now();
 		}
 		try {
 			await this.data.users.updateDirect(

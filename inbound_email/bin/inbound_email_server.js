@@ -10,10 +10,12 @@ const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/inbound_email/lib/inbound_email_server');
 
 (async function() {
-	const Config = await InboundEmailServerConfig.loadPreferredConfig();
+	const Config = await InboundEmailServerConfig.loadPreferredConfig({ wait: true });
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.inboundEmailServer.logger);
+	await Logger.initialize(); // so we can write to the log immediately
+	InboundEmailServerConfig.logger = Logger;
 
 	// invoke a node cluster master with our configurations provided
 	const MyClusterWrapper = new ClusterWrapper(

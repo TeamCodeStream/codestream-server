@@ -128,6 +128,12 @@ class StructuredConfigBase {
 		return this.getSection();
 	}
 
+	_sleep(ms) {
+		return new Promise((resolve) => {
+			setTimeout(resolve, ms);
+		});
+	}
+ 
 	/**
 	 * return config data to the caller. Will initialize, load schema and evaluate
 	 * custom config function if need be.
@@ -144,25 +150,43 @@ class StructuredConfigBase {
 			// remember the previous config so we can determine if a restart is needed
 			this.lastPreferredConfig = JSON.parse(JSON.stringify(this.getPreferredConfig()));  // poor-man's deep copy
 		}
-		const newCfg = await this._loadConfig(loadOptions);
+		let newCfg;
+		if (this.options.wait || loadOptions.wait) {
+			this.logger.log('loading indefinitely...');
+			while (!newCfg) {
+				newCfg = await this._loadConfig(loadOptions);
+				if (!newCfg) {
+					this.logger.log(`Retrying in 5s...`);
+					await this._sleep(5000);
+				} else {
+					this.logger.log(`config loaded`);
+				}
+			}
+		} else {
+			// console.log('calling _loadConfig once...');
+			newCfg = await this._loadConfig(loadOptions);
+		}
 		if (newCfg) {
 			this.sourceConfig = newCfg;
 			if (this.showConfigProperty) {
 				this.showConfig = this.getProperty(this.showConfigProperty);
 			}
 			if (this.showConfig) {
-				this.logger.log('Config:', JSON.stringify(this.getPreferredConfig(), StringifySortReplacer, 4));
+				this.logger.log(
+					'Config:',
+					JSON.stringify(this.getPreferredConfig(), StringifySortReplacer, 4)
+				);
 			}
-		}
-		else {
+		} else if (!this.options.wait) {
 			this.logger.error('_loadConfig() failed', loadOptions);
+			return;
 		}
 		return loadOptions.custom ? this.getPreferredConfig() : this.getNativeConfig();
 	}
 
 	// present a consistent interface for working with the preferred config
 	async loadPreferredConfig(loadOptions = {}) {
-		return this.loadConfig({...loadOptions, custom: true});
+		return await this.loadConfig({ ...loadOptions, custom: true });
 	}
 
 	/**

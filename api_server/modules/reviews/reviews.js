@@ -5,6 +5,7 @@
 const Restful = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful');
 const ReviewCreator = require('./review_creator');
 const ReviewUpdater = require('./review_updater');
+const ReviewReminder = require('./review_reminder');
 
 const Review = require('./review');
 
@@ -94,6 +95,16 @@ class Reviews extends Restful {
 	getRoutes () {
 		let standardRoutes = super.getRoutes(REVIEW_STANDARD_ROUTES);
 		return [...standardRoutes, ...REVIEW_ADDITIONAL_ROUTES];
+	}
+
+	// initialize the reviews module
+	async initialize () {
+		// set up a reminder to send out emails regarding reviews that need review
+		this.reviewReminder = new ReviewReminder({
+			api: this.api,
+			module: this
+		});
+		this.reviewReminder.schedule();
 	}
 }
 

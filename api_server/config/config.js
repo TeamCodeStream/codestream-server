@@ -18,10 +18,14 @@ const customConfigFunc = require(process.env.CSSVC_BACKEND_ROOT + '/shared/serve
 // function customRestartFunc(priorConfig, currentConfig) {
 // }
 
-module.exports = StructuredConfigFactory.create({
+var Config;
+
+Config = Config || StructuredConfigFactory.create({
 	configFile: process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE,
 	mongoUrl: process.env.CSSVC_CFG_URL,
 	showConfigProperty: 'apiServer.showConfig',
 	// customRestartFunc,
 	customConfigFunc
 });
+
+module.exports = Config;

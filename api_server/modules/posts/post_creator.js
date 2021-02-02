@@ -16,6 +16,7 @@ const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const UserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_inviter');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 
 class PostCreator extends ModelCreator {
 
@@ -140,9 +141,14 @@ class PostCreator extends ModelCreator {
 			this.inviteTrigger = `R${this.reviewId}`;
 		}
 
+		// filter to users that have a valid email
+		this.addedUsers = (this.addedUsers || []).filter(email => {
+			return typeof EmailUtilities.parseEmail(email) === 'object'
+		});
 		if (!this.addedUsers || this.addedUsers.length === 0) {
 			return;
 		}
+
 		this.userInviter = new UserInviter({
 			request: this.request,
 			team: this.team,

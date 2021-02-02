@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# desc# command line utility for working with the mongo config
+
+[ -z "$CSSVC_BACKEND_ROOT" ] && echo "CSSVC_BACKEND_ROOT not defined. Your environment is not setup" && exit 1
+
+cd $CSSVC_BACKEND_ROOT || exit 1
+
+./shared/codestream_configs/bin/mongo-config-loader.js "$@"

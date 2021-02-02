@@ -417,7 +417,7 @@ const Utils = {
 
 	// get buttons to display associated with a codemark or a review
 	renderMarkerButtons: function (options, marker) {
-		const { codemark } = options;		
+		const { codemark, user } = options;		
 		
 		let remoteCodeUrl;		
 		let ideUrl = Utils.getIDEUrl(codemark.permalink, marker ? { marker : marker.id } : undefined);		
@@ -445,7 +445,7 @@ const Utils = {
 			  <td>
 				<table border="0" cellspacing="2" cellpadding="2">
 				  <tr>`;
-			if (ideUrl) {
+			if (ideUrl && user.isRegistered) {
 				cellCount++;
 				markup += `<td>
 					  <a clicktracking="off" href="${ideUrl}" target="_blank" class="button"><span class="hover-underline">Open in IDE</span></a>
@@ -477,11 +477,11 @@ const Utils = {
 	},
 
 	renderReviewButtons: function (options) {
-		const { review } = options;	
+		const { review, user } = options;	
 		if (!review) return '';
 
 		const ideUrl = Utils.getIDEUrl(review.permalink, null);
-		if (!ideUrl) return '';		
+		if (!ideUrl || !user.isRegistered) return '';		
 		
 		let markup = `<table border="0" cellspacing="0" cellpadding="0">
 		<tr>

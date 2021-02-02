@@ -10,6 +10,7 @@ const SignupTokens = require('./signup_tokens');
 const User = require('./user');
 const Errors = require('./errors');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
+const Reinviter = require('./reinviter');
 
 const DEPENDENCIES = [
 	'authenticator'	// need the user
@@ -226,6 +227,17 @@ class Users extends Restful {
 
 	initialize () {
 		this.signupTokens.initialize();
+
+		// set up a reinvite emails
+		if (process.env.CS_API_MOCK_MODE) {
+			this.api.log('NOTE: API Server is running in mock mode, auto reinvites can not be performed');
+		} else {
+			this.reinviter = new Reinviter({
+				api: this.api,
+				module: this
+			});
+			this.reinviter.schedule();
+		}
 	}
 
 	describeErrors () {

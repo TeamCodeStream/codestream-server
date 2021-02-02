@@ -4,14 +4,26 @@
 
 'use strict';
 
+// const fs = require('fs');
+// const hjson = require('hjson');
 const util = require('util');
+const printf = require('printf');
 const Commander = require('commander');
 const StructuredCfgFactory = require(__dirname + '/../lib/structured_config.js');
-const fs = require('fs');
-const hjson = require('hjson');
+const StringifySortReplacer = require(__dirname + '/../../server_utils/stringify_sort_replacer');
 
 function cmdrHandleInt(value) {
 	return parseInt(value);
+}
+
+function examples() {
+	console.log(
+		'\nOVERVIEW\nLoad and manage configuration data stored in a mongo database.\n\n' +
+			'EXAMPLES\n  To load a config file into mongo using the current schema version:\n' +
+			'    mongo-config-loader.js --mongo-url mongodb://localhost/codestream  --add-cfg-file $CSSVC_CFG_FILE\n' +
+			'\n  Summary of configs in mongo:\n' +
+			'    mongo-config-loader.js --mongo-url mongodb://localhost/codestream --report-cfg'
+	);
 }
 
 Commander
@@ -25,24 +37,20 @@ Commander
 	.option('-a  --activate-cfg <serialNum>', 'activate the configuration')
 	.option('-D, --delete-cfg <serialNum>', 'delete config for serial number')
 	.option('-L, --load-cfg', 'load config as an application would')
+	.option('--pretty', 'pretty output for config dump')
 	.parse(process.argv);
 
-if (!Commander.mongoUrl) {
-	console.error('mongoUrl required');
+if (!Commander.mongoUrl && !process.env.CSSVC_CFG_URL) {
+	console.error('mongoUrl required. Specify --mongo-url or set CSSVC_CFG_URL');
 	Commander.outputHelp();
-	console.log(
-		'\nOVERVIEW\nLoad and manage configuration data stored in a mongo database.\n\n' +
-		'EXAMPLES\n  To load a config file into mongo using the current schema version:\n' +
-		'    mongo-config-loader.js --mongo-url mongodb://localhost/codestream  --add-cfg-file $CSSVC_CFG_FILE\n' +
-		'\n  Summary of configs in mongo:\n' +
-		'    mongo-config-loader.js --mongo-url mongodb://localhost/codestream --report-cfg'
-	);
+	examples()
 	process.exit(1);
 }
 
 const CfgData = StructuredCfgFactory.create({
 	mongoCfgCollection: Commander.cfgCollectionName,
-	mongoUrl: Commander.mongoUrl
+	quiet: true,
+	mongoUrl: Commander.mongoUrl || process.env.CSSVC_CFG_URL
 });
 
 (async function() {
@@ -73,17 +81,20 @@ const CfgData = StructuredCfgFactory.create({
 			console.log('Serial Number             Time Stamp                     Schema  Revision  Desc');
 			console.log('------------------------  -----------------------------  ------  --------  -----------------------');
 			configSummary.forEach(cfg => {
-				// console.log(`${cfg.serialNumber.padStart(20)}  ${cfg.schemaVersion.toString().padStart(6)}      ${new Date(cfg.timeStamp).toUTCString()}`);
-				console.log(`${cfg.serialNumber}  ${new Date(cfg.timeStamp).toUTCString()}  ${cfg.schemaVersion.toString()} ${cfg.revision}  ${cfg.desc}`);
-				// const m = util.format('%20s  %5d   %s', cfg.serialNumber, cfg.schemaVersion, new Date(cfg.timeStamp).toUTCString());
-				// console.log(m);
+				console.log(
+					printf('%24s  %29s  %6d  %5d     %s', cfg.serialNumber, new Date(cfg.timeStamp).toUTCString(), cfg.schemaVersion, cfg.revision, cfg.desc)
+				);
 			});
 		}
 	}
 	// dump a config by its serial number
 	else if (Commander.showCfg) {
 		const config = await CfgData.getConfigBySerial(Commander.showCfg);
-		console.log(util.inspect(config, false, null, true /* enable colors */));
+		if (Commander.pretty) {
+			console.log(util.inspect(config, false, null, true /* enable colors */));
+		} else {
+			console.log(JSON.stringify(config, StringifySortReplacer, '\t'));
+		}
 	}
 	// delete a config by its serial number
 	else if (Commander.deleteCfg) {
@@ -98,6 +109,7 @@ const CfgData = StructuredCfgFactory.create({
 	}
 	else {
 		Commander.help();
+		examples();
 		exitCode = 1;
 	}
 	process.exit(exitCode);

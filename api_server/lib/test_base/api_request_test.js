@@ -8,6 +8,7 @@ const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/c
 const Assert = require('assert');
 const IPC = require('node-ipc');
 const UUID = require('uuid/v4');
+const DeepEqual = require('deep-equal');
 
 var CodeStreamApiConfig;
 
@@ -248,19 +249,34 @@ class APIRequestTest extends GenericTest {
 	validateMatchingObjects (objects1, objects2, name) {
 		let objectIds_1 = objects1.map(object => object.id).sort();
 		let objectIds_2 = objects2.map(object => object.id).sort();
-		Assert.deepEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
+		if (!DeepEqual(objectIds_1, objectIds_2)) {
+			this.testLog(`objectIds_1: ${JSON.stringify(objectIds_1, 0, 5)}`);
+			this.testLog(`objectIds_2: ${JSON.stringify(objectIds_2, 0, 5)}`);
+			Assert.fail(`${name} returned don't match`);
+		}
+		//Assert.deepStrictEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
 	}
 
 	// check that the objects we got back match expections, sorted by ID
 	validateMatchingObjectsSorted (objects1, objects2, name) {
 		let objectIds_1 = objects1.map(object => object.id);
 		let objectIds_2 = objects2.map(object => object.id);
-		Assert.deepEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
+		if (!DeepEqual(objectIds_1, objectIds_2)) {
+			this.testLog(`objectIds_1: ${JSON.stringify(objectIds_1, 0, 5)}`);
+			this.testLog(`objectIds_2: ${JSON.stringify(objectIds_2, 0, 5)}`);
+			Assert.fail(`${name} returned don't match`);
+		}
+		//Assert.deepStrictEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
 	}
 
 	// check that the objects we got back exactly match expectations
 	validateSortedMatchingObjects(objects1, objects2, name) {
-		Assert.deepEqual(objects2, objects1, `${name} returned don't match`);
+		if (!DeepEqual(objects1, objects2)) {
+			this.testLog(`objects1: ${JSON.stringify(objects1, 0, 5)}`);
+			this.testLog(`objects2: ${JSON.stringify(objects2, 0, 5)}`);
+			Assert.fail(`${name} returned don't match`);
+		}
+		//Assert.deepStrictEqual(objects2, objects1, `${name} returned don't match`);
 	}
 }
 

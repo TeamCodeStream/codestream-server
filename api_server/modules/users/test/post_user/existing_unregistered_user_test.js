@@ -7,7 +7,6 @@ class ExistingUnregisteredUserTest extends PostUserTest {
 	constructor (options) {
 		super(options);
 		this.wantExistingUser = true;
-		this.noFirstInviteType = true;
 	}
 
 	get description () {

@@ -141,6 +141,7 @@ const ChangeRequestTest = require('./codemarks/change_request_test');
 const NewUsersOnTheFlyTest = require('./codemarks/new_users_on_the_fly_test');
 const NewUsersMustBeInTeamStreamTest = require('./codemarks/new_users_must_be_in_team_stream_test');
 const InvalidEmailTest = require('./codemarks/invalid_email_test');
+const EmptyEmailTest = require('./codemarks/empty_email_test');
 const NewUserUnregisteredTest = require('./codemarks/new_user_unregistered_test');
 const NewUserUnregisteredOnTeamTest = require('./codemarks/new_user_unregistered_on_team_test');
 const NewUserRegisteredTest = require('./codemarks/new_user_registered_test');
@@ -375,6 +376,7 @@ class PostPostRequestTester {
 		new NewUsersMustBeInTeamStreamTest({ streamType: 'channel' }).test();
 		new NewUsersMustBeInTeamStreamTest({ streamType: 'direct' }).test();
 		new InvalidEmailTest().test();
+		new EmptyEmailTest().test();
 		new NewUserUnregisteredTest().test();
 		new NewUserUnregisteredOnTeamTest().test();
 		new NewUserRegisteredTest().test();
