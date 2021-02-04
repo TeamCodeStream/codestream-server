@@ -2,6 +2,7 @@
 
 const WebRequestBase = require('./web_request_base');
 const ProviderDisplayNames = require('./provider_display_names');
+const Handlebars = require('handlebars');
 
 class WebErrorRequest extends WebRequestBase {
 
@@ -10,8 +11,8 @@ class WebErrorRequest extends WebRequestBase {
 	}
 
 	async process() {
-		let errorCode = decodeURIComponent(this.request.query.code || '');
-		let providerError = decodeURIComponent(this.request.query.providerError || '');
+		let errorCode = Handlebars.escapeExpression(decodeURIComponent(this.request.query.code || ''));
+		let providerError = Handlebars.escapeExpression(decodeURIComponent(this.request.query.providerError || ''));
 		const { code, title, body } = this.getSpecialErrorDisplay(errorCode) || {};
 		const withProvider = this.request.query.provider && ProviderDisplayNames[this.request.query.provider] ?
 			` with ${ProviderDisplayNames[this.request.query.provider]}` :
