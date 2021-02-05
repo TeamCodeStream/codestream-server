@@ -55,6 +55,7 @@ class CommonInit {
 		if (this.testHost) {
 			setKey += `.hosts.${starredHost}`;
 		}
+		this.expectedData.user.$set[`${setKey}.isApiToken`] = true;
 		Object.keys(this.data.data).forEach(key => {
 			this.expectedData.user.$set[`${setKey}.${key}`] = this.data.data[key];
 		});
@@ -65,6 +66,7 @@ class CommonInit {
 		}
 		else {
 			this.expectedUser.providerInfo[this.team.id][this.provider] = this.data.data;
+			this.expectedUser.providerInfo[this.team.id][this.provider].isApiToken = true;
 		}
 		callback();
 	}
