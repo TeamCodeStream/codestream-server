@@ -96,7 +96,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'auth.atlassian.com',
 		apiHost: 'api.atlassian.com',
 		hasIssues: true,
-		scopes: ['read:jira-user', 'read:jira-work', 'write:jira-work', 'offline_access']
+		scopes: ['read:jira-user', 'read:jira-work', 'write:jira-work', 'offline_access'],
+		needsConfigureForOnPrem: true
 	},
 	'jiraserver/enterprise': {
 		id: 'jiraserver/enterprise',

@@ -89,6 +89,7 @@ class ProviderInfoRequest extends RestfulRequest {
 			}
 		};
 
+		op.$set[`${key}.isApiToken`] = true;
 		Object.keys(this.request.body.data).forEach(dataKey => {
 			op.$set[`${key}.${dataKey}`] = this.request.body.data[dataKey];
 			if (dataKey === 'accessToken') {

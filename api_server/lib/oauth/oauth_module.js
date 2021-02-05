@@ -457,6 +457,7 @@ class OAuthModule extends APIServerModule {
 			hasCodeHosting,
 			forEnterprise,
 			needsConfigure,
+			needsConfigureForOnPrem,
 			disabled,
 			hasSharing,
 			scopes
@@ -471,6 +472,7 @@ class OAuthModule extends APIServerModule {
 				isEnterprise: false,
 				forEnterprise,
 				needsConfigure,
+				needsConfigureForOnPrem,
 				host: host.toLowerCase(),
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
 				hasIssues,
