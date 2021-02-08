@@ -5,6 +5,7 @@
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
+const RandomString = require('randomstring');
 
 class CommonInit {
 
@@ -45,6 +46,9 @@ class CommonInit {
 		if (this.wantMention) {
 			this.data.mentionedUserIds = [this.users[1].user.id];
 		}
+		if (this.wantSharedTo) {
+			this.data.sharedTo = this.getSharedTo();
+		}
 		this.expectedData = {
 			post: {
 				_id: this.post.id,	// DEPRECATE ME
@@ -64,11 +68,38 @@ class CommonInit {
 			this.expectedData.post.$set.mentionedUserIds = [...this.data.mentionedUserIds];
 			this.expectedData.post.$set.mentionedUserIds.sort();
 		}
+		if (this.wantSharedTo) {
+			this.expectedData.post.$set.sharedTo = DeepClone(this.data.sharedTo);
+		}
 		this.expectedPost = DeepClone(this.post);
 		Object.assign(this.expectedPost, this.expectedData.post.$set);
 		this.path = '/posts/' + this.post.id;
 		this.modifiedAfter = Date.now();
 		callback();
+	}
+
+	// get "sharedTo" info for the request data, indicating post that has been shared to other providers
+	getSharedTo () {
+		return [
+			{
+				createdAt: Date.now(),
+				providerId: 'slack',
+				teamId: RandomString.generate(10),
+				teamName: RandomString.generate(10),
+				channelId: RandomString.generate(10),
+				channelName: RandomString.generate(10),
+				postId: RandomString.generate(10)
+			},
+			{
+				createdAt: Date.now(),
+				providerId: 'msteams',
+				teamId: RandomString.generate(10),
+				teamName: RandomString.generate(10),
+				channelId: RandomString.generate(10),
+				channelName: RandomString.generate(10),
+				postId: RandomString.generate(10)
+			}
+		];
 	}
 
 	// perform the actual post update 

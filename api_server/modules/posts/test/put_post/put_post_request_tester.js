@@ -10,6 +10,7 @@ const PostNotFoundTest = require('./post_not_found_test');
 const MessageTest = require('./message_test');
 const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
 const MentionTest = require('./mention_test');
+const SharedToTest = require('./shared_to_test');
 
 class PutPostRequestTester {
 
@@ -26,6 +27,7 @@ class PutPostRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'repoId' }).test();
 		new MentionTest().test();
+		new SharedToTest().test();
 	}
 }
 
