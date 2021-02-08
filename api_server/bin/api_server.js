@@ -76,7 +76,7 @@ const MongoCollections = Object.keys(DataCollections).concat([
 
 	// onprem support data (service versions, docker registry info, on-prem version)
 	let onPremSupportData;
-	if (Config.isOnPrem) {
+	if (Config.sharedGeneral.isOnPrem) {
 		onPremSupportData = await getOnPremSupportData(Logger);
 		console.info('OnPrem Config:', JSON.stringify(onPremSupportData, StringifySortReplacer, 8));
 	}
