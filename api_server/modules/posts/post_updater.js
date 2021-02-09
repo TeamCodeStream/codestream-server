@@ -24,7 +24,8 @@ class PostUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['text'],
-			'array(string)': ['mentionedUserIds']
+			'array(string)': ['mentionedUserIds'],
+			'array(object)': ['sharedTo']
 		};
 	}
 

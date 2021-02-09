@@ -51,7 +51,7 @@ class PostCreator extends ModelCreator {
 				boolean: ['dontSendEmail'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
 				'array(string)': ['mentionedUserIds', 'addedUsers'],
-				'array(object)': ['files']
+				'array(object)': ['files', 'sharedTo']
 			}
 		};
 	}

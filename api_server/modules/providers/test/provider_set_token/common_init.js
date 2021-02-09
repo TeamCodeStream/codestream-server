@@ -59,9 +59,11 @@ class CommonInit {
 		}
 		const setData = {
 			accessToken: this.data.token,
-			data: this.data.data
+			data: this.data.data,
+			isApiToken: true
 		};
 		this.expectedData.user.$set[`${setKey}.accessToken`] = this.data.token;
+		this.expectedData.user.$set[`${setKey}.isApiToken`] = true;
 		this.expectedData.user.$set[`${setKey}.data`] = this.data.data;
 		this.expectedData.user.$unset[`${setKey}.tokenError`] = true;
 		if (this.testHost) {
@@ -71,6 +73,7 @@ class CommonInit {
 		}
 		else {
 			this.expectedUser.providerInfo[this.team.id][this.provider] = setData;
+			this.expectedUser.providerInfo[this.team.id][this.provider].isApiToken = true;
 		}
 		callback();
 	}

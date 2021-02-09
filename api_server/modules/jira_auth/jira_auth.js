@@ -18,7 +18,8 @@ const OAUTH_CONFIG = {
 	},
 	mockAccessTokenExpiresIn: 3600,
 	supportsRefresh: true,
-	hasIssues: true
+	hasIssues: true,
+	needsConfigureForOnPrem: true
 };
 
 class JiraAuth extends OAuthModule {

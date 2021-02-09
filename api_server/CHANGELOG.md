@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.23] - 2021-2-9
+
+### Added
+
+- Security improvements
+
 ## [8.2.22] - 2021-2-2
 
 ### Added

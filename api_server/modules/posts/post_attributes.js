@@ -78,5 +78,11 @@ module.exports = {
 		maxLength: 20,
 		maxObjectLength: 500,
 		description: 'Attachments to this codemark'
+	},
+	sharedTo: {
+		type: 'arrayOfObjects',
+		maxLength: 10,
+		maxObjectLength: 500,
+		description: 'Third-party providers to whom this post has been shared'
 	}
 };
