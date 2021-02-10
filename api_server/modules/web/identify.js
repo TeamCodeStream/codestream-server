@@ -1,5 +1,7 @@
 'use strict';
 
+const Handlebars = require('handlebars');
+
 /* eslint complexity: 0 */
 module.exports = function(options) {
 
@@ -29,9 +31,13 @@ module.exports = function(options) {
 		trialEndAt = new Date(company.get('trialEndDate')).toISOString();
 	}
 	if (company && company.get('testGroups')) {
-		abTest = Object.keys(company.get('testGroups')).map(key => {
-			return `${key}|${company.get('testGroups')[key]}`;
-		});
+		// this has to be a string that looks like an array in javascript
+		abTest = '[' + Object.keys(company.get('testGroups')).map(key => {
+			const safe = Handlebars.escapeExpression(`${key}|${company.get('testGroups')[key]}`);
+			return `"${safe}"`;
+		}).join(',') + ']';
+	} else {
+		abTest = '[]';
 	}
 
 	const props = {

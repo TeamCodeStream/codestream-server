@@ -16,12 +16,13 @@ class ProviderFetcher {
 	}
 
 	getStandardThirdPartyProviders () {
+		const isOnPrem = this.request.api.config.sharedGeneral.isOnPrem;
 		const providers = this.request.api.config.apiServer.thirdPartyProviders || [];
 		this.standardProviders = providers.reduce((prev, provider) => {
 			const service = `${provider}Auth`;
 			const serviceAuth = this.request.api.services[service];
 			if (serviceAuth) {
-				const standardInstance = serviceAuth.getStandardInstance(this.teams);
+				const standardInstance = serviceAuth.getStandardInstance({ isOnPrem });
 				if (standardInstance) {
 					prev.push(standardInstance);
 				}

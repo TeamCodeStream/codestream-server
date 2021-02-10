@@ -448,7 +448,8 @@ class OAuthModule extends APIServerModule {
 	}
 
 	// get the standard in-cloud instance of the third-party provider, if configured
-	getStandardInstance () {
+	getStandardInstance (options = {}) {
+		const isOnPrem = { options };
 		const { 
 			host,
 			provider,
@@ -464,7 +465,7 @@ class OAuthModule extends APIServerModule {
 		} = this.oauthConfig;
 		const { appClientId, apiKey } = this.apiConfig;
 		const hasKey = appClientId || apiKey;
-		if (!disabled && host && hasKey) {
+		if ((!disabled && host && hasKey) || (needsConfigureForOnPrem && isOnPrem)) {
 			const starredHost = host.toLowerCase().replace(/\./g, '*');
 			const info = {
 				id: starredHost,
