@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.24] - 2021-2-10
+
+### Fixed
+
+- Fixes an issue preventing Jira cloud from being listed on the Integrations page for on-prem customers
+
 ## [8.2.23] - 2021-2-9
 
 ### Added
