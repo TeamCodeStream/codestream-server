@@ -82,6 +82,11 @@ class ClusterWrapper {
 			else {
 				this.logger.critical('Got shutdown; will not restart worker threads');
 			}
+			if (Object.keys(this.workers).length === 0) {
+				console.warn('All workers died, cluster master going down...');
+				process.exit(0);
+			}
+
 		}
 		else {
 			// good to go!
@@ -107,7 +112,11 @@ class ClusterWrapper {
 		worker.on('message', this.onWorkerMessage);
 		// let the worker know what its ID is
 		const firstWorker = !this.gotFirstWorker;
-		Cluster.workers[worker.id].send({ youAre: worker.id, firstWorker });
+		setTimeout(() => { // (hack: make sure worker is actually up and listening)
+			if (Cluster.workers[worker.id]) {
+				Cluster.workers[worker.id].send({ youAre: worker.id, firstWorker });
+			}
+		}, 1000);
 		this.gotFirstWorker = true;
 	}
 
