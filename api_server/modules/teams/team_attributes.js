@@ -81,5 +81,10 @@ module.exports = {
 		type: 'timestamp',
 		description: 'Date/time the last post was created for this team',
 		serverOnly: true
+	},
+	lastWeeklyEmailRunAt: {
+		type: 'timestamp',
+		description: 'Date/time of the last time a weekly email run was done for this team',
+		serverOnly: true
 	}
 };

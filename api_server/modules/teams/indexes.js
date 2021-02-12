@@ -12,6 +12,7 @@ module.exports = {
 		deactivated: 1
 	},
 	byLastPostCreatedAt: {
-		lastPostCreatedAt: 1
+		lastPostCreatedAt: 1,
+		lastWeeklyEmailRunAt: 1
 	}
 };
