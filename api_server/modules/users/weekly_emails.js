@@ -9,6 +9,7 @@ const TEAM_BATCH_SIZE = 100;
 const ACTIVITY_CUTOFF = 3 * 30 * 24 * 60 * 60 * 1000;	// teams who have had no activity in this interval, get no emails at all
 const LAST_RUN_CUTOFF = 1 * 24 * 60 * 60 * 1000;		// teams that have had a weekly email run within this interval, wait till next week
 const THROTTLE_TIME = 5000;
+const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 
 class WeeklyEmails {
 
@@ -97,8 +98,12 @@ class WeeklyEmails {
 
 	// trigger weekly email to each user in a team, as needed
 	async sendWeeklyEmailsToTeamMembers (team) {
+		const threeWeeksAgo = Date.now() - 3 * ONE_WEEK;
 		if (team.deactivated) {
 			this.api.log(`Not triggering weekly email reminders for team ${team.id}, team has been deactivated`);
+			return;
+		} else if (team.lastPostCreatedAt < threeWeeksAgo && team.weeklyEmailRunCount === 0) {
+			this.api.log(`Not triggering weekly email reminders to team ${team.id}, team has not had any activity in the last three weeks, and their email run count is at 0`);
 			return;
 		}
 
@@ -114,6 +119,8 @@ class WeeklyEmails {
 				await this._wait(THROTTLE_TIME);	// don't want to overwhelm the api or the outbound email service
 			}
 		}
+
+		await this.updateTeam(team);
 	}
 
 	// trigger weekly email to this user, as needed
@@ -137,6 +144,37 @@ class WeeklyEmails {
 		this.api.log(`Triggering weekly email to user ${user.id}...`);
 		this.api.services.email.queueEmailSend(message);
 		return true;
+	}
+
+	// update the team for future weekly email scheduling
+	async updateTeam (team) {
+		const oneWeekAgo = Date.now() - ONE_WEEK;
+		const set = { };
+		if (
+			typeof team.weeklyEmailRunCount === 'undefined' ||
+			(
+				team.lastPostCreatedAt > oneWeekAgo && 
+				team.weeklyEmailRunCount < 3
+			)
+		) {
+			// this team has activity within one week, or has not had a weekly email run yet...
+			// this starts the team over for receiving weekly emails if no activity
+			set.weeklyEmailRunCount = 3;
+		} else if (team.weeklyEmailRunCount > 0) {
+			// run down the team's weekly email run until they reach 0 with no activity, then given up
+			set.weeklyEmailRunCount = team.weeklyEmailRunCount - 1;
+		}
+
+		if (set.weeklyEmailRunCount !== undefined) {
+			await this.api.data.teams.updateDirect(
+				{
+					id: this.api.data.teams.objectIdSafe(team.id)
+				},
+				{
+					$set: set
+				}
+			);
+		}
 	}
 
 	// wait this number of milliseconds
