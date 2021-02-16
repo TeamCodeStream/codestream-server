@@ -15,7 +15,8 @@ ADD broadcaster/*.js broadcaster/*.json broadcaster/*.info /opt/broadcaster/code
 WORKDIR /opt/broadcaster/codestream-server/broadcaster
 RUN npm install --no-save
 
-EXPOSE 12443
+EXPOSE 12080/tcp
+EXPOSE 12443/tcp
 
 ENV CSSVC_BACKEND_ROOT=/opt/broadcaster/codestream-server
 ENV CSSVC_CFG_FILE=/opt/config/codestream-services-config.json

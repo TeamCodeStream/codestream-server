@@ -25,13 +25,14 @@ const clientFacingServicesFieldSet = {
 				label: 'Public Hostname',
 				placeholder: 'my-codestream-host.my-company.com',
 				type: 'text',
+				width: 'col-8',
 				// updateAction: ConfigActions.CONFIG_API_SERVER_SET_PUBLIC_API_URL,
 				updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
 				updateActionPayload: {
 					sslPropName: 'apiHost',
 				},
 				// optional
-				mutedText: 'The hostname CodeStream clients will connect to.',
+				mutedText: 'The hostname CodeStream clients will connect to',
 				// type: 'number',	// default = 'text'
 				// width: 'col-7',	// default = defaultColWidth property
 				// disabled: true,	// default = false
@@ -40,6 +41,24 @@ const clientFacingServicesFieldSet = {
 					isHostName: true,
 					minLength: 1,
 					maxLength: 200,
+					onBlur: validateInput,
+				},
+			},
+			{
+				id: 'publicApiPort',
+				label: 'Public Port',
+				placeholder: 0,
+				type: 'number',
+				width: 'col-4',
+				updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
+				updateActionPayload: {
+					sslPropName: 'apiPublicPort',
+				},
+				mutedText: 'Port clients connect to',
+				validation: {
+					isRequired: false,
+					minValue: 0,
+					maxValue: 32767,
 					onBlur: validateInput,
 				},
 			},
@@ -60,7 +79,8 @@ const clientFacingServicesFieldSet = {
 		[
 			{
 				id: 'apiInsecurePort',
-				label: 'API Insecure Port',
+				// label: 'API Insecure Port',
+				label: 'API Port',
 				placeholder: 80,
 				width: 'col-4',
 				type: 'number',
@@ -78,7 +98,8 @@ const clientFacingServicesFieldSet = {
 			},
 			{
 				id: 'broadcasterInsecurePort',
-				label: 'Broadcaster Insecure Port',
+				// label: 'Broadcaster Insecure Port',
+				label: 'Broadcaster Port',
 				placeholder: 12080,
 				width: 'col-4',
 				type: 'number',
@@ -96,7 +117,8 @@ const clientFacingServicesFieldSet = {
 			},
 			{
 				id: 'adminInsecurePort',
-				label: 'Admin Insecure Port',
+				// label: 'Admin Insecure Port',
+				label: 'Admin Port',
 				placeholder: 8080,
 				width: 'col-4',
 				type: 'number',
@@ -113,62 +135,62 @@ const clientFacingServicesFieldSet = {
 				},
 			},
 		],
-		[
-			{
-				id: 'apiSecurePort',
-				label: 'API Secure Port',
-				placeholder: 443,
-				width: 'col-4',
-				type: 'number',
-				// updateAction: ConfigActions.CONFIG_API_SERVER_SET_SECURE_PORT,
-				updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
-				updateActionPayload: {
-					sslPropName: 'apiSecurePort',
-				},
-				validation: {
-					isRequired: true,
-					minValue: 1,
-					maxValue: 32767,
-					onBlur: validateInput,
-				},
-			},
-			{
-				id: 'broadcasterSecurePort',
-				label: 'Broadcaster Secure Port',
-				placeholder: 12443,
-				width: 'col-4',
-				type: 'number',
-				// updateAction: ConfigActions.CONFIG_BROADCASTER_SET_SECURE_PORT,
-				updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
-				updateActionPayload: {
-					sslPropName: 'broadcasterSecurePort',
-				},
-				validation: {
-					isRequired: true,
-					minValue: 1,
-					maxValue: 32767,
-					onBlur: validateInput,
-				},
-			},
-			{
-				id: 'adminSecurePort',
-				label: 'Admin Secure Port',
-				placeholder: 8443,
-				width: 'col-4',
-				type: 'number',
-				// updateAction: ConfigActions.CONFIG_ADMIN_SET_SECURE_PORT,
-				updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
-				updateActionPayload: {
-					sslPropName: 'adminSecurePort',
-				},
-				validation: {
-					isRequired: true,
-					minValue: 1,
-					maxValue: 32767,
-					onBlur: validateInput,
-				},
-			},
-		],
+		// [
+		// 	{
+		// 		id: 'apiSecurePort',
+		// 		label: 'API Secure Port',
+		// 		placeholder: 443,
+		// 		width: 'col-4',
+		// 		type: 'number',
+		// 		// updateAction: ConfigActions.CONFIG_API_SERVER_SET_SECURE_PORT,
+		// 		updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
+		// 		updateActionPayload: {
+		// 			sslPropName: 'apiSecurePort',
+		// 		},
+		// 		validation: {
+		// 			isRequired: true,
+		// 			minValue: 1,
+		// 			maxValue: 32767,
+		// 			onBlur: validateInput,
+		// 		},
+		// 	},
+		// 	{
+		// 		id: 'broadcasterSecurePort',
+		// 		label: 'Broadcaster Secure Port',
+		// 		placeholder: 12443,
+		// 		width: 'col-4',
+		// 		type: 'number',
+		// 		// updateAction: ConfigActions.CONFIG_BROADCASTER_SET_SECURE_PORT,
+		// 		updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
+		// 		updateActionPayload: {
+		// 			sslPropName: 'broadcasterSecurePort',
+		// 		},
+		// 		validation: {
+		// 			isRequired: true,
+		// 			minValue: 1,
+		// 			maxValue: 32767,
+		// 			onBlur: validateInput,
+		// 		},
+		// 	},
+		// 	{
+		// 		id: 'adminSecurePort',
+		// 		label: 'Admin Secure Port',
+		// 		placeholder: 8443,
+		// 		width: 'col-4',
+		// 		type: 'number',
+		// 		// updateAction: ConfigActions.CONFIG_ADMIN_SET_SECURE_PORT,
+		// 		updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
+		// 		updateActionPayload: {
+		// 			sslPropName: 'adminSecurePort',
+		// 		},
+		// 		validation: {
+		// 			isRequired: true,
+		// 			minValue: 1,
+		// 			maxValue: 32767,
+		// 			onBlur: validateInput,
+		// 		},
+		// 	},
+		// ],
 	],
 };
 
@@ -316,6 +338,7 @@ const mapState = (state) => {
 			formData: {
 				values: {
 					publicHostName: new URL(state.config.apiServer.publicApiUrl).hostname,
+					publicApiPort: new URL(state.config.apiServer.publicApiUrl).port,
 					apiInsecurePort: state.config.apiServer.port || 0,
 					broadcasterInsecurePort: state.config.broadcastEngine.codestreamBroadcaster?.port || 0,
 					adminInsecurePort: state.config.adminServer.port || 0,
@@ -326,6 +349,7 @@ const mapState = (state) => {
 				},
 				revertValues: {
 					publicHostName: new URL(state.originalConfig.apiServer.publicApiUrl).hostname,
+					publicApiPort: new URL(state.originalConfig.apiServer.publicApiUrl).port,
 					apiInsecurePort: state.originalConfig.apiServer.port || 0,
 					broadcasterInsecurePort: state.originalConfig.broadcastEngine.codestreamBroadcaster?.port || 0,
 					adminInsecurePort: state.originalConfig.adminServer.port || 0,
@@ -348,6 +372,12 @@ const mapState = (state) => {
 			},
 		},
 	};
+	if (!x.clientFacingServices.formData.values.publicApiPort) {
+		x.clientFacingServices.formData.values.publicApiPort = state.config.apiServer.ignoreHttps ? 80 : 443;
+	}
+	if (!x.clientFacingServices.formData.revertValues.publicApiPort) {
+		x.clientFacingServices.formData.revertValues.publicApiPort = state.config.apiServer.ignoreHttps ? 80 : 443;
+	}
 	console.debug('Topology(mapState)', x);
 	return x;
 };

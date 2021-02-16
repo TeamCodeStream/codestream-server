@@ -27,6 +27,11 @@
 			"desc": "true will disable admin server and related functionality",
 			"env": "OPADM_DISABLED"
 		},
+		"ignoreHttps": {
+			"default": false,
+			"desc": "set to true to respond to http instead of https",
+			"env": "OPADM_IGNORE_HTTPS"
+		},
 		"logger": {
 			"consoleOk": {
 				"default": true,
@@ -811,6 +816,10 @@
 			"privateCA": {
 				"default": false,
 				"desc": "true indicates certificate signed by private CA"
+			},
+			"requireStrictSSL": {
+				"default": true,
+				"desc": "clients seeing this cert should expect it to be valid WRT accepted public certificate authorities"
 			},
 			"selfSigned": {
 				"default": false,

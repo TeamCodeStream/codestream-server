@@ -19,9 +19,9 @@ fi
 sbcfg_initialize CS_API
 
 # sanity checks for config file based sandboxes
-if [ -z "$CSSVC_CFG_URL" ]; then
-	sbcfg_check_cfg_prop apiServer.logger.directory CS_API_LOGS
-fi
+# if [ -z "$CSSVC_CFG_URL" ]; then
+# 	sbcfg_check_cfg_prop apiServer.logger.directory CS_API_LOGS
+# fi
 
 # local development sets the callback env so external requests can be routed
 # through the network proxy and back to your local VPN IP (codestream version of

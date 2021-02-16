@@ -66,7 +66,7 @@ function sbcfg_initialize {
 	# ---- RUN TIME ENVIRONMENT  usually  'local', 'qa', 'prod', 'loadtest1', ...
 	# https://github.com/TeamCodeStream/dev_tools/blob/master/README/README.deployments.md)
 	[ -n "$CSSVC_ENV" ] && sbcfg_set_var "${sbPrefix}_ENV" $CSSVC_ENV || { [ -n "$sbEnv" ] && export CSSVC_ENV=$sbEnv; }
-	[ -z "$CSSVC_ENV" ] && export CSSVC_ENV=local && sbcfg_set_var "${sbPrefix}_ENV" "local" && echo "CSSVC_ENV=$CSSVC_ENV"
+	[ -z "$CSSVC_ENV" ] && export CSSVC_ENV="local" && sbcfg_set_var "${sbPrefix}_ENV" "local" && echo "CSSVC_ENV=$CSSVC_ENV"
 
 	# ---- ASSET ENVIRONMENT; usually 'local', 'dev' or 'prod'
 	# https://github.com/TeamCodeStream/dev_tools/blob/master/README/README.deployments.md)
@@ -74,7 +74,7 @@ function sbcfg_initialize {
 
 	# ---- CONFIG
 	if [ -n "$CSSVC_CFG_URL" ]; then 
-		# ---- mongo config
+		# ---- config stored in mongo
 		echo "CSSVC_CFG_URL=$CSSVC_CFG_URL"
 	else
 		# ---- config file
@@ -91,7 +91,7 @@ function sbcfg_initialize {
 		echo "CSSVC_CFG_FILE=$CSSVC_CFG_FILE"
 	fi
 
-	# ----- RENITE DEVELOPMENT SANDBOXES
+	# ----- REMOTE DEVELOPMENT SANDBOXES
 	# local development on ec2 instances (remote hosts) should reference their
 	# hostname and not 'localhost' when constructing URLs so we set
 	if [ "$CSSVC_ENV" = "local"  -a  $(sandutil_is_network_instance) -eq 1 ]; then

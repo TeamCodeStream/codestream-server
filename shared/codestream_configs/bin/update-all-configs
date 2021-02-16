@@ -55,7 +55,7 @@ echo "Current schema version is: $schemaVersion"
 $binDir/process-profile --show-desc --out $codestream_configs/README.parameter-definitions.json.x
 diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 
-# create the config templates for on-prem single host preview (beta release only)
+# create the config templates for on-prem single host preview and quickstart (beta release only)
 for onpremConfig in minimal quickstart
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
@@ -63,7 +63,7 @@ do
 	diff_notify $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
 done
 
-# create onprem quickstart config suitable for local development
+# create onprem config suitable for local sandbox development
 for onpremEnv in local
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
@@ -71,11 +71,13 @@ do
 	diff_notify $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json "$yes"
 done
 
-
-# create default config for open core development (no cs sandbox)
-[ -n "$verbose" ] && echo === $binDir/process-profile --env open --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/default.json.x
-$binDir/process-profile --env open --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/default.json.x
-diff_notify $codestream_server/api_server/etc/configs/default.json "$yes"
+# create default configs deployed with the api repo
+for csEnv in open-development onprem-slh-quickstart
+do
+	[ -n "$verbose" ] && echo === $binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
+	$binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
+	diff_notify $codestream_server/api_server/etc/configs/$csEnv.json "$yes"
+done
 
 # cloud configuration files, all environments (consumed by developers via dt-update-secrets)
 for csEnv in "local" ci pi pd qa prod dev

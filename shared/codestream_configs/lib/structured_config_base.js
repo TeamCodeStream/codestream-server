@@ -4,6 +4,7 @@ const util = require('util');
 const fs = require('fs');
 const hjson = require('hjson');
 const StringifySortReplacer = require('../../server_utils/stringify_sort_replacer');
+const Interpolate = require('../../server_utils/interpolate');
 
 const schemas = {};     // schema cache
 
@@ -266,15 +267,7 @@ class StructuredConfigBase {
 
 	// from eric - so we can interpolate variables in string props of the config file
 	_interpolate(template, context) {
-		if (!template || typeof(template) != 'string' ) {
-			return template;
-		}
-		const TokenSanitizeRegex = /\$\{(?:\W*)?(\w*?)(?:[\W\d]*)\}/g;
-		if (context === undefined) {
-			return template.replace(TokenSanitizeRegex, '');
-		}
-		template = template.replace(TokenSanitizeRegex, '$${this.$1}');
-		return new Function(`return \`${template}\`;`).call(context);
+		return Interpolate(template, context);
 	}
 
 	// logic to determine a variable's value by checking the environment variable
@@ -319,7 +312,9 @@ class StructuredConfigBase {
 		for (let prop of Object.keys(data)) {
 			// this.logger.log('prop', prop);
 			let schemaProp = blockKey ? blockKey : prop;
-			// this.logger.log('schemaProp =', schemaProp);
+			if (!(schemaProp in schema)) {
+				this.logger.log(`bad schema property ${schemaProp}`);
+			}
 			if (schema[schemaProp].hasOwnProperty('desc')) {
 				// this.logger.log(`leaf node at prop ${prop} -> ${sectionData[prop]}`);
 				sectionData[prop] = this._getConfigValue(prop, schema, data);

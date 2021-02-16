@@ -18,8 +18,8 @@
 {
 	"adminServer": {
 		"defaultEnv": {
-			"port": 8888,
-			"securePort": 4443
+			"port": 8443,
+			"securePort": 8443
 		},
 		"local": {}
 	},
@@ -27,17 +27,17 @@
 		"ci": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
-			"port": 8443,
-			"publicApiUrl": "http://${CSSVC_ENV}.codestream.us",
-			"securePort": 8443
+			"port": 4443,
+			"publicApiUrl": "http://${CSSVC_ENV}.codestream.us:4443",
+			"securePort": 4443
 		},
 		"defaultEnv": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
 			"helpIsAvailable": true,
-			"port": 8443,
-			"publicApiUrl": "http://${CSSVC_ENV}-api.codestream.us",
-			"securePort": 8443
+			"port": 4443,
+			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
+			"securePort": 4443
 		},
 		"local": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
@@ -47,9 +47,9 @@
 		"pi": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
-			"port": 8443,
-			"publicApiUrl": "http://${CSSVC_ENV}.codestream.us",
-			"securePort": 8443
+			"port": 4443,
+			"publicApiUrl": "https://${CSSVC_ENV}.codestream.us",
+			"securePort": 4443
 		}
 	},
 	"broadcastEngine": {
@@ -62,6 +62,7 @@
 				"showConfig": false
 			},
 			"defaultEnv": {
+				"host": "${CSSVC_ENV}-api.codestream.us",
 				"logger": {},
 				"secrets": {
 					"_loadSecretsFile": "codestream/dev-bcast-secrets.cfg"

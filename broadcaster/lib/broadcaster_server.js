@@ -765,34 +765,11 @@ class BroadcasterServer {
 	// make https options, so we know how to listen to requests over https
 	makeHttpsOptions () {
 		const options = {};
-		// read in key and cert file
-		if (
-			this.config.ssl &&
-			this.config.ssl.keyfile &&
-			this.config.ssl.certfile
-		) {
-			try {
-				options.key = FS.readFileSync(this.config.ssl.keyfile);
-			}
-			catch (error) {
-				throw 'could not read private key file: ' + this.config.ssl.keyfile + ': ' + error;
-			}
-			try {
-				options.cert = FS.readFileSync(this.config.ssl.certfile);
-			}
-			catch (error) {
-				throw 'could not read certificate file: ' + this.config.ssl.certfile + ': ' + error;
-			}
-			if (this.config.ssl.cafile) {
-				let caCertificate;
-				try {
-					caCertificate = FS.readFileSync(this.config.ssl.cafile);
-				}
-				catch (error) {
-					throw 'could not read certificate chain file: ' + this.config.ssl.cafile + ': ' + error;
-				}
-				options.ca = caCertificate;
-			}
+		const broadcasterConfig = this.config.broadcastEngine.codestreamBroadcaster;
+		if (!broadcasterConfig.ignoreHttps) {
+			options.key = broadcasterConfig.sslCert.key;
+			options.cert = broadcasterConfig.sslCert.cert;
+			if (broadcasterConfig.sslCert.caChain) options.ca = broadcasterConfig.sslCert.caChain;
 		}
 		return options;
 	}

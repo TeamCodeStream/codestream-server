@@ -252,15 +252,16 @@ class OutboundEmailServer {
 	
 	async openSocketClusterClient () {
 		this.log('Opening connection to SocketCluster...');
+		const broadcasterConfig = this.config.broadcastEngine.codestreamBroadcaster;
 		const config = Object.assign({},
 			{
 				// formerly the socketCluster object
-				host: this.config.broadcastEngine.codestreamBroadcaster.host,
-				port: this.config.broadcastEngine.codestreamBroadcaster.port,
-				authKey: this.config.broadcastEngine.codestreamBroadcaster.secrets.api,
-				ignoreHttps: this.config.broadcastEngine.codestreamBroadcaster.ignoreHttps,
-				strictSSL: this.config.ssl.requireStrictSSL,
-				apiSecret: this.config.broadcastEngine.codestreamBroadcaster.secrets.api
+				host: broadcasterConfig.host,
+				port: broadcasterConfig.port,
+				authKey: broadcasterConfig.secrets.api,
+				ignoreHttps: broadcasterConfig.ignoreHttps,
+				strictSSL: broadcasterConfig.sslCert.requireStrictSSL,
+				apiSecret: broadcasterConfig.secrets.api
 			},
 			{
 				logger: this,

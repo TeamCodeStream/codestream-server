@@ -49,7 +49,7 @@ export function telemetryDataIsMissing(telemetry) {
 		['segment.webToken', telemetry?.segment?.webToken],
 	].forEach((property) => {
 		if (!property[1]) {
-			console.warn(`${property[0]} missing from config`);
+			console.debug(`${property[0]} missing from config`);
 			answer = true;
 		}
 	});

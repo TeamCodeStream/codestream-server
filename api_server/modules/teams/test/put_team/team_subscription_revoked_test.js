@@ -50,15 +50,16 @@ class TeamSubscriptionRevokedTest extends RemoveUserTest {
 	}
 
 	createSocketClusterClient () {
+		const broadcasterConfig = this.apiConfig.broadcastEngine.codestreamBroadcaster;
 		const config = Object.assign({},
 			{
 				// formerly socketCluster object
-				host: this.apiConfig.broadcastEngine.codestreamBroadcaster.host,
-				port: this.apiConfig.broadcastEngine.codestreamBroadcaster.port,
-				authKey: this.apiConfig.broadcastEngine.codestreamBroadcaster.secrets.api,
-				ignoreHttps: this.apiConfig.broadcastEngine.codestreamBroadcaster.ignoreHttps,
-				strictSSL: this.apiConfig.ssl.requireStrictSSL,
-				apiSecret: this.apiConfig.broadcastEngine.codestreamBroadcaster.secrets.api
+				host: broadcasterConfig.host,
+				port: broadcasterConfig.port,
+				authKey: broadcasterConfig.secrets.api,
+				ignoreHttps: broadcasterConfig.ignoreHttps,
+				strictSSL: broadcasterConfig.sslCert.requireStrictSSL,
+				apiSecret: broadcasterConfig.secrets.api
 			},
 			{
 				uid: this.users[1].user.id,
