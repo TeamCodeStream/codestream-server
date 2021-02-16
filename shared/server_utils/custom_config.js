@@ -118,17 +118,17 @@ function setupSslCertificates(Cfg) {
 	// data under the cert Id 'default' and make that the default cert Id.
 	if (Cfg.ssl && Cfg.ssl.keyfile && Cfg.ssl.certfile) {
 		defaultCert.requireStrictSSL = Cfg.ssl.requireStrictSSL || false;
-		if (Cfg.ssl.cafile) {
+		if (Cfg.ssl.cafile && Fs.existsSync(Cfg.ssl.cafile)) {
 			defaultCert.cafile = Cfg.ssl.cafile;
 			defaultCert.caChain = Fs.readFileSync(Cfg.ssl.cafile, { encoding: 'utf8' });
 			// console.log(`loading ${Cfg.ssl.cafile}`);
 		}
-		if (Cfg.ssl.keyfile) {
+		if (Cfg.ssl.keyfile && Fs.existsSync(Cfg.ssl.keyfile)) {
 			defaultCert.keyfile = Cfg.ssl.keyfile;
 			defaultCert.key = Fs.readFileSync(Cfg.ssl.keyfile, { encoding: 'utf8' });
 			// console.log(`loading ${Cfg.ssl.keyfile}`);
 		}
-		if (Cfg.ssl.certfile) {
+		if (Cfg.ssl.certfile && Fs.existsSync(Cfg.ssl.certfile)) {
 			defaultCert.certfile = Cfg.ssl.certfile;
 			defaultCert.cert = Fs.readFileSync(Cfg.ssl.certfile, { encoding: 'utf8' });
 			// console.log(`loading ${Cfg.ssl.certfile}`);
