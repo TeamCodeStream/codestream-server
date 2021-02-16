@@ -58,6 +58,7 @@ async function serverRenderApp(req) {
 	const activeConfigSerialNumber = MongoStructuredConfig.getConfigMetaDocument().serialNumber;
 	Logger.debug(`serverRenderApp(): active config serial is ${activeConfigSerialNumber}`);
 	Logger.debug(`system status is ${SystemStatusMonitor.systemStatus}`);
+	const runningRevision = AdminConfig.getConfigType() === 'mongo' ? AdminConfig.getConfigMetaDocument().revision : null;
 	const status = req.isAuthenticated()
 		? {
 				loggedIn: true,
@@ -76,7 +77,8 @@ async function serverRenderApp(req) {
 				// activeConfigInfo: MongoStructuredConfig.getConfigMetaDocument({ excludeConfigData: true }),
 				activeConfigSerialNumber: activeConfigSerialNumber,
 				codeSchemaVersion: AdminConfig.getSchemaVersion(), // schemaVersion of the code base
-				runningRevision: AdminConfig.getConfigType() === 'mongo' ? AdminConfig.getConfigMetaDocument().revision : null, // config rev of running server (null for file)
+				runningRevision, // config rev of running server (null for file)
+				revisionLastLoaded: runningRevision,
 				unsavedChanges: null, // true if unsaved changes were made, false if not
 				serialLastLoaded: null, // serial number of config last loaded
 		  }
@@ -101,7 +103,7 @@ async function serverRenderApp(req) {
 	// Make a store
 	const Store = StoreFactory({
 		config: req.isAuthenticated() ? AdminConfig.getNativeConfig() : {}, // active native configuration (this could be from a file)
-		installation: Installation, // installation meta data
+		installation: Object.assign({}, JSON.parse(JSON.stringify(Installation))),
 		presentation,
 		status,
 	});

@@ -58,13 +58,13 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	}
 
 	loadDefaultConfigIfNoneFrom(defaultCfgFile, installationFunc) {
-		this.loadDefaultCfgFrom = defaultCfgFile;  // json file containing default config
-		this.loadDefaultCfgInstallationFunc = installationFunc;  // func to process default config before saving
+		this.loadDefaultCfgFrom = defaultCfgFile; // json file containing default config
+		this.loadDefaultCfgInstallationFunc = installationFunc; // func to process default config before saving
 	}
 
 	// true if there are no configs (empty db)
 	async _noConfigs() {
-		return await this.db.collection(this.configCollection).countDocuments() === 0
+		return (await this.db.collection(this.configCollection).countDocuments()) === 0;
 	}
 
 	async _saveDefaultConfig(defaultCfg, schemaVersion) {
@@ -93,6 +93,10 @@ class StructuredConfigMongo extends StructuredConfigBase {
 		return configDoc;
 	}
 
+	async getMostRecentConfig() {
+		return await this._loadMostRecentConfigDocForSchema( this._defaultSchemaVersion() );
+	}
+
 	// find most recent config whose schema is <= schemaVersion
 	async _loadMostRecentConfigDocForSchema(schemaVer) {
 		const results = await this.db
@@ -100,21 +104,22 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			.aggregate([
 				{
 					$match: {
-						schemaVersion: { $lte: schemaVer }	// all docs whose schema is on or before this one
-					}
+						schemaVersion: { $lte: schemaVer }, // all docs whose schema is on or before this one
+					},
 				},
 				{
-					$sort: {	// sort by schemaver+rev, highest (most recent) first
+					$sort: {
+						// sort by schemaver+rev, highest (most recent) first
 						schemaVersion: -1,
-						revision: -1
-					}
+						revision: -1,
+					},
 				},
 				{
 					$group: {
 						_id: null, // the group is the entire set of docs
-						configDoc: { $first: "$$ROOT" }	// discard all but the first doc in the sorted list
-					}
-				}
+						configDoc: { $first: '$$ROOT' }, // discard all but the first doc in the sorted list
+					},
+				},
 			])
 			.toArray();
 		return results.length ? results[0].configDoc : null;
@@ -124,7 +129,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	async initialize(initOptions = {}) {
 		const schemaVersion = this._defaultSchemaVersion();
 		await this._connectToMongo();
-		if (await this._noConfigs() && this.loadDefaultCfgFrom) {
+		if ((await this._noConfigs()) && this.loadDefaultCfgFrom) {
 			// no config was found and a default to load was specified...
 			this.logger.log(`creating new config from ${this.loadDefaultCfgFrom}`);
 			let defaultCfg = hjson.parse(Fs.readFileSync(this.loadDefaultCfgFrom, 'utf8'));
@@ -372,19 +377,24 @@ class StructuredConfigMongo extends StructuredConfigBase {
 							.countDocuments({ schemaVersion: configDoc.schemaVersion })) || 0
 					: result.maxRevision + 1;
 
+			// insert the new config
 			// FIXME: we've got to do something better than reindex the collection with every write
 			// write the new config and create an index
 			result = await this.db.collection(this.configCollection).insertOne(configDoc);
 			await this.db
 				.collection(this.configCollection)
 				.createIndex({ schemaVersion: 1, timeStamp: -1 }, { name: 'bySchema' });
-			return {
+			const newConfig = {
 				serialNumber: result.insertedId,
 				revision: configDoc.revision,
 				timeStamp: configDoc.timeStamp,
 				schemaVersion: configDoc.schemaVersion,
 				desc: configDoc.desc,
 			};
+
+			// optionally activate the config we just added
+			if (loadOptions.activate) await this.activateMongoConfig(newConfig.serialNumber);
+			return newConfig;
 		} catch (error) {
 			this.logger.error(`addNewConfigToMongo() failed: ${error}`);
 			return;

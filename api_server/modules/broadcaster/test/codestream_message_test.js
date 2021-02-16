@@ -88,17 +88,18 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	}
 
 	makeSocketClusterClientForServer (callback) {
+		const broadcasterConfig = this.apiConfig.broadcastEngine.codestreamBroadcaster;
 		this.testLog('Making SocketCluster client for server...');
 		(async () => {
 			const config = Object.assign({},
 				{
 					// formerly the socketCluster object
-					host: this.apiConfig.broadcastEngine.codestreamBroadcaster.host,
-					port: this.apiConfig.broadcastEngine.codestreamBroadcaster.port,
-					authKey: this.apiConfig.broadcastEngine.codestreamBroadcaster.secrets.api,
-					ignoreHttps: this.apiConfig.broadcastEngine.codestreamBroadcaster.ignoreHttps,
-					strictSSL: this.apiConfig.ssl.requireStrictSSL,
-					apiSecret: this.apiConfig.broadcastEngine.codestreamBroadcaster.secrets.api
+					host: broadcasterConfig.host,
+					port: broadcasterConfig.port,
+					authKey: broadcasterConfig.secrets.api,
+					ignoreHttps: broadcasterConfig.ignoreHttps,
+					strictSSL: broadcasterConfig.sslCert.requireStrictSSL,
+					apiSecret: broadcasterConfig.secrets.api
 				},
 				{ uid: 'API' }
 			);
@@ -141,15 +142,16 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	makeSocketClusterClientForClient (callback) {
 		const { user, broadcasterToken } = this.currentUser;
+		const broadcasterConfig = this.apiConfig.broadcastEngine.codestreamBroadcaster;
 		const config = Object.assign({},
 			{
 				// formerly the socketCluster object
-				host: this.apiConfig.broadcastEngine.codestreamBroadcaster.host,
-				port: this.apiConfig.broadcastEngine.codestreamBroadcaster.port,
-				authKey: this.apiConfig.broadcastEngine.codestreamBroadcaster.secrets.api,
-				ignoreHttps: this.apiConfig.broadcastEngine.codestreamBroadcaster.ignoreHttps,
-				strictSSL: this.apiConfig.ssl.requireStrictSSL,
-				apiSecret: this.apiConfig.broadcastEngine.codestreamBroadcaster.secrets.api
+				host: broadcasterConfig.host,
+				port: broadcasterConfig.port,
+				authKey: broadcasterConfig.secrets.api,
+				ignoreHttps: broadcasterConfig.ignoreHttps,
+				strictSSL: broadcasterConfig.requireStrictSSL,
+				apiSecret: broadcasterConfig.secrets.api
 			},
 			{
 				uid: user.id,

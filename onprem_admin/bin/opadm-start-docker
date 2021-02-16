@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#desc# Start script for inside a docker container
+
+cd $OPADM_TOP
+echo "OPADM docker start script is running"
+$OPADM_TOP/node_modules/.bin/babel-node bin/admin_server.js --one_worker

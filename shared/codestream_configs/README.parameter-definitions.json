@@ -1,6 +1,7 @@
 {
 	"adminServer": {
 		"adminServerDisabled": "true will disable admin server and related functionality [OPADM_DISABLED]",
+		"ignoreHttps": "set to true to respond to http instead of https [OPADM_IGNORE_HTTPS]",
 		"logger": {
 			"consoleOk": "allow logging to the console [OPADM_LOG_CONSOLE_OK]",
 			"debugOk": "more verbose logging (debug level) [OPADM_LOG_DEBUG_OK]",
@@ -269,6 +270,7 @@
 			"expirationDate": "certificate expiration date",
 			"key": "private key",
 			"privateCA": "true indicates certificate signed by private CA",
+			"requireStrictSSL": "clients seeing this cert should expect it to be valid WRT accepted public certificate authorities",
 			"selfSigned": "true indicates certificate is self-signed",
 			"targetName": "certificate's target host name"
 		}

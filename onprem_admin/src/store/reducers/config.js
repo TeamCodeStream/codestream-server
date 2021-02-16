@@ -7,11 +7,14 @@ import actions from '../actions';
 
 // handle the ssl certificate config setting dependencies across all services
 export function sslConfigurationUpdate(config, payload={}) {
-	if (config.apiServer.ignoreHttps !== config.broadcastEngine.codestreamBroadcaster.ignoreHttps) console.log('api and broadcaster do not agree on using ssl');
+	if (config.apiServer.ignoreHttps !== config.broadcastEngine.codestreamBroadcaster.ignoreHttps) {
+		console.log('api and broadcaster do not agree on using ssl');
+	}
 	const sslEnabled = typeof payload.sslEnabled === 'boolean' ? payload.sslEnabled : !config.apiServer.ignoreHttps;
 	const protocol = sslEnabled ? 'https://' : 'http://';
 	const oldApiUrl = new URL(config.apiServer.publicApiUrl);
 
+	const apiPublicPort = payload.apiPublicPort || oldApiUrl.port;
 	const apiHost = payload.apiHost || oldApiUrl.hostname;
 	const apiPort = payload.apiPort || config.apiServer.port;
 	const apiSecurePort = payload.apiSecurePort || config.apiServer.securePort;
@@ -23,7 +26,7 @@ export function sslConfigurationUpdate(config, payload={}) {
 	const adminPort = payload.adminPort || config.adminServer.port;
 	const adminSecurePort = payload.adminSecurePort || config.adminServer.securePort;
 
-	const apiPortSuffix = (apiPort === 443 && sslEnabled) ? '' : (apiPort === 80 && !sslEnabled) ? '' : `:${apiPort}`;
+	const apiPortSuffix = apiPublicPort === 443 && sslEnabled ? '' : apiPublicPort === 80 && !sslEnabled ? '' : `:${apiPublicPort}`;
 	const publicApiUrl = `${protocol}${apiHost}${apiPortSuffix}`;
 
 	config.apiServer.ignoreHttps = !sslEnabled;

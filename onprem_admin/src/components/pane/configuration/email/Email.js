@@ -17,7 +17,7 @@ const emailFormFieldSet = [
 			// required
 			id: 'emailSenderAddress',
 			label: 'Sender Email Address',
-			placeholder: 'codestream@my-codestream-host.my-company.com',
+			placeholder: 'codestream@acme.com',
 			type: 'text',
 			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
 			updateActionPayload: {
@@ -25,7 +25,7 @@ const emailFormFieldSet = [
 				updateEmailSettings: true,
 			},
 			// optional
-			mutedText: 'Notifications & invites will appear from this address.',
+			mutedText: 'Sender email address for notifications & invites',
 			// type: 'number',	// default = 'text'
 			width: 'col-6', // default = defaultColWidth property
 			// disabled: true,	// default = false
@@ -39,7 +39,7 @@ const emailFormFieldSet = [
 			// required
 			id: 'emailReplyToDomain',
 			label: 'Reply-To Domain',
-			placeholder: 'codestream.my-company.com',
+			placeholder: 'cs-mail.acme.com',
 			type: 'text',
 			width: 'col-6', // default = defaultColWidth property
 			updateAction: ConfigActions.CONFIG_SET_DOTTED_PROPERTY,
@@ -48,7 +48,7 @@ const emailFormFieldSet = [
 				updateEmailSettings: true,
 			},
 			// optional
-			mutedText: 'Replies to notifications will be sent to this domain.',
+			mutedText: 'Replies to notifications are sent to this domain',
 			// type: 'number',	// default = 'text'
 			// width: 'col-7',	// default = defaultColWidth property
 			// disabled: true,	// default = false

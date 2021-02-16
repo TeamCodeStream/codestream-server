@@ -74,13 +74,16 @@ If you do not wish to use docker, you'll need to provide both of these services:
    npm run start:broadcaster
    ```
 
-1. If you want to use or work on the onprem admin UI, that will need two more
-   shells. This first one will run webpack and rebuild the bundle file as your
-   files change.
+1. In yet another shell, source in the `dev-env.sh` environment and start the
+   onprem admin UI. This will first run webpack to build **public/bundle.js**
+   (which contains the client-side code).
    ```
    source dev-env.sh
    npm run start:opadm
    ```
+   If your intention is to work on the admin_server, you'll want another shell
+   to run `npm run dev` which will run webpack in watch mode to keep bundle.js
+   updated WRT client-side code which is stored in **src/**.
 
 1. The inbound email service is disabled in the default config.
    ```

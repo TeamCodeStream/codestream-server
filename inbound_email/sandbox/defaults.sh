@@ -21,8 +21,8 @@ if [ -n "$CSSVC_CFG_URL" ]; then
 	[ -z "$CS_MAILIN_PROCESS_DIRECTORY" ] && export CS_MAILIN_PROCESS_DIRECTORY=${CS_MAILIN_SANDBOX}/mailq/process
 else
 	# Check Core Variables
-	sbcfg_check_cfg_prop inboundEmailServer.logger.directory CS_MAILIN_LOGS
-	sbcfg_check_cfg_prop inboundEmailServer.tmpDirectory CS_MAILIN_TMP
+	# sbcfg_check_cfg_prop inboundEmailServer.logger.directory CS_MAILIN_LOGS
+	# sbcfg_check_cfg_prop inboundEmailServer.tmpDirectory CS_MAILIN_TMP
 
 	# Set add'l parms from log
 	export CS_MAILIN_INBOUND_EMAIL_DIRECTORY=`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p inboundEmailServer.inboundEmailDirectory)`

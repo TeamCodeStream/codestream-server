@@ -17,10 +17,14 @@ import customConfigFunc from '../../shared/server_utils/custom_config';
 // function customRestartFunc(priorConfig, currentConfig) {
 // }
 
-module.exports = StructuredConfigFactory.create({
+var Config;
+
+Config = Config || StructuredConfigFactory.create({
 	configFile: process.env.OPADM_CFG_FILE || process.env.CSSVC_CFG_FILE,
 	mongoUrl: process.env.CSSVC_CFG_URL,
 	showConfigProperty: 'adminServer.showConfig',
 	// customRestartFunc,
 	customConfigFunc
 });
+
+module.exports = Config;

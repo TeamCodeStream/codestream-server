@@ -1,0 +1,162 @@
+// THIS FILE IS AUTOMTICALLY GENERATED - DO NOT EDIT !!
+// Profile: shared/codestream_configs/profiles/onprem-single-host-preview-template.json
+//
+// CodeStream On-Prem Config
+//
+// - Storage:          mongo
+// - Broadcaster:      codestream broadcaster
+// - Queuing:          rabbitMQ
+// - Outbound SMTP:    NodeMailer
+//
+// - environments:
+// -    minimal (default): onprem template that includes ssl and outbound email
+// -    quickstart:        onprem template without ssl or email
+// -    local:             local development template (codestream sandbox)
+// -    open-development:  open core development (new database default)
+// -    onprem-slh-quickstart:  default onprem quickstart for Single Linux Host
+
+{
+	"adminServer": {
+		"adminServerDisabled": false,
+		"ignoreHttps": true,
+		"logger": {
+			"consoleOk": true,
+			"debugOk": false,
+			"directory": "${OPADM_LOGS}"
+		},
+		"port": 8080,
+		"securePort": 8443,
+		"showConfig": false
+	},
+	"apiServer": {
+		"altBroadcasterHost": null,
+		"authOrigin": null,
+		"callbackEnvironment": null,
+		"confirmCodeExpiration": 604800000,
+		"confirmationExpiration": 86400000,
+		"confirmationNotRequired": true,
+		"disablePhoneHome": false,
+		"dontWantAWS": true,
+		"forgotPasswordExpiration": 86400000,
+		"helpIsAvailable": false,
+		"ignoreHttps": true,
+		"logger": {
+			"consoleOk": true,
+			"debugOk": false,
+			"directory": "${CS_API_LOGS}"
+		},
+		"marketingSiteUrl": "https://www.codestream.com",
+		"mockMode": false,
+		"phoneHomeUrl": "https://phone-home.codestream.com",
+		"port": 80,
+		"publicApiUrl": null,
+		"securePort": 443,
+		"sessionAwayTimeout": 600000,
+		"showConfig": false,
+		"signupTokenExpiration": 600000,
+		"tmpDirectory": "${CS_API_TMP}"
+	},
+	"broadcastEngine": {
+		"codestreamBroadcaster": {
+			"altApiHost": null,
+			"host": null,
+			"ignoreHttps": false,
+			"logger": {
+				"consoleOk": true,
+				"debugOk": false,
+				"directory": "${CS_BROADCASTER_LOGS}"
+			},
+			"port": 12080,
+			"secrets": {
+				"api": null,
+				"auth": null
+			},
+			"securePort": 12075,
+			"showConfig": false
+		}
+	},
+	"email": {
+		"emailTo": null,
+		"notificationInterval": 300000,
+		"replyToDomain": null,
+		"senderEmail": null,
+		"supportEmail": null,
+		"suppressEmails": true
+	},
+	"emailDeliveryService": {
+		"NodeMailer": {
+			"disabled": true,
+			"host": null,
+			"password": null,
+			"port": 587,
+			"secure": true,
+			"service": null,
+			"username": null
+		}
+	},
+	"inboundEmailServer": {
+		"inboundEmailDirectory": "${CS_MAILIN_SANDBOX}/mailq/new",
+		"inboundEmailDisabled": true,
+		"logger": {
+			"consoleOk": true,
+			"debugOk": false,
+			"directory": "${CS_MAILIN_SANDBOX}/log"
+		},
+		"processDirectory": "${CS_MAILIN_SANDBOX}/mailq/process",
+		"showConfig": false,
+		"tempAttachmentDirectory": "${CS_MAILIN_SANDBOX}/mailq/attachments",
+		"tmpDirectory": "${CS_MAILIN_SANDBOX}/tmp"
+	},
+	"outboundEmailServer": {
+		"logger": {
+			"consoleOk": true,
+			"debugOk": false,
+			"directory": "${CS_OUTBOUND_EMAIL_LOGS}"
+		},
+		"showConfig": false,
+		"storage": {
+			"mongo": {
+				"url": null
+			}
+		},
+		"tmpDirectory": "${CS_OUTBOUND_EMAIL_TMP}"
+	},
+	"queuingEngine": {
+		"rabbitmq": {
+			"host": "localhost",
+			"outboundEmailQueueName": "outboundEmail",
+			"password": "stream",
+			"port": 5672,
+			"user": "code"
+		}
+	},
+	"sharedGeneral": {
+		"installationId": null,
+		"runTimeEnvironment": "onprem"
+	},
+	"sharedSecrets": {
+		"auth": null,
+		"confirmationCheat": null,
+		"cookie": null,
+		"mail": null,
+		"subscriptionCheat": null,
+		"telemetry": "84$gTe^._qHm,#D"
+	},
+	"ssl": {
+		"cafile": null,
+		"certfile": null,
+		"keyfile": null,
+		"requireStrictSSL": false
+	},
+	"storage": {
+		"mongo": {
+			"url": "mongodb://localhost/codestream"
+		}
+	},
+	"telemetry": {
+		"segment": {
+			"token": "dvZ7naazdlWY3Szcmk69E5G0VdJfijsl",
+			"webToken": "j428d2olDAhzxjKs9nKBTNEsZf6i7zDx"
+		}
+	}
+}
