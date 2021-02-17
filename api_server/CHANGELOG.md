@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.25] - 2021-2-17
+
+### Added
+
+- Backend support for updating codemark or feedback request resolution status on Slack
+
 ## [8.2.24] - 2021-2-10
 
 ### Fixed
