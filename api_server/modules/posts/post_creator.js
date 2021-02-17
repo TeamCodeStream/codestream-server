@@ -91,6 +91,7 @@ class PostCreator extends ModelCreator {
 		await this.updateLastReads();	// update lastReads attributes for affected users
 		await this.updateParents();		// update the parent post and codemark if applicable
 		await this.updatePostCount();	// update the post count for the author of the post
+		this.updateTeam();				// update info for team, note, no need to "await"
 	}
 
 	// get the stream we're trying to create the post in
@@ -496,6 +497,20 @@ class PostCreator extends ModelCreator {
 			collection: this.data.users,
 			id: this.user.id
 		}).save(op);
+	}
+
+	// update the time the last post was created for the team
+	async updateTeam () {
+		return this.data.teams.updateDirectWhenPersist(
+			{
+				_id: this.data.teams.objectIdSafe(this.team.id)
+			},
+			{
+				$set: {
+					lastPostCreatedAt: this.attributes.createdAt
+				}
+			}
+		);
 	}
 
 	// after the post was created...

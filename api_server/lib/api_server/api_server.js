@@ -231,34 +231,10 @@ class APIServer {
 
 	// make https options, so we know how to listen to requests over https
 	makeHttpsOptions (options) {
-		// read in key and cert file
-		if (
-			this.config.ssl &&
-			this.config.ssl.keyfile &&
-			this.config.ssl.certfile
-		) {
-			try {
-				options.key = FS.readFileSync(this.config.ssl.keyfile);
-			}
-			catch(error) {
-				return 'could not read private key file: ' + this.config.ssl.keyfile + ': ' + error;
-			}
-			try {
-				options.cert = FS.readFileSync(this.config.ssl.certfile);
-			}
-			catch(error) {
-				return 'could not read certificate file: ' + this.config.ssl.certfile + ': ' + error;
-			}
-			if (this.config.ssl.cafile) {
-				let caCertificate;
-				try {
-					caCertificate = FS.readFileSync(this.config.ssl.cafile);
-				}
-				catch(error) {
-					return 'could not read certificate chain file: ' + this.config.ssl.cafile + ': ' + error;
-				}
-				options.ca = caCertificate;
-			}
+		if (!this.config.apiServer.ignoreHttps) {
+			options.key = this.config.apiServer.sslCert.key;
+			options.cert = this.config.apiServer.sslCert.cert;
+			if (this.config.apiServer.sslCert.caChain) options.ca = this.config.apiServer.sslCert.caChain;
 		}
 	}
 

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 // import TelemetryActions, { telemetryDataIsMissing } from '../../../../store/actions/config/telemetry';
 // import ApiServerActions from '../../../../store/actions/config/apiServer';
 import ConfigActions, { telemetryDataIsMissing } from '../../../../store/actions/config';
-import PresentationActions from '../../../../store/actions/presentation';
+// import PresentationActions from '../../../../store/actions/presentation';
 
 export class General extends React.Component {
 	render() {
@@ -32,7 +32,7 @@ export class General extends React.Component {
 								onChange={(e) => this.props.toggleTelemetry(e)}
 								disabled={!this.props.telemetrySelectable}
 							/>
-							<label className="form-check-label" htmlFor="telemetryEnabled">
+							<label className="form-check-label text-light" htmlFor="telemetryEnabled">
 								Enable telemetry to help make CodeStream a better experience for everyone.
 							</label>
 						</div>

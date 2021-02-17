@@ -59,6 +59,7 @@ export default (state = null, action) =>
 				draft.adminAccoutExists = true;
 				draft.activeConfigSerialNumber = action.payload.activeConfigSerialNumber;
 				draft.codeSchemaVersion = action.payload.codeSchemaVersion;
+				draft.revisionLastLoaded = action.payload.runningRevision;
 				draft.runningRevision = action.payload.runningRevision;
 				break;
 		}

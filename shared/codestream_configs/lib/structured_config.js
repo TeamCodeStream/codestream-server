@@ -6,10 +6,7 @@ const StructuredConfigMongo = require('./structured_config_mongo');
 
 class StructuredConfigFactory {
 	create(options={}) {
-		if (options.configFile) {
-			return new StructuredConfigFile(options);
-		}
-		else if(options.mongoUrl) {
+		if(options.mongoUrl) {
 			if (options.mongoUrl.startsWith('mongodb://')) {
 				return new StructuredConfigMongo(options);
 			}
@@ -18,10 +15,15 @@ class StructuredConfigFactory {
 			}
 			else {
 				console.error(`Unknown config type for ${options.mongoUrl}. Should start with mongodb:// or file://`);
+				process.exit(1);
 			}
 		}
+		else if (options.configFile) {
+			return new StructuredConfigFile(options);
+		}
 		else {
-			console.error('No config specified');
+			console.error('No config specified. Set CSSVC_CFG_URL or CSSVC_CFG_FILE');
+			process.exit(1);
 		}
 	}
 }

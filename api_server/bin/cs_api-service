@@ -74,7 +74,7 @@ case "$action" in
 		startup
 		;;
 	stop)
-		service_stop $CS_API_TOP/bin/api_server.js "$CS_API_INIT_STOP_OPTS" "$CS_API_INIT_FAIL_MSG"
+		service_stop $CS_API_TOP/bin/api_server.js "useForce,$CS_API_INIT_STOP_OPTS" "$CS_API_INIT_FAIL_MSG"
 		ec=$?
 		sleep 5
 		service_status $CS_API_TOP/bin/api_server.js

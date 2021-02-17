@@ -38,13 +38,14 @@ class SocketClusterTester {
 	}
 
 	async test () {
+		const broadcasterConfig = this.config.broadcastEngine.codestreamBroadcaster;
 		const scConfig = {
-			host: this.config.broadcastEngine.codestreamBroadcaster.host,
-			port: this.config.broadcastEngine.codestreamBroadcaster.port,
-			authKey: this.config.broadcastEngine.codestreamBroadcaster.secrets.api,
-			ignoreHttps: this.config.broadcastEngine.codestreamBroadcaster.ignoreHttps,
-			strictSSL: this.config.ssl.requireStrictSSL,
-			apiSecret: this.config.broadcastEngine.codestreamBroadcaster.secrets.api,
+			host: broadcasterConfig.host,
+			port: broadcasterConfig.port,
+			authKey: broadcasterConfig.secrets.api,
+			ignoreHttps: broadcasterConfig.ignoreHttps,
+			strictSSL: broadcasterConfig.sslCert.requireStrictSSL,
+			apiSecret: broadcasterConfig.secrets.api,
 			uid: 'API'
 		};
 		this.client = new SocketClusterClient(scConfig);

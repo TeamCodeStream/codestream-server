@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# desc# init script for onprem deployment as component sandboxes
+
+function usage {
+	echo "usage: $0 { start | stop | status | restart }"
+	exit 1
+}
+
+[ -z "$1" ] && usage
+[ -n "$CSSVC_BACKEND_ROOT" ] && echo "onprem sandboxes cannot be loaded to run this script" && exit 1
+[ ! -d $DT_SANDBOXES/bc -o ! -d $DT_SANDBOXES/mailout -o ! -d $DT_SANDBOXES/api -o ! -d $DT_SANDBOXES/opadm ] && echo "all 4 onprem sandboxes not installed" && exit 1
+
+case "$1" in
+	status)
+		ps auxww|grep node|grep -v grep
+		;;
+	start)
+		(dt_load opadm && opadm-service start)
+		(dt_load bc && cs_broadcaster-service start)
+		(dt_load mailout && cs_outbound_email-service start)
+		(dt_load api && cs_api-service start)
+		;;
+	stop)
+		(dt_load api && cs_api-service stop)
+		(dt_load mailout && cs_outbound_email-service stop)
+		(dt_load bc && cs_broadcaster-service stop)
+		(dt_load opadm && opadm-service stop)
+		;;
+	restart)
+		$0 stop
+		$0 start
+		;;
+	*)
+		usage
+		;;
+esac

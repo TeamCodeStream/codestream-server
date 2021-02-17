@@ -12,12 +12,19 @@
 // -    minimal (default): onprem template that includes ssl and outbound email
 // -    quickstart:        onprem template without ssl or email
 // -    local:             local development template (codestream sandbox)
-// -    open:              open core development (new database default)
+// -    open-development:  open core development (new database default)
+// -    onprem-slh-quickstart:  default onprem quickstart for Single Linux Host
 
 {
 	"adminServer": {
 		"defaultEnv": {},
-		"open": {
+		"onprem-slh-quickstart": {
+			"ignoreHttps": true,
+			"port": 8080,
+			"securePort": 8443
+		},
+		"open-development": {
+			"ignoreHttps": true,
 			"port": 12002,
 			"securePort": 12003
 		}
@@ -48,7 +55,24 @@
 			"publicApiUrl": "http://localhost.codestream.us:12079",
 			"showConfig": true
 		},
-		"open": {
+		"onprem-slh-quickstart": {
+			"authOrigin": null,
+			"callbackEnvironment": null,
+			"confirmationNotRequired": true,
+			"disablePhoneHome": false,
+			"dontWantAWS": true,
+			"ignoreHttps": true,
+			"logger": {
+				"directory": "${CS_API_LOGS}"
+			},
+			"marketingSiteUrl": "https://www.codestream.com",
+			"phoneHomeUrl": "https://phone-home.codestream.com",
+			"port": 80,
+			"publicApiUrl": null,
+			"securePort": 443,
+			"tmpDirectory": "${CS_API_TMP}"
+		},
+		"open-development": {
 			"confirmationNotRequired": true,
 			"disablePhoneHome": true,
 			"dontWantAWS": true,
@@ -101,7 +125,18 @@
 				},
 				"showConfig": true
 			},
-			"open": {
+			"onprem-slh-quickstart": {
+				"host": null,
+				"logger": {
+					"directory": "${CS_BROADCASTER_LOGS}"
+				},
+				"port": 12080,
+				"secrets": {
+					"api": null,
+					"auth": null
+				}
+			},
+			"open-development": {
 				"host": "localhost",
 				"ignoreHttps": true,
 				"port": 12004,
@@ -137,7 +172,14 @@
 		"local": {
 			"suppressEmails": true
 		},
-		"open": {
+		"onprem-slh-quickstart": {
+			"emailTo": null,
+			"replyToDomain": null,
+			"senderEmail": null,
+			"supportEmail": null,
+			"suppressEmails": true
+		},
+		"open-development": {
 			"emailTo": null,
 			"replyToDomain": null,
 			"senderEmail": null,
@@ -154,7 +196,10 @@
 	"emailDeliveryService": {
 		"NodeMailer": {
 			"defaultEnv": {},
-			"open": {
+			"onprem-slh-quickstart": {
+				"disabled": true
+			},
+			"open-development": {
 				"disabled": true
 			}
 		}
@@ -182,7 +227,10 @@
 			"local": {
 				"host": "localhost.codestream.us"
 			},
-			"open": {
+			"onprem-slh-quickstart": {
+				"host": "localhost"
+			},
+			"open-development": {
 				"host": "localhost"
 			}
 		}
@@ -196,7 +244,11 @@
 			"installationId": "00000000-0000-0000-0000-000000000000",
 			"runTimeEnvironment": "onprem"
 		},
-		"open": {
+		"onprem-slh-quickstart": {
+			"installationId": null,
+			"runTimeEnvironment": "onprem"
+		},
+		"open-development": {
 			"installationId": null,
 			"runTimeEnvironment": "local"
 		}
@@ -213,7 +265,15 @@
 		"local": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
 		},
-		"open": {
+		"onprem-slh-quickstart": {
+			"auth": null,
+			"confirmationCheat": null,
+			"cookie": null,
+			"mail": null,
+			"subscriptionCheat": null,
+			"telemetry": "84$gTe^._qHm,#D"
+		},
+		"open-development": {
 			"auth": "secretAuth",
 			"confirmationCheat": "secretConfirmationCheat",
 			"cookie": "secretCookie",
@@ -235,7 +295,13 @@
 			"keyfile": null,
 			"requireStrictSSL": false
 		},
-		"open": {
+		"onprem-slh-quickstart": {
+			"cafile": null,
+			"certfile": null,
+			"keyfile": null,
+			"requireStrictSSL": false
+		},
+		"open-development": {
 			"cafile": null,
 			"certfile": null,
 			"keyfile": null,
@@ -256,7 +322,10 @@
 			"local": {
 				"url": "mongodb://localhost.codestream.us/codestream"
 			},
-			"open": {
+			"onprem-slh-quickstart": {
+				"url": "mongodb://localhost/codestream"
+			},
+			"open-development": {
 				"url": "mongodb://localhost/codestream"
 			}
 		}
@@ -266,7 +335,7 @@
 			"defaultEnv": {
 				"_loadSecretsFile": "segment/prod-api.cfg"
 			},
-			"open": {}
+			"open-development": {}
 		}
 	}
 }

@@ -17,6 +17,10 @@ class SimpleFileLogger {
 		if (!options.basename) {
 			throw 'SimpleFileLogger needs a basename option';
 		}
+		if (process.env.CSSVC_SIMPLE_FILE_LOGGER_DEBUG) {
+			console.log('simple file logger will use debug mode as CSSVC_SIMPLE_FILE_LOGGER_DEBUG is set');
+			options.debugOk = true;
+		}
 		if (options.debugOk && options.consoleOk) {
 			console.log('new SimpleFileLogger(options)', options);
 		}
@@ -24,7 +28,7 @@ class SimpleFileLogger {
 		Object.assign(this, options);
 
 		// allow changing log state dynically with an environment variable
-		this.logJson = options.logJsonToo || process.env.SIMPLE_FILE_LOGGER_JSON_TOO || false;
+		this.logJson = options.logJsonToo || process.env.CSSVC_SIMPLE_FILE_LOGGER_JSON_TOO || false;
 
 		// how long will these log files stick around?
 		if (typeof options.retentionPeriod !== 'undefined') {

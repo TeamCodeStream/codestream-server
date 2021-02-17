@@ -14,9 +14,9 @@ fi
 # common sandbox initialization routines
 sbcfg_initialize OPADM
 
-if [ -z "$CSSVC_CFG_URL" ]; then
-	# Check Core Variables
-	sbcfg_check_cfg_prop adminServer.logger.directory OPADM_LOGS
-fi
+# if [ -z "$CSSVC_CFG_URL" ]; then
+# 	# Check Core Variables
+# 	sbcfg_check_cfg_prop adminServer.logger.directory OPADM_LOGS
+# fi
 
 return 0

@@ -29,18 +29,19 @@ class Broadcaster extends APIServerModule {
 	}
 
 	async connectToSocketCluster () {
-		const host = this.api.config.broadcastEngine.codestreamBroadcaster.host;
-		const port = this.api.config.broadcastEngine.codestreamBroadcaster.port;
+		const broadcasterConfig = this.api.config.broadcastEngine.codestreamBroadcaster;
+		const host = broadcasterConfig.host;
+		const port = broadcasterConfig.port;
 		this.api.log(`Connecting to SocketCluster at ${host}:${port}...`);
 		const config = Object.assign({},
 			{
 				// formerly the socketCluster object
 				host,
 				port,
-				authKey: this.api.config.broadcastEngine.codestreamBroadcaster.secrets.api,
-				ignoreHttps: this.api.config.broadcastEngine.codestreamBroadcaster.ignoreHttps,
-				strictSSL: this.api.config.ssl.requireStrictSSL,
-				apiSecret: this.api.config.broadcastEngine.codestreamBroadcaster.secrets.api
+				authKey: broadcasterConfig.secrets.api,
+				ignoreHttps: broadcasterConfig.ignoreHttps,
+				strictSSL: broadcasterConfig.sslCert.requireStrictSSL,
+				apiSecret: broadcasterConfig.secrets.api
 			},
 			{
 				logger: this.api,

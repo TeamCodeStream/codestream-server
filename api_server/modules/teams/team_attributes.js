@@ -76,5 +76,15 @@ module.exports = {
 		type: 'object',
 		maxLength: 5000,
 		description: 'Hash of tags available to the members of this team, the hask keys are IDs, and the object color and label'
+	},
+	lastPostCreatedAt: {
+		type: 'timestamp',
+		description: 'Date/time the last post was created for this team',
+		serverOnly: true
+	},
+	lastWeeklyEmailRunAt: {
+		type: 'timestamp',
+		description: 'Date/time of the last time a weekly email run was done for this team',
+		serverOnly: true
 	}
 };

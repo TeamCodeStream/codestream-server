@@ -6,8 +6,6 @@
 
 'use strict';
 
-const UUID = require('uuid').v4;
-
 // load configurations
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const ModuleDirectory = process.env.CSSVC_BACKEND_ROOT + '/api_server/modules';
@@ -17,6 +15,8 @@ const StringifySortReplacer = require(process.env.CSSVC_BACKEND_ROOT + '/shared/
 const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server');
 const getOnPremSupportData = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_onprem_support_data');
 const customSchemaMigrationMatrix = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_schema_migration');
+const firstConfigInstallationHook= require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_cfg_initialization');
+
 
 // establish our data collections
 const DataCollections = {
@@ -52,19 +52,15 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'reinviteUsersLastRunAt'
 ]);
 
+
 (async function() {
 	if (ApiConfig.configIsMongo()) {
 		// set option so structured config will perform a schema version migration if needed upon initial load
 		ApiConfig.performMigrationUsing(customSchemaMigrationMatrix);
 		// set option to create a new config using the supplied default in the event no configs exist (empty database)
-		ApiConfig.loadDefaultConfigIfNoneFrom(
-			process.env.CS_API_DEFAULT_CFG_FILE ||
-				process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/configs/default.json',
-			// generate installation id for first time start-up
-			(cfg) => {
-				if (!cfg.sharedGeneral.installationId) cfg.sharedGeneral.installationId = UUID();
-			}
-		);
+		const initialConfigFile = process.env.CS_API_DEFAULT_CFG_FILE || process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/configs/open-development.json';
+		console.log(`config initialization will use ${initialConfigFile} if no config is present`);
+		ApiConfig.loadDefaultConfigIfNoneFrom(initialConfigFile, firstConfigInstallationHook);
 	}
 
 	// changes to Config will be available globally via the /config/writeable.js module

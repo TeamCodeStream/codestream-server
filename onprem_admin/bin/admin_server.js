@@ -1,6 +1,7 @@
 'use strict';
 
 import http from 'http';
+import https from 'https';
 import socketIO from 'socket.io';
 import prepareAdminServer from '../lib/adminServer';
 import startSocketIOServer from '../lib/socketIOServer';
@@ -20,6 +21,10 @@ import GlobalData from '../config/globalData';
 	// Our operational structured config object (could be a file or mongo)
 	GlobalData.AdminConfig = AdminConfig;
 	const Config = await AdminConfig.loadPreferredConfig({ wait: true });
+	if (!Config.adminServer || Config.adminServer.adminServerDisabled) {
+		console.error('admin server disabled or no config data provided');
+		process.exit(1);
+	}
 
 	// Logger object
 	GlobalData.Logger = new SimpleFileLogger(Config.adminServer.logger);
@@ -36,12 +41,11 @@ import GlobalData from '../config/globalData';
 
 	// assetInfo from other services will come from the system status service watchers
 	const assetData = await getAssetData({ logger: GlobalData.Logger });
-	GlobalData.Installation.assetInfo['onprem-admin'] =
-		assetData.assetInfo?.fullName
-			? `${assetData.assetInfo.fullName} (${assetData.assetInfo.assetEnvironment})`
-			: process.env.OPADM_SANDBOX
-			? `dtops sandbox repo (${process.env.OPADM_ASSET_ENV})`
-			: `development sandbox`;
+	GlobalData.Installation.assetInfo['onprem-admin'] = assetData.assetInfo?.fullName
+		? `${assetData.assetInfo.fullName} (${assetData.assetInfo.assetEnvironment})`
+		: process.env.OPADM_SANDBOX
+		? `dtops sandbox repo (${process.env.OPADM_ASSET_ENV})`
+		: `development sandbox`;
 
 	GlobalData.Logger.info('installaionData', null, GlobalData.Installation);
 
@@ -61,10 +65,18 @@ import GlobalData from '../config/globalData';
 	GlobalData.MongoClient = GlobalData.MongoStructuredConfig.getMongoClient();
 
 	const adminServer = await prepareAdminServer();
+	// Secure?
+	const tlsOptions = Config.adminServer.ignoreHttps
+		? null
+		: {
+				key: Config.adminServer.sslCert.key,
+				cert: Config.adminServer.sslCert.cert,
+				ca: Config.adminServer.sslCert.caChain,
+		  };
+	const myServer = tlsOptions ? https.createServer(tlsOptions, adminServer) : http.createServer(adminServer);
 
 	// Create a socket IO server
-	const httpServer = http.createServer(adminServer);
-	const io = socketIO(httpServer);
+	const io = socketIO(myServer);
 
 	// start accepting connections on the socket io server
 	startSocketIOServer(io);
@@ -79,7 +91,7 @@ import GlobalData from '../config/globalData';
 	adminServer.set('io', io);
 
 	// and away we go!
-	httpServer.listen(Config.adminServer.port, () => {
-		GlobalData.Logger.info(`express server listening on port ${Config.adminServer.port}`);
+	myServer.listen(Config.adminServer.port, () => {
+		GlobalData.Logger.info(`express server ${tlsOptions ? 'using https ' : ''}listening on port ${Config.adminServer.port}`);
 	});
 })();
