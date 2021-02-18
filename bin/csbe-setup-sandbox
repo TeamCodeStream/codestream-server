@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# desc# reset local sandbox in one of several configs
+
+function usage {
+	echo "usage:
+
+    `basename $0` --unified-cfg-file
+    `basename $0` --store-cfg-in-mongo [--init-with-unified <cfgName>]
+
+    Setup sandbox configuration for any number of scenarios. Following the execution
+    of this script, you will need to quit your shells and fire up new ones.
+
+    The order options are specified on the command line matters. The most significant,
+    list in the usage statuements above, needs to be first.
+
+    --unified-cfg-file
+        Remove any sandbox options which will setup for use with the config files deployed
+        via 'dt-update-secrets'. The config will be loaded from a file. It will not be
+        stored in mongo.
+
+        This will set the CSSVC_CFG_FILE variable according to the unified config process:
+        https://github.com/TeamCodeStream/codestream-server/blob/develop/api_server/docs/unified-cfg-file.md
+
+    --store-cfg-in-mongo  [--init-with-unified <cfgName>]
+        Store config in mongo initialized with open-development.json (most basic config). This will
+        set the CSSVC_CFG_URL env variable to your local mongo codestream database. When starting
+        the api with an empty database, it will initially load a config based on the additional
+        args.
+
+        The default (no additional args) is to initialize it from api_server/etc/configs/open-development.json.
+        --init-with-unified will find the named config file (eg. onprem-development, codestream-cloud,
+        onprem-development-custom, ...) that matches the repos' schema version and use that.
+"
+	exit 1
+}
+
+function store_cfg_in_mongo {
+	echo "CSSVC_CFG_URL=mongodb://localhost/codestream" >$CSBE_SANDBOX/sb.options
+	[ "$1" == "--init-with-unified" -a -n "$2" ] && echo "CSSVC_CONFIGURATION=$2" >>$CSBE_SANDBOX/sb.options
+	echo "Sandbox options:"
+	cat $CSBE_SANDBOX/sb.options
+}
+
+[ "$CSBE_ENV" != "local" ] && echo "This script only works for mono-repo local development" && exit 1
+[ -z "$1" ] && usage
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		--unified-cfg-file) { [ -f $CSBE_SANDBOX/sb.options ] && rm -f $CSBE_SANDBOX/sb.options; }; echo "$CSBE_SANDBOX/sb.options removed"; exit;;
+		--store-cfg-in-mongo) shift; store_cfg_in_mongo "$@"; exit;;
+		*) usage;;
+	esac
+done

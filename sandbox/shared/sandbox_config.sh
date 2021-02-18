@@ -73,9 +73,16 @@ function sbcfg_initialize {
 	[ -z "$sbAssetEnv" ] && sbcfg_set_var "${sbPrefix}_ASSET_ENV" "local"
 
 	# ---- CONFIG
+
 	if [ -n "$CSSVC_CFG_URL" ]; then 
 		# ---- config stored in mongo
-		echo "CSSVC_CFG_URL=$CSSVC_CFG_URL"
+		# for local development only, CSSVC_CONFIGURATION indicates config file to use for initialization
+		if [ "$CSSVC_ENV" = "local"  -a  -n "$CSSVC_CONFIGURATION"  -a  -n "$CS_API_SANDBOX" ]; then
+			sandutil_get_codestream_cfg_file "$CS_API_SANDBOX" "$CSSVC_CONFIGURATION" "$CSSVC_ENV" "" noReport
+			export CS_API_DEFAULT_CFG_FILE=$CSSVC_CFG_FILE
+			unset CSSVC_CFG_FILE
+			[ -z "$CS_API_DEFAULT_CFG_FILE" ] && echo "WARN: could not find a config for initialization (using $CSSVC_CONFIGURATION)." || echo "CS_API_DEFAULT_CFG_FILE=$CS_API_DEFAULT_CFG_FILE"
+		fi
 	else
 		# ---- config file
 		[ -n "$sbCfgFile" ] && configParm=$sbCfgFile || configParm="$CSSVC_CONFIGURATION"
