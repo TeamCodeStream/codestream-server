@@ -13,17 +13,12 @@ import Login from './login/Login';
 import Pane from './pane/Pane';
 import Footer from './footer/Footer';
 import { loadSystemMessageHistory } from '../store/actions/status'
-// import BSTest1 from './pane/configuration/layoutTests/BSTest1';
-// import AccordionArrows from './pane/configuration/layoutTests/AccordionArrows';
-// import Accordion from './lib/Accordion';
-
 
 class App extends React.Component {
 	componentDidMount() {
 		if (this.props.loggedIn) {
 			this.props.dispatch(loadSystemMessageHistory());
-		}
-		else {
+		} else {
 			console.debug('we are NOT logged in');
 		}
 		// enable bootstrap tooltips
@@ -32,14 +27,8 @@ class App extends React.Component {
 		// });
 	}
 
-	componentWillUnmount() {
-		// component is about to be unmounted
-		// cleanup timers & listeners
-	}
-
 	// layout-*: classes for defining layout sections
 	render() {
-		// console.log('App(render()):', this.props);
 		return (
 			// <div className="App container-fluid p-0 text-light bg-secondary">
 			<div className="App container-fluid p-0 d-flex vh-100 h-100 flex-column text-light bg-secondary">
@@ -60,9 +49,7 @@ class App extends React.Component {
 
 				{/* The 'SubNav' is a section below the omnibar that provides a sub-menu for selected panes. */}
 				<div className="row row-cols-1">
-					<span className="col">
-						{this.props.loggedIn ? <SubNav /> : <></>}
-					</span>
+					<span className="col">{this.props.loggedIn ? <SubNav /> : <></>}</span>
 				</div>
 
 				{/* The 'pane' is where all inputs and feedback will go. Each 'pane' is associated with a nav item. */}
@@ -94,7 +81,6 @@ const mapState = (state) => ({
 
 const mapDispatch = (dispatch) => ({
 	dispatch,
-	loadSystemMessageHistory: (e) => dispatch(loadSystemMessageHistory()),
 });
 
 export default connect(mapState, mapDispatch)(App);
