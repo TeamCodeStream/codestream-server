@@ -25,14 +25,14 @@ async function serverRenderApp(req) {
 		configuration: {
 			paneSelected: configNavItems.topology,
 			integrations: {
-				messaging: {},	// slack, msteams
-				tracking: {},	// trello, jira, ...
+				messaging: {}, // slack, msteams
+				tracking: {}, // trello, jira, ...
 			},
 			history: {
 				summary: [],
 			},
 			general: {},
-			topology: {}
+			topology: {},
 		},
 		updates: {},
 		support: {},

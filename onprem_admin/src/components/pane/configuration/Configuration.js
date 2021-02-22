@@ -2,14 +2,12 @@
 
 import React from 'react';
 // import PropTypes from 'prop-types';
-// import { connect } from 'react-redux';
 import { Router } from '@reach/router';
 import Topology from './topology/Topology';
 import General from './general/General';
 import Email from './email/Email';
 import Integrations from './integrations/Integrations';
 import History from './history/History';
-// import Actions from '../../../store/actions/presentation';
 
 class Configuration extends React.Component {
 	render() {
@@ -30,9 +28,5 @@ class Configuration extends React.Component {
 		);
 	}
 }
-
-// Configuration.propTypes = {
-// 	sectionData: PropTypes.array.isRequired
-// };
 
 export default Configuration;

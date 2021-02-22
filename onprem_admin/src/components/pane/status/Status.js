@@ -90,7 +90,7 @@ class Status extends React.Component {
 				<div className="row justify-content-center mt-3">
 					<div className="col-10">
 						<center>
-							<h5>Status Messages and Alert History</h5>
+							<h5>Status Message and Alert History</h5>
 							<table className="table table-dark table-striped">
 								<tbody>
 									{statusMsgTableData.length ? (
