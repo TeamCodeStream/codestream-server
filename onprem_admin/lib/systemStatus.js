@@ -260,7 +260,7 @@ class systemStatusService extends systemStatus {
 				const res = await axios.get(watcher.url);
 				this.logger.debug(`fetch ${watcher.url} returned`, null, res.data);
 				// console.warn(`fetch ${watcher.url} returned`, res.data);
-				const fullName = res.data.assetInfo?.fullName ? res.data.assetInfo.fullName : 'development sandbox';
+				const fullName = res.data.assetInfo?.fullName ? res.data.assetInfo.fullName : `development sandbox (${res.data.runTimeEnvironment || '?'})`;
 				// console.warn(`over here ${watcherId} 1`);
 				newWatchData.status = SystemStatuses.ok;
 				newWatchData.message = `${watcher.serviceName} service: ${fullName}`;

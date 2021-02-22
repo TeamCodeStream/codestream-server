@@ -44,7 +44,7 @@ import GlobalData from '../config/globalData';
 	GlobalData.Installation.assetInfo['onprem-admin'] = assetData.assetInfo?.fullName
 		? `${assetData.assetInfo.fullName} (${assetData.assetInfo.assetEnvironment})`
 		: process.env.OPADM_SANDBOX
-		? `dtops sandbox repo (${process.env.OPADM_ASSET_ENV})`
+		? `development sandbox (${process.env.OPADM_ASSET_ENV})`
 		: `development sandbox`;
 
 	GlobalData.Logger.info('installaionData', null, GlobalData.Installation);
