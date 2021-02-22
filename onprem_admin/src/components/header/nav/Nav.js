@@ -71,7 +71,7 @@ class Nav extends React.Component {
 						</Link>
 						<Link
 							className={`nav-item nav-link ${this.props.activePane === globalNavItems.configuration ? 'active' : ''}`}
-							to="/configuration/topology"
+							to={'/configuration/' + this.props.activeConfigPane || 'topology'}
 							onClick={() => this.props.selectGlobalPane(globalNavItems.configuration)}
 						>
 							configuration
@@ -107,6 +107,7 @@ class Nav extends React.Component {
 
 const mapState = state => ({
 	activePane: state.presentation.nav.paneSelected,
+	activeConfigPane: state.presentation.configuration?.paneSelected || null,
 	pendingUpdates: state.status.pendingUpdates || false,
 });
 

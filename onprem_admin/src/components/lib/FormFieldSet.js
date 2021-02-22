@@ -116,7 +116,7 @@ class TheInputElementGroup extends React.Component {
 						dispatch={this.props.dispatch}
 					/>
 					{/* Revert button */}
-					{this.props.inputState.revertValue && (
+					{(this.props.inputState.revertValue && (this.props.inputState?.value !== this.props.inputState?.revertValue)) && (
 						<span className="input-group-addon">
 							<img
 								className="icon-image-large ml-1 mt-1"
