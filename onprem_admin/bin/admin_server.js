@@ -43,9 +43,7 @@ import GlobalData from '../config/globalData';
 	const assetData = await getAssetData({ logger: GlobalData.Logger });
 	GlobalData.Installation.assetInfo['onprem-admin'] = assetData.assetInfo?.fullName
 		? `${assetData.assetInfo.fullName} (${assetData.assetInfo.assetEnvironment})`
-		: process.env.OPADM_SANDBOX
-		? `development sandbox (${process.env.OPADM_ASSET_ENV})`
-		: `development sandbox`;
+		: `development sandbox (${Config.sharedGeneral.runTimeEnvironment})`;
 
 	GlobalData.Logger.info('installaionData', null, GlobalData.Installation);
 
