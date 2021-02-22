@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import Modal from 'react-bootstrap/Modal';
 import { SystemStatuses } from '../../store/actions/status';
 import { saveConfiguration } from '../../store/actions/presentation';
-import Modal from 'react-bootstrap/Modal';
 
 class Omnibar extends Component {
 	// the save-changes modal (SaveModal) uses local state to show/hide and manage its form
@@ -31,7 +31,7 @@ class Omnibar extends Component {
 
 	validateModalDesc = () => {
 		console.debug('Omnibar.validateModalDesc(): ', this.modalDescRef.current?.value);
-		if (!this.modalDescRef.current?.value.length) {
+		if (!this.modalDescRef.current?.value?.length) {
 			this.setState({ modalErrorMsg: 'Description required (5 to 60 chars)' });
 			return false;
 		}
@@ -44,12 +44,12 @@ class Omnibar extends Component {
 	};
 
 	SaveModal = () => {
-		console.log('Omnibar.saveModal()');
+		console.debug('Omnibar.saveModal()');
 		return (
-			<Modal className="saveConfigModal" show={this.state.showModal} onHide={this.closeModal}>
+			<Modal className="saveConfigModal" show={this.state.showModal} onHide={this.closeSaveModal}>
 				<Modal.Header>
 					<h4>Save Configuration</h4>
-					<button type="button" className="close" onClick={this.closeModal}>
+					<button type="button" className="close" onClick={this.closeSaveModal}>
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</Modal.Header>
@@ -76,7 +76,7 @@ class Omnibar extends Component {
 					</p>
 				</Modal.Body>
 				<Modal.Footer>
-					<button type="button" className="btn btn-sm btn-secondary" onClick={this.closeModal}>
+					<button type="button" className="btn btn-sm btn-secondary" onClick={this.closeSaveModal}>
 						Cancel
 					</button>
 					<button type="button" className="btn btn-sm btn-info" onClick={this.saveConfigPressed}>
@@ -90,13 +90,13 @@ class Omnibar extends Component {
 		);
 	};
 
-	closeModal = () => this.setState({ showModal: false });
+	closeSaveModal = () => this.setState({ showModal: false });
 
 	saveNewConfig = (activate) => {
 		console.debug(`Omnibar.saveNewConfig(activate=${activate})`);
 		if (this.validateModalDesc()) {
 			this.props.dispatch(saveConfiguration(activate, this.modalDescRef.current.value));
-			this.closeModal();
+			this.closeSaveModal();
 		}
 	};
 
@@ -162,7 +162,7 @@ const mapState = (state) => ({
 	unsavedChanges: state.status.unsavedChanges,
 });
 
-const mapDispatch = dispatch => ({
+const mapDispatch = (dispatch) => ({
 	dispatch,
 });
 
