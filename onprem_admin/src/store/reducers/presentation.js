@@ -73,6 +73,10 @@ export default (state = {}, action) =>
 			case Actions.PRESENTATION_UPDATE_THE_MODAL_PROPS:
 				Object.assign(draft.modal.props, action.payload);
 				return;
+
+			case Actions.PRESENTATION_LICENSE_UPDATE:
+				draft.license = action.payload;
+				return;
 		}
 	}
 );
