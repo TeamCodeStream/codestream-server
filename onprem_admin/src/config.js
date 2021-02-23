@@ -18,3 +18,7 @@ export const DocRefs = {
 export const SupportInfo = {
 	email: 'support@codestream.com'
 };
+
+export const LicenseDescriptions = {
+	'14DAYTRIAL': 'You are currently in free trial. Contact sales@codestream.com to purchase a license.',
+};

@@ -82,6 +82,7 @@ class Nav extends React.Component {
 							onClick={() => this.props.selectGlobalPane(globalNavItems.updates)}
 						>
 							updates
+							{/* <span className="badge badge-warning ml-1">!</span> */}
 							{this.props.pendingUpdates && <span className="badge badge-pill badge-primary mb-1">*</span>}
 						</Link>
 						<Link
