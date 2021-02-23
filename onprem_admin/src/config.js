@@ -20,5 +20,5 @@ export const SupportInfo = {
 };
 
 export const LicenseDescriptions = {
-	'14DAYTRIAL': 'You are currently in free trial. Contact sales@codestream.com to purchase a license.',
+	'TRIAL': 'You are currently in free trial. Contact sales@codestream.com to purchase a license.',
 };

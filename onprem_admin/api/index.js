@@ -125,12 +125,14 @@ ApiRouter.get('/licenses', async (req, res) => {
 	let isTrial = false;
 	// let isExpired = false;
 	licenseData.forEach(company => {
-		licenses[company.plan] = 1;
-		if (company.plan.match(/trial/i)) isTrial = true;
+		const thisLicense = company.plan === '14DAYTRIAL' ? 'TRIAL' : company.plan;
+		licenses[thisLicense] = 1;
+		if (thisLicense.match(/trial/i)) isTrial = true;
 	});
 	// the license doesn't get added to the database until after the first codemark
 	// is created so we assume a 14DAYTRIAL license for a pre-used database.
-	if (!Object.keys(licenses).length) licenses.push('14DAYTRIAL')
+	// if (!Object.keys(licenses).length) licenses.push('14DAYTRIAL');
+	if (!Object.keys(licenses).length) licenses.push('TRIAL');
 	res.send({ licenses: Object.keys(licenses), isTrial });
 });
 
