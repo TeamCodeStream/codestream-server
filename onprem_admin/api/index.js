@@ -56,7 +56,7 @@ ApiRouter.post('/no-auth/login', (req, res, next) => {
 				return next(err);
 			}
 			Logger.log('req.login() we are authenticated');
-			return res.send({ loggedIn: true });
+			return res.send({ loggedIn: true, profile: { id: user.id, email: user.email } });
 		})
 	})(req, res, next);
 });
@@ -81,31 +81,6 @@ ApiRouter.post('/no-auth/register', async (req, res) => {
 	}
 	Logger.log(`user ${req.body.id} with email ${req.body.email} registered successfully`);
 	res.redirect(307, '/api/no-auth/login');
-});
-
-// fetch a configuration by serial number
-ApiRouter.get('/config/:serialNumber', async (req, res) => {
-	Logger.log(`api(get):/config/${req.params.serialNumber}`);
-	let config;
-	if (req.params.serialNumber === 'active') {
-		// provide the config and related data that would have been present
-		// in the initial state had the user been authorized when making the
-		// initial request
-		config = {
-			configData: AdminConfig.getNativeConfig(),
-			activeConfigSerialNumber: MongoStructuredConfig.getConfigMetaDocument().serialNumber,
-			codeSchemaVersion: AdminConfig.getSchemaVersion(), // schemaVersion of the code base
-			runningRevision: AdminConfig.getConfigType() === 'mongo' ? AdminConfig.getConfigMetaDocument().revision : null, // config rev of running server (null for file)
-		};
-	}
-	else {
-		config = await MongoStructuredConfig.getConfigBySerial(req.params.serialNumber, { includeMetaData: true });
-	}
-	if (config) {
-		res.send(config);
-	} else {
-		res.status(404).send('false');
-	}
 });
 
 
@@ -158,17 +133,6 @@ ApiRouter.put('/config/activate/:serialNumber', async (req, res) => {
 	}
 });
 
-// delete configuration by serial number
-ApiRouter.delete('/config/:serialNumber', async (req, res) => {
-	Logger.log(`api(delete):/config/${req.params.serialNumber}`);
-	if (await MongoStructuredConfig.deleteConfigFromMongo(req.params.serialNumber)) {
-		res.send('true');
-	}
-	else {
-		res.status(404).send('false');
-	}
-});
-
 // add a new config to the database and optionally activate it (set to '1' or 'true')
 // FIXME: is it necessary to validate the body before writing to mongo??
 ApiRouter.post('/config/:activate?', async (req, res) => {
@@ -190,6 +154,70 @@ ApiRouter.post('/config/:activate?', async (req, res) => {
 	}
 	res.send({success: true, response: { configDoc }});
 });
+
+// delete configuration by serial number
+ApiRouter.delete('/config/:serialNumber', async (req, res) => {
+	Logger.log(`api(delete):/config/${req.params.serialNumber}`);
+	if (await MongoStructuredConfig.deleteConfigFromMongo(req.params.serialNumber)) {
+		res.send('true');
+	}
+	else {
+		res.status(404).send('false');
+	}
+});
+
+// fetch a configuration by serial number
+ApiRouter.get('/config/:serialNumber', async (req, res) => {
+	Logger.log(`api(get):/config/${req.params.serialNumber}`);
+	let config;
+	if (req.params.serialNumber === 'active') {
+		// provide the config and related data that would have been present
+		// in the initial state had the user been authorized when making the
+		// initial request
+		config = {
+			configData: AdminConfig.getNativeConfig(),
+			activeConfigSerialNumber: MongoStructuredConfig.getConfigMetaDocument().serialNumber,
+			codeSchemaVersion: AdminConfig.getSchemaVersion(), // schemaVersion of the code base
+			runningRevision: AdminConfig.getConfigType() === 'mongo' ? AdminConfig.getConfigMetaDocument().revision : null, // config rev of running server (null for file)
+		};
+	}
+	else {
+		config = await MongoStructuredConfig.getConfigBySerial(req.params.serialNumber, { includeMetaData: true });
+	}
+	if (config) {
+		res.send(config);
+	} else {
+		res.status(404).send('false');
+	}
+});
+
+
+// -----------------
+// ----------------- user profiles
+// -----------------
+
+ApiRouter.get('/user/:userId', (req, res) => {
+	Logger.log(`api(get):/user/${req.params.userId}`);
+	if (!req.params.userId) {
+		res.status(400).send('bad data');
+	}
+	else if (req.user.id !== req.params.userId) {
+		res.status(400).send(`user ${req.user.id} does not get to see user ${req.params.userId}'s profile`);
+	}
+	else {
+		// FIXME
+		// lame!! since we only have 'root' we can simply assume our user profile is
+		// part of the request object. Obviously it would be better if we actually
+		// verified the request user matched the userId parm and passed the right
+		// data back!
+		res.send({ loggedIn: true, profile: { id: req.user.id, email: req.user.email } });
+	}
+});
+
+
+// -----------------
+// ----------------- system status
+// -----------------
 
 ApiRouter.get('/status/history', (req, res) => {
 	Logger.log(`api(get):/status/history`);

@@ -56,6 +56,7 @@ export default (state = null, action) =>
 				break;
 			case Actions.STATUS_LOGIN:
 				draft.loggedIn = true;
+				draft.userProfile = action.payload.userProfile;
 				draft.adminAccoutExists = true;
 				draft.activeConfigSerialNumber = action.payload.activeConfigSerialNumber;
 				draft.codeSchemaVersion = action.payload.codeSchemaVersion;

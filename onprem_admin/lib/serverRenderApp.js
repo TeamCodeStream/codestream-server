@@ -62,6 +62,7 @@ async function serverRenderApp(req) {
 	const status = req.isAuthenticated()
 		? {
 				loggedIn: true,
+				userProfile: { id: req.user.id, email: req.user.email },
 				adminAccountExists: true,
 				systemStatus: {
 					status: SystemStatusMonitor.systemStatus,
