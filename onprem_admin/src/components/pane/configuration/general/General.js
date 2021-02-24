@@ -76,8 +76,8 @@ const mapState = state => {
 			// ? !(state.config.telemetry.disabled || false)
 			? !(state.config.telemetry.disabled || false)
 			: false,
-		phoneHomeEnabled: !(state.config.apiServer.disablePhoneHome || false),
-		phoneHomeSelectable: state.presentation.license?.isTrial || false,
+		phoneHomeEnabled: !state.config.apiServer.disablePhoneHome,
+		phoneHomeSelectable: !state.presentation.license?.isTrial,
 	};
 }
 
