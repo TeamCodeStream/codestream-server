@@ -17,6 +17,7 @@ import { loadSystemMessageHistory } from '../store/actions/status'
 class App extends React.Component {
 	componentDidMount() {
 		if (this.props.loggedIn) {
+			// console.log('we are loggedIn - hope we have user profile data in the store!!', this.props);
 			this.props.dispatch(loadSystemMessageHistory());
 		} else {
 			console.debug('we are NOT logged in');

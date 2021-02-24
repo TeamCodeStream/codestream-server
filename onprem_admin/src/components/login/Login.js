@@ -52,6 +52,7 @@ class Login extends Component {
 			.then((resp) => {
 				console.debug('login: response data', resp.data);
 				if (resp.data.loggedIn) {
+					const userProfile = resp.data.profile;
 					console.debug('login: fetching active config');
 					axios
 						.get('/api/config/active')
@@ -64,6 +65,7 @@ class Login extends Component {
 									activeConfigSerialNumber: resp.data.activeConfigSerialNumber,
 									codeSchemaVersion: resp.data.codeSchemaVersion,
 									runningRevision: resp.data.runningRevision,
+									userProfile,
 								},
 							});
 						})

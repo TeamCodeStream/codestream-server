@@ -28,6 +28,7 @@ class Status extends React.Component {
 		const installTableData = [
 			['Product Type:', this.props.productType === 'On-Prem Development' ? this.props.productType + ` (${this.props.runTimeEnvironment})` : this.props.productType],
 			['Installation ID:', this.props.installationId],
+			['Installer Email:', this.props.userProfile?.email],
 			['API:', this.props.apiUrl],
 			['Database:', this.props.mongoUrl]
 		];
@@ -138,6 +139,7 @@ const mapState = (state) => ({
 	mongoUrl: state.config.storage.mongo.url,
 	alerts: state.status.systemStatus.alerts,
 	statusMessages: state.status.statusMessages,
+	userProfile: state.status.userProfile,
 });
 
 // returns behavior for the component
