@@ -2,13 +2,12 @@
 
 const Scheduler = require('node-schedule');
 const TeamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/indexes');
-const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 const DO_TEST = true;
 const TEAM_BATCH_SIZE = 100;
 const ACTIVITY_CUTOFF = 3 * 30 * 24 * 60 * 60 * 1000;	// teams who have had no activity in this interval, get no emails at all
 const LAST_RUN_CUTOFF = 1 * 24 * 60 * 60 * 1000;		// teams that have had a weekly email run within this interval, wait till next week
-const THROTTLE_TIME = 5000;
+const THROTTLE_TIME_PER_USER = 3000;					// throttle by team size, allowing the email service to send to all users on a team
 const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 
 class WeeklyEmails {
@@ -17,7 +16,7 @@ class WeeklyEmails {
 		Object.assign(this, options);
 	}
 
-	// schedule jobs to look for reviews which need reminders
+	// schedule jobs to look for teams that need weekly emails
 	schedule () {
 		// stagger each worker's schedule to occur at a random time every hour
 		const randomMinutes = Math.floor(Math.random() * 60);
@@ -26,8 +25,8 @@ class WeeklyEmails {
 			this.api.log(`Triggering test run of weekly emails for execution at :${randomSeconds}s`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} * * * * *`, this.sendWeeklyEmails.bind(this));
 		} else {
-			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 4AM`);
-			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 4 * * 1`, this.sendWeeklyEmails.bind(this));
+			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
+			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * 1`, this.sendWeeklyEmails.bind(this));
 		}
 	}
 
@@ -47,7 +46,14 @@ class WeeklyEmails {
 			const now = Date.now();
 			teams = await this.api.data.teams.getByQuery(
 				{
-					lastPostCreatedAt: { $gt: now - ACTIVITY_CUTOFF },
+					$or: [
+						{
+							lastPostCreatedAt: { $exists: false }
+						},
+						{
+							lastPostCreatedAt: { $gt: now - ACTIVITY_CUTOFF }
+						}
+					],
 					$or: [
 						{
 							lastWeeklyEmailRunAt: { $exists: false }
@@ -107,42 +113,21 @@ class WeeklyEmails {
 			return;
 		}
 
-		const memberIds = ArrayUtilities.difference(team.memberIds || [], team.removedMemberIds || []);
-		const users = await this.api.data.users.getByIds(memberIds, { fields: [ 'id', 'deactivated', 'lastWeeklyEmailSentAt', '_forTesting' ]});
-		if (users.length === 0) {
-			this.api.log(`Not triggering weekly email reminders for team ${team.id}, team has no active members`);
-			return;
-		}
-
-		for (let i = 0; i < users.length; i++) {
-			if (await this.triggerWeeklyEmailToUser(users[i])) {
-				await this._wait(THROTTLE_TIME);	// don't want to overwhelm the api or the outbound email service
-			}
-		}
-
-		await this.updateTeam(team);
-	}
-
-	// trigger weekly email to this user, as needed
-	async triggerWeeklyEmailToUser (user) {
-		if (user._forTesting) {
-			this.api.log(`Not triggering weekly email to user ${user.id}, user is a test user`);
-			return false;
-		} else if (user.deactivated) {
-			this.api.log(`Not triggering weekly email to user ${user.id}, user has been deactivated`);
-			return false;
-		} else if (user.lastWeeklyEmailSentAt > Date.now() - LAST_RUN_CUTOFF) {
-			this.api.log(`Not triggering weekly email to user ${user.id}, user has been sent their weekly email already`);
-			return false;
-		}
-
 		// we are clear for launch!
+		// we'll send a message for the whole team and the outbound email server sort out who
+		// actually gets emails ... this is because there is much common data between the members of the
+		// team and it makes more sense to do it as a whole unit then for each individual user
 		const message = {
 			type: 'weekly',
-			userId: user.id
+			teamId: team.id
 		};
-		this.api.log(`Triggering weekly email to user ${user.id}...`);
+		this.api.log(`Triggering weekly emails to team ${team.id}...`);
 		this.api.services.email.queueEmailSend(message);
+
+		// update the team for future weekly email update scheduling
+		await this.updateTeam(team);
+		const teamSize = (team.memberIds || []).length;
+		await this._wait(THROTTLE_TIME_PER_USER * teamSize);	// don't want to overwhelm the api or the outbound email service
 		return true;
 	}
 

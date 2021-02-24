@@ -265,7 +265,7 @@ const Utils = {
 	// user in the list of mentioned users in the post ... if we find one, put styling on 
 	// the mention
 	handleMentions: function (text, options) {
-		const { mentionedUserIds, members } = options;
+		const { mentionedUserIds = [], members = [], currentUser } = options;
 		mentionedUserIds.forEach(userId => {
 			const user = members.find(user => user.id === userId);
 			if (user) {
@@ -274,7 +274,16 @@ const Utils = {
 					return `\\${char}`;
 				});
 				const regexp = new RegExp(`@${escapedUsername}`, 'g');
-				const mentionClass = `{{{mention${user.id}}}}`;
+				let mentionClass;
+				if (currentUser) {
+					if (userId === currentUser.id) {
+						mentionClass = 'mention-me';
+					} else {
+						mentionClass = 'mention';
+					}
+				} else {
+					mentionClass = `{{{mention${user.id}}}}`; // for later substitution
+				}
 				text = text.replace(regexp, `<span class="${mentionClass}">@${username}</span>`);
 			}
 		});
@@ -347,7 +356,7 @@ const Utils = {
 	},
 
 	// prepare text for email by cleaning and apply mention replacement
-	prepareForEmail: function (text, options) {
+	prepareForEmail: function (text, options = {}) {
 		const { extension } = options;
 		// text = Utils.cleanForEmail(text);
 		text = new Markdowner().markdownify(text);
@@ -739,6 +748,23 @@ const Utils = {
 </div>
 ${buttons}
 `;
+	},
+
+	// get the links appropriate for each IDE the user might want to install
+	getIDELinks: function () {
+		const ideLinks = {
+			'VS Code': 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream',
+			'Visual Studio': 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs',
+			'JetBrains': 'https://plugins.jetbrains.com/plugin/12206-codestream',
+			'Atom': 'https://atom.io/packages/codestream'
+		};
+		const links = [];
+		for (let ide in ideLinks) {
+			const href = `<a clicktracking="off" href="${ideLinks[ide]}">${ide}</a>`;
+			links.push(href);
+		}
+		const allLinks = links.slice(0, links.length - 1).join(', ') + ' or ' + links[links.length - 1];
+		return allLinks;
 	}
 };
 

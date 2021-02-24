@@ -335,8 +335,8 @@ module.exports = {
 		maxLength: 12
 	},
 	lastWeeklyEmailSentAt: {
-		type: 'timestamp',
-		description: 'Indicates the last time a weekly email was sent to this user',
+		type: 'object',
+		description: 'Indicates the last time a weekly email was sent to this user, per team',
 		serverOnly: true
 	}
 };
