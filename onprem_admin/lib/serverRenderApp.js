@@ -8,6 +8,7 @@ import { SystemStatuses } from '../src/store/actions/status';
 import { globalNavItems, configNavItems } from '../src/store/actions/presentation';
 import { MongoClient, Logger, SystemStatusMonitor, AdminConfig, Installation, MongoStructuredConfig } from '../config/globalData';
 import AdminAccess from './adminAccess';
+import GetLicenseData from './getLicenseData';
 
 import App from '../src/components/App';
 
@@ -36,8 +37,9 @@ async function serverRenderApp(req) {
 		},
 		updates: {},
 		support: {},
-		license: {},
+		license: req.isAuthenticated() ? await GetLicenseData(MongoClient) : {},
 	};
+
 	const configRoute = requestedRoute.match(/configuration\/(topology|general|email|integrations|history)/i);
 	if (configRoute) {
 		if (configRoute[1] in configNavItems) {
@@ -54,7 +56,8 @@ async function serverRenderApp(req) {
 	// If the admin server was started using a configuration file, it is
 	// possible for the working configuration to be different from the active
 	// mongo configuration. This is an acceptible condition.
-	await MongoStructuredConfig.loadConfig({ reload: true });
+	// await MongoStructuredConfig.loadConfig({ reload: true });
+	await MongoStructuredConfig.loadConfig();
 	const activeConfigSerialNumber = MongoStructuredConfig.getConfigMetaDocument().serialNumber;
 	Logger.debug(`serverRenderApp(): active config serial is ${activeConfigSerialNumber}`);
 	Logger.debug(`system status is ${SystemStatusMonitor.systemStatus}`);
