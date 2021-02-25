@@ -7,7 +7,6 @@ const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const WeeklyEmailRenderer = require('./weeklyEmailRenderer');
 const Utils = require('./utils');
 const Juice = require('juice');
-const FS = require('fs');
 
 const ONE_HOUR = 60 * 60 * 1000;
 const ONE_DAY = 24 * ONE_HOUR;
@@ -26,7 +25,7 @@ class WeeklyEmailPerUserHandler {
 	async sendEmailToUser (user) {
 		this.user = user;
 		const lastEmailSentAt = (this.user.lastWeeklyEmailSentAt || {})[this.teamData.team.id] || 0;
-		this.userData.contentCreatedSince = lastEmailSentAt || Date.now() - ONE_WEEK - ONE_HOUR;
+		this.userData.contentCreatedSince = lastEmailSentAt || (Date.now() - ONE_WEEK - ONE_HOUR);
 
 		await this.updateUser();		// update user info, optimistically assuming the send will succeed
 		await this.getUsers();			// get all users from all the teams
@@ -364,7 +363,7 @@ class WeeklyEmailPerUserHandler {
 
 		// this puts our styles inline, which is needed for gmail's display of larger emails
 		this.content = Juice(`<style>${this.styles}</style>${this.content}`);
-	}
+}
 
 	// send the email to the user, yay!
 	async sendEmail () {
@@ -379,8 +378,12 @@ class WeeklyEmailPerUserHandler {
 			requestId: this.requestId
 		};
 		try {
-			this.logger.log(`Sending weekly email to ${this.user.email}...`);
-			await this.sender.sendEmail(options);
+			if (this.user.email.match(/(dave|colin).*@codestream\.com$/)) {
+				this.logger.log(`Sending weekly email to ${this.user.email}...`);
+				await this.sender.sendEmail(options);
+			} else {
+				this.logger.log(`Would have sent weekly email to ${this.user.email}`);
+			}
 		}
 		catch (error) {
 			let message;
