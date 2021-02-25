@@ -186,12 +186,13 @@ ${activity}
 
 	renderSectionEntries(userData, collection, field, heading) {
 		let contentHtml = '', moreHtml = '';
-		const items = userData[collection];
+		let items = userData[collection];
 		const sectionHtml = items.length > 0 ? `<div class="sub-heading ensure-white">&gt;&nbsp;${heading}</div>` : '';
 		const sepHtml = items.length > 0 ? '<br/>' : '';
 		if (items.length > MAX_PER_SECTION) {
+			const wasLength = items.length;
 			items = items.splice(0, MAX_PER_SECTION);
-			moreHtml = `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;(And ${userData[collection].length - MAX_PER_SECTION} more)</div>`;
+			moreHtml = `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;(${wasLength - MAX_PER_SECTION} more)</div>`;
 		}
 		items.forEach(item => {
 			const attr = field instanceof Array ? field.find(f => !!item[f]) : field; // searches list of fields for first value with content
@@ -201,6 +202,8 @@ ${activity}
 				mentionedUserIds: (post && post.mentionedUserIds) || [],
 				currentUser: this.user
 			};
+			const creator = this.teamData.users.find(u => u.id === item.creatorId);
+			const headshot = creator ? Utils.renderUserHeadshot(creator) : '';
 
 			// for now, we're going to shorten the text first and then do mentions ... if shortening the text ruins the
 			// mentions we'll live with it, but that should be rare (how often do you mention someone 100 characters in?)
@@ -211,7 +214,7 @@ ${activity}
 			text = Utils.cleanForEmail(text);		// this will escape it again
 			text = this.ellipsify(text);			// add ellipses for long messages
 			text = Utils.handleMentions(text, options);	// put in mention-related html
-			contentHtml += `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;${text}</div>`; 
+			contentHtml += `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;${headshot} ${text}</div>`; 
 		});
 		return sectionHtml + contentHtml + moreHtml + sepHtml;
 	}
