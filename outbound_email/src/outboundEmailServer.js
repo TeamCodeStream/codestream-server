@@ -332,7 +332,7 @@ class OutboundEmailServer {
 	// read the "latest news" file, as needed (for weekly emails)
 	async readLatestNews () {
 		this.latestNews = await new Promise((resolve, reject) => {
-			FS.readFile('./etc/latestNews.html', 'utf8', (error, data) => {
+			FS.readFile('./src/latestNews.html', 'utf8', (error, data) => {
 				if (error) reject(error);
 				else resolve(data);
 			});
