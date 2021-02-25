@@ -197,6 +197,24 @@ ${activity}
 		items.forEach(item => {
 			const attr = field instanceof Array ? field.find(f => !!item[f]) : field; // searches list of fields for first value with content
 			const post = (item.isCodemark || item.isReview) ? this.teamData.posts.find(id => id === item.postId) : item;
+			const parentPost = post && post.parentPostId ? 
+				this.teamData.posts.find(p => p.id === post.parentPostId) : 
+				null;
+			const grandparentPost = parentPost && parentPost.parentPostId ? 
+				this.teamData.posts.find(id => id === parentPost.parentPostId) : 
+				null;
+			const ancestorPost = grandparentPost || parentPost;
+			const ancestorCodemark = ancestorPost && ancestorPost.codemarkId ? 
+				this.teamData.codemarks.find(codemark => codemark.id === ancestorPost.codemarkId) : 
+				null;
+			const ancestorReview = ancestorPost && ancestorPost.reviewId ? 
+				this.teamData.reviews.find(review => review.id === ancestorPost.reviewId) :
+				null;
+			const permalink = 
+				(ancestorReview && ancestorReview.permalink) ||
+				(ancestorCodemark && ancestorCodemark.permalink) ||
+				item.permalink;
+
 			const options = {
 				members: this.teamData.users || [],
 				mentionedUserIds: (post && post.mentionedUserIds) || [],
@@ -214,6 +232,9 @@ ${activity}
 			text = Utils.cleanForEmail(text);		// this will escape it again
 			text = this.ellipsify(text);			// add ellipses for long messages
 			text = Utils.handleMentions(text, options);	// put in mention-related html
+			if (permalink) {
+				text = `<a href="${permalink}">${text}</a>`;
+			}
 			contentHtml += `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;${headshot} ${text}</div>`; 
 		});
 		return sectionHtml + contentHtml + moreHtml + sepHtml;

@@ -79,6 +79,7 @@ class WeeklyEmailPerUserHandler {
 		await this.getCodemarks();		// get all recent codemarks in those teams
 		await this.getRecentPosts();	// get all recent posts in those teams
 		await this.getOtherPosts();		// get any posts associated with reviews or codemarks not covered by the "recent" fetch above
+		await this.getParents();		// get the parent posts/codemarks/reviews not covered by any other fethces, above
 		await this.categorizeReviews();	// categorize reviews depending on user relationship
 		await this.categorizeCodemarks();	// categorize codemarks depending on user relationship
 		await this.collate();			// collate some collections into a combined collection
@@ -154,6 +155,75 @@ class WeeklyEmailPerUserHandler {
 				...this.teamData.posts,
 				await this.data.posts.getByIds(postIds)
 			];
+		}
+	}
+
+	// get any parent or grandparent posts not covered by the other fetches, along with codemarks and reviews
+	async getParents (posts = undefined) {
+		const alreadyHavePostIds = posts || this.teamData.posts.map(post => post.id);
+		const postsWithParents = (this.teamData.posts || posts).filter(post => post.parentPostId);
+		const needParentPostIds = postsWithParents.reduce((postIds, post) => {
+			if (
+				!alreadyHavePostIds.includes(post.parentPostId) &&
+				!postIds.includes(post.parentPostId)
+			) {
+				postIds.push(post.parentPostId);
+			}
+			return postIds;
+		}, []);
+
+		if (needParentPostIds.length > 0) {
+			const parentPosts = await this.data.posts.getByIds(needParentPostIds);
+			this.teamData.posts = [
+				...this.teamData.posts,
+				...parentPosts
+			];
+		}
+
+		// now get all those parent posts
+		const parentPosts = postsWithParents.reduce((posts, childPost) => {
+			const parentPost = this.teamData.posts.find(p => p.id === childPost.parentPostId);
+			posts.push(parentPost);
+			return posts;
+		}, []);
+
+		// get codemarks
+		const parentCodemarkIds = parentPosts.reduce((codemarkIds, parentPost) => {
+			if (parentPost.codemarkId) {
+				codemarkIds.push(parentPost.codemarkId);
+			}
+			return codemarkIds;
+		}, []);
+		const alreadyHaveCodemarkIds = this.teamData.codemarks.map(codemark => codemark.id);
+		const needCodemarkIds = ArrayUtilities.difference(parentCodemarkIds, alreadyHaveCodemarkIds);
+		if (needCodemarkIds.length > 0) {
+			const codemarks = await this.data.codemarks.getByIds(needCodemarkIds);
+			this.teamData.codemarks = [
+				...this.teamData.codemarks,
+				...codemarks
+			];
+		}
+
+		// get reviews
+		const parentReviewIds = parentPosts.reduce((reviewIds, parentPost) => {
+			if (parentPost.reviewId) {
+				reviewIds.push(parentPost.reviewId);
+			}
+			return reviewIds;
+		}, []);
+		const alreadyHaveReviewIds = this.teamData.reviews.map(review => review.id);
+		const needReviewIds = ArrayUtilities.difference(parentReviewIds, alreadyHaveReviewIds);
+		if (needReviewIds.length > 0) {
+			const reviews = await this.data.reviews.getByIds(needReviewIds);
+			this.teamData.reviews = [
+				...this.teamData.reviews,
+				...reviews
+			];
+		}
+
+		// get grandparent posts (and associated codemarks and reviews) as needed
+		if (!posts && parentPosts.length > 0) {
+			await this.getParents(parentPosts);
 		}
 	}
 

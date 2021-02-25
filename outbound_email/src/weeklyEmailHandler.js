@@ -104,7 +104,7 @@ class WeeklyEmailHandler {
 		} else if (lastEmailSentAt > Date.now() - FIVE_DAYS) {
 			this.log(`User ${user.id}:${user.email} has received a weekly email within five days, so will not receive another`);
 			return false;
-		} else if ((user.preferences || {}).noWeeklyEmails) {
+		} else if ((user.preferences || {}).weeklyEmailDelivery === false) {
 			this.log(`User ${user.id} has opted out of weekly emails`);
 			return false;
 		} else if ((user.teamIds || []).length === 0) {

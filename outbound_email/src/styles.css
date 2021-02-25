@@ -345,3 +345,9 @@ blockquote {
 .weekly-listing {
 	margin: 3px 0px 3px 0px;
 }
+
+.weekly-listing a {
+	color: #c7c7c6 !important;
+	text-decoration: none !important;
+}
+
