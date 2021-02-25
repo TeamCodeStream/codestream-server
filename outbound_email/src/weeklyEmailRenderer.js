@@ -79,11 +79,16 @@ class WeeklyEmailRenderer {
 							${inviteDiv}
 							${content}
 							${latestNewsSection}
+							<br/>
+							<br/>
+							<div class="ensure-white">
+								Turn this email off via Notification Settings in the CodeStream extension.
+							</div>
 						</div>
-					</div>				 			 
+					</div>
 				</td>
 			</tr>
-		</table>	 
+		</table>
 	</body>
 </html>
 `;
