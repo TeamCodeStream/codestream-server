@@ -1,8 +1,5 @@
 'use strict';
 
-const ReviewIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/indexes');
-const CodemarkIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/indexes');
-const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const WeeklyEmailRenderer = require('./weeklyEmailRenderer');
 const Utils = require('./utils');
@@ -98,7 +95,7 @@ class WeeklyEmailPerUserHandler {
 				teamId: this.teamData.team.id
 			},
 			{
-				hint: ReviewIndexes.byLastActivityAt,
+				overrideHintRequired: true,
 				sort: { byLastActivityAt: -1 },
 				limit: 500,
 				excludeFields: ['reviewDiffs', 'checkpointReviewDiffs']
@@ -116,7 +113,7 @@ class WeeklyEmailPerUserHandler {
 				teamId: this.teamData.team.id
 			},
 			{
-				hint: CodemarkIndexes.byLastActivityAt,
+				overrideHintRequired: true,
 				sort: { byLastActivityAt: -1 },
 				limit: 500
 			}
@@ -133,7 +130,7 @@ class WeeklyEmailPerUserHandler {
 				teamId: this.teamData.team.id
 			},
 			{
-				hint: PostIndexes.byId,
+				overrideHintRequired: true,
 				sort: { _id: -1 },
 				limit: 500
 			}
