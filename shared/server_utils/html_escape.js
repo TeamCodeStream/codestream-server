@@ -19,6 +19,14 @@ module.exports = {
 		return String(text).replace(/[&<>"'`=/]/g, function (s) {
 			return ENTITY_MAP[s];
 		});
+	},
+
+	unescapeHtml: function(text) {
+		// if there's a better way to do this i don't know what it is
+		Object.keys(ENTITY_MAP).forEach(char => {
+			text = text.replace(new RegExp(`${ENTITY_MAP[char]}`, 'g'), char);
+		});
+		return text;
 	}
 
 };

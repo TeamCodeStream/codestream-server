@@ -370,6 +370,12 @@ const Utils = {
 		return Utils.handleMentions(text, options);
 	},
 
+	// strip the text of markdown by markdownifying it, and then stripping html
+	stripMarkdown: function (text, options = {}) {
+		text = new Markdowner().markdownify(text);
+		return text.replace(/<\/?[^>]+(>|$)/g, "");
+	},
+
 	// get appropriate avatar information for displaying a user
 	getAvatar: function (user) {
 		const { email, fullName, displayName, username } = user;

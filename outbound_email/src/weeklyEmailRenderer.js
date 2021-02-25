@@ -3,6 +3,7 @@
 'use strict';
 
 const Utils = require('./utils');
+const HtmlEscape = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/html_escape');
 
 const MAX_PER_SECTION = 20;
 
@@ -167,7 +168,12 @@ ${activity}
 	}
 
 	renderPosts (userData) {
-		return this.renderSectionEntries(userData, 'unreadPosts', 'text', 'Other Unread Messages');
+		const section = (
+			userData.myReviews.length === 0 &&
+			userData.myCodemarks.length === 0 &&
+			userData.mentions.length === 0
+		) ? 'Unread Messages' : 'Other Unread Messages';
+		return this.renderSectionEntries(userData, 'unreadPosts', 'text', section);
 	}
 
 	renderNew (userData) {
@@ -198,11 +204,13 @@ ${activity}
 
 			// for now, we're going to shorten the text first and then do mentions ... if shortening the text ruins the
 			// mentions we'll live with it, but that should be rare (how often do you mention someone 100 characters in?)
-			// we're also not going to deal at all with markdown, meaning the markdown is going to show up in the summary
 			let text = item[attr] || '';
-			text = Utils.cleanForEmail(text);
-			text = this.ellipsify(text);
-			text = Utils.handleMentions(text, options);
+			text = text.replace(/\r\n/g, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ');	// get rid of linefeeds completely, replace with spaces
+			text = Utils.stripMarkdown(text);		// strip out all markdown
+			text = HtmlEscape.unescapeHtml(text);	// but the strip markdown, as a side effect, escapes some html, so unescape it
+			text = Utils.cleanForEmail(text);		// this will escape it again
+			text = this.ellipsify(text);			// add ellipses for long messages
+			text = Utils.handleMentions(text, options);	// put in mention-related html
 			contentHtml += `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;${text}</div>`; 
 		});
 		return sectionHtml + contentHtml + moreHtml + sepHtml;
