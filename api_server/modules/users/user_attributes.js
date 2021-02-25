@@ -333,5 +333,10 @@ module.exports = {
 		type: 'string',
 		description: 'Source of the referral for this user',
 		maxLength: 12
+	},
+	lastWeeklyEmailSentAt: {
+		type: 'object',
+		description: 'Indicates the last time a weekly email was sent to this user, per team',
+		serverOnly: true
 	}
 };

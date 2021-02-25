@@ -86,5 +86,10 @@ module.exports = {
 		type: 'timestamp',
 		description: 'Date/time of the last time a weekly email run was done for this team',
 		serverOnly: true
+	},
+	weeklyEmailRunCount: {
+		type: 'number',
+		description: 'How many attempts at a weekly email run for this team should be continued if no weekly activity',
+		serverOnly: true
 	}
 };

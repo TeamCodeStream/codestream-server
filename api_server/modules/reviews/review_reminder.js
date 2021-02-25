@@ -27,7 +27,7 @@ class ReviewReminder {
 		this.api.log(`Reminder check triggered`);
 
 		if (this.api.config.email.suppressEmails) {
-			this.api.log('Emails are disabled in configuration, not running auto re-invites');
+			this.api.log('Emails are disabled in configuration, not running review reminders');
 			return;
 		}
 

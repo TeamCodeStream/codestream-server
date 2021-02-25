@@ -11,6 +11,7 @@ const User = require('./user');
 const Errors = require('./errors');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Reinviter = require('./reinviter');
+const WeeklyEmails = require('./weekly_emails');
 
 const DEPENDENCIES = [
 	'authenticator'	// need the user
@@ -237,6 +238,17 @@ class Users extends Restful {
 				module: this
 			});
 			this.reinviter.schedule();
+		}
+
+		// schedule weekly email sending
+		if (process.env.CS_API_MOCK_MODE) {
+			this.api.log('NOTE: API Server is running in mock mode, weekly emails will not be scheduled');
+		} else {
+			this.weeklyEmails = new WeeklyEmails({
+				api: this.api,
+				module: this
+			});
+			this.weeklyEmails.schedule();
 		}
 	}
 

@@ -539,7 +539,7 @@ class EmailNotificationV2Handler {
 
 	// render a single email for the given user
 	async renderEmailForUser (user) {
-		const { codemark, review } = this.renderOptions;
+		const { codemark, review } = this.renderOptions; 
 		const thingToUnfollow = this.parentReview || codemark || review;
 		const isReview = !!(this.parentReview || review);
 		const unfollowLink = this.getUnfollowLink(user, thingToUnfollow, isReview);
@@ -554,7 +554,7 @@ class EmailNotificationV2Handler {
 			isReply: !!this.post.parentPostId,
 			userIsRegistered: user.isRegistered,
 			inviteCode: user.inviteCode,
-			ideLinks: this.getIDELinks(),
+			ideLinks: Utils.getIDELinks(),
 			userBeingAddedToTeam,
 			teamName: this.team.name
 		});
@@ -565,23 +565,6 @@ class EmailNotificationV2Handler {
 		html = Juice(`<style>${this.styles}</style>${html}`);
 
 		this.renderedEmails.push({ user, html });
-	}
-
-	// get the links appropriate for each IDE the user might want to install
-	getIDELinks () {
-		const ideLinks = {
-			'VS Code': 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream',
-			'Visual Studio': 'https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs',
-			'JetBrains': 'https://plugins.jetbrains.com/plugin/12206-codestream',
-			'Atom': 'https://atom.io/packages/codestream'
-		};
-		const links = [];
-		for (let ide in ideLinks) {
-			const href = `<a clicktracking="off" href="${ideLinks[ide]}">${ide}</a>`;
-			links.push(href);
-		}
-		const allLinks = links.slice(0, links.length - 1).join(', ') + ' or ' + links[links.length - 1];
-		return allLinks;
 	}
 
 	// get the "unfollow" link for a given user and codemark or review

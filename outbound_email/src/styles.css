@@ -324,9 +324,30 @@ blockquote {
 .ensure-white {
 	color: #c7c7c6 !important;
 }
+
 .lines-added {
 	color: #66aa66;
 }
+
 .lines-deleted {
 	color: #cc3366;
 }
+
+.heading {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.sub-heading {
+	font-size: 16px;
+}
+
+.weekly-listing {
+	margin: 3px 0px 3px 0px;
+}
+
+.weekly-listing a {
+	color: #c7c7c6 !important;
+	text-decoration: none !important;
+}
+
