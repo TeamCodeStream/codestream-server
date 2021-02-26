@@ -3,7 +3,7 @@
 const Scheduler = require('node-schedule');
 const TeamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/indexes');
 
-const TEST_MODE = 'pd'; // 'local' for local testing, anything else for prod
+const TEST_MODE = 'prod'; // 'local' for local testing, anything else for prod
 const TEAM_BATCH_SIZE = 100;
 const ACTIVITY_CUTOFF = 3 * 30 * 24 * 60 * 60 * 1000;	// teams who have had no activity in this interval, get no emails at all
 const LAST_RUN_CUTOFF = TEST_MODE === 'pd' ?
