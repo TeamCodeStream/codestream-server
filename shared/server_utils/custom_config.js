@@ -446,7 +446,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 	Cfg.apiServer.autoMigrations = !Cfg.sharedGeneral.runTimeEnvironment.match(/^(prod|qa)$/i);
 	Cfg.sharedGeneral.isProductionCloud = Cfg.sharedGeneral.runTimeEnvironment === 'prod';
 	// we need a better way to determine if the client is running against an on-prem installation but this will do for now
-	Cfg.sharedGeneral.isOnPrem = !Cfg.adminServer.adminServerDisabled;
+	Cfg.sharedGeneral.isOnPrem = !Cfg.adminServer.adminServerDisabled || Cfg.sharedGeneral.runTimeEnvironment === 'onprem';
 
 	return Cfg;
 }
