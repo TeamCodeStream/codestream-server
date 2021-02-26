@@ -30,7 +30,7 @@ class WeeklyEmails {
 			this.api.log(`Triggering test run of weekly emails for execution every five minutes at :${randomSeconds}s`);
 			// note - "/5" (for every five minutes) doesn't seem to work
 //			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,5,10,15,20,25,30,35,40,45,50,55 * * * *`, this.sendWeeklyEmails.bind(this));
-			this.job = Scheduler.scheduleJob(`0 0 18 * * *`, this.sendWeeklyEmails.bind(this));
+			this.job = Scheduler.scheduleJob(`0 9 13 * * *`, this.sendWeeklyEmails.bind(this));
 		} else {
 			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * 1`, this.sendWeeklyEmails.bind(this));
