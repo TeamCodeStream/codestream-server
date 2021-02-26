@@ -109,7 +109,7 @@ return `
 
 	renderMembership (users, team) {
 		const activeMembers = users.filter(user => {
-			return !user.deactivated && !(team.removedMemberIds || []).includes(user.id);
+			return !user.externalUserId && !user.deactivated && !(team.removedMemberIds || []).includes(user.id);
 		});
 		const memberDesc = activeMembers.length !== 1 ? `${activeMembers.length} total members`: '1 member';
 		const unregisteredMembers = activeMembers.filter(user => !user.isRegistered);

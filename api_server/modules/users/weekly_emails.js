@@ -69,7 +69,7 @@ class WeeklyEmails {
 			// in this test mode, weekly emails are sent every 3 minutes (for testing in PD, with a whitelist)
 			// cutoff times for team checks and user checks are very reduced
 			// would be nice if /3 worked, but it doesn't seem to
-			this.api.log(`Triggering test run of weekly emails for execution every three minutes at :${randomSeconds}s`);
+			this.api.log(`Triggering test run of weekly emails for execution every ten minutes at :${randomSeconds}s`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,10,20,30,40,50 * * * *`, this.sendWeeklyEmails.bind(this));
 		} else {
 			// in production, kick off at midnight (server time, which is ET) every Monday
