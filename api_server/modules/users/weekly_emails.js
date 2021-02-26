@@ -23,12 +23,14 @@ const TEST_MODE = 'pdquick';
 
 // teams that have had a weekly email run within this interval, wait till next week
 const LAST_RUN_CUTOFF = 
+	TEST_MODE === 'pdnight' ? 1 * ONE_HOUR :
 	TEST_MODE === 'pdquick' ? 3 * ONE_MINUTE :
 	TEST_MODE === 'pd' ? 15 * ONE_MINUTE : 
 	ONE_DAY;
 
 // users who have been sent a weekly email within this interval, don't get another
 const USER_CUTOFF_TIME =
+	TEST_MODE === 'pdnight' ? 20 * ONE_HOUR :
 	TEST_MODE === 'pdquick' ? 8 * ONE_MINUTE :
 	TEST_MODE === 'pd' ? 12 * ONE_MINUTE :
 	5 * ONE_DAY;
@@ -71,6 +73,11 @@ class WeeklyEmails {
 			// would be nice if /3 worked, but it doesn't seem to
 			this.api.log(`Triggering test run of weekly emails for execution every ten minutes at :${randomSeconds}s`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,10,20,30,40,50 * * * *`, this.sendWeeklyEmails.bind(this));
+		} else if (TEST_MODE === 'pdnight') {
+			// in this test mode, weekly emails are sent every night at midnight
+			// cutoff times for team checks and user checks are reduced to accommodate
+			this.api.log(`Triggering test run of weekly emails for execution at :${randomMinutes}:${randomSeconds}s for every night at 12AM`);
+			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * *`, this.sendWeeklyEmails.bind(this));
 		} else {
 			// in production, kick off at midnight (server time, which is ET) every Monday
 			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
@@ -110,7 +117,7 @@ class WeeklyEmails {
 					}
 				]
 			};
-			if (TEST_MODE === 'pdquick' && PD_TEAM_WHITELIST.length > 0) {
+			if (TEST_MODE.match(/^pd/) && PD_TEAM_WHITELIST.length > 0) {
 				query.id = this.api.data.teams.inQuerySafe(PD_TEAM_WHITELIST);
 			}
 
