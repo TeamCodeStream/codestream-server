@@ -5,7 +5,7 @@ const WeeklyEmailPerUserHandler = require('./weeklyEmailPerUserHandler');
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const ONE_WEEK = 7 * ONE_DAY;
 const THROTTLE_TIME = 3000;
-const USER_CUTOFF_TIME = /*60 * 1000;*/ 5 * ONE_DAY;
+const USER_CUTOFF_TIME = 60 * 1000;// 5 * ONE_DAY;
 
 class WeeklyEmailHandler {
 
