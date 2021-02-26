@@ -11,6 +11,11 @@ const ONE_MONTH = 30 * ONE_DAY;
 
 // only do these teams, for testing in PD
 const PD_TEAM_WHITELIST = [
+	/* Dave's testing in PD
+	'602452b147d5084b6b10d9ed',
+	'60394d9153be52195d87b2bd',
+	'60394db353be52195d87b2c0'
+	*/
 ];
 
 // governs how often we do weekly email runs, for testing, can be: local, pd, pdquick 
@@ -114,7 +119,7 @@ class WeeklyEmails {
 					}
 				]
 			};
-			if (TEST_MODE.match(/^pd/) && PD_TEAM_WHITELIST.length > 0) {
+			if (TEST_MODE.match(/^(pd|local)/) && PD_TEAM_WHITELIST.length > 0) {
 				query.id = this.api.data.teams.inQuerySafe(PD_TEAM_WHITELIST);
 			}
 
