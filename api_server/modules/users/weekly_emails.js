@@ -29,7 +29,7 @@ const LAST_RUN_CUTOFF =
 
 // users who have been sent a weekly email within this interval, don't get another
 const USER_CUTOFF_TIME =
-	TEST_MODE === 'pdquick' ? 2 * ONE_MINUTE :
+	TEST_MODE === 'pdquick' ? 8 * ONE_MINUTE :
 	TEST_MODE === 'pd' ? 12 * ONE_MINUTE :
 	5 * ONE_DAY;
 
