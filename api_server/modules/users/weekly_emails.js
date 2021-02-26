@@ -3,11 +3,11 @@
 const Scheduler = require('node-schedule');
 const TeamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/indexes');
 
-const TEST_MODE = 'prod'; // 'local' for local testing, anything else for prod
+const TEST_MODE = 'pd'; // 'local' for local testing, anything else for prod
 const TEAM_BATCH_SIZE = 100;
 const ACTIVITY_CUTOFF = 3 * 30 * 24 * 60 * 60 * 1000;	// teams who have had no activity in this interval, get no emails at all
 const LAST_RUN_CUTOFF = TEST_MODE === 'pd' ?
-	60 * 1000 :
+	3 * 60 * 1000 :
 	1 * 24 * 60 * 60 * 1000;	// teams that have had a weekly email run within this interval, wait till next week
 const THROTTLE_TIME_PER_USER = 3000;					// throttle by team size, allowing the email service to send to all users on a team
 const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -30,7 +30,7 @@ class WeeklyEmails {
 			this.api.log(`Triggering test run of weekly emails for execution every five minutes at :${randomSeconds}s`);
 			// note - "/5" (for every five minutes) doesn't seem to work
 //			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,5,10,15,20,25,30,35,40,45,50,55 * * * *`, this.sendWeeklyEmails.bind(this));
-			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 3 * * *`, this.sendWeeklyEmails.bind(this));
+			this.job = Scheduler.scheduleJob(`0 0 18 * * *`, this.sendWeeklyEmails.bind(this));
 		} else {
 			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * 1`, this.sendWeeklyEmails.bind(this));
