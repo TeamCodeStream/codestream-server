@@ -3,14 +3,44 @@
 const Scheduler = require('node-schedule');
 const TeamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/indexes');
 
-const TEST_MODE = 'prod'; // 'local' for local testing, anything else for prod
+const ONE_MINUTE = 60 * 1000;
+const ONE_HOUR = 60 * ONE_MINUTE;
+const ONE_DAY = 24 * ONE_HOUR;
+const ONE_WEEK = 7 * ONE_DAY;
+const ONE_MONTH = 30 * ONE_DAY;
+
+// only do these teams, for testing in PD
+const PD_TEAM_WHITELIST = [
+	'602452b147d5084b6b10d9ed',
+	'60394d9153be52195d87b2bd',
+	'60394db353be52195d87b2c0'
+];
+
+// governs how often we do weekly email runs, for testing, can be: local, pd, pdquick 
+// (which is used with whitelisted teams) or prod
+// see schedule() method below for details
+const TEST_MODE = 'pdquick';
+
+// teams that have had a weekly email run within this interval, wait till next week
+const LAST_RUN_CUTOFF = 
+	TEST_MODE === 'pdquick' ? 3 * ONE_MINUTE :
+	TEST_MODE === 'pd' ? 15 * ONE_MINUTE : 
+	ONE_DAY;
+
+// users who have been sent a weekly email within this interval, don't get another
+const USER_CUTOFF_TIME =
+	TEST_MODE === 'pdquick' ? 2 * ONE_MINUTE :
+	TEST_MODE === 'pd' ? 12 * ONE_MINUTE :
+	5 * ONE_DAY;
+
+// teams who have had no activity in this interval, get no emails at all
+const ACTIVITY_CUTOFF = 3 * ONE_MONTH;	
+
+// process teams in batches of this number
 const TEAM_BATCH_SIZE = 100;
-const ACTIVITY_CUTOFF = 3 * 30 * 24 * 60 * 60 * 1000;	// teams who have had no activity in this interval, get no emails at all
-const LAST_RUN_CUTOFF = TEST_MODE === 'pd' ?
-	3 * 60 * 1000 :
-	1 * 24 * 60 * 60 * 1000;	// teams that have had a weekly email run within this interval, wait till next week
-const THROTTLE_TIME_PER_USER = 3000;					// throttle by team size, allowing the email service to send to all users on a team
-const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+
+// throttle for each user, to avoid overwhelming the system
+const THROTTLE_TIME_PER_USER = 3000;
 
 class WeeklyEmails {
 
@@ -24,14 +54,25 @@ class WeeklyEmails {
 		const randomMinutes = Math.floor(Math.random() * 60);
 		const randomSeconds = Math.floor(Math.random() * 60);
 		if (TEST_MODE === 'local') {
+			// in this test mode, emails are triggered once a minute (per worker)
+			// developer is expected to manually reset the team's lastWeeklyEmailRunAt timestamp, 
+			// and the user's lastWeeklyEmailSentAt timestamp
 			this.api.log(`Triggering test run of weekly emails for execution at :${randomSeconds}s`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} * * * * *`, this.sendWeeklyEmails.bind(this));
 		} else if (TEST_MODE === 'pd') {
-			this.api.log(`Triggering test run of weekly emails for execution every five minutes at :${randomSeconds}s`);
-			// note - "/5" (for every five minutes) doesn't seem to work
-//			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,5,10,15,20,25,30,35,40,45,50,55 * * * *`, this.sendWeeklyEmails.bind(this));
-			this.job = Scheduler.scheduleJob(`0 18 13 * * *`, this.sendWeeklyEmails.bind(this));
+			// in this test mode, weekly emails are sent every 20 minutes (for testing in PD)
+			// cutoff times for team checks and user checks are reduced
+			// would be nice if /20 worked, but it doesn't seem to
+			this.api.log(`Triggering test run of weekly emails for execution every twenty minutes at :${randomSeconds}s`);
+			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,20,40 * * * *`, this.sendWeeklyEmails.bind(this));
+		} else if (TEST_MODE === 'pdquick') {
+			// in this test mode, weekly emails are sent every 3 minutes (for testing in PD, with a whitelist)
+			// cutoff times for team checks and user checks are very reduced
+			// would be nice if /3 worked, but it doesn't seem to
+			this.api.log(`Triggering test run of weekly emails for execution every three minutes at :${randomSeconds}s`);
+			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57 * * * *`, this.sendWeeklyEmails.bind(this));
 		} else {
+			// in production, kick off at midnight (server time, which is ET) every Monday
 			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * 1`, this.sendWeeklyEmails.bind(this));
 		}
@@ -51,31 +92,33 @@ class WeeklyEmails {
 		let teams;
 		do {
 			const now = Date.now();
-			teams = await this.api.data.teams.getByQuery(
-				{
-					$or: [
-						{
-							lastPostCreatedAt: { $exists: false }
-						},
-						{
-							lastPostCreatedAt: { $gt: now - ACTIVITY_CUTOFF }
-						}
-					],
-					$or: [
-						{
-							lastWeeklyEmailRunAt: { $exists: false }
-						},
-						{
-							lastWeeklyEmailRunAt: { $lt: now - LAST_RUN_CUTOFF }
-						}
-					]
-				},
-				{
-					hint: TeamIndexes.byLastPostCreateAt,
-					sort: { byLastPostCreatedAt: 1 },
-					limit: TEAM_BATCH_SIZE
-				}
-			);
+			const query = {
+				$or: [
+					{
+						lastPostCreatedAt: { $exists: false }
+					},
+					{
+						lastPostCreatedAt: { $gt: now - ACTIVITY_CUTOFF }
+					}
+				],
+				$or: [
+					{
+						lastWeeklyEmailRunAt: { $exists: false }
+					},
+					{
+						lastWeeklyEmailRunAt: { $lt: now - LAST_RUN_CUTOFF }
+					}
+				]
+			};
+			if (TEST_MODE === 'pdquick' && PD_TEAM_WHITELIST.length > 0) {
+				query.id = this.api.data.teams.inQuerySafe(PD_TEAM_WHITELIST);
+			}
+
+			teams = await this.api.data.teams.getByQuery(query, {
+				hint: TeamIndexes.byLastPostCreateAt,
+				sort: { byLastPostCreatedAt: 1 },
+				limit: TEAM_BATCH_SIZE
+			});
 
 			if (teams.length > 0) {
 				await this.sendWeeklyEmailsForBatch(teams);
@@ -126,7 +169,9 @@ class WeeklyEmails {
 		// team and it makes more sense to do it as a whole unit then for each individual user
 		const message = {
 			type: 'weekly',
-			teamId: team.id
+			teamId: team.id,
+			userCutoffTime: USER_CUTOFF_TIME,
+			userThrottleTime: THROTTLE_TIME_PER_USER
 		};
 		const teamSize = (team.memberIds || []).length;
 		this.api.log(`Triggering weekly emails to ${teamSize} users on team ${team.id}...`);

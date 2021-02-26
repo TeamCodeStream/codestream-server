@@ -4,8 +4,6 @@ const WeeklyEmailPerUserHandler = require('./weeklyEmailPerUserHandler');
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const ONE_WEEK = 7 * ONE_DAY;
-const THROTTLE_TIME = 3000;
-const USER_CUTOFF_TIME = 5 * ONE_DAY;
 
 class WeeklyEmailHandler {
 
@@ -101,8 +99,8 @@ class WeeklyEmailHandler {
 			// NOTE: this will not preclude the user receiving an email for another team, when that team runs
 			this.log(`User ${user.id} has been removed from team ${team.id} so will not receive a weekly email for this team`);
 			return false;
-		} else if (lastEmailSentAt > Date.now() - USER_CUTOFF_TIME) {
-			this.log(`User ${user.id}:${user.email} has received a weekly email within five days, so will not receive another`);
+		} else if (lastEmailSentAt > Date.now() - this.message.userCutoffTime) {
+			this.log(`User ${user.id}:${user.email} has received a weekly email within ${this.message.userCutoffTime}ms, so will not receive another`);
 			return false;
 		} else if ((user.preferences || {}).weeklyEmailDelivery === false) {
 			this.log(`User ${user.id} has opted out of weekly emails`);
@@ -121,7 +119,8 @@ class WeeklyEmailHandler {
 		// for all the active teams the user is on
 		for (let i = 0; i < this.eligibleUsers.length; i++) {
 			await this.sendEmailToUser(this.eligibleUsers[i]);
-			await this.wait(THROTTLE_TIME);	// throttle sending these emails so as not to overwhelm
+			this.log(`Waiting ${this.message.userThrottleTime} for next user...`);
+			await this.wait(this.message.userThrottleTime);	// throttle sending these emails so as not to overwhelm
 		}
 	}
 
