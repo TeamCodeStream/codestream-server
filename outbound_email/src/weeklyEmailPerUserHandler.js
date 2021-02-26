@@ -92,7 +92,8 @@ class WeeklyEmailPerUserHandler {
 		}
 		this.teamData.reviews = await this.data.reviews.getByQuery(
 			{
-				teamId: this.teamData.team.id
+				teamId: this.teamData.team.id,
+				deactivated: false
 			},
 			{
 				overrideHintRequired: true,
@@ -110,7 +111,8 @@ class WeeklyEmailPerUserHandler {
 		}
 		this.teamData.codemarks = await this.data.codemarks.getByQuery(
 			{
-				teamId: this.teamData.team.id
+				teamId: this.teamData.team.id,
+				deactivated: false
 			},
 			{
 				overrideHintRequired: true,
@@ -127,7 +129,8 @@ class WeeklyEmailPerUserHandler {
 		}
 		this.teamData.posts = await this.data.posts.getByQuery(
 			{
-				teamId: this.teamData.team.id
+				teamId: this.teamData.team.id,
+				deactivated: false
 			},
 			{
 				overrideHintRequired: true,
