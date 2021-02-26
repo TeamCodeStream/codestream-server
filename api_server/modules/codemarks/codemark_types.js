@@ -8,7 +8,8 @@ const TYPES = [
 	'question',
 	'bookmark',
 	'trap',
-	'link'
+	'link',
+	'apm'
 ];
 
 const TYPES_REQUIRING_MARKERS = [
