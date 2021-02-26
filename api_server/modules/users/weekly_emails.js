@@ -3,7 +3,7 @@
 const Scheduler = require('node-schedule');
 const TeamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/indexes');
 
-const TEST_MODE = 'pd'; // 'local' for local testing, anything else for prod
+const TEST_MODE = 'prod'; // 'local' for local testing, anything else for prod
 const TEAM_BATCH_SIZE = 100;
 const ACTIVITY_CUTOFF = 3 * 30 * 24 * 60 * 60 * 1000;	// teams who have had no activity in this interval, get no emails at all
 const LAST_RUN_CUTOFF = TEST_MODE === 'pd' ?
@@ -128,13 +128,15 @@ class WeeklyEmails {
 			type: 'weekly',
 			teamId: team.id
 		};
-		this.api.log(`Triggering weekly emails to team ${team.id}...`);
+		const teamSize = (team.memberIds || []).length;
+		this.api.log(`Triggering weekly emails to ${teamSize} users on team ${team.id}...`);
 		this.api.services.email.queueEmailSend(message);
 
 		// update the team for future weekly email update scheduling
 		await this.updateTeam(team);
-		const teamSize = (team.memberIds || []).length;
-		await this._wait(THROTTLE_TIME_PER_USER * teamSize);	// don't want to overwhelm the api or the outbound email service
+		const waitTime = THROTTLE_TIME_PER_USER * teamSize;
+		this.api.log(`Waiting ${waitTime} for next team...`);
+		await this._wait(waitTime);	// don't want to overwhelm the api or the outbound email service
 		return true;
 	}
 
