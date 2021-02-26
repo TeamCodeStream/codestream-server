@@ -70,7 +70,7 @@ class WeeklyEmails {
 			// cutoff times for team checks and user checks are very reduced
 			// would be nice if /3 worked, but it doesn't seem to
 			this.api.log(`Triggering test run of weekly emails for execution every three minutes at :${randomSeconds}s`);
-			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57 * * * *`, this.sendWeeklyEmails.bind(this));
+			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,10,20,30,40,50 * * * *`, this.sendWeeklyEmails.bind(this));
 		} else {
 			// in production, kick off at midnight (server time, which is ET) every Monday
 			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
