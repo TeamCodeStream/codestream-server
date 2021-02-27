@@ -215,7 +215,7 @@ ${activity}
 			const ancestorReview = ancestorPost && ancestorPost.reviewId ? 
 				this.teamData.reviews.find(review => review.id === ancestorPost.reviewId) :
 				null;
-			const permalink = 
+			let permalink = 
 				(ancestorReview && ancestorReview.permalink) ||
 				(ancestorCodemark && ancestorCodemark.permalink) ||
 				item.permalink;
@@ -238,7 +238,8 @@ ${activity}
 			text = this.ellipsify(text);			// add ellipses for long messages
 			text = Utils.handleMentions(text, options);	// put in mention-related html
 			if (permalink) {
-				text = `<a href="${permalink}">${text}</a>`;
+				permalink = permalink + '?src=WeeklyEmail';
+				text = `<a clicktracking="off" href="${permalink}">${text}</a>`;
 			}
 			contentHtml += `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;${headshot} ${text}</div>`; 
 		});
