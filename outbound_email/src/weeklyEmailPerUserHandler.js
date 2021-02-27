@@ -70,7 +70,7 @@ class WeeklyEmailPerUserHandler {
 
 	// get all content, and categorize for the current user
 	async getContent () {
-		this.haveContent = (this.latestNews || '').length > 0;
+		this.haveContent = false; // (this.latestNews || '').length > 0; // suppress showing emails if nothing else to show but news
 		await this.getReviews();		// get all recent reviews in those teams
 		await this.getCodemarks();		// get all recent codemarks in those teams
 		await this.getRecentPosts();	// get all recent posts in those teams
