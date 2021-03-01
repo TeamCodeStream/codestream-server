@@ -240,7 +240,7 @@ ${activity}
 			text = this.handleMeMessage(text, creator); // handle messages starting with /me
 			if (permalink) {
 				permalink = permalink + '?src=WeeklyEmail';
-				text = `<a clicktracking="off" href="${permalink}">${text}</a>`;
+				text = `<a class="weekly-email-atag" clicktracking="off" href="${permalink}">${text}</a>`;
 			}
 			contentHtml += `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;${headshot} ${text}</div>`; 
 		});
