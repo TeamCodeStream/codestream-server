@@ -237,6 +237,7 @@ ${activity}
 			text = Utils.cleanForEmail(text);		// this will escape it again
 			text = this.ellipsify(text);			// add ellipses for long messages
 			text = Utils.handleMentions(text, options);	// put in mention-related html
+			text = this.handleMeMessage(text, creator); // handle messages starting with /me
 			if (permalink) {
 				permalink = permalink + '?src=WeeklyEmail';
 				text = `<a clicktracking="off" href="${permalink}">${text}</a>`;
@@ -246,6 +247,14 @@ ${activity}
 		return sectionHtml + contentHtml + moreHtml + sepHtml;
 	}
 
+	// handle messages starting with /me, by removing /me and substituting username
+	handleMeMessage (text, creator) {
+		if (!text.startsWith('&#x2F;me ')) return text;
+		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
+		return `<span class=author>${author}</span>&nbsp;${text.substring(9)}`;
+	}
+
+	// limit text to 100 characters, with ellipses
 	ellipsify (text) {
 		return text.length < 100 ? text : text.substring(0, 100) + '...';
 	}
