@@ -18,23 +18,21 @@ const PD_TEAM_WHITELIST = [
 	*/
 ];
 
-// governs how often we do weekly email runs, for testing, can be: local, pd, pdquick 
+// governs how often we do weekly email runs, for testing, can be: local, pd, pdnight 
 // (which is used with whitelisted teams) or prod
 // see schedule() method below for details
-const TEST_MODE = 'pdnight';
+const TEST_MODE = 'pd';
 
 // teams that have had a weekly email run within this interval, wait till next week
 const LAST_RUN_CUTOFF = 
 	TEST_MODE === 'pdnight' ? 1 * ONE_HOUR :
-	TEST_MODE === 'pdquick' ? 3 * ONE_MINUTE :
-	TEST_MODE === 'pd' ? 15 * ONE_MINUTE : 
+	TEST_MODE === 'pd' ? 10 * ONE_MINUTE : 
 	ONE_DAY;
 
 // users who have been sent a weekly email within this interval, don't get another
 const USER_CUTOFF_TIME =
 	TEST_MODE === 'pdnight' ? 4 * ONE_HOUR :
-	TEST_MODE === 'pdquick' ? 8 * ONE_MINUTE :
-	TEST_MODE === 'pd' ? 12 * ONE_MINUTE :
+	TEST_MODE === 'pd' ? 20 * ONE_MINUTE :
 	5 * ONE_DAY;
 
 // teams who have had no activity in this interval, get no emails at all
@@ -64,17 +62,10 @@ class WeeklyEmails {
 			this.api.log(`Triggering test run of weekly emails for execution at :${randomSeconds}s`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} * * * * *`, this.sendWeeklyEmails.bind(this));
 		} else if (TEST_MODE === 'pd') {
-			// in this test mode, weekly emails are sent every 20 minutes (for testing in PD)
+			// in this test mode, weekly emails are sent every 30 minutes (for testing in PD)
 			// cutoff times for team checks and user checks are reduced
-			// would be nice if /20 worked, but it doesn't seem to
-			this.api.log(`Triggering test run of weekly emails for execution every twenty minutes at :${randomSeconds}s`);
-			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,20,40 * * * *`, this.sendWeeklyEmails.bind(this));
-		} else if (TEST_MODE === 'pdquick') {
-			// in this test mode, weekly emails are sent every 3 minutes (for testing in PD, with a whitelist)
-			// cutoff times for team checks and user checks are very reduced
-			// would be nice if /3 worked, but it doesn't seem to
-			this.api.log(`Triggering test run of weekly emails for execution every ten minutes at :${randomSeconds}s`);
-			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,10,20,30,40,50 * * * *`, this.sendWeeklyEmails.bind(this));
+			this.api.log(`Triggering test run of weekly emails for execution every half hour minutes at :${randomSeconds}s`);
+			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,30 * * * *`, this.sendWeeklyEmails.bind(this));
 		} else if (TEST_MODE === 'pdnight') {
 			// in this test mode, weekly emails are sent every night at midnight
 			// cutoff times for team checks and user checks are reduced to accommodate
@@ -91,7 +82,7 @@ class WeeklyEmails {
 	async sendWeeklyEmails () {
 		this.api.log('Weekly email run triggered');
 
-		if (false /*this.api.config.email.suppressEmails*/) {
+		if (this.api.config.email.suppressEmails) {
 			this.api.log('Emails are disabled in configuration, not running weekly emails');
 			return;
 		}
