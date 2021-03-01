@@ -192,7 +192,7 @@ ${activity}
 	renderSectionEntries(userData, collection, field, heading) {
 		let contentHtml = '', moreHtml = '';
 		let items = userData[collection];
-		const sectionHtml = items.length > 0 ? `<div class="sub-heading ensure-white">&nbsp;&nbsp;${heading}</div>` : '';
+		const sectionHtml = items.length > 0 ? `<div class="sub-heading ensure-white">${heading}</div>` : '';
 		const sepHtml = items.length > 0 ? '<br/>' : '';
 		if (items.length > MAX_PER_SECTION) {
 			const wasLength = items.length;
