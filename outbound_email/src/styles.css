@@ -360,3 +360,7 @@ blockquote {
 	text-decoration: none !important;
 }
 
+.latest-news-atag {
+	color: #009aef;
+	text-decoration: underline !important;
+}
