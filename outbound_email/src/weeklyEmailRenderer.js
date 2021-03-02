@@ -161,15 +161,15 @@ ${activity}
 	}
 
 	renderReviews (userData) {
-		return this.renderSectionEntries(userData, 'myReviews', 'title', 'Feedback Requests Waiting on Your Review');
+		return this.renderSectionEntries(userData, 'myReviews', 'Feedback Requests Waiting on Your Review');
 	}
 
 	renderCodemarks (userData) {
-		return this.renderSectionEntries(userData, 'myCodemarks', 'title', 'Open Comments/Issues');
+		return this.renderSectionEntries(userData, 'myCodemarks', 'Open Comments/Issues');
 	}
 
 	renderMentions (userData) {
-		return this.renderSectionEntries(userData, 'mentions', 'text', 'Mentions');
+		return this.renderSectionEntries(userData, 'mentions', 'Mentions', true);
 	}
 
 	renderPosts (userData) {
@@ -178,18 +178,18 @@ ${activity}
 			userData.myCodemarks.length === 0 &&
 			userData.mentions.length === 0
 		) ? 'Unread Messages' : 'Other Unread Messages';
-		return this.renderSectionEntries(userData, 'unreadPosts', 'text', section);
+		return this.renderSectionEntries(userData, 'unreadPosts', section, true);
 	}
 
 	renderNew (userData) {
-		return this.renderSectionEntries(userData, 'newCodemarksReviews', ['title', 'text'], 'New Feedback Requests, Comments & Issues');
+		return this.renderSectionEntries(userData, 'newCodemarksReviews', 'New Feedback Requests, Comments & Issues');
 	}
 
 	renderResolved (userData) {
-		return this.renderSectionEntries(userData, 'closedCodemarksReviews', ['title', 'text'], 'Resolved Feedback Requests, Comments & Issues');
+		return this.renderSectionEntries(userData, 'closedCodemarksReviews', 'Resolved Feedback Requests, Comments & Issues');
 	}
 
-	renderSectionEntries(userData, collection, field, heading) {
+	renderSectionEntries(userData, collection, heading, groupReplies=false) {
 		let contentHtml = '', moreHtml = '';
 		let items = userData[collection];
 		const sectionHtml = items.length > 0 ? `<div class="sub-heading ensure-white">${heading}</div>` : '';
@@ -200,51 +200,73 @@ ${activity}
 			moreHtml = `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;(${wasLength - MAX_PER_SECTION} more)</div>`;
 		}
 		items.forEach(item => {
-			const attr = field instanceof Array ? field.find(f => !!item[f]) : field; // searches list of fields for first value with content
-			const post = (item.isCodemark || item.isReview) ? this.teamData.posts.find(id => id === item.postId) : item;
-			const parentPost = post && post.parentPostId ? 
-				this.teamData.posts.find(p => p.id === post.parentPostId) : 
-				null;
-			const grandparentPost = parentPost && parentPost.parentPostId ? 
-				this.teamData.posts.find(id => id === parentPost.parentPostId) : 
-				null;
+			if (item.alreadyRendered) return; // ignore items already rendered as replies to common parents
+			const post = item.post || item;
+			const { parentPost, grandparentPost } = post || {};
+			const allReplies = groupReplies ? this.findReplies(parentPost, grandparentPost, items): [];
 			const ancestorPost = grandparentPost || parentPost;
-			const ancestorCodemark = ancestorPost && ancestorPost.codemarkId ? 
-				this.teamData.codemarks.find(codemark => codemark.id === ancestorPost.codemarkId) : 
-				null;
-			const ancestorReview = ancestorPost && ancestorPost.reviewId ? 
-				this.teamData.reviews.find(review => review.id === ancestorPost.reviewId) :
-				null;
-			let permalink = 
-				(ancestorReview && ancestorReview.permalink) ||
-				(ancestorCodemark && ancestorCodemark.permalink) ||
-				item.permalink;
-
+			const ancestorItem = ancestorPost && (ancestorPost.codemark || ancestorPost.review);
 			const options = {
 				members: this.teamData.users || [],
-				mentionedUserIds: (post && post.mentionedUserIds) || [],
 				currentUser: this.user
 			};
-			const creator = this.teamData.users.find(u => u.id === item.creatorId);
-			const headshot = creator ? Utils.renderUserHeadshot(creator) : '';
+			const permalink = (ancestorItem && ancestorItem.permalink) || item.permalink;
 
-			// for now, we're going to shorten the text first and then do mentions ... if shortening the text ruins the
-			// mentions we'll live with it, but that should be rare (how often do you mention someone 100 characters in?)
-			let text = item[attr] || '';
-			text = text.replace(/\r\n/g, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ');	// get rid of linefeeds completely, replace with spaces
-			text = Utils.stripMarkdown(text);		// strip out all markdown
-			text = HtmlEscape.unescapeHtml(text);	// but the strip markdown, as a side effect, escapes some html, so unescape it
-			text = Utils.cleanForEmail(text);		// this will escape it again
-			text = this.ellipsify(text);			// add ellipses for long messages
-			text = Utils.handleMentions(text, options);	// put in mention-related html
-			text = this.handleMeMessage(text, creator); // handle messages starting with /me
-			if (permalink) {
-				permalink = permalink + '?src=WeeklyEmail';
-				text = `<a class="weekly-email-atag" clicktracking="off" href="${permalink}">${text}</a>`;
+			// if we have an ancestor (parent or grandparent) item, render the ancestor item and then sub-items underneath
+			if (ancestorItem) {
+				contentHtml += this.renderItemText(ancestorItem, permalink, options);
+				allReplies.forEach(subItem => {
+					contentHtml += this.renderItemText(subItem, item.permalink || permalink, options, 6);
+				});
+			} else {
+				contentHtml += this.renderItemText(item, item.permalink || permalink, options);
 			}
-			contentHtml += `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;${headshot} ${text}</div>`; 
 		});
 		return sectionHtml + contentHtml + moreHtml + sepHtml;
+	}
+
+	// render text for a single item
+	renderItemText (item, permalink, options, indent=0) {
+		const creator = this.teamData.users.find(u => u.id === item.creatorId);
+		const headshot = creator ? Utils.renderUserHeadshot(creator) : '';
+		options = {
+			...options,
+			mentionedUserIds: item.mentionedUserIds || (item.post || {}).mentionedUserIds || []
+		};
+
+		// for now, we're going to shorten the text first and then do mentions ... if shortening the text ruins the
+		// mentions we'll live with it, but that should be rare (how often do you mention someone 100 characters in?)
+		let text = item.title || item.text;
+		text = text.replace(/\r\n/g, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ');	// get rid of linefeeds completely, replace with spaces
+		text = Utils.stripMarkdown(text);		// strip out all markdown
+		text = HtmlEscape.unescapeHtml(text);	// but the strip markdown, as a side effect, escapes some html, so unescape it
+		text = Utils.cleanForEmail(text);		// this will escape it again
+		text = this.ellipsify(text);			// add ellipses for long messages
+		text = Utils.handleMentions(text, options);	// put in mention-related html
+		text = this.handleMeMessage(text, creator); // handle messages starting with /me
+		if (permalink) {
+			permalink = permalink + '?src=WeeklyEmail';
+			text = `<a class="weekly-email-atag" clicktracking="off" href="${permalink}">${text}</a>`;
+		}
+		const spaces = '&nbsp;'.repeat(indent);
+		return `<div class="weekly-listing ensure-white">${spaces}${headshot} ${text}</div>`; 
+	}
+
+	// find all replies to the given parent or grandparent
+	findReplies (parentPost, grandparentPost, items) {
+		return items.filter(item => {
+			const post = item.post || item;
+			if (!post) return;
+			if (
+				(post.parentPost && parentPost && post.parentPost.id === parentPost.id) ||
+				(post.grandparentPost && parentPost && post.grandparentPost.id === parentPost.id) ||
+				(post.parentPost && grandparentPost && post.parentPost.id === grandparentPost.id) ||
+				(post.grandparentPost && grandparentPost && post.grantparentPost.id === grandparentPost.id)
+			) {
+				item.alreadyRendered = true;
+				return item;
+			}
+		});
 	}
 
 	// handle messages starting with /me, by removing /me and substituting username

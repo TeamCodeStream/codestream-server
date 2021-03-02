@@ -181,8 +181,12 @@ class WeeklyEmailPerUserHandler {
 
 		// now get all those parent posts
 		const parentPosts = postsWithParents.reduce((posts, childPost) => {
-			const parentPost = this.teamData.posts.find(p => p.id === childPost.parentPostId);
-			posts.push(parentPost);
+			childPost.parentPost = this.teamData.posts.find(p => p.id === childPost.parentPostId);
+			if (childPost.parentPost.parentPost) {
+				// this will happen on the "recursive" round to get grandparents
+				childPost.grandparentPost = childPost.parentPost.parentPost;
+			}
+			posts.push(childPost.parentPost);
 			return posts;
 		}, []);
 
@@ -235,6 +239,9 @@ class WeeklyEmailPerUserHandler {
 		this.userData.newReviews = [];
 		this.userData.closedReviews = [];
 		this.teamData.reviews.forEach(review => {
+			review.post = this.teamData.posts.find(post => post.id === review.postId);
+			if (this.postHasDeactivatedAncestor(review.post)) { return; }
+			review.post.review = review;
 			review.isReview = true; // since we'll be collating with codemarks
 			if (
 				review.status === 'approved' &&
@@ -265,7 +272,10 @@ class WeeklyEmailPerUserHandler {
 		this.userData.newCodemarks = [];
 		this.userData.closedCodemarks = [];
 		this.teamData.codemarks.forEach(codemark => {
+			codemark.post = this.teamData.posts.find(post => post.id === codemark.postId);
+			if (this.postHasDeactivatedAncestor(codemark.post)) { return; }
 			codemark.isCodemark = true; // since we'll be collating with reviews
+			codemark.post.codemark = codemark;
 			if (
 				codemark.status === 'closed' &&
 				codemark.modifiedAt > this.userData.contentCreatedSince
@@ -300,6 +310,7 @@ class WeeklyEmailPerUserHandler {
 	async getMyMentions () {
 		this.userData.mentions = this.teamData.posts.filter(post => {
 			return (
+				!this.postHasDeactivatedAncestor(post) && 
 				!post.codemarkId &&
 				!post.reviewId &&
 				post.createdAt > this.userData.contentCreatedSince &&
@@ -319,6 +330,7 @@ class WeeklyEmailPerUserHandler {
 		];
 		this.userData.unreadPosts = this.teamData.posts.reduce((accum, post) => {
 			if (
+				!this.postHasDeactivatedAncestor(post) && 
 				post.createdAt > this.userData.contentCreatedSince && 
 				post.creatorId !== this.user.id && 
 				post.seqNum > (lastReads[post.streamId] || 0) && 
@@ -348,6 +360,16 @@ class WeeklyEmailPerUserHandler {
 		}));
 	}
 
+	// return whether the given post has a deactivated ancestor
+	// this prevents replies to deactivated reviews/codemarks from showing up in the weekly email
+	postHasDeactivatedAncestor (post) {
+		return (
+			post.deactivated ||
+			(post.parentPost && post.parentPost.deactivated) ||
+			(post.grandparentPost && post.grandparentPost.deactivated)
+		);
+	}
+
 	// render the email given all the data we've collected
 	async renderEmail () {
 		this.renderOptions = {
@@ -363,7 +385,7 @@ class WeeklyEmailPerUserHandler {
 
 		// this puts our styles inline, which is needed for gmail's display of larger emails
 		this.content = Juice(`<style>${this.styles}</style>${this.content}`);
-}
+	}
 
 	// send the email to the user, yay!
 	async sendEmail () {
