@@ -91,7 +91,7 @@ ${earlierReplies}
 
 		if (parentObject.permalink) {
 			const url = `${parentObject.permalink}?ide=default`;
-			return `<div class="replies-earlier"><a href="${url}" clicktracking="off">See earlier replies</a></div>`;
+			return `<div class="replies-earlier"><a href="${url}" clicktracking="off"><span class="hover-underline">See earlier replies</span></a></div>`;
 		}
 		return '<div class="replies-earlier">See earlier replies</div>';
 	}

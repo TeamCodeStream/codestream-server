@@ -35,7 +35,7 @@ class EmailNotificationV2Renderer {
 			if (userBeingAddedToTeam) {
 				firstFooterDiv = `
 <div class="following ensure-white">
-	<span>You received this email because you’ve been added to the ${teamName} team.&nbsp;<span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>		
+	<span>You received this email because you’ve been added to the ${teamName} team.&nbsp;<a clicktracking="off" href="${unfollowLink}"><span class="hover-underline">Unfollow</span></a>		
 </div>
 `;
 				const replyPart = inboundEmailDisabled ? 'G' : 'Reply to this email, or g';
@@ -66,7 +66,7 @@ class EmailNotificationV2Renderer {
 				secondFooterDiv = `
 <div class="following ensure-white">
 	<br/>
-	You received this email because you were added to CodeStream. <span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
+	You received this email because you were added to CodeStream. <a clicktracking="off" href="${unfollowLink}"><span class="hover-underline">Unfollow</span></a>
 </div>
 `;
 			}

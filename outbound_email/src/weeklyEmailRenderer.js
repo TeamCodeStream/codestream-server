@@ -246,7 +246,7 @@ ${activity}
 		text = this.handleMeMessage(text, creator); // handle messages starting with /me
 		if (permalink) {
 			permalink = permalink + '?src=WeeklyEmail';
-			text = `<a class="weekly-email-atag" clicktracking="off" href="${permalink}">${text}</a>`;
+			text = `<a class="weekly-email-atag" clicktracking="off" href="${permalink}"><span class="hover-underline">${text}</span></a>`;
 		}
 		const spaces = '&nbsp;'.repeat(indent);
 		return `<div class="weekly-listing ensure-white">${spaces}${headshot} ${text}</div>`; 
@@ -273,7 +273,7 @@ ${activity}
 	handleMeMessage (text, creator) {
 		if (!text.startsWith('&#x2F;me ')) return text;
 		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
-		return `<span class=author>${author}</span>&nbsp;${text.substring(9)}`;
+		return `<span class="author-weekly">${author}</span>&nbsp;${text.substring(9)}`;
 	}
 
 	// limit text to 100 characters, with ellipses
