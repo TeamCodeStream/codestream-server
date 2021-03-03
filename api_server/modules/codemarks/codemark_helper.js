@@ -197,7 +197,7 @@ class CodemarkHelper {
 		}
 		else {
 			// members come from the team
-			memberIds = team.get('memberIds') || [];
+			memberIds = team.getActiveMembers();
 		}
 		if (memberIds.length === 0) {
 			return { all: [], involveMe: [] };

@@ -80,7 +80,7 @@ class AddTeamPublisher {
 
 	// get the member of the team, some or all may be provided by the caller
 	async getTeamMembers () {
-		const memberIds = this.team.get('memberIds') || [];
+		const memberIds = this.team.getActiveMembers();
 		this.teamMembers = await this.request.data.users.getByIds(memberIds);
 	}
 

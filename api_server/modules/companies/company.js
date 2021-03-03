@@ -16,7 +16,7 @@ class Company extends CodeStreamModel {
 	async getCompanyMemberCount (data) {
 		const teams = await data.teams.getByIds(this.get('teamIds') || []);
 		const memberIds = teams.reduce((memberIds, team) => {
-			const teamMemberIds = ArrayUtilities.difference(team.get('memberIds') || [], team.get('removedMemberIds') || []);
+			const teamMemberIds = team.getActiveMembers();
 			memberIds = ArrayUtilities.union(memberIds, teamMemberIds);
 			return memberIds;
 		}, []);
