@@ -165,7 +165,7 @@ ${activity}
 	}
 
 	renderCodemarks (userData) {
-		return this.renderSectionEntries(userData, 'myCodemarks', 'Open Comments/Issues');
+		return this.renderSectionEntries(userData, 'myCodemarks', 'Open Issues');
 	}
 
 	renderMentions (userData) {
