@@ -178,7 +178,7 @@ ${activity}
 			userData.myCodemarks.length === 0 &&
 			userData.mentions.length === 0
 		) ? 'Unread Messages' : 'Other Unread Messages';
-		return this.renderSectionEntries(userData, 'unreadPosts', section, true);
+		return this.renderSectionEntries(userData, 'unreads', section, true);
 	}
 
 	renderNew (userData) {
@@ -200,29 +200,31 @@ ${activity}
 			moreHtml = `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;(${wasLength - MAX_PER_SECTION} more)</div>`;
 		}
 
-		const alreadyRendered = {};
 		items.forEach(item => {
-			if (alreadyRendered[item.id]) { return; } // ignore items already rendered as replies to common parents
 			const post = item.post || item;
 			const { parentPost, grandparentPost } = post || {};
-			const allReplies = groupReplies ? this.findReplies(parentPost, grandparentPost, items, alreadyRendered): [];
 			const ancestorPost = grandparentPost || parentPost;
 			const ancestorItem = ancestorPost && (ancestorPost.codemark || ancestorPost.review);
 			const options = {
 				members: this.teamData.users || [],
 				currentUser: this.user
 			};
-			const permalink = (ancestorItem && ancestorItem.permalink) || item.permalink;
+			const permalink = item.permalink || (ancestorItem && ancestorItem.permalink);
 
-			// if we have an ancestor (parent or grandparent) item, render the ancestor item and then sub-items underneath
-			if (groupReplies && ancestorItem) {
-				contentHtml += this.renderItemText(ancestorItem, permalink, options);
-				allReplies.forEach(subItem => {
-					contentHtml += this.renderItemText(subItem, item.permalink || permalink, options, 6);
-				});
-			} else {
-				contentHtml += this.renderItemText(item, item.permalink || permalink, options);
-			}
+			contentHtml += this.renderItemText(item, permalink, options);
+			
+			const replies = (
+				item.replies &&
+				item.replies[this.user.id] &&
+				item.replies[this.user.id][collection]
+			) || [];
+			replies.forEach(reply => {
+				const replyPermalink = (
+					reply.permalink ||
+					(reply.codemark && reply.codemark.permalink)
+				);
+				contentHtml += this.renderItemText(reply, replyPermalink || permalink, options, 6);
+			});
 		});
 		return sectionHtml + contentHtml + moreHtml + sepHtml;
 	}
@@ -252,24 +254,6 @@ ${activity}
 		}
 		const spaces = '&nbsp;'.repeat(indent);
 		return `<div class="weekly-listing ensure-white">${spaces}${headshot} ${text}</div>`; 
-	}
-
-	// find all replies to the given parent or grandparent
-	findReplies (parentPost, grandparentPost, items, alreadyRendered) {
-		return items.filter(item => {
-			const post = item.post || item;
-			if (!post) { return; }
-			if (alreadyRendered[item.id]) { return; }
-			if (
-				(post.parentPost && parentPost && post.parentPost.id === parentPost.id) ||
-				(post.grandparentPost && parentPost && post.grandparentPost.id === parentPost.id) ||
-				(post.parentPost && grandparentPost && post.parentPost.id === grandparentPost.id) ||
-				(post.grandparentPost && grandparentPost && post.grantparentPost.id === grandparentPost.id)
-			) {
-				alreadyRendered[item.id] = true;
-				return item;
-			} 
-		});
 	}
 
 	// handle messages starting with /me, by removing /me and substituting username

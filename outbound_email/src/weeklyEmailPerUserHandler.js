@@ -80,7 +80,7 @@ class WeeklyEmailPerUserHandler {
 		await this.categorizeCodemarks();	// categorize codemarks depending on user relationship
 		await this.collate();			// collate some collections into a combined collection
 		await this.getMyMentions();		// get posts/codemarks/reviews in which the user is mentioned
-		await this.getMyUnreadPosts();	// get all unread posts not covered by the above categories
+		await this.getMyUnreads();		// get all unread items not covered by the above categories
 		await this.sort();				// sort all collections in descending creation order
 		return this.haveContent;
 	}
@@ -306,45 +306,67 @@ class WeeklyEmailPerUserHandler {
 			...this.userData.closedCodemarks,
 			...this.userData.closedReviews
 		];
+		this.userData.coveredPostIds = [
+			...this.userData.myReviews.map(review => review.postId),
+			...this.userData.myCodemarks.map(codemark => codemark.postId)
+		];
 	}
 
 	// get any reviews/codemarks/posts for the team in which the current user is mentioned
 	async getMyMentions () {
-		this.userData.mentions = this.teamData.posts.filter(post => {
-			return (
-				!this.postHasDeactivatedAncestor(post) && 
-				!post.codemarkId &&
-				!post.reviewId &&
-				post.createdAt > this.userData.contentCreatedSince &&
-				(post.mentionedUserIds || []).includes(this.user.id)
-			);
-		});
+		this.userData.mentions = await this.getMyPosts(this.postMentionsMe, 'mentions');
 		this.haveContent = this.haveContent || this.userData.mentions.length > 0;
 	}
 
-	// get any unread posts for the team and user that are not covered by the other categories
-	async getMyUnreadPosts () {
-		const lastReads = this.user.lastReads || {};
-		const coveredPostIds = [
-			...this.userData.myReviews.map(review => review.postId),
-			...this.userData.myCodemarks.map(codemark => codemark.postId),
-			...this.userData.mentions.map(post => post.id)
-		];
-		this.userData.unreadPosts = this.teamData.posts.reduce((accum, post) => {
+	// get any unread items for the team and user that are not covered by the other categories
+	async getMyUnreads () {
+		this.userData.unreads = await this.getMyPosts(this.postIsUnread, 'unreads');
+		this.haveContent = this.haveContent || this.userData.unreads.length > 0;
+	}
+
+	async getMyPosts (isMatchingPostCallback, section) {
+		return this.teamData.posts.reduce((accum, post) => {
+			const ancestorPost = post.grandparentPost || post.parentPost;
+			const ancestorItem = ancestorPost && (ancestorPost.codemark || ancestorPost.review);
+
+			// first see if the post qualifies at all
 			if (
-				!this.postHasDeactivatedAncestor(post) && 
-				!post.reviewId &&
-				(!post.codemarkId || post.parentPostId) && 
-				post.createdAt > this.userData.contentCreatedSince && 
-				post.creatorId !== this.user.id && 
-				post.seqNum > (lastReads[post.streamId] || 0) && 
-				!coveredPostIds.includes(post.id)
+				this.postHasDeactivatedAncestor(post) ||
+				post.createdAt <= this.userData.contentCreatedSince ||
+				post.creatorId === this.user.id ||
+				!isMatchingPostCallback.call(this, post) ||
+				!ancestorPost ||
+				!ancestorItem ||
+				this.userData.coveredPostIds.includes(post.id)
 			) {
-				accum.push(post);
+				return accum;
 			}
+
+			// since we display replies nested under their ancestor item, add to the array of replies
+			// for that ancestor item (tracked separately per user and per section)
+			const replies = ancestorItem.replies = ancestorItem.replies || {};
+			const repliesPerUser = replies[this.user.id] = replies[this.user.id] || {};
+			const repliesPerSection = repliesPerUser[section] = repliesPerUser[section] || [];
+			repliesPerSection.push(post.codemark || post);
+			this.userData.coveredPostIds.push(post.id);
+
+			// if the item is not already in the final array, add it now
+			if (!accum.find(item => item.id === ancestorItem.id)) {
+				accum.push(ancestorItem);
+			}
+
 			return accum;
 		}, []);
-		this.haveContent = this.haveContent || this.userData.unreadPosts.length > 0;
+	}
+				
+	// does this post mention me?
+	postMentionsMe (post) {
+		return (post.mentionedUserIds || []).includes(this.user.id);
+	}
+
+	// is this post unread for me?
+	postIsUnread (post) {
+		return post.seqNum > ((this.user.lastReads || {})[post.streamId] || 0);
 	}
 
 	// sort all collections in descending creation order
@@ -353,7 +375,7 @@ class WeeklyEmailPerUserHandler {
 			'myReviews',
 			'myCodemarks',
 			'mentions',
-			'unreadPosts',
+			'unreads',
 			'newCodemarksReviews',
 			'closedCodemarksReviews'
 		];
@@ -361,6 +383,25 @@ class WeeklyEmailPerUserHandler {
 			this.userData[collection].sort((a, b) => {
 				return b.createdAt - a.createdAt;
 			});
+		}));
+
+		// also sort all replies in descending creation order
+		const replySections = [
+			'mentions',
+			'unreads'
+		];
+		await Promise.all(replySections.map(async section => {
+			await Promise.all(this.userData[section].map(async item => {
+				if (
+					item.replies &&
+					item.replies[this.user.id] &&
+					item.replies[this.user.id][section]
+				) {
+					item.replies[this.user.id][section].sort((a, b) => {
+						return b.createdAt - a.createdAt;
+					});
+				}
+			}));
 		}));
 	}
 
