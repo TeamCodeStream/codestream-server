@@ -152,15 +152,15 @@ class WeeklyEmailPerUserHandler {
 		if (postIds.length > 0) {
 			this.teamData.posts = [
 				...this.teamData.posts,
-				await this.data.posts.getByIds(postIds)
+				...(await this.data.posts.getByIds(postIds))
 			];
 		}
 	}
 
 	// get any parent or grandparent posts not covered by the other fetches, along with codemarks and reviews
 	async getParents (posts = undefined) {
-		const alreadyHavePostIds = posts || this.teamData.posts.map(post => post.id);
-		const postsWithParents = (this.teamData.posts || posts).filter(post => post.parentPostId);
+		const alreadyHavePostIds = this.teamData.posts.map(post => post.id);
+		const postsWithParents = (posts || this.teamData.posts).filter(post => post.parentPostId);
 		const needParentPostIds = postsWithParents.reduce((postIds, post) => {
 			if (
 				!alreadyHavePostIds.includes(post.parentPostId) &&
@@ -186,13 +186,15 @@ class WeeklyEmailPerUserHandler {
 				// this will happen on the "recursive" round to get grandparents
 				childPost.grandparentPost = childPost.parentPost.parentPost;
 			}
-			posts.push(childPost.parentPost);
+			if (!posts.find(p => p.id === childPost.parentPost.id)) {
+				posts.push(childPost.parentPost);
+			}
 			return posts;
 		}, []);
 
 		// get codemarks
 		const parentCodemarkIds = parentPosts.reduce((codemarkIds, parentPost) => {
-			if (parentPost.codemarkId) {
+			if (parentPost.codemarkId && !codemarkIds.includes(parentPost.codemarkId)) {
 				codemarkIds.push(parentPost.codemarkId);
 			}
 			return codemarkIds;
@@ -209,7 +211,7 @@ class WeeklyEmailPerUserHandler {
 
 		// get reviews
 		const parentReviewIds = parentPosts.reduce((reviewIds, parentPost) => {
-			if (parentPost.reviewId) {
+			if (parentPost.reviewId && !reviewIds.includes(parentPost.reviewId)) {
 				reviewIds.push(parentPost.reviewId);
 			}
 			return reviewIds;
@@ -324,13 +326,15 @@ class WeeklyEmailPerUserHandler {
 	async getMyUnreadPosts () {
 		const lastReads = this.user.lastReads || {};
 		const coveredPostIds = [
-			...this.teamData.reviews.map(review => review.postId),
-			...this.teamData.codemarks.map(codemark => codemark.postId),
+			...this.userData.myReviews.map(review => review.postId),
+			...this.userData.myCodemarks.map(codemark => codemark.postId),
 			...this.userData.mentions.map(post => post.id)
 		];
 		this.userData.unreadPosts = this.teamData.posts.reduce((accum, post) => {
 			if (
 				!this.postHasDeactivatedAncestor(post) && 
+				!post.reviewId &&
+				(!post.codemarkId || post.parentPostId) && 
 				post.createdAt > this.userData.contentCreatedSince && 
 				post.creatorId !== this.user.id && 
 				post.seqNum > (lastReads[post.streamId] || 0) && 

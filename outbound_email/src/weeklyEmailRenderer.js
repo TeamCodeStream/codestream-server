@@ -199,11 +199,13 @@ ${activity}
 			items = items.splice(0, MAX_PER_SECTION);
 			moreHtml = `<div class="weekly-listing ensure-white">&nbsp;&nbsp;&nbsp;&nbsp;(${wasLength - MAX_PER_SECTION} more)</div>`;
 		}
+
+		const alreadyRendered = {};
 		items.forEach(item => {
-			if (item.alreadyRendered) return; // ignore items already rendered as replies to common parents
+			if (alreadyRendered[item.id]) { return; } // ignore items already rendered as replies to common parents
 			const post = item.post || item;
 			const { parentPost, grandparentPost } = post || {};
-			const allReplies = groupReplies ? this.findReplies(parentPost, grandparentPost, items): [];
+			const allReplies = groupReplies ? this.findReplies(parentPost, grandparentPost, items, alreadyRendered): [];
 			const ancestorPost = grandparentPost || parentPost;
 			const ancestorItem = ancestorPost && (ancestorPost.codemark || ancestorPost.review);
 			const options = {
@@ -213,7 +215,7 @@ ${activity}
 			const permalink = (ancestorItem && ancestorItem.permalink) || item.permalink;
 
 			// if we have an ancestor (parent or grandparent) item, render the ancestor item and then sub-items underneath
-			if (ancestorItem) {
+			if (groupReplies && ancestorItem) {
 				contentHtml += this.renderItemText(ancestorItem, permalink, options);
 				allReplies.forEach(subItem => {
 					contentHtml += this.renderItemText(subItem, item.permalink || permalink, options, 6);
@@ -253,19 +255,20 @@ ${activity}
 	}
 
 	// find all replies to the given parent or grandparent
-	findReplies (parentPost, grandparentPost, items) {
+	findReplies (parentPost, grandparentPost, items, alreadyRendered) {
 		return items.filter(item => {
 			const post = item.post || item;
-			if (!post) return;
+			if (!post) { return; }
+			if (alreadyRendered[item.id]) { return; }
 			if (
 				(post.parentPost && parentPost && post.parentPost.id === parentPost.id) ||
 				(post.grandparentPost && parentPost && post.grandparentPost.id === parentPost.id) ||
 				(post.parentPost && grandparentPost && post.parentPost.id === grandparentPost.id) ||
 				(post.grandparentPost && grandparentPost && post.grantparentPost.id === grandparentPost.id)
 			) {
-				item.alreadyRendered = true;
+				alreadyRendered[item.id] = true;
 				return item;
-			}
+			} 
 		});
 	}
 
