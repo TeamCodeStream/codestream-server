@@ -21,7 +21,7 @@ const PD_TEAM_WHITELIST = [
 // governs how often we do weekly email runs, for testing, can be: local, pd, pdnight 
 // (which is used with whitelisted teams) or prod
 // see schedule() method below for details
-const TEST_MODE = 'pdnight';
+const TEST_MODE = 'pd';
 
 // teams that have had a weekly email run within this interval, wait till next week
 const LAST_RUN_CUTOFF = 
@@ -64,7 +64,7 @@ class WeeklyEmails {
 		} else if (TEST_MODE === 'pd') {
 			// in this test mode, weekly emails are sent every 30 minutes (for testing in PD)
 			// cutoff times for team checks and user checks are reduced
-			this.api.log(`Triggering test run of weekly emails for execution every half hour minutes at :${randomSeconds}s`);
+			this.api.log(`Triggering test run of weekly emails for execution every half hour at :${randomSeconds}s`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} 0,30 * * * *`, this.sendWeeklyEmails.bind(this));
 		} else if (TEST_MODE === 'pdnight') {
 			// in this test mode, weekly emails are sent every night at midnight
