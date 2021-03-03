@@ -212,7 +212,7 @@ ${activity}
 			const permalink = item.permalink || (ancestorItem && ancestorItem.permalink);
 
 			contentHtml += this.renderItemText(item, permalink, options);
-			
+
 			const replies = (
 				item.replies &&
 				item.replies[this.user.id] &&
@@ -223,7 +223,7 @@ ${activity}
 					reply.permalink ||
 					(reply.codemark && reply.codemark.permalink)
 				);
-				contentHtml += this.renderItemText(reply, replyPermalink || permalink, options, 6);
+				contentHtml += this.renderItemText(reply, replyPermalink || permalink, options, 10);
 			});
 		});
 		return sectionHtml + contentHtml + moreHtml + sepHtml;
@@ -232,7 +232,8 @@ ${activity}
 	// render text for a single item
 	renderItemText (item, permalink, options, indent=0) {
 		const creator = this.teamData.users.find(u => u.id === item.creatorId);
-		const headshot = creator ? Utils.renderUserHeadshot(creator) : '';
+		const username = creator.username || EmailUtilities.parseEmail(creator.email).name;
+		//const headshot = creator ? Utils.renderUserHeadshot(creator) : '';
 		options = {
 			...options,
 			mentionedUserIds: item.mentionedUserIds || (item.post || {}).mentionedUserIds || []
@@ -253,7 +254,11 @@ ${activity}
 			text = `<a class="weekly-email-atag" clicktracking="off" href="${permalink}"><span class="hover-underline">${text}</span></a>`;
 		}
 		const spaces = '&nbsp;'.repeat(indent);
-		return `<div class="weekly-listing ensure-white">${spaces}${headshot} ${text}</div>`; 
+		const icon = item.isReview ? 'review' : 
+			item.isCodemark ? item.type :
+			null;
+		const iconHtml = icon ? Utils.renderIcon(icon) : '';
+		return `<div class="weekly-listing ensure-white">${spaces}${iconHtml}&nbsp;<span class="author-weekly">${username}</span>:&nbsp;${text}</div>`; 
 	}
 
 	// handle messages starting with /me, by removing /me and substituting username
