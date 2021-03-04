@@ -17,6 +17,7 @@ const UNSANITIZED_ATTRIBUTES = Object.keys(CompanyAttributes).filter(attribute =
 	return CompanyAttributes[attribute].serverOnly;
 });
 
+// FIXMECOLIN - do we need a mechanism for getting these values from LicenseManager?
 const DEFAULT_COMPANY_PLAN = 'FREEPLAN';
 const DEFAULT_ONPREM_COMPANY_PLAN = '14DAYTRIAL';
 const COMPANIES_ON_TRIAL = false;

@@ -5,7 +5,7 @@ import Passport from 'passport';
 import { Logger, MongoStructuredConfig, AdminConfig, SystemStatusMonitor, MongoClient } from '../config/globalData';
 import AdminAccess from '../lib/adminAccess';
 import GetAssetData from '../../shared/server_utils/get_asset_data';
-import GetLicenseData from '../lib/getLicenseData';
+import LicenseManager from '../../shared/server_utils/LicenseManager';
 
 const ApiRouter = Express.Router();
 
@@ -92,7 +92,13 @@ ApiRouter.post('/no-auth/register', async (req, res) => {
 // a list of unique license plans found across the entire companies collection
 ApiRouter.get('/licenses', async (req, res) => {
 	Logger.log(`api(get):/licenses`);
-	res.send(await GetLicenseData(MongoClient));
+	res.send(
+		await new LicenseManager({
+			db: MongoClient.db(),
+			isOnPrem: AdminConfig.getPreferredConfig().sharedGeneral.isOnPrem,
+			logger: Logger,
+		}).getMyLicense()
+	);
 });
 
 

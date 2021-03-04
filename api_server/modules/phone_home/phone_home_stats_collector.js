@@ -3,6 +3,8 @@
 
 'use strict';
 
+const LicenseManager = require("../../../shared/server_utils/LicenseManager");
+
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class PhoneHomeStatsCollector {
@@ -36,8 +38,7 @@ class PhoneHomeStatsCollector {
 
 	// is this company on a paid plan?
 	companyIsPaid (company) {
-		const plan = company.plan || '14DAYTRIAL';
-		return plan !== 'FREEPLAN' && plan !== '30DAYTRIAL' && plan !== '14DAYTRIAL';
+		return new LicenseManager({ companyDoc: company }).getMyLicense().isPaidPlan();
 	}
 
 	// collect all the stats for the given companies

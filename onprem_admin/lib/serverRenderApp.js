@@ -8,7 +8,7 @@ import { SystemStatuses } from '../src/store/actions/status';
 import { globalNavItems, configNavItems } from '../src/store/actions/presentation';
 import { MongoClient, Logger, SystemStatusMonitor, AdminConfig, Installation, MongoStructuredConfig } from '../config/globalData';
 import AdminAccess from './adminAccess';
-import GetLicenseData from './getLicenseData';
+import LicenseManager from '../../shared/server_utils/LicenseManager';
 
 import App from '../src/components/App';
 
@@ -37,7 +37,13 @@ async function serverRenderApp(req) {
 		},
 		updates: {},
 		support: {},
-		license: req.isAuthenticated() ? await GetLicenseData(MongoClient) : {},
+		license: req.isAuthenticated()
+			? await new LicenseManager({
+					db: MongoClient.db(),
+					isOnPrem: AdminConfig.getPreferredConfig().sharedGeneral.isOnPrem,
+					logger: Logger,
+			  }).getMyLicense()
+			: {},
 	};
 
 	const configRoute = requestedRoute.match(/configuration\/(topology|general|email|integrations|history)/i);
