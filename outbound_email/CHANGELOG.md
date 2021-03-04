@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.23] - 2021-3-5
+
+### Added
+
+- Adds a new weekly email covering you and your team's activity
+
 ## [8.2.22] - 2021-2-17
 
 ### Changed

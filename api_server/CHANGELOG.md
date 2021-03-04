@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.26] - 2021-3-5
+
+### Fixed
+
+- Fixes an issue with signing up with a username that was previously deactivated on the same team
+
 ## [8.2.25] - 2021-2-17
 
 ### Added
