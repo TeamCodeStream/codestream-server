@@ -42,7 +42,7 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 	async show () {
 		this.companyId = this.request.params.companyId.toLowerCase();
 		if (this.user && !this.user.hasCompany(this.companyId)) {
-			this.log('User requesting subscription upgrade is not a member of company ' + this.companyId);awa
+			this.log('User requesting subscription upgrade is not a member of company ' + this.companyId);
 		}
 		this.company = await this.data.companies.getById(this.companyId);
 		if (!this.company) {
@@ -50,10 +50,7 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 			return this.redirect404();
 		}
 
-		// FIXMECOLIN
-		// const unpaidPlans = ['14DAYTRIAL', '30DAYTRIAL', 'TRIALEXPIRED', 'UNEXPIRED', 'FREEPLAN', 'SALES'];
-		// if (!unpaidPlans.includes(this.company.get('plan'))) {
-		if (await !new LicenseManager({ company: this.company }).isPaidPlan()) {
+		if (await !new LicenseManager({ company: this.company.attributes }).isPaidPlan()) {
 			return super.render('error', {
 				title: 'Subscription Changes',
 				body:

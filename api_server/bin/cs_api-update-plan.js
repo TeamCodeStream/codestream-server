@@ -102,7 +102,7 @@ class PlanUpdater {
 			return await this.wait(NO_UPDATE_THROTTLE_TIME);
 		}
 
-		// FIXMECOLIN: Not sure how this code is impacted by the LicenseManager
+		// Unused - if reserrected, we should go through the LicenseManager
 		const users = await this.getRegisteredUsers(company);
 		let newPlan;
 		if (users.length > 5 || company.plan !== '30DAYTRIAL') {

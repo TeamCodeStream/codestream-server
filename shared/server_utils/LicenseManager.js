@@ -56,8 +56,7 @@ class LicenseManager {
 	constructor(options) {
 		this.logger = options.logger || console;
 		this.isOnPrem = options.isOnPrem || false;
-		this.company = options.company || null; // company model object
-		this.companyDoc = options.companyDoc || null;  // company document object
+		this.company = options.company || null; // company document from mongo
 		this.db = options.db || null; // mongodb db handle
 		this.license = null; // object containing license props (public-facing)
 	}
@@ -117,12 +116,11 @@ class LicenseManager {
 	async getMyLicense() {
 		if (this.license) return this.license;
 		if (this.isOnPrem) return await this._getOnPremLicense();
-		const plan = this.companyDoc || this.company.get('plan');
-		if (!plan) {
+		if (!this.company.plan) {
 			this.license = this._defaultLicense();
 		} else {
-			this.license = { plan };
-			if (plan in PlanProperties) Object.assign(this.license, PlanProperties[plan]);
+			this.license = { plan: this.company.plan };
+			if (this.company.plan in PlanProperties) Object.assign(this.license, PlanProperties[this.company.plan]);
 		}
 		return this.license;
 	}

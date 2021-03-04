@@ -41,10 +41,9 @@ class CompanyCreator extends ModelCreator {
 		this.attributes.creatorId = this.user.id;	// creator is the user making the request
 		this.attributes.teamIds = this.teamIds || [];
 
-		// default this team to a 14-day trial
 		// now that we have createdAt, start the trial ticket from that time forward
 		const onPrem = this.isOnPrem();
-		// FIXMECOLIN - this gets our default license
+		// this gets our default license
 		this.attributes.plan = new LicenseManager({ isOnPrem: onPrem }).getMyLicense().plan;
 		if (onPrem) {
 			this.attributes.trialStartDate = this.attributes.createdAt;

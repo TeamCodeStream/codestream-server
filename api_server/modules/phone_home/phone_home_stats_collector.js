@@ -38,7 +38,7 @@ class PhoneHomeStatsCollector {
 
 	// is this company on a paid plan?
 	companyIsPaid (company) {
-		return new LicenseManager({ companyDoc: company }).getMyLicense().isPaidPlan();
+		return new LicenseManager({ company }).getMyLicense().isPaidPlan();
 	}
 
 	// collect all the stats for the given companies
