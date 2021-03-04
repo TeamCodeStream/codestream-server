@@ -15,6 +15,7 @@ const { config } = require('process');
 const firstConfigInstallationHook= require(__dirname + '/../../server_utils/custom_cfg_initialization');
 const StructuredCfgFactory = require(__dirname + '/../lib/structured_config.js');
 const StringifySortReplacer = require(__dirname + '/../../server_utils/stringify_sort_replacer');
+const LicenseManager = require(__dirname + '/../../server_utils/LicenseManager');
 
 function cmdrHandleInt(value) {
 	return parseInt(value);
@@ -86,7 +87,17 @@ const ConfigReport = async() => {
 		}
 		const CfgFile = StructuredCfgFactory.create({ configFile: Commander.load });
 		const configToLoad = await CfgFile.loadConfig();
-		if (Commander.firstCfgHook) firstConfigInstallationHook(configToLoad);
+		if (Commander.firstCfgHook) {
+			firstConfigInstallationHook(configToLoad);
+			configToLoad.apiServer.phoneHomeUrl = 'https://phone-home.codestream.com';
+			const myLicense = new LicenseManager({
+				db: CfgData.getMongoClient().db(),
+				onPrem: true,
+			}).getMyLicense();
+			if (configToLoad.apiServer.phoneHomeDisabled && (!myLicense.isPaid || myLicense.isTrial)) {
+				configToLoad.apiServer.phoneHomeDisabled = false;
+			}
+		}
 		if (Commander.adminPort && configToLoad.adminServer) configToLoad.adminServer.port = parseInt(Commander.adminPort);
 		const dataHeader = await CfgData.addNewConfigToMongo(
 			// hjson.parse(Fs.readFileSync(Commander.load, 'utf8')),

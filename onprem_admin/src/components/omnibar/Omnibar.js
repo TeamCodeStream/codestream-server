@@ -123,10 +123,14 @@ class Omnibar extends Component {
 									{this.props.codeSchemaVersion}.{this.props.runningRevision}
 								</strong>
 							</span>
-						) : (
+						) : this.props.loggedIn ? (
 							<span>
 								Schema: <strong>{this.props.codeSchemaVersion}</strong>
 								<span className="badge badge-light mt-1 ml-1">FILE</span>
+							</span>
+						) : (
+							<span>
+								Schema: <strong>?</strong>
 							</span>
 						)}
 					</span>
@@ -160,6 +164,7 @@ const mapState = (state) => ({
 	runningRevision: state.status.runningRevision,
 	revisionLastLoaded: state.status.revisionLastLoaded,
 	unsavedChanges: state.status.unsavedChanges,
+	loggedIn: state.status.loggedIn,
 });
 
 const mapDispatch = (dispatch) => ({
