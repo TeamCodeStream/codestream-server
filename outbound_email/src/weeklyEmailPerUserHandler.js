@@ -278,6 +278,7 @@ class WeeklyEmailPerUserHandler {
 			if (this.postHasDeactivatedAncestor(codemark.post)) { return; }
 			codemark.isCodemark = true; // since we'll be collating with reviews
 			codemark.post.codemark = codemark;
+			if (codemark.post.parentPost) { return; } // codemarks under reviews don't show up as separate items
 			if (
 				codemark.status === 'closed' &&
 				codemark.modifiedAt > this.userData.contentCreatedSince
