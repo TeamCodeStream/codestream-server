@@ -254,9 +254,7 @@ ${activity}
 			text = `<a class="weekly-email-atag" clicktracking="off" href="${permalink}"><span class="hover-underline">${text}</span></a>`;
 		}
 		const spaces = '&nbsp;'.repeat(indent);
-		const icon = item.isReview ? 'review' : 
-			item.isCodemark ? item.type :
-			null;
+		const icon = indent === 0 ? this.getItemIcon(item) : null;
 		const iconHtml = icon ? Utils.renderIcon(icon) : '';
 		return `<div class="weekly-listing ensure-white">${spaces}${iconHtml}&nbsp;<span class="author-weekly">${username}</span>:&nbsp;${text}</div>`; 
 	}
@@ -266,6 +264,20 @@ ${activity}
 		if (!text.startsWith('&#x2F;me ')) return text;
 		const author = creator ? (creator.username || EmailUtilities.parseEmail(creator.email).name) : '';
 		return `<span class="author-weekly">${author}</span>&nbsp;${text.substring(9)}`;
+	}
+
+	// get the icon appropriate for this item
+	getItemIcon (item) {
+		if (item.isReview) {
+			return 'review';
+		} else if (item.isCodemark) {
+			if (item.type === 'comment' || item.type === 'issue') {
+				const color = !item.pinned ? 'gray' : item.status === 'closed' ? 'purple' : 'green';
+				return `marker-${item.type}-${color}`;
+			} else {
+				return item.type;
+			}
+		}
 	}
 
 	// limit text to 100 characters, with ellipses
