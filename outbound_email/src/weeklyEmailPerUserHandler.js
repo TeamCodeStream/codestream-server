@@ -279,11 +279,10 @@ class WeeklyEmailPerUserHandler {
 			codemark.isCodemark = true; // since we'll be collating with reviews
 			codemark.post.codemark = codemark;
 			if (codemark.post.parentPost) { return; } // codemarks under reviews don't show up as separate items
-			if (
-				codemark.status === 'closed' &&
-				codemark.modifiedAt > this.userData.contentCreatedSince
-			) {
-				this.userData.closedCodemarks.push(codemark);
+			if (codemark.status === 'closed') {
+				if (codemark.modifiedAt > this.userData.contentCreatedSince) {
+					this.userData.closedCodemarks.push(codemark);
+				}
 			} else if ((codemark.assignees || []).includes(this.user.id)) {
 				this.userData.myCodemarks.push(codemark);
 			} else if (codemark.createdAt > this.userData.contentCreatedSince) {
