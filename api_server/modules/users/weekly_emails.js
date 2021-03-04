@@ -21,12 +21,12 @@ const PD_TEAM_WHITELIST = [
 // governs how often we do weekly email runs, for testing, can be: local, pd, pdnight 
 // (which is used with whitelisted teams) or prod
 // see schedule() method below for details
-const TEST_MODE = 'local';
+const TEST_MODE = 'pd';
 
 // teams that have had a weekly email run within this interval, wait till next week
 const LAST_RUN_CUTOFF = 
 	TEST_MODE === 'pdnight' ? 1 * ONE_HOUR :
-	TEST_MODE === 'pd' ? 10 * ONE_MINUTE : 
+	TEST_MODE === 'pd' ? 20 * ONE_MINUTE : 
 	ONE_DAY;
 
 // users who have been sent a weekly email within this interval, don't get another
@@ -156,10 +156,10 @@ class WeeklyEmails {
 	async sendWeeklyEmailsToTeamMembers (team) {
 		const threeWeeksAgo = Date.now() - 3 * ONE_WEEK;
 		if (team.deactivated) {
-			this.api.log(`Not triggering weekly email reminders for team ${team.id}, team has been deactivated`);
+			this.api.log(`Not triggering weekly emails for team ${team.id}, team has been deactivated`);
 			return;
 		} else if (team.lastPostCreatedAt < threeWeeksAgo && team.weeklyEmailRunCount === 0) {
-			this.api.log(`Not triggering weekly email reminders to team ${team.id}, team has not had any activity in the last three weeks, and their email run count is at 0`);
+			this.api.log(`Not triggering weekly emails to team ${team.id}, team has not had any activity in the last three weeks, and their email run count is at 0`);
 			return;
 		}
 
