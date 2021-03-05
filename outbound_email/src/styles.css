@@ -1,3 +1,7 @@
+body {
+	background-color: #1e1e1e;
+}
+
 .master {
 	padding: 12px;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI',
@@ -44,6 +48,10 @@
 	font-weight: 700;
 }
 
+.author-weekly {
+	font-weight: 700;
+}
+
 .datetime {
 	color: #c7c7c6;
 	font-size: 13px;
@@ -55,7 +63,7 @@
 }
 
 .following a {
-	color: white !important;
+	color: #009aef !important;
 	text-decoration: none !important;
 }
 
@@ -147,11 +155,11 @@ td {
 }
 
 .related-title {
-	color: #c7c7c6 !important;
+	color: #009aef !important;
 }
 
 .related a {
-	color: #c7c7c6 !important;
+	color: #009aef !important;
 	text-decoration: none !important;
 }
 
@@ -261,7 +269,7 @@ td {
 }
 
 .replies-earlier a {
-	color: #c7c7c6 !important;
+	color: #009aef !important;
 	text-decoration: none;
 }
 
@@ -324,9 +332,39 @@ blockquote {
 .ensure-white {
 	color: #c7c7c6 !important;
 }
+
 .lines-added {
 	color: #66aa66;
 }
+
 .lines-deleted {
 	color: #cc3366;
+}
+
+.heading {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.sub-heading {
+	font-size: 16px;
+}
+
+.weekly-listing {
+	margin: 3px 0px 3px 0px;
+}
+
+.weekly-listing a {
+	color: #009aef !important;
+	text-decoration: none !important;
+}
+
+.weekly-email-atag {
+	color: #009aef !important;
+	text-decoration: none !important;
+}
+
+.latest-news-atag {
+	color: #009aef;
+	text-decoration: none !important;
 }

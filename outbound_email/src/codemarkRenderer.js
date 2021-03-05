@@ -196,9 +196,9 @@ class CodemarkRenderer extends RendererBase {
 		let iconHtml = Utils.renderIcon(codemark.externalProvider);
 		return Utils.renderSection(`
 		<div class="nice-gray section-text">LINKED ISSUES</div>
-<div class="issue hover-underline">
+<div class="issue">
 	${iconHtml}
-	<a clicktracking="off" href="${providerUrl}" class="space-left">${providerName} ${providerUrl}</a>
+	<a clicktracking="off" href="${providerUrl}" class="space-left"><span class="hover-underline">${providerName} ${providerUrl}</span></a>
 </div>`);
 	}
 
@@ -257,7 +257,7 @@ class CodemarkRenderer extends RendererBase {
 <div class="related">
 	${iconHtml}&nbsp;
 	<a clicktracking="off" href="${codemark.permalink}">
-		<span class="related-title">${relatedTitle}</span>&nbsp;<span class="nice-gray hover-underline">${path}</span>
+		<span class="related-title hover-underline">${relatedTitle}</span>&nbsp;<span class="nice-gray hover-underline">${path}</span>
 	</a>
 </div>
 `;

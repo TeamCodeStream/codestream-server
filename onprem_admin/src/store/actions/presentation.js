@@ -6,8 +6,6 @@ import ConfigActions from './config';
 import PresentationActions from './presentation';
 import OriginalConfigActions from './originalConfig';
 
-// import ModalContinueOrCancel from '../../components/lib/ModalContinueOrCancel';
-
 const Actions = {
 	PRESENTATION_NAV_GLOBAL_SELECT: 'PRESENTATION_NAV_GLOBAL_SELECT',
 
@@ -23,6 +21,13 @@ const Actions = {
 	// PRESENTATION_CONFIG_GEN_TELEMETRY_SET_DISABLED: 'PRESENTATION_CONFIG_GEN_TELEMETRY_SET_DISABLED',
 	PRESENTATION_CONFIG_TOPOLOGY_NEW_CERT: 'PRESENTATION_CONFIG_TOPOLOGY_NEW_CERT',
 	PRESENTATION_CONFIG_TOPOLOGY_NO_NEW_CERT: 'PRESENTATION_CONFIG_TOPOLOGY_NO_NEW_CERT',
+
+	// Modal
+	PRESENTATION_HIDE_THE_MODAL: 'PRESENTATION_HIDE_THE_MODAL',
+	PRESENTATION_SHOW_THE_MODAL: 'PRESENTATION_SHOW_THE_MODAL',
+	PRESENTATION_UPDATE_THE_MODAL_PROPS: 'PRESENTATION_UPDATE_THE_MODAL_PROPS',
+
+	PRESENTATION_LICENSE_UPDATE: 'PRESENTATION_LICENSE_UPDATE',
 	// PRESENTATION_: 'PRESENTATION_',
 };
 
@@ -178,7 +183,7 @@ export function saveConfiguration(activate = false, desc = null) {
 		const state = getState();
 		console.debug(`saveConfiguration()`);
 		axios
-			.post(activate ? '/api/config/activte' : '/api/config', {
+			.post(activate ? '/api/config/activate' : '/api/config', {
 				configData: state.config,
 				desc,
 			})
@@ -274,6 +279,19 @@ export function loadConfigurationHistory() {
 	};
 };
 
+export function loadLicenses() {
+	return (dispatch, getState) => {
+		// triggers thunk middleware
+		const state = getState();
+		console.debug(`loadLicenses`);
+		axios
+			.get(`/api/licenses`)
+			.then((resp) => {
+				dispatch({ type: Actions.PRESENTATION_LICENSE_UPDATE, payload: resp.data });
+			})
+			.catch(console.error);
+	};
+};
 
 
 // default export the apiServer actions

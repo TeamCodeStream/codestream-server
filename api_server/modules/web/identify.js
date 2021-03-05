@@ -16,7 +16,7 @@ module.exports = function(options) {
 		new Date(user.get('lastPostCreatedAt')).toISOString();
 	const teamId = team && team.id;
 	const teamName = team && team.get('name');
-	const teamSize = team && team.get('memberIds').length;
+	const teamSize = team && team.getActiveMembers().length;
 	const teamCreatedAt = team && new Date(team.get('createdAt')).toISOString();
 	const reportingGroup = company && company.get('reportingGroup');
 	const companyName = company && company.get('name');

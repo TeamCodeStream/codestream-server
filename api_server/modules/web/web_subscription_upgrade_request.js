@@ -4,6 +4,7 @@
 
 const Identify = require('./identify');
 const WebRequestBase = require('./web_request_base');
+const LicenseManager = require('../../../shared/server_utils/LicenseManager');
 
 class SubscriptionUpgradeRequest extends WebRequestBase {
 
@@ -49,11 +50,11 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 			return this.redirect404();
 		}
 
-		const unpaidPlans = ['14DAYTRIAL', '30DAYTRIAL', 'TRIALEXPIRED', 'UNEXPIRED', 'FREEPLAN', 'SALES'];
-		if (!unpaidPlans.includes(this.company.get('plan'))) {
+		if (await !new LicenseManager({ company: this.company.attributes }).isPaidPlan()) {
 			return super.render('error', {
 				title: 'Subscription Changes',
-				body: 'Please contact <a href="mailto:sales@codestream.com">sales@codestream.com</a> if you would like to make changes to your subscription.'
+				body:
+					'Please contact <a href="mailto:sales@codestream.com">sales@codestream.com</a> if you would like to make changes to your subscription.',
 			});
 		}
 

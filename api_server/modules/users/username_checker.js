@@ -48,7 +48,7 @@ class UsernameChecker  {
 		this.users = await this.data.users.getByQuery(
 			query,
 			{
-				fields: ['username', 'teamIds'],	// only fetch these fields, to minimize database output size
+				fields: ['username', 'teamIds', 'deactivated'],	// only fetch these fields, to minimize database output size
 				hint: Indexes.byTeamIds,
 				noCache: true
 			}

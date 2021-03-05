@@ -21,7 +21,7 @@ class TeamSubscriptionGranter  {
 			return;
 		}
 		this.members = await this.data.users.getByIds(
-			this.team.get('memberIds') || [],
+			this.team.getActiveMembers(),
 			{
 				// only need these fields
 				fields: ['isRegistered', 'accessToken', 'accessTokens', 'broadcasterToken']

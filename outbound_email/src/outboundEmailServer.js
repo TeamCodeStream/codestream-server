@@ -20,6 +20,7 @@ const ChangeEmailConfirmationHandler = require('./changeEmailConfirmationHandler
 const InviteEmailHandler = require('./inviteEmailHandler');
 const ResetPasswordEmailHandler = require('./resetPasswordEmailHandler');
 const TeamCreatedEmailHandler = require('./teamCreatedEmailHandler');
+const WeeklyEmailHandler = require('./weeklyEmailHandler');
 const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const FS = require('fs');
@@ -34,7 +35,8 @@ const HANDLERS = {
 	invite: InviteEmailHandler,
 	resetPassword: ResetPasswordEmailHandler,
 	teamCreated: TeamCreatedEmailHandler,
-	notification_v2: EmailNotificationV2Handler
+	notification_v2: EmailNotificationV2Handler,
+	weekly: WeeklyEmailHandler
 };
 
 // The OutboundEmailServer is instantiated via the cluster wrapper.
@@ -189,7 +191,8 @@ class OutboundEmailServer {
 			// use of broadcaster is disabled for now, it is not current needed
 			// this.openBroadcasterClient, 
 			this.openQueuer,
-			this.readStyles
+			this.readStyles,
+			this.readLatestNews
 		], this);
 		this.log('Service connections successful');
 		this.makeEmailSender();
@@ -320,6 +323,16 @@ class OutboundEmailServer {
 		});
 		this.pseudoStyles = await new Promise((resolve, reject) => {
 			FS.readFile('./src/pseudoStyles.css', 'utf8', (error, data) => {
+				if (error) reject(error);
+				else resolve(data);
+			});
+		});
+	}
+
+	// read the "latest news" file, as needed (for weekly emails)
+	async readLatestNews () {
+		this.latestNews = await new Promise((resolve, reject) => {
+			FS.readFile('./src/latestNews.html', 'utf8', (error, data) => {
 				if (error) reject(error);
 				else resolve(data);
 			});

@@ -65,6 +65,7 @@ class PostCreator extends ModelCreator {
 			throw this.errorHandler.error('noReplyWithReview');
 		}
 
+
 		// many attributes that are allowed but don't become attributes of the created user
 		['dontSendEmail', 'addedUsers', 'inviteInfo', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn'].forEach(parameter => {
 			this[parameter] = this.attributes[parameter];
@@ -644,7 +645,7 @@ class PostCreator extends ModelCreator {
 			this.request.log('Would have triggered email notifications for stream ' + this.stream.id);
 			return;
 		}
-		if (this.dontSendEmailNotification) {
+		if (this.dontSendEmail) {
 			this.request.log('Email notification trigger blocked by caller for stream ' + this.stream.id);
 			return;
 		}

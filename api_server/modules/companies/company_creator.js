@@ -5,6 +5,7 @@
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Company = require('./company');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const LicenseManager = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/LicenseManager');
 
 ///const TRIAL_PERIOD_FOR_30_DAY_TRIAL = 36 * 24 * 60 * 60 * 1000;	// NOTE - this is 36 days, which gives breathing room
 const TRIAL_PERIOD_FOR_14_DAY_TRIAL = 16 * 24 * 60 * 60 * 1000; // NOTE - this is 16 days, which gives breathing room
@@ -40,10 +41,11 @@ class CompanyCreator extends ModelCreator {
 		this.attributes.creatorId = this.user.id;	// creator is the user making the request
 		this.attributes.teamIds = this.teamIds || [];
 
-		// default this team to a 14-day trial
 		// now that we have createdAt, start the trial ticket from that time forward
 		const onPrem = this.isOnPrem();
-		this.attributes.plan = onPrem ? '14DAYTRIAL' : 'FREEPLAN';
+		// this gets our default license
+		// FIXME: this call should include { db: MongoClient.db() } in the options!
+		this.attributes.plan = (await new LicenseManager({ isOnPrem: onPrem }).getMyLicense()).plan;
 		if (onPrem) {
 			this.attributes.trialStartDate = this.attributes.createdAt;
 			this.attributes.trialEndDate = this.attributes.trialStartDate + TRIAL_PERIOD_FOR_14_DAY_TRIAL;

@@ -6,6 +6,7 @@ const CodeStreamModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/li
 const CodeStreamModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model_validator');
 const TeamAttributes = require('./team_attributes');
 const ProviderFetcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_fetcher');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class Team extends CodeStreamModel {
 
@@ -39,6 +40,14 @@ class Team extends CodeStreamModel {
 			object.providerHosts = info.providerHosts[this.id];
 		}
 		return object;
+	}
+
+	// get the members of the team, accounting for members who may have been removed
+	getActiveMembers () {
+		return ArrayUtilities.difference(
+			this.attributes.memberIds || [],
+			this.attributes.removedMemberIds || []
+		);
 	}
 }
 

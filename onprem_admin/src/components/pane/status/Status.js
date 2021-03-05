@@ -28,6 +28,7 @@ class Status extends React.Component {
 		const installTableData = [
 			['Product Type:', this.props.productType === 'On-Prem Development' ? this.props.productType + ` (${this.props.runTimeEnvironment})` : this.props.productType],
 			['Installation ID:', this.props.installationId],
+			['Installer Email:', this.props.userProfile?.email],
 			['API:', this.props.apiUrl],
 			['Database:', this.props.mongoUrl]
 		];
@@ -90,7 +91,7 @@ class Status extends React.Component {
 				<div className="row justify-content-center mt-3">
 					<div className="col-10">
 						<center>
-							<h5>Status Messages and Alert History</h5>
+							<h5>Status Message and Alert History</h5>
 							<table className="table table-dark table-striped">
 								<tbody>
 									{statusMsgTableData.length ? (
@@ -138,6 +139,7 @@ const mapState = (state) => ({
 	mongoUrl: state.config.storage.mongo.url,
 	alerts: state.status.systemStatus.alerts,
 	statusMessages: state.status.statusMessages,
+	userProfile: state.status.userProfile,
 });
 
 // returns behavior for the component

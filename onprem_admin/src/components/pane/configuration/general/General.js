@@ -10,6 +10,7 @@ import ConfigActions, { telemetryDataIsMissing } from '../../../../store/actions
 
 export class General extends React.Component {
 	render() {
+		const phoneHomeDesc = !this.props.phoneHomeSelectable ? " (your license doesn't allow you to disable this)" : "";
 		return (
 			<div className="General layout-general container py-5">
 				{/* <div className="container justify-content-center"> */}
@@ -33,9 +34,11 @@ export class General extends React.Component {
 								disabled={!this.props.telemetrySelectable}
 							/>
 							<label className="form-check-label text-light" htmlFor="telemetryEnabled">
-								Enable telemetry to help make CodeStream a better experience for everyone.
+								Enable telemetry to help make CodeStream a better experience for everyone
 							</label>
 						</div>
+					</div>
+					<div className="row col-12 offset-2">
 						<div className="form-check">
 							<input
 								className="form-check-input"
@@ -47,7 +50,7 @@ export class General extends React.Component {
 								disabled={!this.props.phoneHomeSelectable}
 							/>
 							<label className="form-check-label text-light" htmlFor="phoneHomeEnabled">
-								Enable <strong>Phone Home</strong> reporting (your license doesn't allow you to disable this).
+								Enable <strong>Phone Home</strong> reporting{phoneHomeDesc}
 							</label>
 						</div>
 					</div>
@@ -69,15 +72,15 @@ General.propTypes = {
 
 const mapState = state => {
 	// console.debug('component(General/mapState): state =', state);	// entire state
-	const telemetrySelectable = !telemetryDataIsMissing(state.config.telemetry);
+	// const telemetrySelectable = !telemetryDataIsMissing(state.config.telemetry);
+	const telemetrySelectable = true;
 	return {
 		telemetrySelectable,
 		telemetryEnabled: telemetrySelectable // TODO: shouldn't this always be set?
-			// ? !(state.config.telemetry.disabled || false)
 			? !(state.config.telemetry.disabled || false)
 			: false,
-		phoneHomeEnabled: !(state.config.apiServer.disablePhoneHome || false),
-		phoneHomeSelectable: false,
+		phoneHomeEnabled: !state.config.apiServer.disablePhoneHome,
+		phoneHomeSelectable: !state.presentation.license?.isTrial,
 	};
 }
 

@@ -8,6 +8,7 @@ import { SystemStatuses } from '../src/store/actions/status';
 import { globalNavItems, configNavItems } from '../src/store/actions/presentation';
 import { MongoClient, Logger, SystemStatusMonitor, AdminConfig, Installation, MongoStructuredConfig } from '../config/globalData';
 import AdminAccess from './adminAccess';
+import LicenseManager from '../../shared/server_utils/LicenseManager';
 
 import App from '../src/components/App';
 
@@ -25,19 +26,26 @@ async function serverRenderApp(req) {
 		configuration: {
 			paneSelected: configNavItems.topology,
 			integrations: {
-				messaging: {},	// slack, msteams
-				tracking: {},	// trello, jira, ...
+				messaging: {}, // slack, msteams
+				tracking: {}, // trello, jira, ...
 			},
 			history: {
 				summary: [],
 			},
 			general: {},
-			topology: {}
+			topology: {},
 		},
 		updates: {},
 		support: {},
-		license: {},
+		license: req.isAuthenticated()
+			? await new LicenseManager({
+					db: MongoClient.db(),
+					isOnPrem: AdminConfig.getPreferredConfig().sharedGeneral.isOnPrem,
+					logger: Logger,
+			  }).getMyLicense()
+			: {},
 	};
+
 	const configRoute = requestedRoute.match(/configuration\/(topology|general|email|integrations|history)/i);
 	if (configRoute) {
 		if (configRoute[1] in configNavItems) {
@@ -54,7 +62,8 @@ async function serverRenderApp(req) {
 	// If the admin server was started using a configuration file, it is
 	// possible for the working configuration to be different from the active
 	// mongo configuration. This is an acceptible condition.
-	await MongoStructuredConfig.loadConfig({ reload: true });
+	// await MongoStructuredConfig.loadConfig({ reload: true });
+	await MongoStructuredConfig.loadConfig();
 	const activeConfigSerialNumber = MongoStructuredConfig.getConfigMetaDocument().serialNumber;
 	Logger.debug(`serverRenderApp(): active config serial is ${activeConfigSerialNumber}`);
 	Logger.debug(`system status is ${SystemStatusMonitor.systemStatus}`);
@@ -62,6 +71,7 @@ async function serverRenderApp(req) {
 	const status = req.isAuthenticated()
 		? {
 				loggedIn: true,
+				userProfile: { id: req.user.id, email: req.user.email },
 				adminAccountExists: true,
 				systemStatus: {
 					status: SystemStatusMonitor.systemStatus,

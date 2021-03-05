@@ -3,7 +3,8 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
-const getAssetInfo = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_asset_data');
+const GetAssetInfo = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_asset_data');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 
 class AssetInfoRequest extends RestfulRequest {
 
@@ -14,7 +15,8 @@ class AssetInfoRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		// return the asset info
-		this.responseData = await getAssetInfo({ serviceRoot: process.env.CSSVC_BACKEND_ROOT + '/api_server' });
+		this.responseData = await GetAssetInfo({ serviceRoot: process.env.CSSVC_BACKEND_ROOT + '/api_server' });
+		this.responseData.runTimeEnvironment = ApiConfig.getPreferredConfig().sharedGeneral.runTimeEnvironment;
 	}
 
 	// describe this route for help

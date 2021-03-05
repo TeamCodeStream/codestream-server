@@ -88,7 +88,7 @@ class AnalyticsClient {
 			Object.assign(trackObject, {
 				'Team ID': team.id,
 				'Team Name': team.get('name'),
-				'Team Size': (team.get('memberIds') || []).length,
+				'Team Size': team.getActiveMembers().length,
 				'Team Created Date': new Date(team.get('createdAt')).toISOString()
 			});
 		}

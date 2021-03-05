@@ -3,6 +3,8 @@
 
 'use strict';
 
+const LicenseManager = require("../../../shared/server_utils/LicenseManager");
+
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class PhoneHomeStatsCollector {
@@ -31,13 +33,17 @@ class PhoneHomeStatsCollector {
 	// get all the companies ... this should, in theory, be limited to 1 for on-prem customers
 	async getCompanies () {
 		this.companies = await this.api.data.companies.getByQuery({}, { overrideHintRequired: true });
-		this.customerIsPaid = this.companies.find(company => this.companyIsPaid(company));
+		for (let company of this.companies) {
+			if (await this.companyIsPaid(company)) {
+				this.customerIsPaid = true;
+				break;
+			}
+		}
 	}
 
 	// is this company on a paid plan?
-	companyIsPaid (company) {
-		const plan = company.plan || '14DAYTRIAL';
-		return plan !== 'FREEPLAN' && plan !== '30DAYTRIAL' && plan !== '14DAYTRIAL';
+	async companyIsPaid (company) {
+		return await new LicenseManager({ company }).isPaidPlan();
 	}
 
 	// collect all the stats for the given companies

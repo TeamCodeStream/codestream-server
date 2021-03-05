@@ -1,8 +1,7 @@
 # Change Log
 
-## [8.2.X-alpha] - 0000-00-00 - Initial Release
+## [8.2.0] - 2021-3-5
 
 ### Added
 
-- The OnPrem Admin service is both a server and SPA providing onprem users a
-  tool for managing the configuration.
+- The OnPrem Admin service is both a server and SPA providing onprem admins a tool for managing the configuration

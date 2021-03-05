@@ -15,10 +15,8 @@ describe('company requests', function() {
 
 	this.timeout(20000);
 
-	/*
 	describe('GET /companies/:id', companiesRequestTester.getCompanyTest);
 	describe('GET /companies', companiesRequestTester.getCompaniesTest);
 	describe('POST /companies', PostCompanyRequestTester.test);
-	*/
 	describe('PUT /company-test-group/:id', CompanyTestGroupRequestTester.test);
 });
