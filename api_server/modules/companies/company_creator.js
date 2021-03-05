@@ -45,7 +45,7 @@ class CompanyCreator extends ModelCreator {
 		const onPrem = this.isOnPrem();
 		// this gets our default license
 		// FIXME: this call should include { db: MongoClient.db() } in the options!
-		this.attributes.plan = new LicenseManager({ isOnPrem: onPrem }).getMyLicense().plan;
+		this.attributes.plan = (await new LicenseManager({ isOnPrem: onPrem }).getMyLicense()).plan;
 		if (onPrem) {
 			this.attributes.trialStartDate = this.attributes.createdAt;
 			this.attributes.trialEndDate = this.attributes.trialStartDate + TRIAL_PERIOD_FOR_14_DAY_TRIAL;

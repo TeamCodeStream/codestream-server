@@ -66,11 +66,11 @@ class LicenseManager {
 	}
 
 	async isPaidPlan() {
-		return await this.getMyLicense().isPaid;
+		return (await this.getMyLicense()).isPaid;
 	}
 
 	async isInTrial() {
-		return await this.getMyLicense().isTrial;
+		return (await this.getMyLicense()).isTrial;
 	}
 
 	_defaultLicense() {

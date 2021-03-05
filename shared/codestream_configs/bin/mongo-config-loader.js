@@ -90,7 +90,7 @@ const ConfigReport = async() => {
 		if (Commander.firstCfgHook) {
 			firstConfigInstallationHook(configToLoad);
 			configToLoad.apiServer.phoneHomeUrl = 'https://phone-home.codestream.com';
-			const myLicense = new LicenseManager({
+			const myLicense = await new LicenseManager({
 				db: CfgData.getMongoClient().db(),
 				onPrem: true,
 			}).getMyLicense();

@@ -33,12 +33,17 @@ class PhoneHomeStatsCollector {
 	// get all the companies ... this should, in theory, be limited to 1 for on-prem customers
 	async getCompanies () {
 		this.companies = await this.api.data.companies.getByQuery({}, { overrideHintRequired: true });
-		this.customerIsPaid = this.companies.find(company => this.companyIsPaid(company));
+		for (let company of this.companies) {
+			if (await this.companyIsPaid(company)) {
+				this.customerIsPaid = true;
+				break;
+			}
+		}
 	}
 
 	// is this company on a paid plan?
-	companyIsPaid (company) {
-		return new LicenseManager({ company }).getMyLicense().isPaidPlan();
+	async companyIsPaid (company) {
+		return await new LicenseManager({ company }).isPaidPlan();
 	}
 
 	// collect all the stats for the given companies
