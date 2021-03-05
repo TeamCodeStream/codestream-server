@@ -91,20 +91,27 @@ class LicenseManager {
 	// a trial license and assume that one covers the installation.
 	async _getOnPremLicense(db = null) {
 		if (db) this.db = db;
-		const dbLicenses = await this.db
-			.collection('companies')
-			.find({ plan: { $exists: true } })
-			.sort({ plan: -1 })
-			.toArray();
-		dbLicenses.forEach((company) => {
-			const companyLicense = { plan: company.plan };
-			if (company.plan in PlanProperties) {
-				Object.assign(companyLicense, PlanProperties[company.plan]);
-			}
-			if (!this.license || (this.license.isTrial && !companyLicense.isTrial)) {
-				this.license = companyLicense;
-			}
-		});
+		if (!this.db) {
+			// this is bad because the N>=2 company added to an onprem instance won't save
+			// the correct license in the new company. It'll have the default which is incorrect
+			// and sloppy. Ergo, this condition should be avoided!
+			this.logger.error('_getOnPremLicense() was not passed a db handle - assuming default')
+		} else {
+			const dbLicenses = await this.db
+				.collection('companies')
+				.find({ plan: { $exists: true } })
+				.sort({ plan: -1 })
+				.toArray();
+			dbLicenses.forEach((company) => {
+				const companyLicense = { plan: company.plan };
+				if (company.plan in PlanProperties) {
+					Object.assign(companyLicense, PlanProperties[company.plan]);
+				}
+				if (!this.license || (this.license.isTrial && !companyLicense.isTrial)) {
+					this.license = companyLicense;
+				}
+			});
+		}
 		// brand new onprem installations have no docs in the companies
 		// collection until the first user registers so we use this as a
 		// default license.
@@ -116,7 +123,7 @@ class LicenseManager {
 	async getMyLicense() {
 		if (this.license) return this.license;
 		if (this.isOnPrem) return await this._getOnPremLicense();
-		if (!this.company.plan) {
+		if (!this.company || !this.company.plan) {
 			this.license = this._defaultLicense();
 		} else {
 			this.license = { plan: this.company.plan };
