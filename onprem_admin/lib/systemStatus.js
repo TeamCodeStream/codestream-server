@@ -271,7 +271,10 @@ class systemStatusService extends systemStatus {
 				// console.warn(`this.installation.assetInfo[${watcher.serviceName}] = ${fullName}`);
 				// update the global installation object
 				this.logger.debug(`this.installation.assetInfo[${watcher.serviceName}] = ${fullName}`);
-				this.installation.assetInfo[watcher.serviceName] = fullName;
+				if(!Object.keys(this.installation.dockerInfo).length) {
+					// only report the fullName of the asset being watched if we're NOT running under docker
+					this.installation.assetInfo[watcher.serviceName] = fullName;
+				}
 				// console.warn(`over here ${watcherId} 2B`);
 			} catch (error) {
 				// console.warn(`CAUGHT AN ERROR: over here ${watcherId} 3 (${error})`);

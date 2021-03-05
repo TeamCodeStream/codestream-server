@@ -72,11 +72,11 @@ General.propTypes = {
 
 const mapState = state => {
 	// console.debug('component(General/mapState): state =', state);	// entire state
-	const telemetrySelectable = !telemetryDataIsMissing(state.config.telemetry);
+	// const telemetrySelectable = !telemetryDataIsMissing(state.config.telemetry);
+	const telemetrySelectable = true;
 	return {
 		telemetrySelectable,
 		telemetryEnabled: telemetrySelectable // TODO: shouldn't this always be set?
-			// ? !(state.config.telemetry.disabled || false)
 			? !(state.config.telemetry.disabled || false)
 			: false,
 		phoneHomeEnabled: !state.config.apiServer.disablePhoneHome,
