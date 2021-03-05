@@ -338,5 +338,9 @@ module.exports = {
 		type: 'object',
 		description: 'Indicates the last time a weekly email was sent to this user, per team',
 		serverOnly: true
+	},
+	lastReadItems: {
+		type: 'object',
+		description: 'Indicates the number of replies read for each codemark or review associated with a post'
 	}
 };

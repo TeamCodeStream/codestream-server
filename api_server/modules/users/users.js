@@ -126,6 +126,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'post',
 		path: 'no-auth/gitlens-user',
 		requestClass: require('./gitlens_user_request')
+	},
+	{
+		method: 'put',
+		path: 'read-item/:postId',
+		requestClass: require('./read_item_request')
 	}
 ];
 
