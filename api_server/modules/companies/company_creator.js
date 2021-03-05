@@ -44,6 +44,7 @@ class CompanyCreator extends ModelCreator {
 		// now that we have createdAt, start the trial ticket from that time forward
 		const onPrem = this.isOnPrem();
 		// this gets our default license
+		// FIXME: this call should include { db: MongoClient.db() } in the options!
 		this.attributes.plan = new LicenseManager({ isOnPrem: onPrem }).getMyLicense().plan;
 		if (onPrem) {
 			this.attributes.trialStartDate = this.attributes.createdAt;

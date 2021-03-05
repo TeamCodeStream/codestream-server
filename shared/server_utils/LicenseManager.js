@@ -92,9 +92,9 @@ class LicenseManager {
 	async _getOnPremLicense(db = null) {
 		if (db) this.db = db;
 		if (!this.db) {
-			// this is bad because the N>=2 company added to an onprem instance won't save
-			// the correct license in the new company. It'll have the default which is incorrect
-			// and sloppy. Ergo, this condition should be avoided!
+			// this is bad because the N>=2 company added to an onprem instance
+			// won't save the correct license in the new company. It'll have the
+			// default which could be incorrect.
 			this.logger.error('_getOnPremLicense() was not passed a db handle - assuming default')
 		} else {
 			const dbLicenses = await this.db
