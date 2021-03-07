@@ -22,6 +22,7 @@ import Fs from 'fs';
 import Path from 'path';
 import Hjson from 'hjson';
 import axios from 'axios';
+import https from 'https';
 import { SystemStatuses } from '../src/store/actions/status';
 import sortBy from '../src/lib/sortObjectListByProps';
 
@@ -45,18 +46,23 @@ const getWatchers = (config, installation) => {
 			// message,
 		};
 	}
+
+	// FIXME: kludge for now. Never blindly reject unauthorized
+	const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 	// get assetInfo from API
 	watchers.apiAssetInfo = {
 		type: 'assetInfo',
 		url: `${config.apiServer.publicApiUrl}/no-auth/asset-info`,
-		serviceName: 'api-server'
+		serviceName: 'api-server',
+		httpsAgent
 	};
 	if (config.broadcastEngine.selected === 'codestreamBroadcaster') {
 		// get assetInfo from broadcaster
 		watchers.broadcastAssetInfo = {
 			type: 'assetInfo',
 			url: `${config.broadcastEngine.codestreamBroadcaster.ignoreHttps ? 'http' : 'https'}://${config.broadcastEngine.codestreamBroadcaster.host}:${config.broadcastEngine.codestreamBroadcaster.port}/no-auth/asset-info`,
-			serviceName: 'broadcaster'
+			serviceName: 'broadcaster',
+			httpsAgent
 		}
 	};
 	return watchers;
@@ -257,7 +263,7 @@ class systemStatusService extends systemStatus {
 		(async () => {
 			try {
 				// console.warn(`calling ${watcher.url}`);
-				const res = await axios.get(watcher.url);
+				const res = await axios.get(watcher.url, watcher.httpsAgent ? { httpsAgent: watcher.httpsAgent } : {});
 				this.logger.debug(`fetch ${watcher.url} returned`, null, res.data);
 				// console.warn(`fetch ${watcher.url} returned`, res.data);
 				const fullName = res.data.assetInfo?.fullName ? res.data.assetInfo.fullName : `development sandbox (${res.data.runTimeEnvironment || '?'})`;
@@ -271,7 +277,7 @@ class systemStatusService extends systemStatus {
 				// console.warn(`this.installation.assetInfo[${watcher.serviceName}] = ${fullName}`);
 				// update the global installation object
 				this.logger.debug(`this.installation.assetInfo[${watcher.serviceName}] = ${fullName}`);
-				if(!Object.keys(this.installation.dockerInfo).length) {
+				if (!Object.keys(this.installation.dockerInfo).length) {
 					// only report the fullName of the asset being watched if we're NOT running under docker
 					this.installation.assetInfo[watcher.serviceName] = fullName;
 				}

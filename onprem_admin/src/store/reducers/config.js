@@ -63,7 +63,6 @@ export default (state = null, action) =>
 				return action.payload;
 			case Actions.CONFIG_SET_DOTTED_PROPERTY:
 				dotPropertyInit(draft, action.payload.property, action.payload.value);
-				console.log('draft=', draft);
 				if (action.payload.updateEmailSettings) emailConfigurationUpdate(draft, action.payload);
 				console.debug(`CONFIG_SET_DOTTED_PROPERTY  action = `, action);
 				// console.debug('***DRAFT=', JSON.stringify(draft.emailDeliveryService, null, 2));
@@ -71,9 +70,6 @@ export default (state = null, action) =>
 			case Actions.CONFIG_TOGGLE_DOTTED_BOOLEAN:
 				const propVal = getDottedProperty(draft, action.payload.property) || false;
 				dotPropertyInit(draft, action.payload.property, !propVal);
-				console.log('draft2=', draft);
-				const x = Object.assign({}, draft);
-				console.log('draft2X=', x);
 				if (action.payload.updateEmailSettings) emailConfigurationUpdate(draft, action.payload);
 				if (action.payload.updateSslConfig) sslConfigurationUpdate(draft);
 				console.debug(`CONFIG_TOGGLE_DOTTED_BOOLEAN  action = `, action);
