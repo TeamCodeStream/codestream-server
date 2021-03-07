@@ -11,17 +11,12 @@ const ONE_MONTH = 30 * ONE_DAY;
 
 // only do these teams, for testing in PD
 const PD_TEAM_WHITELIST = [
-	/* Dave's testing in PD
-	'602452b147d5084b6b10d9ed',
-	'60394d9153be52195d87b2bd',
-	'60394db353be52195d87b2c0'
-	*/
 ];
 
 // governs how often we do weekly email runs, for testing, can be: local, pd, pdnight 
 // (which is used with whitelisted teams) or prod
 // see schedule() method below for details
-const TEST_MODE = 'pdnight';
+const TEST_MODE = 'prod';
 
 // teams that have had a weekly email run within this interval, wait till next week
 const LAST_RUN_CUTOFF = 

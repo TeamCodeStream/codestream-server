@@ -445,7 +445,7 @@ class WeeklyEmailPerUserHandler {
 			requestId: this.requestId
 		};
 		try {
-			if (this.user.email.match(/.*@codestream\.com$/)) {
+			if (true/*this.user.email.match(/.*@codestream\.com$/)*/) {
 				this.logger.log(`Sending weekly email to ${this.user.email}...`);
 				await this.sender.sendEmail(options);
 			} else {
