@@ -46,7 +46,6 @@ const isDisabled = (flag) => flag || typeof flag === 'undefined' || flag === nul
 
 // handle email config setting dependencies across all services
 function emailConfigurationUpdate(config, payload) {
-	console.log('config=', config);
 	if (payload.senderEmail) config.email.senderEmail = payload.value;
 	if (payload.supportEmail) config.email.supportEmail = payload.value;
 	if (payload.replyToDomain) config.email.replyToDomain = payload.value;
