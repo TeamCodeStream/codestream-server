@@ -24,7 +24,6 @@ class EmailSender {
 	}
 
 	async sendEmail (options) {
-		this.logger.debug('EmailSender.sendEmail()', options.requestId);
 		if (this.smtpMailer) {
 			return await this.sendSmtpEmail(options);
 		}
@@ -61,7 +60,6 @@ class EmailSender {
 	}
 
 	async sendSendgridEmail (options) {
-		this.logger.debug('EmailSender.sendSendgridEmail(options):', options.requestId, options);
 		const { replyTo, type } = options;
 		const mailOptions = this.getCommonMailOptions(options);
 		mailOptions.from = { email: mailOptions.senderEmail, name: mailOptions.senderName };
@@ -69,13 +67,11 @@ class EmailSender {
 		if (replyTo) {
 			mailOptions.replyTo = { email: replyTo, name: 'CodeStream' };
 		}
-		this.logger.debug('EmailSender.sendSendgridEmail(mailOptions):', options.requestId, mailOptions);
 		this.logger.log(`Sending ${type} email through SendGrid to ${mailOptions.email}`, options.requestId);
 		await this.sendgridEmail.sendEmail(mailOptions);
 	}
 
 	async sendSmtpEmail (options) {
-		this.logger.debug('EmailSender.sendSmtpEmail(options):', options.requestId, options);
 		const { replyTo, type } = options;
 		const mailOptions = this.getCommonMailOptions(options);
 		mailOptions.from = `"${mailOptions.senderName}" <${mailOptions.senderEmail}>`;
@@ -83,7 +79,6 @@ class EmailSender {
 		if (replyTo) {
 			mailOptions.replyTo = `"CodeStream" <${replyTo}>`;
 		}
-		this.logger.debug('EmailSender.sendSmtpEmail(mailOptions):', options.requestId, mailOptions);
 		this.logger.log(`Sending ${type} email through SMTP to ${mailOptions.email}`, options.requestId);
 		await this.smtpMailer.sendEmail(mailOptions);
 	}

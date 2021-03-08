@@ -30,7 +30,6 @@ class EmailHandler {
 	// get the user associated with the email
 	async getUser () {
 		this.user = await this.data.users.getById(this.message.userId);
-		this.logger.debug(`getById(${this.message.userId} returned this.user:`, this.requestId, this.user);
 		if (!this.user) {
 			throw 'user not found:' + this.message.userId;
 		}
@@ -61,7 +60,6 @@ class EmailHandler {
 		if (this.message.fromSupport) {
 			options.from = { email: this.outboundEmailServer.config.email.supportEmail, name: 'CodeStream' };
 		}
-		this.logger.debug('EmailHandler.getSendOptions() returns options:', this.requestId, options);
 		return options;
 	}
 
