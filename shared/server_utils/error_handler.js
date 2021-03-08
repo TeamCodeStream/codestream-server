@@ -49,7 +49,7 @@ class ErrorHandler {
 
 	// syntactic sugar for a special kind of error
 	dataError (error) {
-		return this.error('data', { reason: error });
+		return this.error('data', { reason: error, stack: error.stack });
 	}
 
 	// log this error, safely turning it into a string

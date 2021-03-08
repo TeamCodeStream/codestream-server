@@ -97,7 +97,7 @@ class WeeklyEmailPerUserHandler {
 			},
 			{
 				overrideHintRequired: true,
-				sort: { byLastActivityAt: -1 },
+				sort: { lastActivityAt: -1 },
 				limit: 500,
 				excludeFields: ['reviewDiffs', 'checkpointReviewDiffs']
 			}
@@ -116,7 +116,7 @@ class WeeklyEmailPerUserHandler {
 			},
 			{
 				overrideHintRequired: true,
-				sort: { byLastActivityAt: -1 },
+				sort: { lastActivityAt: -1 },
 				limit: 500
 			}
 		);
@@ -182,6 +182,10 @@ class WeeklyEmailPerUserHandler {
 		// now get all those parent posts
 		const parentPosts = postsWithParents.reduce((posts, childPost) => {
 			childPost.parentPost = this.teamData.posts.find(p => p.id === childPost.parentPostId);
+			if (!childPost.parentPost) {
+				this.logger.warn(`Post ${childPost.id} has no parent post for ${childPost.parentPostId}`);
+				return posts;
+			}
 			if (childPost.parentPost.parentPost) {
 				// this will happen on the "recursive" round to get grandparents
 				childPost.grandparentPost = childPost.parentPost.parentPost;
@@ -243,6 +247,10 @@ class WeeklyEmailPerUserHandler {
 		this.teamData.reviews.forEach(review => {
 			review.post = this.teamData.posts.find(post => post.id === review.postId);
 			if (this.postHasDeactivatedAncestor(review.post)) { return; }
+			if (!review.post) {
+				this.logger.warn(`Review ${codemark.id} has no post for ${review.postId}`);
+				return;
+			}
 			review.post.review = review;
 			review.isReview = true; // since we'll be collating with codemarks
 			if (
@@ -275,6 +283,10 @@ class WeeklyEmailPerUserHandler {
 		this.userData.closedCodemarks = [];
 		this.teamData.codemarks.forEach(codemark => {
 			codemark.post = this.teamData.posts.find(post => post.id === codemark.postId);
+			if (!codemark.post) {
+				this.logger.warn(`Codemark ${codemark.id} has no post for ${codemark.postId}`);
+				return;
+			}
 			if (this.postHasDeactivatedAncestor(codemark.post)) { return; }
 			codemark.isCodemark = true; // since we'll be collating with reviews
 			codemark.post.codemark = codemark;
@@ -445,7 +457,7 @@ class WeeklyEmailPerUserHandler {
 			requestId: this.requestId
 		};
 		try {
-			if (true/*this.user.email.match(/.*@codestream\.com$/)*/) {
+			if (this.user.email.match(/.*@codestream\.com$/)) {
 				this.logger.log(`Sending weekly email to ${this.user.email}...`);
 				await this.sender.sendEmail(options);
 			} else {

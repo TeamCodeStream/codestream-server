@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Open_Sans">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/onprem_admin/public/fonts/Open_Sans.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

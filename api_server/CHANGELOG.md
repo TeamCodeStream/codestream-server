@@ -1,5 +1,15 @@
 # Change Log
 
+## [8.2.29] - 2021-3-8
+
+### Added
+
+- Adds backend support for displaying unread message indicators in sections of the CodeStream pane
+
+### Fixed
+
+- Fixes [#419](https://github.com/TeamCodeStream/codestream/issues/419) &mdash; Extraneous } at the end of code block in Slack reply form
+
 ## [8.2.28] - 2021-3-7
 
 ### Fixed

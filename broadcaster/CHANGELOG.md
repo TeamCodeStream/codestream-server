@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.27] - 2021-3-8
+
+### Changed
+
+- Release bump to support latest API version
+
 ## [8.2.26] - 2021-3-7
 
 ### Fixed
