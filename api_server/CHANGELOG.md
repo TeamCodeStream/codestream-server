@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.28] - 2021-3-7
+
+### Fixed
+
+- Deployment discrepancy
+
 ## [8.2.26] - 2021-3-5
 
 ### Fixed
