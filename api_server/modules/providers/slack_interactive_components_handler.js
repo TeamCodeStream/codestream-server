@@ -769,7 +769,7 @@ class SlackInteractiveComponentsHandler {
 						type: 'section',
 						text: {
 							type: 'mrkdwn',
-							text: `${file}\n\`\`\`${(m.get('code') || '').substring(0, 2994 - fileLength)}}\`\`\``
+							text: `${file}\n\`\`\`${(m.get('code') || '').substring(0, 2994 - fileLength)}\`\`\``
 						}
 					});
 				}
