@@ -157,15 +157,17 @@ class PubNubClient {
 			this._log(`Granting access for ${tokens} to ${channel}`, options);
 		}
 
+		return this._grantMultipleHelper(tokens, [channel], options);
+
+		/*
 		return Promise.all(tokens.map(async token => {
 			const channels = [channel];
-			/*
-			if (options.includePresence) {
-				channels.push(`${channel}-pnpres`);
-			}
-			*/
+			//if (options.includePresence) {
+			//	channels.push(`${channel}-pnpres`);
+			//}
 			await this._grantMultipleHelper(token, channels, options);
 		}));
+		*/
 	}
 
 	// grant read and/or write permission to multiple channels for the specified token
@@ -192,12 +194,12 @@ class PubNubClient {
 		for (let set = 0; set < numSets; set++) {
 			const channelSlice = channelNames.slice(set * SET_SIZE, (set + 1) * SET_SIZE);
 			if (channelSlice.length > 0) {
-				await this._grantMultipleHelper(token, channelSlice, options);
+				await this._grantMultipleHelper([token], channelSlice, options);
 			}
 		}
 	}
 
-	async _grantMultipleHelper (token, channels, options) {
+	async _grantMultipleHelper (tokens, channels, options) {
 		let result;
 		let retries = 0;
 		let lastError;
@@ -207,7 +209,7 @@ class PubNubClient {
 				result = await this.pubnub.grant(
 					{
 						channels,
-						authKeys: [token],
+						authKeys: tokens,
 						read: options.read === false ? false : true,
 						write: options.write === true ? true : false,
 						ttl: options.ttl || 0
@@ -215,13 +217,13 @@ class PubNubClient {
 				);
 			}
 			catch (error) {
-				this._warn(`Failed to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(error)}`, options);
+				this._warn(`Failed to grant access for ${JSON.stringify(tokens)} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(error)}`, options);
 				lastError = error;
 				retries++;
 			}
 
 			if (!lastError && result.error) {
-				this._warn(`Unable to grant access for ${token} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(result.errorData)}`, options);
+				this._warn(`Unable to grant access for ${JSON.stringify(tokens)} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(result.errorData)}`, options);
 				lastError = result.errorData;
 				retries++;
 			}
@@ -232,7 +234,7 @@ class PubNubClient {
 		if (lastError) {
 			throw lastError;
 		}
-		this._log(`Successfully granted access for ${token} to ${JSON.stringify(channels, undefined, 3)}`, options);
+		this._log(`Successfully granted access for ${JSON.stringify(tokens)} to ${JSON.stringify(channels, undefined, 3)}`, options);
 	}
 
 	// revoke read and/or write permission for the specified channel for the specified
