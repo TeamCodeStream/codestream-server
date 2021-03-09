@@ -70,7 +70,7 @@ class WeeklyEmails {
 			// in production, kick off at midnight (server time, which is ET) every Monday
 			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
 			// !!! FIXME: TEMPORARILY SET THIS TO RUN TODAY AT 5 PM ET, FOR TESTING 
-			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 17 * * 2`, this.sendWeeklyEmails.bind(this));
+			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 18 * * 2`, this.sendWeeklyEmails.bind(this));
 //			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * 1`, this.sendWeeklyEmails.bind(this));
 		}
 	}
