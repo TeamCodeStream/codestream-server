@@ -44,7 +44,7 @@ class ReviewCreator extends ModelCreator {
 				string: ['text', 'status'],
 				object: ['authorsById'],
 				boolean: ['allReviewersMustApprove', '_dontCreatePermalink'],
-				'array(string)': ['reviewers', 'followerIds', 'fileStreamIds', 'tags'],
+				'array(string)': ['reviewers', 'followerIds', 'codeAuthorIds', 'fileStreamIds', 'tags'],
 				'array(object)': ['markers']
 			}
 		};
@@ -132,10 +132,11 @@ class ReviewCreator extends ModelCreator {
 		await this.validateReviewersAndAuthors();
 
 		// handle followers, either passed in or default for the given situation
-		this.attributes.followerIds = ArrayUtilities.union(
-			this.attributes.reviewers || [],
-			this.attributes.followerIds || []
-		);
+		this.attributes.followerIds = ArrayUtilities.unique([
+			...(this.attributes.reviewers || []),
+			...(this.attributes.followerIds || []),
+			...(this.attributes.codeAuthorIds || [])
+		]);
 		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
 			this.attributes,
 			{
