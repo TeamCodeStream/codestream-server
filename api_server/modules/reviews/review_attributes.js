@@ -157,5 +157,10 @@ module.exports = {
 		type: 'timestamp',
 		description: 'Indicates the last time a reminder email was sent for this review',
 		serverOnly: true
+	},
+	codeAuthorIds: {
+		type: 'arrayOfIds',
+		maxLength: 1000,
+		description: 'Array of user IDs representing authors of the code referenced by this code review'
 	}
 };

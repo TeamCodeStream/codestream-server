@@ -296,6 +296,12 @@ class EmailNotificationV2Handler {
 			(this.review || this.codemark);
 		const followerIds = (thingToFollow && thingToFollow.followerIds) || [];
 		if (followerIds.indexOf(user.id) !== -1) {
+			// the one exception: if a review has been created and the user is one of the "code authors",
+			// meaning the review was created from an "unreviewed" commit, then we don't send
+			if (this.review && (this.review.codeAuthorIds || []).includes(user.id)) {
+				this.log(`User ${user.id}:${user.email} is a follower but is also a code author of a newly created review, so does not get an email notification`);
+				return false;
+			}
 			return true;
 		}
 
