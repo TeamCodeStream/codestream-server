@@ -110,7 +110,7 @@ class GrantRequest extends RestfulRequest {
 	// grant permission to subscribe to a given channel, assuming ACL has already been handled
 	async grantChannel (channel) {
 		// team and repo channels have presence awareness
-		const includePresence = channel.startsWith('team-') || channel.startsWith('repo-');
+		//const includePresence = channel.startsWith('team-') || channel.startsWith('repo-');
 		const tokens = [];
 		// using the access token for PubNub subscription is to be DEPRECATED
 		if (this.user.get('isRegistered')) {
@@ -124,8 +124,8 @@ class GrantRequest extends RestfulRequest {
 				tokens,
 				channel,
 				{
-					request: this,
-					includePresence: includePresence
+					request: this
+					//includePresence: includePresence
 				}
 			);
 		}

@@ -291,7 +291,7 @@ class BroadcasterServer {
 				// when this socket is the API server, respond to these things
 				this.addSocketReceiver('message', this.handleMessage, socket);
 				this.addSocketProc('desubscribe', this.handleDesubscribe, socket);
-				this.addSocketListener('getSubscribedUsers', this.getSubscribedUsers, socket);
+				//this.addSocketListener('getSubscribedUsers', this.getSubscribedUsers, socket);
 			}
 			else {
 				// when this socket is a CodeStream client, respond to these things
@@ -707,10 +707,13 @@ class BroadcasterServer {
 
 	// get users subscribed to a team channel
 	async getSubscribedUsers (data, socket, serverRequestId) {
+		throw 'getSubscribedUsers is no longer supported';
+		/*
 		const { channel, requestId } = data;
 		const userIds = this.userIdsByTeamChannel[channel] || [];
 		this.log(`Request for subscribed users on channel ${channel} returning ${userIds}`, socket, serverRequestId);
 		return { requestId, userIds };
+		*/
 	}
 
 	// is this socket a connection to the API server?

@@ -159,9 +159,11 @@ class PubNubClient {
 
 		return Promise.all(tokens.map(async token => {
 			const channels = [channel];
+			/*
 			if (options.includePresence) {
 				channels.push(`${channel}-pnpres`);
 			}
+			*/
 			await this._grantMultipleHelper(token, channels, options);
 		}));
 	}
@@ -171,9 +173,11 @@ class PubNubClient {
 		const channelNames = channels.reduce((currentChannels, channel) => {
 			if (typeof channel === 'object' && typeof channel.name === 'string') {
 				currentChannels.push(channel.name);
+				/*
 				if (channel.includePresence) {
 					currentChannels.push(`${channel.name}-pnpres`);
 				}
+				*/
 			}
 			else if (typeof channel === 'string') {
 				currentChannels.push(channel);
@@ -257,14 +261,18 @@ class PubNubClient {
 			throw result.errorData;
 		}
 		this._log(`Successfully revoked access for ${tokens} to ${channel}`, options);
+		/*
 		if (options.includePresence) {
 			// doing presence requires revoking access to this channel as well
 			await this.revoke(tokens, channel + '-pnpres', { request: options.request });
 		}
+		*/
 	}
 
 	// get list of users (by ID) currently subscribed to the passed channel
 	async getSubscribedUsers (channel, options = {}) {
+		throw 'getSubscribedUsers is no longer supported';
+		/*
 		const response = await this.pubnub.hereNow(
 			{
 				channels: [channel],
@@ -283,6 +291,7 @@ class PubNubClient {
 		});
 		this._log(`Here now for ${channel}: ${userIds}`, options);
 		return userIds;
+		*/
 	}
 
 	// handle a message coming in on any channel

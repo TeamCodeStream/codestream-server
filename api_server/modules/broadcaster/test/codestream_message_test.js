@@ -210,7 +210,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 					this.channelName,
 					this.messageReceived.bind(this),
 					{
-						withPresence: this.withPresence,
+						//withPresence: this.withPresence,
 						onFail: this.onSubscribeFail ? this.onSubscribeFail.bind(this) : undefined
 					}
 				);

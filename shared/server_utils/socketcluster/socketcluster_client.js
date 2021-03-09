@@ -196,6 +196,8 @@ class SocketClusterClient {
 
 	// get list of users (by ID) currently subscribed to the passed channel
 	async getSubscribedUsers (channel) {
+		throw 'getSubscribedUsers is no longer supported';
+		/*
 		const requestId = UUID();
 		try {
 			return await this.socket.invoke('getSubscribedUsers', { requestId, channel });
@@ -204,6 +206,7 @@ class SocketClusterClient {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this._warn(`Failed to get subscribed users: ${message}`);
 		}
+		*/
 	}
 
 	disconnect () {
