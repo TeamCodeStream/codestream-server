@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.29] - 2021-3-10
+
+### Added
+
+- Weekly email improvements
+
 ## [8.2.28] - 2021-3-9
 
 ### Changed
