@@ -11,8 +11,9 @@ module.exports = function(func, interval, logger, message) {
 				done = true;
 			}
 			catch (error) {
+				const errorMsg = error instanceof Error ? error.message : JSON.stringify(error);
 				if (logger) {
-					logger.warn(message);
+					logger.warn(`${message}: ${errorMsg}`);
 				}
 				await new Promise(timeoutResolve => {
 					setTimeout(timeoutResolve, interval);
