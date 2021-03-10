@@ -69,8 +69,8 @@ class WeeklyEmails {
 		} else {
 			// in production, kick off at midnight (server time, which is ET) every Monday
 			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
-			// !!! FIXME: TEMPORARILY SET THIS TO RUN TODAY AT 5 PM ET, FOR TESTING 
-			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 18 * * 2`, this.sendWeeklyEmails.bind(this));
+			// !!! FIXME: TEMPORARILY SET THIS TO RUN TODAY AT 6 PM ET, FOR TESTING 
+			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 12 * * 4`, this.sendWeeklyEmails.bind(this));
 //			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * 1`, this.sendWeeklyEmails.bind(this));
 		}
 	}
@@ -90,20 +90,26 @@ class WeeklyEmails {
 		do {
 			const now = Date.now();
 			const query = {
-				$or: [
+				$and: [
 					{
-						lastPostCreatedAt: { $exists: false }
+						$or: [
+							{
+								lastPostCreatedAt: { $exists: false }
+							},
+							{
+								lastPostCreatedAt: { $gt: now - ACTIVITY_CUTOFF }
+							}
+						]
 					},
 					{
-						lastPostCreatedAt: { $gt: now - ACTIVITY_CUTOFF }
-					}
-				],
-				$or: [
-					{
-						lastWeeklyEmailRunAt: { $exists: false }
-					},
-					{
-						lastWeeklyEmailRunAt: { $lt: now - LAST_RUN_CUTOFF }
+						$or: [
+							{
+								lastWeeklyEmailRunAt: { $exists: false }
+							},
+							{
+								lastWeeklyEmailRunAt: { $lt: now - LAST_RUN_CUTOFF }
+							}
+						]
 					}
 				]
 			};

@@ -96,7 +96,10 @@ class WeeklyEmailPerUserHandler {
 				deactivated: false
 			},
 			{
-				overrideHintRequired: true,
+				hint: {
+					teamId: 1,
+					lastActivityAt: -1
+				},
 				sort: { lastActivityAt: -1 },
 				limit: 500,
 				excludeFields: ['reviewDiffs', 'checkpointReviewDiffs']
@@ -112,10 +115,14 @@ class WeeklyEmailPerUserHandler {
 		this.teamData.codemarks = await this.data.codemarks.getByQuery(
 			{
 				teamId: this.teamData.team.id,
-				deactivated: false
+				type: { $ne: 'link' },
+				deactivated: false,
 			},
 			{
-				overrideHintRequired: true,
+				hint: {
+					teamId: 1,
+					lastActivityAt: -1
+				},
 				sort: { lastActivityAt: -1 },
 				limit: 500
 			}
@@ -133,7 +140,11 @@ class WeeklyEmailPerUserHandler {
 				deactivated: false
 			},
 			{
-				overrideHintRequired: true,
+				hint: {
+					teamId: 1,
+					streamId: 1,
+					_id: -1
+				},
 				sort: { _id: -1 },
 				limit: 500
 			}
@@ -282,6 +293,9 @@ class WeeklyEmailPerUserHandler {
 		this.userData.newCodemarks = [];
 		this.userData.closedCodemarks = [];
 		this.teamData.codemarks.forEach(codemark => {
+			if (!codemark.pinned) {	 // these are considered "archived" and should not show up in weekly emails
+				return;
+			}
 			codemark.post = this.teamData.posts.find(post => post.id === codemark.postId);
 			if (!codemark.post) {
 				this.logger.warn(`Codemark ${codemark.id} has no post for ${codemark.postId}`);

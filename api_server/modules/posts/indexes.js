@@ -4,11 +4,17 @@
 'use strict';
 
 module.exports = {
+	
+	// WARNING -- DO NOT CHANGE OR REMOVE THIS INDEX
+	// IT IS USED BY THE OUTBOUND EMAIL SERVER, VERBATIM,
+	// BUT WITHOUT SIGNIFICANT STRUCTURAL CHANGES TO OUR
+	// CODEBASE CANNOT BE DIRECTLY READ FROM THIS FILE
 	byId: {
 		teamId: 1,
 		streamId: 1,
 		_id: -1
 	},
+	
 	byParentPostId: {
 		teamId: 1,
 		streamId: 1,

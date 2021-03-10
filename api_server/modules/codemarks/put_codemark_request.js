@@ -108,7 +108,7 @@ class PutCodemarkRequest extends PutRequest {
 			postId
 		};
 		this.log(`Triggering V2 email notifications for post ${postId}...`);
-		this.api.services.email.queueEmailSend(message, { request: this.request });
+		this.api.services.email.queueEmailSend(message, { request: this });
 	}
 
 	// describe this route for help
