@@ -119,7 +119,7 @@ class WeeklyEmails {
 
 			teams = await this.api.data.teams.getByQuery(query, {
 				hint: TeamIndexes.byLastPostCreateAt,
-				sort: { byLastPostCreatedAt: 1 },
+				sort: { lastPostCreatedAt: 1 },
 				limit: TEAM_BATCH_SIZE
 			});
 
