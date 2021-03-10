@@ -34,6 +34,15 @@ class SQSClient {
 					options: options,
 					url: data.QueueUrl
 				};
+
+				// we want a large visibility timeout to handle the long processing time
+				// for weekly emails
+				this.sqs.setQueueAttributes({
+					QueueUrl: data.QueueUrl,
+					Attributes: {
+						VisibilityTimeout: '3600'
+					}
+				}, () => {});
 				resolve();
 			});
 		});
