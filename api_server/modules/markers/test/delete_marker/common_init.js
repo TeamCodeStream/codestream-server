@@ -18,7 +18,7 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.deletedMarkerIndex = 1;
 		this.teamOptions.creatorIndex = this.teamCreatorIndex === undefined ? 1 : this.teamCreatorIndex;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: this.teamCreatorCreatesCodemark ? 1 : (this.otherUserCreatesCodemark ? 2 : 0),

@@ -15,7 +15,7 @@ class GetPostsSortTest extends GetPostsTest {
 		this.expectedPosts.sort((a, b) => {
 			return a.seqNum - b.seqNum;
 		});
-		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}&sort=asc`;
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}&sort=asc`;
 		callback();
 	}
 

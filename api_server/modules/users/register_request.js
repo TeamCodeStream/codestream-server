@@ -47,8 +47,10 @@ class RegisterRequest extends RestfulRequest {
 		await this.lookForGitLensReferral(); /// match against any GitLens referral, as needed
 		await this.saveUser();				// save user to database
 		await this.addUserToTeam();			// add the user to a team, as needed
+		/*
 		await this.generateLinkToken();		// generate a token for the confirm link, as requested
 		await this.saveTokenInfo();			// save the token info to the user object, if we're doing a confirm link
+		*/
 		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
 
 		// if confirmation is not required (for instance, on-prem without email), skip straight to login
@@ -64,7 +66,6 @@ class RegisterRequest extends RestfulRequest {
 			'_confirmationCheat',
 			'_subscriptionCheat',
 			'_delayEmail',
-			'wantLink',
 			'expiresIn',
 			'signupToken',
 			'inviteCode',
@@ -157,9 +158,6 @@ class RegisterRequest extends RestfulRequest {
 			this.log('Note: confirmation not required in environment - THIS SHOULD NOT BE PRODUCTION - email will be automatically confirmed');
 			this.request.body.isRegistered = true;
 			return;
-		}
-		if (this.wantLink) {
-			return;	// new-style confirmation emails with links rather than confirmation codes, so skip this
 		}
 		// add confirmation related attributes to be saved when we save the user
 		if (
@@ -444,7 +442,6 @@ class RegisterRequest extends RestfulRequest {
 					'timeZone': '<User\'s time zone, per the Time Zone Database>',
 					'secondaryEmails': '<Array of other emails the user wants to associate with their account>',
 					'preferences': '<Object representing any preferences the user wants to set as they register>',
-					'wantLink': '<Set this to send a confirmation email with a link instead of a code>',
 					'signupToken': '<Client-generated signup token, passed to signup on the web, to associate an IDE session with the new user>',
 					'inviteCode': '<Invite code associated with an invitation to this user>',
 					'teamId': '<For repo-based signup, specify team the user is joining>',

@@ -1,11 +1,10 @@
 'use strict';
 
 const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
-const PostToChannelTest = require('../post_to_channel_test');
 const CommonInit = require('../common_init');
 const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 
-class ReviewNewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostToChannelTest) {
+class ReviewNewRepoMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
 		return 'members of the team should receive a message with the repo when a post and review are posted to a private stream with a marker from a file stream created on the fly where the repo is also created on the fly';

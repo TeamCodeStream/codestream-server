@@ -19,14 +19,14 @@ class GrantRequestTester {
 	grantTest () {
 		new MeChannelGrantTest().test();
 		new TeamChannelGrantTest().test();
-		new StreamChannelGrantTest().test();
+		//new StreamChannelGrantTest().test(); // deprecated
 		new UserChannelACLTest().test();
 		new TeamChannelACLTest().test();
-		new StreamChannelACLTest().test();
-		new OtherStreamChannelACLTest().test();
+		//new StreamChannelACLTest().test(); // deprecated
+		//new OtherStreamChannelACLTest().test(); // deprecated
 		new NonUserChannelACLTest().test();
 		new NonTeamChannelACLTest().test();
-		new NonStreamChannelACLTest().test();
+		//new NonStreamChannelACLTest().test(); // deprecated
 		new InvalidChannelTest().test();
 	}
 }

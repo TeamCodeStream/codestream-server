@@ -50,7 +50,8 @@ class ConfirmationTest extends CodeStreamAPITest {
 			_forceConfirmation: true // overrides developer environment, where confirmation might be turned off
 		});
 		if (this.userOptions.wantLink) {
-			data.wantLink = true;
+			throw 'wantLink is deprecated';
+			//data.wantLink = true;
 		}
 		if (this.userOptions.expiresIn) {
 			data.expiresIn = this.userOptions.expiresIn;
@@ -72,7 +73,8 @@ class ConfirmationTest extends CodeStreamAPITest {
 					email: user.email
 				};
 				if (this.userOptions.wantLink) {
-					this.data.token = user.confirmationToken;
+					throw 'wantLink is deprecated';
+					//this.data.token = user.confirmationToken;
 				}
 				else {
 					this.data.confirmationCode = user.confirmationCode;

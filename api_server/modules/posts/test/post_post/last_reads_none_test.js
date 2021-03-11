@@ -7,10 +7,12 @@ class LastReadsNoneTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
+		/*
 		Object.assign(this.streamOptions, {
 			type: this.type || 'channel',
 			creatorIndex: 1
 		});
+		*/
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
 			numPosts: 3
@@ -21,7 +23,8 @@ class LastReadsNoneTest extends CodeStreamAPITest {
 	}
 
 	get description () {
-		return `last read attribute for members of the stream should get updated to "0" when a new post is created in a ${this.type} stream and those members have not read any posts in the stream yet`;
+		const type = this.type || 'team';
+		return `last read attribute for members of the stream should get updated to "0" when a new post is created in a ${type} stream and those members have not read any posts in the stream yet`;
 	}
 
 	get method () {
@@ -43,7 +46,7 @@ class LastReadsNoneTest extends CodeStreamAPITest {
 		// we fetched the user's "user" object, we should see their lastReads attribute
 		// for the created stream set to 0, meaning they haven't read any messages in that
 		// stream
-		Assert(data.user.lastReads[this.stream.id] === 0, 'lastReads for stream is not 0');
+		Assert(data.user.lastReads[this.teamStream.id] === 0, 'lastReads for stream is not 0');
 	}
 }
 

@@ -19,8 +19,8 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 3;
-		this.streamOptions.creatorIndex = 1;
-		this.streamOptions.type = this.streamType || 'channel';
+		//this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.type = this.streamType || 'channel';
 		this.postOptions.creatorIndex = 0;
 		callback();
 	}

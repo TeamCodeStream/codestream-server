@@ -28,8 +28,8 @@ class CommonInit {
 					version: 6
 				},
 				$version: {
-					before: 5,
-					after: 6
+					before: 3,
+					after: 4
 				}
 			}
 		};

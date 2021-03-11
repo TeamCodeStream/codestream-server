@@ -9,7 +9,7 @@ class NumUsersInvitedTest extends Aggregation(CodeStreamMessageTest, CommonInit)
 
 	constructor (options) {
 		super(options);
-		this.streamOptions.isTeamStream = true;
+		//this.streamOptions.isTeamStream = true;
 	}
 
 	get description () {
@@ -64,7 +64,7 @@ class NumUsersInvitedTest extends Aggregation(CodeStreamMessageTest, CommonInit)
 							modifiedAt: Date.now() // placeholder
 						},
 						$unset: {
-							[`lastReads.${this.stream.id}`]: true
+							[`lastReads.${this.teamStream.id}`]: true
 						},
 						$version: {
 							before: 3,

@@ -17,6 +17,7 @@ class MessageToStreamTest extends Aggregation(CodeStreamMessageTest, CommonInit)
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
+		throw 'stream channels are deprecated';
 		// since it is a private stream, the channel will be the stream channel
 		this.channelName = `stream-${this.stream.id}`;
 		callback();

@@ -10,7 +10,8 @@ class ProviderTypeMessageTest extends MessageTest {
 	}
 
 	get description () {
-		return `members of the team should receive a message with the codemark when a post is unpinned from a codemark in a ${this.streamType} stream, and third-party streams are being used`;
+		const type = this.streamType || 'team';
+		return `members of the team should receive a message with the codemark when a post is unpinned from a codemark in a ${type} stream, and third-party streams are being used`;
 	}
 }
 

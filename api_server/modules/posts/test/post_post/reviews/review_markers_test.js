@@ -7,6 +7,7 @@ class ReviewMarkersTest extends ReviewTest {
 	constructor (options) {
 		super(options);
 		this.expectMarkers = 5;
+		this.expectStreamMarkers = 6;
 	}
 
 	get description () {

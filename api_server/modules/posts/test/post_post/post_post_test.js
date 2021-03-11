@@ -12,11 +12,11 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	constructor (options) {
 		super(options);
-		this.expectedVersion = 2;
+		this.expectedStreamVersion = 2;
 	}
 
 	get description () {
-		return 'should return a valid post when creating a post in a channel stream (simplest case: me-group)';
+		return 'should return a valid post when creating a post in the team stream';
 	}
 
 	get method () {
@@ -72,28 +72,28 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// verify we got the expected stream update in the response
 	validateStreamUpdate (data) {
-		if (!this.stream) { return; }
-		const streamUpdate = data.streams.find(stream => stream.id === this.stream.id);
+		//if (!this.stream) { return; }
+		const streamUpdate = data.streams.find(stream => stream.id === this.teamStream.id);
 		const expectedStreamUpdate = {
-			_id: this.stream.id,	// DEPRECATE ME
-			id: this.stream.id,
+			_id: this.teamStream.id,	// DEPRECATE ME
+			id: this.teamStream.id,
 			$set: {
 				mostRecentPostId: data.post.id,
 				sortId: data.post.id,
 				mostRecentPostCreatedAt: data.post.createdAt,
-				version: this.expectedVersion
+				version: this.expectedStreamVersion
 			},
 			$version: {
-				before: this.expectedVersion - 1,
-				after: this.expectedVersion
+				before: this.expectedStreamVersion - 1,
+				after: this.expectedStreamVersion
 			}
 		};
-		if (this.expectMarkers) {
-			expectedStreamUpdate.$set.numMarkers = this.expectMarkers;
+		if (this.expectStreamMarkers) {
+			expectedStreamUpdate.$set.numMarkers = this.expectStreamMarkers;
 		}
 		Assert(streamUpdate.$set.modifiedAt >= this.postCreatedAfter, 'modifiedAt not changed');
 		expectedStreamUpdate.$set.modifiedAt = streamUpdate.$set.modifiedAt;
-		Assert.deepEqual(streamUpdate, expectedStreamUpdate, 'stream update not correct');		
+		Assert.deepStrictEqual(streamUpdate, expectedStreamUpdate, 'stream update not correct');		
 	}
 }
 

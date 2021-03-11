@@ -12,9 +12,15 @@ class ReviewPublisher {
 		let channel;
 		const stream = this.stream || await this.request.data.streams.getById(this.review.get('streamId'));
 		if (!stream) { return; } // sanity
+		if (!stream.get('isTeamStream')) {
+			throw 'stream channels are deprecated';
+		}
+		channel = `team-${this.review.get('teamId')}`;
+		/*
 		channel = stream.get('isTeamStream') ? 
 			`team-${this.review.get('teamId')}` : 
 			`stream-${stream.id}`;
+		*/
 		const message = Object.assign({}, this.data, {
 			requestId: this.request.request.id
 		});

@@ -21,7 +21,7 @@ class NoLastActivityAtAndStreamIdTest extends GetReviewsTest {
 
 	setPath (callback) {
 		// no teamID in this path...
-		this.path = `/reviews?teamId=${this.team.id}&streamId=${this.stream.id}&byLastActivityAt=1`;
+		this.path = `/reviews?teamId=${this.team.id}&streamId=${this.teamStream.id}&byLastActivityAt=1`;
 		callback();
 	}
 }

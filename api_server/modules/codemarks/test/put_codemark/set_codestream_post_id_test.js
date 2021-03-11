@@ -35,7 +35,7 @@ class SetCodeStreamPostIdTest extends PutCodemarkTest {
 				this.data.postId = this.post.id;
 				Object.assign(this.expectedData.codemark.$set, {
 					postId: this.post.id,
-					streamId: this.stream.id
+					streamId: this.teamStream.id
 				});
 				this.expectedData.post = {
 					id: this.post.id,
@@ -53,7 +53,7 @@ class SetCodeStreamPostIdTest extends PutCodemarkTest {
 				callback();
 			},
 			{
-				streamId: this.stream.id,
+				streamId: this.teamStream.id,
 				token
 			}
 		);

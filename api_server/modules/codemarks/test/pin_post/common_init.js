@@ -23,6 +23,7 @@ class CommonInit {
 	// set options to use when running the test
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
+		/*
 		this.streamOptions.creatorIndex = 1;
 		if (this.streamType === 'team stream') {
 			Object.assign(this.streamOptions, {
@@ -33,6 +34,7 @@ class CommonInit {
 		else {
 			this.streamOptions.type = this.streamType || 'channel';
 		}
+		*/
 		if (!this.goPostless) {
 			Object.assign(this.postOptions, {
 				creatorIndex: 1,
@@ -82,7 +84,7 @@ class CommonInit {
 			return callback();	// doesn't apply to third-party provider posts
 		}
 		const postOptions = {
-			streamId: this.stream.id,
+			streamId: this.teamStream.id,
 			token: this.users[1].accessToken
 		};
 		if (!this.noReply) {

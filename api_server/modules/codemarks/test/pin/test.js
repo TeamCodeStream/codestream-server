@@ -16,12 +16,15 @@ class PinRequestTester {
 		new ACLTest().test();
 		new CodemarkNotFoundTest().test();
 		new PinFetchTest().test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
-		new MessageTest({ streamType: 'team stream' }).test();
-		new ProviderTypeMessageTest({ streamType: 'channel' }).test();
-		new ProviderTypeMessageTest({ streamType: 'direct' }).test();
-		new ProviderTypeMessageTest({ streamType: 'team stream' }).test();
+		new MessageTest().test();
+		new ProviderTypeMessageTest().test();
+		// NOTE posting to streams other than the team stream is no longer allowed
+		//new MessageTest({ streamType: 'channel' }).test();
+		//new MessageTest({ streamType: 'direct' }).test();
+		//new MessageTest({ streamType: 'team stream' }).test();
+		//new ProviderTypeMessageTest({ streamType: 'channel' }).test();
+		//new ProviderTypeMessageTest({ streamType: 'direct' }).test();
+		//new ProviderTypeMessageTest({ streamType: 'team stream' }).test();
 	}
 }
 

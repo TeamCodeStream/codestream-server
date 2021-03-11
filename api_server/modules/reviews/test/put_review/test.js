@@ -56,6 +56,7 @@ const TicketAndPullRequestTest = require('./ticket_and_pull_request_test');
 class PutReviewRequestTester {
 
 	test () {
+		/*
 		new PutReviewTest().test();
 		new ACLTest().test();
 		new ACLTeamTest().test();
@@ -66,18 +67,23 @@ class PutReviewRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'postId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
-		new MessageTest({ streamType: 'team stream' }).test();
+		*/
+		new MessageTest().test();
+		// NOTE - posting to streams other than the team stream is no longer allowed
+		//new MessageTest({ streamType: 'channel' }).test();
+		//new MessageTest({ streamType: 'direct' }).test();
+		//new MessageTest({ streamType: 'team stream' }).test();
 		new TeamMemberUpdateIssueStatusTest().test();
 		new UpdateStatusACLTest().test();
 		new AddReviewerTest().test();
 		new AddReviewersTest().test();
 		new AddReviewersFetchTest().test();
 		new AddReviewerFetchTest().test();
-		new AddReviewerMessageTest({ streamType: 'channel' }).test();
-		new AddReviewerMessageTest({ streamType: 'direct' }).test();
-		new AddReviewerMessageTest({ streamType: 'team stream' }).test();
+		new AddReviewerMessageTest().test();
+		// NOTE - posting to streams other than the team stream is no longer allowed
+		//new AddReviewerMessageTest({ streamType: 'channel' }).test();
+		//new AddReviewerMessageTest({ streamType: 'direct' }).test();
+		//new AddReviewerMessageTest({ streamType: 'team stream' }).test();
 		new RemoveReviewerTest().test();
 		new RemoveReviewersTest().test();
 		new RemoveReviewersFetchTest().test();
@@ -85,9 +91,11 @@ class PutReviewRequestTester {
 		new PushBecomesAddToSetTest().test();
 		new PushMergesToAddToSetTest().test();
 		new ReviewersNotArrayTest().test();
-		new RemoveReviewerMessageTest({ streamType: 'channel' }).test();
-		new RemoveReviewerMessageTest({ streamType: 'direct' }).test();
-		new RemoveReviewerMessageTest({ streamType: 'team stream' }).test();
+		new RemoveReviewerMessageTest().test();
+		// NOTE - posting to streams other than the team stream is no longer allowed
+		//new RemoveReviewerMessageTest({ streamType: 'channel' }).test();
+		//new RemoveReviewerMessageTest({ streamType: 'direct' }).test();
+		//new RemoveReviewerMessageTest({ streamType: 'team stream' }).test();
 		new ReviewersNotFound().test();
 		new ReviewersNotOnTeamTest().test();
 		new AddRemoveReviewersTest().test();
@@ -97,18 +105,22 @@ class PutReviewRequestTester {
 		new AddTagsTest().test();
 		new AddTagsFetchTest().test();
 		new AddTagFetchTest().test();
-		new AddTagMessageTest({ streamType: 'channel' }).test();
-		new AddTagMessageTest({ streamType: 'direct' }).test();
-		new AddTagMessageTest({ streamType: 'team stream' }).test();
+		new AddTagMessageTest().test();
+		// NOTE - posting to streams other than the team stream is no longer allowed
+		//new AddTagMessageTest({ streamType: 'channel' }).test();
+		//new AddTagMessageTest({ streamType: 'direct' }).test();
+		//new AddTagMessageTest({ streamType: 'team stream' }).test();
 		new RemoveTagTest().test();
 		new RemoveTagsTest().test();
 		new RemoveTagsFetchTest().test();
 		new PushBecomesAddToSetTagsTest().test();
 		new PushMergesToAddToSetTagsTest().test();
 		new TagsNotArrayTest().test();
-		new RemoveTagMessageTest({ streamType: 'channel' }).test();
-		new RemoveTagMessageTest({ streamType: 'direct' }).test();
-		new RemoveTagMessageTest({ streamType: 'team stream' }).test();
+		new RemoveTagMessageTest().test();
+		// NOTE - posting to streams other than the team stream is no longer allowed
+		//new RemoveTagMessageTest({ streamType: 'channel' }).test();
+		//new RemoveTagMessageTest({ streamType: 'direct' }).test();
+		//new RemoveTagMessageTest({ streamType: 'team stream' }).test();
 		new TagsNotFoundTest().test();
 		new AddRemoveTagsTest().test();
 		new AddRemoveTagsFetchTest().test();

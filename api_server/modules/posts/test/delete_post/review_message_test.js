@@ -7,7 +7,8 @@ const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 class ReviewMessageTest extends Aggregation(MessageTest, DeleteReviewTest) {
 
 	get description () {
-		return `members of the team or stream should receive a message with the deactivated post and review when a post with a review is deleted in a ${this.streamType} stream`;
+		const type = this.streamType || 'team';
+		return `members of the team or stream should receive a message with the deactivated post and review when a post with a review is deleted in a ${type} stream`;
 	}
 }
 

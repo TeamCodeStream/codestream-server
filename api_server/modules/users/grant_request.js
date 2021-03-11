@@ -27,10 +27,12 @@ class GrantRequest extends RestfulRequest {
 			await this.grantTeamChannel();
 		}
 		else if (channel.startsWith('repo-')) {
-			await this.grantRepoChannel();
+			throw 'repo channels are deprecated';
+			//await this.grantRepoChannel();
 		}
 		else if (channel.startsWith('stream-')) {
-			await this.grantStreamChannel();
+			throw 'stream channels are deprecated';
+			//await this.grantStreamChannel();
 		}
 		else {
 			throw this.errorHandler.error('invalidGrantChannel', { info: this.request.params.channel });
@@ -87,6 +89,7 @@ class GrantRequest extends RestfulRequest {
 
 	// grant permission to access a stream channel
 	async grantStreamChannel () {
+		throw 'stream channels are deprecated';
 		// user can only subscribe to the stream channel for streams owned by teams they are a member of
 		const channel = this.request.params.channel.toLowerCase();
 		const match = channel.match(/^stream-(.*)/);

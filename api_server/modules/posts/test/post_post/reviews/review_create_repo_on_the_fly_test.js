@@ -7,6 +7,7 @@ class ReviewCreateRepoOnTheFlyTest extends ReviewMarkerStreamOnTheFlyTest {
 	constructor (options) {
 		super(options);
 		this.expectMarkers = 1;
+		this.expectStreamMarkers = 2;
 		
 		// create some random remote URLs to generate a new repo
 		this.useRemotes = [];

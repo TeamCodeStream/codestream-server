@@ -6,7 +6,7 @@ const DeleteReviewTest = require('./delete_review_test');
 const DeleteReviewFetchTest = require('./delete_review_fetch_test');
 const DeleteMarkersTest = require('./delete_markers_test');
 const DeleteMarkersFetchTest = require('./delete_markers_fetch_test');
-const ACLTest = require('./acl_test');
+//const ACLTest = require('./acl_test');
 const ACLTeamTest = require('./acl_team_test');
 const ReviewNotFoundTest = require('./review_not_found_test');
 const AlreadyDeletedTest = require('./already_deleted_test');
@@ -23,17 +23,20 @@ class DeleteReviewRequestTester {
 		new DeleteReviewFetchTest().test();
 		new DeleteMarkersTest().test();
 		new DeleteMarkersFetchTest().test();
-		new ACLTest().test();
+		//new ACLTest().test();
 		new ACLTeamTest().test();
 		new ReviewNotFoundTest().test();
 		new AlreadyDeletedTest().test();
 		new AdminCanDeleteTest().test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
-		new MessageTest({ streamType: 'team stream' }).test();
-		new MarkersToTeamMessageTest({ streamType: 'channel' }).test();
-		new MarkersToTeamMessageTest({ streamType: 'direct' }).test();
-		new MarkersToTeamMessageTest({ streamType: 'team stream' }).test();
+		new MessageTest().test();
+		new MarkersToTeamMessageTest().test();
+		// NOTE - posting to streams other than the team stream is no longer allowed
+		//new MessageTest({ streamType: 'channel' }).test();
+		//new MessageTest({ streamType: 'direct' }).test();
+		//new MessageTest({ streamType: 'team stream' }).test();
+		//new MarkersToTeamMessageTest({ streamType: 'channel' }).test();
+		//new MarkersToTeamMessageTest({ streamType: 'direct' }).test();
+		//new MarkersToTeamMessageTest({ streamType: 'team stream' }).test();
 		new DeleteRepliesTest().test();
 		new DeleteRelationsTest().test();
 	}

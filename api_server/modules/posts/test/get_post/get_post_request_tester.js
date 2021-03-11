@@ -12,13 +12,22 @@ const GetPostWithReviewTest = require('./get_post_with_review_test');
 class GetPostRequestTester {
 
 	getPostTest () {
+		new GetPostTest().test();
+		new GetPostTest({ mine: true }).test();
+		/* Posting to streams other than the team-stream is no longer supported */
+		/*
 		new GetPostTest({type: 'channel', mine: true}).test();
 		new GetPostTest({type: 'direct', mine: true}).test();
 		new GetPostTest({type: 'channel'}).test();
 		new GetPostTest({type: 'direct'}).test();
+		*/
 		new NotFoundTest().test();
+		new ACLTest().test();
+		/* Posting to streams other than the team-stream is no longer supported */
+		/*
 		new ACLTest({ type: 'direct' }).test();
 		new ACLTest({ type: 'channel' }).test();
+		*/
 		new GetPostWithCodemarkTest().test();
 		new GetPostWithMarkerTest().test();
 		new GetPostWithReviewTest().test();

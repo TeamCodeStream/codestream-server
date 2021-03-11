@@ -88,8 +88,11 @@ class TestStreamCreator {
 	}
 
 	createPost (n, callback) {
+		if (!this.stream && !this.teamStream) {
+			throw 'no stream for creating test post';
+		}
 		const postOptions = {
-			streamId: this.stream.id,
+			streamId: this.stream ? this.stream.id : this.teamStream.id
 		};
 
 		if (

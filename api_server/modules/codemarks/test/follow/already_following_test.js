@@ -22,7 +22,7 @@ class AlreadyFollowingTest extends FollowTest {
 			super.validateResponse(data);
 		}
 		else {
-			Assert.deepEqual(data, {}, 'response should be empty object');
+			Assert.strictDeepEqual(data, {}, 'response should be empty object');
 		}
 	}
 }

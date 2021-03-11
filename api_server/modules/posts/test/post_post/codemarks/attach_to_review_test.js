@@ -8,8 +8,8 @@ class AttachToReviewTest extends CodemarkMarkerTest {
 	// for reply
 	constructor (options) {
 		super(options);
-		this.expectedSeqNum = 2;	// two posts in the stream, overrides the default of 1
-		this.expectedVersion = 3;	// stream update will get a version bump
+		this.expectedSeqNum = 3;	// two posts in the stream, overrides the default of 1
+		this.expectedStreamVersion = 4;	// stream update will get a version bump
 	}
 
 	get description () {

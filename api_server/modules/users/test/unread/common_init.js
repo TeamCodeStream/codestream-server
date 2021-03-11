@@ -8,7 +8,8 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 class CommonInit {
 
 	init (callback) {
-		this.streamOptions.creatorIndex = 1;
+		this.teamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		this.postOptions.numPosts = 5;
 		this.postOptions.creatorIndex = 1;
 		this.unreadPost = 2;
@@ -21,13 +22,15 @@ class CommonInit {
 
 	// mark the stream as read
 	markRead (callback) {
+		/*
 		if (!this.stream.memberIds.includes(this.currentUser.user.id)) {
 			return callback();
 		}
+		*/
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/read/' + this.stream.id,
+				path: '/read/' + this.teamStream.id,
 				token: this.token
 			},
 			callback
@@ -41,12 +44,12 @@ class CommonInit {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$set: {
-					[`lastReads.${this.stream.id}`]: this.lastReadPost.seqNum,
-					version: 7
+					[`lastReads.${this.teamStream.id}`]: this.lastReadPost.seqNum,
+					version: 5
 				},
 				$version: {
-					before: 6,
-					after: 7
+					before: 4,
+					after: 5
 				}
 			}
 		};

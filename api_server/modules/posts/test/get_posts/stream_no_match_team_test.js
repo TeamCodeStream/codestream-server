@@ -35,7 +35,7 @@ class StreamNoMatchTeamTest extends GetPostsTest {
 			userOptions: this.userOptions
 		}).create((error, response) => {
 			if (error) { return callback(error); }
-			this.path = `/posts?teamId=${response.team.id}&streamId=${this.stream.id}`;
+			this.path = `/posts?teamId=${response.team.id}&streamId=${this.teamStream.id}`;
 			callback();
 		});
 	}

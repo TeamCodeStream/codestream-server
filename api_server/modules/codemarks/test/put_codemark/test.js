@@ -74,17 +74,22 @@ class PutCodemarkRequestTester {
 		new NoUpdatePostIdTest().test();
 		new StreamIdRequiredTest().test();
 		new NoStreamIdTest().test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
-		new MessageTest({ streamType: 'team stream' }).test();
-		new ProviderTypeMessageTest({ streamType: 'channel' }).test();
-		new ProviderTypeMessageTest({ streamType: 'direct' }).test();
-		new ProviderTypeMessageTest({ streamType: 'team stream' }).test();
+		new MessageTest().test();
+		new ProviderTypeMessageTest().test();
+		// NOTE posting to streams other than the team stream is no longer allowed
+		//new MessageTest({ streamType: 'channel' }).test();
+		//new MessageTest({ streamType: 'direct' }).test();
+		//new MessageTest({ streamType: 'team stream' }).test();
+		//new ProviderTypeMessageTest({ streamType: 'channel' }).test();
+		//new ProviderTypeMessageTest({ streamType: 'direct' }).test();
+		//new ProviderTypeMessageTest({ streamType: 'team stream' }).test();
 		new UpdateMarkerTest().test();
 		new UpdateMarkerFetchTest().test();
-		new UpdateMarkerMessageTest({ streamType: 'channel' }).test();
-		new UpdateMarkerMessageTest({ streamType: 'direct' }).test();
-		new UpdateMarkerMessageTest({ streamType: 'team stream' }).test();
+		new UpdateMarkerMessageTest().test();
+		// NOTE posting to streams other than the team stream is no longer allowed
+		//new UpdateMarkerMessageTest({ streamType: 'channel' }).test();
+		//new UpdateMarkerMessageTest({ streamType: 'direct' }).test();
+		//new UpdateMarkerMessageTest({ streamType: 'team stream' }).test();
 		new RequiredForTypeTest({ codemarkType: 'comment', attribute: 'text' }).test();
 		new RequiredForTypeTest({ codemarkType: 'bookmark', attribute: 'title', wantMarker: true }).test();
 		new RequiredForTypeTest({ codemarkType: 'trap', attribute: 'text', wantMarker: true }).test();
@@ -127,9 +132,13 @@ class PutCodemarkRequestTester {
 		new PostDeactivatedTest().test();
 		new PostFromOtherTeamTest().test();
 		new IgnoreStreamIdTest().test();
+		new LinkPostMessageTest().test();
+		/*
+		// NOTE posting to streams other than the team stream is no longer allowed
 		new LinkPostMessageTest({ streamType: 'channel' }).test();
 		new LinkPostMessageTest({ streamType: 'direct' }).test();
 		new LinkPostMessageTest({ streamType: 'team stream' }).test();
+		*/
 	}
 }
 

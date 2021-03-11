@@ -10,6 +10,8 @@ class ReviewTest extends PostPostTest {
 		super(options);
 		this.streamUpdatesOk = true;
 		this.repoOptions.creatorIndex = 1;
+		this.expectedSeqNum = 2;
+		this.expectedStreamVersion = 3;
 	}
 
 	get description () {
@@ -35,7 +37,7 @@ class ReviewTest extends PostPostTest {
 	validateResponse (data) {
 		// verify we got back an codemark with the attributes we specified
 		const inputReview = Object.assign(this.data.review, {
-			streamId: this.stream.id,
+			streamId: this.teamStream.id,
 			postId: data.post.id
 		});
 		new ReviewValidator({

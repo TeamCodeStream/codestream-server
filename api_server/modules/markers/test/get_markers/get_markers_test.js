@@ -10,8 +10,10 @@ class GetMarkersTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
+		/*
 		this.streamOptions.creatorIndex = 1;
 		this.streamOptions.type = 'channel';
+		*/
 		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			numPosts: 10,

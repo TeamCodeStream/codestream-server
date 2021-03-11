@@ -14,7 +14,7 @@ const ACLTest = require('./acl_test');
 const TeamIDRequiredTest = require('./team_id_required_test');
 const TeamNotFoundTest = require('./team_not_found_test');
 const NoLastAcitivtyAtAndStreamIdTest = require('./no_last_activity_at_and_stream_id_test');
-const GetReviewsByStreamIdTest = require('./get_reviews_by_stream_id_test');
+//const GetReviewsByStreamIdTest = require('./get_reviews_by_stream_id_test');
 const GetReviewsByLastActivityTest = require('./get_reviews_by_last_activity_test');
 const GetReviewsBeforeLastActivityTest = require('./get_reviews_before_last_activity_test');
 const GetReviewsAfterLastActivityTest = require('./get_reviews_after_last_activity_test');
@@ -38,7 +38,7 @@ class GetReviewsRequestTester {
 		new TeamIDRequiredTest().test();
 		new TeamNotFoundTest().test();
 		new NoLastAcitivtyAtAndStreamIdTest().test();
-		new GetReviewsByStreamIdTest().test();
+		//new GetReviewsByStreamIdTest().test();
 		new GetReviewsByLastActivityTest().test();
 		new GetReviewsBeforeLastActivityTest().test();
 		new GetReviewsAfterLastActivityTest().test();

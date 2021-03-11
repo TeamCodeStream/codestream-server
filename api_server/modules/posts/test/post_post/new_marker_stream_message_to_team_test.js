@@ -1,11 +1,11 @@
 'use strict';
 
 const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
-const PostToChannelTest = require('./post_to_channel_test');
+const PostPostTest = require('./post_post_test');
 const CommonInit = require('./common_init');
 const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 
-class NewMarkerStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostToChannelTest) {
+class NewMarkerStreamMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostPostTest) {
 
 	get description () {
 		return 'members of the team should receive a message with the stream when a post and codemark are posted to a private stream with a marker from a file stream created on the fly';

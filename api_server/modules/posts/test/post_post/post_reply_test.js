@@ -8,7 +8,7 @@ class PostReplyTest extends PostPostTest {
 	constructor (options) {
 		super(options);
 		this.expectedSeqNum = 2;	// two posts in the stream, overrides the default of 1
-		this.expectedVersion = 3;	// stream update will get a version bump
+		this.expectedStreamVersion = 3;	// stream update will get a version bump
 	}
 
 	setTestOptions (callback) {

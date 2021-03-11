@@ -64,6 +64,8 @@ class PutStreamRequest extends PutRequest {
 
 	// grant or revoke permission for any new or removed members to subscribe to the stream channel
 	async setUserMessagingPermissions (members, revoke = false) {
+		return; // stream channels are now deprecated
+
 		const granterOptions = {
 			data: this.data,
 			broadcaster: this.api.services.broadcaster,

@@ -200,6 +200,7 @@ class StreamCreator extends ModelCreator {
 		});
 	}
 
+	/*
 	// after the stream has been saved
 	async postSave () {
 		// grant permission to the members of the stream to subscribe to the stream's broadcaster channel
@@ -225,6 +226,7 @@ class StreamCreator extends ModelCreator {
 			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
 	}
+	*/
 }
 
 module.exports = StreamCreator;

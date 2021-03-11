@@ -7,7 +7,8 @@ const CommonInit = require('./common_init');
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return `members of a ${this.streamType} stream should receive a message with the proper directive when a post is reacted to`;
+		const type = this.streamType || 'team';
+		return `members of a ${type} stream should receive a message with the proper directive when a post is reacted to`;
 	}
 
 	// make the data that triggers the message to be received
@@ -17,9 +18,16 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
+		// since posting to a stream that is not the team stream is no longer allowed,
+		// just listen on the team channel
+		this.channelName = `team-${this.team.id}`;
+		callback();
+
+		/*
 		// it is the stream channel
 		this.channelName = `stream-${this.stream.id}`;
 		callback();
+		*/
 	}
 
 	// generate the message by issuing a request

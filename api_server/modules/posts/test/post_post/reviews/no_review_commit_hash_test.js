@@ -12,6 +12,7 @@ class NoReviewCommitHashTest extends ReviewMarkersTest {
 		this.dontExpectFileStreamId = true;
 		this.dontExpectRepoId = true;
 		this.expectMarkers = 1;
+		this.expectStreamMarkers = 2;
 	}
 
 	get description () {

@@ -22,7 +22,7 @@ class CommonInit {
 	registerUser (callback) {
 		this.signupToken = UUID();
 		const userData = this.userFactory.getRandomUserData();
-		userData.wantLink = true;   // we'll get back a confirmation link 
+		//userData.wantLink = true;   // we'll get back a confirmation link 
 		userData._confirmationCheat = this.apiConfig.sharedSecrets.confirmationCheat;  // cheat code to get back the confirmation link 
 		userData._subscriptionCheat = this.apiConfig.sharedSecrets.subscriptionCheat;
 		userData.signupToken = this.signupToken;
@@ -44,7 +44,8 @@ class CommonInit {
 	confirmUser (callback) {
 		if (this.dontConfirm) { return callback(); }
 		const data = {
-			token: this.currentUser.user.confirmationToken
+			email: this.currentUser.user.email,
+			confirmationCode: this.currentUser.user.confirmationCode
 		};
 		this.doApiRequest(
 			{

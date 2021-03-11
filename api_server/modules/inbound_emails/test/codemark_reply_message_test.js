@@ -38,13 +38,21 @@ class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, Common
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
+		// since posting to any stream other than the team stream is no longer allowed,
+		// just listen on the team channel
+		this.channelName = `team-${this.team.id}`;
+
+		/*
 		// team channel for file-type streams, or team-streams, otherwise the stream channel
 		if (this.type === 'file' || this.isTeamStream) {
 			this.channelName = `team-${this.team.id}`;
 		}
 		else {
-			this.channelName = `stream-${this.stream.id}`;
+			throw 'stream channels are deprecated';
+			//this.channelName = `stream-${this.stream.id}`;
 		}
+		*/
+		
 		callback();
 	}
 

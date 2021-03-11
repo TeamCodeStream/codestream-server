@@ -1,11 +1,11 @@
 'use strict';
 
-const PostToChannelTest = require('./post_to_channel_test');
+const PostPostTest = require('./post_post_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-class UnregisteredMentionTest extends PostToChannelTest {
+class UnregisteredMentionTest extends PostPostTest {
 
 	get description () {
 		return 'a mentioned unregistered user should get analytics related updates';

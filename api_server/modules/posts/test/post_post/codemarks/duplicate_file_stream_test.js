@@ -8,6 +8,9 @@ class DuplicateFileStreamTest extends MarkerStreamOnTheFlyTest {
 	constructor (options) {
 		super(options);
 		this.repoOnTheFly = false;
+		this.expectedSeqNum = 2;
+		this.expectedStreamVersion = 3;
+		this.expectStreamMarkers = 2;
 	}
 
 	get description () {

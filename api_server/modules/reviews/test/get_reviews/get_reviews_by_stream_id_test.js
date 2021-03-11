@@ -26,7 +26,7 @@ class GetReviewsByStreamIdTest extends GetReviewsWithMarkersTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherStream = response.stream;
-				this.path = `/reviews?teamId=${this.team.id}&streamId=${this.stream.id}`;
+				this.path = `/reviews?teamId=${this.team.id}&streamId=${this.teamStream.id}`;
 				callback();
 			},
 			{
@@ -62,7 +62,7 @@ class GetReviewsByStreamIdTest extends GetReviewsWithMarkersTest {
 	// validate correct response
 	validateResponse (data) {
 		data.reviews.forEach(review => {
-			Assert.equal(review.streamId, this.stream.id, 'got a review with non-matching stream ID');
+			Assert.strictEqual(review.streamId, this.teamStream.id, 'got a review with non-matching stream ID');
 		});
 		super.validateResponse(data);
 	}

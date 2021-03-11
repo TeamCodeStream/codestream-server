@@ -18,7 +18,7 @@ class AddedCommitHashTest extends TeamLookupTest {
 					this.makePath(callback);
 				},
 				{
-					streamId: this.stream.id,
+					streamId: this.teamStream.id,
 					wantCodemark: true,
 					wantMarkers: 1,
 					fileStreamId: this.repoStreams[0].id,

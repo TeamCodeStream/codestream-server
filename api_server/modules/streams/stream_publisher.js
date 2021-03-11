@@ -78,6 +78,8 @@ class StreamPublisher {
 
 	// publish a private updated (not newly created) stream to the members of the stream
 	async publishStreamToStream () {
+		throw 'stream channels are deprecated';
+		/*
 		const channel = 'stream-' + this.stream.id;
 		const message = Object.assign({}, this.data, { requestId: this.request.request.id });
 		try {
@@ -91,6 +93,7 @@ class StreamPublisher {
 			// this doesn't break the chain, but it is unfortunate...
 			this.request.warn(`Could not publish stream message to stream ${this.stream.id}: ${JSON.stringify(error)}`);
 		}
+		*/
 	}
 }
 

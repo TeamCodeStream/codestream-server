@@ -26,7 +26,7 @@ class ReactRequestTester {
 		new SecondReactFetchTest().test();
 		new ThirdReactFetchTest().test();
 		new ClearReactFetchTest().test();
-		new ACLTest().test();
+		//new ACLTest().test();
 		new ACLTeamTest().test();
 		new PostNotFoundTest().test();
 		new TooManyReactionsTest().test();
@@ -34,8 +34,12 @@ class ReactRequestTester {
 		new IllegalCharacterTest({ character: '.' }).test();
 		new NonBooleanTest().test();
 		new EmptyReactionsTest().test();
+		new MessageTest().test();
+		/*
+		NOTE: posting to a stream that is not the team stream is no longer allowed
 		new MessageTest({ streamType: 'channel' }).test();
 		new MessageTest({ streamType: 'direct' }).test();
+		*/
 	}
 }
 

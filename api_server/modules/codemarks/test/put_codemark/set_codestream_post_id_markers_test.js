@@ -22,7 +22,7 @@ class SetCodeStreamPostIdMarkersTest extends SetCodeStreamPostIdTest {
 				_id: this.codemark.markerIds[0],	// DEPRECATE ME
 				id: this.codemark.markerIds[0],
 				$set: {
-					postStreamId: this.stream.id,
+					postStreamId: this.teamStream.id,
 					postId: this.post.id,
 					version: 2
 				},

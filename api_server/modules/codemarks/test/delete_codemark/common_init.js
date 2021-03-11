@@ -25,7 +25,8 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
+		/*
 		if (this.streamType === 'team stream') {
 			Object.assign(this.streamOptions, {
 				type: 'channel',
@@ -35,6 +36,7 @@ class CommonInit {
 		else {
 			this.streamOptions.type = this.streamType || 'channel';
 		}
+		*/
 		if (this.wantPost) {
 			this.postOptions.creatorIndex = 0;
 			this.postOptions.wantCodemark = true;

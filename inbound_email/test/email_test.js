@@ -210,7 +210,7 @@ class EmailTest {
 	// create a codemark for the inbound email to be a reply to
 	createCodemark (callback) {
 		let data = {
-			streamId: this.stream.id,
+			streamId: this.teamStream.id,
 			codemark: {
 				type: 'comment',
 				text: RandomString.generate(100),
@@ -297,7 +297,7 @@ class EmailTest {
 	// begin listening on the simulated client
 	listenOnClient (callback) {
 		// we'll time out after 10 seconds
-		this.channelName = `stream-${this.stream.id}`;
+		this.channelName = `team-${this.team.id}`;
 		this.messageTimer = setTimeout(
 			this.messageTimeout.bind(this, this.channelName),
 			8000

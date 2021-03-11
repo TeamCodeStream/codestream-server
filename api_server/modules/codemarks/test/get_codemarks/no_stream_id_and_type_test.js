@@ -16,7 +16,7 @@ class NoStreamIdAndTypeTest extends GetCodemarksTest {
 
 	setPath (callback) {
 		// no teamID in this path...
-		this.path = `/codemarks?teamId=${this.team.id}&streamId=${this.stream.id}&type=comment`;
+		this.path = `/codemarks?teamId=${this.team.id}&streamId=${this.teamStream.id}&type=comment`;
 		callback();
 	}
 }

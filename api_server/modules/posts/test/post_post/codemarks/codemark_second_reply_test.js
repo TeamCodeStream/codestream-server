@@ -31,7 +31,7 @@ class CodemarkSecondReplyTest extends PostReplyTest {
 		this.postFactory.createRandomPost(
 			callback,
 			{
-				streamId: this.stream.id,
+				streamId: this.teamStream.id,
 				token: this.users[1].accessToken,
 				parentPostId: this.postData[0].post.id
 			}

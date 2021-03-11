@@ -8,16 +8,19 @@ class GetPostTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.type = this.type || 'channel';
 		this.teamOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
-		this.streamOptions.type = this.type;
+		// posting to channels other than the team stream is no longer supported,
+		// so disable any possibility of posting elsewhere
+		//this.type = this.type || 'channel';
+		//this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.type = this.type;
 		this.postOptions.creatorIndex = this.mine ? 0 : 1;
 	}
 
 	get description () {
 		let who = this.mine ? 'me' : 'another user';
-		return `should return a valid post when requesting a post created by ${who} in a ${this.type} stream`;
+		const type = this.type || 'team';
+		return `should return a valid post when requesting a post created by ${who} in a ${type} stream`;
 	}
 
 	// get the fields expected to be returned by the request being tested

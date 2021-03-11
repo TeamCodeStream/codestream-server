@@ -11,8 +11,6 @@ class JoinRequest extends RestfulRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		throw 'deprecated';
-
 		// get the stream
 		this.stream = await this.data.streams.getById(this.request.params.id);
 		if (!this.stream) {
@@ -63,6 +61,7 @@ class JoinRequest extends RestfulRequest {
 
 	// grant or revoke permission for any new or removed members to subscribe to the stream channel
 	async grantUserMessagingPermissions () {
+		return; // stream channels are deprecated
 		const granterOptions = {
 			data: this.data,
 			broadcaster: this.api.services.broadcaster,

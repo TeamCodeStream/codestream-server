@@ -10,7 +10,8 @@ const Assert = require('assert');
 class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, CommonInit, PostReplyTest) {
 
 	get description () {
-		return `members of a ${this.type} stream should receive a message with the parent post and numReplies incremented when a reply is created to the post`;
+		const type = this.type || 'team';
+		return `members of a ${type} stream should receive a message with the parent post and numReplies incremented when a reply is created to the post`;
 	}
 
 	// make the data that triggers the message to be messageReceived
@@ -27,7 +28,7 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 			callback,
 			{
 				token: this.users[1].accessToken,
-				streamId: this.stream.id,
+				streamId: this.teamStream.id,
 				parentPostId: this.postData[0].post.id
 			}
 		);
@@ -35,8 +36,8 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		// it is the stream channel
-		this.channelName = `stream-${this.stream.id}`;
+		// since posting to streams is deprecated except for the team stream, the channel is the team channel
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 
@@ -47,7 +48,7 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 		// numReplies for the parent post is set to 2
 		const postOptions = {
 			token: this.users[1].accessToken,
-			streamId: this.stream.id,
+			streamId: this.teamStream.id,
 			parentPostId: this.postData[0].post.id
 		};
 		this.postCreatedAt = Date.now();
@@ -78,7 +79,7 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 	// validate the message received against expectations
 	validateMessage (message) {
 		// only look for directives in the message
-		if (!message.message.post || !message.message.post.$set) {
+		if (!message.message.post || message.message.post.id !== this.postData[0].post.id || !message.message.post.$set) {
 			return false;
 		}
 		Assert(message.message.post.$set.modifiedAt >= this.postCreatedAt, 'modifiedAt not changed');

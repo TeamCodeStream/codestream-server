@@ -36,7 +36,7 @@ class GetCodemarksByLastActivityTest extends GetCodemarksWithMarkersTest {
 				path: '/posts',
 				data: {
 					parentPostId: this.expectedCodemarks[nCodemark].postId,
-					streamId: this.stream.id,
+					streamId: this.teamStream.id,
 					text: RandomString.generate(50)
 				},
 				token: this.users[1].accessToken

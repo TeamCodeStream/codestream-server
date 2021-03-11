@@ -10,22 +10,26 @@ class CommonInit {
 
 	init (callback) {
 		this.teamOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = 1;
 		BoundAsync.series(this, [
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.createOtherStream,
+			//this.createOtherStream,
 			this.setExpectedData
 		], callback);
 	}
 
 	// create a second stream and post
 	createOtherStream (callback) {
+		const options = {
+			...this.streamOptions,
+			creatorIndex: 1
+		};
 		new TestStreamCreator({
 			test: this,
 			team: this.team,
 			users: this.users,
-			streamOptions: this.streamOptions,
+			streamOptions: options,
 			postOptions: this.postOptions
 		}).create((error, data) => {
 			if (error) { return callback(error); }
@@ -44,7 +48,7 @@ class CommonInit {
 					version: 4
 				},
 				$unset: {
-					[`lastReads.${this.stream.id}`]: true,
+					[`lastReads.${this.teamStream.id}`]: true,
 				},
 				$version: {
 					before: 3,
@@ -60,7 +64,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/read/' + this.stream.id,
+				path: '/read/' + this.teamStream.id,
 				token: this.token
 			},
 			callback

@@ -6,7 +6,8 @@ class ConfirmationWithLinkTest extends ConfirmationTest {
 
 	constructor (options) {
 		super(options);
-		this.userOptions.wantLink = true;
+		throw 'wantLink is deprecated';
+		//this.userOptions.wantLink = true;
 	}
 
 	get description () {

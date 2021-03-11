@@ -11,6 +11,7 @@ const Assert = require('assert');
 class SubscriptionTest extends JoinTest {
 
 	constructor (options) {
+		throw 'stream channels are deprecated';
 		super(options);
 		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
 	}

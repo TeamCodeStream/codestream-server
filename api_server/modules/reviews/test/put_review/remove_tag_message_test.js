@@ -7,7 +7,8 @@ const RemoveTagTest = require('./add_tag_test');
 class RemoveTagMessageTest extends Aggregation(MessageTest, RemoveTagTest) {
 
 	get description () {
-		return `members of the stream or team should receive a message with the review when a tag is removed from a ${this.streamType} stream`;
+		const type = this.streamType || 'team';
+		return `members of the stream or team should receive a message with the review when a tag is removed from a ${type} stream`;
 	}
 }
 

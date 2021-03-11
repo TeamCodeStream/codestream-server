@@ -23,6 +23,7 @@ class OtherStreamChannelACLTest extends GrantTest {
 
 	// set the path to use when issuing the test request
 	setPath (callback) {
+		throw 'stream channels are deprecated';
 		// set to grant access to the channel for a stream in the current user's team, but the current user 
 		// is not a member of the stream
 		this.path = '/grant/stream-' + this.otherStream.id;

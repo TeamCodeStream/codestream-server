@@ -12,7 +12,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 	
 	get description () {
-		const type = this.streamType === 'team stream' ? 'team' : this.streamType;
+		const type = this.streamType || 'team';
 		return `members of the team should receive a message with the unrelated codemarks when a codemark linked to other codemarks is deleted in a ${type} stream`;
 	}
 
@@ -34,6 +34,9 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		this.deleteCodemark(callback);
 	}
 
+	/*
+	this override is no longer relevant since posting to streams other than the team stream is no longer allowed
+
 	deleteCodemark (callback) {
 		super.deleteCodemark(error => {
 			if (error) { return callback(error); }
@@ -48,6 +51,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			callback();
 		});
 	}
+	*/
 }
 
 module.exports = MessageTest;

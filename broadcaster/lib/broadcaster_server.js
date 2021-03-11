@@ -592,11 +592,12 @@ class BroadcasterServer {
 		}
 		
 		// stream channels are authorized separately
-		return await this.authStreamChannelsHistory(channelInfo.streamChannels, user);
+		//return await this.authStreamChannelsHistory(channelInfo.streamChannels, user);
 	}
 
 	// authorize a request to fetch message history for a given set of stream channels
 	async authStreamChannelsHistory (channels, user) {
+		throw 'stream channels are deprecated';
 		if (channels.length === 0) {
 			return;
 		}
@@ -758,7 +759,8 @@ class BroadcasterServer {
 				channelInfo.teamChannels.push(channel);
 			}
 			else if (channel.startsWith('stream-')) {
-				channelInfo.streamChannels.push(channel);
+				throw 'stream channels are deprecated';
+				//channelInfo.streamChannels.push(channel);
 			}
 			else {
 				return false;

@@ -166,6 +166,7 @@ class CodeStreamAPITest extends APIRequestTest {
 			streamOptions: this.streamOptions,
 			postOptions: this.postOptions,
 			team: this.team,
+			teamStream: this.teamStream,
 			repo: this.repo,
 			repos: this.repos,
 			repoStreams: this.repoStreams,

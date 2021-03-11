@@ -148,10 +148,13 @@ class RandomUserFactory {
 			data.username = RandomString.generate(12);
 		}
 		if (options.wantLink) {
+			throw 'wantLink is deprecated';
+			/*
 			data.wantLink = true;
 			if (options.expiresIn) {
 				data.expiresIn = options.expiresIn;
 			}
+			*/
 		}
 		Object.assign(data, options.with || {});
 		data._pubnubUuid = this.getNextPubnubUuid();

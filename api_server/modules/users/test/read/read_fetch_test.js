@@ -39,7 +39,7 @@ class ReadFetchTest extends ReadTest {
 		// to the post that was marked unread ... the sequence numbers are 1-based so this is 
 		// just the same as the ordinal number of the post in the array of posts created
 		const expectedLastReads = {
-			[this.otherStream.id]: 0
+			//[this.otherStream.id]: 0
 		};
 		Assert.deepEqual(data.user.lastReads, expectedLastReads, 'lastReads doesn\'t match');
 		this.validateSanitized(data.user);

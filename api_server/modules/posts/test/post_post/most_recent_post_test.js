@@ -7,7 +7,7 @@ class MostRecentPostTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			numPosts: 3,
@@ -37,7 +37,7 @@ class MostRecentPostTest extends CodeStreamAPITest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/streams/' + this.stream.id;
+			this.path = '/streams/' + this.teamStream.id;
 			callback();
 		});
 	}

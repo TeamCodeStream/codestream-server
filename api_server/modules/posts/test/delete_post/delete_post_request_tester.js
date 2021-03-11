@@ -44,25 +44,31 @@ class DeletePostRequestTester {
 		new PostNotFoundTest().test();
 		new AlreadyDeletedTest().test();
 		new AdminCanDeleteTest().test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
-		new MessageTest({ streamType: 'team stream' }).test();
-		new CodemarkMessageTest({ streamType: 'channel' }).test();
-		new CodemarkMessageTest({ streamType: 'direct' }).test();
-		new CodemarkMessageTest({ streamType: 'team stream' }).test();
-		new MarkerMessageTest({ streamType: 'channel' }).test();
-		new MarkerMessageTest({ streamType: 'direct' }).test();
+		new MessageTest().test();
+		new CodemarkMessageTest().test();
+		new MarkerMessageTest().test();
+		new ReviewMessageTest().test();
+		new ReviewMarkersMessageTest().test();
+		// NOTE - posting to any stream other than the team stream is no longer allowed
+		//new MessageTest({ streamType: 'channel' }).test();
+		//new MessageTest({ streamType: 'direct' }).test();
+		//new MessageTest({ streamType: 'team stream' }).test();
+		//new CodemarkMessageTest({ streamType: 'channel' }).test();
+		//new CodemarkMessageTest({ streamType: 'direct' }).test();
+		//new CodemarkMessageTest({ streamType: 'team stream' }).test();
+		//new MarkerMessageTest({ streamType: 'channel' }).test();
+		//new MarkerMessageTest({ streamType: 'direct' }).test();
+		//new ReviewMessageTest({ streamType: 'channel' }).test();
+		//new ReviewMessageTest({ streamType: 'direct' }).test();
+		//new ReviewMessageTest({ streamType: 'team stream' }).test();
+		//new ReviewMarkersMessageTest({ streamType: 'channel'}).test();
+		//new ReviewMarkersMessageTest({ streamType: 'direct'}).test();
 		new DeleteRelationsTest().test();
 		new DeleteReviewTest().test();
 		new DeleteReviewFetchTest().test();
-		new ReviewMessageTest({ streamType: 'channel' }).test();
-		new ReviewMessageTest({ streamType: 'direct' }).test();
-		new ReviewMessageTest({ streamType: 'team stream' }).test();
 		new NumRepliesReviewTest().test();
 		new DeleteReviewMarkersTest().test();
 		new DeleteReviewMarkersFetchTest().test();
-		new ReviewMarkersMessageTest({ streamType: 'channel'}).test();
-		new ReviewMarkersMessageTest({ streamType: 'direct'}).test();
 		new DeleteReviewRepliesTest().test();
 	}
 }

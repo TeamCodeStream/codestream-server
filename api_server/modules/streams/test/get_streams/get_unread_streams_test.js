@@ -26,6 +26,10 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 
 	// create posts in some of the streams we created
 	createPosts (callback) {
+		// since we now can only create posts in the team stream, do it there
+		this.expectedStreams = [this.teamStream];
+		this.createPostInStream(this.teamStream, callback);
+		/*
 		// we'll select a subset of the stream we created, then create posts there ... 
 		// we then expect only those streams
 		const myStreams = this.streamsByTeam[this.team.id].filter(stream => {
@@ -38,6 +42,7 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 			this.createPostInStream,
 			callback
 		);
+		*/
 	}
 
 	// create a post in the given stream

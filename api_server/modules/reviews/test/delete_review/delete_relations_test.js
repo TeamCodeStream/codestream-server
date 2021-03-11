@@ -41,7 +41,7 @@ class DeleteRelationsTest extends DeleteRepliesTest {
 				method: 'post',
 				path: '/posts',
 				data: {
-					streamId: this.stream.id,
+					streamId: this.teamStream.id,
 					text: this.postFactory.randomText(),
 					codemark: codemarkData
 				},
