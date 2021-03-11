@@ -7,7 +7,7 @@ const RandomString = require('randomstring');
 
 class TrackTokenDeprecatedTest extends CodeStreamMessageTest {
 
-	constructor (options) {
+	constructor (/*options*/) {
 		throw 'test deprecated';
 		/*
 		super(options);

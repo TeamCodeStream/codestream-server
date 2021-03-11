@@ -24,7 +24,7 @@ class ReviewReminder {
 		const ONE_DAY = 24 * 60 * 60 * 1000;
 		const ONE_WEEK = 7 * ONE_DAY;
 
-		this.api.log(`Reminder check triggered`);
+		this.api.log('Reminder check triggered');
 
 		if (this.api.config.email.suppressEmails) {
 			this.api.log('Emails are disabled in configuration, not running review reminders');
@@ -90,6 +90,6 @@ class ReviewReminder {
 		this.api.log(`Triggering email notification reminder for review ${review.id}...`);
 		this.api.services.email.queueEmailSend(message);
 	}
-};
+}
 
 module.exports = ReviewReminder;

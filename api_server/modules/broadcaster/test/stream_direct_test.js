@@ -16,7 +16,7 @@ class StreamDirectTest extends CodeStreamMessageTest {
 	}
 
 	// set the channel name to listen on
-	setChannelName (callback) {
+	setChannelName (/*callback*/) {
 		throw 'stream channels are deprecated';
 		/*
 		// listening on the stream channel for this stream

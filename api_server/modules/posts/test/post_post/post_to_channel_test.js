@@ -4,7 +4,7 @@ const PostPostTest = require('./post_post_test');
 
 class PostToChannelTest extends PostPostTest {
 
-	constructor (options) {
+	constructor (/*options*/) {
 		throw 'this test is deprecated';
 	}
 	

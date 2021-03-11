@@ -23,7 +23,7 @@ class SharedToTest extends PostPostTest {
 					channelId: RandomString.generate(10),
 					channelName: RandomString.generate(10),
 					postId: RandomString.generate(10)
- 				},
+				},
 				{
 					createdAt: Date.now(),
 					providerId: 'msteams',
@@ -33,7 +33,7 @@ class SharedToTest extends PostPostTest {
 					channelName: RandomString.generate(10),
 					postId: RandomString.generate(10)
 				}
-			]
+			];
 			this.data.sharedTo = DeepClone(this.sharedTo);
 			callback();
 		});

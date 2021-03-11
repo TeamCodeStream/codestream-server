@@ -14,7 +14,7 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	get description () {
-		return `should create and return a post when an inbound email call is made for the team stream`;
+		return 'should create and return a post when an inbound email call is made for the team stream';
 	}
 
 	get method () {

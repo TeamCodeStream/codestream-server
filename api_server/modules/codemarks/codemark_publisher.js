@@ -21,7 +21,7 @@ class CodemarkPublisher {
 			if (!stream.get('isTeamStream')) {
 				throw 'stream channels are deprecated';
 			}
-			channel = `team-${this.codemark.get('teamId')}`
+			channel = `team-${this.codemark.get('teamId')}`;
 			/*
 			channel = stream.get('isTeamStream') ? 
 				`team-${this.codemark.get('teamId')}` : 

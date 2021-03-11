@@ -16,7 +16,7 @@ class StreamChannelGrantTest extends GrantTest {
 	}
 
 	// set the path to use when issuing the test request
-	setPath (callback) {
+	setPath (/*callback*/) {
 		throw 'stream channels are deprecated';
 		/*
 		// set to grant access to the channel for a stream that the current user is a member of

@@ -6,7 +6,7 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class TrackTokenExpiredTest extends CodeStreamMessageTest {
 
-	constructor (options) {
+	constructor (/*options*/) {
 		throw 'test deprecated';
 		/*
 		super(options);

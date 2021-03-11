@@ -4,7 +4,7 @@
 
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Stream = require('./stream');
-const StreamSubscriptionGranter = require('./stream_subscription_granter');
+//const StreamSubscriptionGranter = require('./stream_subscription_granter');
 const StreamTypes = require('./stream_types');
 const PrivacyTypes = require('./privacy_types');
 const Errors = require('./errors');

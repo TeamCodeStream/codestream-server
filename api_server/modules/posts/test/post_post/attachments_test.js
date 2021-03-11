@@ -26,7 +26,7 @@ class AttachmentsTest extends PostPostTest {
 					mimetype: 'image/jpeg',
 					size: 424011
 				}
-			]
+			];
 			this.data.files = DeepClone(this.attachedFiles);
 			callback();
 		});

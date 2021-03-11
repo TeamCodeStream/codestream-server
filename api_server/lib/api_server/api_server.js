@@ -9,7 +9,6 @@ const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/c
 const Express = require('express');
 const HTTPS = require('https');
 const HTTP = require('http');
-const FS = require('fs');
 const AwaitUtils = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const IPCResponse = require('./ipc_response');
 

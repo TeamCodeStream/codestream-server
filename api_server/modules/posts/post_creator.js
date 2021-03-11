@@ -145,7 +145,7 @@ class PostCreator extends ModelCreator {
 
 		// filter to users that have a valid email
 		this.addedUsers = (this.addedUsers || []).filter(email => {
-			return typeof EmailUtilities.parseEmail(email) === 'object'
+			return typeof EmailUtilities.parseEmail(email) === 'object';
 		});
 		if (!this.addedUsers || this.addedUsers.length === 0) {
 			return;

@@ -31,7 +31,7 @@ class Reinviter {
 
 	// look for users to be reinvited
 	async doReinvites () {
-		this.api.log(`Reinvite check triggered`);
+		this.api.log('Reinvite check triggered');
 		this.numInvited = 0;
 		this.numProcessed = 0;
 		if (this.api.config.email.suppressEmails) {
@@ -122,7 +122,7 @@ class Reinviter {
 			userId: user.id,
 			...user.autoReinviteInfo
 		};
-		const queueName = this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName
+		const queueName = this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName;
 		await this.api.services.queueService.sendMessage(queueName, message);
 
 		// update the user indicating invite has been sent
@@ -190,6 +190,6 @@ class Reinviter {
 			{ upsert: true}
 		);
 	}
-};
+}
 
 module.exports = Reinviter;

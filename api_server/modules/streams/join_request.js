@@ -5,7 +5,7 @@
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const StreamPublisher = require('./stream_publisher');
 const StreamUpdater = require('./stream_updater');
-const StreamSubscriptionGranter = require('./stream_subscription_granter');
+//const StreamSubscriptionGranter = require('./stream_subscription_granter');
 
 class JoinRequest extends RestfulRequest {
 
@@ -62,6 +62,7 @@ class JoinRequest extends RestfulRequest {
 	// grant or revoke permission for any new or removed members to subscribe to the stream channel
 	async grantUserMessagingPermissions () {
 		return; // stream channels are deprecated
+		/*
 		const granterOptions = {
 			data: this.data,
 			broadcaster: this.api.services.broadcaster,
@@ -75,6 +76,7 @@ class JoinRequest extends RestfulRequest {
 		catch (error) {
 			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
+		*/
 	}
 
 	// publish the stream to the appropriate broadcaster channel

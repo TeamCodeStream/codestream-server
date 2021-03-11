@@ -90,6 +90,7 @@ class GrantRequest extends RestfulRequest {
 	// grant permission to access a stream channel
 	async grantStreamChannel () {
 		throw 'stream channels are deprecated';
+		/*
 		// user can only subscribe to the stream channel for streams owned by teams they are a member of
 		const channel = this.request.params.channel.toLowerCase();
 		const match = channel.match(/^stream-(.*)/);
@@ -108,6 +109,7 @@ class GrantRequest extends RestfulRequest {
 			throw this.errorHandler.error('readAuth');
 		}
 		await this.grantChannel(channel);
+		*/
 	}
 
 	// grant permission to subscribe to a given channel, assuming ACL has already been handled

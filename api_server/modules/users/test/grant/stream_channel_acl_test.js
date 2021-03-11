@@ -22,7 +22,7 @@ class StreamChannelACLTest extends GrantTest {
 	}
 
 	// set the path to use when issuing the test request
-	setPath (callback) {
+	setPath (/*callback*/) {
 		throw 'stream channels are deprecated';
 		/*
 		// set to grant access to the channel for a stream in the team that the current user is not a member of

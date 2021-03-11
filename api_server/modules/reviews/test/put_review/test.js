@@ -56,7 +56,6 @@ const TicketAndPullRequestTest = require('./ticket_and_pull_request_test');
 class PutReviewRequestTester {
 
 	test () {
-		/*
 		new PutReviewTest().test();
 		new ACLTest().test();
 		new ACLTeamTest().test();
@@ -67,7 +66,6 @@ class PutReviewRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'postId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
-		*/
 		new MessageTest().test();
 		// NOTE - posting to streams other than the team stream is no longer allowed
 		//new MessageTest({ streamType: 'channel' }).test();

@@ -5,7 +5,7 @@ const ReadItemTest = require('./read_item_test');
 class NumRepliesRequiredTest extends ReadItemTest {
 
 	get description () {
-		return `should return error when attempting to set last read item for a post but not specifying numReplies`;
+		return 'should return error when attempting to set last read item for a post but not specifying numReplies';
 	}
 
 	getExpectedError () {
