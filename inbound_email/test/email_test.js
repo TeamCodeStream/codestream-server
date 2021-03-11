@@ -76,7 +76,7 @@ class EmailTest {
 			this.createUsers,	// create a couple users, one will originate the post (the email is "from" that user), the other will listen
 			this.createTeam,	// create a team 
 			this.inviteOtherUser,	// invite the second user to the team
-			this.createStream,	// create a channel stream in the team
+			//this.createStream,	// create a channel stream in the team
 			this.createCodemark // create a codemark for the inbound email to be a reply to
 		], callback);
 	}
@@ -162,6 +162,7 @@ class EmailTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
+				this.teamStream = response.streams[0];
 				callback();
 			}
 		);
@@ -281,7 +282,7 @@ class EmailTest {
 	makeSubstitutions (callback) {
 		this.emailData = this.emailData.replace(/@@@from@@@/g, this.userData[0].user.email);
 		this.emailData = this.emailData.replace(/@@@sender@@@/g, this.config.email.senderEmail);
-		let to = `${this.parentPost.id}.${this.stream.id}.${this.team.id}@${this.config.email.replyToDomain}`;
+		let to = `${this.parentPost.id}.${this.teamStream.id}.${this.team.id}@${this.config.email.replyToDomain}`;
 		['to', 'cc', 'bcc', 'x-original-to', 'delivered-to'].forEach(field => {
 			let regEx = new RegExp(`@@@${field}@@@`, 'g');
 			this.emailData = this.emailData.replace(regEx, to);
@@ -350,11 +351,11 @@ class EmailTest {
 		Assert.ifError(this.shouldFail);	// if this test should fail, we should not have recieved a message
 		Assert(message.requestId, 'received message has no requestId');
 		let post = message.post;
-		Assert.equal(post.teamId, this.team.id, 'incorrect team ID');
-		Assert.equal(post.streamId, this.stream.id, 'incorrect stream ID');
-		Assert.equal(post.parentPostId, this.parentPost.id, 'incorrect parent post ID');
-		Assert.equal(post.text, this.expectedText, 'text does not match');
-		Assert.equal(post.creatorId, this.userData[0].user.id, 'creatorId is not the expected user');
+		Assert.strictEqual(post.teamId, this.team.id, 'incorrect team ID');
+		Assert.strictEqual(post.streamId, this.teamStream.id, 'incorrect stream ID');
+		Assert.strictEqual(post.parentPostId, this.parentPost.id, 'incorrect parent post ID');
+		Assert.strictEqual(post.text, this.expectedText, 'text does not match');
+		Assert.strictEqual(post.creatorId, this.userData[0].user.id, 'creatorId is not the expected user');
 		return true;
 	}
 
