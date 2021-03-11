@@ -42,7 +42,10 @@ class PubNubClient {
 			return await this.publishParts(json, channel);
 		}
 
-		this._log(`Transmitting message ${message.messageId} for channel ${channel} to Pubnub server...`, options);
+		this._log(`Transmitting message ${message.messageId} for channel ${channel} to Pubnub server, ${json.length} bytes...`, options);
+		if (json.length > 2000) {
+			this._log('NOTE: Message is more than 2K bytes', options);
+		}
 		const result = await this.pubnub.publish(
 			{
 				message: message,
