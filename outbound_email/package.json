@@ -13,6 +13,7 @@
 		"markdown-it-slack": "1.2.0",
 		"moment-timezone": "0.5.27",
 		"mongodb": "3.5.2",
+		"node-fetch": "2.6.1",
 		"nodemailer": "6.4.2",
 		"pubnub": "4.29.4",
 		"sendgrid": "5.2.3",

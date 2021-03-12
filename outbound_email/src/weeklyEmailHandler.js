@@ -1,6 +1,7 @@
 'use strict';
 
 const WeeklyEmailPerUserHandler = require('./weeklyEmailPerUserHandler');
+const Fetch = require('node-fetch');
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const ONE_WEEK = 7 * ONE_DAY;
@@ -11,7 +12,6 @@ class WeeklyEmailHandler {
 		this.handlerOptions = options;
 		Object.assign(this, options);
 		this.logger = this.logger || console;
-		this.latestNews = this.outboundEmailServer.latestNews;
 	}
 
 	async handleMessage (message) {
@@ -25,6 +25,7 @@ class WeeklyEmailHandler {
 			if (!await this.getUsers()) {			// get users on the team
 				return;
 			}
+			await this.readLatestNews();
 			await this.sendEmailsToUsers();			// send emails to each user on the team
 		}
 		catch (error) {
@@ -35,7 +36,7 @@ class WeeklyEmailHandler {
 			else {
 				message = JSON.stringify(error);
 			}
-			return this.log(`Weekly email handling failed: ${message}`);
+			return this.warn(`Weekly email handling failed: ${message}`);
 		}
 		this.log(`Successfully processed a weekly email request: ${JSON.stringify(this.message)}`);
 	}
@@ -45,7 +46,7 @@ class WeeklyEmailHandler {
 		this.teamData = {};
 		const team = this.teamData.team = await this.data.teams.getById(this.message.teamId);
 		if (!team) {
-			this.log(`Team not found: ${this.message.teamId}`);
+			this.warn(`Team not found: ${this.message.teamId}`);
 			return;
 		}
 
@@ -83,6 +84,17 @@ class WeeklyEmailHandler {
 		} else {
 			this.log('No users are eligible to receive weekly emails for this run');
 			return false;
+		}
+	}
+
+	// get the "latest news" html from github pages
+	async readLatestNews () {
+		const response = await Fetch('https://teamcodestream.github.io/latest-news/latestNews.html');
+		if (!response.ok) {
+			this.warn(`Unable to read latest news, status code ${response.status}: ${response.statusText}`);
+			this.latestNews = '';
+		} else {
+			this.latestNews = await response.text();
 		}
 	}
 
@@ -142,6 +154,10 @@ class WeeklyEmailHandler {
 
 	log (msg) {
 		this.logger.log(msg, this.requestId);
+	}
+
+	warn (msg) {
+		this.logger.warn(msg, this.requestId);
 	}
 }
 
