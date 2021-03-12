@@ -4,4 +4,4 @@
 
 cd $CSBE_TOP
 git status -sb
-for i in api_server broadcaster inbound_email outbound_email; do (cd $i && echo "$i:  package version: `get-json-property -j package.json -p version`  ChangeLog: `dt-sb-changelog-tool --latest-version --with-date`"); done
+for i in api_server broadcaster inbound_email outbound_email onprem_admin; do (cd $i && echo "$i:  package version: `get-json-property -j package.json -p version`  ChangeLog: `dt-sb-changelog-tool --latest-version --with-date`"); done

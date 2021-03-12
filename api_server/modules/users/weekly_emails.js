@@ -67,11 +67,9 @@ class WeeklyEmails {
 			this.api.log(`Triggering test run of weekly emails for execution at :${randomMinutes}:${randomSeconds}s for every night at 12AM`);
 			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * *`, this.sendWeeklyEmails.bind(this));
 		} else {
-			// in production, kick off at midnight (server time, which is ET) every Monday
-			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 12AM`);
-			// !!! FIXME: TEMPORARILY SET THIS TO RUN TODAY AT 6 PM ET, FOR TESTING 
-			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 12 * * 4`, this.sendWeeklyEmails.bind(this));
-//			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 0 * * 1`, this.sendWeeklyEmails.bind(this));
+			// in production, kick off at 2 AM (server time, which is ET) every Monday
+			this.api.log(`Triggering weekly emails for execution at :${randomMinutes}m:${randomSeconds}s for every Monday at 2AM`);
+			this.job = Scheduler.scheduleJob(`${randomSeconds} ${randomMinutes} 2 * * 1`, this.sendWeeklyEmails.bind(this));
 		}
 	}
 

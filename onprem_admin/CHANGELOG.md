@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.6] - 2021-3-12
+
+### Added
+
+- Basic CMS support for weekly email
+
 ## [8.2.4] - 2021-3-9
 
 ### Changed

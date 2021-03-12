@@ -191,8 +191,7 @@ class OutboundEmailServer {
 			// use of broadcaster is disabled for now, it is not current needed
 			// this.openBroadcasterClient, 
 			this.openQueuer,
-			this.readStyles,
-			this.readLatestNews
+			this.readStyles
 		], this);
 		this.log('Service connections successful');
 		this.makeEmailSender();
@@ -323,16 +322,6 @@ class OutboundEmailServer {
 		});
 		this.pseudoStyles = await new Promise((resolve, reject) => {
 			FS.readFile('./src/pseudoStyles.css', 'utf8', (error, data) => {
-				if (error) reject(error);
-				else resolve(data);
-			});
-		});
-	}
-
-	// read the "latest news" file, as needed (for weekly emails)
-	async readLatestNews () {
-		this.latestNews = await new Promise((resolve, reject) => {
-			FS.readFile('./src/latestNews.html', 'utf8', (error, data) => {
 				if (error) reject(error);
 				else resolve(data);
 			});
