@@ -8,7 +8,7 @@ const Assert = require('assert');
 class ReadItemTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return 'should set lastReadItems for the post when requested';
+		return 'should set lastReadItems for an item when requested';
 	}
 
 	get method () { 
@@ -19,7 +19,7 @@ class ReadItemTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	before (callback) {
 		this.init(error => {
 			if (error) { return callback(error); }
-			this.path = '/read-item/' + this.postData[0].post.id;
+			this.path = '/read-item/' + this.itemId;
 			this.updatedAt = Date.now();
 			callback();
 		});

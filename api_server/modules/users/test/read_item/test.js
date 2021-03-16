@@ -15,9 +15,9 @@ class ReadItemRequestTester {
 	test () {
 		new ReadItemTest().test();
 		new ReadItemFetchTest().test();
-		new ReadItemACLTest().test();
+		//new ReadItemACLTest().test();
 		new NumRepliesRequiredTest().test();
-		new PostNotFoundTest().test();
+		//new PostNotFoundTest().test();
 		new ReadItemMessageTest().test();
 	}
 }

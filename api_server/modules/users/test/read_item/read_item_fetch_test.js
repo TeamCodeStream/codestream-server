@@ -15,10 +15,7 @@ class ReadItemFetchTest extends ReadItemTest {
 	}
 
 	getExpectedFields () {
-		// we expect to see the usual fields for a user, plus fields only the user themselves should see
-		let userResponse = {};
-		userResponse.user = [...UserTestConstants.EXPECTED_USER_FIELDS, ...UserTestConstants.EXPECTED_ME_FIELDS];
-		return userResponse;
+		return { user: UserTestConstants.EXPECTED_USER_FIELDS };
 	}
 
 	// before the test runs...
@@ -38,7 +35,7 @@ class ReadItemFetchTest extends ReadItemTest {
 		// to the post that was marked unread ... the sequence numbers are 1-based so this is 
 		// just the same as the ordinal number of the post in the array of posts created
 		const expectedLastReadItems = {
-			[this.postData[0].post.id]: this.numReplies
+			[this.itemId.toLowerCase()]: this.numReplies
 		};
 		Assert.deepStrictEqual(expectedLastReadItems, data.user.lastReadItems, 'lastReadItems doesn\'t match');
 		super.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);

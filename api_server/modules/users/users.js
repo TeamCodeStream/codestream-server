@@ -129,7 +129,7 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
-		path: 'read-item/:postId',
+		path: 'read-item/:id',
 		requestClass: require('./read_item_request')
 	}
 ];

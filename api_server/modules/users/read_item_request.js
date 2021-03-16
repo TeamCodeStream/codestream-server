@@ -1,5 +1,5 @@
-// handle the "PUT /read-item/:postId" request to establish the number of replies read for the
-// item (codemark or review) associated with a post
+// handle the "PUT /read-item/:id" request to establish the number of replies read for an item
+// note that the item need not be a CodeStream item, it can have any ID
 
 'use strict';
 
@@ -10,22 +10,18 @@ class ReadItemRequest extends RestfulRequest {
 
 	// authorize the request before processing....
 	async authorize () {
-		// they must have read access to the post, meaning it's in a stream they have access to
-		const postId = this.request.params.postId.toLowerCase();
-		this.post = await this.user.authorizePost(postId, this);
-		if (!this.post) {
-			throw this.errorHandler.error('updateAuth', { reason: 'user does not have access to this post' });
-		}
+		// no authorization needed, applies to authenticated user
 	}
 
 	// process the request...
 	async process () {
 		await this.requireAndAllow();
 
-		// set the lastReadItems value for the post
+		// set the lastReadItems value for the item, which can be any string 
+		const id = this.request.params.id.toLowerCase();
 		const op = {
 			$set: {
-				[`lastReadItems.${this.post.id}`]: this.request.body.numReplies,
+				[`lastReadItems.${id}`]: this.request.body.numReplies,
 				modifiedAt: Date.now()
 			}
 		};
@@ -80,10 +76,10 @@ class ReadItemRequest extends RestfulRequest {
 	static describe () {
 		return {
 			tag: 'read-item',
-			summary: 'Set the number of read replies for a codemark or review for the authenticated user',
-			access: 'User must have read access to the given post, meaning they have access to the stream it\'s in',
-			description: 'Set the number of read replies for the codemark or review associated with the given post, for the authenticated user',
-			input: 'Specify ID of the post in the path, and the number of replies in the request body',
+			summary: 'Set the number of read replies for an item for the authenticated user',
+			access: 'No access rule, applies to the authenticated user',
+			description: 'Set the number of read replies for the given item, for the authenticated user. Note that the item (identified by its ID) need not be a CodeStream item, it can apply to third-party items as well',
+			input: 'Specify ID of the item in the path, and the number of replies in the request body',
 			returns: {
 				summary: 'User object with directives indicating how the lastReadItems attribute for the user object should be updated',
 				looksLike: {
@@ -91,7 +87,7 @@ class ReadItemRequest extends RestfulRequest {
 						id: '<ID of the user>',
 						$set: {
 							lastReadItems: {
-								['<post ID>']: '<numReplies as given in the body>'
+								['<Item ID>']: '<numReplies as given in the body>'
 							}
 						}
 					}
