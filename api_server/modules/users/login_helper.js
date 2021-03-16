@@ -27,23 +27,25 @@ class LoginHelper {
 			throw this.request.errorHandler.error('inMaintenanceMode');
 		}
 
+		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
+
 		await awaitParallel([
-			this.getCountryCode,
 			this.getInitialData,
 			this.generateAccessToken
 		], this);
+		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		await this.updateLastLogin();
 		this.getThirdPartyProviders();
 		await this.formResponse();
-		await this.grantSubscriptionPermissions();
 		return this.responseData;
 	}
 
 	// prepare for the user being allowed to login, without actually generating the
 	// response data needed for a true login
 	async allowLogin () {
+		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
+		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		await this.generateAccessToken();
-		await this.grantSubscriptionPermissions();
 	}
 
 	// get the country-code associated with this user by IP address of the connection
@@ -59,14 +61,19 @@ class LoginHelper {
 				const addr = this.request.request.connection.remoteAddress;
 				ip = addr.split(':').pop();
 			}
-			const response = await Fetch('http://ip2c.org/' + ip, { timeout: 500 });
+			const response = await Fetch('http://ip2c.org/' + ip, { timeout: 10000 });
 			result = await response.text();
-			this.request.log(`******** ip2c response for IP ${ip}: ${result}`);
-			this.countryCode = result.split(';')[1];
+			this.countryCode = result.split(';')[1].trim();
+			if (this.countryCode) {
+				await this.request.data.users.updateDirect(
+					{ id: this.request.data.users.objectIdSafe(this.user.id) },
+					{ $set: { countryCode: this.countryCode } }
+				);
+			}
 		}
 		catch (error) {
-			this.request.warn('CAUGHT', error);
-			this.request.warn(error.stack);
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.request.warn(`Unable to fetch country code: ${message}`);
 		}
 	}
 
@@ -233,10 +240,6 @@ class LoginHelper {
 
 	// grant the user permission to subscribe to various broadcaster channels
 	async grantSubscriptionPermissions () {
-		// note - it is tough to determine whether this should go before or after the response ... with users in a lot
-		// of streams, there could be a performance hit here, but do we want to take a performance hit or do we want
-		// to risk the client subscribing to channels for which they don't yet have permissions? i've opted for the
-		// performance hit, and i suspect it won't ever be a problem, but be aware...
 		try {
 			await new UserSubscriptionGranter({
 				data: this.request.data,
