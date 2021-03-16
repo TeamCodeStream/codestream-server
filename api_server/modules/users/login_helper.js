@@ -43,9 +43,9 @@ class LoginHelper {
 	// prepare for the user being allowed to login, without actually generating the
 	// response data needed for a true login
 	async allowLogin () {
-		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
-		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		await this.generateAccessToken();
+		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
+		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
 	}
 
 	// get the country-code associated with this user by IP address of the connection
