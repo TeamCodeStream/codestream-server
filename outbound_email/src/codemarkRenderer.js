@@ -39,6 +39,7 @@ class CodemarkRenderer extends RendererBase {
 		}
 		const visibleToDiv = this.renderVisibleToDiv(options);
 		const tagsAssigneesTable = this.renderTagsAssigneesTable(options);
+		const attachmentsDiv = this.renderAttachmentsDiv(options);
 		const descriptionDiv = this.renderDescriptionDiv(options);
 		let parentReviewDiv = '';
 		if (includeReviewSection) {
@@ -60,6 +61,7 @@ class CodemarkRenderer extends RendererBase {
 	${titleAuthorDiv}
 	${visibleToDiv}
 	${tagsAssigneesTable}
+	${attachmentsDiv}
 	${descriptionDiv}
 	${parentReviewDiv}
 	${linkedIssuesDiv}
@@ -177,6 +179,27 @@ class CodemarkRenderer extends RendererBase {
 			members,
 			team: options.team
 		});
+	}
+
+	// render the codemark attachments, as needed
+	renderAttachmentsDiv (options) {
+		const { post } = options;
+		if ((post.files || []).length === 0) return;
+
+		const iconHtml = Utils.renderIcon('paperclip');
+		let html = `
+<div class="nice-gray section-text">ATTACHMENTS</div>
+`;
+		post.files.forEach(file => {
+			if (!file.name) return;
+			html += `
+<div class="">
+	${iconHtml}&nbsp;
+	<span class="">${file.name}</span>
+</div>
+`;
+		});
+		return Utils.renderSection(html);
 	}
 
 	// render the description div, as needed
