@@ -61,9 +61,9 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 		const memberCount = await this.company.getCompanyMemberCount(this.data);
 		const offerCoupon = this.request.query.coupon !== undefined;
 		const buyNowCouponCode = !offerCoupon && this.api.config.payments.stripe.buyNowCouponCode;
-		const buyNowDiscount = !offerCoupon && (
+		const buyNowDiscount = false; /*!offerCoupon && (
 			this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod
-		);
+		);*/
 		const templateProps = {
 			companyId: this.companyId,
 			companyName: this.company.get('name'),
