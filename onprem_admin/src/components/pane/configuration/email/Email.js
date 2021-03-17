@@ -93,9 +93,10 @@ const accordionCards = [
 		bodyComponent: <NodeMailerForm />,
 		statusSwitch: {
 			// resources needed to handle on/off/disabled status switch
-			onClickAction: ConfigActions.CONFIG_TOGGLE_DOTTED_BOOLEAN,
+			onClickAction: ConfigActions.CONFIG_EMAIL_TOGGLE_DELIVERY_SERVICE,
 			onClickActionPayload: {
 				property: 'emailDeliveryService.NodeMailer.disabled',
+				// updateEmailSettings: true,  // implied
 			},
 			getStatusFromState: nodeMailerStatus,
 		},
@@ -105,9 +106,10 @@ const accordionCards = [
 		header: 'SendGrid.com',
 		bodyComponent: <SendGridForm />,
 		statusSwitch: {
-			onClickAction: ConfigActions.CONFIG_TOGGLE_DOTTED_BOOLEAN,
+			onClickAction: ConfigActions.CONFIG_EMAIL_TOGGLE_DELIVERY_SERVICE,
 			onClickActionPayload: {
 				property: 'emailDeliveryService.sendgrid.disabled',
+				// updateEmailSettings: true  // implied
 			},
 			getStatusFromState: sendGridStatus,
 		},

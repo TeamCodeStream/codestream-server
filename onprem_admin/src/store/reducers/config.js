@@ -42,14 +42,46 @@ export function sslConfigurationUpdate(config, payload={}) {
 	config.adminServer.securePort = adminSecurePort;
 }
 
-const isDisabled = (flag) => flag || typeof flag === 'undefined' || flag === null;
+// const isDisabled = (flag) => flag || typeof flag === 'undefined' || flag === null;
 
-// handle email config setting dependencies across all services
-function emailConfigurationUpdate(config, payload) {
-	if (payload.senderEmail) config.email.senderEmail = payload.value;
-	if (payload.supportEmail) config.email.supportEmail = payload.value;
-	if (payload.replyToDomain) config.email.replyToDomain = payload.value;
-	config.email.suppressEmails = isDisabled(config.emailDeliveryService?.NodeMailer?.disabled) || isDisabled(config.emailDeliveryService?.sendgrid?.disabled);
+// handle email config settings & dependencies across all services
+function emailConfigurationUpdate(draft, payload) {
+	const disableNodeMailer = (cfg) => dotPropertyInit(cfg, 'emailDeliveryService.NodeMailer.disabled', true);
+	const disableSendGrid = (cfg) => dotPropertyInit(cfg, 'emailDeliveryService.sendgrid.disabled', true);
+
+	let nodeMailerDisabled = getDottedProperty(draft, 'emailDeliveryService.NodeMailer.disabled') || false;
+	let sendGridDisabled = getDottedProperty(draft, 'emailDeliveryService.sendgrid.disabled') || false;
+	const whichService = payload.property.startsWith('emailDeliveryService.NodeMailer') ? 'NodeMailer' : 'sendgrid';
+
+	if (payload.senderEmail) draft.email.senderEmail = payload.value;
+	if (payload.supportEmail) draft.email.supportEmail = payload.value;
+	if (payload.replyToDomain) draft.email.replyToDomain = payload.value;
+
+	if (payload.toggleService && whichService === 'NodeMailer') {
+		nodeMailerDisabled = !nodeMailerDisabled;
+		dotPropertyInit(draft, 'emailDeliveryService.NodeMailer.disabled', nodeMailerDisabled);
+		if (!nodeMailerDisabled) disableSendGrid(draft);
+	} else if (payload.toggleService && whichService === 'sendgrid') {
+		sendGridDisabled = !sendGridDisabled;
+		dotPropertyInit(draft, 'emailDeliveryService.sendgrid.disabled', sendGridDisabled);
+		if (!sendGridDisabled) disableNodeMailer(draft);
+	}
+
+	// Safety!! Only one email delivery service can be selected
+	if (!nodeMailerDisabled && !sendGridDisabled) {
+		console.error('Both email delivery services are enabled - this shiould not happen');
+		if (whichService === 'NodeMailer') {
+			disableSendGrid(draft);
+			console.log('disabling sendgrid');
+		} else {
+			disableNodeMailer(draft);
+			console.log('disabling NodeMailer');
+		}
+	}
+	// FIXME: we need to add the 'selected' property to the config schema
+	// draft.emailDeliveryService.selected = payload.property;
+	draft.email.suppressEmails = nodeMailerDisabled && sendGridDisabled;
+	draft.apiServer.confirmationNotRequired = draft.email.suppressEmails;
 }
 
 
@@ -67,6 +99,7 @@ export default (state = null, action) =>
 				// console.debug('***DRAFT=', JSON.stringify(draft.emailDeliveryService, null, 2));
 				break;
 			case Actions.CONFIG_TOGGLE_DOTTED_BOOLEAN:
+				console.log('NOW WE ARE HERE***');
 				const propVal = getDottedProperty(draft, action.payload.property) || false;
 				dotPropertyInit(draft, action.payload.property, !propVal);
 				if (action.payload.updateEmailSettings) emailConfigurationUpdate(draft, action.payload);
@@ -83,14 +116,10 @@ export default (state = null, action) =>
 				draft.apiServer.disablePhoneHome = !(state.apiServer.disablePhoneHome || false);
 				break;
 
-			// case Actions.CONFIG_EMAIL_NODEMAILER_DISABLED:
-			// 	dotPropertyInit(draft, 'emailDeliveryService.NodeMailer.disabled', !draft.emailDeliveryService?.NodeMailer?.disabled);
-			// 	break;
-			// case Actions.CONFIG_EMAIL_SENDGRID_DISABLED:
-			// 	const disabled = typeof draft.emailDeliveryService?.sendgrid?.disabled === 'boolean' ? draft.emailDeliveryService.sendgrid.disabled : false;
-			// 	dotPropertyInit(draft, 'emailDeliveryService.sendgrid.disabled', !disabled);
-			// 	// console.debug('CONFIG_EMAIL_SENDGRID_DISABLED =', JSON.stringify(draft.emailDeliveryService, null, 2));
-			// 	break;
+			case Actions.CONFIG_EMAIL_TOGGLE_DELIVERY_SERVICE:
+				emailConfigurationUpdate(draft, { ...action.payload, toggleService: true });
+				console.log(`----- CONFIG_EMAIL_TOGGLE_DELIVERY_SERVICE  action = `, action);
+				break;
 
 			// case Actions.CONFIG_TELEMETRY_SET_DISABLED:
 			// 	draft.telemetry.disabled = action.payload;
@@ -124,7 +153,7 @@ export default (state = null, action) =>
 				const newCertData = {
 					targetName: action.payload.targetName,
 					cert: action.payload.cert,
-					key: action.payload.key,					
+					key: action.payload.key,
 				};
 				['expirationDate', 'privateCA', 'selfSigned', 'caChain'].forEach((p) => {
 					if (p in action.payload) newCertData[p] = action.payload[p];

@@ -56,7 +56,7 @@ export const integrationStatuses = {
 // Action Creators
 
 // Config > Email
-// disabled, on, off
+// returns disabled, on, off
 export function nodeMailerStatus(state) {
 	const nodeMailerProps = state.config.emailDeliveryService?.NodeMailer;
 	if (!nodeMailerProps || !(nodeMailerProps.host && nodeMailerProps.port)) {
