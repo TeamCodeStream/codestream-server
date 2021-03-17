@@ -99,5 +99,9 @@ module.exports = {
 	'autoFR': {
 		description: 'Supports automatic generation of feedback requests',
 		version: '8.2.20'
+	},
+	'readItem': {
+		description: 'Supports /read-item call to mark number of unread replies for an item',
+		version: '8.2.33'
 	}
 };

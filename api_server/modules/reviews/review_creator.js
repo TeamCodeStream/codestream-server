@@ -41,7 +41,7 @@ class ReviewCreator extends ModelCreator {
 				'array(object)': ['reviewChangesets']
 			},
 			optional: {
-				string: ['text', 'status'],
+				string: ['text', 'status', 'entryPoint'],
 				object: ['authorsById'],
 				boolean: ['allReviewersMustApprove', '_dontCreatePermalink'],
 				'array(string)': ['reviewers', 'followerIds', 'codeAuthorIds', 'fileStreamIds', 'tags'],

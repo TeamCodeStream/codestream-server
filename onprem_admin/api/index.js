@@ -127,20 +127,20 @@ ApiRouter.put('/config/activate/:serialNumber', async (req, res) => {
 // FIXME: is it necessary to validate the body before writing to mongo??
 ApiRouter.post('/config/:activate?', async (req, res) => {
 	Logger.log(`api(post):/config/${req.params.activate}`);
-	const activate = req.params.activate in ['1', 'true', 'activate'];
+	const activate = ['1', 'true', 'activate'].indexOf(req.params.activate) >= 0;
 	const configDoc = await MongoStructuredConfig.addNewConfigToMongo(req.body.configData, { desc: req.body.desc });
 	if (!configDoc) {
 		Logger.error(`Add new config failed`, req.body);
 		res.status(404).send({success: false, reason: "Failed to add config to database"});
 		return;
 	}
-	Logger.log(`added new config ${configDoc.serialNumber}`);
+	Logger.log(`added new config ${configDoc.serialNumber}, activate=${activate}`);
 	if (activate) {
 		if (!await MongoStructuredConfig.activateMongoConfig(configDoc.serialNumber)) {
 			res.status(404).send({success: false, reason: `Failed to activate config ${serialNumber}`});
 			return;
 		}
-		Logger.log(`activated cibfug ${configDoc.serialNumber}`);
+		Logger.log(`activated config ${configDoc.serialNumber}`);
 	}
 	res.send({success: true, response: { configDoc }});
 });

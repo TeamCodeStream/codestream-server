@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.30] - 2021-3-17
+
+### Added
+
+- Display attached files in email notifications
+
 ## [8.2.29] - 2021-3-12
 
 ### Added

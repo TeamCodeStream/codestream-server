@@ -116,7 +116,7 @@ class WebSubscriptionCheckoutRequest extends WebRequestBase {
 				coupon: this.request.query.coupon
 			};
 		}
-		else if (this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod) {
+		else if (false /*this.company.get('createdAt') > Date.now() - this.api.config.payments.discountPeriod*/) {
 			sessionData.subscription_data = {
 				coupon: this.api.config.payments.stripe.buyNowCouponCode
 			};

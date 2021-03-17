@@ -216,6 +216,7 @@ const NewUsersOnTheFlyForReviewTest = require('./reviews/new_users_on_the_fly_fo
 const ReviewInviteTriggerTest = require('./reviews/review_invite_trigger_test');
 const ReviewAttributeRequiredTest = require('./reviews/review_attribute_required_test');
 const EmptyReviewChangesetTest = require('./reviews/empty_review_changeset_test');
+const EntryPointTest = require('./reviews/entry_point_test');
 
 class PostPostRequestTester {
 
@@ -456,6 +457,7 @@ class PostPostRequestTester {
 		new ReviewAttributeRequiredTest({ attribute: 'title' }).test();
 		new ReviewAttributeRequiredTest({ attribute: 'reviewChangesets' }).test();
 		new EmptyReviewChangesetTest().test();
+		new EntryPointTest().test();
 	}
 }
 

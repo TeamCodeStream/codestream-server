@@ -4,6 +4,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { integrationStatuses } from '../../store/actions/presentation';
 
+const clientDebug = false;
+
 // logic used by connected components which call an Accordion.
 // return object with status properties for each accordion card
 // {
@@ -43,7 +45,7 @@ export function getAccordionCardStatuses(state, cards) {
 			}
 		}
 	});
-	console.debug('getAccordionCardStatuses()  statusData =', statusData);
+	if (clientDebug) console.debug('getAccordionCardStatuses()  statusData =', statusData);
 	return statusData;
 }
 
@@ -60,7 +62,7 @@ const AccordionHeaderContent = (props) => {
 					onClick={
 						cardStatus?.onClickAction &&
 						((e) => {
-							console.debug('clicked the accordion header content image');
+							if (clientDebug) console.debug('clicked the accordion header content image');
 							dispatch({ type: cardStatus.onClickAction, payload: cardStatus.onClickActionPayload });
 							// FIXME: this don't work!! - confirmed that this IS in fact, stopping
 							// the event from bubbling up, but it IS NOT stopping the card from
@@ -69,7 +71,7 @@ const AccordionHeaderContent = (props) => {
 							// e.preventDefault();
 							// e.nativeEvent.stopImmediatePropagation();
 							// toggleAccordionCard(id);
-							console.debug(`card ${id} inputState = `, props.inputState);
+							if (clientDebug) console.debug(`card ${id} inputState = `, props.inputState);
 						})
 					}
 				/>
@@ -86,12 +88,12 @@ const AccordionHeaderContent = (props) => {
 }
 
 function accordionClicked(e) {
-	console.debug('I clicked on the accordion');
+	if (clientDebug) console.debug('accordionClicked()');
 	e.stopPropagation();
 }
 
 const AccordionCard = props => {
-	console.debug(`Accordion(AccordionCard ${props.id})  prop =`, props);
+	if (clientDebug) console.debug(`Accordion(AccordionCard ${props.id})  prop =`, props);
 	const { id, header } = props.card;
 	return (
 		<div className="card">
@@ -140,7 +142,7 @@ class Accordion extends React.Component {
 	constructor(props) {
 		// FIXME: deprecated - https://reactjs.org/docs/context.html
 		super(props);
-		console.debug('Accordion(constructor)  props =', this.props);
+		if (clientDebug) console.debug('Accordion(constructor)  props =', this.props);
 		const allCollapsed = typeof this.props.allCollapsed === 'boolean' ? this.props.allCollapsed : true;
 		this.state = {
 			allCollapsed,
@@ -156,16 +158,16 @@ class Accordion extends React.Component {
 		// this.revertField = this.revertField.bind(this);
 		// FIXME - why do I need this bind?
 		this.onClickCollapseAllToggle = this.onClickCollapseAllToggle.bind(this);
-		console.debug('Accordion(constructor)  state =', this.state);
+		if (clientDebug) console.debug('Accordion(constructor)  state =', this.state);
 	}
 
 	toggleAccordionCard(cardId) {
 		const newState = Object.assign({}, this.state);
 		newState.allCollapsed = true;
-		console.debug(`**** newState; cardId = ${cardId}`, newState);
+		if (clientDebug) console.debug(`**** newState; cardId = ${cardId}`, newState);
 		Object.keys(newState.cards).forEach((cid) => {
 			const card = newState.cards[cid];
-			console.debug('card:', card);
+			if (clientDebug) console.debug('card:', card);
 			if (cid === cardId) card.isCollapsed = !card.isCollapsed;
 			if (!card.isCollapsed) newState.allCollapsed = false;
 		});
@@ -173,14 +175,14 @@ class Accordion extends React.Component {
 	}
 
 	onClickCollapseAllToggle() {
-		console.debug('onClickCollapseAllToggle. state =');
+		if (clientDebug) console.debug('onClickCollapseAllToggle. state =');
 		const newCards = {};
 		Object.keys(this.state.cards).forEach((cardId) => {
 			const card = this.state.cards[cardId];
 			newCards[cardId] = { isCollapsed: !this.state.allCollapsed };
 		});
 		this.setState({ cards: newCards, allCollapsed: !this.state.allCollapsed });
-		console.debug('Accordion(onClickCollapseAllToggle)  state =', this.state);
+		if (clientDebug) console.debug('Accordion(onClickCollapseAllToggle)  state =', this.state);
 	}
 
 	// revertField() {
@@ -253,7 +255,7 @@ class Accordion extends React.Component {
 	}
 
 	render() {
-		console.debug(`Accordion(render) ${Object.keys(this.props.cards).length} cards. props =`, this.props);
+		if (clientDebug) console.debug(`Accordion(render) ${Object.keys(this.props.cards).length} cards. props =`, this.props);
 		return (
 			<div className="Accordion container bg-secondary">
 				<div className="row justify-content-between">

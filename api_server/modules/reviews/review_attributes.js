@@ -162,5 +162,10 @@ module.exports = {
 		type: 'arrayOfIds',
 		maxLength: 1000,
 		description: 'Array of user IDs representing authors of the code referenced by this code review'
+	},
+	entryPoint: {
+		type: 'string',
+		maxLength: 100,
+		description: 'Entry point used to create this review'
 	}
 };

@@ -4,11 +4,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
+const clientDebug = false;
+
 class MiniHelpAndValidationMsg extends React.Component {
 	render() {
 		const { mutedText } = this.props.field;
 		const { errorMsg, ariaDescribedBy } = this.props.inputState;
-		console.debug(`MiniHelpAndValidationMsg(): errorMsg = ${errorMsg}, mutedText = ${mutedText}`);
+		if (clientDebug) console.debug(`MiniHelpAndValidationMsg(): errorMsg = ${errorMsg}, mutedText = ${mutedText}`);
 		if (!mutedText && !errorMsg) return <></>;
 		return (
 			<small id={ariaDescribedBy} className="form-text ml-2">
@@ -24,7 +26,8 @@ class MiniHelpAndValidationMsg extends React.Component {
 
 class TheCheckBoxElement extends React.Component {
 	onClickHandler() {
-		console.debug(`TheCheckBoxElement(onClickHander) type: ${this.props.field.onClickAction}, payload:`, this.props.field.onClickActionPayload);
+		if (clientDebug)
+			console.debug(`TheCheckBoxElement(onClickHander) type: ${this.props.field.onClickAction}, payload:`, this.props.field.onClickActionPayload);
 		this.props.updateState({ value: !this.props.inputState.value });
 		this.props.dispatch({ type: this.props.field.onClickAction, payload: this.props.field.onClickActionPayload });
 	}
@@ -32,7 +35,7 @@ class TheCheckBoxElement extends React.Component {
 	render() {
 		const { id, label } = this.props.field;
 		const { value } = this.props.inputState;
-		console.debug('TheCheckBoxElement(render) props:', this.props);
+		if (clientDebug) console.debug('TheCheckBoxElement(render) props:', this.props);
 		return (
 			<span className="col-12 form-check">
 				<input className="form-check-input" checked={value} type="checkbox" id={id} onChange={() => this.onClickHandler()} />
@@ -50,22 +53,22 @@ class TheInputElement extends React.Component {
 	validateField(e) {
 		const err = this.props.field.validation?.onBlur ? this.props.field.validation.onBlur(e.target.value, this.props.field) : null;
 		if (err) {
-			console.debug(`validateField(${e.target.value}) returned ${err}`);
+			if (clientDebug) console.debug(`validateField(${e.target.value}) returned ${err}`);
 			this.props.updateState({ errorMsg: err });
 		} else {
-			console.debug('input is valid');
+			if (clientDebug) console.debug('input is valid');
 			const payloadValue = this.props.field.dispatchNullForEmpty ? e.target.value || null : e.target.value;
 			if (this.props.field.updateActionPayload) {
 				const payload = {
 					...this.props.field.updateActionPayload,
 					value: payloadValue,
 				};
-				console.debug(`dispatching update ${this.props.field.updateAction} with expanded payload `, payload);
+				if (clientDebug) console.debug(`dispatching update ${this.props.field.updateAction} with expanded payload `, payload);
 				this.props.updateState({ errorMsg: null });
 				this.props.dispatch({ type: this.props.field.updateAction, payload });
 			}
 			else if (this.props.field.updateAction) {
-				console.debug(`dispatching update ${this.props.field.updateAction}`);
+				if (clientDebug) console.debug(`dispatching update ${this.props.field.updateAction}`);
 				this.props.updateState({ errorMsg: null });
 				this.props.dispatch({ type: this.props.field.updateAction, payload: payloadValue });
 			} else {
@@ -79,8 +82,10 @@ class TheInputElement extends React.Component {
 	}
 
 	render() {
-		console.debug('TheInputElement(render)  field = ', this.props.field);
-		console.debug('TheInputElement(render)  local state = ', this.props.inputState);
+		if (clientDebug) {
+			console.debug('TheInputElement(render)  field = ', this.props.field);
+			console.debug('TheInputElement(render)  local state = ', this.props.inputState);
+		}
 		const { id, type, placeholder, disabled } = this.props.field;
 		const { ariaDescribedBy, value, errorMsg } = this.props.inputState;
 		return (
@@ -101,7 +106,7 @@ class TheInputElement extends React.Component {
 
 class TheInputElementGroup extends React.Component {
 	render() {
-		console.debug('TheInputElementGroup(render). inputState =', this.props.inputState);
+		if (clientDebug) console.debug('TheInputElementGroup(render). inputState =', this.props.inputState);
 		const { id, label } = this.props.field;
 		return (
 			<span className="col-12">
@@ -147,24 +152,24 @@ class FieldGroup extends React.Component {
 			revertValue: this.props.revertValue,
 			ariaDescribedBy: this.props.field.placeholder ? this.props.field.id + 'Help' : undefined,
 		};
-		console.debug('FieldGroupComponent():', this.props);
+		if (clientDebug) console.debug('FieldGroupComponent():', this.props);
 		// necessary when function calls this.getState() and we pass it to a child component
 		this.updateState = this.updateState.bind(this);
 		this.revertField = this.revertField.bind(this);
 	}
 
 	updateState(stateUpdates) {
-		console.debug('FieldGroup(): updating local state', stateUpdates);
+		if (clientDebug) console.debug('FieldGroup(): updating local state', stateUpdates);
 		this.setState(stateUpdates);
 	}
 
 	revertField() {
-		console.debug(`reverting field to ${this.state.revertValue}`);
+		if (clientDebug) console.debug(`reverting field to ${this.state.revertValue}`);
 		this.setState({ errorMsg: null, value: this.state.revertValue });
 	}
 
 	render() {
-		console.debug(`FieldGroup(): rendering ${this.props.field.id} ${this.props.field.type}`);
+		if (clientDebug) console.debug(`FieldGroup(): rendering ${this.props.field.id} ${this.props.field.type}`);
 		switch (this.props.field.type) {
 			case 'text':
 			case 'number':
@@ -192,10 +197,10 @@ const FormFieldSet = (props) => {
 	// needed here
 	const formRowJustification = props.layout?.formRowJustification || 'justify-content-center';
 	const { legend, fieldset, defaultColWidth, helpDoc } = props;
-	console.debug('formRowJustification:', formRowJustification);
+	if (clientDebug) console.debug('formRowJustification:', formRowJustification);
 	// needed by children
 	const { dispatch, formData } = props;
-	console.debug('FormFieldSet(props)', props);
+	if (clientDebug) console.debug('FormFieldSet(props)', props);
 	return (
 		<div className="container-fluid col-12">
 			{helpDoc && (
