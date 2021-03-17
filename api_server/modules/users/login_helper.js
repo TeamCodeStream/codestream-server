@@ -207,7 +207,8 @@ class LoginHelper {
 					interactiveComponentsEnabled: this.api.config.integrations.slack.interactiveComponentsEnabled
 				}
 			},
-			runtimeEnvironment: isOnPrem ? 'onprem' : runTimeEnvironment
+			isOnPrem,
+			runtimeEnvironment: runTimeEnvironment
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub
