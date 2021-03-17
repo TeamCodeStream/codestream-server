@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.33] - 2021-3-17
+
+### Added
+
+- Add backend support for displaying unread message indicators (i.e., blue badges) in the various section of the CodeStream pane
+
 ## [8.2.32] - 2021-3-12
 
 ### Added
