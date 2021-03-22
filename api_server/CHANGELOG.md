@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.34] - 2021-3-22
+
+### Added
+
+- Temporarily turn off feedback request reminder emails
+
 ## [8.2.33] - 2021-3-17
 
 ### Added
