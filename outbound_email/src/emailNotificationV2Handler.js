@@ -684,10 +684,22 @@ class EmailNotificationV2Handler {
 		if (!user.hasReceivedFirstEmail) {
 			op.$set.hasReceivedFirstEmail = true;
 		}
-		if (this.message.isReminder && !user.isRegistered) {
-			op.$set.lastInviteType = 'reviewReminder';
-			op.$set.lastInviteSentAt = Date.now();
+		if (!user.isRegistered) {
+			if (this.message.isReminder) {
+				op.$set.lastInviteType = 'reviewReminder';
+				op.$set.lastInviteSentAt = Date.now();
+			} else if (
+				this.parentReview &&
+				(this.parentReview.codeAuthorIds || []).includes(user.id)
+			) {
+				op.$set.lastInviteType = 'reviewAuthorNotification';
+				op.$set.lastInviteSentAt = Date.now();
+				if (!user.firstInviteType) {
+					op.$set.firstInviteType = op.$set.lastInviteType;
+				}
+			}
 		}
+
 		try {
 			await this.data.users.updateDirect(
 				{ id: this.data.users.objectIdSafe(user.id) },

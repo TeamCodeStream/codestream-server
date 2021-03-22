@@ -52,7 +52,8 @@ class UserInviter {
 			userBeingAddedToTeamId: this.team.id,
 			inviteCodeExpiresIn: this.inviteCodeExpiresIn,
 			inviteInfo: this.inviteInfo,
-			inviteType: this.inviteType
+			inviteType: !this.dontSendEmail && this.inviteType,
+			dontSetInviteType: this.dontSendEmail
 		});
 		const createdUser = await userCreator.createUser(userData);
 		const didExist = !!userCreator.existingModel;

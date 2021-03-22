@@ -170,6 +170,13 @@ class UserCreator extends ModelCreator {
 			this.inviteCode = this.attributes.inviteCode = this.generateInviteCode();
 		}
 
+		// don't set invite type if told explicitly not to do so,
+		// this is currently the case for "feedback requests on pull", where the code author is 
+		// not sent an invite until the first reply to the review
+		if (this.dontSetInviteType) {
+			return;
+		}
+
 		// set lastInviteType, can be triggered by a review or codemark notification
 		const existingLastInviteType = this.existingModel && this.existingModel.get('lastInviteType');
 		const existingFirstInviteType = this.existingModel && this.existingModel.get('firstInviteType');
