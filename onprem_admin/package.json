@@ -1,6 +1,6 @@
 {
 	"name": "onprem-admin",
-	"version": "8.2.7",
+	"version": "8.2.8",
 	"description": "CodeStream On-Prem Administration Service",
 	"repository": "https://github.com/teamcodestream/onprem-admin.git",
 	"main": "",
