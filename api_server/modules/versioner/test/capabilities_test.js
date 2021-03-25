@@ -20,7 +20,9 @@ class CapabilitiesTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.deepEqual(data, { capabilities: APICapabilities }, 'returned capabilities are not correct');
+		Assert.deepStrictEqual(data.capabilities, APICapabilities, 'returned capabilities are not correct');
+		Assert.strictEqual(data.runTimeEnvironment, this.apiConfig.sharedGeneral.runTimeEnvironment, 'runTimeEnvironment not correct');
+		Assert.strictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem, 'isOnPrem is not correct');
 	}
 }
 
