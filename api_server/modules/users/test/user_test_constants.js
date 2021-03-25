@@ -56,6 +56,7 @@ const EXPECTED_LOGIN_RESPONSE = {
 	teams: true,
 	repos: true,
 	isOnPrem: true,
+	isProductionCloud: true,
 	runtimeEnvironment: true
 };
 

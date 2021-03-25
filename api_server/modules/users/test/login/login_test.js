@@ -81,6 +81,7 @@ class LoginTest extends CodeStreamAPITest {
 		Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		Assert.strictEqual(data.runtimeEnvironment, this.apiConfig.sharedGeneral.runTimeEnvironment);
 		Assert.strictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);
+		Assert.strictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud);
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

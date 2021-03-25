@@ -16,8 +16,9 @@ class CapabilitiesRequest extends RestfulRequest {
 		// return the capabilities
 		this.responseData = {
 			capabilities: { ...APICapabilities },
-			runTimeEnvironment: this.api.config.sharedGeneral.runTimeEnvironment,
-			isOnPrem: this.api.config.sharedGeneral.isOnPrem
+			environment: this.api.config.sharedGeneral.runTimeEnvironment,
+			isOnPrem: this.api.config.sharedGeneral.isOnPrem,
+			isProductionCloud: this.api.config.sharedGeneral.isProductionCloud
 		};
 	}
 
