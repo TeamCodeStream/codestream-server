@@ -164,7 +164,7 @@ ${activity}
 		const { unsubscribeLink } = options;
 		return `
 <div class="unsubscribe-weekly">
-		<a clicktracking="off" href="${unsubscribeLink}">Unsubscribe</a> from weekly emails.
+		<a clicktracking="off" href="${unsubscribeLink}">Unsubscribe</a> from weekly activity emails.
 </div>
 `;
 	}
