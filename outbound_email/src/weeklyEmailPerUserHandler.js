@@ -4,6 +4,7 @@ const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const WeeklyEmailRenderer = require('./weeklyEmailRenderer');
 const Utils = require('./utils');
 const Juice = require('juice');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 
 const ONE_HOUR = 60 * 60 * 1000;
 const ONE_DAY = 24 * ONE_HOUR;
@@ -441,6 +442,17 @@ class WeeklyEmailPerUserHandler {
 		);
 	}
 
+	// get the "unsubscribe" link for a given user
+	getUnsubscribeLink (user) {
+		const token = new TokenHandler(this.outboundEmailServer.config.sharedSecrets.auth).generate(
+			{
+				uid: user.id
+			},
+			'unsscr'
+		);
+		return `${this.outboundEmailServer.config.apiServer.publicApiUrl}/no-auth/unsubscribe-weekly?t=${token}`;
+	}
+
 	// render the email given all the data we've collected
 	async renderEmail () {
 		this.renderOptions = {
@@ -449,7 +461,8 @@ class WeeklyEmailPerUserHandler {
 			teamData: this.teamData,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
 			ideLinks: Utils.getIDELinks(),
-			latestNews: this.latestNews
+			latestNews: this.latestNews,
+			unsubscribeLink: this.getUnsubscribeLink(this.user)
 		}
 		this.content = new WeeklyEmailRenderer().render(this.renderOptions);
 		this.content = this.content.replace(/[\t\n]/g, '');

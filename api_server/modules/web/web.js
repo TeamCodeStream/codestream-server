@@ -28,6 +28,10 @@ const STANDARD_PAGES = [
 	{
 		route: 'web/confirm-email-complete',
 		template: 'email_confirmed'
+	},
+	{
+		route: 'web/unsubscribe-weekly-complete',
+		template: 'unsubscribe_weekly_complete'
 	}
 ];
 
@@ -186,6 +190,11 @@ const ROUTES = [
 		method: 'get',
 		path: 'web/subscription/error',
 		requestClass: require('./subscription_error_request')
+	},
+	{
+		method: 'get',
+		path: 'web/unsubscribe-weekly-error',
+		requestClass: require('./web_unsubscribe_weekly_error_request')
 	}
 ];
 

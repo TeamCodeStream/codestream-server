@@ -49,6 +49,8 @@ class WeeklyEmailRenderer {
 `;
 		}
 
+		let unsubscribeDiv = this.renderUnsubscribe(options);
+
 		return `
 <html>
 	<head>
@@ -81,9 +83,7 @@ class WeeklyEmailRenderer {
 							${latestNewsSection}
 							<br/>
 							<br/>
-							<div class="ensure-white">
-								Turn this email off via Notification Settings in the CodeStream extension.
-							</div>
+							${unsubscribeDiv}
 						</div>
 					</div>
 				</td>
@@ -158,6 +158,15 @@ ${activity}
 		} else {
 			return '';
 		}
+	}
+
+	renderUnsubscribe (options) {
+		const { unsubscribeLink } = options;
+		return `
+<div class="unsubscribe-weekly">
+		<a clicktracking="off" href="${unsubscribeLink}">Unsubscribe</a> from weekly emails.
+</div>
+`;
 	}
 
 	renderReviews (userData) {
