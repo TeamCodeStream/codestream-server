@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.35] - 2021-3-26
+
+### Fixed
+
+- Fixes a memory leak issue with feedback request reminder emails
+
 ## [8.2.34] - 2021-3-22
 
 ### Added

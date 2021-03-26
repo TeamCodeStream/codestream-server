@@ -368,3 +368,13 @@ blockquote {
 	color: #009aef;
 	text-decoration: none !important;
 }
+
+.unsubscribe-weekly { 
+	color: #898f9e;	
+	font-size: 12px;
+}
+
+.unsubscribe-weekly a {
+	color: #009aef !important;
+	text-decoration: none !important;
+}

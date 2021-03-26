@@ -131,6 +131,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'read-item/:id',
 		requestClass: require('./read_item_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/unsubscribe-weekly',
+		requestClass: require('./unsubscribe_weekly_email_request')
 	}
 ];
 

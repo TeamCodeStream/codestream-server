@@ -11,10 +11,6 @@ class ReviewReminder {
 
 	// schedule jobs to look for reviews which need reminders
 	schedule () {
-		this.api.log('Review reminders temporarily disabled');
-		return;
-
-		
 		// stagger each worker's schedule to occur at a random time every hour
 		const randomMinutes = Math.floor(Math.random() * 60);
 		const randomSeconds = Math.floor(Math.random() * 60);
@@ -37,21 +33,25 @@ class ReviewReminder {
 
 		// get open reviews for which there has been no activity for 24 hours, and
 		// for which we have not sent a reminder yet 
+		const now = Date.now();
 		let reviews = await this.api.data.reviews.getByQuery(
 			{
 				status: 'open',
-				lastActivityAt: { $lt: Date.now() - ONE_DAY },
-				lastReminderSentAt: { $exists: false } 
+				lastReminderSentAt: { $exists: false },
+				lastActivityAt: { $lt: now - ONE_DAY },
+				createdAt: { $gt: now - 2 * ONE_WEEK }
 			},
 			{
-				hint: Indexes.byStatus
+				hint: Indexes.byStatus,
+				fields: ['id', 'reviewers', 'postId'],
+				sort: { lastActivityAt: -1 },
+				limit: 20
 			}
 		);
 
-		// filter out reviews that have no reviewers, and also old reviews, because we don't want an avalanche
-		const now = Date.now();
+		// filter out reviews that have no reviewers
 		reviews = reviews.filter(review => {
-			return (review.reviewers || []).length > 0 && review.createdAt > now - 2 * ONE_WEEK;
+			return (review.reviewers || []).length > 0;
 		});
 		if (reviews.length === 0) {
 			this.api.log('No reviews found which need reminders');
