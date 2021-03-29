@@ -199,7 +199,7 @@ ${activity}
 	}
 
 	renderSectionEntries(userData, collection, heading, groupReplies=false) {
-		let contentHtml = '', moreHtml = '';
+		let contentHtml = '<table>', moreHtml = '';
 		let items = userData[collection];
 		const sectionHtml = items.length > 0 ? `<div class="sub-heading ensure-white">${heading}</div>` : '';
 		const sepHtml = items.length > 0 ? '<br/>' : '';
@@ -232,14 +232,15 @@ ${activity}
 					reply.permalink ||
 					(reply.codemark && reply.codemark.permalink)
 				);
-				contentHtml += this.renderItemText(reply, replyPermalink || permalink, options, 10);
+				contentHtml += this.renderItemText(reply, replyPermalink || permalink, options, true);
 			});
 		});
+		contentHtml += '</table>'
 		return sectionHtml + contentHtml + moreHtml + sepHtml;
 	}
 
 	// render text for a single item
-	renderItemText (item, permalink, options, indent=0) {
+	renderItemText (item, permalink, options, isReply=false) {
 		const creator = this.teamData.users.find(u => u.id === item.creatorId);
 		const username = creator.username || EmailUtilities.parseEmail(creator.email).name;
 		//const headshot = creator ? Utils.renderUserHeadshot(creator) : '';
@@ -262,10 +263,14 @@ ${activity}
 			permalink = permalink + '?src=WeeklyEmail';
 			text = `<a class="weekly-email-atag" clicktracking="off" href="${permalink}"><span class="hover-underline">${text}</span></a>`;
 		}
-		const spaces = '&nbsp;'.repeat(indent);
-		const icon = indent === 0 ? this.getItemIcon(item) : null;
+		const icon = isReply ? 'has-reply' : this.getItemIcon(item);
 		const iconHtml = icon ? Utils.renderIcon(icon) : '';
-		return `<div class="weekly-listing ensure-white">${spaces}${iconHtml}&nbsp;<span class="author-weekly">${username}</span>:&nbsp;${text}</div>`; 
+		const itemText = `<span class="author-weekly">${username}</span>:&nbsp;${text}`;
+		const cell1 = isReply ? '&nbsp;' : iconHtml;
+		const cell2 = isReply ? iconHtml : itemText;
+		const cell3 = isReply ? itemText : '';
+		const colspan = isReply ? '' : 'colspan=2';
+		return `<tr class="weekly-listing ensure-white"><td>${cell1}</td><td ${colspan}>${cell2}</td><td>${cell3}</td></tr>`; 
 	}
 
 	// handle messages starting with /me, by removing /me and substituting username
