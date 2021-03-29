@@ -283,10 +283,11 @@ ${activity}
 	// get the icon appropriate for this item
 	getItemIcon (item) {
 		if (item.isReview) {
-			return 'review';
+			const color = item.status === 'open' ? 'green' : (item.status === 'approved' ? 'purple' : 'red');  
+			return `review-${color}`;
 		} else if (item.isCodemark) {
 			if (item.type === 'comment' || item.type === 'issue') {
-				const color = !item.pinned ? 'gray' : item.status === 'closed' ? 'purple' : 'green';
+				const color = !item.pinned ? 'gray' : (item.status === 'closed' ? 'purple' : 'green');
 				return `marker-${item.type}-${color}`;
 			} else {
 				return item.type;
