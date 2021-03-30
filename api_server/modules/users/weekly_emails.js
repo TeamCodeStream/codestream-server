@@ -11,7 +11,8 @@ const ONE_MONTH = 30 * ONE_DAY;
 
 // only do these teams, for testing in PD
 const PD_TEAM_WHITELIST = [
-	'60523c26f320c82aa55abf1e'
+	'60523c26f320c82aa55abf1e',
+	'5dfcee08d3d59050f7712b6d'
 ];
 
 // governs how often we do weekly email runs, for testing, can be: local, pd, pdnight 
