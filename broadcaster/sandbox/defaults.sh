@@ -24,7 +24,7 @@ else
 	# sbcfg_check_cfg_prop broadcastEngine.codestreamBroadcaster.logger.directory inboundEmailServer.logger.directory CS_BROADCASTER_LOGS 2>/dev/null
 	# sbcfg_check_cfg_prop inboundEmailServer.tmpDirectory CS_BROADCASTER_TMP
 
-	[ -z "`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.host 2>/dev/null)`" ] && echo "The config file does not support the codestream broadcaster as a broadcastEngine. This sandbox is DOA." && export CS_BROADCASTER_DOA=1
+	[ -z "`eval echo $(get-json-property -j $CSSVC_CFG_FILE -p broadcastEngine.codestreamBroadcaster.host 2>/dev/null)`" ] && echo "The config file does not support the codestream broadcaster as a broadcastEngine." && export CS_BROADCASTER_DOA=1
 fi
 
 return 0

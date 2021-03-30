@@ -10,7 +10,7 @@ const SocketClusterServer = require('socketcluster-server');
 const UUID = require('uuid/v4');
 const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
 const BroadcasterConfig = require(process.env.CSSVC_BACKEND_ROOT + '/broadcaster/config');
-const GetAssetInfo = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_asset_data');
+const GetAssetData = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_asset_data');
 const OS = require('os');
 const Express = require('express');
 const IPC = require('node-ipc');
@@ -129,10 +129,15 @@ class BroadcasterServer {
 
 		this.express.get('/no-auth/asset-info', async (req, res) => {
 			res.send(
-				Object.assign({}, await GetAssetInfo(), {
-					runTimeEnvironment: BroadcasterConfig.getPreferredConfig().sharedGeneral
-						.runTimeEnvironment,
-				})
+				Object.assign(
+					{},
+					await GetAssetData({
+						serviceRoot: process.env.CSSVC_BACKEND_ROOT + '/broadcaster',
+						repoRoot: process.env.CSSVC_BACKEND_ROOT,
+						runTimeEnvironment: BroadcasterConfig.getPreferredConfig().sharedGeneral
+							.runTimeEnvironment,
+					})
+				)
 			);
 		});
 

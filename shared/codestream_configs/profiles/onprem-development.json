@@ -18,8 +18,7 @@
 {
 	"adminServer": {
 		"defaultEnv": {
-			"port": 8443,
-			"securePort": 8443
+			"port": 8443
 		},
 		"local": {}
 	},
@@ -28,16 +27,14 @@
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
 			"port": 4443,
-			"publicApiUrl": "http://${CSSVC_ENV}.codestream.us:4443",
-			"securePort": 4443
+			"publicApiUrl": "http://${CSSVC_ENV}.codestream.us:4443"
 		},
 		"defaultEnv": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
 			"helpIsAvailable": true,
 			"port": 4443,
-			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
-			"securePort": 4443
+			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us"
 		},
 		"local": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
@@ -48,8 +45,7 @@
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"dontWantAWS": true,
 			"port": 4443,
-			"publicApiUrl": "https://${CSSVC_ENV}.codestream.us",
-			"securePort": 4443
+			"publicApiUrl": "https://${CSSVC_ENV}.codestream.us"
 		}
 	},
 	"broadcastEngine": {

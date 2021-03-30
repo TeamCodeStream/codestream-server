@@ -39,22 +39,27 @@ class Broadcaster extends APIServerModule {
 
 	async connectToSocketCluster () {
 		const broadcasterConfig = this.api.config.broadcastEngine.codestreamBroadcaster;
-		const host = broadcasterConfig.host;
+		const host = broadcasterConfig.internalHost;
 		const port = broadcasterConfig.port;
 		this.api.log(`Connecting to SocketCluster at ${host}:${port}...`);
-		const config = Object.assign({},
+		const config = Object.assign(
+			{},
 			{
 				// formerly the socketCluster object
 				host,
 				port,
 				authKey: broadcasterConfig.secrets.api,
 				ignoreHttps: broadcasterConfig.ignoreHttps,
-				strictSSL: broadcasterConfig.sslCert.requireStrictSSL,
-				apiSecret: broadcasterConfig.secrets.api
+				// this is an intra-service connection so we do not want to
+				// require strict SSL because there's a very good chance the
+				// certificate hostname won't match the internal hostname.
+				// strictSSL: broadcasterConfig.sslCert.requireStrictSSL,
+				strictSSL: false,
+				apiSecret: broadcasterConfig.secrets.api,
 			},
 			{
 				logger: this.api,
-				uid: 'API'
+				uid: 'API',
 			}
 		);
 		this.socketClusterClient = new SocketClusterClient(config);

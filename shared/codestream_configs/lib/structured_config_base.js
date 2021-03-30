@@ -218,7 +218,7 @@ class StructuredConfigBase {
 		}
 		this.schemaFile = this.options.schemaFile || process.env.STRUCTURED_CFG_SCHEMA_FILE || __dirname + '/../parameters.json';
 		if (!schemas.hasOwnProperty(this.schemaFile)) {
-			this.logger.log(`loading schema (${this.schemaFile})`);
+			if (!this.options.quiet) this.logger.log(`loading schema (${this.schemaFile})`);
 			schemas[this.schemaFile] = hjson.parse(fs.readFileSync(this.schemaFile, 'utf8'));
 		}
 		this.schema = schemas[this.schemaFile];

@@ -11,6 +11,7 @@ ADD broadcaster/lib /opt/broadcaster/codestream-server/broadcaster/lib
 ADD shared /opt/broadcaster/codestream-server/shared
 ADD broadcaster/bin/broadcaster.js /opt/broadcaster/codestream-server/broadcaster/bin/broadcaster.js
 ADD broadcaster/*.js broadcaster/*.json broadcaster/*.info /opt/broadcaster/codestream-server/broadcaster/
+ADD dockerImage.json /opt/broadcaster/codestream-server/dockerImage.json
 
 WORKDIR /opt/broadcaster/codestream-server/broadcaster
 RUN npm install --no-save

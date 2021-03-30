@@ -37,6 +37,8 @@ Commander
 	.option('--and-activate', 'use with --load if you want to activate the config being loaded')
 	.option('--admin-port <adminPort>', 'set this admin port when loading via --add-cfg-file')
 	.option('--first-cfg-hook', 'apply the first-time configuration setup hook used by the API')
+	.option('--property <prop>', 'return this scalar property in dotted notation. Use with --dump')
+	.option('--container-ports', 'return container ports in shell var assignment format. Use with --dump')
 	.option('-d, --desc <desc>', 'config description')
 	.option('-c, --cfg-collection-name <cfgCollectionName>', 'configuration collection name (def = structuredConfiguration)')
 	.option('-r, --report', 'report configuration summary')
@@ -130,10 +132,18 @@ const ConfigReport = async() => {
 				: Commander.dump == 'latest'
 				? await CfgData.getMostRecentConfig()
 				: await CfgData.getConfigBySerial(Commander.dump);
-		if (Commander.pretty) {
-			console.log(util.inspect(config, false, null, true /* enable colors */));
+		if (Commander.property) {
+			console.log(CfgData.getProperty(Commander.property));
+		} else if (Commander.containerPorts) {
+			console.log(`apiServerPort=${config.apiServer.port}`);
+			console.log(`broadcasterPort=${config.broadcastEngine.codestreamBroadcaster.port}`);
+			if (config.adminServer) console.log(`adminServerPort=${config.adminServer.port}`);
 		} else {
-			console.log(JSON.stringify(config, StringifySortReplacer, '\t'));
+			if (Commander.pretty) {
+				console.log(util.inspect(config, false, null, true /* enable colors */));
+			} else {
+				console.log(JSON.stringify(config, StringifySortReplacer, '\t'));
+			}
 		}
 	}
 	// delete a config by its serial number

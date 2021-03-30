@@ -8,11 +8,11 @@ WORKDIR /opt/mailout
 RUN mkdir log tmp pid
 
 WORKDIR /opt/mailout/codestream-server
-
 ADD outbound_email/src /opt/mailout/codestream-server/outbound_email/src
 ADD outbound_email/package.json outbound_email/package-lock.json /opt/mailout/codestream-server/outbound_email/
 ADD outbound_email/bin/outbound_email_server.js /opt/mailout/codestream-server/outbound_email/bin/outbound_email_server.js
 ADD shared /opt/mailout/codestream-server/shared
+ADD dockerImage.json /opt/mailout/codestream-server/dockerImage.json
 
 WORKDIR /opt/mailout/codestream-server/outbound_email
 RUN npm install --no-save

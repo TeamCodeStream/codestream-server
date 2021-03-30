@@ -10,26 +10,24 @@
 //
 // - environments:
 // -    minimal (default): onprem template that includes ssl and outbound email
-// -    quickstart:        onprem template without ssl or email
 // -    local:             local development template (codestream sandbox)
 // -    open-development:  open core development (new database default)
-// -    onprem-slh-quickstart:  default onprem quickstart for Single Linux Host
+// -    onprem-quickstart:  default onprem quickstart for all product types
 
 {
 	"adminServer": {
 		"adminServerDisabled": false,
 		"ignoreHttps": true,
+		"internalHost": "localhost",
 		"logger": {
 			"consoleOk": true,
 			"debugOk": false,
 			"directory": "${OPADM_LOGS}"
 		},
 		"port": 12002,
-		"securePort": 12003,
 		"showConfig": false
 	},
 	"apiServer": {
-		"altBroadcasterHost": null,
 		"authOrigin": null,
 		"callbackEnvironment": "${CS_API_CALLBACK_ENV}",
 		"confirmCodeExpiration": 604800000,
@@ -40,6 +38,7 @@
 		"forgotPasswordExpiration": 86400000,
 		"helpIsAvailable": true,
 		"ignoreHttps": true,
+		"internalHost": "localhost",
 		"logger": {
 			"consoleOk": true,
 			"debugOk": false,
@@ -50,7 +49,6 @@
 		"phoneHomeUrl": "http://localhost:12006",
 		"port": 12000,
 		"publicApiUrl": "http://localhost:12000",
-		"securePort": 12001,
 		"sessionAwayTimeout": 600000,
 		"showConfig": true,
 		"signupTokenExpiration": 600000,
@@ -58,9 +56,9 @@
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
-			"altApiHost": null,
 			"host": "localhost",
 			"ignoreHttps": true,
+			"internalHost": "localhost",
 			"logger": {
 				"consoleOk": true,
 				"debugOk": false,
@@ -71,7 +69,6 @@
 				"api": "broadcastApiSecret",
 				"auth": "broadcastAuthSecret"
 			},
-			"securePort": 12005,
 			"showConfig": false
 		}
 	},
@@ -108,6 +105,7 @@
 		"tmpDirectory": "${CS_MAILIN_SANDBOX}/tmp"
 	},
 	"outboundEmailServer": {
+		"internalHost": "localhost",
 		"logger": {
 			"consoleOk": true,
 			"debugOk": false,

@@ -1,9 +1,31 @@
 # On-Prem Administration
 
-The On-Prem Admin utility is a web application for configuring and managing your
-CodeStream On-Prem installation.
+**CodeStream On-Prem** provides an installation footprint for running the same
+core service as the cloud version, with a few differences needed for a rich
+self-hosted experience. Most notably:
 
-## Architecture
+*   The codestream broadcaster (a socket-cluster node application) replaces
+    pubnub.com for real-time communication between the clients and server.
+*   The configuration data will reside inside the mongo database.
+*   A server-side node admin service has been added along with a browser SPA
+    called the Admin App to provide for editing the configuration and additional
+    administrative & maintenance tasks.
+*   A RabbitMQ server has been added for queuing mail requests.
+
+## Product Types
+
+There are a few On-Prem installations, called **product types**, are avaiable.
+
+| Product Type | Desc |
+| --- | --- |
+| Single Linux Host | Runs all services in independent docker containers using Docker's host based networking, available only on Linux distributions |
+| Single Mac Host | Similar to **Single Linux Host** but using Docker's work-around for implementing host based networking on a mac (use of the `host.docker.internal` special hostname) |
+| Docker Compose | Run containers with **docker-compose** on a compose, bridged internal network |
+| On-Prem Development | For development & CI/CD, run services in devtools sandboxes |
+
+
+
+## Admin Server & App Architecture
 
 ### Technology Components
 

@@ -10,21 +10,29 @@
 		"install:opadm": "echo ONPREM_ADMIN && cd onprem_admin && npm i --no-save",
 		"runtime-dirs": "[ ! -d log ] && mkdir log || true",
 		"install:all": "npm run runtime-dirs && npm run install:api && npm run install:broadcaster && npm run install:mailin && npm run install:mailout && npm run install:opadm",
+
 		"start:api": "cd api_server && npm run start",
 		"start:broadcaster": "cd broadcaster && npm run start",
 		"start:mailin": "cd inbound_email && npm run start",
 		"start:mailout": "cd outbound_email && npm run start",
 		"start:opadm": "cd onprem_admin && npm run build && npm run start",
 
-		"run:docker:csrabbitmq": "docker run -d -p 5672:5672 -p 15672:15672 --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0",
-		"start:docker:csrabbitmq": "docker start csrabbitmq",
-		"stop:docker:csrabbitmq": "docker stop csrabbitmq",
-		"rm:docker:csrabbitmq": "docker rm csrabbitmq",
+		"docker:run:csrabbitmq": "docker run -d -p 5672:5672 -p 15672:15672 --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0",
+		"docker:start:csrabbitmq": "docker start csrabbitmq",
+		"docker:stop:csrabbitmq": "docker stop csrabbitmq",
+		"docker:rm:csrabbitmq": "docker rm csrabbitmq",
 
-		"run:docker:csmongo": "docker run -d -p 27017:27017 --name csmongo -v csmongodata:/data/db mongo:3.4.9",
-		"start:docker:csmongo": "docker start csmongo",
-		"stop:docker:csmongo": "docker stop csmongo",
-		"rm:docker:csmongo": "docker rm csmongo",
+		"docker:run:csmongo": "docker run -d -p 27017:27017 --name csmongo -v csmongodata:/data/db mongo:3.4.9",
+		"docker:start:csmongo": "docker start csmongo",
+		"docker:stop:csmongo": "docker stop csmongo",
+		"docker:rm:csmongo": "docker rm csmongo",
+
+		"docker:build:api": "echo API && cd api_server && npm run docker:build",
+		"docker:build:broadcaster": "echo BROADCASTER && cd broadcaster && npm run docker:build",
+		"docker:build:mailout": "echo OUTBOUND_EMAIL && cd outbound_email && npm run docker:build",
+		"docker:build:opadm": "echo ONPREM_ADMIN && cd onprem_admin && npm run docker:build",
+		"docker:build:all": "npm run docker:build:api && npm run docker:build:broadcaster && npm run docker:build:mailout && npm run docker:build:opadm",
+
 		"docker:remove-all-vols": "docker volume rm $(docker volume ls|awk '{print $2}'|grep -v VOL)"
 	},
 	"repository": {

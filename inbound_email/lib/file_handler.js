@@ -495,10 +495,10 @@ class FileHandler {
 	// to the stream for which it is intended
 	async sendDataToApiServer (data) {
 		this.log(`Sending email (${data.mailFile}) from ${JSON.stringify(data.from)} to ${JSON.stringify(data.to)} to API server...`);
-		const host = this.inboundEmailServer.config.apiServer.publicApiUrlParsed.host;
-		const port = this.inboundEmailServer.config.apiServer.publicApiUrlParsed.port;
-		const protocol = this.inboundEmailServer.config.apiServer.publicApiUrlParsed.secure ? 'https' : 'http';
-		const netClient = this.inboundEmailServer.config.apiServer.publicApiUrlParsed.secure ? HTTPS : HTTP;
+		const host = this.inboundEmailServer.config.apiServer.internalApiUrlParsed.host;
+		const port = this.inboundEmailServer.config.apiServer.internalApiUrlParsed.port;
+		const protocol = this.inboundEmailServer.config.apiServer.internalApiUrlParsed.secure ? 'https' : 'http';
+		const netClient = this.inboundEmailServer.config.apiServer.internalApiUrlParsed.secure ? HTTPS : HTTP;
 		const url = `${protocol}://${host}:${port}`;
 		const urlObject = URL.parse(url);
 		const payload = JSON.stringify(data);
@@ -513,6 +513,7 @@ class FileHandler {
 			method: 'POST',
 			headers: headers
 		};
+		if (this.inboundEmailServer.config.apiServer.internalApiUrlParsed.secure) requestOptions.rejectUnauthorized = false;
 		return new Promise((resolve, reject) => {
 			let request = netClient.request(
 				requestOptions,

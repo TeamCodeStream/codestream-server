@@ -13,7 +13,11 @@ const ApiRouter = Express.Router();
 // ----------------- no-auth routes
 // -----------------
 ApiRouter.get('/no-auth/asset-info', async (req, res) => {
-	res.send(await GetAssetData());
+	res.send(await GetAssetData({
+		serviceRoot: '..',
+		repoRoot: '../..',
+		runtTimeEnvironment: AdminConfig.getPreferredConfig().sharedGeneral.runtTimeEnvironment
+	}));
 });
 
 ApiRouter.get('/no-auth/status', (req, res) => {

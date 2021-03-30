@@ -18,55 +18,81 @@ const fs = require("fs");
 // resources upon which CodeStream is deployed (docker on one host, docker in
 // the cloud, kubernetes, etc...).
 
+const OnPremProductTypes = [
+	'Single Linux Host',    // docker on linux running with host-based networking
+	'Single Mac Host',      // docker on a mac using host.docker.internal for intra-container comm
+	'On-Prem Development',  // development sandboxes (no docker)
+	'Docker Compose'        // docker containers running with docker-compose default networking
+];
 
-function getProductType(logger) {
+// IMPORTANT: During the migration phase, this function is called _before_ the
+// config is loaded (see api_server/bin/api_server.js). It can probe the
+// environment for basic data, but it must not depend on the configuration in
+// any way.
+function getProductType() {
 	let onPremInstallationDirectory = process.env.OPADM_ONPREM_INSTALL_DIR || '/opt/config'
-	let productType;
-	// if (!fs.existsSync(onPremInstallationDirectory)) {
-	// 	console.log(`${onPremInstallationDirectory} does not exist. Falling back to etc/onprem-installation-data with dummy data`);
-	// 	onPremInstallationDirectory = 'etc/onprem-installation-data';
+	let productType = process.env.CSSVC_PRODUCT_TYPE || null;
+
+	// FIXME: how do we get installation directory info to the containers?
+	if (process.env.CSSVC_PRODUCT_TYPE)
+		return { onPremInstallationDirectory: null, productType: process.env.CSSVC_PRODUCT_TYPE };
+
+	// FIXME: uncomment when we're not worried about legacy installations WRT this var.
+	// if (!productType) {
+	// 	console.error('FATAL: product type (CSSVC_PRODUCT_TYPE) required');
+	// 	process.exit(1);
 	// }
-	if (!fs.existsSync(onPremInstallationDirectory)) {
+	if (productType && !OnPremProductTypes.indexOf(productType)) {
+		console.error(`FATAL: product type ${productType} is not supported`);
+		process.exit(1);
+	}
+
+	// onPremInstallationDirectory only applies to Single Linux Host
+	if (!fs.existsSync(`${onPremInstallationDirectory}/container-versions`)) {
 		onPremInstallationDirectory = null;
 	}
-	if (onPremInstallationDirectory === '/opt/config') {
-		// dockerized version of CS running on a single linux host
-		productType = 'Single Linux Host';
-	}
-	else {
-		// non-dockerized development environments (local sandboxes, PDOP, ...)
-		productType = `On-Prem Development`;
-	}
+
+	// FIXME: this is legacy. Remove when we're certain that CSSVC_PRODUCT_TYPE
+	// is _always_ defined
+	if (!productType)
+		productType =
+			onPremInstallationDirectory === '/opt/config' ? 'Single Linux Host' : 'On-Prem Development';
+
 	return { onPremInstallationDirectory, productType };	
 }
 
-module.exports = async function(logger) {
+async function getOnPremSupportData() {
 	let onPremVersion = '0.0.0', release = null, installationBranch = null, assetInfo = {}, dockerInfo = {};
-	const { onPremInstallationDirectory, productType } = getProductType(logger);
+	const { onPremInstallationDirectory, productType } = getProductType();
 
 	// on-prem version and docker image info contained here
 	if (onPremInstallationDirectory) {
+		// FIXME: CSSVC_INSTALL_RELEASE ?
 		const releaseFile = `${onPremInstallationDirectory}/release`;
 		release = fs.existsSync(releaseFile) ? fs.readFileSync(releaseFile).toString().trim() : 'GA';
 
+		// FIXME: CSSVC_INSTALL_BRANCH ?
 		const installationBranchFile = `${onPremInstallationDirectory}/installation-branch`;
 		installationBranch = fs.existsSync(installationBranchFile) ? fs.readFileSync(installationBranchFile).toString().trim() : 'master';
 
+		// FIXME: How do I get this data into the container ?
 		const containerVersionFile = `${onPremInstallationDirectory}/container-versions`;
 		if (fs.existsSync(containerVersionFile)) {
 			const containerVersions = fs.readFileSync(containerVersionFile).toString().replace(/"/g, '').split('\n');
 			containerVersions.forEach(versionAssignment => {
 				if (versionAssignment && !versionAssignment.startsWith('#')) {
 					let [componentName, componentValue] = versionAssignment.split('=');
-					dockerInfo[componentName] = componentValue;
+					if (componentName === 'onPremVersion') {
+						onPremVersion = componentValue;
+					} else {
+						dockerInfo[componentName] = componentValue;
+					}
 				}
 			});
-			onPremVersion = dockerInfo.onPremVersion;
-			delete dockerInfo.onPremVersion;
 		}
 	}
 
-	const installationData = {
+	return {
 		productType,
 		dockerInfo,
 		assetInfo,
@@ -74,5 +100,9 @@ module.exports = async function(logger) {
 		release,
 		installationBranch
 	};
-	return installationData;
+};
+
+module.exports = {
+	getProductType,
+	getOnPremSupportData
 };

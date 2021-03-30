@@ -94,7 +94,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			const config = Object.assign({},
 				{
 					// formerly the socketCluster object
-					host: broadcasterConfig.host,
+					host: broadcasterConfig.internalHost,
 					port: broadcasterConfig.port,
 					authKey: broadcasterConfig.secrets.api,
 					ignoreHttps: broadcasterConfig.ignoreHttps,
@@ -146,7 +146,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		const config = Object.assign({},
 			{
 				// formerly the socketCluster object
-				host: broadcasterConfig.host,
+				host: broadcasterConfig.internalHost,
 				port: broadcasterConfig.port,
 				authKey: broadcasterConfig.secrets.api,
 				ignoreHttps: broadcasterConfig.ignoreHttps,

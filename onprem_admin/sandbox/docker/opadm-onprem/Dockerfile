@@ -19,10 +19,12 @@ ADD onprem_admin/*.js /opt/opadm/codestream-server/onprem_admin/
 ADD onprem_admin/*.md /opt/opadm/codestream-server/onprem_admin/
 ADD onprem_admin/bin/admin_server.js /opt/opadm/codestream-server/onprem_admin/bin/admin_server.js
 ADD onprem_admin/bin/opadm-start-docker /opt/opadm/codestream-server/onprem_admin/bin/opadm-start-docker
+ADD dockerImage.json /opt/opadm/codestream-server/dockerImage.json
 
 WORKDIR /opt/opadm/codestream-server/onprem_admin
 RUN npm install --no-save
 RUN npm run cibuild
+RUN touch .DOCKER-CONTAINER
 
 EXPOSE 8080/tcp
 EXPOSE 8443/tcp

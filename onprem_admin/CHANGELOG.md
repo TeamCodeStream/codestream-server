@@ -1,5 +1,19 @@
 # Change Log
 
+## [0.0.0] - 0000-0-0
+
+### Change
+
+- Schema modifications for internal connectivity
+	apiServer
+	- altBroadcasterHost, securePort
+	+ internalHost, internalPort
+	broadcaster
+	- securePort
+	+ internalHost, internalPort
+	adminServer
+	- securePort
+
 ## [11.0.2] - 2021-5-18
 
 ### Changed
@@ -35,7 +49,6 @@
 ### Changed
 
 - Release bump to support latest API version
-
 ## [8.2.10] - 2021-4-6
 
 ### Changed
@@ -53,7 +66,6 @@
 ### Changed
 
 - Release bump to support latest API version
-
 ## [8.2.7] - 2021-3-17
 
 ### Changed

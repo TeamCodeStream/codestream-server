@@ -39,7 +39,9 @@
 		"lambda:install": "npm run lambda:install_func && npm run lambda:install_trigger",
 		"lambda:uninstall": "dt-aws-lambda -a delete-triggers --func-name $CS_OUTBOUND_EMAIL_SQS && aws lambda delete-function --function-name $CS_OUTBOUND_EMAIL_SQS",
 		"reupdate": "npm run build && npm run lambda:update_code",
-		"docker:build": "cd .. && dt-docker-build -a build -D outbound_email/sandbox/docker/mailout-onprem -V 0.0.0"
+
+		"docker:build": "cd .. && dt-docker-build -a build -D outbound_email/sandbox/docker/mailout-onprem -V 0.0.0",
+		"docker:start": "cd .. && dt-docker-build -a run -D outbound_email/sandbox/docker/mailout-onprem -V 0.0.0"
 	},
 	"pre-commit": [
 		"eslint"

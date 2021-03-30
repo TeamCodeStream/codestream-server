@@ -17,6 +17,7 @@
   "scripts": {
     "eslint": "eslint .",
     "docker:build": "cd .. && dt-docker-build -a build -D broadcaster/sandbox/docker/broadcaster-onprem -V 0.0.0",
+    "docker:start": "cd .. && dt-docker-build -a run -D broadcaster/sandbox/docker/broadcaster-onprem -V 0.0.0",
     "start": "bin/broadcaster.js --one_worker"
   },
   "pre-commit": [

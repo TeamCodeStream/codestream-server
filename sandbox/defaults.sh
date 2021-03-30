@@ -64,6 +64,8 @@ export CSBE_PIDS=$CSBE_SANDBOX/pid    # pid files directory
 
 export CSSVC_BACKEND_ROOT=$CSBE_TOP
 
+[ -n "$DT_DEBUG" ] && set -x
+
 # These variables are defined by the sandbox-env-loader.sh script which won't be
 # called for the individual services
 echo "Loading api environment..."
@@ -100,3 +102,7 @@ export OPADM_SANDBOX=$CSBE_SANDBOX
 export OPADM_TOP=$CSBE_TOP/onprem_admin
 # OPADM_DEPS=....
 . $OPADM_TOP/sandbox/defaults.sh
+
+[ -n "$DT_DEBUG" ] && set +x
+
+return 0

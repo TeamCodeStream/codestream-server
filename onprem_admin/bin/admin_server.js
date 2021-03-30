@@ -9,7 +9,7 @@ import systemStatusFactory from '../lib/systemStatus';
 import AdminConfig from '../config/config';
 import StructuredConfigFactory from '../../shared/codestream_configs/lib/structured_config';
 import getAssetData from '../../shared/server_utils/get_asset_data';
-import OnPremSupportData from '../../shared/server_utils/get_onprem_support_data';
+import { getOnPremSupportData } from '../../shared/server_utils/get_onprem_support_data';
 import SimpleFileLogger from '../../shared/server_utils/simple_file_logger';
 import GlobalData from '../config/globalData';
 
@@ -37,10 +37,14 @@ import GlobalData from '../config/globalData';
 	}
 
 	// Initialize installation data - this is updated dynamically
-	GlobalData.Installation = await OnPremSupportData(GlobalData.Logger);
+	GlobalData.Installation = await getOnPremSupportData(GlobalData.Logger);
 
 	// assetInfo from other services will come from the system status service watchers
-	const assetData = await getAssetData({ logger: GlobalData.Logger });
+	const assetData = await getAssetData({
+		logger: GlobalData.Logger,
+		repoRoot: '..',
+		runTimeEnvironment: AdminConfig.getPreferredConfig().sharedGeneral.runTimeEnvironment
+	});
 	if (!Object.keys(GlobalData.Installation.dockerInfo).length) {
 		GlobalData.Installation.assetInfo['onprem-admin'] = assetData.assetInfo?.fullName
 			? `${assetData.assetInfo.fullName} (${assetData.assetInfo.assetEnvironment})`

@@ -19,7 +19,7 @@ ADD api_server/bin/cs_api-start-docker /opt/api/codestream-server/api_server/bin
 ADD api_server/bin/*.js /opt/api/codestream-server/api_server/bin/
 ADD api_server/package.json /opt/api/codestream-server/api_server/package.json
 ADD api_server/package-lock.json /opt/api/codestream-server/api_server/package-lock.json
-
+ADD dockerImage.json /opt/api/codestream-server/dockerImage.json
 
 WORKDIR /opt/api/codestream-server/api_server
 RUN npm install --no-save

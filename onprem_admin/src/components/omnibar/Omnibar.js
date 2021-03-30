@@ -18,7 +18,7 @@ class Omnibar extends Component {
 			case SystemStatuses.ok:
 				return <span className="badge badge-success">OK</span>;
 			case SystemStatuses.attention:
-				return <span className="badge badge-danger">ATTENTION</span>;
+				return <span className="badge badge-danger">ATTN</span>;
 			default:
 				// case SystemStatuses.pending:
 				return (

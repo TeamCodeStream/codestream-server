@@ -4,7 +4,7 @@
 
 [ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database (use -y to bypass prompts)" && exit 1
 yes=""
-verbose=""
+verbose=1
 onpremInstallDir=""
 while getopts "yvo:" arg
 do
@@ -39,7 +39,7 @@ for p in `/bin/ls $codestream_configs/profiles/*.json $codestream_configs/parame
 do
 	# echo "sorting $p"
 	[ -n "$verbose" ] && echo $binDir/process-profile --sort-json $p
-	$binDir/process-profile --sort-json $p
+	$binDir/process-profile --sort-json $p || exit 1
 done
 
 echo "Current schema version is: $schemaVersion"
@@ -50,36 +50,37 @@ echo "Current schema version is: $schemaVersion"
 # 	echo "Schema version is now: $schemaVersion"
 # fi
 
-# create the README.parameter-definitions file for documentation
+echo -e "\n---- create the README.parameter-definitions file for documentation"
 [ -n "$verbose" ] && echo === $binDir/process-profile --show-desc --out $codestream_configs/README.parameter-definitions.json.x
-$binDir/process-profile --show-desc --out $codestream_configs/README.parameter-definitions.json.x
+$binDir/process-profile --show-desc --out $codestream_configs/README.parameter-definitions.json.x || exit 1
 diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 
-# create the config templates for on-prem single host preview and quickstart (beta release only)
-for onpremConfig in minimal quickstart
-do
-	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
-	$binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
-	diff_notify $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
-done
+# echo -e "\n---- create the config templates for on-prem single host preview and quickstart (beta release only)"
+# for onpremConfig in minimal quickstart
+# do
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+# 	$binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x || exit 1
+# 	diff_notify $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
+# done
 
-# create onprem config suitable for local sandbox development
+echo -e "\n---- create onprem config suitable for local sandbox development"
 for onpremEnv in local
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
-	$binDir/process-profile --env $onpremEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
+	$binDir/process-profile --env $onpremEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x || exit 1
 	diff_notify $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json "$yes"
 done
 
-# create default configs deployed with the api repo
-for csEnv in open-development onprem-slh-quickstart
+echo -e "\n---- create default configs deployed with the api repo"
+for csEnv in open-development onprem-quickstart
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
-	$binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
+	$binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x || exit 1
 	diff_notify $codestream_server/api_server/etc/configs/$csEnv.json "$yes"
 done
 
-# cloud configuration files, all environments (consumed by developers via dt-update-secrets)
+# consumed by developers via dt-update-secrets
+echo -e "\n---- cloud configuration files, all environments"
 for csEnv in "local" ci pi pd qa prod dev
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
@@ -87,12 +88,16 @@ do
 	diff_notify $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json "$yes"
 done
 
-# onprem development configurations
+echo -e "\n---- onprem development configurations"
 for csEnv in "local" ci pi dev
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x
-	$binDir/process-profile --profile $codestream_configs/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x
+	$binDir/process-profile --profile $codestream_configs/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x || exit 1
 	diff_notify $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json "$yes"
 done
 
-$binDir/update-onprem-bootstraps
+echo -e "\n---- update-onprem-bootstraps"
+$binDir/update-onprem-bootstraps || exit 1
+
+echo "Done (success)"
+exit 0

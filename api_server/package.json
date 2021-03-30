@@ -65,6 +65,7 @@
     "eslint": "eslint .",
     "tarball": "touch api-server.tgz && tar -czpf api-server.tgz --exclude api-server.tgz --exclude .git .",
     "docker:build": "cd .. && dt-docker-build -a build -D api_server/sandbox/docker/api-onprem -V 0.0.0",
+    "docker:start": "cd .. && dt-docker-build -a run -D api_server/sandbox/docker/api-onprem -V 0.0.0",
     "start": "bin/ensure-indexes.js && bin/api_server.js --one_worker"
   },
   "pre-commit": [

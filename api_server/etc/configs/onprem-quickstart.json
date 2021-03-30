@@ -10,26 +10,24 @@
 //
 // - environments:
 // -    minimal (default): onprem template that includes ssl and outbound email
-// -    quickstart:        onprem template without ssl or email
 // -    local:             local development template (codestream sandbox)
 // -    open-development:  open core development (new database default)
-// -    onprem-slh-quickstart:  default onprem quickstart for Single Linux Host
+// -    onprem-quickstart:  default onprem quickstart for all product types
 
 {
 	"adminServer": {
 		"adminServerDisabled": false,
 		"ignoreHttps": true,
+		"internalHost": null,
 		"logger": {
 			"consoleOk": true,
 			"debugOk": false,
 			"directory": "${OPADM_LOGS}"
 		},
 		"port": 8080,
-		"securePort": 8443,
 		"showConfig": false
 	},
 	"apiServer": {
-		"altBroadcasterHost": null,
 		"authOrigin": null,
 		"callbackEnvironment": null,
 		"confirmCodeExpiration": 604800000,
@@ -40,6 +38,7 @@
 		"forgotPasswordExpiration": 86400000,
 		"helpIsAvailable": false,
 		"ignoreHttps": true,
+		"internalHost": null,
 		"logger": {
 			"consoleOk": true,
 			"debugOk": false,
@@ -50,7 +49,6 @@
 		"phoneHomeUrl": "https://phone-home.codestream.com",
 		"port": 80,
 		"publicApiUrl": null,
-		"securePort": 443,
 		"sessionAwayTimeout": 600000,
 		"showConfig": false,
 		"signupTokenExpiration": 600000,
@@ -58,9 +56,9 @@
 	},
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
-			"altApiHost": null,
 			"host": null,
 			"ignoreHttps": false,
+			"internalHost": null,
 			"logger": {
 				"consoleOk": true,
 				"debugOk": false,
@@ -71,7 +69,6 @@
 				"api": null,
 				"auth": null
 			},
-			"securePort": 12075,
 			"showConfig": false
 		}
 	},
@@ -108,6 +105,7 @@
 		"tmpDirectory": "${CS_MAILIN_SANDBOX}/tmp"
 	},
 	"outboundEmailServer": {
+		"internalHost": null,
 		"logger": {
 			"consoleOk": true,
 			"debugOk": false,
@@ -123,7 +121,7 @@
 	},
 	"queuingEngine": {
 		"rabbitmq": {
-			"host": "localhost",
+			"host": null,
 			"outboundEmailQueueName": "outboundEmail",
 			"password": "stream",
 			"port": 5672,
@@ -150,7 +148,7 @@
 	},
 	"storage": {
 		"mongo": {
-			"url": "mongodb://localhost/codestream"
+			"url": null
 		}
 	},
 	"telemetry": {

@@ -54,7 +54,7 @@ class TeamSubscriptionRevokedTest extends RemoveUserTest {
 		const config = Object.assign({},
 			{
 				// formerly socketCluster object
-				host: broadcasterConfig.host,
+				host: broadcasterConfig.internalHost,
 				port: broadcasterConfig.port,
 				authKey: broadcasterConfig.secrets.api,
 				ignoreHttps: broadcasterConfig.ignoreHttps,

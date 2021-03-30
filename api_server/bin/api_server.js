@@ -13,7 +13,7 @@ const SimpleFileLogger = require(process.env.CSSVC_BACKEND_ROOT + '/shared/serve
 const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/cluster_wrapper');
 const StringifySortReplacer = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/stringify_sort_replacer');
 const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server');
-const getOnPremSupportData = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_onprem_support_data');
+const getOnPremSupportData = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/get_onprem_support_data').getOnPremSupportData;
 const customSchemaMigrationMatrix = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_schema_migration');
 const firstConfigInstallationHook= require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_cfg_initialization');
 
@@ -56,11 +56,14 @@ const MongoCollections = Object.keys(DataCollections).concat([
 
 (async function() {
 	if (ApiConfig.configIsMongo()) {
-		// set option so structured config will perform a schema version migration if needed upon initial load
+		// set option so structured config will perform a schema version
+		// migration if needed upon initial load
 		ApiConfig.performMigrationUsing(customSchemaMigrationMatrix);
-		// set option to create a new config using the supplied default in the event no configs exist (empty database)
+		// set option to create a new config using the supplied default in the
+		// event no configs exist (empty database)
 		const initialConfigFile = process.env.CS_API_DEFAULT_CFG_FILE || process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/configs/open-development.json';
 		console.log(`config initialization will use ${initialConfigFile} if no config is present`);
+		// this sets hooks; It doesn't actually load a config
 		ApiConfig.loadDefaultConfigIfNoneFrom(initialConfigFile, firstConfigInstallationHook);
 	}
 

@@ -40,14 +40,15 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	migrateNativeConfig(nativeCfg, curVer, targetVer) {
 		let migrationVer = curVer;
 		let newConfig = Object.assign({}, nativeCfg);
-		console.log(`migration from ${curVer} to ${targetVer}`);
+		this.logger.log(`migration from ${curVer} to ${targetVer}`);
 		this.customSchemaMigrationMatrix.forEach(([from, to, migrationFunc]) => {
+			if (migrationVer < from) {
+				migrationVer = from;
+			}
 			if (migrationVer < targetVer && migrationVer === from) {
 				this.logger.log(`migrating config from schema ${from} to schema ${to}`);
 				newConfig = migrationFunc(newConfig, from, to, this.logger) || newConfig;
 				migrationVer = to;
-			} else {
-				migrationVer++;
 			}
 		});
 		return newConfig;
@@ -130,7 +131,8 @@ class StructuredConfigMongo extends StructuredConfigBase {
 		const schemaVersion = this._defaultSchemaVersion();
 		await this._connectToMongo();
 		if ((await this._noConfigs()) && this.loadDefaultCfgFrom) {
-			// no config was found and a default to load was specified...
+			// No config was found and a default to load from a file was specified.
+			// This code gets hit the very first time the api is started
 			this.logger.log(`creating new config from ${this.loadDefaultCfgFrom}`);
 			let defaultCfg = hjson.parse(Fs.readFileSync(this.loadDefaultCfgFrom, 'utf8'));
 			if (this.loadDefaultCfgInstallationFunc) {
@@ -205,30 +207,51 @@ class StructuredConfigMongo extends StructuredConfigBase {
 
 	// load configuration data from mongo
 	async _loadConfig() {
+		const schemaVersion = this.schemaVersion || this._defaultSchemaVersion();
+
+		// do we have an activated config?
 		let activeConfig = await this.db.collection(this.selectedCollection).findOne();
 		if (!activeConfig) {
 			this.logger.warn(
 				`no config appears to have been activated. could not find any document in ${this.selectedCollection}`
 			);
-		} else {
+		} else if (!this.options.quiet) {
 			this.logger.debug(`active config serial is ${activeConfig.serialNumber}`);
 		}
+
 		try {
 			let configDoc;
+			// if we have an activated config, we load it and make sure the
+			// schema version matches ours
 			if (activeConfig) {
-				this.logger.debug(
-					`attempting to load active config with serialNumber = ${activeConfig.serialNumber}`
-				);
+				if (!this.options.quiet)
+					this.logger.debug(
+						`attempting to load active config with serialNumber = ${activeConfig.serialNumber}`
+					);
 				configDoc = await this.db
 					.collection(this.configCollection)
 					.findOne({ _id: new ObjectID(activeConfig.serialNumber) });
 				if (!configDoc) {
+					// we could not find the active config so, really, we don't
+					// have an active config
 					this.logger.error(`active config ${activeConfig.serialNumber} not found`);
 					activeConfig = null;
+				} else {
+					if (configDoc.schemaVersion !== schemaVersion) {
+						// The active config's schemaVersion does not match the
+						// code so we can not use it!
+						this.logger.warn(
+							`the active config, ${configDoc.serialNumber}:${configDoc.schemaVersion} does not match our schema ${schemaVersion}!!`
+						);
+						configDoc = null;
+					}
 				}
 			}
+
+			// if we still don't have a config (either there was none, or the
+			// activated one could not be found), load the latest config that
+			// matches our schema version.
 			if (!configDoc) {
-				const schemaVersion = this.schemaVersion || this._defaultSchemaVersion();
 				this.logger.warn(`attempting to load latest config for schema ${schemaVersion}`);
 				configDoc = (
 					await this.db
@@ -238,22 +261,27 @@ class StructuredConfigMongo extends StructuredConfigBase {
 						.limit(1)
 						.toArray()
 				)[0];
+				// we're screwed. there's no useful config to load at this time
 				if (!configDoc) {
-					this.logger.error('No configuration found and no migration func exists');
+					this.logger.error('No configuration found and no migration hooks were set');
 					return;
 				}
 			}
-			this.logger.log(
-				`config serial ${ObjectID(configDoc._id).toString()} (${new Date(
-					configDoc.timeStamp
-				).toUTCString()}) loaded`
-			);
+
+			// so now we have a config
+			if (!this.options.quiet)
+				this.logger.log(
+					`config serial ${ObjectID(configDoc._id).toString()} (${new Date(
+						configDoc.timeStamp
+					).toUTCString()}) loaded`
+				);
 			this.mongoConfigDoc = {
 				...configDoc,
 				serialNumber: ObjectID(configDoc._id).toString(),
 			};
+
+			// activate this config since no prior activation was found
 			if (!activeConfig) {
-				// activate config since no prior activation was found
 				this.logger.warn(
 					`activating config just loaded ${ObjectID(
 						configDoc._id

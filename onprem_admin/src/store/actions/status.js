@@ -8,6 +8,7 @@ export const SystemStatuses = {
 	ok: 'OK', // all is well
 	pending: 'PENDING', // status checks pending (warning condition)
 	attention: 'ATTENTION', // something's wrong (error condition)
+	warn: 'WARN', // warning (somethign needs attention, but it isn't critical)
 	notice: 'NOTICE', // informational status messages
 };
 
