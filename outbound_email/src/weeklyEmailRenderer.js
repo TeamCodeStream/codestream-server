@@ -12,12 +12,14 @@ class WeeklyEmailRenderer {
 	// render a weekly email for a given user
 	render (options) {
 		const { 
+			logger,
 			user,
 			styles,
 			ideLinks,
 			latestNews,
 			teamData
 		} = options;
+		this.logger = logger;
 		this.user = user;
 		this.teamData = teamData;
 
@@ -242,6 +244,10 @@ ${activity}
 	// render text for a single item
 	renderItemText (item, permalink, options, isReply=false) {
 		const creator = this.teamData.users.find(u => u.id === item.creatorId);
+		if (!creator) { 
+			this.logger.warn(`Creator of item ${item.id} is ${item.creatorId} but was not found among team users`);
+			return '';
+		}
 		const username = creator.username || EmailUtilities.parseEmail(creator.email).name;
 		//const headshot = creator ? Utils.renderUserHeadshot(creator) : '';
 		options = {

@@ -107,6 +107,9 @@ class WeeklyEmailHandler {
 		} else if (user.deactivated) {
 			this.log(`User ${user.id} has been deactivated so will not receive a weekly email`);
 			return false;
+		} else if (user.externalUserId) {
+			this.log(`User ${user.id} has an external user ID so will not receive a weekly email`);
+			return false;
 		} else if ((team.removedMemberIds || []).includes(user.id)) {
 			// NOTE: this will not preclude the user receiving an email for another team, when that team runs
 			this.log(`User ${user.id} has been removed from team ${team.id} so will not receive a weekly email for this team`);
