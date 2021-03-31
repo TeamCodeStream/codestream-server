@@ -81,7 +81,6 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			const lastInviteType = this.noLastInviteType ?
 				undefined :
 				(this.lastInviteType || (userWasAlreadyInvited ? 'reinvitation' : 'invitation'));
-			console.warn(`user.lastInviteType=${user.lastInviteType} lastInviteType=${lastInviteType}`);
 			Assert.strictEqual(user.lastInviteType, lastInviteType, 'lastInvteType not correct');
 			const firstInviteType = this.noFirstInviteType ? undefined : (this.firstInviteType || 'invitation');
 			Assert.strictEqual(user.firstInviteType, firstInviteType, 'firstInviteType not correct');
