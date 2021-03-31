@@ -494,6 +494,10 @@ class EmailNotificationV2Handler {
 		renderedHtmlForUser = renderedHtmlForUser.replace(regExp, 'mention-me');
 		renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{mention.+?\}\}\}/g, 'mention');
 
+		// for unregistered users, they don't see "Open In IDE" buttons
+		const buttonStyle = user.isRegistered ? "" : "display:none";
+		renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{hideForUnregistered\}\}\}/g, buttonStyle);
+
 		/*
 		// for DMs, the list of usernames who can "see" the codemark excludes the user 
 		if (this.stream.type === 'direct') {

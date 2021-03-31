@@ -432,7 +432,7 @@ const Utils = {
 
 	// get buttons to display associated with a codemark or a review
 	renderMarkerButtons: function (options, marker) {
-		const { codemark, user } = options;		
+		const { codemark } = options;		
 		
 		let remoteCodeUrl;		
 		let ideUrl = Utils.getIDEUrl(codemark.permalink, marker ? { marker : marker.id } : undefined);		
@@ -460,9 +460,11 @@ const Utils = {
 			  <td>
 				<table border="0" cellspacing="2" cellpadding="2">
 				  <tr>`;
-			if (ideUrl && user.isRegistered) {
+			if (ideUrl) {
 				cellCount++;
-				markup += `<td>
+				// NOTE - the "hideForUnregistered" here gets handled later, when the email is personalized for each user
+				// it becomes "display:none" for unregistered users
+				markup += `<td style="{{{hideForUnregistered}}}">
 					  <a clicktracking="off" href="${ideUrl}" target="_blank" class="button"><span class="hover-underline">Open in IDE</span></a>
 					</td>`;
 			}
