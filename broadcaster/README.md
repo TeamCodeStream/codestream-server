@@ -4,7 +4,7 @@ This is a sample SocketCluster application for use with CodeStream
 as a replacement for PubNub.
 
 ### Prerequisites
-1. Install the dev_tools tookkit
+1. Install the dev_tools toolkit
    [here](https://github.com/teamcodestream/dev_tools).
 1. Install the [API service](https://github.com/teamcodestream/api_service).
 1. Review how we manage our [server configurations](README.unified-cfg-file.md).
