@@ -134,7 +134,7 @@ class PostUserRequest extends PostRequest {
 				user: '<@@#user object#user@@>'
 			}
 		};
-		description.errors.push('usernameNotUnique');
+		//description.errors.push('usernameNotUnique');
 		return description;
 	}
 }

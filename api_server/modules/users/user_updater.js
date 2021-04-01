@@ -39,7 +39,8 @@ class UserUpdater extends ModelUpdater {
 	// before the user info gets saved...
 	async preSave () {
 		await this.getUser();
-		await this.checkUsernameUnique();
+		// username uniqueness is deprecated per https://trello.com/c/gG8fKXft
+		//await this.checkUsernameUnique();
 		await this.handleModifiedRepos();
 		this.attributes.modifiedAt = Date.now();
 		await super.preSave();

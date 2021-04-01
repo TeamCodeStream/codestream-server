@@ -306,7 +306,7 @@ class ConfirmRequest extends RestfulRequest {
 				'notFound',
 				'alreadyRegistered',
 				'emailMismatch',
-				'usernameNotUnique',
+				//'usernameNotUnique',
 				'tooManyConfirmAttempts',
 				'confirmCodeExpired',
 				'confirmCodeMismatch',

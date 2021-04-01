@@ -237,7 +237,7 @@ class ProviderConnectRequest extends RestfulRequest {
 			},
 			errors: [
 				'parameterRequired',
-				'usernameNotUnique',
+				//'usernameNotUnique',
 				'exists',
 				'validation',
 				'unknownProvider',

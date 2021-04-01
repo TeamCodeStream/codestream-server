@@ -59,7 +59,7 @@ class PutUserRequest extends PutRequest {
 				user: '<@@#user object#stream@@>',
 			}
 		};
-		description.errors.push('usernameNotUnique');
+		//description.errors.push('usernameNotUnique');
 		return description;
 	}
 }

@@ -154,7 +154,8 @@ class UserCreator extends ModelCreator {
 		}
 
 		await this.hashPassword();			// hash the user's password, if given
-		await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
+		// username uniqueness is deprecated per https://trello.com/c/gG8fKXft
+		//await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
 		await super.preSave();
 	}
 
