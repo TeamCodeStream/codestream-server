@@ -95,11 +95,12 @@ class APIRequestTest extends GenericTest {
 		const data = options.data || null;
 		const start = Date.now();
 		const requestCallback = function(error, responseData, response) {
-			const requestId = response.headers['x-request-id'];
+			const requestId = (response && response.headers['x-request-id']) || '???';
+			const statusCode = (response && response.statusCode) || '???';
 			const result = error ? 'FAIL' : 'OK';
 			const end = Date.now();
 			const took = end - start; 
-			this.testLog(`${requestId} ${method} ${path} ${result} ${response.statusCode} ${took}ms:\n${JSON.stringify(responseData, 0, 10)}\n`);
+			this.testLog(`${requestId} ${method} ${path} ${result} ${statusCode} ${took}ms:\n${JSON.stringify(responseData, 0, 10)}\n`);
 			callback(error, responseData, response);
 		}.bind(this);
 		if (this.mockMode) {

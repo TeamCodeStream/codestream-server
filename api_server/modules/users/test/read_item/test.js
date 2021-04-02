@@ -5,9 +5,9 @@
 
 const ReadItemTest = require('./read_item_test');
 const ReadItemFetchTest = require('./read_item_fetch_test');
-const ReadItemACLTest = require('./read_item_acl_test');
+//const ReadItemACLTest = require('./read_item_acl_test');
 const NumRepliesRequiredTest = require('./num_replies_required_test');
-const PostNotFoundTest = require('./post_not_found_test');
+//const PostNotFoundTest = require('./post_not_found_test');
 const ReadItemMessageTest = require('./read_item_message_test');
 
 class ReadItemRequestTester {
