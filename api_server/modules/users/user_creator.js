@@ -154,7 +154,8 @@ class UserCreator extends ModelCreator {
 		}
 
 		await this.hashPassword();			// hash the user's password, if given
-		await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
+		// username uniqueness is deprecated per https://trello.com/c/gG8fKXft
+		//await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
 		await super.preSave();
 	}
 
@@ -168,6 +169,13 @@ class UserCreator extends ModelCreator {
 		// if user being added to team, generate an invite code and save it as a signup token
 		if (!this.existingModel || !this.existingModel.get('inviteCode')) {
 			this.inviteCode = this.attributes.inviteCode = this.generateInviteCode();
+		}
+
+		// don't set invite type if told explicitly not to do so,
+		// this is currently the case for "feedback requests on pull", where the code author is 
+		// not sent an invite until the first reply to the review
+		if (this.dontSetInviteType) {
+			return;
 		}
 
 		// set lastInviteType, can be triggered by a review or codemark notification

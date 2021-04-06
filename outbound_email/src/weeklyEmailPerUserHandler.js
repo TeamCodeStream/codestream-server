@@ -456,6 +456,7 @@ class WeeklyEmailPerUserHandler {
 	// render the email given all the data we've collected
 	async renderEmail () {
 		this.renderOptions = {
+			logger: this.logger,
 			user: this.user,
 			userData: this.userData,
 			teamData: this.teamData,

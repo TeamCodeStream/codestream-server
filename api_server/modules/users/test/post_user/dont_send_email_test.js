@@ -12,6 +12,7 @@ class DontSendEmailTest extends UnregisteredInviteTest {
 	// form the data for the user update
 	makeUserData (callback) {
 		// add dontSendEmail flag
+		this.noLastInviteType = this.noFirstInviteType = true;
 		super.makeUserData(() => {
 			this.data.dontSendEmail = true;
 			callback();

@@ -54,7 +54,10 @@ const EXPECTED_LOGIN_RESPONSE = {
 	broadcasterToken: true,
 	pubnubKey: true,
 	teams: true,
-	repos: true
+	repos: true,
+	isOnPrem: true,
+	isProductionCloud: true,
+	runtimeEnvironment: true
 };
 
 // these attributes should not be seen by the client

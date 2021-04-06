@@ -44,7 +44,11 @@ class CommonInit {
 				data: this.data,
 				token: this.token
 			},
-			callback
+			error => {
+				if (error) { return callback(error); }
+				delete this.data;
+				callback();
+			}
 		);
 	}
 }

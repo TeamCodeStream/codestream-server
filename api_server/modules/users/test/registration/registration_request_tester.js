@@ -7,8 +7,8 @@ const UserExistsTest = require('./user_exists_test');
 const BadEmailTest = require('./bad_email_test');
 const BadUsernameTest = require('./bad_username_test');
 const BadPasswordTest = require('./bad_password_test');
-const ConflictingUsernameTest = require('./conflicting_username_test');
-const NoCodestreamUsernameTest = require('./no_codestream_username_test');
+//const ConflictingUsernameTest = require('./conflicting_username_test');
+//const NoCodestreamUsernameTest = require('./no_codestream_username_test');
 const UserMessageToTeamTest = require('./user_message_to_team_test');
 const ConfirmationEmailTest = require('./confirmation_email_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
@@ -49,8 +49,8 @@ class RegistrationRequestTester {
 		new BadUsernameTest().test();
 		new BadPasswordTest().test();
 		new UserExistsTest().test();
-		new ConflictingUsernameTest().test();
-		new NoCodestreamUsernameTest().test();
+		//new ConflictingUsernameTest().test();
+		//new NoCodestreamUsernameTest().test();
 		new UserMessageToTeamTest().test();
 		new SpecialCharactersUsernameTest().test();
 		// these tests must be serialized because for technical reasons the tests

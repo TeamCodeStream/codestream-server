@@ -9,9 +9,9 @@ const ACLTest = require('./acl_test');
 const ACLTeamTest = require('./acl_team_test');
 const MessageToTeamTest = require('./message_to_team_test');
 const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
-const UsernameNotUniqueTest = require('./username_not_unique_test');
-const NoCodestreamUsernameTest = require('./no_codestream_username_test');
-const UsernameNotUniqueForSecondTeamTest = require('./username_not_unique_for_second_team_test');
+//const UsernameNotUniqueTest = require('./username_not_unique_test');
+//const NoCodestreamUsernameTest = require('./no_codestream_username_test');
+//const UsernameNotUniqueForSecondTeamTest = require('./username_not_unique_for_second_team_test');
 const ModifiedReposTest = require('./modified_repos_test');
 const ModifiedReposFetchTest = require('./modified_repos_fetch_test');
 const ModifiedReposACLTest = require('./modified_repos_acl_test');
@@ -49,9 +49,9 @@ class PutUserRequestTester {
 				}).test();
 			}
 		});
-		new UsernameNotUniqueTest().test();
-		new NoCodestreamUsernameTest().test();
-		new UsernameNotUniqueForSecondTeamTest().test();
+		//new UsernameNotUniqueTest().test();
+		//new NoCodestreamUsernameTest().test();
+		//new UsernameNotUniqueForSecondTeamTest().test();
 		new ModifiedReposTest().test();
 		new ModifiedReposFetchTest().test();
 		new ModifiedReposACLTest().test();

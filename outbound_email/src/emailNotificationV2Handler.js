@@ -494,6 +494,10 @@ class EmailNotificationV2Handler {
 		renderedHtmlForUser = renderedHtmlForUser.replace(regExp, 'mention-me');
 		renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{mention.+?\}\}\}/g, 'mention');
 
+		// for unregistered users, they don't see "Open In IDE" buttons
+		const buttonStyle = user.isRegistered ? "" : "display:none";
+		renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{hideForUnregistered\}\}\}/g, buttonStyle);
+
 		/*
 		// for DMs, the list of usernames who can "see" the codemark excludes the user 
 		if (this.stream.type === 'direct') {
@@ -684,10 +688,22 @@ class EmailNotificationV2Handler {
 		if (!user.hasReceivedFirstEmail) {
 			op.$set.hasReceivedFirstEmail = true;
 		}
-		if (this.message.isReminder && !user.isRegistered) {
-			op.$set.lastInviteType = 'reviewReminder';
-			op.$set.lastInviteSentAt = Date.now();
+		if (!user.isRegistered) {
+			if (this.message.isReminder) {
+				op.$set.lastInviteType = 'reviewReminder';
+				op.$set.lastInviteSentAt = Date.now();
+			} else if (
+				this.parentReview &&
+				(this.parentReview.codeAuthorIds || []).includes(user.id)
+			) {
+				op.$set.lastInviteType = 'reviewAuthorNotification';
+				op.$set.lastInviteSentAt = Date.now();
+				if (!user.firstInviteType) {
+					op.$set.firstInviteType = op.$set.lastInviteType;
+				}
+			}
 		}
+
 		try {
 			await this.data.users.updateDirect(
 				{ id: this.data.users.objectIdSafe(user.id) },

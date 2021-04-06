@@ -67,7 +67,7 @@ class LoginTest extends CodeStreamAPITest {
 		if (!this.dontCheckFirstSession) {
 			Assert(data.user.firstSessionStartedAt >= this.beforeLogin, 'firstSessionStartedAt not set to most recent login time');
 		}
-		Assert.equal(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
+		Assert.strictEqual(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		Assert(data.accessToken, 'no access token');
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
@@ -76,9 +76,12 @@ class LoginTest extends CodeStreamAPITest {
 		if (this.apiConfig.email.suppressEmails) {
 			delete expectedCapabilities.emailSupport;
 		}
-		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
+		Assert.deepStrictEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 		const providerHosts = GetStandardProviderHosts(this.apiConfig);
-		Assert.deepEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
+		Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
+		Assert.strictEqual(data.runtimeEnvironment, this.apiConfig.sharedGeneral.runTimeEnvironment);
+		Assert.strictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);
+		Assert.strictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud);
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

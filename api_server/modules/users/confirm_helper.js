@@ -16,7 +16,8 @@ class ConfirmHelper {
 	async confirm (data) {
 		this.data = data;
 		await this.hashPassword();			// hash the provided password, if given
-		await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
+		// username uniqueness is deprecated per https://trello.com/c/gG8fKXft
+		//await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
 		return this.responseData;

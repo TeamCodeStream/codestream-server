@@ -18,6 +18,7 @@ class UsernameChecker  {
 			// don't allow 'codestream' at all, this is "reserved"
 			return false;
 		}
+
 		this.teamIds = this.teamIds || [];
 		if (this.teamIds.length === 0) {
 			// no conflict if the user is not on any teams

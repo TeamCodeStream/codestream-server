@@ -7,7 +7,7 @@ The CodeStream API Service is lovely.
 ## Installation for local cloud development using dev_tools
 
 ### Prerequisites
-1. Install the dev_tools tookkit
+1. Install the dev_tools toolkit
    [here](https://github.com/teamcodestream/dev_tools).
 1. Install mongo - this is available as a dev_tools sandbox or you can install
    any version. Instructions for the mongo sandbox are

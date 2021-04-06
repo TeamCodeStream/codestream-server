@@ -15,7 +15,10 @@ class CapabilitiesRequest extends RestfulRequest {
 	async process () {
 		// return the capabilities
 		this.responseData = {
-			capabilities: { ...APICapabilities }
+			capabilities: { ...APICapabilities },
+			environment: this.api.config.sharedGeneral.runTimeEnvironment,
+			isOnPrem: this.api.config.sharedGeneral.isOnPrem,
+			isProductionCloud: this.api.config.sharedGeneral.isProductionCloud
 		};
 	}
 

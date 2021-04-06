@@ -12,7 +12,7 @@ notifications.
 
 
 ## Prerequisites
-1. Install the dev_tools tookkit
+1. Install the dev_tools toolkit
    [here](https://github.com/teamcodestream/dev_tools).
 1. Make sure you can access the CodeStream network via the VPN.
 1. Review how we manage our [server

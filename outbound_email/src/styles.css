@@ -364,6 +364,11 @@ blockquote {
 	text-decoration: none !important;
 }
 
+.weekly-listing td {
+	padding: 2px;
+	vertical-align: top;
+}
+
 .latest-news-atag {
 	color: #009aef;
 	text-decoration: none !important;

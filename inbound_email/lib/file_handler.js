@@ -507,7 +507,7 @@ class FileHandler {
 			'Content-Length': Buffer.byteLength(payload)
 		};
 		const requestOptions = {
-			host: urlObject.hostname,
+			hostname: urlObject.hostname,
 			port: urlObject.port,
 			path: '/no-auth/inbound-email',
 			method: 'POST',
