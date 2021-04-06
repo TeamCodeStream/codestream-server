@@ -1,5 +1,15 @@
 # Change Log
 
+## [8.2.33] - 2021-4-6
+
+### Changed
+
+- Icons for feedback requests in the weekly email now use a green/purple/red color scheme to represent open, approved and rejected states
+### Fixed
+
+- Fixes an email delivery issue associated with multi-location codemarks
+- Fixes an email delivery issue with the weekly activity emails
+
 ## [8.2.32] - 2021-3-26
 
 ### Changed
