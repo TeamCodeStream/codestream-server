@@ -48,7 +48,7 @@
     "oauth": "0.9.15",
     "path": "0.12.7",
     "printf": "0.6.0",
-    "pubnub": "4.29.7",
+    "pubnub": "4.30.1",
     "read-package-json": "2.1.1",
     "socketcluster-client": "16.0.1",
     "strftime": "0.10.0",
