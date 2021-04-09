@@ -22,10 +22,18 @@ class GetStreamsTest extends CodeStreamAPITest {
 		BoundAsync.series(this, [
 			super.before,
 			this.createForeignTeam,			// create another team without the current user as a member
+			this.wait1Sec,
 			this.createChannelDirectStreams,	// create some channel and direct streams in both teams
 			this.createFileStreams,		// create some file-type streams in both team
 			this.setPath				// set the path to use when issuing the test request, this should be overridden by derived test classes
 		], callback);
+	}
+
+	// wait one second, to ensure IDs of streams created are greater than IDs of the other objects created
+	// (though not necessary in "mock mode", since we don't go through mongo)
+	wait1Sec (callback) {
+		const wait = this.mockMode ? 0 : 1000;
+		setTimeout(callback, wait);
 	}
 
 	// create a "foreign" team, for which the current user is not a member
