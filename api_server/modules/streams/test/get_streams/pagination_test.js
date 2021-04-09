@@ -32,6 +32,7 @@ class PaginationTest extends GetStreamsTest {
 
 			// set up additional pagination options
 			this.numStreams = this.defaultPagination ? Math.floor(this.apiConfig.apiServer.limits.maxStreamsPerRequest * 2.5) : 17;
+			this.testLog(`WILL CREATE ${this.numStreams} STREAMS`);
 			this.streamsPerPage = this.defaultPagination ? this.apiConfig.apiServer.limits.maxStreamsPerRequest : 5;
 			callback();
 		});
@@ -46,6 +47,8 @@ class PaginationTest extends GetStreamsTest {
 	run (callback) {
 		// make sure our expected streams our sorted, since they will come back to us (and are paginated)
 		// in sorted order
+		this.testLog(`TEAM IS: ${this.team.id}`);
+		this.testLog(`CURRENT USER IS: ${this.currentUser.user.id}`);
 		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
 			return stream.memberIds.includes(this.currentUser.user.id);
 		});
@@ -122,7 +125,9 @@ class PaginationTest extends GetStreamsTest {
 		const end = begin + this.streamsPerPage;
 
 		// prepare the expected streams to be the given page, and call the base class validation
-		this.expectedStreams = this.allStreams.slice(begin, end);	
+		this.expectedStreams = this.allStreams.slice(begin, end);
+		this.testLog(`EXPECTED STREAMS BY PAGE: ${this.expectedStreams.map(s => s.id)}`);
+		this.testLog(`ACTUAL STREAMS: ${response.streams.map(s => s.id)}`);
 		this.validateResponse(response);
 
 		// record the last ID, we'll fetch the next page using this ID as our page divider

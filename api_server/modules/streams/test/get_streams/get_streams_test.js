@@ -117,6 +117,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 		this.streamFactory.createRandomStream(
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.testLog(`CREATED RANDOM STREAM ${response.stream.id} FOR TEAM ${team.id} type=${type} isTeamStream=${isTeamStream} public=${isPublic} memberIds=${options.memberIds}`);
 				this.streamsByTeam[team.id].push(response.stream);
 				setTimeout(callback, this.streamCreateThrottle || 0);	// slow it down to avoid overloading pubnub (which has to do access grants)
 			},
