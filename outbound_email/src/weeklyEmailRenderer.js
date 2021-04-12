@@ -180,7 +180,7 @@ ${activity}
 	}
 
 	renderMentions (userData) {
-		return this.renderSectionEntries(userData, 'mentions', 'Mentions', true);
+		return this.renderSectionEntries(userData, 'mentions', 'Mentions');
 	}
 
 	renderPosts (userData) {
@@ -189,7 +189,7 @@ ${activity}
 			userData.myCodemarks.length === 0 &&
 			userData.mentions.length === 0
 		) ? 'Unread Messages' : 'Other Unread Messages';
-		return this.renderSectionEntries(userData, 'unreads', section, true);
+		return this.renderSectionEntries(userData, 'unreads', section);
 	}
 
 	renderNew (userData) {
@@ -200,9 +200,10 @@ ${activity}
 		return this.renderSectionEntries(userData, 'closedCodemarksReviews', 'Resolved Feedback Requests, Comments & Issues');
 	}
 
-	renderSectionEntries(userData, collection, heading, groupReplies=false) {
+	renderSectionEntries(userData, collection, heading) {
 		let contentHtml = '<table>', moreHtml = '';
 		let items = userData[collection];
+		if (items.length === 0) { return; }
 		const sectionHtml = items.length > 0 ? `<div class="sub-heading ensure-white">${heading}</div>` : '';
 		const sepHtml = items.length > 0 ? '<br/>' : '';
 		if (items.length > MAX_PER_SECTION) {
