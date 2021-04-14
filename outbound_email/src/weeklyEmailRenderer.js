@@ -203,9 +203,8 @@ ${activity}
 	renderSectionEntries(userData, collection, heading) {
 		let contentHtml = '<table>', moreHtml = '';
 		let items = userData[collection];
-		if (items.length === 0) { return; }
+		if (items.length === 0) { return ''; }
 		const sectionHtml = items.length > 0 ? `<div class="sub-heading ensure-white">${heading}</div>` : '';
-		const sepHtml = items.length > 0 ? '<br/>' : '';
 		if (items.length > MAX_PER_SECTION) {
 			const wasLength = items.length;
 			items = items.splice(0, MAX_PER_SECTION);
@@ -239,7 +238,7 @@ ${activity}
 			});
 		});
 		contentHtml += '</table>'
-		return sectionHtml + contentHtml + moreHtml + sepHtml;
+		return sectionHtml + contentHtml + moreHtml + '<br/>';
 	}
 
 	// render text for a single item
