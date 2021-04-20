@@ -460,6 +460,8 @@ class LinkCodemarkRequest extends WebRequestBase {
 			tags: tags,
 			uniqueRepoId: uniqueRepoId,
 			uniqueFileName: encodeURI(uniqueFileName),
+			teamId: this.team.id,
+			teamName: this.team.get('name'),
 			hasTagsOrAssignees:
 				(assignees && assignees.length) || (tags && tags.length),
 			externalProviderIcon:
