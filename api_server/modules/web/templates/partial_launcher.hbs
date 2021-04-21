@@ -321,7 +321,7 @@ window.CODESTREAM.openEditor = function(ide) {
 		var repoId; 
 		var protocol;
 		var route;
-		if (type === 'codemark') {									
+		if (type === 'codemark') {
 			route = { controller: 'codemark', action: 'open', id: options.id };
 			if (options.repoId) {
 				route.query = [{key: 'repoId', value: options.repoId}];
@@ -330,6 +330,9 @@ window.CODESTREAM.openEditor = function(ide) {
 				}
 				if (options.teamName) {
 					route.query.push({key: 'teamName', value: encodeURIComponent(options.teamName)});
+				}
+				if (options.isLink === 'true') {
+					route.query.push({key: 'isLink', value: 'true' });
 				}
 			}
 		}

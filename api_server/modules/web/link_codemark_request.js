@@ -462,6 +462,7 @@ class LinkCodemarkRequest extends WebRequestBase {
 			uniqueFileName: encodeURI(uniqueFileName),
 			teamId: this.team.id,
 			teamName: this.team.get('name'),
+			isLink: codemarkType === 'link',
 			hasTagsOrAssignees:
 				(assignees && assignees.length) || (tags && tags.length),
 			externalProviderIcon:
