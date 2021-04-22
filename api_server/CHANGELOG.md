@@ -1,5 +1,12 @@
 # Change Log
 
+## [8.2.37] - 2021-4-22
+
+### Changed 
+
+- Increased efficiency of real-time messaging services
+- Backend work to support team switching when you click on a permalink for an item owned by a team other than the one you currently have selected
+
 ## [8.2.36] - 2021-4-6
 
 ### Changed 
