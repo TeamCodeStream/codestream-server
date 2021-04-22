@@ -33,8 +33,8 @@ class EmailSender {
 	}
 
 	// given a user, figure out a full display name to use in the subject
-	getUserDisplayName(user) {
-		return user.fullName || user.email;
+	getUserDisplayName(user, usernameFallback=false) {
+		return user.fullName || (usernameFallback && user.username) || user.email;
 	}
 
 	// mailer options common to all mailers

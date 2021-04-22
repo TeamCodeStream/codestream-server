@@ -554,6 +554,7 @@ class EmailNotificationV2Handler {
 		const isReview = !!(this.parentReview || review);
 		const unfollowLink = this.getUnfollowLink(user, thingToUnfollow, isReview);
 		const userBeingAddedToTeam = (this.message.usersBeingAddedToTeam || []).includes(user.id);
+		const isReplyToCodeAuthor = this.parentReview && !user.isRegistered && (this.parentReview.codeAuthorIds ||[]).includes(user.id);
 		Object.assign(this.renderOptions, {
 			user: user,
 			content: this.renderedPostPerUser[user.id],
@@ -566,7 +567,8 @@ class EmailNotificationV2Handler {
 			inviteCode: user.inviteCode,
 			ideLinks: Utils.getIDELinks(),
 			userBeingAddedToTeam,
-			teamName: this.team.name
+			teamName: this.team.name,
+			isReplyToCodeAuthor
 		});
 		let html = new EmailNotificationV2Renderer().render(this.renderOptions);
 		html = html.replace(/[\t\n]/g, '');
@@ -649,7 +651,8 @@ class EmailNotificationV2Handler {
 			isReply,
 			category: user.isRegistered || isReply ? 'notification' : 'notification_invite',
 			isReminder: this.message.isReminder,
-			requestId: this.requestId
+			requestId: this.requestId,
+			isReplyToCodeAuthor: this.parentReview && (this.parentReview.codeAuthorIds || []).includes(user.id)
 		};
 		const which = review ? 'review' : 'codemark';
 		const reminder = this.message.isReminder ? 'reminder ' : '';

@@ -26,22 +26,25 @@ class EmailNotificationV2Sender {
 
 	// determine the subject of an email notification
 	getNotificationSubject (options) {
-		const { codemark, review, isReply, isReminder, creator, sender, user } = options;
+		const { codemark, review, isReply, isReminder, creator, sender, user, isReplyToCodeAuthor } = options;
 		const codemarkOrReview = review || codemark;
 		let subject;
 		if (isReminder) {
-			const fromName = creator ? sender.getUserDisplayName(creator) : 'The author of this feedback request'; // total fallback here
+			const fromName = creator ? sender.getUserDisplayName(creator, true) : 'The author of this feedback request'; // total fallback here
 			subject = `${fromName} is waiting for your feedback`;
 		} else if (!user.isRegistered && review && !isReply) {
-			const fromName = creator ? sender.getUserDisplayName(creator) : 'The author of this feedback request'; // total fallback here
-			subject = `${fromName} is requesting a code review`
-		} else {
+			const fromName = creator ? sender.getUserDisplayName(creator, true) : 'The author of this feedback request'; // total fallback here
+			subject = `${fromName} is requesting a code review`;
+		} else if (!user.isRegistered && isReplyToCodeAuthor) {
+			const fromName = creator ? sender.getUserDisplayName(creator, true) : 'The author of this feedback request'; // total fallback here
+			subject = `${fromName} commented on your changes`;
+		} else {	
 			subject = codemarkOrReview.title || codemarkOrReview.text;
 			if (subject.length >= 80) {
 				subject = subject.substring(0, 80) + '...';
 			}
 		}
-		if (isReply) {
+		if (isReply && !isReplyToCodeAuthor) {
 			subject = 're: ' + subject;
 		}
 		return subject;

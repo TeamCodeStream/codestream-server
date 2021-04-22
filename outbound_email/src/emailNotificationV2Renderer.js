@@ -19,7 +19,8 @@ class EmailNotificationV2Renderer {
 			isReply,
 			inviteCode,
 			userBeingAddedToTeam,
-			teamName
+			teamName,
+			isReplyToCodeAuthor
 		} = options;
 		const what = review ? 'feedback request' : 'codemark';
 
@@ -71,10 +72,14 @@ class EmailNotificationV2Renderer {
 `;
 			}
 
+			const inviteMessage = isReplyToCodeAuthor ?
+				'CodeStream provides tools to review code right in your IDE and your teammate is using them to comment on the changes you just committed.' :
+				'Review these changes in your IDE using CodeStream.';
+
 			if (review) {
 				inviteDiv = `
 <div class="ensure-white">
-	Review these changes in your IDE using CodeStream.<br/>
+	${inviteMessage}<br/>
 	${installWithInviteCode}
 	<br/>
 </div>
