@@ -35,7 +35,7 @@ class PostNotReplyToCodemarkTest extends PinPostTest {
 				callback();
 			},
 			{
-				streamId: this.stream.id,
+				streamId: this.teamStream.id,
 				token: this.users[1].accessToken
 			}
 		);
@@ -49,7 +49,7 @@ class PostNotReplyToCodemarkTest extends PinPostTest {
 				callback();
 			},
 			{
-				streamId: this.stream.id,
+				streamId: this.teamStream.id,
 				parentPostId: this.otherPost.id,
 				token: this.users[1].accessToken
 			}

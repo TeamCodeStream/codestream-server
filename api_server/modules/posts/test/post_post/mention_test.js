@@ -1,9 +1,9 @@
 'use strict';
 
-const PostToChannelTest = require('./post_to_channel_test');
+const PostPostTest = require('./post_post_test');
 const Assert = require('assert');
 
-class MentionTest extends PostToChannelTest {
+class MentionTest extends PostPostTest {
 
 	get description () {
 		return 'should return mentioned user IDs in returned post when creating a post with mentions';

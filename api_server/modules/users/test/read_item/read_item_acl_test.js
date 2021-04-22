@@ -6,7 +6,7 @@ class ReadItemACLTest extends ReadItemTest {
 
 	constructor (options) {
 		super(options);
-		this.streamOptions.members = [];
+		this.teamOptions.members = [];
 	}
 
 	get description () {

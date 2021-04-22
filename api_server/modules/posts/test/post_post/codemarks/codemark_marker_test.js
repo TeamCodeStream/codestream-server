@@ -8,6 +8,9 @@ class CodemarkMarkerTest extends CodemarkTest {
 		super(options);
 		this.expectMarkers = 1;
 		this.repoOptions.creatorIndex = 1;
+		this.expectedSeqNum = 2;
+		this.expectedStreamVersion = 3;
+		this.expectStreamMarkers = 2;
 	}
 
 	get description () {

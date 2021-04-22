@@ -314,6 +314,8 @@ class LinkReviewRequest extends WebRequestBase {
 					: this.request.query.ide,
 			repos: changes.repos,
 			uniqueRepoId: uniqueRepoId,
+			teamId: this.team.id,
+			teamName: this.team.get('name'),
 			changes: changes.files,
 			queryString: {
 				ide:
@@ -330,7 +332,7 @@ class LinkReviewRequest extends WebRequestBase {
 			hasTagsOrReviewers:
 				(reviewers && reviewers.length) || (tags && tags.length),
 			partial_launcher_model: this.createLauncherModel(uniqueRepoId),
-			partial_title_model: {	
+			partial_title_model: {
 				v2: true,
 				isReview: true,
 				showComment: true,

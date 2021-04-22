@@ -44,6 +44,7 @@ class GetStreamsTest extends CloseTest {
 		new TestStreamCreator({
 			test: this,
 			team: this.team,
+			teamStream: this.teamStream,
 			users: this.users,
 			streamOptions
 		}).create((error, data) => {

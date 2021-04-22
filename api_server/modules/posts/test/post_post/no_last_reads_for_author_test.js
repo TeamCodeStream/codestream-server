@@ -22,7 +22,7 @@ class NoLastReadsForAuthorTest extends LastReadsNoneTest {
 	validateResponse (data) {
 		// since the current user was the creator of the posts, this should not
 		// create any lastReads for the user
-		Assert.deepEqual(data.user.lastReads, {}, 'lastReads is not empty');
+		Assert.deepStrictEqual(data.user.lastReads, {}, 'lastReads is not empty');
 	}
 }
 

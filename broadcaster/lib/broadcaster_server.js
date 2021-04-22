@@ -291,7 +291,7 @@ class BroadcasterServer {
 				// when this socket is the API server, respond to these things
 				this.addSocketReceiver('message', this.handleMessage, socket);
 				this.addSocketProc('desubscribe', this.handleDesubscribe, socket);
-				this.addSocketListener('getSubscribedUsers', this.getSubscribedUsers, socket);
+				//this.addSocketListener('getSubscribedUsers', this.getSubscribedUsers, socket);
 			}
 			else {
 				// when this socket is a CodeStream client, respond to these things
@@ -592,11 +592,12 @@ class BroadcasterServer {
 		}
 		
 		// stream channels are authorized separately
-		return await this.authStreamChannelsHistory(channelInfo.streamChannels, user);
+		//return await this.authStreamChannelsHistory(channelInfo.streamChannels, user);
 	}
 
 	// authorize a request to fetch message history for a given set of stream channels
 	async authStreamChannelsHistory (channels, user) {
+		throw 'stream channels are deprecated';
 		if (channels.length === 0) {
 			return;
 		}
@@ -707,10 +708,13 @@ class BroadcasterServer {
 
 	// get users subscribed to a team channel
 	async getSubscribedUsers (data, socket, serverRequestId) {
+		throw 'getSubscribedUsers is no longer supported';
+		/*
 		const { channel, requestId } = data;
 		const userIds = this.userIdsByTeamChannel[channel] || [];
 		this.log(`Request for subscribed users on channel ${channel} returning ${userIds}`, socket, serverRequestId);
 		return { requestId, userIds };
+		*/
 	}
 
 	// is this socket a connection to the API server?
@@ -755,7 +759,8 @@ class BroadcasterServer {
 				channelInfo.teamChannels.push(channel);
 			}
 			else if (channel.startsWith('stream-')) {
-				channelInfo.streamChannels.push(channel);
+				throw 'stream channels are deprecated';
+				//channelInfo.streamChannels.push(channel);
 			}
 			else {
 				return false;

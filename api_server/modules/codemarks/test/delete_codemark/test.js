@@ -29,16 +29,22 @@ class DeleteCodemarkRequestTester {
 		new CodemarkNotFoundTest().test();
 		new AlreadyDeletedTest().test();
 		new AdminCanDeleteTest().test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
-		new MessageTest({ streamType: 'team stream' }).test();
-		new MarkerToTeamMessageTest({ streamType: 'channel' }).test();
-		new MarkerToTeamMessageTest({ streamType: 'direct' }).test();
-		new MarkerToTeamMessageTest({ streamType: 'team stream' }).test();
+		new MessageTest().test();
+		// NOTE posting to streams other than the team stream is no longer allowed
+		//new MessageTest({ streamType: 'channel' }).test();
+		//new MessageTest({ streamType: 'direct' }).test();
+		//new MessageTest({ streamType: 'team stream' }).test();
+		new MarkerToTeamMessageTest().test();
+		// NOTE posting to streams other than the team stream is no longer allowed
+		//new MarkerToTeamMessageTest({ streamType: 'channel' }).test();
+		//new MarkerToTeamMessageTest({ streamType: 'direct' }).test();
+		//new MarkerToTeamMessageTest({ streamType: 'team stream' }).test();
 		new DeleteRelationsTest().test();
-		new DeleteRelationsMessageTest({ streamType: 'channel' }).test();
-		new DeleteRelationsMessageTest({ streamType: 'direct' }).test();
-		new DeleteRelationsMessageTest({ streamType: 'team stream' }).test();
+		new DeleteRelationsMessageTest().test();
+		// NOTE posting to streams other than the team stream is no longer allowed
+		//new DeleteRelationsMessageTest({ streamType: 'channel' }).test();
+		//new DeleteRelationsMessageTest({ streamType: 'direct' }).test();
+		//new DeleteRelationsMessageTest({ streamType: 'team stream' }).test();
 		new NoDeletePostlessCodemarkTest().test();
 	}
 }

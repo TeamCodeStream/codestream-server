@@ -10,6 +10,9 @@ class ReviewMarkersMessageTest extends Aggregation(MessageTest, DeleteReviewMark
 		return `members of the team should receive a message with the deactivated markers when a post with a review and markers is deleted in a ${this.streamType} stream`;
 	}
 
+	/*
+	None of these overrides are relevant when the post is in the team stream, which is all that's allowed right now
+
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// markers always come in on the team channel
@@ -27,6 +30,7 @@ class ReviewMarkersMessageTest extends Aggregation(MessageTest, DeleteReviewMark
 			callback();
 		});
 	}
+	*/
 }
 
 module.exports = ReviewMarkersMessageTest;

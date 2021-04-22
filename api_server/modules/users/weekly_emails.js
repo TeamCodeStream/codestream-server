@@ -13,7 +13,8 @@ const ONE_MONTH = 30 * ONE_DAY;
 const PD_TEAM_WHITELIST = [
 	/*
 	'60523c26f320c82aa55abf1e',
-	'5dfcee08d3d59050f7712b6d'
+	'607716865163ae704ad181df'
+	//'5dfcee08d3d59050f7712b6d'
 	*/
 ];
 
@@ -25,14 +26,14 @@ const TEST_MODE = 'prod';
 // teams that have had a weekly email run within this interval, wait till next week
 const LAST_RUN_CUTOFF = 
 	TEST_MODE === 'pdnight' ? 1 * ONE_HOUR :
-	TEST_MODE === 'pd' ? 20 * ONE_MINUTE : 
-	ONE_DAY;
+		TEST_MODE === 'pd' ? 20 * ONE_MINUTE : 
+			ONE_DAY;
 
 // users who have been sent a weekly email within this interval, don't get another
 const USER_CUTOFF_TIME =
 	TEST_MODE === 'pdnight' ? 4 * ONE_HOUR :
-	TEST_MODE === 'pd' ? 20 * ONE_MINUTE :
-	5 * ONE_DAY;
+		TEST_MODE === 'pd' ? 20 * ONE_MINUTE :
+			5 * ONE_DAY;
 
 // teams who have had no activity in this interval, get no emails at all
 const ACTIVITY_CUTOFF = 3 * ONE_MONTH;	
@@ -227,6 +228,6 @@ class WeeklyEmails {
 			setTimeout(resolve, time);
 		});
 	}
-};
+}
 
 module.exports = WeeklyEmails;

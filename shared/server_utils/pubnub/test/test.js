@@ -8,8 +8,8 @@ const NoAccessTest = require('./no_access_test');
 const UnsubscribeTest = require('./unsubscribe_test');
 //const HistoryTest = require('./history_test');
 //const MultipleHistoryTest = require('./multiple_history_test');
-const PresenceTest = require('./presence_test');
-const LeaveTest = require('./leave_test');
+//const PresenceTest = require('./presence_test');
+//const LeaveTest = require('./leave_test');
 
 // make eslint happy
 /* globals describe */
@@ -24,6 +24,6 @@ describe('pubnub', function() {
 	new UnsubscribeTest().test();
 	// new HistoryTest().test();
 	// new MultipleHistoryTest().test();	// Disabled pending resolution of COD-135
-	new PresenceTest().test();
-	new LeaveTest().test();
+	// new PresenceTest().test();
+	// new LeaveTest().test();
 });

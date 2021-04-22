@@ -13,9 +13,9 @@ const GetPostsDefaultSortTest = require('./get_posts_default_sort_test');
 const PaginationTest = require('./pagination_test');
 const InvalidParameterTest = require('./invalid_parameter_test');
 const TeamIDRequiredTest = require('./team_id_required_test');
-// const StreamIDRequiredTest = require('./stream_id_required_test');
+//const StreamIDRequiredTest = require('./stream_id_required_test');
 const ACLTeamTest = require('./acl_team_test');
-const ACLStreamTest = require('./acl_stream_test');
+//const ACLStreamTest = require('./acl_stream_test');
 const StreamNotFoundTest = require('./stream_not_found_test');
 const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 const GetPostsBeforeTest = require('./get_posts_before_test');
@@ -30,8 +30,12 @@ const GetPostsWithReviewsTest = require('./get_posts_with_reviews_test');
 class GetPostsRequestTester {
 
 	getPostsTest () {
+		
+		new GetPostsTest().test();
+		/* NOTE - posting to streams other than the team stream is no longer supported
 		new GetPostsTest({type: 'channel'}).test();
 		new GetPostsTest({type: 'direct'}).test();
+		*/
 		new GetPostsWithCodemarksTest().test();
 		new GetPostsWithMarkersTest().test();
 		new GetChildPostsTest().test();
@@ -46,9 +50,9 @@ class GetPostsRequestTester {
 		new PaginationTest({defaultPagination: true, tryOverLimit: true}).test();
 		new InvalidParameterTest().test();
 		new TeamIDRequiredTest().test();
-		// new StreamIDRequiredTest().test();
+		//new StreamIDRequiredTest().test();
 		new ACLTeamTest().test();
-		new ACLStreamTest().test();
+		//new ACLStreamTest().test();
 		new StreamNotFoundTest().test();
 		new StreamNoMatchTeamTest().test();
 		new GetPostsBeforeTest().test();

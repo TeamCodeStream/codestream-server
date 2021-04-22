@@ -12,9 +12,12 @@ class MarkersToTeamMessageTest extends Aggregation(MessageTest, DeleteMarkersTes
 	}
 
 	get description () {
-		const type = this.streamType === 'team stream' ? 'team' : this.streamType;
+		const type = this.streamType || 'team';
 		return `members of the team should receive a message with the deactivated markers when a review with markers is deleted in a ${type} stream`;
 	}
+
+	/*
+	note these overrides are relevant since we can only post to the team stream now
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
@@ -35,6 +38,7 @@ class MarkersToTeamMessageTest extends Aggregation(MessageTest, DeleteMarkersTes
 			callback();
 		});
 	}
+	*/
 }
 
 module.exports = MarkersToTeamMessageTest;

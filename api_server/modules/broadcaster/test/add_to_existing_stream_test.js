@@ -47,10 +47,13 @@ class AddToExistingStreamTest extends CodeStreamMessageTest {
 	}
 
 	// set the channel name to listen on
-	setChannelName (callback) {
+	setChannelName (/*callback*/) {
+		throw 'stream channels are deprecated';
+		/*
 		// we expect the message on the stream channel
 		this.channelName = 'stream-' + this.stream.id;
 		callback();
+		*/
 	}
 }
 

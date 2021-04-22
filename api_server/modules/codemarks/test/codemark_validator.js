@@ -58,10 +58,10 @@ class CodemarkValidator {
 
 		// if we are expecting a provider type, check it now
 		if (this.test.expectProviderType) {
-			Assert.equal(codemark.providerType, this.inputCodemark.providerType, 'providerType is not equal to the given providerType');
+			Assert.strictEqual(codemark.providerType, this.inputCodemark.providerType, 'providerType is not equal to the given providerType');
 		}
 		else {
-			Assert.equal(typeof codemark.providerType, 'undefined', 'codemark providerType should be undefined');
+			Assert.strictEqual(typeof codemark.providerType, 'undefined', 'codemark providerType should be undefined');
 		}
 
 		// if we are expecting a marker with the codemark, validate it

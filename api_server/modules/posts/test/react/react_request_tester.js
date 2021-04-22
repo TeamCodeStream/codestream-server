@@ -8,7 +8,7 @@ const ReactFetchTest = require('./react_fetch_test');
 const SecondReactFetchTest = require('./second_react_fetch_test');
 const ThirdReactFetchTest = require('./third_react_fetch_test');
 const ClearReactFetchTest = require('./clear_react_fetch_test');
-const ACLTest = require('./acl_test');
+//const ACLTest = require('./acl_test');
 const ACLTeamTest = require('./acl_team_test');
 const PostNotFoundTest = require('./post_not_found_test');
 const TooManyReactionsTest = require('./too_many_reactions_test');
@@ -26,7 +26,7 @@ class ReactRequestTester {
 		new SecondReactFetchTest().test();
 		new ThirdReactFetchTest().test();
 		new ClearReactFetchTest().test();
-		new ACLTest().test();
+		//new ACLTest().test();
 		new ACLTeamTest().test();
 		new PostNotFoundTest().test();
 		new TooManyReactionsTest().test();
@@ -34,8 +34,12 @@ class ReactRequestTester {
 		new IllegalCharacterTest({ character: '.' }).test();
 		new NonBooleanTest().test();
 		new EmptyReactionsTest().test();
+		new MessageTest().test();
+		/*
+		NOTE: posting to a stream that is not the team stream is no longer allowed
 		new MessageTest({ streamType: 'channel' }).test();
 		new MessageTest({ streamType: 'direct' }).test();
+		*/
 	}
 }
 

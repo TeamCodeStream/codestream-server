@@ -19,7 +19,7 @@ class ReadTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	before (callback) {
 		this.init(error => {
 			if (error) { return callback(error); }
-			this.path = '/read/' + this.stream.id;
+			this.path = '/read/' + this.teamStream.id;
 			callback();
 		});
 	}

@@ -46,6 +46,8 @@ class StreamSubscriptionGranter  {
 
 	// grant permissions for each registered user to subscribe to the stream channel
 	async grantStreamChannel () {
+		throw 'stream channels are deprecated';
+		/*
 		if (this.tokens.length === 0) {
 			return;
 		}
@@ -64,6 +66,7 @@ class StreamSubscriptionGranter  {
 		catch (error) {
 			throw `unable to ${func} permissions for subscription (${channel}): ${error}`;
 		}
+		*/
 	}
 }
 

@@ -23,9 +23,9 @@ const PushBecomesAddToSetTest = require('./push_becomes_addtoset_test');
 const PushMergesToAddToSetTest = require('./push_merges_to_addtoset_test');
 const NoPushPullTest = require('./no_push_pull_test');
 const NoChangeMembersOfTeamStreamTest = require('./no_change_members_of_team_stream_test');
-const MessageToStreamTest = require('./message_to_stream_test');
-const AddUserMessageToStreamTest = require('./add_user_message_to_stream_test');
-const RemoveUserMessageToStreamTest = require('./remove_user_message_to_stream_test');
+//const MessageToStreamTest = require('./message_to_stream_test');
+//const AddUserMessageToStreamTest = require('./add_user_message_to_stream_test');
+//const RemoveUserMessageToStreamTest = require('./remove_user_message_to_stream_test');
 const MessageToTeamTest = require('./message_to_team_test');
 const AddUserMessageToTeamTest = require('./add_user_message_to_team_test');
 const RemoveUserMessageToTeamTest = require('./remove_user_message_to_team_test');
@@ -37,12 +37,12 @@ const InvalidChannelNameTest = require('./invalid_channel_name_test');
 const NoDuplicateNameTest = require('./no_duplicate_name_test');
 const UsersNotFound = require('./users_not_found_test');
 const UsersNotOnTeamTest = require('./users_not_on_team_test');
-const RemoveUserClearUnreadsTest = require('./remove_user_clear_unreads_test');
-const RemoveUserUnreadsMessageTest = require('./remove_user_unreads_message_test');
-const ArchiveClearUnreadsTest = require('./archive_clear_unreads_test');
-const ArchiveClearUnreadsForTeamStreamTest = require('./archive_clear_unreads_for_team_stream_test');
-const ArchiveClearUnreadsMessageTest = require('./archive_clear_unreads_message_test');
-const ArchiveClearUnreadsForTeamStreamMessageTest = require('./archive_clear_unreads_for_team_stream_message_test');
+//const RemoveUserClearUnreadsTest = require('./remove_user_clear_unreads_test');
+//const RemoveUserUnreadsMessageTest = require('./remove_user_unreads_message_test');
+//const ArchiveClearUnreadsTest = require('./archive_clear_unreads_test');
+//const ArchiveClearUnreadsForTeamStreamTest = require('./archive_clear_unreads_for_team_stream_test');
+//const ArchiveClearUnreadsMessageTest = require('./archive_clear_unreads_message_test');
+//const ArchiveClearUnreadsForTeamStreamMessageTest = require('./archive_clear_unreads_for_team_stream_message_test');
 //const IllegalSlackChannelNameTest = require('./illegal_slack_channel_name_test');
 //const SlackChannelNameTooLongTest = require('./slack_channel_name_too_long_test');
 
@@ -84,9 +84,11 @@ class PutStreamRequestTester {
 		new NoPushPullTest().test();
 		new MemberIdsNotArrayTest().test();
 		new NoChangeMembersOfTeamStreamTest().test();
+		/* stream channels are deprecated
 		new MessageToStreamTest().test();
 		new AddUserMessageToStreamTest().test();
 		new RemoveUserMessageToStreamTest().test();
+		*/
 		new MessageToTeamTest().test();
 		new AddUserMessageToTeamTest().test();
 		new RemoveUserMessageToTeamTest().test();
@@ -105,12 +107,16 @@ class PutStreamRequestTester {
 		new NoDuplicateNameTest().test();
 		new UsersNotFound().test();
 		new UsersNotOnTeamTest().test();
-		new RemoveUserClearUnreadsTest().test();
-		new RemoveUserUnreadsMessageTest().test();
-		new ArchiveClearUnreadsTest().test();
-		new ArchiveClearUnreadsForTeamStreamTest().test();
-		new ArchiveClearUnreadsMessageTest().test();
-		new ArchiveClearUnreadsForTeamStreamMessageTest().test();
+		/*
+		  These tests depend on posts being created in streams outside of the team stream,
+		  which is no longer allowed
+		*/
+		//new RemoveUserClearUnreadsTest().test();
+		//new RemoveUserUnreadsMessageTest().test();
+		//new ArchiveClearUnreadsTest().test();
+		//new ArchiveClearUnreadsForTeamStreamTest().test();
+		//new ArchiveClearUnreadsMessageTest().test();
+		//new ArchiveClearUnreadsForTeamStreamMessageTest().test();
 	}
 }
 

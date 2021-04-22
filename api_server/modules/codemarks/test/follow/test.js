@@ -7,7 +7,7 @@ const FetchTest = require('./fetch_test');
 const MessageTest = require('./message_test');
 const CodemarkNotFoundTest = require('./codemark_not_found_test');
 const ACLTeamTest = require('./acl_team_test');
-const ACLStreamTest = require('./acl_stream_test');
+//const ACLStreamTest = require('./acl_stream_test');
 const AlreadyFollowingTest = require('./already_following_test');
 
 class FollowRequestTester {
@@ -15,13 +15,15 @@ class FollowRequestTester {
 	test () {
 		new FollowTest().test();
 		new FetchTest().test();
-		new MessageTest({ isTeamStream: true }).test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
+		new MessageTest().test();
+		// NOTE posting to streams other than the team stream is no longer allowed
+		//new MessageTest({ isTeamStream: true }).test();
+		//new MessageTest({ streamType: 'channel' }).test();
+		//new MessageTest({ streamType: 'direct' }).test();
 		new CodemarkNotFoundTest().test();
 		new ACLTeamTest().test();
-		new ACLStreamTest({ streamType: 'channel' }).test();
-		new ACLStreamTest({ streamType: 'direct' }).test();
+		//new ACLStreamTest({ streamType: 'channel' }).test();
+		//new ACLStreamTest({ streamType: 'direct' }).test();
 		new AlreadyFollowingTest().test();
 	}
 }

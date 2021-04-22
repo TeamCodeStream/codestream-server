@@ -21,7 +21,9 @@ class GetPostsWithReviewsTest extends GetPostsTest {
 
 	// validate the response to the fetch request
 	validateResponse (data) {
+		this.expectedPosts.push(this.repoPost);
 		data.posts.forEach(post => {
+			if (!post.reviewId) return;
 			const review = data.reviews.find(review => review.id === post.reviewId);
 			Assert(review, 'review not returned with post');
 			review.markerIds.forEach(markerId => {

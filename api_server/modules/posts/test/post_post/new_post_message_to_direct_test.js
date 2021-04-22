@@ -17,10 +17,13 @@ class NewPostMessageToChannelTest extends Aggregation(CodeStreamMessageTest, Com
 	}
 
 	// set the name of the channel we expect to receive a message on
-	setChannelName (callback) {
+	setChannelName (/*callback*/) {
+		throw 'stream channels are deprecated';
+		/*
 		// channels and DMs go to the stream channel
 		this.channelName = `stream-${this.stream.id}`;
 		callback();
+		*/
 	}
 
 	// generate the message by issuing a request

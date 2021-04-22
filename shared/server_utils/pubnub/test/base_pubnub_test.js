@@ -94,10 +94,12 @@ class BasePubNubTest extends GenericTest {
 				(async () => {
 					await this.pubnubForServer.grant(
 						this.authKeys[n],
-						this.channelName,
+						this.channelName
+						/*
 						{
 							includePresence: this.withPresence
 						}
+						*/
 					);
 					timesCallback();
 				})();
@@ -117,10 +119,12 @@ class BasePubNubTest extends GenericTest {
 			try {
 				await this.pubnubForClients[0].subscribe(
 					this.channelName,
-					this.messageReceived.bind(this),
+					this.messageReceived.bind(this)
+					/*
 					{
 						withPresence: this.withPresence
 					}
+					*/
 				);
 			}
 			catch (error) {

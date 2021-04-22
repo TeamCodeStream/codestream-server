@@ -7,9 +7,13 @@ const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 class MarkerMessageTest extends Aggregation(MessageTest, DeleteMarkerTest) {
 
 	get description () {
-		return `members of the team should receive a message with the deactivated markers when a post with a codemark and markers is deleted in a ${this.streamType} stream`;
+		const type = this.streamType || 'team';
+		return `members of the team should receive a message with the deactivated markers when a post with a codemark and markers is deleted in a ${type} stream`;
 	}
 
+	/*
+	None of these overrides are relevant when the post is in the team stream, which is all that's allowed right now
+	
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// markers always come in on the team channel
@@ -27,6 +31,7 @@ class MarkerMessageTest extends Aggregation(MessageTest, DeleteMarkerTest) {
 			callback();
 		});
 	}
+	*/
 }
 
 module.exports = MarkerMessageTest;

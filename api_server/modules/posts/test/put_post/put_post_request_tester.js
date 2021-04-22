@@ -20,9 +20,11 @@ class PutPostRequestTester {
 		new ACLTest().test();
 		new ACLTeamTest().test();
 		new PostNotFoundTest().test();
-		new MessageTest({ streamType: 'channel' }).test();
-		new MessageTest({ streamType: 'direct' }).test();
-		new MessageTest({ streamType: 'team stream' }).test();
+		new MessageTest().test();
+		// NOTE - posting to streams other than the team stream is no longer allowed
+		//new MessageTest({ streamType: 'channel' }).test();
+		//new MessageTest({ streamType: 'direct' }).test();
+		//new MessageTest({ streamType: 'team stream' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'repoId' }).test();

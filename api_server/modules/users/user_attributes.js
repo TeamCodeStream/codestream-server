@@ -318,7 +318,7 @@ module.exports = {
 		type: 'number',
 		description: 'Indicates how many automatic reinvites are to be sent till we give up',
 		serverOnly: true
-    },
+	},
 	lastInviteSentAt: {
 		type: 'number',
 		description: 'Last time an invite email was sent to this user',

@@ -9,8 +9,8 @@ class ReplyToAttachedCodemarkTest extends PostReplyTest {
 	}
 
 	setTestOptions (callback) {
-		this.expectedSeqNum = 3;
-		this.expectedVersion = 4;
+		this.expectedSeqNum = 4;
+		this.expectedStreamVersion = 5;
 		super.setTestOptions(() => {
 			this.repoOptions.creatorIndex = 1;
 			Object.assign(this.postOptions, {
@@ -31,7 +31,7 @@ class ReplyToAttachedCodemarkTest extends PostReplyTest {
 					method: 'post',
 					path: '/posts',
 					data: {
-						streamId: this.stream.id,
+						streamId: this.teamStream.id,
 						parentPostId: this.postData[0].post.id,
 						codemark: codemarkData
 					},

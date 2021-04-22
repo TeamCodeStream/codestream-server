@@ -38,13 +38,24 @@ class CorrectSortOrderTest extends GetStreamsTest {
 	// create some posts in some of the streams to rearrange their sort order, since streams are fetched by 
 	// most recent post first
 	createPosts (callback) {
+		// since we can now only create posts in the team stream, this test really just
+		// becomes about making sure the team stream is first if we post in it
 		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
 			return stream.memberIds.includes(this.currentUser.user.id);
 		});
-		this.expectedStreams.push(this.teamStream);
+		//this.expectedStreams.push(this.teamStream);
 		this.expectedStreams.sort((a, b) => {	// sort by ID, which is the default sort order when there are no posts 
 			return a.id.localeCompare(b.id);
 		});
+		this.updatedAt = Date.now();
+		this.createPostForStream(this.teamStream, error => {
+			if (error) { return callback(error); }
+			this.expectedStreams.push(this.teamStream);
+			this.expectedStreams.reverse();
+			callback();
+		});
+
+		/*
 		const streamsWithPost = [];
 		// for these streams, and in this order, we'll create a post, which changes its sort order
 		// we expect to get the streams back in the appropriate order
@@ -63,6 +74,7 @@ class CorrectSortOrderTest extends GetStreamsTest {
 			this.createPostForStream,
 			callback
 		);
+		*/
 	}
 
 	// create a post in the given stream
@@ -95,7 +107,7 @@ class CorrectSortOrderTest extends GetStreamsTest {
 		for (let i = 0; i < data.streams.length; i++) {
 			const stream = data.streams[i];
 			const expectedStream = this.expectedStreams[i];
-			if (stream.version === 2) {
+			if (stream.isTeamStream /*stream.version === 2*/) {
 				Assert(stream.modifiedAt >= this.updatedAt, 'modifiedAt not changed for stream with post');
 				expectedStream.modifiedAt = stream.modifiedAt;
 			}

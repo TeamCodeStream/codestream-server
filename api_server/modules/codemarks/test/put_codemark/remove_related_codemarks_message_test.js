@@ -14,7 +14,8 @@ class RemoveRelatedCodemarksMessageTest extends Aggregation(CodeStreamMessageTes
 	}
 
 	get description () {
-		return `members of the team or stream should receive a message with the codemark and updates to related codemarks when a codemark is updated in a ${this.streamType} stream, and related codemarks are removed`;
+		const type = this.streamType || 'team';
+		return `members of the team or stream should receive a message with the codemark and updates to related codemarks when a codemark is updated in a ${type} stream, and related codemarks are removed`;
 	}
 
 	// make the data that triggers the message to be received
@@ -91,13 +92,21 @@ class RemoveRelatedCodemarksMessageTest extends Aggregation(CodeStreamMessageTes
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
+		// since posting to a stream other than the team stream is no longer allowed,
+		// just listen on the team channel
+		this.channelName = `team-${this.team.id}`;
+
+		/*
 		// for channels and directs the message comes on the stream channel
 		if (this.goPostless || this.stream.isTeamStream) {
 			this.channelName = `team-${this.team.id}`;
 		}
 		else {
-			this.channelName = `stream-${this.stream.id}`;
+			throw 'stream channels are deprecated';
+			//this.channelName = `stream-${this.stream.id}`;
 		}
+		*/
+
 		callback();
 	}
 

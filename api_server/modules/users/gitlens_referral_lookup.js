@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const GitLensUserIndexes = require('./gitlens_user_indexes');
 const Crypto = require('crypto');

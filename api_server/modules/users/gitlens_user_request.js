@@ -34,13 +34,13 @@ class GitLensUserRequest extends RestfulRequest {
 		);
 
 		if (this.request.body.emailHashes.length > 50) {
-			throw this.errorHandler.error('invalidParameter', { reason: 'cannot send more than 50 email hashes'})
+			throw this.errorHandler.error('invalidParameter', { reason: 'cannot send more than 50 email hashes'});
 		}
 		if (this.request.body.emailHashes.find(hash => hash.length > 200)) {
 			throw this.errorHandler.error('invalidParameter', { reason: 'email hash must be less than 200 characters'});
 		}
 		if (this.request.body.machineIdHash && this.request.body.machineIdHash.length > 200) {
-			throw this.errorHandler.error('invalidParameter', { reason: 'machineIdHash must be less than 200 characters'})
+			throw this.errorHandler.error('invalidParameter', { reason: 'machineIdHash must be less than 200 characters'});
 		} 
 	}
 

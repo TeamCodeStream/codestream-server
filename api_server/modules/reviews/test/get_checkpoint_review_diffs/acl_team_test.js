@@ -11,7 +11,7 @@ class ACLTeamTest extends GetCheckpointReviewDiffsTest {
 	}
 
 	get description () {
-		return `should return an error when trying to fetch checkpoint diffs for a review from a ${this.type} stream from a team that i'm not a member of`;
+		return 'should return an error when trying to fetch checkpoint diffs for a review from a team that i\'m not a member of';
 	}
 
 	getExpectedError () {

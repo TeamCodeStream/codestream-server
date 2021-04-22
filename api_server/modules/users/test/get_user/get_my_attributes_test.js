@@ -10,7 +10,7 @@ class GetMyAttributesTest extends GetMyselfTest {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
 		this.teamOptions.numAdditionalInvites = 2;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = 1;
 		this.postOptions.wantMarker = true;
 		this.id = 'me';	// this will be the "ID" of the user to fetch
@@ -29,7 +29,7 @@ class GetMyAttributesTest extends GetMyselfTest {
 
 	validateResponse (data) {
 		// verfiy we got a lastReads object, with an entry for the stream
-		Assert(data.user.lastReads[this.stream.id] === 0, 'lastReads should be 0');
+		Assert(data.user.lastReads[this.teamStream.id] === 0, 'lastReads should be 0');
 		super.validateResponse(data);
 	}
 

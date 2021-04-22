@@ -184,7 +184,7 @@ class CodemarkRenderer extends RendererBase {
 	// render the codemark attachments, as needed
 	renderAttachmentsDiv (options) {
 		const { post } = options;
-		if ((post.files || []).length === 0) return;
+		if ((post.files || []).length === 0) return '';
 
 		const iconHtml = Utils.renderIcon('paperclip');
 		let html = `

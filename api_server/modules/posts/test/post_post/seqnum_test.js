@@ -38,7 +38,7 @@ class SeqNumTest extends PostPostTest {
 				callback();
 			},
 			{
-				streamId: this.stream.id,
+				streamId: this.teamStream.id,
 				token: this.token
 			}
 		);
@@ -51,7 +51,7 @@ class SeqNumTest extends PostPostTest {
 			Assert(this.additionalPosts[i].seqNum === i + 1, 'additional post ' + i + ' does not have correct sequence number');
 		}
 		this.expectedSeqNum = this.additionalPosts.length + 1;
-		this.expectedVersion += 5;
+		this.expectedStreamVersion += 5;
 		super.validateResponse(data);
 	}
 }

@@ -12,9 +12,11 @@ class CommonInit {
 		this.expectedVersion = 3;
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 3;
+		/*
 		this.streamOptions.creatorIndex = 1;
 		this.streamOptions.type = this.streamType || 'channel';
 		this.streamOptions.isTeamStream = this.isTeamStream || false;
+		*/
 		this.repoOptions.creatorIndex = 1;
 
 		BoundAsync.series(this, [
@@ -39,7 +41,7 @@ class CommonInit {
 				numChanges: 2,
 				changesetRepoId: this.repo.id,
 				wantMarkers: 2,
-				streamId: this.stream.id
+				streamId: this.teamStream.id
 			}
 		);
 
@@ -70,7 +72,7 @@ class CommonInit {
 	// close the review, either approving or rejecting as needed
 	closeReview (callback) {
 		const currentUserHasAcl = this.team.memberIds.includes(this.currentUser.user.id) &&
-			(!this.stream || !this.stream.memberIds || this.stream.memberIds.includes(this.currentUser.user.id));
+			(!this.teamStream || !this.teamStream.memberIds || this.teamStream.memberIds.includes(this.currentUser.user.id));
 		this.closingUser = currentUserHasAcl ? this.currentUser : this.users[1];
 		const which = this.rejectToClose ? 'reject' : 'approve';
 		this.doApiRequest(

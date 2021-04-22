@@ -61,7 +61,7 @@ class PaginationTest extends GetPostsTest {
 
 	// page a single page of posts
 	fetchPage (pageNum, callback) {
-		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}`;
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}`;
 		if (this.tryOverLimit) {
 			// we should get limited to maxPostsPerRequest
 			let limit = this.apiConfig.apiServer.limits.maxPostsPerRequest * 2;

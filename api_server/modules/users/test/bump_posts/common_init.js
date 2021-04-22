@@ -9,7 +9,7 @@ class CommonInit {
 
 	init (callback) {
 		this.teamOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		this.postOptions.numPosts = 3;
 		this.numAuthoredPosts = 2;
 		this.postOptions.creatorIndex = [1, 0, 0];

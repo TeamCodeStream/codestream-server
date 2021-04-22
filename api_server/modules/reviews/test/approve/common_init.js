@@ -11,9 +11,11 @@ class CommonInit {
 	init (callback) {
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 3;
+		/*
 		this.streamOptions.creatorIndex = 1;
 		this.streamOptions.type = this.streamType || 'channel';
 		this.streamOptions.isTeamStream = this.isTeamStream || false;
+		*/
 		this.repoOptions.creatorIndex = 1;
 
 		BoundAsync.series(this, [
@@ -37,7 +39,7 @@ class CommonInit {
 				numChanges: 2,
 				changesetRepoId: this.repo.id,
 				wantMarkers: 2,
-				streamId: this.stream.id
+				streamId: this.teamStream.id
 			}
 		);
 

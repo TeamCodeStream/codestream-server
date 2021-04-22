@@ -3,7 +3,7 @@
 
 'use strict';
 
-const LicenseManager = require("../../../shared/server_utils/LicenseManager");
+const LicenseManager = require('../../../shared/server_utils/LicenseManager');
 
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 

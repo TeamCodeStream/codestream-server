@@ -55,7 +55,7 @@ class TeamSubscriptionGranter  {
 				this.tokens,
 				channel,
 				{
-					includePresence: true,
+					//includePresence: true,
 					request: this.request
 				}
 			);

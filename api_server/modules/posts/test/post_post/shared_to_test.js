@@ -1,11 +1,11 @@
 'use strict';
 
-const PostToChannelTest = require('./post_to_channel_test');
+const PostPostTest = require('./post_post_test');
 const Assert = require('assert');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const RandomString = require('randomstring');
 
-class SharedToTest extends PostToChannelTest {
+class SharedToTest extends PostPostTest {
 
 	get description () {
 		return 'should return sharedTo in returned post when creating a post with sharedTo indicating third-party providers with whom this post has been shared';
@@ -23,7 +23,7 @@ class SharedToTest extends PostToChannelTest {
 					channelId: RandomString.generate(10),
 					channelName: RandomString.generate(10),
 					postId: RandomString.generate(10)
- 				},
+				},
 				{
 					createdAt: Date.now(),
 					providerId: 'msteams',
@@ -33,7 +33,7 @@ class SharedToTest extends PostToChannelTest {
 					channelName: RandomString.generate(10),
 					postId: RandomString.generate(10)
 				}
-			]
+			];
 			this.data.sharedTo = DeepClone(this.sharedTo);
 			callback();
 		});

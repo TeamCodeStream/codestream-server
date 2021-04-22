@@ -18,7 +18,7 @@ class NonFileStreamTest extends PutMarkerLocationsTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.streamId = this.stream.id;
+			this.data.streamId = this.teamStream.id;
 			callback();
 		});
 	}

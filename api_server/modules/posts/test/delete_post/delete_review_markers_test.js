@@ -17,7 +17,7 @@ class DeleteReviewMarkersTest extends DeleteReviewTest {
 				wantReview: true,
 				wantMarkers: 3,
 				numChanges: 2
-			})
+			});
 			callback();
 		});
 	}

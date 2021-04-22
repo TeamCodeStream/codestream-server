@@ -22,6 +22,7 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 2;
+		/*
 		this.streamOptions.creatorIndex = 1;
 		if (this.streamType === 'team stream') {
 			Object.assign(this.streamOptions, {
@@ -32,6 +33,7 @@ class CommonInit {
 		else {
 			this.streamOptions.type = this.streamType || 'channel';
 		}
+		*/
 		this.postOptions.creatorIndex = 0;
 		callback();
 	}

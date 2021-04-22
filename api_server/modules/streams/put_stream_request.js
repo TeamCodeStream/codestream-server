@@ -4,7 +4,7 @@
 
 const PutRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/put_request');
 const StreamPublisher = require('./stream_publisher');
-const StreamSubscriptionGranter = require('./stream_subscription_granter');
+//const StreamSubscriptionGranter = require('./stream_subscription_granter');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 class PutStreamRequest extends PutRequest {
@@ -16,7 +16,7 @@ class PutStreamRequest extends PutRequest {
 		if (!stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream' });
 		}
-        
+
 		// currently, only channel streams can even be updated
 		if (stream.get('type') !== 'channel') {
 			throw this.errorHandler.error('updateAuth', { reason: 'only channel streams can be updated' });
@@ -63,7 +63,10 @@ class PutStreamRequest extends PutRequest {
 	}
 
 	// grant or revoke permission for any new or removed members to subscribe to the stream channel
-	async setUserMessagingPermissions (members, revoke = false) {
+	async setUserMessagingPermissions (/*members, revoke = false*/) {
+		return; // stream channels are now deprecated
+
+		/*
 		const granterOptions = {
 			data: this.data,
 			broadcaster: this.api.services.broadcaster,
@@ -78,6 +81,7 @@ class PutStreamRequest extends PutRequest {
 		catch (error) {
 			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
+		*/
 	}
 	
 	// publish the stream to the appropriate broadcaster channel

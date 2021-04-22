@@ -6,6 +6,12 @@ const Assert = require('assert');
 
 class ReviewSecondReplyTest extends PostReplyTest {
 
+	constructor (options) {
+		super(options);
+		this.expectedSeqNum = 3;
+		this.expectedStreamVersion = 4;
+	}
+	
 	get description () {
 		return 'parent post and review should get numReplies incremented when a second reply is created for that post';
 	}
@@ -36,7 +42,7 @@ class ReviewSecondReplyTest extends PostReplyTest {
 		this.postFactory.createRandomPost(
 			callback,
 			{
-				streamId: this.stream.id,
+				streamId: this.teamStream.id,
 				token: this.users[1].accessToken,
 				parentPostId: this.postData[0].post.id
 			}

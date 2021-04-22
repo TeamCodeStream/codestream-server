@@ -18,6 +18,7 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
+		/*
 		this.streamOptions.creatorIndex = 1;
 		this.streamOptions.type = this.type || 'channel';
 		if (this.isTeamStream) {
@@ -29,6 +30,7 @@ class CommonInit {
 		if (this.type === 'file') {
 			this.repoOptions.creatorIndex = 1;
 		}
+		*/
 		callback();
 	}
 
@@ -54,7 +56,7 @@ class CommonInit {
 
 	// make the data to be used in the request that triggers the message
 	makePostData (callback) {
-		const toEmail = `${this.stream.id}.${this.team.id}@${this.apiConfig.email.replyToDomain}`;
+		const toEmail = `${this.teamStream.id}.${this.team.id}@${this.apiConfig.email.replyToDomain}`;
 		this.data = {
 			to: [{ address: toEmail }],
 			from: { address: this.users[1].user.email },

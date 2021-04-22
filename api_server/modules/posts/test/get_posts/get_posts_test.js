@@ -8,12 +8,16 @@ class GetPostsTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.type = this.type || 'channel';
 		this.teamOptions.creatorIndex = 1;
+		// posting to channels other than the team stream is no longer supported,
+		// so disable any possibility of posting elsewhere
+		/*
+		this.type = this.type || 'channel';
 		Object.assign(this.streamOptions, {
 			creatorIndex: 1,
 			type: this.type
 		});
+		*/
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
 			numPosts: 5
@@ -21,7 +25,8 @@ class GetPostsTest extends CodeStreamAPITest {
 	}
 
 	get description () {
-		return `should return the correct posts when requesting posts in a ${this.type} stream`;
+		const type = this.type || 'team';
+		return `should return the correct posts when requesting posts in a ${type} stream`;
 	}
 
 	// before the test runs...
@@ -34,7 +39,7 @@ class GetPostsTest extends CodeStreamAPITest {
 
 	// set the path to use for the fetch request
 	setPath (callback) {
-		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}`;
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}`;
 		this.expectedPosts = this.postData.map(postData => postData.post);
 		callback();
 	}

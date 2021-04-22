@@ -36,7 +36,7 @@ class MessageToAuthorTest extends NewPostMessageToChannelTest {
 						lastPostCreatedAt: this.timeBeforePost
 					},	// this is a placeholder, it should be some time greater than this
 					$unset: {
-						[`lastReads.${this.stream.id}`]: true
+						[`lastReads.${this.teamStream.id}`]: true
 					},
 					$version: {
 						before: 5,

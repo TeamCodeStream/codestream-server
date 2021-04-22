@@ -14,7 +14,7 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	get description () {
-		return `should create and return a post when an inbound email call is made for a ${this.type} stream`;
+		return 'should create and return a post when an inbound email call is made for the team stream';
 	}
 
 	get method () {
@@ -43,7 +43,7 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((post.id === post._id) || errors.push('id not set to _id')) && 	// DEPCREATE ME
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team.id) || errors.push('teamId does not match the team')) &&
-			((post.streamId === this.stream.id) || errors.push('streamId does not match')) &&
+			((post.streamId === this.teamStream.id) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&

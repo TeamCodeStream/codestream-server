@@ -1,5 +1,12 @@
 # Change Log
 
+## [8.2.34] - 2021-4-22
+
+### Fixed
+
+- Fixes an issue with "undefined" appearing in some notification emails
+- Fixes an issue with weekly activity emails going out when there was no activity
+
 ## [8.2.33] - 2021-4-6
 
 ### Changed

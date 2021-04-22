@@ -38,7 +38,7 @@ class GetReviewsByLastActivityTest extends GetReviewsWithMarkersTest {
 				path: '/posts',
 				data: {
 					parentPostId: this.expectedReviews[nReview].postId,
-					streamId: this.stream.id,
+					streamId: this.teamStream.id,
 					text: RandomString.generate(50)
 				},
 				token: this.users[1].accessToken

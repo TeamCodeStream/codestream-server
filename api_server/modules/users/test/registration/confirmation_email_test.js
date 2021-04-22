@@ -25,7 +25,8 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		this.data._subscriptionCheat = this.apiConfig.sharedSecrets.subscriptionCheat;	// allow client to subscribe to their me-channel, even though not registered yet
 		this.data._delayEmail = this.usingSocketCluster ? 1000 : (this.mockMode ? 300 : 8000);	// delay the sending of the email, so we can start subscribing to the me-channel before the email is sent
 		if (this.wantLink) {
-			this.data.wantLink = true;
+			throw 'wantLink is deprecated';
+			//this.data.wantLink = true;
 		}
 		// register a random user
 		this.doApiRequest(

@@ -42,11 +42,8 @@ describe('inbound emails', function() {
 
 	this.timeout(20000);
 
-	new InboundEmailTest({ type: 'channel' }).test();
-	new InboundEmailTest({ type: 'direct' }).test();
-	new InboundEmailMessageTest({ type: 'channel' }).test();
-	new InboundEmailMessageTest({ type: 'direct' }).test();
-	new InboundEmailMessageTest({ type: 'channel', isTeamStream: true }).test();
+	new InboundEmailTest().test();
+	new InboundEmailMessageTest().test();
 	new ACLTest().test();
 	new MissingParameterTest({ parameter: 'to' }).test();
 	new MissingParameterTest({ parameter: 'from' }).test();
@@ -63,29 +60,22 @@ describe('inbound emails', function() {
 	new StreamNotFoundTest().test();
 	new StreamNoMatchTeamTest().test();
 	new OriginatorNotInTeamTest().test();
-	new TrackingTest({ type: 'channel', makePublic: true }).test();
-	new TrackingReplyToReviewTest({ type: 'channel', makePublic: true }).test();
-	new TrackingCodemarkReplyToReviewTest({ type: 'channel', makePublic: true }).test();
-	new TrackingReplyToReviewReplyTest({ type: 'channel', makePublic: true }).test();
+	new TrackingTest().test();
+	new TrackingReplyToReviewTest().test();
+	new TrackingCodemarkReplyToReviewTest().test();
+	new TrackingReplyToReviewReplyTest().test();
 	new NoTrackingTest().test(); 
-	new CodemarkReplyTest({ type: 'channel' }).test();
-	new CodemarkReplyTest({ type: 'direct' }).test();
-	new CodemarkReplyTest({ type: 'channel', isTeamStream: true }).test();
-	new CodemarkReplyMessageTest({ type: 'channel' }).test();
-	new CodemarkReplyMessageTest({ type: 'direct' }).test();
-	new CodemarkReplyMessageTest({ type: 'channel', isTeamStream: true }).test();
+	new CodemarkReplyTest().test();
+	new CodemarkReplyMessageTest().test();
 	new InvalidCodemarkIdTest().test();
 	new CodemarkNotFoundTest().test();
 	new CodemarkNoMatchTeamTest().test();
 	new CodemarkNoMatchStreamTest().test();
-	new ReviewReplyTest({ type: 'channel' }).test();
-	new ReviewReplyTest({ type: 'direct' }).test();
-	new ReviewReplyTest({ type: 'channel', isTeamStream: true }).test();
-	new ReviewReplyMessageTest({ type: 'channel' }).test();
-	new ReviewReplyMessageTest({ type: 'direct' }).test();
-	new ReviewReplyMessageTest({ type: 'channel', isTeamStream: true }).test();
+	new ReviewReplyTest().test();
+	new ReviewReplyMessageTest().test();
 	new InvalidReviewIdTest().test();
 	new ReviewNotFoundTest().test();
 	new ReviewNoMatchTeamTest().test();
 	new ReviewNoMatchStreamTest().test();
+
 });

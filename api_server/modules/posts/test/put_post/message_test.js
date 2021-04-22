@@ -17,13 +17,21 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
+		// since posting to a stream other than the team stream is no longer allowed, 
+		// always expect on the team channel
+		this.channelName = `team-${this.team.id}`;
+
+		/*
 		// for channels and directs the message comes on the stream channel
 		if (this.stream.type === 'file' || this.stream.isTeamStream) {
 			this.channelName = `team-${this.team.id}`;
 		}
 		else {
-			this.channelName = `stream-${this.stream.id}`;
+			throw 'stream channels are deprecated';
+			//this.channelName = `stream-${this.stream.id}`;
 		}
+		*/
+		
 		callback();
 	}
 

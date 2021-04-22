@@ -7,7 +7,8 @@ const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 class CodemarkMessageTest extends Aggregation(MessageTest, DeleteCodemarkTest) {
 
 	get description () {
-		return `members of the team or stream should receive a message with the deactivated post and codemark when a post with a codemark is deleted in a ${this.streamType} stream`;
+		const type = this.streamType || 'team';
+		return `members of the team or stream should receive a message with the deactivated post and codemark when a post with a codemark is deleted in a ${type} stream`;
 	}
 }
 

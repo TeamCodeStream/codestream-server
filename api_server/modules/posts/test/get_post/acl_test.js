@@ -6,7 +6,7 @@ class ACLTest extends GetPostTest {
 
 	constructor (options) {
 		super(options);
-		this.streamOptions.members = [];
+		this.teamOptions.members = [];
 	}
 
 	get description () {

@@ -9,7 +9,7 @@ class GetReposTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.streamOptions.creatorIndex = 0;
+		//this.streamOptions.creatorIndex = 0;
 		Object.assign(this.postOptions, {
 			creatorIndex: [0, 1, 1],
 			numPosts: 3,

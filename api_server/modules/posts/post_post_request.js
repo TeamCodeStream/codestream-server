@@ -12,9 +12,13 @@ class PostPostRequest extends PostRequest {
 		if (!streamId) {
 			return this.errorHandler.error('parameterRequired', { info: 'streamId' });
 		}
-		const authorized = await this.user.authorizeStream(streamId.toLowerCase(), this);
-		if (!authorized) {
+		const stream = await this.user.authorizeStream(streamId.toLowerCase(), this);
+		if (!stream) {
 			throw this.errorHandler.error('createAuth');
+		}
+
+		if (!stream.get('isTeamStream')) {
+			throw 'stream channels are deprecated';
 		}
 	}
 

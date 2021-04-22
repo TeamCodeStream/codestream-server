@@ -2,22 +2,23 @@
 
 'use strict';
 
-const PostToChannelTest = require('./post_to_channel_test');
-const PostToDirectTest = require('./post_to_direct_test');
-const PostToFileStreamTest = require('./post_to_file_stream_test');
+const PostPostTest = require('./post_post_test');
+//const PostToChannelTest = require('./post_to_channel_test');
+//const PostToDirectTest = require('./post_to_direct_test');
+//const PostToFileStreamTest = require('./post_to_file_stream_test');
 const PostReplyTest = require('./post_reply_test');
 const NoStreamIdTest = require('./no_stream_id_test');
 const InvalidStreamIdTest = require('./invalid_stream_id_test');
 const DuplicateFileStreamTest = require('./codemarks/duplicate_file_stream_test');
-const ACLTeamTest = require('./acl_team_test');
-const ACLStreamTest = require('./acl_stream_test');
+//const ACLTeamTest = require('./acl_team_test');
+//const ACLStreamTest = require('./acl_stream_test');
 const NewPostMessageToTeamStreamTest = require('./new_post_message_to_team_stream_test');
-const NewPostMessageToChannelTest = require('./new_post_message_to_channel_test');
-const NewPostMessageToDirectTest = require('./new_post_message_to_direct_test');
-const NewPostNoMessageToChannelTest = require('./new_post_no_message_to_channel_test');
-const NewPostNoMessageToDirectTest = require('./new_post_no_message_to_direct_test');
-const NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
-const NewMarkerStreamMessageToTeamTest = require('./new_marker_stream_message_to_team_test');
+//const NewPostMessageToChannelTest = require('./new_post_message_to_channel_test');
+//const NewPostMessageToDirectTest = require('./new_post_message_to_direct_test');
+//const NewPostNoMessageToChannelTest = require('./new_post_no_message_to_channel_test');
+//const NewPostNoMessageToDirectTest = require('./new_post_no_message_to_direct_test');
+//const NewFileStreamMessageToTeamTest = require('./new_file_stream_message_to_team_test');
+//const NewMarkerStreamMessageToTeamTest = require('./new_marker_stream_message_to_team_test');
 const MostRecentPostTest = require('./most_recent_post_test');
 const LastReadsNoneTest = require('./last_reads_none_test');
 const NoLastReadsForAuthorTest = require('./no_last_reads_for_author_test');
@@ -72,7 +73,7 @@ const UpdateMatchedRepoWithRemotesTest = require('./codemarks/update_matched_rep
 const UpdateSetRepoWithRemotesTest = require('./codemarks/update_set_repo_with_remotes_test');
 const CreateRepoOnTheFlyTest = require('./codemarks/create_repo_on_the_fly_test');
 const CreateRepoOnTheFlyWithCommitHashesTest = require('./codemarks/create_repo_on_the_fly_with_commit_hashes_test');
-const NewRepoMessageToTeamTest = require('./codemarks/new_repo_message_to_team_test');
+//const NewRepoMessageToTeamTest = require('./codemarks/new_repo_message_to_team_test');
 const UpdatedSetRepoMessageTest = require('./codemarks/updated_set_repo_message_test');
 const UpdatedMatchedRepoMessageTest = require('./codemarks/updated_matched_repo_message_test');
 const CodemarkNumRepliesTest = require('./codemarks/codemark_num_replies_test');
@@ -135,12 +136,12 @@ const NoFollowDirectStreamByPreferenceTest = require('./codemarks/no_follow_dire
 const NoFollowMentionByPreferenceTest = require('./codemarks/no_follow_mention_by_preference_test');
 const NoFollowRepliesByPreferenceTest = require('./codemarks/no_follow_replies_by_preference_test');
 const AttachToReviewTest = require('./codemarks/attach_to_review_test');
-const ReviewACLTest = require('./codemarks/review_acl_test');
+//const ReviewACLTest = require('./codemarks/review_acl_test');
 const ReviewACLTeamTest = require('./codemarks/review_acl_team_test');
 const ReviewOnDifferentTeamTest = require('./codemarks/review_on_different_team_test');
 const ChangeRequestTest = require('./codemarks/change_request_test');
 const NewUsersOnTheFlyTest = require('./codemarks/new_users_on_the_fly_test');
-const NewUsersMustBeInTeamStreamTest = require('./codemarks/new_users_must_be_in_team_stream_test');
+//const NewUsersMustBeInTeamStreamTest = require('./codemarks/new_users_must_be_in_team_stream_test');
 const InvalidEmailTest = require('./codemarks/invalid_email_test');
 const EmptyEmailTest = require('./codemarks/empty_email_test');
 const NewUserUnregisteredTest = require('./codemarks/new_user_unregistered_test');
@@ -167,8 +168,8 @@ const ReviewMarkerHasInvalidRepoIdTest = require('./reviews/review_marker_has_in
 const ReviewMarkerFromDifferentTeamTest = require('./reviews/review_marker_from_different_team_test');
 const ReviewNumMarkersTest = require('./reviews/review_num_markers_test');
 const ReviewMarkerStreamOnTheFlyTest = require('./reviews/review_marker_stream_on_the_fly_test');
-const ReviewCreateRepoOnTheFlyTest = require('./reviews/review_create_repo_on_the_fly_test');
-const ReviewNewRepoMessageToTeamTest = require('./reviews/review_new_repo_message_to_team_test');
+//const ReviewCreateRepoOnTheFlyTest = require('./reviews/review_create_repo_on_the_fly_test');
+//const ReviewNewRepoMessageToTeamTest = require('./reviews/review_new_repo_message_to_team_test');
 const ReviewUpdatedSetRepoMessageTest = require('./reviews/review_updated_set_repo_message_test');
 const ReviewNumRepliesTest = require('./reviews/review_num_replies_test');
 const ReviewSecondReplyTest = require('./reviews/review_second_reply_test');
@@ -221,36 +222,46 @@ const EntryPointTest = require('./reviews/entry_point_test');
 class PostPostRequestTester {
 
 	postPostTest () {
-		new PostToChannelTest().test();
-		new PostToDirectTest().test();
-		new PostToFileStreamTest().test();	
+		new PostPostTest().test();
+		// NOTE - posting to streams other than the team stream is no longer supported
+		//new PostToChannelTest().test();
+		//new PostToDirectTest().test();
+		//new PostToFileStreamTest().test();	
 		new PostReplyTest().test();
 		new NoStreamIdTest().test();
 		new InvalidStreamIdTest().test();
 		new DuplicateFileStreamTest().test();
-		new ACLStreamTest().test();
-		new ACLTeamTest().test();
+		//new ACLStreamTest().test();
+		//new ACLTeamTest().test();
 		new NewPostMessageToTeamStreamTest().test();
-		new NewPostMessageToChannelTest().test();
-		new NewPostMessageToDirectTest().test();
-		new NewPostNoMessageToChannelTest().test();
-		new NewPostNoMessageToDirectTest().test();
-		new NewFileStreamMessageToTeamTest().test();
-		new NewMarkerStreamMessageToTeamTest().test();
+		// NOTE - posting to streams other than the team stream is no longer supported
+		//new NewPostMessageToChannelTest().test();
+		//new NewPostMessageToDirectTest().test();
+		//new NewPostNoMessageToChannelTest().test();
+		//new NewPostNoMessageToDirectTest().test();
+		//new NewFileStreamMessageToTeamTest().test();
+		//new NewMarkerStreamMessageToTeamTest().test();
 		new MostRecentPostTest().test();
-		new LastReadsNoneTest({ type: 'direct' }).test();
-		new LastReadsNoneTest({ type: 'channel' }).test();
+		new LastReadsNoneTest().test();
+		// NOTE - posting to streams other than the team stream is no longer supported
+		//new LastReadsNoneTest({ type: 'direct' }).test();
+		//new LastReadsNoneTest({ type: 'channel' }).test();
 		new NoLastReadsForAuthorTest().test();
-		new LastReadsPreviousPostTest({ type: 'direct' }).test();
-		new LastReadsPreviousPostTest({ type: 'channel' }).test();
+		new LastReadsPreviousPostTest().test();
+		// NOTE - posting to streams other than the team stream is no longer supported
+		//new LastReadsPreviousPostTest({ type: 'direct' }).test();
+		//new LastReadsPreviousPostTest({ type: 'channel' }).test();
 		new NoLastReadsUpdateTest().test();
 		new SeqNumTest().test();
 		new NumRepliesTest().test();
 		new SecondReplyTest().test();
-		new NumRepliesMessageToStreamTest({ type: 'direct' }).test();
-		new NumRepliesMessageToStreamTest({ type: 'channel' }).test();
-		new NumRepliesToCodemarkMessageTest({ type: 'direct' }).test();
-		new NumRepliesToCodemarkMessageTest({ type: 'channel' }).test();
+		new NumRepliesMessageToStreamTest().test();
+		new NumRepliesToCodemarkMessageTest().test();
+		// NOTE - posting to streams other than the team stream is no longer supported
+		//new NumRepliesMessageToStreamTest({ type: 'direct' }).test();
+		//new NumRepliesMessageToStreamTest({ type: 'channel' }).test();
+		//new NumRepliesToCodemarkMessageTest({ type: 'direct' }).test();
+		//new NumRepliesToCodemarkMessageTest({ type: 'channel' }).test();
 		new MentionTest().test();
 		new UnregisteredMentionTest().test();
 		new MessageToAuthorTest().test();
@@ -291,8 +302,10 @@ class PostPostRequestTester {
 		new MarkerForBadStreamTypeTest({ streamType: 'channel' }).test();
 		new MarkerFromDifferentTeamTest().test();
 		new NumMarkersTest().test();
-		new MarkerStreamOnTheFly({ streamType: 'direct' }).test();
-		new MarkerStreamOnTheFly({ streamType: 'channel' }).test();
+		new MarkerStreamOnTheFly().test();
+		// NOTE - posting to streams that are not the team stream is no longer allowed
+		//new MarkerStreamOnTheFly({ streamType: 'direct' }).test();
+		//new MarkerStreamOnTheFly({ streamType: 'channel' }).test();
 		new FindRepoByRemotesTest().test();
 		new FindRepoByKnownCommitHashesTest().test();
 		new FindRepoByCommitHashTest().test();
@@ -300,7 +313,7 @@ class PostPostRequestTester {
 		new UpdateSetRepoWithRemotesTest().test();
 		new CreateRepoOnTheFlyTest().test();
 		new CreateRepoOnTheFlyWithCommitHashesTest().test();
-		new NewRepoMessageToTeamTest().test();
+		//new NewRepoMessageToTeamTest().test(); // deprecated because posting to private streams is no longer allowed
 		new UpdatedSetRepoMessageTest().test();
 		new UpdatedMatchedRepoMessageTest().test();
 		new CodemarkNumRepliesTest().test();
@@ -371,13 +384,15 @@ class PostPostRequestTester {
 		new NoFollowMentionByPreferenceTest().test();
 		new NoFollowRepliesByPreferenceTest().test();
 		new AttachToReviewTest().test();
-		new ReviewACLTest().test();
+		//new ReviewACLTest().test();
 		new ReviewACLTeamTest().test();
 		new ReviewOnDifferentTeamTest().test();
 		new ChangeRequestTest().test();
 		new NewUsersOnTheFlyTest().test();
-		new NewUsersMustBeInTeamStreamTest({ streamType: 'channel' }).test();
-		new NewUsersMustBeInTeamStreamTest({ streamType: 'direct' }).test();
+		// NOTE - creating a post in a stream that is not the team stream is no longer allowed,
+		// so these tests are irrelevant
+		//new NewUsersMustBeInTeamStreamTest({ streamType: 'channel' }).test();
+		//new NewUsersMustBeInTeamStreamTest({ streamType: 'direct' }).test();
 		new InvalidEmailTest().test();
 		new EmptyEmailTest().test();
 		new NewUserUnregisteredTest().test();
@@ -405,10 +420,12 @@ class PostPostRequestTester {
 		new ReviewMarkerHasInvalidRepoIdTest().test();
 		new ReviewMarkerFromDifferentTeamTest().test();
 		new ReviewNumMarkersTest().test();
-		new ReviewMarkerStreamOnTheFlyTest({ streamType: 'channel' }).test();
-		new ReviewMarkerStreamOnTheFlyTest({ streamType: 'direct' }).test();
-		new ReviewCreateRepoOnTheFlyTest().test();
-		new ReviewNewRepoMessageToTeamTest().test();
+		new ReviewMarkerStreamOnTheFlyTest().test();
+		// NOTE - posting to a stream other than the team stream is no longer allowed
+		//new ReviewMarkerStreamOnTheFlyTest({ streamType: 'channel' }).test();
+		//new ReviewMarkerStreamOnTheFlyTest({ streamType: 'direct' }).test();
+		//new ReviewCreateRepoOnTheFlyTest().test();
+		//new ReviewNewRepoMessageToTeamTest().test(); // deprecated because posting to private streams is no longer allowed
 		new ReviewUpdatedSetRepoMessageTest().test();
 		new ReviewNumRepliesTest().test();
 		new ReviewSecondReplyTest().test();

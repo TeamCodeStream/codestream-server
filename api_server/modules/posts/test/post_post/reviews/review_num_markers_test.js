@@ -7,7 +7,7 @@ class ReviewNumMarkersTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
@@ -37,7 +37,7 @@ class ReviewNumMarkersTest extends CodeStreamAPITest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/streams/' + this.stream.id;
+			this.path = '/streams/' + this.teamStream.id;
 			callback();
 		});
 	}
@@ -45,7 +45,7 @@ class ReviewNumMarkersTest extends CodeStreamAPITest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// verify that numMarkers is equal to the total number of posts
-		Assert.equal(data.stream.numMarkers, this.postOptions.numPosts, 'numMarkers not incremented correctly');
+		Assert.strictEqual(data.stream.numMarkers, this.postOptions.numPosts + 1, 'numMarkers not incremented correctly');
 	}
 }
 

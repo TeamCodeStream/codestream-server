@@ -21,8 +21,9 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
+		/*
+		this.streamOptions.creatorIndex = 1;
 		if (this.streamType === 'team stream') {
 			Object.assign(this.streamOptions, {
 				type: 'channel',
@@ -32,6 +33,7 @@ class CommonInit {
 		else {
 			this.streamOptions.type = this.streamType || 'channel';
 		}
+		*/
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			wantReview: true,

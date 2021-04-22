@@ -19,10 +19,13 @@ class StreamDirectACLTest extends CodeStreamMessageACLTest {
 	}
 
 	// set the channel name to listen on
-	setChannelName (callback) {
+	setChannelName (/*callback*/) {
+		throw 'stream channels are deprecated';
+		/*
 		// listening on the stream channel for this stream
 		this.channelName = 'stream-' + this.stream.id;
 		callback();
+		*/
 	}
 }
 

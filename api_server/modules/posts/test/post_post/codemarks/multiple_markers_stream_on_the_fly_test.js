@@ -11,6 +11,7 @@ class MultipleMarkersStreamOnTheFlyTest extends MarkerStreamOnTheFlyTest {
 	setTestOptions(callback) {
 		super.setTestOptions(() => {
 			this.expectMarkers = 3;
+			this.expectStreamMarkers = 4;
 			callback();
 		});
 	}

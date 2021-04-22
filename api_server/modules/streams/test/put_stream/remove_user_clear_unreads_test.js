@@ -49,7 +49,7 @@ class RemoveUserClearUnreadsTest extends RemoveUserTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert.equal(typeof response.user.lastReads[this.stream.id], 'undefined', 'lastReads for the user was not deleted');
+				Assert.equal(typeof response.user.lastReads[this.teamStream.id], 'undefined', 'lastReads for the user was not deleted');
 				callback();
 			}
 		);

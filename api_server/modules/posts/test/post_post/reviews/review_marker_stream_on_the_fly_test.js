@@ -6,13 +6,14 @@ class ReviewMarkerStreamOnTheFlyTest extends ReviewMarkersTest {
 
 	constructor (options) {
 		super(options);
-		this.streamOptions.type = this.streamType || 'channel';
+		//this.streamOptions.type = this.streamType || 'channel';
 		this.streamOnTheFly = true;
 		this.repoOnTheFly = true;
 	}
 
 	get description () {
-		return `should return the post with marker info when creating a post and review in a ${this.streamType} stream with a marker where the file stream will be created on the fly`;
+		const type = this.streamType || 'team';
+		return `should return the post with marker info when creating a post and review in a ${type} stream with a marker where the file stream will be created on the fly`;
 	}
 	
 	// form the data we'll use in creating the post

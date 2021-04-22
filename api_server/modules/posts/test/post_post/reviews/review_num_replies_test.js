@@ -6,6 +6,12 @@ const Assert = require('assert');
 
 class ReviewNumRepliesTest extends PostReplyTest {
 
+	constructor (options) {
+		super(options);
+		this.expectedSeqNum = 3;
+		this.expectedStreamVersion = 4;
+	}
+
 	get description () {
 		return 'parent post\'s review should get its numReplies attribute incremented when a reply is created for a post with a review';
 	}

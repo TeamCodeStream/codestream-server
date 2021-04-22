@@ -5,7 +5,7 @@ const GitLensUserTest = require('./gitlens_user_test');
 class TooManyEmailHashesTest extends GitLensUserTest {
 
 	get description () {
-		return `should return an error when submitting a request to create a GitLens user with a too many email hashes`;
+		return 'should return an error when submitting a request to create a GitLens user with a too many email hashes';
 	}
 
 	getExpectedError () {

@@ -1,10 +1,10 @@
 'use strict';
 
-const PostToChannelTest = require('./post_to_channel_test');
+const PostPostTest = require('./post_post_test');
 const Assert = require('assert');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
-class AttachmentsTest extends PostToChannelTest {
+class AttachmentsTest extends PostPostTest {
 
 	get description () {
 		return 'should return files in returned post when creating a post with attached files';
@@ -26,7 +26,7 @@ class AttachmentsTest extends PostToChannelTest {
 					mimetype: 'image/jpeg',
 					size: 424011
 				}
-			]
+			];
 			this.data.files = DeepClone(this.attachedFiles);
 			callback();
 		});

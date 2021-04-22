@@ -7,7 +7,8 @@ const RemoveReviewerTest = require('./add_reviewer_test');
 class RemoveReviewerMessageTest extends Aggregation(MessageTest, RemoveReviewerTest) {
 
 	get description () {
-		return `members of the stream or team should receive a message with the review when a reviewer is removed from a ${this.streamType} stream`;
+		const type = this.streamType || 'team';
+		return `members of the stream or team should receive a message with the review when a reviewer is removed from a ${type} stream`;
 	}
 }
 

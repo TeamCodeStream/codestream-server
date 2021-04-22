@@ -24,7 +24,7 @@ class GetChildPostsTest extends GetPostsTest {
 		this.expectedPosts = this.postData
 			.map(postData => postData.post)
 			.filter(post => post.parentPostId === parentPostId);
-		this.path = `/posts?teamId=${this.team.id}&streamId=${this.stream.id}&parentPostId=${parentPostId}`;
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}&parentPostId=${parentPostId}`;
 		callback();
 	}
 }

@@ -17,7 +17,7 @@ class CommonInit {
 	
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		callback();
 	}
 
@@ -31,7 +31,7 @@ class CommonInit {
 				callback();
 			},
 			{
-				streamId: this.stream.id
+				streamId: this.teamStream.id
 			}
 		);
 	}

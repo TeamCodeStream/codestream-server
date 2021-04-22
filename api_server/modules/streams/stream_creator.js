@@ -4,7 +4,7 @@
 
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Stream = require('./stream');
-const StreamSubscriptionGranter = require('./stream_subscription_granter');
+//const StreamSubscriptionGranter = require('./stream_subscription_granter');
 const StreamTypes = require('./stream_types');
 const PrivacyTypes = require('./privacy_types');
 const Errors = require('./errors');
@@ -200,6 +200,7 @@ class StreamCreator extends ModelCreator {
 		});
 	}
 
+	/*
 	// after the stream has been saved
 	async postSave () {
 		// grant permission to the members of the stream to subscribe to the stream's broadcaster channel
@@ -225,6 +226,7 @@ class StreamCreator extends ModelCreator {
 			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
 	}
+	*/
 }
 
 module.exports = StreamCreator;

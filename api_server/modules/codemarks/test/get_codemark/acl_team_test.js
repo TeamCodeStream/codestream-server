@@ -11,7 +11,7 @@ class ACLTeamTest extends GetCodemarkTest {
 	}
 
 	get description () {
-		return `should return an error when trying to fetch an codemark from a ${this.type} stream from a team that i'm not a member of`;
+		return 'should return an error when trying to fetch an codemark from a team that i\'m not a member of';
 	}
 
 	getExpectedError () {

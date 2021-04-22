@@ -7,9 +7,8 @@ const CommonInit = require('./common_init');
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		const type = this.streamType === 'team stream' ? 'team' : this.streamType;
-		const on = this.streamType === 'team stream' ? 'team' : 'stream';
-		return `members of the ${on} should receive a message with the deactivated codemark when a codemark is deleted from a ${type} stream`;
+		const type = this.streamType || 'team';
+		return `members of the ${type} should receive a message with the deactivated codemark when a codemark is deleted from a ${type} stream`;
 	}
 
 	// make the data that triggers the message to be received
@@ -19,12 +18,20 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
+		// since posting to a stream other than the team stream is no longer allowed,
+		// just listen on the team channel
+		this.channelName = `team-${this.team.id}`;
+
+		/*
 		if (this.streamType === 'team stream') {
 			this.channelName = `team-${this.team.id}`;
 		}
 		else {
-			this.channelName = `stream-${this.stream.id}`;
+			throw 'stream channels are deprecated';
+			//this.channelName = `stream-${this.stream.id}`;
 		}
+		*/
+
 		callback();
 	}
 

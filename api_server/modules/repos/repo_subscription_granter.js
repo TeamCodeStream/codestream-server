@@ -39,7 +39,7 @@ class RepoSubscriptionGranter  {
 				this.tokens,
 				channel,
 				{
-					includePresence: true,	// we listen to "per-repo" presence
+					//includePresence: true,	// we listen to "per-repo" presence
 					request: this.request
 				}
 			);

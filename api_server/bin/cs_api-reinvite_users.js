@@ -86,7 +86,7 @@ class Reinviter {
 		this.aws = new AWS(this.config.queuingEngine.awsSQS);
 		this.sqsClient = new SQSClient({ aws: this.aws, logger: this.logger });
 
-		const queueName = this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName
+		const queueName = this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName;
 		await this.sqsClient.createQueue({
 			name: queueName,
 			logger: this.logger
@@ -167,7 +167,7 @@ class Reinviter {
 			userId: user.id,
 			...user.autoReinviteInfo
 		};
-		const queueName = this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName
+		const queueName = this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName;
 		await this.sqsClient.sendMessage(queueName, message);
 
 		// update the user indicating invite has been sent
@@ -227,18 +227,18 @@ class Reinviter {
 		const hour = now.getHours();
 
 		switch (day) {
-			case 0: // sunday
-			case 7: // saturday
-				return true;
+		case 0: // sunday
+		case 7: // saturday
+			return true;
 
-			case 1: // monday
-				return hour < 8;
+		case 1: // monday
+			return hour < 8;
 
-			case 6: // friday
-				return hour >= 18;
+		case 6: // friday
+			return hour >= 18;
 
-			default:
-				return false;
+		default:
+			return false;
 		}
 	}
 
