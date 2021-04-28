@@ -500,6 +500,10 @@ class BroadcasterServer {
 		const messageId = (typeof message === 'object' && message.messageId) || '???';
 		this.log(`Received message ${messageId} for channel ${channel}`, socket, requestId);
 
+		if (this.isServerSocket(socket)) {
+			socket.transmit('ack', message.messageId);
+		}
+
 		// pass the message on to clients listening to this channel
 		this.scServer.exchange.transmitPublish(channel, message);
 
