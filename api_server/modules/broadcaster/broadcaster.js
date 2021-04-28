@@ -58,6 +58,9 @@ class Broadcaster extends APIServerModule {
 			catch (error) {
 				const msg = error instanceof Error ? error.message : JSON.stringify(error);
 				this.api.warn(`Could not connect to SocketCluster: ${msg}`);
+				if (error instanceof Error) {
+					this.api.warn(error.stack);
+				}
 				throw error;
 			}
 		}, 5000, this.api, 'Unable to connect to SocketCluster, retrying...');

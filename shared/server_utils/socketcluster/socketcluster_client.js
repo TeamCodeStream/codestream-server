@@ -94,6 +94,7 @@ class SocketClusterClient {
 				delete this.socket;
 			}
 			if (!quiet) {
+				this.initing = false;
 				throw `Socketcluster authorization error: ${message}`;
 			}
 		}
