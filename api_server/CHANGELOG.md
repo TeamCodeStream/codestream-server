@@ -1,5 +1,12 @@
 # Change Log
 
+## [8.2.38] - 2021-4-28
+
+### Fixed 
+
+- Fixes an issue with the broadcaster connection
+- Fixes an issue with large change sets in a feedback request not being saved to the database
+
 ## [8.2.37] - 2021-4-22
 
 ### Changed 

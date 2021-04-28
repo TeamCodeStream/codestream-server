@@ -81,5 +81,10 @@ module.exports = {
 		code: 'RAPI-1014',
 		message: 'This object is already deleted',
 		description: 'An attempt was made to delete an object that has already been deleted'
+	},
+	'objectTooLarge': {
+		code: 'RAPI-1015',
+		message: 'The object is too large to store',
+		description: 'Indicates the object exceeds the storage limits for a single document (16MB for a mongo document)'
 	}
 };

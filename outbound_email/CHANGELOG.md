@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.35] - 2021-4-28
+
+### Changed
+
+- Improved copy in ivitations triggered by a proactive review of someone else's commit
+
 ## [8.2.34] - 2021-4-22
 
 ### Fixed

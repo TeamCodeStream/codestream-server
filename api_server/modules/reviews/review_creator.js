@@ -154,6 +154,12 @@ class ReviewCreator extends ModelCreator {
 		// pre-set createdAt and lastActivityAt attributes
 		this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
 		
+		// fallback check to make sure the total size of the review object won't 
+		// exceed the maximum limit set by mongo of 16MB
+		if (JSON.stringify(this.attributes).length >= 16000000) {
+			throw this.request.errorHandler.error('objectTooLarge');
+		}
+
 		// proceed with the save...
 		await super.preSave();
 
