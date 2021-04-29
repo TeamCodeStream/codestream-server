@@ -12,6 +12,7 @@ const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const ReviewHelper = require('./review_helper');
+const MarkerConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_constants');
 
 class ReviewCreator extends ModelCreator {
 
@@ -68,7 +69,7 @@ class ReviewCreator extends ModelCreator {
 			{
 				type: 'array(object)',
 				maxLength: ReviewAttributes.markerIds.maxLength,
-				maxObjectLength: 1000000
+				maxObjectLength: MarkerConstants.maxMarkerLength
 			}
 		);
 		if (result) {	// really an error

@@ -9,6 +9,7 @@ const MarkerCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modu
 const CodemarkAttributes = require('./codemark_attributes');
 const RepoMatcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_matcher');
 const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const MarkerConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_constants');
 
 class AddMarkersRequest extends RestfulRequest {
 
@@ -69,7 +70,7 @@ class AddMarkersRequest extends RestfulRequest {
 			{
 				type: 'array(object)',
 				maxLength: CodemarkAttributes.markerIds.maxLength,
-				maxObjectLength: 1000000
+				maxObjectLength: MarkerConstants.maxMarkerLength
 			}
 		);
 		if (result) {	// really an error
