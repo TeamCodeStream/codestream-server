@@ -68,7 +68,7 @@ class ReviewCreator extends ModelCreator {
 			{
 				type: 'array(object)',
 				maxLength: ReviewAttributes.markerIds.maxLength,
-				maxObjectLength: 100000
+				maxObjectLength: 1000000
 			}
 		);
 		if (result) {	// really an error
