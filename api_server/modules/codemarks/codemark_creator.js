@@ -11,6 +11,7 @@ const PermalinkCreator = require('./permalink_creator');
 const CodemarkHelper = require('./codemark_helper');
 const RepoMatcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_matcher');
 const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const MarkerConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_constants');
 
 class CodemarkCreator extends ModelCreator {
 
@@ -58,7 +59,7 @@ class CodemarkCreator extends ModelCreator {
 			{
 				type: 'array(object)',
 				maxLength: CodemarkAttributes.markerIds.maxLength,
-				maxObjectLength: 100000
+				maxObjectLength: MarkerConstants.maxMarkerLength
 			}
 		);
 		if (result) {	// really an error
