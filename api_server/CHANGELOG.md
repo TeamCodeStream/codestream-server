@@ -1,5 +1,11 @@
 # Change Log
 
+## [8.2.39] - 2021-4-30
+
+### Fixed 
+
+- Addresses [#525](https://github.com/TeamCodeStream/CodeStream/issues/525) &mdash; Error creating a codemark in a file with a lot of uncommitted changes
+
 ## [8.2.38] - 2021-4-28
 
 ### Fixed 
