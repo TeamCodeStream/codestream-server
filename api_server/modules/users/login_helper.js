@@ -244,8 +244,8 @@ class LoginHelper {
 	async grantSubscriptionPermissions () {
 		try {
 			await new UserSubscriptionGranter({
+				api: this.api,
 				data: this.request.data,
-				broadcaster: this.api.services.broadcaster,
 				user: this.user,
 				request: this.request
 			}).grantAll();

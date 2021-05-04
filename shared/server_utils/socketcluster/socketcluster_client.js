@@ -4,17 +4,27 @@
 
 const SocketCluster = require('socketcluster-client');
 const UUID = require('uuid/v4');
+const EventEmitter = require('events');
 
-class SocketClusterClient {
+// enable if we expect the broadcaster to acknowledge reception of messages from the API server
+const AckServerMessages = true;
+
+class SocketClusterClient extends EventEmitter {
 
 	constructor (config = {}) {
+		super();
 		this.config = config;
 		this.messageListeners = {};		// callbacks for each channel when message is received
 		this.channelPromises = {};		// promises for channel subscriptions
-		this.messageAcks = [];			// messages needing acknowledgement
+		this.messageQueue = [];			// messages needing acknowledgement
 	}
 
-	async init (quiet = false) {
+	async init () {
+		await this._initHelper();
+		this.haveStarted = true;
+	}
+
+	async _initHelper () {
 		if (this.initing) { return; }
 		this.initing = true;
 		this._log('Initializing SocketCluster connection...');
@@ -35,32 +45,58 @@ class SocketClusterClient {
 		(async () => {
 			for await (let data of this.socket.listener('connectAbort')) {
 				this._warn('SocketCluster connection aborted: ' + JSON.stringify(data));
+				this.emit('setAlert', 'broadcasterConnectionFailure');
 				if (this.socket) {
 					this.socket.disconnect();
 					delete this.socket;
 				}
-				if (!this.initing) {
-					setTimeout(() => { this.init(true); }, 1000);
+				if (this.haveStarted) {
+					if (!this._disconnectInitTimeout) {
+						this._disconnectInitTimeout = setTimeout(() => { 
+							delete this._disconnectInitTimeout;
+							this._initHelper(); 
+						}, 3000);
+					}
 				}
 			}
 		})();
-		await this.authorizeConnection(quiet);
-		this.initing = false;
+		if (!await this.authorizeConnection()) {
+			return false; 
+		}
 
 		// upon a successful connection, check if we have any unacknowledged messages, that may have been
-		// missed due to a broadcaster restart ... if so, transmit those messages now and clear the queue
-		if (this.socket) {
-			for (let i = 0; i < this.messageAcks.length; i++) {
-				const { channel, message } = this.messageAcks[i];
-				this._log(`Transmitting unacknowledged message ${message.messageId} on channel ${channel}`);
-				this.socket.transmit('message', { channel, message });
+		// missed due to a broadcaster restart ... if so, transmit the first of those messages, once
+		// we get an acknowledgement we will drain the queue
+		if (AckServerMessages && this.socket && this.messageQueue.length > 0) {
+			const unacknowledgedMessage = this.messageQueue[0];
+			if (unacknowledgedMessage) {
+				const { channel, message, options } = unacknowledgedMessage;
+				this._log(`Publishing unacknowledged message ${message.messageId} on channel ${channel}`);
+				await this.publish(message, channel, { ...options, force: true });
 			}
-			this.messageAcks = [];
+		}
+
+		this.initing = false;
+		this.emit('clearAlert', 'broadcasterConnectionFailure');
+	}
+
+	// drain the message queue by publishing all messages
+	async drainMessageQueue () {
+		this._log(`Draining message queue of ${this.messageQueue.length} messages...`);
+		while (this.messageQueue.length > 0) {
+			const unacknowledgedMessage = this.messageQueue.shift();
+			const { channel, message, options } = unacknowledgedMessage;
+			this._log(`Publishing unacknowledged message ${message.messageId} on channel ${channel}`);
+			await this.publish(message, channel, options);
+		
+			await new Promise(r => {
+				setTimeout(r, 100);
+			});
 		}
 	}
 
 	// authorize the connection with the socketcluster server
-	async authorizeConnection (quiet) {
+	async authorizeConnection () {
 		this._log('Authorizing socketcluster connection...');
 		try {
 			await this.socket.invoke('auth', {
@@ -69,23 +105,33 @@ class SocketClusterClient {
 				subscriptionCheat: this.config.subscriptionCheat
 			});
 
-			(async () => {
-				// we expect an acknowledgement of messages sent, this appears to be the only way
-				// to handle a dropped connection due to a broadcaster restart
-				for await (let data of this.socket.receiver('ack')) {
-					this._log(`Message ${data} was acknowledged`);
-					for (let i in this.messageAcks) {
-						if (this.messageAcks[i].message.messageId === data) {
-							clearTimeout(this.messageAcks[i].timeout);
-							this.messageAcks.splice(i, 1);
-							break;
+			if (AckServerMessages) {
+				(async () => {
+					// we expect an acknowledgement of messages sent, this appears to be the only way
+					// to handle a dropped connection due to a broadcaster restart
+					for await (let data of this.socket.receiver('ack')) {
+						this.emit('clearAlert', 'broadcasterAcknowledgementFailure');
+						for (let i in this.messageQueue) {
+							if (this.messageQueue[i].message.messageId === data) {
+								clearTimeout(this.messageQueue[i].timeout);
+								if (this.messageQueue[i].channel !== 'echo') {
+									this._log(`Message ${data} was acknowledged`);
+								}
+								this.messageQueue.splice(i, 1);
+								break;
+							}
+						}
+						if (this.ackFailureInProgress && this.messageQueue.length > 0) {
+							this.ackFailureInProgress = false;
+							this.drainMessageQueue();
 						}
 					}
-				}
-			})();
+				})();
+			}
 
 			this._log('Socketcluster connection authorized');
 			this._authed = true;
+			return true;
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -93,9 +139,12 @@ class SocketClusterClient {
 				this.socket.disconnect();
 				delete this.socket;
 			}
-			if (!quiet) {
-				this.initing = false;
+			this.initing = false;
+			this.emit('setAlert', 'broadcasterConnectionFailure');
+			if (!this.haveStarted) {
 				throw `Socketcluster authorization error: ${message}`;
+			} else {
+				return false;
 			}
 		}
 	}
@@ -104,9 +153,14 @@ class SocketClusterClient {
 	async publish (message, channel, options = {}) {
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking SocketCluster messages, for testing purposes
-			this._log('Would have sent SocketCluster message to ' + channel, options);
+			this._log('Would have sent SocketCluster message to ' + channel);
 			return;
 		}
+		if (!this.socket) {
+			this._warn('No active socket, cannot publish to ' + channel);
+			return;
+		}
+
 		let messageId;
 		if (typeof message === 'object') {
 			messageId = message.messageId = message.messageId || UUID();
@@ -114,22 +168,48 @@ class SocketClusterClient {
 			messageId = message;
 		}
 
-		this._log(`Transmitting message ${messageId} for channel ${channel} to SocketCluster server...`);
-		await this.socket.transmit('message', { channel, message });
-		this._log(`Published ${messageId} to ${channel}`);
+		let timeout = null;
+		if (this.ackFailureInProgress && !options.force && channel !== 'echo') {
+			this._warn(`Ack failure in progress, will not transmit message ${messageId} until a message is acknowledged`);
+		} else {
+			if (channel !== 'echo') {
+				this._log(`Transmitting message ${messageId} for channel ${channel} to SocketCluster server...`);
+			}
+			await this.socket.transmit('message', { channel, message });
+			if (channel !== 'echo') {
+				this._log(`Published ${messageId} to ${channel}`);
+			}
+		
+			// wait for acknowledgement that the message has been received by the broadcaster,
+			// this appears to be the only way to ensure message reception in case the connection is dropped,
+			// which can happen if the broadcaster is restarted
+			if (typeof message !== 'object') { return; }
 
-		// wait for acknowledgement that the message has been received by the broadcaster,
-		// this appears to be the only way to ensure message reception in case the connection is dropped,
-		// which can happen if the broadcaster is restarted
-		if (typeof message !== 'object') { return; }
-		if (this.messageAcks.length >= 1000) {
-			this.messageAcks.shift();
+			if (AckServerMessages) {
+				timeout = setTimeout(() => {
+					this.emit('setAlert', 'broadcasterAcknowledgementFailure');
+					this._warn(`Message ${messageId} to broadcaster was not acknowledged, will re-initiate the connection`);
+					if (this.socket) {
+						this.socket.disconnect();
+						delete this.socket;
+					}
+					this._initHelper();
+					this.ackFailureInProgress = true;
+				}, 3000);
+			}
 		}
-		const timeout = setTimeout(() => {
-			this._warn(`Message ${messageId} to broadcaster was not acknowledged, will re-initiate the connection`);
-			this.init(true);
-		}, 3000);
-		this.messageAcks.push({ message, channel, timeout });
+
+		if (AckServerMessages) {
+			if (this.messageQueue.length >= 1000) {
+				const unacknowledgedMessage = this.messageQueue.shift();
+				this._warn(`Message queue is full, unacknowledged message ${unacknowledgedMessage.message.id} must be dropped`);
+			}
+			if (options.force) {
+				this.messageQueue[0].timeout = timeout;
+			} else {
+				this.messageQueue.push({ message, channel, timeout, options});
+			}
+		}
 	}
 
 	// subscribe to the specified channel, providing a listener callback for the
@@ -242,10 +322,10 @@ class SocketClusterClient {
 	async revokeToken (userId, channel, options = {}) {
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
-			this._log(`Would have revoked access for ${userId} to ${channel}`, options);
+			this._log(`Would have revoked access for ${userId} to ${channel}`);
 			return;
 		}
-		this._log(`Revoking access for ${userId} to ${channel}`, options);
+		this._log(`Revoking access for ${userId} to ${channel}`);
 		try {
 			await this.socket.invoke('desubscribe', { userId, channel });
 		}

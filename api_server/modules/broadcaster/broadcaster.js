@@ -9,8 +9,17 @@ const MockPubnub = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 const SocketClusterClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/socketcluster/socketcluster_client');
 const OS = require('os');
 const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
+const UUID = require('uuid/v4');
+
+const DEPENDENCIES = [
+	'alerts'
+];
 
 class Broadcaster extends APIServerModule {
+
+	getDependencies () {
+		return DEPENDENCIES;
+	}
 
 	services () {
 		// return a function that, when invoked, returns a service structure with the pubnub client as
@@ -46,13 +55,15 @@ class Broadcaster extends APIServerModule {
 			{
 				logger: this.api,
 				uid: 'API'
-			});
+			}
+		);
 		this.socketClusterClient = new SocketClusterClient(config);
+
 		await TryIndefinitely(async () => {
 			try {
 				await this.socketClusterClient.init();
 				if (!this.api.config.apiServer.mockMode) {
-					await this.socketClusterClient.publish('test', 'test');
+					await this.socketClusterClient.publish({ test: 'test' }, 'test');
 				}
 			}
 			catch (error) {
@@ -64,6 +75,10 @@ class Broadcaster extends APIServerModule {
 				throw error;
 			}
 		}, 5000, this.api, 'Unable to connect to SocketCluster, retrying...');
+
+		this.socketClusterClient.on('setAlert', this.onSetAlert.bind(this));
+		this.socketClusterClient.on('clearAlert', this.onClearAlert.bind(this));
+
 		return { broadcaster: this.socketClusterClient };
 	}
 
@@ -88,6 +103,15 @@ class Broadcaster extends APIServerModule {
 		if (this.api.config.apiServer.mockMode && this.api.config.broadcastEngine.selected === 'pubnub') {
 			await this.connectToMockPubnub();
 		}
+		
+		// for on-prem, we ensure good broadcaster connectivity by broadcasting periodic "echoes"
+		// that the client expects to receive
+		if (this.api.config.sharedGeneral.isOnPrem) {
+			const startWhen = Math.random() * 5000;
+			setTimeout(() => {
+				setInterval(this.sendEcho.bind(this), 5000);
+			}, startWhen);
+		}
 	}
 
 	async connectToMockPubnub () {
@@ -107,6 +131,27 @@ class Broadcaster extends APIServerModule {
 		});
 		await this.pubnubClient.init();
 	}
+
+	sendEcho () {
+		// send an echo to the 'echo' channel
+		const message = { echo: {}, requestId: UUID() };
+		try {
+			this.api.services.broadcaster.publish(message, 'echo');
+		}
+		catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.api.warn(`Unable to publish echo message: ${message}`);
+		}
+	}
+
+	onSetAlert (code, info = {}) {
+		this.api.services.alerts.setAlert(code, info);
+	}
+
+	onClearAlert (code) {
+		this.api.services.alerts.clearAlert(code);
+	}
+
 }
 
 module.exports = Broadcaster;

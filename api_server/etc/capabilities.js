@@ -103,5 +103,9 @@ module.exports = {
 	'readItem': {
 		description: 'Supports /read-item call to mark number of unread replies for an item',
 		version: '8.2.33'
+	},
+	'echoes': {
+		description: 'Supports periodic echoes to test broadcaster reliability',
+		version: '8.2.39'
 	}
 };

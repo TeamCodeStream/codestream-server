@@ -15,6 +15,9 @@ const OS = require('os');
 const Express = require('express');
 const IPC = require('node-ipc');
 
+// enable if we want the broadcaster to acknowledge reception of messages from the API server
+const AckServerMessages = true;
+
 // The BroadcasterServer is instantiated via the cluster wrapper.
 // Options are passed through from the ClusterWrapper() call made in the
 // main block.
@@ -142,6 +145,7 @@ class BroadcasterServer {
 				this.addSocketListener('disconnect', this.handleDisconnect, socket);
 				this.addSocketListener('error', this.handleError, socket);
 				this.addSocketListener('warning', this.handleWarning, socket);
+				this.addSocketListener('authenticate', this.handleAuthenticate, socket);
 			}
 		})();
 
@@ -294,11 +298,12 @@ class BroadcasterServer {
 				//this.addSocketListener('getSubscribedUsers', this.getSubscribedUsers, socket);
 			}
 			else {
-				// when this socket is a CodeStream client, respond to these things
+				/*
 				this.addSocketProc('history', this.getHistory, socket);
 				this.addSocketListener('unsubscribe', this.handleUnsubscribe, socket);
 				this.socketsByUserId[uid] = this.socketsByUserId[uid] || [];
 				this.socketsByUserId[uid].push(socket);
+				*/
 			}
 		}
 		catch (error) {
@@ -311,11 +316,32 @@ class BroadcasterServer {
 		}
 	}
 
+	// handle authentication event for the given socket, this is when we can connect the user
+	// to history fetches
+	async handleAuthenticate (authToken, socket, requestId) {
+		const { uid } = authToken.authToken;
+		this.log(`User ${uid} was authenticated on socket ${socket.id}`, socket, requestId);
+		if (!this.isServerSocket(socket)) {
+			const socketsForUser = (this.socketsByUserId[uid] || []).map(socket => socket.id);
+			if (!socketsForUser.includes(socket.id)) {
+				// when this socket is a CodeStream client, respond to these things
+				this.addSocketProc('history', this.getHistory, socket);
+				this.addSocketListener('unsubscribe', this.handleUnsubscribe, socket);
+				this.socketsByUserId[uid] = this.socketsByUserId[uid] || [];
+				this.socketsByUserId[uid].push(socket);
+			}
+		}
+	}
+
 	// validate a token associated with a socket connection
 	async validateToken (token, uid, subscriptionCheat) {
 		// API connections are special and require a secret
-		if (uid === 'API' && token === this.config.broadcastEngine.codestreamBroadcaster.secrets.api) {
-			return;
+		if (uid === 'API') {
+			if (token === this.config.broadcastEngine.codestreamBroadcaster.secrets.api) {
+				return;
+			} else {
+				throw 'invalid authentication';
+			}
 		}
 
 		let user;
@@ -425,6 +451,11 @@ class BroadcasterServer {
 
 	// authorize an attempt to subscribe to a channel
 	async authorizeSubscribe (uid, channel) {
+		// all users can subscribe to the "echo" channel
+		if (channel === 'echo') {
+			return;
+		}
+
 		let user;
 		try {
 			// get the user data associated with this subscription
@@ -498,14 +529,22 @@ class BroadcasterServer {
 		const { channel, message } = data;
 		if (!channel || !message) { return; }
 		const messageId = (typeof message === 'object' && message.messageId) || '???';
-		this.log(`Received message ${messageId} for channel ${channel}`, socket, requestId);
+		if (channel !== 'echo') {
+			this.log(`Received message ${messageId} for channel ${channel}`, socket, requestId);
+		}
 
-		if (this.isServerSocket(socket)) {
+		// acknowledge the message as needed
+		if (AckServerMessages && this.isServerSocket(socket)) {
 			socket.transmit('ack', message.messageId);
 		}
 
 		// pass the message on to clients listening to this channel
 		this.scServer.exchange.transmitPublish(channel, message);
+
+		// don't do any history related operations for "echo" messages
+		if (channel === 'echo') {
+			return;
+		}
 
 		// remove any lingering old messages
 		this.sweepOldMessages();
@@ -766,7 +805,7 @@ class BroadcasterServer {
 				throw 'stream channels are deprecated';
 				//channelInfo.streamChannels.push(channel);
 			}
-			else {
+			else if (channel !== 'echo') {
 				return false;
 			}
 		}
