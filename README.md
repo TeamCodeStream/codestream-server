@@ -2,13 +2,15 @@
 
 On the backend (aka. the server-side), CodeStream runs a number of services to
 provide all the functionality needed for the clients. The default development
-environment will use the codestream broadcaster and rabbitMQ. Mail services
-are disabled by default.
+environment will use the codestream broadcaster and rabbitMQ with outbound mail
+disabled.
 ## Development Setup
 
-_Note: CodeStream employees may prefer to use the dev_tools sandbox as it will
-provide most of the ancillary resources you'll need. [Details
-here](docs/codestream-sandbox-setup.md)._
+_Note: CodeStream employees should use the dev_tools sandbox as it will provide
+most of the ancillary resources you'll need, most notably our development
+configuration which includes secrets for pubnub, integration providers, etc...
+Details [here](docs/codestream-sandbox-setup.md). Supplemental documentation is
+[here](docs/README.md)._
 
 ### Prerequisites
 

@@ -28,6 +28,13 @@ with the codestream-server sandbox in a playground. AWS SQS requires an AWS IAM
 access key or the codestream-server sandbox to run on a managed EC2 development
 instance.
 
+## Installation on a Managed VM
+
+Probably the fastest way to get started would be by launching your own private
+development VM and running a setup script that will prepare your entire
+environment for server development. [This is documented
+here](https://dtops-docs.codestream.us/netuser/resources/dev-vms/).
+
 ## Installation & Setup Using dev_tools
 
 Installation for development on the CodeStream network using the devtools
@@ -45,7 +52,7 @@ framework.
    ```
    docker run -d -p 5672:5672 -p 15672:15672 --name csrabbitmq teamcodestream/rabbitmq-onprem:0.0.0
    ```
-1. Review how we manage our [server configurations](api_server/README.unified-cfg-file.md).
+1. Review how we manage our [server configurations](../api_server/docs/unified-cfg-file.md).
    If you have any custom alterations to the standard configuration, you will
    need to be familiar with the procedures in this document.
 
