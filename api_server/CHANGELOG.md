@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.0] - 2021-5-6
+
+### Added 
+
+- Provide feedback in UI for on-prem customers when the api server can't communicate with the broadcaster
+
 ## [8.2.39] - 2021-4-30
 
 ### Fixed 

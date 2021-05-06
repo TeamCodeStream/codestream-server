@@ -1,11 +1,29 @@
 
 # CodeStream API Service
 
-The CodeStream API Service is lovely.
+The CodeStream API Service is home to the business logic, database management,
+authentication layer and most other servier-side functions.
 
+## Open-Core Development
 
-## Installation for local cloud development using dev_tools
+The [repository's main README](../README.md) contains instructions for setting
+up your sandbox and building all of the components outside the context of the
+CodeStream dev_tools framework.
 
+## Mono-Repo Development with the dev_tools Framework
+
+Mono-Repo development using the dev_tools framework is documented
+[here](../docs/codestream-sandbox-setup.md).
+
+## Other In-Repo Documentation
+
+* [Mono-Repo / Root-Level Documentation Index](../docs/README.md)
+* [Additional API Documentation](docs/README.md)
+
+## Component Sandbox Installation
+
+These instructions are for installing the API as an independent component
+sandbox. This is how installations are performed for our CI/CD pipelines.
 ### Prerequisites
 1. Install the dev_tools toolkit
    [here](https://github.com/teamcodestream/dev_tools).
@@ -13,17 +31,17 @@ The CodeStream API Service is lovely.
    any version. Instructions for the mongo sandbox are
    [here](https://github.com/teamcodestream/mongodb_tools).
 1. Make sure you can access the CodeStream network via the VPN.
-1. Review how we manage our [server configurations](README.unified-cfg-file.md).
-   If you have any custom alterations to the standard configuration, you will
-   need to be familiar with the procedures in this document.
+1. Review how we manage our versioned [server
+   configurations](docs/unified-cfg-file.md). If you have any custom
+   alterations to the standard configuration, you will need to be familiar with
+   the procedures in this document.
 
 ### Quick Start
 1. If you're using dev_tools on your own computer, bring it up to date
    (`dt-selfupdate -y`). You don't need to do this if you're using a managed EC2
    instance.
 1. Update your secrets (`dt-update-secrets -y`).
-1. Select a codestream configuration to use (details documented
-   [here](README.unified-cfg-file.md)). To get up and running quickly, this
+1. Select a codestream configuration to use. To get up and running quickly, this
    command will select out-of-the-box 'codestream-cloud' as your configuration.
 	```
 	$ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
@@ -54,9 +72,9 @@ The CodeStream API Service is lovely.
 	```
 	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/default.template
 	```
-1. If you haven't already, install the
-   [mailin](https://github.com/teamcodestream/inbound_email) and
-   [mailout](https://github.com/teamcodestream/outbound_email) sandboxes.
+1. Install the [inbound email](../inbound_email/README.md), [outbound
+   email](../outbound_email/README.md), [broadcaster](../broadcaster/README.md)
+   & [onprem admin](../onprem_admin/README.md) sandboxes.
 1. Load all of your sandboxes into one shell and create a `cs` playground for
    your codestream-cloud configuration.
 	```
@@ -64,6 +82,8 @@ The CodeStream API Service is lovely.
 	$ dt-load api
 	$ dt-load mailin
 	$ dt-load mailout
+	$ dt-load opadm
+	$ dt-load bc
 	$ dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/cloud-dev.template
 	```
 
@@ -115,11 +135,3 @@ The CodeStream API Service is lovely.
 	nodemon -e js,hbs --inspect bin/api_server.js --one_worker
 	```
 	Then, in VS Code, run the `Node: Debugger` task. You'll want to attach to the process running on port `9230` when prompted.
-
-
-## Other Readme's
-
-[The unified configuration file](README.unified-cfg-file.md)
-<br>
-[OnPrem development configuration](README.onprem-development.md)
-

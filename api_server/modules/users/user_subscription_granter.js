@@ -22,6 +22,12 @@ class UserSubscriptionGranter  {
 				//includePresence: true
 			});
 		}
+		if (this.api.config.sharedGeneral.isOnPrem) {
+			// for on-prem, grant special channel for test "echoes"
+			this.channels.push({
+				name: 'echo'
+			});
+		}
 		//await this.getRepoChannels();			
 		//await this.getStreamChannels();		
 		await this.grantAllChannels();
@@ -94,7 +100,7 @@ class UserSubscriptionGranter  {
 			throw `no broadcaster token available for user ${this.user.id}`;
 		}
 		try {
-			await this.broadcaster.grantMultiple(
+			await this.api.services.broadcaster.grantMultiple(
 				this.user.get('broadcasterToken'),
 				this.channels,
 				{ request: this.request }
