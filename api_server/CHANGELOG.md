@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.1] - 2021-5-13
+
+### Fixed 
+
+- Fix low-level mongo race condition bug concerning marker locations
+
 ## [11.0.0] - 2021-5-6
 
 ### Added 
