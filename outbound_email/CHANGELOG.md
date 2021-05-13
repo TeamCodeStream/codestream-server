@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.1] - 2021-5-13
+
+### Fixed
+
+- Fix problem with SendGrid configuration in on-prem
+
 ## [11.0.0] - 2021-5-6
 
 ### Changed

@@ -209,10 +209,17 @@ class DataCollection {
 
 	// persist any direct updates established through updateDirectWhenPersist()
 	async _persistDirectQueries () {
-		await Promise.all(this.directQueries.map(async queryInfo => {
-			const { query, data, options } = queryInfo;
-			await this.updateDirect(query, data, options);
-		}));
+		if (this.directQueries.find(queryInfo => queryInfo.options.persistInSeries)) {
+			for (let queryInfo of this.directQueries) {
+				const { query, data, options } = queryInfo;
+				await this.updateDirect(query, data, options);
+			}
+		} else {
+			await Promise.all(this.directQueries.map(async queryInfo => {
+				const { query, data, options } = queryInfo;
+				await this.updateDirect(query, data, options);
+			}));
+		}
 	}
 
 	// get a model from the cache by ID

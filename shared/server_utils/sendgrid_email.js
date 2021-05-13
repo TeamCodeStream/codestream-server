@@ -88,7 +88,7 @@ class SendGridEmail {
 		let mail = this.createMailObject(options);
 		return this.sendgrid.emptyRequest({
 			method: 'POST',
-			path: this.url,
+			path: '/v3/mail/send',
 			body: mail.toJSON(),
 		});
 	}

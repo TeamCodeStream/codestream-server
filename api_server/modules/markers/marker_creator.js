@@ -366,7 +366,7 @@ class MarkerCreator extends ModelCreator {
 		await this.data.markerLocations.updateDirectWhenPersist(
 			{ id },
 			op,
-			{ upsert: true }
+			{ upsert: true, persistInSeries: true }
 		);
 
 		// marker locations are special, they can be collapsed as long as the marker locations

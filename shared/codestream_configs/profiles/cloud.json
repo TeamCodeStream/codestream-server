@@ -270,6 +270,14 @@
 			}
 		},
 		"local": {},
+		"pd": {
+			"showConfig": true,
+			"storage": {
+				"mongo": {
+					"_loadSecretsFile": "mongo/pd.cfg"
+				}
+			}
+		},
 		"pi": {},
 		"prod": {},
 		"qa": {}
@@ -355,6 +363,9 @@
 	"storage": {
 		"mongo": {
 			"defaultEnv": {},
+			"pd": {
+				"_loadSecretsFile": "mongo/pd.cfg"
+			},
 			"prod": {
 				"_loadSecretsFile": "mongo/prod.cfg"
 			},
