@@ -175,7 +175,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		const stateProps = this.request.query.state.split('!');
 		this.stateToken = stateProps[1];
-		this.host = stateProps[2];
+		if (stateProps[2]) {
+			this.host = this.specialDecode(stateProps[2]);
+		}
 
 		try {
 			this.tokenPayload = this.api.services.tokenHandler.verify(this.stateToken);
@@ -224,6 +226,13 @@ class ProviderTokenRequest extends RestfulRequest {
 				oauthTokenSecret: secretPayload.sec
 			};
 		}
+	}
+
+	// decode a string from special encoding that does not rely on encodeURIComponent,
+	// since proxies can decode encoded characters and mess things up
+	// this should match the encode algorithm in provider_auth_request.js
+	specialDecode (str) {
+		return str.replace(/\*\*\*\(_colon_\)/g, ':').replace(/\*\*\*\(_slash_\)/g, '/');
 	}
 
 	// validate any repo info received in the token payload

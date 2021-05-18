@@ -97,6 +97,9 @@ class ProviderAuthRequest extends RestfulRequest {
 			return;
 		}
 		let { host, _mockToken, _mockTokenSecret } = this.request.query;
+		if (host) {
+			host = decodeURIComponent(host).toLowerCase();
+		}
 		const options = {
 			request: this,
 			host,
@@ -168,7 +171,7 @@ class ProviderAuthRequest extends RestfulRequest {
 		let state = `${callbackEnvironment}!${code}`;
 		if (host) {
 			host = decodeURIComponent(host).toLowerCase();
-			state += `!${host}`;
+			state += `!${this.specialEncode(host)}`;
 		}
 		const encodedSecret = this.api.services.tokenHandler.generate({
 			sec: this.requestTokenInfo.oauthTokenSecret
@@ -180,6 +183,13 @@ class ProviderAuthRequest extends RestfulRequest {
 		const url = `${clientInfo.host}/${authorizePath}?oauth_token=${this.requestTokenInfo.oauthToken}&oauth_callback=${callback}`;
 		this.response.redirect(url);
 		this.responseHandled = true;
+	}
+
+	// encode a string using special encoding that does not rely on encodeURIComponent,
+	// since proxies can decode encoded characters and mess things up
+	// this should match the decode algorithm in provider_token_request.js
+	specialEncode (str) {
+		return str.replace(/:/g, '***(_colon_)').replace(/\//g, '***(_slash_)');
 	}
 
 	// describe this route for help
