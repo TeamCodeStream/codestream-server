@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.2] - 2021-5-18
+
+### Changed
+
+- Special encode Jira host during OAuth 1.0 dance to avoid potential bogus decodings
+
 ## [11.0.1] - 2021-5-13
 
 ### Fixed 
