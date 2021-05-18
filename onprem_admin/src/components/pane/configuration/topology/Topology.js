@@ -47,7 +47,7 @@ const clientFacingServicesFieldSet = {
 			{
 				id: 'publicApiPort',
 				label: 'Public Port',
-				placeholder: 0,
+				placeholder: '',
 				type: 'number',
 				width: 'col-4',
 				updateAction: ConfigActions.CONFIG_SET_SSL_PROPERTY,
@@ -57,7 +57,7 @@ const clientFacingServicesFieldSet = {
 				mutedText: 'Port clients connect to',
 				validation: {
 					isRequired: false,
-					minValue: 0,
+					minValue: 1,
 					maxValue: 32767,
 					onBlur: validateInput,
 				},

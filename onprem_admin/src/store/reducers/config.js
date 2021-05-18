@@ -26,7 +26,9 @@ export function sslConfigurationUpdate(config, payload={}) {
 	const adminPort = payload.adminPort || config.adminServer.port;
 	const adminSecurePort = payload.adminSecurePort || config.adminServer.securePort;
 
-	const apiPortSuffix = apiPublicPort === 443 && sslEnabled ? '' : apiPublicPort === 80 && !sslEnabled ? '' : `:${apiPublicPort}`;
+	let apiPublicPortNum = parseInt(apiPublicPort, 10) || '';
+	if (!isNaN(apiPublicPortNum)) apiPublicPortNum = sslEnabled ? 443 : 80;
+	const apiPortSuffix = apiPublicPortNum === 443 && sslEnabled ? '' : apiPublicPortNum === 80 && !sslEnabled ? '' : `:${apiPublicPortNum}`;
 	const publicApiUrl = `${protocol}${apiHost}${apiPortSuffix}`;
 
 	config.apiServer.ignoreHttps = !sslEnabled;
