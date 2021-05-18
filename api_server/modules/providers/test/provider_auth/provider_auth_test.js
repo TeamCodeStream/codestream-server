@@ -88,11 +88,19 @@ class ProviderAuthTest extends CodeStreamAPITest {
 				const testHost = this.testRequestHost || this.testHost;
 				if (testHost) {
 					this.path += `&host=${testHost}`;
-					this.state += `!${testHost}`;
+					let hostString = this.provider === 'jiraserver' ? this.specialEncode(testHost) : testHost;
+					this.state += `!${hostString}`;
 				}
 				callback();
 			}
 		);
+	}
+
+	// encode a string using special encoding that does not rely on encodeURIComponent,
+	// since proxies can decode encoded characters and mess things up
+	// this should match the same function in provider_auth_request.js
+	specialEncode (str) {
+		return str.replace(/:/g, '***(_colon_)').replace(/\//g, '***(_slash_)');
 	}
 
 	validateResponse (data) {

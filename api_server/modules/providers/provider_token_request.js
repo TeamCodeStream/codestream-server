@@ -175,7 +175,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		const stateProps = this.request.query.state.split('!');
 		this.stateToken = stateProps[1];
-		this.host = this.specialDecode(stateProps[2]);
+		if (stateProps[2]) {
+			this.host = this.specialDecode(stateProps[2]);
+		}
 
 		try {
 			this.tokenPayload = this.api.services.tokenHandler.verify(this.stateToken);
