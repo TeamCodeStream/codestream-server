@@ -10,6 +10,7 @@ const certificateFormIsValid = (formData) => {
 	console.debug('certificateFormIsValid(): formData = ', formData);
 	const errors = {};
 	if (!formData.targetName?.length) errors.targetName = "target host cannot be empty";
+	if (formData.targetName.indexOf('.') !== -1) errors.targetName = "target host cannot have a '.' character";
 	if (!formData.cert?.length) errors.cert = "certificate cannot be empty";
 	if (!formData.key?.length) errors.key = "key cannot be empty";
 	if (Object.keys(errors).length) return errors;
