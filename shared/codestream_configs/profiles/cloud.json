@@ -298,9 +298,12 @@
 				"outboundEmailQueueName": "ci_outboundEmail"
 			},
 			"defaultEnv": {
-				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
+				"outboundEmailQueueName": "dev_${CSSVC_ENV}_outboundEmail"
 			},
 			"local": {},
+			"pd": {
+				"outboundEmailQueueName": "pd_outboundEmail"
+			},
 			"pi": {
 				"outboundEmailQueueName": "ci_outboundEmail"
 			},
