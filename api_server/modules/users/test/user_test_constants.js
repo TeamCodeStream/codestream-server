@@ -33,7 +33,8 @@ const EXPECTED_REGISTRATION_FIELDS = EXPECTED_USER_FIELDS.concat([
 
 // we expect to see these fields when user is retrieving their own me-object
 const EXPECTED_ME_FIELDS = [
-	'lastReads'
+	'lastReads',
+	'preferences'
 ];
 
 // response to retrieving a user object looks like this

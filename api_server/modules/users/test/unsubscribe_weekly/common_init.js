@@ -45,7 +45,7 @@ class CommonInit {
 
 		this.modifiedAfter = Date.now();
 		this.path = `/no-auth/unsubscribe-weekly?t=${this.token}`;
-		this.expectedPreferences = DeepClone(this.currentUser.user.prefereces || {});
+		this.expectedPreferences = DeepClone(this.currentUser.user.preferences || {});
 		Object.assign(this.expectedPreferences, { weeklyEmailDelivery: false, notifications: 'involveMe' });
 		callback();
 	}
