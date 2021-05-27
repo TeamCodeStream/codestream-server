@@ -2,10 +2,10 @@
 
 # re-generate codestream config files and config templates for distribution
 
-[ -z "$KM_PKI" ] && echo "Set KM_PKI to the location of the PKI database (use -y to bypass prompts)" && exit 1
+[ -z "$KM_SECRETS" ] && echo "Set KM_SECRETS to the location of the PKI database (use -y to bypass prompts)" && exit 1
 yes=""
 verbose=""
-onpremInstallDir=""
+#onpremInstallDir=""
 while getopts "yvo:" arg
 do
 	case $arg in
@@ -21,15 +21,18 @@ codestream_server=$(cd $binDir/../../.. && pwd)
 codestream_configs=$(cd $binDir/.. && pwd)
 srcDir=`dirname $codestream_configs`
 schemaVersion=`cat $codestream_configs/parameters.version`
+[ -d $KM_SECRETS/categories/config ] && outDir=$KM_SECRETS/categories/config || outDir=$KM_SECRETS/config
+
 # we write templates to the onprem-install repo; this is how we find it
-if [ -z "$onpremInstallDir" ]; then
-	[ -d "$codestream_configs/../onprem-install" ] && onpremInstallDir=$(cd $codestream_configs/.. && pwd)
-	[ -z "$onpremInstallDir" -a -d "$HOME/src/onprem-install" ] && onpremInstallDir=$(cd $HOME/src && pwd)
-else
-	[ -d "$onpremInstallDir" ] && onpremInstallDir=$(cd $onpremInstallDir/.. && pwd) || onpremInstallDir=""
-fi
-[ -z "$onpremInstallDir" ] && echo "cannot find onprem-install repo" && exit 1
-echo -e "I found onprem-install in $onpremInstallDir"
+# if [ -z "$onpremInstallDir" ]; then
+# 	[ -d "$codestream_configs/../onprem-install" ] && onpremInstallDir=$(cd $codestream_configs/.. && pwd)
+# 	[ -z "$onpremInstallDir" -a -d "$HOME/src/onprem-install" ] && onpremInstallDir=$(cd $HOME/src && pwd)
+# else
+# 	[ -d "$onpremInstallDir" ] && onpremInstallDir=$(cd $onpremInstallDir/.. && pwd) || onpremInstallDir=""
+# fi
+# [ -z "$onpremInstallDir" ] && echo "cannot find onprem-install repo" && exit 1
+# echo -e "I found onprem-install in $onpremInstallDir"
+
 # verbose=1
 
 . $codestream_configs/lib/update_funcs.sh
@@ -56,43 +59,44 @@ $binDir/process-profile --show-desc --out $codestream_configs/README.parameter-d
 diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 
 # create the config templates for on-prem single host preview and quickstart (beta release only)
-for onpremConfig in minimal quickstart
-do
-	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
-	$binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
-	diff_notify $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
-done
+# for onpremConfig in minimal quickstart
+# do
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+# 	$binDir/process-profile --env $onpremConfig --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+# 	diff_notify $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
+# done
 
 # create onprem config suitable for local sandbox development
-for onpremEnv in local
-do
-	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
-	$binDir/process-profile --env $onpremEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
-	diff_notify $KM_PKI/secrets/config/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json "$yes"
-done
+# for onpremEnv in local
+# do
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $outDir/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
+# 	$binDir/process-profile --env $onpremEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $outDir/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
+# 	diff_notify $outDir/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json "$yes"
+# done
 
 # create default configs deployed with the api repo
-for csEnv in open-development onprem-slh-quickstart
-do
-	[ -n "$verbose" ] && echo === $binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
-	$binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
-	diff_notify $codestream_server/api_server/etc/configs/$csEnv.json "$yes"
-done
+# for csEnv in open-development onprem-slh-quickstart
+# do
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
+# 	$binDir/process-profile --env $csEnv --profile $codestream_configs/profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
+# 	diff_notify $codestream_server/api_server/etc/configs/$csEnv.json "$yes"
+# done
 
 # cloud configuration files, all environments (consumed by developers via dt-update-secrets)
 for csEnv in "local" ci pi pd qa prod dev
 do
-	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
-	$binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1
-	diff_notify $KM_PKI/secrets/config/codestream-cloud_${csEnv}_${schemaVersion}_.json "$yes"
+	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
+	$binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1
+	diff_notify $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json "$yes"
 done
 
 # onprem development configurations
-for csEnv in "local" ci pi dev
-do
-	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x
-	$binDir/process-profile --profile $codestream_configs/profiles/onprem-development.json --env $csEnv --out $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json.x
-	diff_notify $KM_PKI/secrets/config/onprem-development_${csEnv}_${schemaVersion}_.json "$yes"
-done
+# for csEnv in "local" ci pi dev
+# do
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/onprem-development.json --env $csEnv --out $outDir/onprem-development_${csEnv}_${schemaVersion}_.json.x
+# 	$binDir/process-profile --profile $codestream_configs/profiles/onprem-development.json --env $csEnv --out $outDir/onprem-development_${csEnv}_${schemaVersion}_.json.x
+# 	diff_notify $outDir/onprem-development_${csEnv}_${schemaVersion}_.json "$yes"
+# done
 
-$binDir/update-onprem-bootstraps
+# Creates the onprem overlay files for subtle tweeks to onprem configs
+# $binDir/update-onprem-bootstraps
