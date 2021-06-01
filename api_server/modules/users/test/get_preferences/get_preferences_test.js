@@ -52,7 +52,6 @@ class GetPreferencesTest extends CodeStreamAPITest {
 	makePreferencesData () {
 		// a multi-level mix of stuff...
 		this.expectData = {
-			...(this.currentUser.user.preferences || {}),
 			simplePreference: true,
 			topLevelPreference: {
 				a: 1,
