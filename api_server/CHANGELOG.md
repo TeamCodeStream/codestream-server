@@ -2,9 +2,9 @@
 
 ## [11.0.3] - 2021-6-1
 
-### Added
+### Changed
 
-- Backend support for new terms-of-service acceptance flow
+- Sandbox updates and improved email reporting
 
 ## [11.0.2] - 2021-5-18
 
