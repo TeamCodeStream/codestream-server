@@ -10,6 +10,15 @@ const Fetch = require('node-fetch');
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const AnalyticsNode = require('analytics-node');
 const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
+const Commander = require('commander');
+
+Commander
+	.option('-f, --force', 'Force execution')
+	.parse(process.argv);
+
+if (!Commander.force) {
+	Commander.help();
+}
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const MESSAGE_LIMIT = 1000;
