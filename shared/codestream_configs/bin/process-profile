@@ -165,9 +165,9 @@ def buildCfgFileProperties(schema, keyPath, task='show-desc'):
 				node[k] = schema[k]['env'] if su.someValueOrNone(schema[k], 'env') else "undefined"
 
 
-secretsDefault = ""
-if su.someValueOrNone(os.environ, 'KM_PKI'):
-	secretsDefault = f"{os.environ['KM_PKI']}/secrets"
+secretsDefault = os.environ['KM_SECRETS'] if 'KM_SECRETS' in os.environ else ""
+if os.path.isdir(f"{secretsDefault}/categories"):
+	secretsDefault = f"{secretsDefault}/categories"
 parser = argparse.ArgumentParser(description="create config data files from templates")
 parser.add_argument('--debug', action='store_true', default=False, help="debug mode")
 parser.add_argument('--show-desc', action='store_true', default=False, help="display parameter with descriptions")

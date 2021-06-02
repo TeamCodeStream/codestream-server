@@ -16,8 +16,8 @@ const stringLength = (i, fv) => {
 }
 
 const numRange = (i, fv) => {
-	if (!isNaN(fv.minValue) && i < fv.minValue) return `number must be greater than ${fv.minValue} chars.`;
-	if (!isNaN(fv.maxValue) && i > fv.maxValue) return `number must be less than ${fv.maxValue} chars.`;
+	if (!isNaN(fv.minValue) && i < fv.minValue) return `number must be greater than ${fv.minValue}.`;
+	if (!isNaN(fv.maxValue) && i > fv.maxValue) return `number must be less than ${fv.maxValue}.`;
 }
 
 const hostName = (i, fv) => {

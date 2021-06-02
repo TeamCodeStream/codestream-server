@@ -4,7 +4,7 @@
 #playgroundName# mailin
 #sandboxTypes# cs_mailin
 #sandboxes# {{SBNAME_cs_mailin}}
-#environment# local
+#environment# {{CSSVC_ENV}}
 
 dt_load {{SBNAME_cs_mailin}}
 if [ "$1" == start ]; then
