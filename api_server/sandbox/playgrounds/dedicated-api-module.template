@@ -1,0 +1,19 @@
+
+#desc# dedicated api playground
+
+#playgroundName# api
+#sandboxTypes# cs_api
+#sandboxes# {{SBNAME_cs_api}}
+#environment# {{CSSVC_ENV}}
+
+dt_load {{SBNAME_cs_api}}
+if [ "$1" == start ]; then
+	cs_api-service start
+elif [ "$1" == stop ]; then
+	cs_api-service stop
+fi
+cd $CS_API_TOP
+
+# uncomment these if you use iterm2 and want to colorize your tabs
+# . $DT_TOP/lib/iterm2-utils.sh
+# it2_tab_rgb `basename ${BASH_SOURCE[0]}` 200 88 45
