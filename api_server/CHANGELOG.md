@@ -1,10 +1,10 @@
 # Change Log
 
-## [11.0.3] - 2021-6-1
+## [11.0.3] - 2021-6-4
 
 ### Changed
 
-- Sandbox updates and improved email reporting
+- Backend support for new terms-of-service acceptance flow
 
 ## [11.0.2] - 2021-5-18
 
