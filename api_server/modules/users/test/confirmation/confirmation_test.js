@@ -99,6 +99,7 @@ class ConfirmationTest extends CodeStreamAPITest {
 			((user._id === this.userId) || errors.push('incorrect _id')) &&	// DEPRECATE ME
 			((user.id === this.userId) || errors.push('incorrect user id')) && 
 			((user.isRegistered) || errors.push('isRegistered not set')) &&
+			((user.preferences && user.preferences.acceptedTOS) || errors.push('acceptedTOS not set in preferences')) &&
 			((typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime) || errors.push('registeredAt not properly set')) &&
 			((typeof user.lastLogin === 'number' && user.lastLogin > this.beforeConfirmTime) || errors.push('lastLogin not properly set')) &&
 			((user.firstSessionStartedAt === undefined) || errors.push('firstSesssionStartedAt should not have been set'))

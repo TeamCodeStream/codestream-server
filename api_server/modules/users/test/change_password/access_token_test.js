@@ -49,7 +49,7 @@ class AccessTokenTest extends ChangePasswordTest {
 	validateResponse (data) {
 		// validate that we got back "ourselves", and that there are no attributes a client shouldn't see
 		this.validateMatchingObject(this.currentUser.user.id, data.user, 'user');
-		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
 
