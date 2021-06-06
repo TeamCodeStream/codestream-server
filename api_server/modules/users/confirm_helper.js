@@ -112,7 +112,8 @@ class ConfirmHelper {
 			$set: {
 				isRegistered: true,
 				modifiedAt: now,
-				registeredAt: now
+				registeredAt: now,
+				"preferences.acceptedTOS": true
 			}, 
 			$unset: {
 				confirmationCode: true,

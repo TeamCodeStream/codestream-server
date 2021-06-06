@@ -28,7 +28,8 @@ class PutPreferencesFetchTest extends PutPreferencesTest {
 			token: this.token
 		}, (error, response) => {
 			if (error) { return callback(error); }
-			Assert.deepEqual(response.user.preferences, this.expectPreferences);
+			this.expectPreferences = { ...this.expectPreferences, ...(this.currentUser.user.preferences || {}) };
+			Assert.deepStrictEqual(response.user.preferences, this.expectPreferences);
 			callback();
 		});
 	}
