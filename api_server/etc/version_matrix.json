@@ -1,9 +1,9 @@
 [
 	{
 		"clientType": "VS Code",
-		"currentRelease": "11.0.5",
-		"minimumPreferredRelease": "11.0.0",
-		"earliestSupportedRelease": "11.0.0"
+		"currentRelease": "11.0.10",
+		"minimumPreferredRelease": "11.0.10",
+		"earliestSupportedRelease": "11.0.10"
 	},
 	{
 		"clientType": "VS",
