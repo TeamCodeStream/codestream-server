@@ -14,7 +14,7 @@ module.exports = {
 			return 'invalid email';
 		}
 		let domainParts = parts[1].split('.');
-		if (domainParts.length < 1) {
+		if (domainParts.length < 2) {
 			return 'invalid domain';
 		}
 		return {

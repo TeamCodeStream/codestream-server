@@ -4,6 +4,7 @@
 
 const SendGrid = require('sendgrid');
 const AwaitUtils = require('./await_utils');
+const EmailUtilities = require('./email_utilities');
 
 class SendGridEmail {
 
@@ -20,10 +21,25 @@ class SendGridEmail {
 			return;
 		}
 
+		// pre-empt sending to invalid emails 
+		const email = request.body.personalizations[0].to[0].email;
+		const parts = EmailUtilities.parseEmail(email);
+		if (typeof parts !== 'object') {
+			if (options.logger) {
+				options.logger.log(`Not sending to invalid email ${email}: ${parts}`, options.requestId);
+			}
+			return;
+		}
+		if (email.match(/noreply\.github\.com$/)) {
+			if (options.logger) {
+				options.logger.log(`Not sending to "no-reply" email ${email}`, options.requestId);
+			}
+			return;
+		}
+
 		// clear to send...
 		let response;
 		let i;
-		const email = request.body.personalizations[0].to[0].email;
 		for (i = 0; i < 3; i++) {
 			try {
 				if (options.logger) {
