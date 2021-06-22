@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Release bump to support latest API version
+- Don't send emails to invalid email addresses
 
 ## [11.0.2] - 2021-5-18
 
