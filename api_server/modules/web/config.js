@@ -102,12 +102,14 @@ const ides = [
 		downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream'
 	},
 	{},
+	/*
 	{
 		ideName: 'Atom',
 		protocol: 'atom://codestream/',
 		moniker: 'atom',
 		downloadUrl: 'https://atom.io/packages/codestream'
 	}
+	*/
 ];
 
 const lastOriginToIdeMonikers = {
