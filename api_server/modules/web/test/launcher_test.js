@@ -26,7 +26,7 @@ var Assert = require('assert');
 	{ expected: 'vsc-insiders', expectedAutoOpen: true, users: [{ lastOrigin: 'VS Code', lastOriginDetail: 'Visual Studio Code - Insiders' }], title: 'should get lastOriginDetail IDE' },
 	{ expected: 'jb-studio', expectedAutoOpen: true, users: [{ lastOrigin: 'JetBrains', lastOriginDetail: 'Android Studio' }], title: 'should get lastOriginDetail IDE (JetBrains)'  },
 
-	{ expected: 'atom', expectedAutoOpen: true, users: [{ lastOrigin: 'Atom', lastOriginDetail: 'Atom (dev)' }], title: 'should get lastOriginDetail IDE (Atom doesn\'t use detail)'  },
+	//{ expected: 'atom', expectedAutoOpen: true, users: [{ lastOrigin: 'Atom', lastOriginDetail: 'Atom (dev)' }], title: 'should get lastOriginDetail IDE (Atom doesn\'t use detail)'  },
 
 	{ expected: 'vs', expectedAutoOpen: true, users: [{ lastOrigin: 'VS', lastOriginDetail: 'Visual Studio Community 2019' }], title: 'should get lastOriginDetail IDE (VS doesn\'t use detail)'  },
 
