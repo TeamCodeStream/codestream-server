@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.6] - 2021-7-1
+
+### Changed
+
+- Removed references to Atom extension on apiweb pages
+
 ## [11.0.5] - 2021-6-22
 
 ### Changed
