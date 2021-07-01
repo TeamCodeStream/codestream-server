@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.7] - 2021-7-1
+
+### Changed
+
+- Rolled back forced update of JetBrains extension
+
 ## [11.0.6] - 2021-7-1
 
 ### Changed
