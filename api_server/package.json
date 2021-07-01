@@ -1,6 +1,6 @@
 {
   "name": "api-server",
-  "version": "11.0.5",
+  "version": "11.0.6",
   "dependencies": {
     "@microsoft/microsoft-graph-client": "2.0.0",
     "@octokit/rest": "17.1.0",

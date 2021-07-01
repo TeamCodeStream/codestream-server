@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.4] - 2021-7-1
+
+### Changed
+
+- Removed references to Atom extension in invitation emails
+
 ## [11.0.3] - 2021-6-22
 
 ### Changed
