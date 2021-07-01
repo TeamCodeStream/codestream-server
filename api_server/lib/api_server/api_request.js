@@ -6,6 +6,7 @@
 
 const APIRequestData = require('./api_request_data');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
+const NewRelic = require('newrelic');
 
 class APIRequest {
 
@@ -101,6 +102,7 @@ class APIRequest {
 			catch (responsePhaseError) {
 				if (responsePhaseError) {
 					this.error('Error handling response: ' + responsePhaseError);
+					this.reportError(responsePhaseError);
 				}
 			}
 		}
@@ -178,6 +180,7 @@ class APIRequest {
 				(typeof this.gotError === 'object' && this.gotError.internal)
 			) {
 				this.statusCode = 500; // internal errors get a 500
+				this.reportError(this.gotError);
 			}
 			else {
 				this.statusCode = 403; // others get a 403
@@ -187,6 +190,18 @@ class APIRequest {
 		this.responseData = ErrorHandler.toClient(this.gotError);
 		this.response.set('X-Request-Id', this.request.id);
 		this.response.status(this.statusCode).send(this.responseData);
+	}
+
+	// report error to monitoring service
+	reportError (error) {
+		const errorExtra = {};
+		if (process.env.CS_NR_REPO_REMOTE) {
+			errorExtra.repo = process.env.CS_NR_REPO_REMOTE;
+		}
+		if (process.env.CS_NR_COMMIT_SHA) {
+			errorExtra.sha = process.env.CS_NR_COMMIT_SHA;
+		}
+		NewRelic.noticeError(error, errorExtra);
 	}
 
 	// close out this request

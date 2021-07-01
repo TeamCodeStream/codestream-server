@@ -5,11 +5,14 @@
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
 const LoginHelper = require('./login_helper');
 
+const NewRelic = require('newrelic');
+
 class RawLoginRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
 		this.loginType = this.loginType || 'web';
+		NewRelic.addCustomAttributes({ hello: 'there', foo: 'bar' });
 	}
 
 	async authorize () {
