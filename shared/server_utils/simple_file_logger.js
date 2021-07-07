@@ -123,14 +123,14 @@ class SimpleFileLogger {
 
 	// log something, with an optional request ID, severity (default is 'info')
 	// and custom log properties for json log format only
-	async log (text, requestId, severity, customLogProperties) {
+	async log (text, requestId, severity, customLogProperties, json) {
 		// the first logged message triggers initialization
 		if (!this.startedOn) {
 			await this.initialize();
-			this.logAfterInitialized(text, requestId, severity, customLogProperties);
+			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
 		}
 		else {
-			this.logAfterInitialized(text, requestId, severity, customLogProperties);
+			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
 		}
 	}
 
@@ -157,15 +157,15 @@ class SimpleFileLogger {
 	}
 
 	// after initialization, we're assured of a log file to write to
-	async logAfterInitialized(text, requestId, severity, customLogProperties) {
+	async logAfterInitialized(text, requestId, severity, customLogProperties, json) {
 		// check if we've reached the threshold time (midnight) and rotate as needed
 		await this.maybeRotate();
 		// and now finally, we can output our text
-		this.out(text, requestId, severity, customLogProperties);
+		this.out(text, requestId, severity, customLogProperties, json);
 	}
 
 	// output text to the current log file(s)
-	out(unformattedText, requestId, severity = 'info', customLogProperties = {}) {
+	out(unformattedText, requestId, severity = 'info', customLogProperties = {}, json = undefined) {
 		const now = Date.now() + this.timezoneOffset;
 		const date = new Date(now);
 		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%LZ', date);
@@ -181,6 +181,15 @@ class SimpleFileLogger {
 			loggerId: this.loggerId,
 			text: unformattedText
 		};
+		if (json) {
+			Object.assign(json, {
+				svc: this.basename,
+				time: fullText,
+				sev: severity,
+				id: requestId,
+				wid: this.loggerId
+			});
+		}
 		if (this.loggerId) {
 			fullText += ' ' + this.loggerId;
 		}
@@ -188,6 +197,10 @@ class SimpleFileLogger {
 			fullText += ' ' + requestId;
 		}
 		fullText += ' ' + text;
+		if (json) {
+			json.message = fullText;
+			fullText = JSON.stringify(json);
+		}
 		if (this.fd) {
 			this.fd.write(fullText + '\n', 'utf8');
 		}

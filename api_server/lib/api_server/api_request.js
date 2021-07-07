@@ -6,7 +6,6 @@
 
 const APIRequestData = require('./api_request_data');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
-const NewRelic = require('newrelic');
 
 class APIRequest {
 
@@ -201,7 +200,7 @@ class APIRequest {
 		if (process.env.CS_NR_COMMIT_SHA) {
 			errorExtra.sha = process.env.CS_NR_COMMIT_SHA;
 		}
-		NewRelic.noticeError(error, errorExtra);
+		this.api.services.newrelic.noticeError(error, errorExtra);
 	}
 
 	// close out this request

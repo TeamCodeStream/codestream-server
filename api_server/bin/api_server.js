@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-require('newrelic');
-
 // Main executable for running the CodeStream API Server
 //
 // We'll load a bunch of configurations and then use a "generic" API server to do most of the work
