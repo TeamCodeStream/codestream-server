@@ -7,15 +7,15 @@
 	},
 	{
 		"clientType": "VS",
-		"currentRelease": "11.0.5",
-		"minimumPreferredRelease": "11.0.0",
-		"earliestSupportedRelease": "11.0.0"
+		"currentRelease": "11.0.12",
+		"minimumPreferredRelease": "11.0.12",
+		"earliestSupportedRelease": "11.0.12"
 	},
 	{
 		"clientType": "JetBrains",
-		"currentRelease": "11.0.4",
-		"minimumPreferredRelease": "11.0.0",
-		"earliestSupportedRelease": "11.0.0"
+		"currentRelease": "11.0.12",
+		"minimumPreferredRelease": "11.0.11",
+		"earliestSupportedRelease": "11.0.11"
 	},
 	{
 		"clientType": "Atom",
