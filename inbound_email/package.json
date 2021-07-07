@@ -1,6 +1,6 @@
 {
 	"name": "inbound-email",
-	"version": "11.0.8",
+	"version": "11.0.9",
 	"dependencies": {
 		"async": "2.6.2",
 		"commander": "4.1.0",
