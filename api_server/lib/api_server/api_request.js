@@ -67,6 +67,16 @@ class APIRequest {
 
 	// initialize the request
 	async initialize () {
+		if (this.api.services.newrelic) {
+			const custom = {};
+			if (process.env.CS_NR_REPO_REMOTE) {
+				custom.repo = process.env.CS_NR_REPO_REMOTE;
+			}
+			if (process.env.CS_NR_COMMIT_SHA) {
+				custom.sha = process.env.CS_NR_COMMIT_SHA;
+			}
+			this.api.services.newrelic.addCustomAttributes(custom);
+		}
 		if (this.request.abortWith) {
 			// middleware error
 			this.statusCode = this.request.abortWith.status;
@@ -193,14 +203,7 @@ class APIRequest {
 
 	// report error to monitoring service
 	reportError (error) {
-		const errorExtra = {};
-		if (process.env.CS_NR_REPO_REMOTE) {
-			errorExtra.repo = process.env.CS_NR_REPO_REMOTE;
-		}
-		if (process.env.CS_NR_COMMIT_SHA) {
-			errorExtra.sha = process.env.CS_NR_COMMIT_SHA;
-		}
-		this.api.services.newrelic.noticeError(error, errorExtra);
+		this.api.services.newrelic.noticeError(error);
 	}
 
 	// close out this request

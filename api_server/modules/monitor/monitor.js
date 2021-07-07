@@ -6,8 +6,8 @@ class NewRelicModule extends APIServerModule {
 
 	services () {
 		return async () => {
-            this.newrelic = this.newrelic || require('newrelic');
-            return { newrelic: this.newrelic };
+			this.newrelic = this.newrelic || require('newrelic');
+			return { newrelic: this.newrelic };
 		};
 	}
 }
