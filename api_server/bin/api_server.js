@@ -7,6 +7,7 @@
 'use strict';
 
 require('newrelic');
+require('@newrelic/aws-sdk');
 
 // load configurations
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
