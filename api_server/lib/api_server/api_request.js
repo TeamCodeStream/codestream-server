@@ -75,6 +75,9 @@ class APIRequest {
 			if (process.env.CS_NR_COMMIT_SHA) {
 				custom.sha = process.env.CS_NR_COMMIT_SHA;
 			}
+			if (process.env.CS_NR_BRANCH) {
+				custom.branch = process.env.CS_NR_BRANCH;
+			}
 			this.api.services.newrelic.addCustomAttributes(custom);
 		}
 		if (this.request.abortWith) {
