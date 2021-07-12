@@ -18,6 +18,7 @@ class CodemarkCreator extends ModelCreator {
 	constructor (options) {
 		super(options);
 		this.codemarkHelper = new CodemarkHelper({ request: this });
+		throw new Error('this is funky!');
 	}
 
 	get modelClass () {
