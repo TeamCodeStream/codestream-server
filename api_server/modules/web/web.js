@@ -116,7 +116,7 @@ const ROUTES = [
 		path: 'no-auth/web/error',
 		requestClass: require('./web_error_request')
 	},
-	{
+	{ 
 		method: 'get',
 		path: 'r/:teamId/:id',
 		requestClass: require('./link_review_request')
@@ -130,6 +130,11 @@ const ROUTES = [
 		method: 'get',
 		path: 'p/:teamId/:id',
 		requestClass: require('./link_codemark_request')
+	},
+	{
+		method: 'get',
+		path: 'e',
+		requestClass: require('./link_nr_error_inbox_request')
 	},
 	{
 		method: 'get',

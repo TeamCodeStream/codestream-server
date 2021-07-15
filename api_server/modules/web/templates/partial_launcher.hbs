@@ -336,6 +336,13 @@ window.CODESTREAM.openEditor = function(ide) {
 				}
 			}
 		}
+		else if (type ==='errorinbox') {			
+			const urlSearchParams = new URLSearchParams(window.location.search);
+			const entries = Object.fromEntries(urlSearchParams.entries());			 
+			const results = Object.keys(entries).map((key) => { return { key: key, value: entries[key] }; } );
+			route = { controller: 'errorinbox', action: 'open', id: options.id, query: results }
+			 
+		}
 		else if (type ==='review') {			
 			route = { controller: 'review', action: 'open', id: options.id, query: [] }
 			if (options.teamId) {
