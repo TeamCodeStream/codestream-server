@@ -248,6 +248,7 @@ class GetPostsRequest extends GetManyRequest {
 		await super.process();	// do the usual "get-many" processing
 		await this.getCodemarks();	// get associated codemarks, as needed
 		await this.getReviews();	// get associated reviews, as needed
+		await this.getCodeErrors();	// get associated code errors, as needed
 		await this.getMarkers();	// get associated markers, as needed
 		await this.getReplies();	// get nested replies, if this is a query for replies
 
@@ -287,6 +288,21 @@ class GetPostsRequest extends GetManyRequest {
 		}
 		this.reviews = await this.data.reviews.getByIds(reviewIds, { excludeFields: ['reviewDiffs', 'checkpointReviewDiffs'] });
 		this.responseData.reviews = this.reviews.map(review => review.getSanitizedObject({ request: this }));
+	}
+
+	// get the code errors associated with the fetched posts, as needed
+	async getCodeErrors () {
+		const codeErrorIds = this.models.reduce((codeErrorIds, post) => {
+			if (post.get('codeErrorId')) {
+				codeErrorIds.push(post.get('codeErrorId'));
+			}
+			return codeErrorIds;
+		}, []);
+		if (codeErrorIds.length === 0) {
+			return;
+		}
+		this.codeErrors = await this.data.codeErrors.getByIds(codeErrorIds);
+		this.responseData.codeErrors = this.codeErrors.map(codeError => codeError.getSanitizedObject({ request: this }));
 	}
 
 	// get the markers associated with the fetched posts, as needed
@@ -366,6 +382,7 @@ class GetPostsRequest extends GetManyRequest {
 			posts: '<@@#post objects#codemark@@ fetched>',
 			codemarks: '<associated @@#codemark objects#codemark@@>',
 			reviews: '<associated @@#review objects#review@@>',
+			codeErrors: '<associated @@#codeError objects#code errors@@>',
 			markers: '<associated @@#markers#markers@@>',
 			more: '<will be set to true if more posts are available, see the description, above>'
 		});

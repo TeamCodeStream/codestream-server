@@ -219,6 +219,72 @@ const ReviewAttributeRequiredTest = require('./reviews/review_attribute_required
 const EmptyReviewChangesetTest = require('./reviews/empty_review_changeset_test');
 const EntryPointTest = require('./reviews/entry_point_test');
 
+// concerning code errors...
+const CodeErrorTest = require('./code_errors/code_error_test');
+/*
+const ReviewMarkersTest = require('./reviews/review_markers_test');
+const NoReviewCommitHashTest = require('./reviews/no_review_commit_hash_test');
+const ReviewMarkersNotArrayTest = require('./reviews/review_markers_not_array_test');
+const ReviewMarkersTooLongTest = require('./reviews/review_markers_too_long_test');
+const ReviewMarkerAttributeRequiredTest = require('./reviews/review_marker_attribute_required_test');
+const NoReviewLocationOkTest = require('./reviews/no_review_location_ok_test');
+const ReviewMarkerHasInvalidStreamIdTest = require('./reviews/review_marker_has_invalid_stream_id_test');
+const ReviewMarkerHasInvalidRepoIdTest = require('./reviews/review_marker_has_invalid_repo_id_test');
+const ReviewMarkerFromDifferentTeamTest = require('./reviews/review_marker_from_different_team_test');
+const ReviewNumMarkersTest = require('./reviews/review_num_markers_test');
+const ReviewMarkerStreamOnTheFlyTest = require('./reviews/review_marker_stream_on_the_fly_test');
+//const ReviewCreateRepoOnTheFlyTest = require('./reviews/review_create_repo_on_the_fly_test');
+//const ReviewNewRepoMessageToTeamTest = require('./reviews/review_new_repo_message_to_team_test');
+const ReviewUpdatedSetRepoMessageTest = require('./reviews/review_updated_set_repo_message_test');
+const ReviewNumRepliesTest = require('./reviews/review_num_replies_test');
+const ReviewSecondReplyTest = require('./reviews/review_second_reply_test');
+const OnTheFlyReviewMarkerStreamFromDifferentTeamTest = require('./reviews/on_the_fly_review_marker_stream_from_different_team_test');
+const ReviewersTest = require('./reviews/reviewers_test');
+const InvalidReviewerTest = require('./reviews/invalid_reviewer_test');
+const ReviewerNotOnTeamTest = require('./reviews/reviewer_not_on_team_test');
+const ReviewOriginTest = require('./reviews/review_origin_test');
+const ReviewOriginDetailTest = require('./reviews/review_origin_detail_test');
+const ReviewTagsTest = require('./reviews/review_tags_test');
+const ReviewTagNotFoundTest = require('./reviews/review_tag_not_found_test');
+const ReviewDeactivatedTagTest = require('./reviews/review_deactivated_tag_test');
+const ReviewDeactivatedDefaultTagTest = require('./reviews/review_deactivated_default_tag_test');
+const AddReviewFollowersTest = require('./reviews/add_review_followers_test');
+const AddReviewCreatorAsFollowerTest = require('./reviews/add_review_creator_as_follower_test');
+const InvalidReviewFollowerTest = require('./reviews/invalid_review_follower_test');
+const ReviewFollowerNotOnTeamTest = require('./reviews/review_follower_not_on_team_test');
+const ReviewFollowersFromDirectStreamTest = require('./reviews/review_followers_from_direct_stream_test');
+const ReviewFollowersMentionedTest = require('./reviews/review_followers_mentioned_test');
+const FollowingReviewFromReplyTest = require('./reviews/following_review_from_reply_test');
+const InvalidReviewMentionTest = require('./reviews/invalid_review_mention_test');
+const ReviewMentionedNotOnTeamTest = require('./reviews/review_mentioned_not_on_team_test');
+const FollowReviewByPreferenceAllTest = require('./reviews/follow_review_by_preference_all_test');
+const FollowReviewByPreferenceCreationTest = require('./reviews/follow_review_by_preference_creation_test');
+const FollowReviewByPreferenceMentionTest = require('./reviews/follow_review_by_preference_mention_test');
+const FollowReviewByPreferenceDirectStreamTest = require('./reviews/follow_review_by_preference_direct_stream_test');
+const FollowReviewByPreferenceRepliesTest = require('./reviews/follow_review_by_preference_replies_test');
+const NoFollowAllReviewsByPreference = require('./reviews/no_follow_all_reviews_by_preference_test');
+const NoFollowReviewCreationByPreferenceTest = require('./reviews/no_follow_review_creation_by_preference_test');
+const NoFollowReviewDirectStreamByPreferenceTest = require('./reviews/no_follow_review_direct_stream_by_preference_test');
+const NoFollowReviewMentionByPreferenceTest = require('./reviews/no_follow_review_mention_by_preference_test');
+const NoFollowReviewRepliesByPreferenceTest = require('./reviews/no_follow_review_replies_by_preference_test');
+const NoReviewAndCodemarkTest = require('./reviews/no_review_and_codemark_test');
+const NoReplyWithReviewTest = require('./reviews/no_reply_with_review_test');
+const InvalidRepoIdInChangesetTest = require('./reviews/invalid_repo_id_in_change_set_test');
+const RepoFromWrongTeamInChangesetTest = require('./reviews/repo_from_wrong_team_in_change_set_test');
+const AuthorsTest = require('./reviews/authors_test');
+const InvalidAuthorTest = require('./reviews/invalid_author_test');
+const AuthorNotOnTeamTest = require('./reviews/author_not_on_team_test');
+const ReplyToAttachedCodemarkTest = require('./reviews/reply_to_attached_codemark_test');
+const ReplyToAttachedCodemarkNumRepliesTest = require('./reviews/reply_to_attached_codemark_num_replies_test');
+const TotalReviewsTest = require('./reviews/total_reviews_test');
+const ACLRepoTest = require('./reviews/acl_repo_test');
+const NewUsersOnTheFlyForReviewTest = require('./reviews/new_users_on_the_fly_for_review_test');
+const ReviewInviteTriggerTest = require('./reviews/review_invite_trigger_test');
+const ReviewAttributeRequiredTest = require('./reviews/review_attribute_required_test');
+const EmptyReviewChangesetTest = require('./reviews/empty_review_changeset_test');
+const EntryPointTest = require('./reviews/entry_point_test');
+*/
+
 class PostPostRequestTester {
 
 	postPostTest () {
@@ -475,6 +541,78 @@ class PostPostRequestTester {
 		new ReviewAttributeRequiredTest({ attribute: 'reviewChangesets' }).test();
 		new EmptyReviewChangesetTest().test();
 		new EntryPointTest().test();
+
+		// concerning code errors...
+		// we do a subset of the tests for codemarks, assuming that marker validation 
+		// between the two API calls is basically the same
+		new CodeErrorTest().test();
+		/*
+		new ReviewMarkersTest().test();
+		new NoReviewCommitHashTest().test();
+		new ReviewMarkersNotArrayTest().test();
+		new ReviewMarkersTooLongTest().test();
+		new ReviewMarkerAttributeRequiredTest({ attribute: 'code' }).test();
+		new NoReviewLocationOkTest().test();
+		new ReviewMarkerHasInvalidStreamIdTest().test();
+		new ReviewMarkerHasInvalidRepoIdTest().test();
+		new ReviewMarkerFromDifferentTeamTest().test();
+		new ReviewNumMarkersTest().test();
+		new ReviewMarkerStreamOnTheFlyTest().test();
+		// NOTE - posting to a stream other than the team stream is no longer allowed
+		//new ReviewMarkerStreamOnTheFlyTest({ streamType: 'channel' }).test();
+		//new ReviewMarkerStreamOnTheFlyTest({ streamType: 'direct' }).test();
+		//new ReviewCreateRepoOnTheFlyTest().test();
+		//new ReviewNewRepoMessageToTeamTest().test(); // deprecated because posting to private streams is no longer allowed
+		new ReviewUpdatedSetRepoMessageTest().test();
+		new ReviewNumRepliesTest().test();
+		new ReviewSecondReplyTest().test();
+		new OnTheFlyReviewMarkerStreamFromDifferentTeamTest().test();
+		new ReviewersTest().test();
+		new InvalidReviewerTest().test();
+		new ReviewerNotOnTeamTest().test();
+		new ReviewOriginTest().test();
+		new ReviewOriginDetailTest().test();
+		new ReviewTagsTest().test();
+		new ReviewTagNotFoundTest().test();
+		new ReviewDeactivatedTagTest().test();
+		new ReviewDeactivatedDefaultTagTest().test();
+		new AddReviewFollowersTest().test();
+		new AddReviewCreatorAsFollowerTest().test();
+		new InvalidReviewFollowerTest().test();
+		new ReviewFollowerNotOnTeamTest().test();
+		new ReviewFollowersFromDirectStreamTest().test();
+		new ReviewFollowersMentionedTest().test();
+		new FollowingReviewFromReplyTest().test();
+		new InvalidReviewMentionTest().test();
+		new ReviewMentionedNotOnTeamTest().test();
+		new FollowReviewByPreferenceAllTest().test();
+		new FollowReviewByPreferenceCreationTest().test();
+		new FollowReviewByPreferenceMentionTest().test();
+		new FollowReviewByPreferenceDirectStreamTest().test();
+		new FollowReviewByPreferenceRepliesTest().test();
+		new NoFollowAllReviewsByPreference().test();
+		new NoFollowReviewCreationByPreferenceTest().test();
+		new NoFollowReviewDirectStreamByPreferenceTest().test();
+		new NoFollowReviewMentionByPreferenceTest().test();
+		new NoFollowReviewRepliesByPreferenceTest().test();
+		new NoReviewAndCodemarkTest().test();
+		new NoReplyWithReviewTest().test();
+		new InvalidRepoIdInChangesetTest().test();
+		new RepoFromWrongTeamInChangesetTest().test();
+		new AuthorsTest().test();
+		new InvalidAuthorTest().test();
+		new AuthorNotOnTeamTest().test();
+		new ReplyToAttachedCodemarkTest().test();
+		new ReplyToAttachedCodemarkNumRepliesTest().test();
+		new TotalReviewsTest().test();
+		new ACLRepoTest().test();
+		new NewUsersOnTheFlyForReviewTest().test();
+		new ReviewInviteTriggerTest().test();
+		new ReviewAttributeRequiredTest({ attribute: 'title' }).test();
+		new ReviewAttributeRequiredTest({ attribute: 'reviewChangesets' }).test();
+		new EmptyReviewChangesetTest().test();
+		new EntryPointTest().test();
+		*/
 	}
 }
 

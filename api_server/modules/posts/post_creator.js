@@ -12,6 +12,7 @@ const StreamPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mo
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const CodemarkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_creator');
 const ReviewCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/review_creator');
+const CodeErrorCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/code_error_creator');
 const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_helper');
 const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
@@ -47,7 +48,7 @@ class PostCreator extends ModelCreator {
 			},
 			optional: {
 				string: ['text', 'parentPostId', '_subscriptionCheat'],
-				object: ['codemark', 'review', 'inviteInfo'],
+				object: ['codemark', 'review', 'codeError', 'inviteInfo'],
 				boolean: ['dontSendEmail'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
 				'array(string)': ['mentionedUserIds', 'addedUsers'],
@@ -63,6 +64,12 @@ class PostCreator extends ModelCreator {
 		}
 		if (this.attributes.parentPostId && this.attributes.review) {
 			throw this.errorHandler.error('noReplyWithReview');
+		}
+		if (this.attributes.codemark && this.attributes.codeError) {
+			throw this.errorHandler.error('noCodemarkAndCodeError');
+		}
+		if (this.attributes.parentPostId && this.attributes.codeError) {
+			throw this.errorHandler.error('noReplyWithCodeError');
 		}
 
 
@@ -86,6 +93,7 @@ class PostCreator extends ModelCreator {
 		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
+		await this.createCodeError();	// create the associated code error, if any
 		await this.getSeqNum();			// requisition a sequence number for the post
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
@@ -131,7 +139,7 @@ class PostCreator extends ModelCreator {
 
 	// create any added users being mentioned, these users get invited "on-the-fly"
 	async createAddedUsers () {
-		// trickiness ... we need to include the codemark or review ID in the invited user objects, but we
+		// trickiness ... we need to include the codemark or review or code error ID in the invited user objects, but we
 		// don't know them yet, and we need to create the users first to make them followers ... so here we
 		// lock down the IDs we will use later in creating the codemark or review
 		if (this.attributes.codemark) {
@@ -141,6 +149,10 @@ class PostCreator extends ModelCreator {
 		if (this.attributes.review) {
 			this.reviewId = this.request.data.reviews.createId();
 			this.inviteTrigger = `R${this.reviewId}`;
+		}
+		if (this.attributes.codeError) {
+			this.codeErrorId = this.request.data.codeErrors.createId();
+			this.inviteTrigger = `E${this.codeErrorId}`;
 		}
 
 		// filter to users that have a valid email
@@ -220,6 +232,29 @@ class PostCreator extends ModelCreator {
 		}).createReview(reviewAttributes);
 		delete this.attributes.review;
 		this.attributes.reviewId = this.transforms.createdReview.id;
+	}
+
+	// create an associated code error, if applicable
+	async createCodeError () {
+		if (!this.attributes.codeError) {
+			return;
+		}
+		const codeErrorAttributes = Object.assign({}, this.attributes.codeError, {
+			teamId: this.team.id,
+			streamId: this.stream.id,
+			postId: this.attributes.id
+		});
+		const usersBeingAddedToTeam = (this.transforms.invitedUsers || []).map(userData => userData.user.id);
+		codeErrorAttributes.assignees = (codeErrorAttributes.assignees || []).concat(usersBeingAddedToTeam);
+		this.transforms.createdCodeError = await new CodeErrorCreator({
+			request: this.request,
+			origin: this.attributes.origin,
+			mentionedUserIds: this.attributes.mentionedUserIds || [],
+			usersBeingAddedToTeam,
+			useId: this.codeErrorId, // if locked down previously
+		}).createCodeError(codeErrorAttributes);
+		delete this.attributes.codeError;
+		this.attributes.codeErrorId = this.transforms.createdCodeError.id;
 	}
 
 	// requisition a sequence number for this post
@@ -306,9 +341,9 @@ class PostCreator extends ModelCreator {
 		}
 
 		if (this.parentPost.get('parentPostId')) {
-			// the only reply to a reply we allow is if the parent post of the post we are replying to is a review post
+			// the only reply to a reply we allow is if the parent post of the post we are replying to is a code error post
 			this.grandParentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
-			if (this.grandParentPost && !this.grandParentPost.get('reviewId')) {
+			if (this.grandParentPost && !this.grandParentPost.get('reviewId') && !this.grandParentPost.get('codeErrorId')) {
 				throw this.errorHandler.error('noReplyToReply');
 			}
 		}
@@ -316,6 +351,7 @@ class PostCreator extends ModelCreator {
 		await this.updateGrandParentPost();
 		await this.updateParentCodemark();
 		await this.updateParentReview();
+		await this.updateParentCodeError();
 	}
 
 	// update numReplies for a parent post to this post
@@ -410,13 +446,44 @@ class PostCreator extends ModelCreator {
 		this.transforms.updatedReviews.push(reviewUpdate);
 	}
 
-	// handle followers to parent codemark or review as needed
-	async handleFollowers (codemarkOrReview, op) {
+	// update numReplies for the parent post's code error, if any
+	async updateParentCodeError () {
+		if (!this.parentPost.get('codeErrorId') && !this.grandParentPost) {
+			return;
+		}
+		const codeErrorId = this.parentPost.get('codeErrorId') || this.grandParentPost.get('codeErrorId');
+		const codeError = await this.request.data.codeErrors.getById(codeErrorId);
+		if (!codeError) { return; }
+
+		const now = Date.now();
+		const op = { 
+			$set: {
+				numReplies: (codeError.get('numReplies') || 0) + 1,
+				lastReplyAt: now,
+				lastActivityAt: now,
+				modifiedAt: now
+			}
+		};
+
+		// handle any followers that need to be added to the code error, as needed
+		await this.handleFollowers(codeError, op);
+
+		this.transforms.updatedCodeErrors = this.transforms.updatedCodeErrors || [];
+		const codeErrorUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.data.codeErrors,
+			id: codeError.id
+		}).save(op);
+		this.transforms.updatedCodeErrors.push(codeErrorUpdate);
+	}
+
+	// handle followers to parent codemark or review or code error as needed
+	async handleFollowers (thing, op) {
 		// if this is a legacy codemark, created before codemark following was introduced per the "sharing" model,
 		// we need to fill its followerIds array with the appropriate users
-		if (codemarkOrReview.get('followerIds') === undefined) {
+		if (thing.get('followerIds') === undefined) {
 			op.$set.followerIds = await new CodemarkHelper({ request: this.request }).handleFollowers(
-				codemarkOrReview.attributes,
+				thing.attributes,
 				{
 					mentionedUserIds: this.parentPost.get('mentionedUserIds'),
 					team: this.team,
@@ -428,7 +495,7 @@ class PostCreator extends ModelCreator {
 
 		// also add this user as a follower if they have that preference, and are not a follower already
 		const userNotificationPreference = (this.user.get('preferences') || {}).notifications || 'involveMe';
-		const followerIds = codemarkOrReview.get('followerIds') || [];
+		const followerIds = thing.get('followerIds') || [];
 		if (userNotificationPreference === 'involveMe' && followerIds.indexOf(this.user.id) === -1) {
 			if (op.$set.followerIds) {
 				// here we're just adding the replying user to the followerIds array for the legacy codemark,
@@ -442,8 +509,8 @@ class PostCreator extends ModelCreator {
 			}
 		}
 
-		// if a user is mentioned that is not following the codemark/review, and they have the preference to
-		// follow codemarks/reviews they are mentioned in, then we'll presume to make them a follower
+		// if a user is mentioned that is not following the thing, and they have the preference to
+		// follow things they are mentioned in, then we'll presume to make them a follower
 		// fetch preferences for the members
 		const mentionedUserIds = this.attributes.mentionedUserIds || [];
 		let newFollowerIds = ArrayUtilities.difference(mentionedUserIds, followerIds);
@@ -625,6 +692,9 @@ class PostCreator extends ModelCreator {
 		if (this.transforms.updatedReviews) {
 			data.reviews = this.transforms.updatedReviews;
 		}
+		if (this.transforms.updatedCodeErrors) {
+			data.codeErrors = this.transforms.updatedCodeErrors;
+		}
 
 		await new PostPublisher({
 			request: this.request,
@@ -691,9 +761,14 @@ class PostCreator extends ModelCreator {
 		}
 
 		const dateOfLastPost = new Date(this.model.get('createdAt')).toISOString();
+		const parentId = (
+			this.parentPost.get('codemarkId') ||
+			this.parentPost.get('reviewId') || 
+			(this.grandParentPost && this.grandParentPost.get('reviewId')) ||
+			(this.grandParentPost && this.grandParentPost.get('codeErrorId'))
+		);
 		const trackData = {
-			'Parent ID': this.parentPost.get('codemarkId') || this.parentPost.get('reviewId') || 
-				(this.grandParentPost && this.grandParentPost.get('reviewId')),
+			'Parent ID': parentId,
 			Endpoint: 'Email',
 			'Date of Last Post': dateOfLastPost
 		};
@@ -705,16 +780,27 @@ class PostCreator extends ModelCreator {
 		if (this.parentPost.get('reviewId')) {
 			parentType = 'Review';
 		}
+		else if (this.parentPost.get('codeErrorId')) {
+			parentType = 'Code Error';
+		}
 		else if (this.parentPost.get('codemarkId')) {
 			if (this.grandParentPost) {
-				parentType = 'Review.Codemark';
+				if (this.grandParentPost.get('reviewId')) {
+					parentType = 'Review.Codemark';
+				} else if (this.grandParentPost.get('codeErrorId')) {
+					parentType = 'CodeError.Codemark';
+				}
 			}
 			else {
 				parentType = 'Codemark';
 			}
 		}
 		else if (this.grandParentPost) {
-			parentType = 'Review.Reply';
+			if (this.grandParentPost.get('reviewId')) {
+				parentType = 'Review.Reply';
+			} else if (this.grandParentPost.get('codeErrorId')) {
+				parentType = 'CodeError.Reply';
+			}
 		}
 		else {
 			parentType = 'Post'; // but should never happen
@@ -740,6 +826,9 @@ class PostCreator extends ModelCreator {
 		const userIds = this.attributes.mentionedUserIds || [];
 		if (this.transforms.createdReview && this.transforms.createdReview.get('reviewers')) {
 			userIds.push(...this.transforms.createdReview.get('reviewers'));
+		}
+		if (this.transforms.createdCodeError && this.transforms.createdCodeError.get('assignees')) {
+			userIds.push(...this.transforms.createdCodeError.get('assignees'));
 		}
 		if (userIds.length === 0) {
 			return;
@@ -777,10 +866,15 @@ class PostCreator extends ModelCreator {
 			}
 		};
 
-		// if a review or codemark was created, update the user's invite trigger and last invite type
+		// if a review or codemark or code error was created, update the user's invite trigger and last invite type
 		if (this.inviteTrigger) {
 			update.$set.inviteTrigger = this.inviteTrigger;
-			update.$set.lastInviteType = this.inviteTrigger.startsWith('R') ? 'reviewNotification' : 'codemarkNotification';
+			const type = {
+				'R' : 'reviewNotification',
+				'C' : 'codemarkNotification',
+				'E' : 'codeErrorNotification'
+			};
+			update.$set.lastInviteType = type[this.inviteTrigger.substring(0, 1)];
 		}
 
 		await this.data.users.updateDirect(

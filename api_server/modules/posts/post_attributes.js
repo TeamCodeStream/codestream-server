@@ -84,5 +84,9 @@ module.exports = {
 		maxLength: 10,
 		maxObjectLength: 500,
 		description: 'Third-party providers to whom this post has been shared'
-	}
+	},
+	codeErrorId: {
+		type: 'id',
+		description: 'ID of the code error attached to this post, if any'
+	},
 };

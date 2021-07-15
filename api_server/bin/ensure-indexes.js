@@ -23,6 +23,7 @@ const AllModuleIndexes = {
 	codemarks: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/indexes'),
 	codemarkLinks: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_link_indexes'),
 	reviews: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/indexes'),
+	codeErrors: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes'),
 	users: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes'),
 	signupTokens: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/signup_token_indexes'),
 	messages: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/indexes'),

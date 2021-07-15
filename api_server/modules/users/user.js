@@ -71,6 +71,8 @@ class User extends CodeStreamModel {
 			return await this.authorizeCodemark(id, request, options);
 		case 'review': 
 			return await this.authorizeReview(id, request, options);
+		case 'codeError': 
+			return await this.authorizeCodeError(id, request, options);
 		case 'user':
 			return await this.authorizeUser(id, request, options);
 		default:
@@ -213,6 +215,21 @@ class User extends CodeStreamModel {
 			request
 		);
 		return authorized ? review : false;
+	}
+
+	// authorize the user to "access" a code error model, based on ID
+	async authorizeCodeError (id, request, options) {
+		// to access a code error, the user must have access to the stream it belongs to
+		// (for read access)
+		const codeError = await request.data.codeErrors.getById(id, options);
+		if (!codeError) {
+			throw request.errorHandler.error('notFound', { info: 'code error' });
+		}
+		const authorized = await this.authorizeStream(
+			codeError.get('streamId'),
+			request
+		);
+		return authorized ? codeError : false;
 	}
 
 	// authorize the user to "access" a user model, based on ID

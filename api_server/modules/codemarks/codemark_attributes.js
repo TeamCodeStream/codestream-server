@@ -171,5 +171,9 @@ module.exports = {
 	isChangeRequest: {
 		type: 'boolean',
 		description: 'Whether this codemark represents a change request against its attached code review'
+	},
+	codeErrorId: {
+		type: 'id',
+		description: 'The code error this codemark is attached to, if any'
 	}
 };
