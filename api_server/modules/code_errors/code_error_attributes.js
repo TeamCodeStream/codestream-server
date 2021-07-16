@@ -133,5 +133,10 @@ module.exports = {
 		type: 'object',
 		maxLength: 10000,
 		description: 'Hash describing the strack trace, as parsed'
+	},
+	providerUrl: {
+		type: 'string',
+		maxLength: 1000,
+		description: 'URL to the code error in the provider'
 	}
 };

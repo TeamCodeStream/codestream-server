@@ -16,7 +16,8 @@ const EXPECTED_BASE_CODE_ERROR_FIELDS = [
 	'status',
 	'numReplies',
 	'lastActivityAt',
-	'stackTrace'
+	'stackTrace',
+	'providerUrl'
 ];
 
 const EXPECTED_CODE_ERROR_FIELDS = EXPECTED_BASE_CODE_ERROR_FIELDS.concat([

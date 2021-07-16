@@ -31,6 +31,7 @@ class CodeErrorValidator {
 			((codeError.numReplies === 0) || errors.push('codeError should have 0 replies')) &&
 			((codeError.origin === expectedOrigin) || errors.push('origin not equal to expected origin')) &&
 			((codeError.stackTrace === this.inputCodeError.stackTrace) || errors.push('stackTrace does not match'))
+			((codeError.providerUrl === this.inputCodeError.providerUrl) || errors.push('providerUrl does not match'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 

@@ -14,7 +14,8 @@ class RandomCodeErrorFactory {
 	getRandomCodeErrorData (options = {}) {
 		const data = {
 			status: 'open',
-			stackTrace: this.getRandomStackTrace(options)
+			stackTrace: this.getRandomStackTrace(options),
+			url: 'https://one.newrelic.com'
 		};
 		if (options.wantMarkers) {
 			data.markers = this.markerFactory.createRandomMarkers(options.wantMarkers, options);
