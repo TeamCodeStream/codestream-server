@@ -26,13 +26,13 @@ class CodeErrorUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['status', 'ticketUrl', 'ticketProviderId'],
-			object: ['$addToSet', '$push', '$pull']
+			object: ['stackInfo', '$addToSet', '$push', '$pull']
 		};
 	}
 
 	// validate the input attributes
 	validateAttributes () {
-		const addRemoveAttributes = ['assignees', 'tags'];
+		const addRemoveAttributes = ['assignees'];
 		
 		// we restrict directives only to certain attributes
 		const error = this.normalizeDirectives(addRemoveAttributes);
@@ -98,13 +98,6 @@ class CodeErrorUpdater extends ModelUpdater {
 
 		// confirm that users being added or removed as assignees are legit
 		await this.confirmUsers();
-
-		// validate any change in tags
-		await this.validateTags();
-
-		// if we're adding changesets, validate the repo IDs, and extract any diffs, since
-		// these are stored separately
-		await this.handleChangesets();
 
 		// we have to special case adding and removing array attributes at the same time, since
 		// mongo won't allow us to $addToSet and $pull the same attribute ... in this case,
