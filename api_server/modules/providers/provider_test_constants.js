@@ -174,6 +174,13 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'okta.com',
 		apiHost: 'okta.com',
 		scopes: ['openid', 'email', 'profile']
+	},
+	'newrelic*com': {
+		id: 'newrelic*com',
+		name: 'newrelic',
+		isEnterprise: false,
+		host: 'newrelic.com',
+		needsConfigure: true
 	}
 };
 

@@ -297,6 +297,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
 		clubhouse: { appClientId: 'placeholder' },
+		newrelic: { appClientId: 'placeholder' }
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
@@ -375,6 +376,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'okta',
 		'clubhouse',
 		'linear',
+		'newrelic'
 	];
 	// matching these paths means Authorization header is not required
 	Cfg.apiServer.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/robots\\.txt$'];
