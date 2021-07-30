@@ -219,7 +219,6 @@ class TransferSendGridData {
 			};
 			if (user.registeredAt) {
 				trackObject.properties['$created'] = new Date(user.registeredAt).toISOString();
-				trackObject.integrations.Intercom = true; // also send to Intercom, if user is registered
 			}
 			this.segment.track(trackObject);
 		} catch (error) {
