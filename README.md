@@ -12,6 +12,8 @@ configuration which includes secrets for pubnub, integration providers, etc...
 Details [here](docs/codestream-sandbox-setup.md). Supplemental documentation is
 [here](docs/README.md)._
 
+For everyone else, read on...
+
 ### Prerequisites
 
 1. Mac or Linux computer using zsh or bash.

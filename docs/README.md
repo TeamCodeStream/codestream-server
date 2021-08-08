@@ -11,7 +11,15 @@ docs directories (links below). Further, some of the docs reference sites on the
 codestream development network. These links will not work outside of that
 context.
 
-## Components
+## Mono-Repo Supplemental Documentation
+* [Mono-Repo Development with the dev_tools Framework](codestream-sandbox-setup.md) -
+  Installation of codestream-server services using the CodeStream dev_tools
+  framework.
+
+* [Code Of Conduct](code-of-conduct.md) - Our ethics, standards, processes and
+  code of conduct.
+
+## Server Components
 
 * [API](../api_server/README.md) - By far the largest component containing all
   of the business logic, data models and access layer to the database.
@@ -41,8 +49,3 @@ context.
   Single Page App for editing the configuration, monitoring the services and
   performing other maintenance functions for On-Prem installations. Supplemental
   onprem admin docs can be found [here](../onprem_admin/docs/README.md).
-
-## Supplemental Documentation
-* [Mono-Repo Development with the dev_tools Framework](codestream-sandbox-setup.md) -
-  Installation of codestream-server services using the CodeStream dev_tools
-  framework.
