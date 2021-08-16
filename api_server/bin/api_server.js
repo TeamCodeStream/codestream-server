@@ -6,6 +6,8 @@
 
 'use strict';
 
+require('newrelic');
+
 // load configurations
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const ModuleDirectory = process.env.CSSVC_BACKEND_ROOT + '/api_server/modules';

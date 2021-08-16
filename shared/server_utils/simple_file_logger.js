@@ -9,8 +9,7 @@ const FS = require('fs');
 const { callbackWrap } = require('./await_utils');
 
 class SimpleFileLogger {
-
-	constructor (options) {
+	constructor(options) {
 		if (!options.directory) {
 			throw 'SimpleFileLogger needs a directory option';
 		}
@@ -18,7 +17,9 @@ class SimpleFileLogger {
 			throw 'SimpleFileLogger needs a basename option';
 		}
 		if (process.env.CSSVC_SIMPLE_FILE_LOGGER_DEBUG) {
-			console.log('simple file logger will use debug mode as CSSVC_SIMPLE_FILE_LOGGER_DEBUG is set');
+			console.log(
+				'simple file logger will use debug mode as CSSVC_SIMPLE_FILE_LOGGER_DEBUG is set'
+			);
 			options.debugOk = true;
 		}
 		if (options.debugOk && options.consoleOk) {
@@ -33,44 +34,41 @@ class SimpleFileLogger {
 		// how long will these log files stick around?
 		if (typeof options.retentionPeriod !== 'undefined') {
 			this.retentionPeriod = options.retentionPeriod;
-		}
-		else {
-			this.retentionPeriod = this.retentionPeriod || (7 * 24 * 60 * 60 * 1000); // one week by default
+		} else {
+			this.retentionPeriod = this.retentionPeriod || 7 * 24 * 60 * 60 * 1000; // one week by default
 		}
 
 		// the log files will have a date stamp associated with them, but there will
 		// always be "today's" log file with no date stamp, it is a symbolic link to the log file for today
 		this.linkName = this.getLinkName();
 
-		// what is my timezone offset? we'll assume it never changes 
+		// what is my timezone offset? we'll assume it never changes
 		this.timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 	}
 
-	setLoggerId (loggerId) {
+	setLoggerId(loggerId) {
 		this.loggerId = loggerId;
 	}
 
 	// initialize logging
-	async initialize () {
+	async initialize() {
 		this.startedOn = Date.now();
 		await this.rotate();
 	}
 
 	// open the next log file in the rotation (it must be midnight)
-	async openNextLogFile () {
+	async openNextLogFile() {
 		const now = Date.now();
 		this.currentFilename = this.getLogFileName(now);
 		try {
 			this.fd = FS.createWriteStream(this.currentFilename, { flags: 'a' });
-		}
-		catch (error) {
+		} catch (error) {
 			throw `unable to open log file ${this.currentFilename}: ${error}`;
 		}
 		if (this.logJson) {
 			try {
 				this.fdJson = FS.createWriteStream(this.currentFilename + '.json', { flags: 'a' });
-			}
-			catch (error) {
+			} catch (error) {
 				throw `unable to open log file ${this.currentFilename}.json: ${error}`;
 			}
 		}
@@ -78,7 +76,7 @@ class SimpleFileLogger {
 	}
 
 	// get a log file name associated with the passed date
-	getLogFileName (timestamp) {
+	getLogFileName(timestamp) {
 		if (!timestamp) {
 			timestamp = Date.now();
 		}
@@ -87,20 +85,14 @@ class SimpleFileLogger {
 		const format = this.format || '%Y%m%d';
 		const formatted = Strftime(format, date);
 		const extension = this.extension || 'log';
-		return Path.join(
-			this.directory,
-			this.basename + '-' + formatted + '.' + extension
-		);
+		return Path.join(this.directory, this.basename + '-' + formatted + '.' + extension);
 	}
 
 	// get the file name for "today's" log file, without a date stamp
 	// this will be a symbolic link to the log file with today's date stamp
-	getLinkName () {
+	getLinkName() {
 		const extension = this.extension || 'log';
-		return Path.join(
-			this.directory,
-			this.basename + '.' + extension
-		);
+		return Path.join(this.directory, this.basename + '.' + extension);
 	}
 
 	_severityFormat(text, severity) {
@@ -123,14 +115,13 @@ class SimpleFileLogger {
 
 	// log something, with an optional request ID, severity (default is 'info')
 	// and custom log properties for json log format only
-	async log (text, requestId, severity, customLogProperties) {
+	async log(text, requestId, severity, customLogProperties, json) {
 		// the first logged message triggers initialization
 		if (!this.startedOn) {
 			await this.initialize();
-			this.logAfterInitialized(text, requestId, severity, customLogProperties);
-		}
-		else {
-			this.logAfterInitialized(text, requestId, severity, customLogProperties);
+			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
+		} else {
+			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
 		}
 	}
 
@@ -157,15 +148,15 @@ class SimpleFileLogger {
 	}
 
 	// after initialization, we're assured of a log file to write to
-	async logAfterInitialized(text, requestId, severity, customLogProperties) {
+	async logAfterInitialized(text, requestId, severity, customLogProperties, json) {
 		// check if we've reached the threshold time (midnight) and rotate as needed
 		await this.maybeRotate();
 		// and now finally, we can output our text
-		this.out(text, requestId, severity, customLogProperties);
+		this.out(text, requestId, severity, customLogProperties, json);
 	}
 
 	// output text to the current log file(s)
-	out(unformattedText, requestId, severity = 'info', customLogProperties = {}) {
+	out(unformattedText, requestId, severity = 'info', customLogProperties = {}, json = undefined) {
 		const now = Date.now() + this.timezoneOffset;
 		const date = new Date(now);
 		let fullText = Strftime('%Y-%m-%d %H:%M:%S.%LZ', date);
@@ -179,8 +170,17 @@ class SimpleFileLogger {
 			severity: severity,
 			requestId: requestId,
 			loggerId: this.loggerId,
-			text: unformattedText
+			text: unformattedText,
 		};
+		if (json) {
+			Object.assign(json, {
+				svc: this.basename,
+				time: fullText,
+				sev: severity,
+				id: requestId,
+				wid: this.loggerId,
+			});
+		}
 		if (this.loggerId) {
 			fullText += ' ' + this.loggerId;
 		}
@@ -188,6 +188,10 @@ class SimpleFileLogger {
 			fullText += ' ' + requestId;
 		}
 		fullText += ' ' + text;
+		if (json) {
+			json.message = fullText;
+			fullText = JSON.stringify(json);
+		}
 		if (this.fd) {
 			this.fd.write(fullText + '\n', 'utf8');
 		}
@@ -202,7 +206,7 @@ class SimpleFileLogger {
 			// write our json log record
 			let logData = {
 				...defaultLogProperties,
-				...this.globalLogProperties
+				...this.globalLogProperties,
 			};
 			if (Object.keys(customLogProperties).length) {
 				logData.customData = JSON.stringify(customLogProperties);
@@ -215,7 +219,7 @@ class SimpleFileLogger {
 	}
 
 	// rotate the log file to the next date, as needed
-	async maybeRotate () {
+	async maybeRotate() {
 		const now = Date.now();
 		const nowMidnight = this.midnight(now);
 		const lastWrittenMidnight = this.midnight(this.lastWritten);
@@ -226,14 +230,14 @@ class SimpleFileLogger {
 	}
 
 	// what is the previous timezone-aware midnight for the passed timestamp?
-	midnight (timestamp) {
+	midnight(timestamp) {
 		const oneDay = 24 * 60 * 60 * 1000;
 		const msSinceMidnightGmt = timestamp % oneDay;
 		return timestamp - msSinceMidnightGmt;
 	}
 
 	// rotate to the next log file
-	async rotate () {
+	async rotate() {
 		if (this.fd) {
 			this.fd.end();
 		}
@@ -244,27 +248,20 @@ class SimpleFileLogger {
 		if (this.logJson) {
 			this.fdJson = null;
 		}
-		await this.openNextLogFile(); 	// open the next one
-		await this.removeOldLink();		// remove the link to the last one
-		await this.makeNewLink();		// make a link to the new one
-		await this.cleanupOld();		// clean up and old log files
+		await this.openNextLogFile(); // open the next one
+		await this.removeOldLink(); // remove the link to the last one
+		await this.makeNewLink(); // make a link to the new one
+		await this.cleanupOld(); // clean up and old log files
 	}
 
 	// remove the link from the last master log file to its date-stamped instance
-	async removeOldLink () {
+	async removeOldLink() {
 		try {
-			await callbackWrap(
-				FS.unlink,
-				this.linkName
-			);
+			await callbackWrap(FS.unlink, this.linkName);
 			if (this.logJson) {
-				await callbackWrap(
-					FS.unlink,
-					this.linkName + '.json'
-				);
+				await callbackWrap(FS.unlink, this.linkName + '.json');
 			}
-		}
-		catch (error) {
+		} catch (error) {
 			if (error.code !== 'ENOENT') {
 				console.error(`unable to unlink ${this.linkName}: ${error}`); // eslint-disable-line no-console
 			}
@@ -272,22 +269,13 @@ class SimpleFileLogger {
 	}
 
 	// make a symbolic link from the master (unstamped) log file to the next (stamped) log file
-	async makeNewLink () {
+	async makeNewLink() {
 		try {
-			await callbackWrap(
-				FS.link,
-				this.currentFilename,
-				this.linkName
-			);
+			await callbackWrap(FS.link, this.currentFilename, this.linkName);
 			if (this.logJson) {
-				await callbackWrap(
-					FS.link,
-					this.currentFilename + '.json',
-					this.linkName + '.json'
-				);
+				await callbackWrap(FS.link, this.currentFilename + '.json', this.linkName + '.json');
 			}
-		}
-		catch (error) {
+		} catch (error) {
 			if (error.code !== 'EEXIST') {
 				console.error(`unable to link ${this.linkName}: ${error}`); // eslint-disable-line no-console
 			}
@@ -295,7 +283,7 @@ class SimpleFileLogger {
 	}
 
 	// clean up any log files older than the retention period
-	async cleanupOld () {
+	async cleanupOld() {
 		const now = Date.now();
 		const nowMidnight = this.midnight(now);
 		const deleteThrough = nowMidnight - this.retentionPeriod;
@@ -309,15 +297,14 @@ class SimpleFileLogger {
 	}
 
 	// delete the log file associated with the given day
-	async deleteDay (day) {
+	async deleteDay(day) {
 		const filename = this.getLogFileName(day);
 		try {
 			await callbackWrap(FS.unlink, filename);
 			if (this.logJson) {
 				await callbackWrap(FS.unlink, filename + '.json');
 			}
-		}
-		catch (error) {
+		} catch (error) {
 			if (error.code !== 'ENOENT') {
 				console.error(`unable to unlink ${this.linkName}: ${error}`); // eslint-disable-line no-console
 			}

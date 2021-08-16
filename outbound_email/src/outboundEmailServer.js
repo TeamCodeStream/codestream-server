@@ -25,6 +25,7 @@ const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const FS = require('fs');
 const UUID = require('uuid/v4');
+const NewRelic = require('newrelic');
 
 const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'reviews', 'markers'];
 
@@ -177,7 +178,9 @@ class OutboundEmailServer {
 			outboundEmailServer: this,
 			requestId
 		};
-		await new emailHandlerClass(handlerOptions).handleMessage(message);
+		NewRelic.startWebTransaction(message.type, () => {
+			return new emailHandlerClass(handlerOptions).handleMessage(message);
+		});	
 		this.numOpenTasks--;
 		if (this.numOpenTasks === 0 && this.killReceived) {
 			this.shutdown();
