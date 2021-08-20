@@ -133,8 +133,8 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'e',
-		requestClass: require('./link_nr_error_inbox_request')
+		path: 'nr/:type',
+		requestClass: require('./link_newrelic_request')
 	},
 	{
 		method: 'get',

@@ -387,11 +387,12 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'^\\/p\\/',
 		'^\\/r\\/',
 		'^\\/web\\/',
+		'^\\/nr\\/',
 	];
 	// matching these paths means cookie authentication is required
 	Cfg.apiServer.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/r\\/', '^\\/web\\/'];
 	// matching these paths means csrf protection is required
-	Cfg.apiServer.requiresCsrfProtectionPaths = ['^\\/c\\/', '^\\/p\\/', '^\\/r\\/', '^\\/web\\/'];
+	Cfg.apiServer.requiresCsrfProtectionPaths = ['^\\/c\\/', '^\\/p\\/', '^\\/r\\/', '^\\/web\\/', '^\\/nr\\/'];
 	// server will use this cookie to store identity token
 	Cfg.apiServer.identityCookie = 'tcs';
 	// for testing in mock mode

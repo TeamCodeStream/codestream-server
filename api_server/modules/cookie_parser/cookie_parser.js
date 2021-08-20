@@ -45,11 +45,6 @@ class CookieParserModule extends APIServerModule {
 	// for certain paths, cookie authentication is required
 	pathRequiresCsrfProtection (request) {
 		const paths = this.api.config.apiServer.requiresCsrfProtectionPaths || [];
-		// for demo, since there's no demo version of the shared/config repo...
-		const e = '^\\/e$';
-		if (paths.indexOf(e) === -1) {
-			paths.push(e);
-		}
 		return paths.find(path => {
 			const regExp = new RegExp(path);
 			return request.path.match(regExp);

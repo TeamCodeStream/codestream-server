@@ -133,13 +133,6 @@ class TokenAuthenticator {
 	// according to config
 	pathIsNoAuth (request) {
 		const paths = this.api.config.apiServer.unauthenticatedPaths || [];
-		
-		// for demo, since there's no demo version of the shared/config repo...
-		const e = '^\\/e$';
-		if (paths.indexOf(e) === -1) {
-			paths.push(e);
-		}
-		
 		return paths.find(path => {
 			const regExp = new RegExp(path);
 			return request.path.match(regExp);

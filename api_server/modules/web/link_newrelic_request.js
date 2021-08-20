@@ -1,10 +1,15 @@
-// handle the "GET /e" request to show a codemark
+// handle the "GET /nr/:type" request to jump from NewRelic into CodeStream
 
 'use strict';
 const WebRequestBase = require('./web_request_base');
 const { defaultCookieName, ides} = require('./config');
 
-class LinkNrErrorInboxRequest extends WebRequestBase {
+const TEMPLATE_BY_TYPE = {
+	errorsinbox: 'nr_error_inbox',
+	pixie: 'nr_pixie'
+};
+
+class LinkNewRelicRequest extends WebRequestBase {
 	async authorize () {
 		this.isPublic = true;  
 		return true; 
@@ -35,7 +40,14 @@ class LinkNrErrorInboxRequest extends WebRequestBase {
 			partial_title_model: { },
 			segmentKey: this.api.config.telemetry.segment.webToken
 		};
-		await super.render('nr_error_inbox', templateProps);
+
+		const template = TEMPLATE_BY_TYPE[this.request.params.type.toLowerCase()];
+		if (template) {
+			await super.render(template, templateProps);
+		} else {
+			this.response.redirect('/web/404');
+			this.responseHandled = true;
+		}
 	} 
 
 	createLauncherModel (repoId) {
@@ -75,4 +87,4 @@ class LinkNrErrorInboxRequest extends WebRequestBase {
 	}
 }
 
-module.exports = LinkNrErrorInboxRequest;
+module.exports = LinkNewRelicRequest;
