@@ -33,7 +33,7 @@
 		"markdown-it-emoji-mart": "0.1.1",
 		"markdown-it-slack": "1.2.0",
 		"mongodb": "3.5.9",
-		"nodemailer": "6.4.8",
+		"nodemailer": "6.4.16",
 		"pubnub": "4.29.7",
 		"randomstring": "1.1.5",
 		"sendgrid": "5.2.3",

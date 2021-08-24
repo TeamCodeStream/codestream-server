@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.9] - 2021-8-24
+
+### Fixed
+
+- Fixes an issue with the Sendgrid to Segment script
+
 ## [11.0.8] - 2021-7-7
 
 ### Changed

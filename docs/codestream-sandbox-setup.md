@@ -35,7 +35,7 @@ development VM and running a setup script that will prepare your entire
 environment for server development. [This is documented
 here](https://dtops-docs.codestream.us/netuser/resources/dev-vms/).
 
-## Installation & Setup Using dev_tools
+## Installation & Setup Using the dev_tools Framework
 
 Installation for development on the CodeStream network using the devtools
 framework.
@@ -46,7 +46,9 @@ framework.
    your sandbox on a development VM.
 1. Install the mongo sandbox. Instructions can be found
    [here](https://github.com/teamcodestream/mongodb_tools).
-1. For cloud development, ensure you can access the AWS SQS service.
+1. For cloud development, ensure you can access the AWS SQS service. If running
+   your sandbox on your own computer, you'll need an AWS IAM API key with
+   **Remote Development** access. Email **ops@codestream.com** for that.
 1. For on-prem development, you'll need rabbitMQ. To run the pre-configured
    docker container, run:
    ```
@@ -59,17 +61,17 @@ framework.
 ### Installation
 1. Update your secrets (`dt-update-secrets -y`).
 1. Select a codestream configuration to use (details documented
-   [here](README.unified-cfg-file.md)). To get up and running quickly, this
+   [here](../api_server/docs/unified-cfg-file.md)). To get up and running quickly, this
    command will select out-of-the-box 'codestream-cloud' as your configuration.
 	```
-	$ echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
+	echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 	```
 1. Open a new terminal window, without any sandboxes loaded.
 1. If you're using a mongo sandbox, load it into your shell and start the mongo
    service.
 	```
-	$ dt-load mongo
-	$ mdb-service start
+	dt-load mongo
+	mdb-service start
 	```
    If using your own mongo installation, make sure it's running and accessible
    without credentials on **localhost**. The default mongo connect url assumes
@@ -78,21 +80,21 @@ framework.
    (we'll use `csbe`). If you want your sandbox initally configured for onprem
    development, include `-e onprem-development.sh` to this command:
 	```
-	dt-sb-new-sandbox -yCD -t cs_server -n csbe
+   dt-sb-install --name csbe --type cs_server --info-file sb.info.nr --yes
 	```
 1. Load your codestream backend sandbox:
 	```
-	$ dt-load csbe
+	dt-load csbe
 	```
 1. If you're using a mongo sandbox, create a playground for setting up future
    terminals with your mongo + csbe sandboxes. This will create a playground
    with a default name of `csbe` (not to be confused with the **csbe** sandbox).
 	```
-	$ dt-sb-create-playground -t $CSBE_TOP/sandbox/playgrounds/default.template
+	dt-sb-create-playground -t $CSBE_TOP/sandbox/playgrounds/default.template
 	```
 
 You are ready to go.  From this point forward use the following command to setup
 new shells for codestream backend development:
 ```
-$ dt-load-playground csbe
+dt-load-playground csbe
 ```

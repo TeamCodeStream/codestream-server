@@ -9,12 +9,11 @@
 const Fetch = require('node-fetch');
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const AnalyticsNode = require('analytics-node');
-const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
+const MongoClient = require(process.env.CSSVC_BACKEND_ROOT +
+	'/shared/server_utils/mongo/mongo_client');
 const Commander = require('commander');
 
-Commander
-	.option('-f, --force', 'Force execution')
-	.parse(process.argv);
+Commander.option('-f, --force', 'Force execution').parse(process.argv);
 
 if (!Commander.force) {
 	Commander.help();
@@ -34,18 +33,17 @@ const CATEGORIES = [
 	'password_reset',
 	'reinvitation',
 	'weekly',
-	'weekly_invite'
+	'weekly_invite',
 ];
 
 class TransferSendGridData {
-
-	constructor (options) {
+	constructor(options) {
 		Object.assign(this, options);
 		this.messages = [];
 		this.numRateLimitHits = 0;
 	}
 
-	async go () {
+	async go() {
 		await this.openMongoClient();
 		if (await this.abortIfDoneAlready()) {
 			console.log('*** This script was already run within 24 hours, aborting... ***');
@@ -60,42 +58,44 @@ class TransferSendGridData {
 	}
 
 	// open a mongo client to read from
-	async openMongoClient () {
+	async openMongoClient() {
 		this.mongoClient = new MongoClient({ collections: ['users', 'sendGridToSegmentLastRunAt'] });
 		try {
 			console.log('Connecting to Mongo...');
 			await this.mongoClient.openMongoClient(this.config.storage.mongo);
 			this.data = this.mongoClient.mongoCollections;
-		}
-		catch (error) {
+		} catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			throw `unable to open mongo client: ${message}`;
 		}
 	}
 
 	// if another instance of this script already ran, just abort
-	async abortIfDoneAlready () {
-		const lastRunAt = await this.data.sendGridToSegmentLastRunAt.getByQuery({}, { overrideHintRequired: true });
+	async abortIfDoneAlready() {
+		const lastRunAt = await this.data.sendGridToSegmentLastRunAt.getByQuery(
+			{},
+			{ overrideHintRequired: true }
+		);
 		if (lastRunAt && lastRunAt[0] && lastRunAt[0].lastRunAt > Date.now() - RUN_INTERVAL) {
 			return true;
 		}
 	}
 
 	// update when this script was last run so other running instances don't try
-	async updateLastRunAt () {
+	async updateLastRunAt() {
 		await this.data.sendGridToSegmentLastRunAt.updateDirect(
-			{ }, 
+			{},
 			{ $set: { lastRunAt: Date.now() } },
-			{ upsert: true}
+			{ upsert: true }
 		);
 	}
 
-	async connectToSegment () {
+	async connectToSegment() {
 		console.log('Connecting to Segment...');
 		this.segment = new AnalyticsNode(this.config.telemetry.segment.token);
 	}
 
-	async getSendGridMessages () {
+	async getSendGridMessages() {
 		console.log('Fetching SendGrid messages...');
 		for (let category of CATEGORIES) {
 			await this.getSendGridMessagesByCategory(category);
@@ -105,7 +105,7 @@ class TransferSendGridData {
 		});
 	}
 
-	async getSendGridMessagesByCategory (category) {
+	async getSendGridMessagesByCategory(category) {
 		let numMessages = 0;
 		const now = Date.now();
 		const lastMidnight = this.midnight(now);
@@ -116,16 +116,20 @@ class TransferSendGridData {
 			nPages++;
 			console.log(`\tFetching page ${nPages} of SendGrid messages, category="${category}"...`);
 			let messages = await this.getSendGridMessagePage(category, lastTime, previousMidnight);
-			messages = messages.filter(message => {
-				return !this.messages.find(haveMessage => haveMessage.msg_id === message.msg_id);
+			messages = messages.filter((message) => {
+				return !this.messages.find((haveMessage) => haveMessage.msg_id === message.msg_id);
 			});
 			console.log(`\t\t(fetched ${messages.length} "${category}" messages)`);
 			if (DEBUG) {
-				console.log('####################################################################################');
+				console.log(
+					'####################################################################################'
+				);
 				console.log(JSON.stringify(messages, undefined, 5));
-				console.log('####################################################################################');
+				console.log(
+					'####################################################################################'
+				);
 			}
-			messages = messages.filter(message => {
+			messages = messages.filter((message) => {
 				return message.opens_count > 0;
 			});
 			numMessages = messages.length;
@@ -138,7 +142,7 @@ class TransferSendGridData {
 		} while (numMessages > 0 && this.messages.length < MESSAGE_LIMIT);
 	}
 
-	async getSendGridMessagePage (category, latest, earliest) {
+	async getSendGridMessagePage(category, latest, earliest) {
 		const token = this.config.emailDeliveryService.sendgrid.apiKey;
 		const apiKey = token.split('.')[1];
 		const latestISO = new Date(latest).toISOString();
@@ -155,11 +159,27 @@ class TransferSendGridData {
 		const response = await Fetch(url, {
 			headers: {
 				Authorization: `Bearer ${token}`,
-				'Content-Type': 'application/json'
-			}
+				'Content-Type': 'application/json',
+			},
 		});
+
+		const text = await response.text();
+		let json;
 		if (!response.ok) {
-			const json = await response.json();
+			if (response.statusText === 'Too Many Requests') {
+				console.warn('*** SendGrid said Too Many Requests, waiting 5 minutes... ***');
+				await this.wait(300000);
+				return this.getSendGridMessagePage(category, latest, earliest);
+			}
+			console.warn('status=' + response.statusText);
+			try {
+				json = JSON.parse(text);
+			} catch (error) {
+				console.error(
+					`JSON parsing of error response failed with "${error.message}", text was:\n${text}`
+				);
+				process.exit(1);
+			}
 			if (json.errors && json.errors[0] && json.errors[0].message === 'too many requests') {
 				this.numRateLimitHits++;
 				if (this.numRateLimitHits === 20) {
@@ -176,14 +196,19 @@ class TransferSendGridData {
 			process.exit(1);
 		}
 
-		const messages = (await response.json()).messages;
-		messages.forEach(message => {
+		try {
+			json = JSON.parse(text);
+		} catch (error) {
+			console.error(`JSON parsing failed with "${error.message}", text was:\n${text}`);
+			process.exit(1);
+		}
+		json.messages.forEach((message) => {
 			message.category = category;
 		});
-		return messages;
+		return json.messages;
 	}
 
-	async writeToSegment () {
+	async writeToSegment() {
 		console.log(`Writing ${this.messages.length} events to Segment...`);
 		let n = 0;
 		for (let message of this.messages) {
@@ -193,10 +218,10 @@ class TransferSendGridData {
 		}
 	}
 
-	async writeMessageToSegment (message, n, total) {
-		const user = await this.data.users.getOneByQuery(
-			{ searchableEmail: message.to_email.toLowerCase() }
-		);
+	async writeMessageToSegment(message, n, total) {
+		const user = await this.data.users.getOneByQuery({
+			searchableEmail: message.to_email.toLowerCase(),
+		});
 		if (!user) {
 			console.warn(`*** Could not find matching user for ${message.to_email} ***`);
 			return;
@@ -211,11 +236,11 @@ class TransferSendGridData {
 				integrations: { All: false, Postgres: true }, // only send to PostGres
 				properties: {
 					distinct_id: user.id,
-					'$email': user.email,
+					$email: user.email,
 					name: user.fullName || '',
 					msg_id: message.msg_id,
-					category: message.category
-				}
+					category: message.category,
+				},
 			};
 			if (user.registeredAt) {
 				trackObject.properties['$created'] = new Date(user.registeredAt).toISOString();
@@ -228,24 +253,23 @@ class TransferSendGridData {
 		}
 	}
 
-	midnight (timestamp) {
+	midnight(timestamp) {
 		const msSinceMidnightGmt = timestamp % ONE_DAY;
 		return timestamp - msSinceMidnightGmt;
 	}
 
-	async wait (ms) {
-		await new Promise(resolve => {
+	async wait(ms) {
+		await new Promise((resolve) => {
 			setTimeout(resolve, ms);
 		});
 	}
 }
 
-(async function() {
+(async function () {
 	try {
 		const Config = await ApiConfig.loadPreferredConfig();
 		await new TransferSendGridData({ config: Config }).go();
-	}
-	catch (error) {
+	} catch (error) {
 		const msg = error instanceof Error ? error.message : JSON.stringify(error);
 		console.error(msg);
 		process.exit(1);
