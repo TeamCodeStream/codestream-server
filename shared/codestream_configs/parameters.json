@@ -780,17 +780,17 @@
 	},
 	"ssl": {
 		"cafile": {
-			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-ca",
+			"default": "${HOME}/.codestream/certs/wildcard.codestream.us/wildcard.codestream.us-ca",
 			"desc": "SSL certificate authority bundle (chain) file",
 			"env": "CSSVC_SSL_CAFILE"
 		},
 		"certfile": {
-			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-crt",
+			"default": "${HOME}/.codestream/certs/wildcard.codestream.us/wildcard.codestream.us-crt",
 			"desc": "SSL certificate",
 			"env": "CSSVC_SSL_CERTFILE"
 		},
 		"keyfile": {
-			"default": "${HOME}/.certs/wildcard.codestream.us/wildcard.codestream.us-key",
+			"default": "${HOME}/.codestream/certs/wildcard.codestream.us/wildcard.codestream.us-key",
 			"desc": "SSL private key file",
 			"env": "CSSVC_SSL_KEYFILE"
 		},

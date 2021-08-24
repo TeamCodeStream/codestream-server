@@ -61,6 +61,9 @@ fi
 # 	/bin/rm $tmpfile
 # fi
 
+# Add absolute remotes
+echo git remote add private git@github.com:teamcodestream/codestream-server-private
+git remote add private git@github.com:teamcodestream/codestream-server-private
 
 # Add git hooks as needed
 if [ -d "$CSBE_TOP/hooks" ]; then

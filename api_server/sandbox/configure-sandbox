@@ -36,6 +36,10 @@ fi
 echo "npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
 npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS
 
+# Add absolute remotes
+echo git remote add private git@github.com:teamcodestream/codestream-server-private
+git remote add private git@github.com:teamcodestream/codestream-server-private
+
 # package integrity check
 # if [ -f sandbox/package-versions.txt ]; then
 # 	tmpfile=/tmp/junk$$

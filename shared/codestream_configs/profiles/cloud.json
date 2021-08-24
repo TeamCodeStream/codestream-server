@@ -24,6 +24,13 @@
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"helpIsAvailable": true
 		},
+		"nr": {
+			"authOrigin": null,
+			"helpIsAvailable": true,
+			"phoneHomeUrl": null,
+			"port": 8443,
+			"publicApiUrl": "https://nr-preview.codestream.us"
+		},
 		"pi": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"phoneHomeUrl": null
@@ -220,6 +227,10 @@
 				"local": {
 					"_loadSecretsFile": "slack/local-combined.cfg"
 				},
+				"nr": {
+					"_loadSecretsFile": "slack/nr-combined.cfg",
+					"interactiveComponentsEnabled": true
+				},
 				"pd": {
 					"_loadSecretsFile": "slack/dev-combined.cfg",
 					"interactiveComponentsEnabled": true
@@ -253,6 +264,14 @@
 			}
 		},
 		"local": {},
+		"nr": {
+			"showConfig": true,
+			"storage": {
+				"mongo": {
+					"_loadSecretsFile": "mongo/nr.cfg"
+				}
+			}
+		},
 		"pd": {
 			"showConfig": true,
 			"storage": {
@@ -349,6 +368,9 @@
 	"storage": {
 		"mongo": {
 			"defaultEnv": {},
+			"nr": {
+				"_loadSecretsFile": "mongo/nr.cfg"
+			},
 			"pd": {
 				"_loadSecretsFile": "mongo/pd.cfg"
 			},

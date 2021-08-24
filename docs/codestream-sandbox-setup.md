@@ -28,7 +28,7 @@ with the codestream-server sandbox in a playground. AWS SQS requires an AWS IAM
 access key or the codestream-server sandbox to run on a managed EC2 development
 instance.
 
-## Installation on a Managed VM
+## Installation
 
 Probably the fastest way to get started would be by launching your own private
 development VM and running a setup script that will prepare your entire
@@ -58,7 +58,24 @@ framework.
    If you have any custom alterations to the standard configuration, you will
    need to be familiar with the procedures in this document.
 
-### Installation
+### Quick and Dirty 
+
+The framework includes an installation script that does all the work. If you
+don't have the framework installed on your notebook, you could spin up a
+development instance for yourself. [This is documented
+here](https://dtops-docs.codestream.us/netuser/resources/dev-vms/).
+
+This will install all the codestream sandboxes including the front-end client
+repo, onprem-install and backend repos.
+```
+dt-dev-setup --codestream
+```
+
+### Installation & Setup Using dev_tools Framework commands
+
+This is _mostly_ what the **dt-dev-setup** script will do, but reduced to the
+sandboxes applicable solely to the CodeStream Back-End services.
+
 1. Update your secrets (`dt-update-secrets -y`).
 1. Select a codestream configuration to use (details documented
    [here](../api_server/docs/unified-cfg-file.md)). To get up and running quickly, this
@@ -67,8 +84,7 @@ framework.
 	echo codestream-cloud > ~/.codestream/config/codestream-cfg-default.local
 	```
 1. Open a new terminal window, without any sandboxes loaded.
-1. If you're using a mongo sandbox, load it into your shell and start the mongo
-   service.
+1. If you're using a mongo sandbox, load it into your shell.
 	```
 	dt-load mongo
 	mdb-service start
@@ -98,3 +114,23 @@ new shells for codestream backend development:
 ```
 dt-load-playground csbe
 ```
+You are good to go.
+
+## Loading the Playground
+
+1. In a new shell, load the backend playground with the command
+   `dt-load-playground csbe` or `dlp csbe`. This sets your shell up with the
+   mongo and backend server mono-repo sandboxes. Run `dt-env` to see them.
+
+1. Control mongo with the `mdb-service` command
+   ```
+   mdb-service { start | stop | status }
+   ```
+
+1. See the backend mono-repo commands with `csbe-help`. Since the mono-repo
+   effectively loads all the component sandboxes (api, mailout, mailin,
+   broadcaster, onprem-admin), all of those commands are available as well. Use
+   `cs_api-help`, `cs_outbound_email-help`, `cs_mailin-help`,
+   `cs_broadcaster-help` and `opadm-help`.
+
+Happy coding!.
