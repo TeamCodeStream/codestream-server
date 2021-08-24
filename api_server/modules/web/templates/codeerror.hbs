@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CodeStream</title>
+	<link rel="dns-prefetch" href="https://images.codestream.com">
+	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+	{{> partial_html_head partial_html_head_model}}
+	<script type="text/javascript">
+		!function () {
+			var analytics = window.analytics = window.analytics || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
+				analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "once", "off", "on"]; analytics.factory = function (t) { return function () { var e = Array.prototype.slice.call(arguments); e.unshift(t); analytics.push(e); return analytics } }; for (var t = 0; t < analytics.methods.length; t++) { var e = analytics.methods[t]; analytics[e] = analytics.factory(e) } analytics.load = function (t, e) { var n = document.createElement("script"); n.type = "text/javascript"; n.async = !0; n.src = "https://cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js"; var a = document.getElementsByTagName("script")[0]; a.parentNode.insertBefore(n, a); analytics._loadOptions = e }; analytics.SNIPPET_VERSION = "4.1.0";
+				analytics.load("{{segmentKey}}");
+				analytics.page();
+			}
+		}();
+	</script>
+	<script>		 
+		window.CODESTREAM = window.CODESTREAM || {};
+		window.CODESTREAM.page = {
+			type: "codeerror",
+			what: "CodeError",
+			data: {
+				queryStringFull: '{{queryStringFull}}',			 
+				id: '{{codeError.id}}',			 
+				teamId: '{{teamId}}'	 
+			}
+		}	 
+	</script>
+	<style>
+		p {
+    		margin: auto;
+    		width: 100%;
+		} 
+	</style>
+</head>
+<body>
+	{{> partial_menu partial_menu_model}} 
+
+	<div class="container-fluid" id="root">
+		{{> partial_launcher partial_launcher_model}}		 	
+		<div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">			 
+			     <div class="box-content box-border box-border-sm">
+					  <div class="flex group">
+						{{#if hasEmailHashOrAuthorInitials}}
+							<div class="headshot">
+								<img style="position:absolute; z-index:2;" class="headshot-image"
+									src="https://www.gravatar.com/avatar/{{emailHash}}?s=20&d=blank" />
+								<span class="headshot-initials">{{authorInitials}}</span>
+							</div>
+						{{/if}}
+						<div>
+							<div class="posted-on">
+								<span class="author">{{username}}</span>
+								<span class="time">{{createdAt}}</span>
+							</div>
+						</div>
+					</div> 
+					<span class="title">{{codeError.title}}</span>											
+						<div class="row no-gutters mt-4">
+							<div class="col-sm-12">
+								<div class="code-wrapper" style="max-height:275px;" data-action-expand-id="611ebeca57be8e75fe94c298">
+									<code class="prettyprint" style="">{{{codeError.stackTrace}}}</code>            
+								</div>
+							</div>
+						</div>					
+				</div>
+		</div>			 	
+	</div>
+	{{> partial_scripts_footer}}
+</body> 
+</html>

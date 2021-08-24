@@ -336,6 +336,16 @@ window.CODESTREAM.openEditor = function(ide) {
 				}
 			}
 		}
+		else if (type ==='codeerror') {
+			const urlSearchParams = new URLSearchParams(window.location.search);
+			const entries = Object.fromEntries(urlSearchParams.entries());			 
+			const results = Object.keys(entries).map((key) => { return { key: key, value: entries[key] }; } );
+			if (options.teamId) {
+				results.push({key: 'teamId', value: options.teamId});
+			}
+			route = { controller: 'codeerror', action: 'open', id: options.id, query: results }
+			 
+		}
 		else if (type ==='errorsinbox' || type === 'pixie') {
 			const urlSearchParams = new URLSearchParams(window.location.search);
 			const entries = Object.fromEntries(urlSearchParams.entries());			 

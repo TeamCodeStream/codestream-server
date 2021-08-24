@@ -121,6 +121,11 @@ const ROUTES = [
 		path: 'r/:teamId/:id',
 		requestClass: require('./link_review_request')
 	},
+	{ 
+		method: 'get',
+		path: 'e/:teamId/:id',
+		requestClass: require('./link_codeerror_request')
+	},
 	{
 		method: 'get',
 		path: 'c/:teamId/:id',
