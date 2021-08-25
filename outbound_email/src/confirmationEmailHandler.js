@@ -31,7 +31,6 @@ ${this.message.url}<br/><br/>
 
 	// render the email with a confirmation code, to be deprecated
 	async renderWithCode () {
-this.logger.log('RENDERING A CONFIRMATION EMAIL...');
 		this.subject = 'Confirm your email address';
 		const code = this.user.confirmationCode;
 		this.content = `
@@ -41,7 +40,6 @@ ${code}<br/><br/>
 Team CodeStream<br/><br/>
 </html>
 `;
-this.logger.log('RENDERED:' + this.content);
 	}
 	
 	// analytics category for this email type

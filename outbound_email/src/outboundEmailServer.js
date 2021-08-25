@@ -179,10 +179,7 @@ class OutboundEmailServer {
 			requestId
 		};
 		NewRelic.startWebTransaction(message.type, () => {
-this.logger.log('HANDLING MESSAGE:' + JSON.stringify(message));
-			const result = new emailHandlerClass(handlerOptions).handleMessage(message);
-this.logger.log('MESSAGE HANDLED');
-			return result;
+			return new emailHandlerClass(handlerOptions).handleMessage(message);
 		});	
 		this.numOpenTasks--;
 		if (this.numOpenTasks === 0 && this.killReceived) {
