@@ -10,11 +10,16 @@ class EmailHandler {
 		this.message = message;
 		this.logger.log(`Processing a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.requestId);
 		try {
+this.logger.log('GETTING USER...');
 			await this.getUser();	
+this.logger.log('RENDERING EMAIL...');
 			await this.renderEmail();
+this.logger.log('SENDING EMAIL...');
 			await this.sendEmail();
+this.logger.log('DONE');
 		}
 		catch (error) {
+this.logger.log('CAUGHT:' + error);
 			let message;
 			if (error instanceof Error) {
 				message = `${error.message}\n${error.stack}`; 
@@ -22,6 +27,7 @@ class EmailHandler {
 			else {
 				message = JSON.stringify(error);
 			}
+this.logger.log('message=' + message);
 			return this.logger.warn(`Email handling for ${this.message.type} email failed: ${message}`, this.requestId);
 		}
 		this.logger.log(`Successfully processed a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.requestId);
