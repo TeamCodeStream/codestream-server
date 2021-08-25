@@ -97,7 +97,6 @@ class MongoClient {
 						this.config.url,
 						settings
 					);
-					if (this.options.logger) this.options.logger.log('MONGO CONNECTED!');
 					this.mongoClient.on('serverHeartbeatFailed', () => {
 						if (this.options.logger) {
 							this.options.logger.warn('Mongo server heartbeat failed');
@@ -110,7 +109,6 @@ class MongoClient {
 					this.config.url,
 					settings
 				);
-				if (this.options.logger) this.options.logger.log('MONGO CONNECTED!');
 			}
 		}
 		catch (error) {
@@ -154,7 +152,6 @@ class MongoClient {
 			this.dbCollections[collection] = this.mongoClient.db().collection(collection);
 		}
 		this.mongoCollections[collection] = new MongoCollection({
-logger: this.options.logger,
 			dbCollection: this.dbCollections[collection],
 			queryLogger: this.queryLogger,
 			/*

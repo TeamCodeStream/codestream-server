@@ -497,10 +497,10 @@ class MongoCollection {
 
 	// log a mongo query to our logger
 	_logMongoQuery (options, args) {
-		if (!this.options.queryLogger && !this.options.logger) {
+		if (!this.options.queryLogger) {
 			return;
 		}
-		this._logMongoQueryToLogger(this.options.queryLogger || this.options.logger, options, args);
+		this._logMongoQueryToLogger(this.options.queryLogger, options, args);
 	}
 
 	// log a mongo query to our logger
