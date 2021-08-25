@@ -221,6 +221,10 @@ this.logger.log('MESSAGE HANDLED');
 			process.exit();
 		}
 		this.data = this.mongo.mongoCollections;
+
+this.log('Trying to fetch users...');
+const users = await this.data.users.getByQuery({});
+this.log('FETCHED:' + users.map(u => u.id));
 		this.log('Successfully connected to mongo');
 	}
 	

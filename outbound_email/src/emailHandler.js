@@ -35,8 +35,11 @@ this.logger.log('message=' + message);
 
 	// get the user associated with the email
 	async getUser () {
+this.logger.log('get user ' + this.message.userId);
 		this.user = await this.data.users.getById(this.message.userId);
+this.logger.log('GOT:' + JSON.stringify(this.user));
 		if (!this.user) {
+this.logger.log('DID NOT FIND USER');
 			throw 'user not found:' + this.message.userId;
 		}
 	}
