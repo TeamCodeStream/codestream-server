@@ -1,15 +1,15 @@
 [
 	{
 		"clientType": "VS Code",
-		"currentRelease": "11.0.10",
-		"minimumPreferredRelease": "11.0.10",
-		"earliestSupportedRelease": "11.0.10"
+		"currentRelease": "11.0.14",
+		"minimumPreferredRelease": "11.0.14",
+		"earliestSupportedRelease": "11.0.14"
 	},
 	{
 		"clientType": "VS",
-		"currentRelease": "11.0.12",
-		"minimumPreferredRelease": "11.0.12",
-		"earliestSupportedRelease": "11.0.12"
+		"currentRelease": "11.0.14",
+		"minimumPreferredRelease": "11.0.14",
+		"earliestSupportedRelease": "11.0.14"
 	},
 	{
 		"clientType": "JetBrains",
