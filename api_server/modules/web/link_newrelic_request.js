@@ -5,8 +5,8 @@ const WebRequestBase = require('./web_request_base');
 const { defaultCookieName, ides} = require('./config');
 
 const TEMPLATE_BY_TYPE = {
-	errorsinbox: 'nr_error_inbox',
-	pixie: 'nr_pixie'
+	error: 'nr_error_inbox',
+	code: 'nr_pixie'
 };
 
 class LinkNewRelicRequest extends WebRequestBase {

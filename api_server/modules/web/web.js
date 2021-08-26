@@ -138,7 +138,7 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'nr/:type',
+		path: 'open/:type',
 		requestClass: require('./link_newrelic_request')
 	},
 	{
