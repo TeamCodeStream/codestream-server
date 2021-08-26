@@ -138,5 +138,20 @@ module.exports = {
 		type: 'string',
 		maxLength: 1000,
 		description: 'URL to the code error in the provider'
+	},
+	entityId: {
+		type: 'string',
+		maxLength: 200,
+		description: 'Id from the source of this code error'
+	},
+	entityType: {
+		type: 'string',
+		maxLength: 200,
+		description: 'Type from the source of this code error'
+	},
+	entityInfo: {
+		type: 'object',
+		maxLength: 10000,
+		description: 'Other metadata from the source of this code error'
 	}
 };
