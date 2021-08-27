@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.10] - 2021-8-27
+
+### Changed
+
+- Set minimum required versions of the VS and VS Code extensions to 11.0.14.
+
 ## [11.0.9] - 2021-8-24
 
 ### Fixed
