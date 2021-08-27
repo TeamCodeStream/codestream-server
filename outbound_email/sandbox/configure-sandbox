@@ -72,6 +72,9 @@ fi
 # 	/bin/rm $tmpfile
 # fi
 
+# Add absolute remotes
+echo git remote add private git@github.com:teamcodestream/codestream-server-private
+git remote add private git@github.com:teamcodestream/codestream-server-private
 
 # Add git hooks as needed
 if [ $mode != "no_build"  -a  -d "$CS_OUTBOUND_EMAIL_TOP/hooks" ]; then

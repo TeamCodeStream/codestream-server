@@ -83,7 +83,7 @@ diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 # done
 
 # cloud configuration files, all environments (consumed by developers via dt-update-secrets)
-for csEnv in "local" ci pi pd qa prod dev
+for csEnv in "local" ci pi pd qa prod dev nr
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
 	$binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1

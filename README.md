@@ -4,7 +4,8 @@ On the backend (aka. the server-side), CodeStream runs a number of services to
 provide all the functionality needed for the clients. The default development
 environment will use the codestream broadcaster and rabbitMQ with outbound mail
 disabled.
-## Development Setup
+
+## Development Setup with the devtools Framework
 
 _Note: CodeStream employees should use the dev_tools sandbox as it will provide
 most of the ancillary resources you'll need, most notably our development
@@ -14,6 +15,7 @@ Details [here](docs/codestream-sandbox-setup.md). Supplemental documentation is
 
 For everyone else, read on...
 
+## Development Setup without the devtools Framework
 ### Prerequisites
 
 1. Mac or Linux computer using zsh or bash.
