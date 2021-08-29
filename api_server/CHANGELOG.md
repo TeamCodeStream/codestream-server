@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.10] - 2021-8-29
+
+### Changed
+
+- Set minimum required version of the JetBrains extension to 11.0.13.
+
 ## [11.0.10] - 2021-8-27
 
 ### Changed
