@@ -153,7 +153,7 @@ class PermalinkCreator {
 	// if all of these are the same, we should get the same MD5 hash
 	makeCodeErrorHashText (attributes, markers) {
 		const markerText = this.makeMarkerHashText(markers);
-		const codeErrorText = JSON.stringify(attributes.stackTrace);
+		const codeErrorText = JSON.stringify(attributes.stackTraces);
 		return `${attributes.teamId}${markerText}${codeErrorText}`;
 	}
 

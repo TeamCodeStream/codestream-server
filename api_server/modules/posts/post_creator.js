@@ -93,7 +93,11 @@ class PostCreator extends ModelCreator {
 		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
-		await this.createCodeError();	// create the associated code error, if any
+		if (!await this.createCodeError()) { // create the associated code error, if any
+			// here we found a match to the code error, and we don't create a post at all
+			this.suppressSave = true;
+			return;
+		}
 		await this.getSeqNum();			// requisition a sequence number for the post
 		await super.preSave();			// base-class preSave
 		await this.updateStream();		// update the stream as needed
@@ -237,24 +241,29 @@ class PostCreator extends ModelCreator {
 	// create an associated code error, if applicable
 	async createCodeError () {
 		if (!this.attributes.codeError) {
-			return;
+			return true;
 		}
 		const codeErrorAttributes = Object.assign({}, this.attributes.codeError, {
 			teamId: this.team.id,
 			streamId: this.stream.id,
 			postId: this.attributes.id
 		});
-		const usersBeingAddedToTeam = (this.transforms.invitedUsers || []).map(userData => userData.user.id);
-		codeErrorAttributes.assignees = (codeErrorAttributes.assignees || []).concat(usersBeingAddedToTeam);
-		this.transforms.createdCodeError = await new CodeErrorCreator({
+		
+		const codeErrorCreator = new CodeErrorCreator({
 			request: this.request,
 			origin: this.attributes.origin,
-			mentionedUserIds: this.attributes.mentionedUserIds || [],
-			usersBeingAddedToTeam,
 			useId: this.codeErrorId, // if locked down previously
-		}).createCodeError(codeErrorAttributes);
+		});
+		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(codeErrorAttributes);
 		delete this.attributes.codeError;
+		if (codeErrorCreator.existingModel) {
+			// this means a matching code error was found, which means we don't actually
+			// create a new post at all
+			return false;
+		}
+
 		this.attributes.codeErrorId = this.transforms.createdCodeError.id;
+		return true;
 	}
 
 	// requisition a sequence number for this post
@@ -826,9 +835,6 @@ class PostCreator extends ModelCreator {
 		const userIds = this.attributes.mentionedUserIds || [];
 		if (this.transforms.createdReview && this.transforms.createdReview.get('reviewers')) {
 			userIds.push(...this.transforms.createdReview.get('reviewers'));
-		}
-		if (this.transforms.createdCodeError && this.transforms.createdCodeError.get('assignees')) {
-			userIds.push(...this.transforms.createdCodeError.get('assignees'));
 		}
 		if (userIds.length === 0) {
 			return;

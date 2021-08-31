@@ -4,14 +4,9 @@
 
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const CodeError = require('./code_error');
-const MarkerCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_creator');
 const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_helper');
-const CodeErrorAttributes = require('./code_error_attributes');
-const RepoMatcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_matcher');
-const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
-const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
-const MarkerConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/marker_constants');
+const Indexes = require('./indexes');
 
 class CodeErrorCreator extends ModelCreator {
 
@@ -37,42 +32,35 @@ class CodeErrorCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'streamId', 'postId']
+				string: ['teamId', 'streamId', 'postId', 'objectId', 'objectType']
 			},
 			optional: {
-				string: ['stackTrace', 'providerUrl', 'status', 'entryPoint', 'title', 'entityId', 'entityType'],
-				object: ['authorsById', 'stackInfo', 'entityInfo'],
+				string: ['providerUrl', 'entryPoint', 'title'],
+				object: ['objectInfo'],
 				boolean: ['_dontCreatePermalink'],
-				'array(string)': ['assignees', 'followerIds', 'codeAuthorIds', 'fileStreamIds'],
-				'array(object)': ['markers']
+				'array(string)': ['followerIds'],
+				'array(object)': ['stackTraces']
 			}
 		};
 	}
 
-	// normalize post creation operation (pre-save)
-	async normalize () {
-		// if we have markers, preemptively make sure they are valid, 
-		// we are strict about markers, and don't let them just get dropped if
-		// they aren't correct
-		if (this.attributes.markers) {
-			await this.validateMarkers();
+	// get the query to determine if there is a matching code error already
+	checkExistingQuery () {
+		// we match on a New Relic object ID and object type, in which case we add a new stack trace as needed
+		return {
+			query: {
+				teamId: this.attributes.teamId.toLowerCase(),
+				objectId: this.attributes.objectId,
+				objectType: this.attributes.objectType
+			},
+			hint: Indexes.byObjectId
 		}
 	}
 
-	// validate the markers sent with the code error creation, this is too important to just drop,
-	// so we return an error instead
-	async validateMarkers () {
-		const result = new CodeError().validator.validateArrayOfObjects(
-			this.attributes.markers,
-			{
-				type: 'array(object)',
-				maxLength: CodeErrorAttributes.markerIds.maxLength,
-				maxObjectLength: MarkerConstants.maxMarkerLength
-			}
-		);
-		if (result) {	// really an error
-			throw this.errorHandler.error('validation', { info: `markers: ${result}` });
-		}
+	// determine if a matching model can exist
+	modelCanExist () {
+		// we match on a New Relic object ID and object type, in which case we add a new stack trace as needed
+		return true;
 	}
 
 	// right before the document is saved...
@@ -97,46 +85,51 @@ class CodeErrorCreator extends ModelCreator {
 		// get the team that will own this codemark
 		await this.getTeam();
 
-		// we'll need all the repos for the team if there are markers, and we'll use a "RepoMatcher" 
-		// to match the marker attributes to a repo if needed
-		await this.getTeamRepos();
-		this.repoMatcher = new RepoMatcher({
-			request: this.request,
-			team: this.team,
-			teamRepos: this.teamRepos
-		});
-
-		// handle any markers that come with this code error
-		await this.handleMarkers();
-
-		// validate assignees
-		await this.validateAssigneesAndAuthors();
-
 		// handle followers, either passed in or default for the given situation
-		this.attributes.followerIds = ArrayUtilities.unique([
-			...(this.attributes.assignees || []),
-			...(this.attributes.followerIds || []),
-			...(this.attributes.codeAuthorIds || [])
-		]);
 		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
 			this.attributes,
-			{
-				mentionedUserIds: this.mentionedUserIds,
-				team: this.team,
-				usersBeingAddedToTeam: this.usersBeingAddedToTeam
-			}
+			{ team: this.team }
 		);
 
 		// create a permalink to this code error, as needed
-		if (!this.dontCreatePermalink) {
+		if (!this.dontCreatePermalink && !this.existingModel) {
 			await this.createPermalink();
 		}
 
-		// pre-set createdAt and lastActivityAt attributes
-		this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
-		
+		// if the object ID matched a known object, check if this is a new stack trace ...
+		// if so, add it to the array of known stack traces
+		const stackTracesToAdd = [];
+		let didChange = false;
+		if (this.existingModel) {
+			(this.attributes.stackTraces || []).forEach(incomingStackTrace => {
+				const index = (this.existingModel.get('stackTraces') || []).findIndex(existingStackTrace => {
+					return existingStackTrace.text === incomingStackTrace.text;
+				});
+				if (index === -1) {
+					stackTracesToAdd.push(incomingStackTrace);
+					didChange = true;
+				}
+			});
+			this.attributes.stackTraces = [
+				...(this.existingModel.get('stackTraces') || []),
+				...stackTracesToAdd
+			];
+
+			delete this.attributes.postId; // abort creating a new post
+			delete this.attributes.creatorId; // don't change authors
+		} else {
+			// pre-set createdAt and lastActivityAt attributes
+			this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
+		}
+
 		// proceed with the save...
 		await super.preSave();
+
+		// if we have an existing code error, and we added a stack trace, then the code error was truly modified,
+		// otherwise, there are no changes to save
+		if (this.existingModel && !didChange) {
+			delete this.attributes.modifiedAt;
+		}
 	}
 
 	// get the team that will own this code error
@@ -148,76 +141,12 @@ class CodeErrorCreator extends ModelCreator {
 		this.attributes.teamId = this.team.id;	
 	}
 
-	// get all the repos known to this team
-	async getTeamRepos () {
-		this.teamRepos = await this.data.repos.getByQuery(
-			{ 
-				teamId: this.team.id
-			},
-			{ 
-				hint: RepoIndexes.byTeamId 
-			}
-		);
-	}
-
 	// create a permalink url to the codemark
 	async createPermalink () {
 		this.attributes.permalink = await new PermalinkCreator({
 			request: this.request,
-			codeError: this.attributes,
-			markers: this.transforms.createdMarkers || []
+			codeError: this.attributes
 		}).createPermalink();
-	}
-
-	// handle any markers tied to the codemark
-	async handleMarkers () {
-		if (!this.attributes.markers || !this.attributes.markers.length) {
-			return;
-		}
-		for (let marker of this.attributes.markers) {
-			await this.handleMarker(marker);
-		}
-		this.attributes.markerIds = this.transforms.createdMarkers.map(marker => marker.id);
-		this.attributes.fileStreamIds = this.transforms.createdMarkers.
-			filter(marker => marker.get('fileStreamId')).
-			map(marker => marker.get('fileStreamId'));
-		delete this.attributes.markers;
-	}
-
-	// handle a single marker attached to the codemark
-	async handleMarker (markerInfo) {
-		// handle the marker itself separately
-		Object.assign(markerInfo, {
-			teamId: this.team.id
-		});
-		if (this.attributes.streamId) {
-			markerInfo.postStreamId = this.attributes.streamId;
-		}
-		if (this.attributes.postId) {
-			markerInfo.postId = this.attributes.postId;
-		}
-		const marker = await new MarkerCreator({
-			request: this.request,
-			codeErrorId: this.attributes.id,
-			repoMatcher: this.repoMatcher,
-			teamRepos: this.teamRepos
-		}).createMarker(markerInfo);
-		this.transforms.createdMarkers = this.transforms.createdMarkers || [];
-		this.transforms.createdMarkers.push(marker);
-	}
-
-	// validate the assignees ... all users must be on the same team
-	async validateAssigneesAndAuthors () {
-		const userIds = ArrayUtilities.union(
-			this.attributes.assignees || [],
-			Object.keys(this.attributes.authorsById || {})
-		);
-		if (userIds.length === 0) {
-			return;
-		}
-
-		// get the users and make sure they're on the same team
-		await this.codemarkHelper.validateUsersOnTeam(userIds, this.team.id, 'assignees or authors', this.usersBeingAddedToTeam);
 	}
 }
 

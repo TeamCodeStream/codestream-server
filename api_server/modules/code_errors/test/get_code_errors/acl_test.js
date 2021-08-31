@@ -1,6 +1,6 @@
 'use strict';
 
-const GetCodeErrorsTest = require('./get_error_codes_test');
+const GetCodeErrorsTest = require('./get_code_errors_test');
 
 class ACLTest extends GetCodeErrorsTest {
 

@@ -6,7 +6,7 @@ const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
-const ReviewTestConstants = require('../review_test_constants');
+const CodeErrorTestConstants = require('../code_error_test_constants');
 
 class PutReviewTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -31,7 +31,7 @@ class PutReviewTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		// verify we got back the proper response
 		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
 		// verify the review in the response has no attributes that should not go to clients
-		this.validateSanitized(data.review.$set, ReviewTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(data.review.$set, CodeErrorTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

@@ -121,6 +121,12 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			username
 		);
 
+		let stackTrace;
+		const stackTraces = this.codeError.get('stackTraces') || [];
+		if (stackTraces.length) {
+			stackTrace = stackTraces[0].text || '';
+		}
+
  		const templateProps = {			 
 			launchIde: this.request.query.ide === ''
 					? 'default'
@@ -145,7 +151,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			codeError: {
 				id: this.codeError.get('id'),
 				title: (this.codeError.get('title') || "").trimStart().trim(),
-				stackTrace: (this.codeError.get('stackTrace') || "").trimStart().trim().replace(/\n/g,"<br />")
+				stackTrace: stackTrace.trim().replace(/\n/g,"<br />")
 			}
 		};
 	 

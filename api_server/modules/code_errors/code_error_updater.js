@@ -25,8 +25,9 @@ class CodeErrorUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['status', 'ticketUrl', 'ticketProviderId'],
-			object: ['stackInfo', '$addToSet', '$push', '$pull']
+			string: ['ticketUrl', 'ticketProviderId'],
+			object: ['$addToSet', '$push', '$pull'],
+			'array(object)': ['stackTraces']
 		};
 	}
 

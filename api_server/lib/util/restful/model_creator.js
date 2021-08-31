@@ -172,6 +172,7 @@ class ModelCreator {
 	async determineChanges () {
 		this.changes = {};
 		Object.keys(this.model.attributes).forEach(attribute => {
+			if (attribute === 'id' || attribute === '_id') { return; }
 			if (!this.attributesAreEqual(
 				this.existingModel.get(attribute),
 				this.model.get(attribute))
@@ -201,7 +202,7 @@ class ModelCreator {
 		this.updateOp = await new ModelSaver({
 			request: this.request,
 			collection: this.collection,
-			id: this.model.id
+			id: this.existingModel.id
 		}).save(op);
 	}
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const GetCodeErrorsWithMarkersTest = require('./get_errors_with_markers_test');
+const GetCodeErrorsWithMarkersTest = require('./get_code_errors_with_markers_test');
 
 class GetCodeErrorsBeforeAfterInclusiveTest extends GetCodeErrorsWithMarkersTest {
 
