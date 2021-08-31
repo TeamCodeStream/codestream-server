@@ -103,7 +103,7 @@ class CodeErrorCreator extends ModelCreator {
 		if (this.existingModel) {
 			(this.attributes.stackTraces || []).forEach(incomingStackTrace => {
 				const index = (this.existingModel.get('stackTraces') || []).findIndex(existingStackTrace => {
-					return existingStackTrace.text === incomingStackTrace.text;
+					return existingStackTrace.traceId === incomingStackTrace.traceId;
 				});
 				if (index === -1) {
 					stackTracesToAdd.push(incomingStackTrace);
