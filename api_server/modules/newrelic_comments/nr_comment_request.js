@@ -2,6 +2,7 @@
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const RestfulErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/errors');
+const AuthenticatorErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_creator');
@@ -12,15 +13,25 @@ class NRCommentRequest extends RestfulRequest {
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(RestfulErrors);
+		this.errorHandler.add(AuthenticatorErrors);
 	}
 
 	// authorize the client to make this request
 	async authorize () {
 		// we rely on a secret, known only to the New Relic server and the
 		// API server ... disallowing arbitrary clients to call this request
-		if (this.request.headers['x-cs-newrelic-secret'] !== this.api.config.sharedSecrets.commentEngine) {
+		const secret = (
+			this.api.config.integrations &&
+			this.api.config.integrations.newrelic &&
+			this.api.config.integrations.newrelic.commentEngineSecret
+		);
+		if (!secret) {
+			throw this.errorHandler.error('readAuth', { reason: 'server is not configured to support the comment engine' });
+		}
+
+		if (this.request.headers['x-cs-newrelic-secret'] !== secret) {
 			this.request.abortWith = 401;
-			throw this.errorHandler.error('unauthorized');
+			throw this.errorHandler.error('missingAuthorization');
 		}
 	}
 
