@@ -214,6 +214,16 @@
 				}
 			}
 		},
+		"newrelic": {
+			"cloud": {
+				"defaultEnv": {
+					"commentEngineSecret": null
+				},
+				"nr": {
+					"_loadSecretsFile": "newrelic/nr.cfg"
+				}
+			}
+		},
 		"okta": {
 			"localInstallation": {
 				"defaultEnv": {}

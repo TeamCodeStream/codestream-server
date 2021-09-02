@@ -544,6 +544,14 @@
 				}
 			}
 		},
+		"newrelic": {
+			"<appProvider>": {
+				"commentEngineSecret": {
+					"desc": "In support of the NR comment integration",
+					"env": "CSSVC_NEWRELIC_COMMENT_ENGINE_SECRET"
+				}
+			}
+		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": {

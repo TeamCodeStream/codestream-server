@@ -170,6 +170,11 @@
 				"disabled": "disable integration"
 			}
 		},
+		"newrelic": {
+			"<appProvider>": {
+				"commentEngineSecret": "In support of the NR comment integration [CSSVC_NEWRELIC_COMMENT_ENGINE_SECRET]"
+			}
+		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": "Okta API client Id",
