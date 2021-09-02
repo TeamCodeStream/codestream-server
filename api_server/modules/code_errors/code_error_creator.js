@@ -35,7 +35,7 @@ class CodeErrorCreator extends ModelCreator {
 				string: ['teamId', 'streamId', 'postId', 'objectId', 'objectType', 'accountId']
 			},
 			optional: {
-				string: ['providerUrl', 'entryPoint', 'title'],
+				string: ['providerUrl', 'entryPoint', 'title', 'text'],
 				object: ['objectInfo'],
 				boolean: ['_dontCreatePermalink'],
 				'array(string)': ['followerIds'],

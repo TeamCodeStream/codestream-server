@@ -17,7 +17,9 @@ class RandomCodeErrorFactory {
 			objectId: RandomString.generate(40),
 			objectType: 'errorGroup',
 			stackTraces: [this.getRandomStackTraceInfo(options)],
-			providerUrl: 'https://one.newrelic.com'
+			providerUrl: 'https://one.newrelic.com',
+			title: RandomString.generate(100),
+			text: RandomString.generate(1000)
 		};
 		return data;
 	}

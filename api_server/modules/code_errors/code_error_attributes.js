@@ -25,13 +25,11 @@ module.exports = {
 		maxLength: 1000,
 		description: 'Title of the code error'
 	},
-	/*
 	text: {
 		type: 'string',
 		maxLength: 10000,
 		description: 'The text/description of this code error'
 	},
-	*/
 	origin: {
 		type: 'string',
 		maxLength: 20,
