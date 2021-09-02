@@ -32,7 +32,7 @@ class CodeErrorCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'streamId', 'postId', 'objectId', 'objectType']
+				string: ['teamId', 'streamId', 'postId', 'objectId', 'objectType', 'accountId']
 			},
 			optional: {
 				string: ['providerUrl', 'entryPoint', 'title'],
@@ -49,7 +49,6 @@ class CodeErrorCreator extends ModelCreator {
 		// we match on a New Relic object ID and object type, in which case we add a new stack trace as needed
 		return {
 			query: {
-				teamId: this.attributes.teamId.toLowerCase(),
 				objectId: this.attributes.objectId,
 				objectType: this.attributes.objectType
 			},
@@ -65,6 +64,11 @@ class CodeErrorCreator extends ModelCreator {
 
 	// right before the document is saved...
 	async preSave () {
+		// make sure the existing model, if we found one, matches the user's team
+		if (this.existingModel && this.existingModel.get('teamId') !== this.attributes.teamId) {
+			throw this.errorHandler.error('exists');
+		}
+
 		// special for-testing header for easy wiping of test data
 		if (this.request.isForTesting()) {
 			this.attributes._forTesting = true;

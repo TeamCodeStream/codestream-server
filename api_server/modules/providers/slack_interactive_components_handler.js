@@ -218,6 +218,7 @@ class SlackInteractiveComponentsHandler {
 			this.userCreator = new UserCreator({
 				request: this,
 				teamIds: [team.get('id')],
+				companyIds: [team.get('companyId')],
 				userBeingAddedToTeamId: team.get('id'),
 				externalUserId: `slack::${team.get('id')}::${this.payload.user.team_id}::${this.payload.user.id}`,
 				dontSetInviteCode: true,

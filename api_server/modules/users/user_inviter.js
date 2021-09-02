@@ -48,6 +48,7 @@ class UserInviter {
 		const userCreator = new UserCreator({
 			request: this.request,
 			teamIds: [this.team.id],
+			companyIds: [this.team.get('companyId')],
 			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			userBeingAddedToTeamId: this.team.id,
 			inviteCodeExpiresIn: this.inviteCodeExpiresIn,

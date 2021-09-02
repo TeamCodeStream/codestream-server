@@ -268,6 +268,10 @@ class PostCreator extends ModelCreator {
 
 	// requisition a sequence number for this post
 	async getSeqNum () {
+		if (this.assumeSeqNum) {
+			this.attributes.seqNum = this.assumeSeqNum;
+			return;
+		}
 		let seqNum = null;
 		let numRetries = 0;
 		let gotError = null;

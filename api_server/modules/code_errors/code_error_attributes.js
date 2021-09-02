@@ -105,5 +105,10 @@ module.exports = {
 		type: 'object',
 		maxLength: 10000,
 		description: 'Other metadata from the source of this code error'
+	},
+	accountId: {
+		type: 'string',
+		maxLength: 100,
+		description: 'ID of the New Relic account that owns this observability object'
 	}
 };

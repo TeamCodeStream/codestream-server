@@ -379,7 +379,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'newrelic'
 	];
 	// matching these paths means Authorization header is not required
-	Cfg.apiServer.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/robots\\.txt$'];
+	Cfg.apiServer.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/nr-comments', '^\\/robots\\.txt$'];
 	// matching these paths means Authorization header is optional, behavior may vary
 	Cfg.apiServer.optionalAuthenticatedPaths = [
 		'^\\/help(\\/|$)',

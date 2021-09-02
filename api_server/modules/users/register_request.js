@@ -215,6 +215,7 @@ class RegisterRequest extends RestfulRequest {
 		this.userCreator = new UserCreator({
 			request: this,
 			teamIds: this.team ? [this.team.id] : undefined,
+			companyIds: this.team ? [this.team.get('companyId')] : undefined,
 			userBeingAddedToTeamId: this.team ? this.team.id : undefined,
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
 			subscriptionCheat: this._subscriptionCheat === this.api.config.sharedSecrets.subscriptionCheat,

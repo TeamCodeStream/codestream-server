@@ -8,7 +8,6 @@ module.exports = {
 		createdAt: -1
 	},
 	byObjectId: {
-		teamId: 1,
 		objectId: 1,
 		objectType: 1
 	},
