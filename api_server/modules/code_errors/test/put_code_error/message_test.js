@@ -8,7 +8,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
 		const type = this.streamType || 'team';
-		return `members of the team or stream should receive a message with the review when a review is updated in a ${type} stream`;
+		return `members of the team or stream should receive a message with the code error when a code error is updated in a ${type} stream`;
 	}
 
 	// make the data that triggers the message to be received
@@ -40,7 +40,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the
 		// stream channel with the updated post
-		this.updateReview(callback);
+		this.updateCodeError(callback);
 	}
 }
 

@@ -1,12 +1,12 @@
 'use strict'
 
-// which observability object types are accepted
-const ObservabilityObjectTypes = [
+// which code error object types are accepted
+const CodeErrorObjectTypes = [
 	'errorGroup'
 ];
 
-// return a function which customized observability object data for return to New Relic
-const ToNewRelic = function(observabilityObject, post, users) {
+// return a function which customized code error data for return to New Relic
+const ToNewRelic = function(codeError, post, users) {
 	const creator = users.find(u => u.id === post.get('creatorId'));
 	if (!creator) {
 		throw new Error(`creator ${post.get('creatorId')} not found in users array`);
@@ -32,9 +32,9 @@ const ToNewRelic = function(observabilityObject, post, users) {
 		createdAt: post.get('createdAt'),
 		modifiedAt: post.get('modifiedAt'),
 		deactivated: post.get('deactivated'),
-		accountId: observabilityObject.get('accountId'),
-		objectId: observabilityObject.get('objectId'),
-		objectType: observabilityObject.get('objectType'),
+		accountId: codeError.get('accountId'),
+		objectId: codeError.get('objectId'),
+		objectType: codeError.get('objectType'),
 		mentionedUsers,
 		parentPostId: post.get('parentPostId'),
 		text: post.get('text'),
@@ -45,6 +45,6 @@ const ToNewRelic = function(observabilityObject, post, users) {
 }	
 
 module.exports = {
-	ObservabilityObjectTypes,
+	CodeErrorObjectTypes,
 	ToNewRelic
 };

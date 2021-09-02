@@ -1,11 +1,11 @@
 'use strict';
 
-const DeleteMarkersTest = require('./delete_markers_test');
+const DeleteCodeErrorTest = require('./delete_code_error_test');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
-class DeleteRepliesTest extends DeleteMarkersTest {
+class DeleteRepliesTest extends DeleteCodeErrorTest {
 
 	get description () {
 		return 'should delete all replies, including codemarks and their replies, when a code error is deleted';
@@ -95,6 +95,8 @@ class DeleteRepliesTest extends DeleteMarkersTest {
 			this.expectedData.posts[0].$version = { before: 4, after: 5 };
 			this.expectedData.codeErrors[0].$set.version = 5;
 			this.expectedData.codeErrors[0].$version = { before: 4, after: 5 };
+			this.expectedData.markers = [];
+			this.expectedMarkers = [];
 			for (let i = 0; i < this.replyCodemarkResponse.markers.length; i++) {
 				this.expectedData.markers.push({
 					_id: this.replyCodemarkResponse.markers[i].id,	// DEPRECATE ME

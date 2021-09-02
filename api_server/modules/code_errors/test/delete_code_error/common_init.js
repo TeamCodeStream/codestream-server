@@ -21,7 +21,6 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
-		this.repoOptions.creatorIndex = 1;
 		/*
 		this.streamOptions.creatorIndex = 1;
 		if (this.streamType === 'team stream') {
@@ -36,18 +35,13 @@ class CommonInit {
 		*/
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
-			wantCodeError: true,
-			numChanges: 2
+			wantCodeError: true
 		});
-		if (this.wantMarker) {
-			this.postOptions.wantMarkers = 2;
-		}
 		callback();
 	}
 
 	setExpectedData (callback) {
 		this.codeError = this.postData[this.testPost].codeError;
-		this.markers = this.postData[this.testPost].markers;
 		this.expectedData = {
 			codeErrors: [{
 				id: this.codeError.id,

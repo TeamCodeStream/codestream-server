@@ -13,29 +13,37 @@ class RandomCodeErrorFactory {
 	// get some random codemark data
 	getRandomCodeErrorData (options = {}) {
 		const data = {
-			status: 'open',
-			stackTraces: [this.getRandomStackTrace(options)],
-			url: 'https://one.newrelic.com'
+			accountId: RandomString.generate(8),
+			objectId: RandomString.generate(40),
+			objectType: 'errorGroup',
+			stackTraces: [this.getRandomStackTraceInfo(options)],
+			providerUrl: 'https://one.newrelic.com'
 		};
-		if (options.wantMarkers) {
-			data.markers = this.markerFactory.createRandomMarkers(options.wantMarkers, options);
-		}
 		return data;
 	}
 
 	// get a "random" stack trace
-	getRandomStackTrace (/*options = {}*/) {
-		const msg = `Error: ${RandomString.generate(32)}\n`;
-		const trace = [];
+	getRandomStackTraceInfo (/*options = {}*/) {
+		const stackInfo = {
+			text: `Error: ${RandomString.generate(32)}\n`,
+			lines: []
+		};
 		for (let i = 0; i < 10; i++) {
 			const className = RandomString.generate(10);
 			const method = RandomString.generate(10);
-			const fileName = '_'.repeat(8).split('').map(_ => RandomString.generate(8)).join('/');
+			const fileName = '_'.repeat(8).split('').map(_ => RandomString.generate(8)).join('/') + '.js';
 			const line = Math.floor(Math.random() * 500);
 			const char = Math.floor(Math.random() * 100);
-			trace.push(`at ${className}.${method} (${fileName}.js:${line}:${char})\n`);
+			stackInfo.lines.push({
+				fileRelativePath: fileName,
+				fileFullPath: `\\${fileName}`,
+				method: `${className}.${method}`,
+				line,
+				column: char
+			});
+			stackInfo.text += `at ${className}.${method} (${fileName}:${line}:${char})\n`;
 		}
-		return msg + trace.join('\n');
+		return stackInfo;
 	}
 }
 

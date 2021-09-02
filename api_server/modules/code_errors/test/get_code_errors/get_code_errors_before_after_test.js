@@ -1,8 +1,8 @@
 'use strict';
 
-const GetCodeErrorsWithMarkersTest = require('./get_code_errors_with_markers_test');
+const GetCodeErrorsTest = require('./get_code_errors_test');
 
-class GetCodeErrorsBeforeAfterTest extends GetCodeErrorsWithMarkersTest {
+class GetCodeErrorsBeforeAfterTest extends GetCodeErrorsTest {
 
 	get description () {
 		return 'should return the correct code errors when requesting code errors in a stream between timestamps';

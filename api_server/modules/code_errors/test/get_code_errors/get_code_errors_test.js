@@ -55,13 +55,7 @@ class GetCodeErrorsTest extends CodeStreamAPITest {
 		// make sure we got a post with each code error that matches the post to which the code error belongs
 		data.codeErrors.forEach(codeError => {
 			const post = data.posts.find(post => post.id === codeError.postId);
-			Assert(post, 'no post found for marker\'s code error');
-			if (this.postOptions.wantMarkers) {
-				codeError.markerIds.forEach(markerId => {
-					const marker = data.markers.find(marker => marker.id === markerId);
-					Assert(marker, `no marker found for code error's marker ${markerId}`);
-				});
-			}
+			Assert(post, 'no post found for code error');
 		});
 	}
 }

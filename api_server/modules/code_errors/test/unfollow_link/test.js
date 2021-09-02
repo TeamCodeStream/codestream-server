@@ -15,7 +15,7 @@ const NotUnfollowTokenTest = require('./not_unfollow_token_test');
 const UserNotFoundTest = require('./user_not_found_test');
 const TrackingTest = require('./tracking_test');
 
-class FollowRequestTester {
+class UnfollowLinkRequestTester {
 
 	test () {
 		new UnfollowTest().test();
@@ -32,4 +32,4 @@ class FollowRequestTester {
 	}
 }
 
-module.exports = new FollowRequestTester();
+module.exports = new UnfollowLinkRequestTester();

@@ -1,29 +1,26 @@
 'use strict';
 
-const PutReviewTest = require('./put_review_test');
+const PutCodeErrorTest = require('./put_code_error_test');
 const RandomString = require('randomstring');
 
-class TicketAndPullRequestTest extends PutReviewTest {
+class TicketTest extends PutCodeErrorTest {
 
 	get description () {
 		return 'should update ticket and pull request attributes when requested';
 	}
 
-	makeReviewUpdateData (callback) {
-		super.makeReviewUpdateData(error => {
+	makeCodeErrorUpdateData (callback) {
+		super.makeCodeErrorUpdateData(error => {
 			if (error) { return callback(error); }
 			const newData = {
-				pullRequestUrl: `https://github.com/${RandomString.generate(10)}/${RandomString.generate(10)}`,
-				pullRequestProviderId: 'github*com',
-				pullRequestTitle: RandomString.generate(100),
 				ticketUrl: `https://trello.com/${RandomString.generate(10)}/${RandomString.generate(10)}`,
 				ticketProviderId: 'trello*com'
 			};
 			Object.assign(this.data, newData);
-			Object.assign(this.expectedData.review.$set, newData);
+			Object.assign(this.expectedData.codeError.$set, newData);
 			callback();
 		});
 	}
 }
 
-module.exports = TicketAndPullRequestTest;
+module.exports = TicketTest;

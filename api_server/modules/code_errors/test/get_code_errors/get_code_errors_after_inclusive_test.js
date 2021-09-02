@@ -1,8 +1,8 @@
 'use strict';
 
-const GetCodeErrorsWithMarkersTest = require('./get_code_errors_with_markers_test');
+const GetCodeErrorsTest = require('./get_code_errors_test');
 
-class GetCodeErrorsAfterInclusiveTest extends GetCodeErrorsWithMarkersTest {
+class GetCodeErrorsAfterInclusiveTest extends GetCodeErrorsTest {
 
 	get description () {
 		return 'should return the correct error codes when requesting error codes in a stream after a timestamp, inclusive';
@@ -13,9 +13,9 @@ class GetCodeErrorsAfterInclusiveTest extends GetCodeErrorsWithMarkersTest {
 		// pick a pivot point, then filter our expected error codes based on that pivot,
 		// and specify the after parameter to fetch based on the pivot
 		const pivot = this.codeErrors[5].createdAt;
-		this.expectedCodeErrors = this.CodeErrors.filter(codeError => codeError.createdAt >= pivot);
+		this.expectedCodeErrors = this.codeErrors.filter(codeError => codeError.createdAt >= pivot);
 		this.expectedCodeErrors.reverse();
-		this.path = `/error-codes?teamId=${this.team.id}&after=${pivot}&inclusive`;
+		this.path = `/code-errors?teamId=${this.team.id}&after=${pivot}&inclusive`;
 		callback();
 	}
 }

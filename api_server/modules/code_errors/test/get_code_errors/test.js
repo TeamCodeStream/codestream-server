@@ -3,7 +3,6 @@
 'use strict';
 
 const GetCodeErrorsTest = require('./get_code_errors_test');
-const GetCodeErrorsWithMarkersTest = require('./get_code_errors_with_markers_test');
 const GetCodeErrorsBeforeTest = require('./get_code_errors_before_test');
 const GetCodeErrorsAfterTest = require('./get_code_errors_after_test');
 const GetCodeErrorsBeforeInclusiveTest = require('./get_code_errors_before_inclusive_test');
@@ -26,7 +25,6 @@ class GetCodeErrorsRequestTester {
 
 	test () {
 		new GetCodeErrorsTest().test();
-		new GetCodeErrorsWithMarkersTest().test();
 		new GetCodeErrorsBeforeTest().test();
 		new GetCodeErrorsAfterTest().test();
 		new GetCodeErrorsBeforeInclusiveTest().test();

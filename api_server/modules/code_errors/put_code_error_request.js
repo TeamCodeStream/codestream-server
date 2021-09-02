@@ -16,40 +16,16 @@ class PutCodeErrorRequest extends PutRequest {
 			throw this.errorHandler.error('notFound', { info: 'code error' });
 		}
 
-		// in the most general case, the author can edit anything they want about a code error
-		if (this.codeError.get('creatorId') === this.user.id) {
-			return;
-		}
-
-		// the rest can only be done by other members of the team
-		if (!this.user.hasTeam(this.codeError.get('teamId'))) {
-			throw this.errorHandler.error('updateAuth', { reason: 'user must be on the team that owns the code error' });
-		}
-
-		// team members can only change a code error's status
-		if (Object.keys(this.request.body).find(attribute => {
-			return ['status'].indexOf(attribute) === -1;
-		})) {
+		// only the author can edit a code error
+		if (this.codeError.get('creatorId') !== this.user.id) {
 			throw this.errorHandler.error('updateAuth', { reason: 'only the creator of the code error can make this update' });
 		}
+
+		// TODO: probably need to allow any user on the team to update the stack traces
 	}
 
-	// handle sending the response
-	async handleResponse () {
-		if (this.gotError) {
-			return await super.handleResponse();
-		}
-
-		// need to special case the situation where assignees are being both added and removed,
-		// since mongo won't let us do this in a single operation
-		await this.updater.handleAddRemove();
-
-		return super.handleResponse();
-	}
-	
 	// after the code error is updated...
 	async postProcess () {
-		await this.updater.handleAddRemove();
 		await this.publishCodeError();
 	}
 

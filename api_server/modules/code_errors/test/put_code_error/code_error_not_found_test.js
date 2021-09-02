@@ -1,18 +1,18 @@
 'use strict';
 
-const PutReviewTest = require('./put_review_test');
+const PutCodeErrorTest = require('./put_code_error_test');
 const ObjectID = require('mongodb').ObjectID;
 
-class ReviewNotFoundTest extends PutReviewTest {
+class CodeErrorNotFoundTest extends PutCodeErrorTest {
 
 	get description () {
-		return 'should return an error when trying to update a review that doesn\'t exist';
+		return 'should return an error when trying to update a code error that doesn\'t exist';
 	}
 
 	getExpectedError () {
 		return {
 			code: 'RAPI-1003',
-			info: 'review'
+			info: 'code error'
 		};
 	}
 
@@ -20,10 +20,10 @@ class ReviewNotFoundTest extends PutReviewTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/reviews/' + ObjectID(); // substitute an ID for a non-existent review
+			this.path = '/code-errors/' + ObjectID(); // substitute an ID for a non-existent code error
 			callback();
 		});
 	}
 }
 
-module.exports = ReviewNotFoundTest;
+module.exports = CodeErrorNotFoundTest;

@@ -1,10 +1,10 @@
 'use strict';
 
-const GetCodeErrorsWithMarkersTest = require('./get_code_errors_with_markers_test');
+const GetCodeErrorsTest = require('./get_code_errors_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-class GetCodeErrorsByLastActivityTest extends GetCodeErrorsWithMarkersTest {
+class GetCodeErrorsByLastActivityTest extends GetCodeErrorsTest {
 
 	get description () {
 		return 'should return the correct code errors in correct order when requesting code errors for a team and by last activity';

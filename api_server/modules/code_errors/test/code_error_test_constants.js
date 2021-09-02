@@ -13,11 +13,14 @@ const EXPECTED_BASE_CODE_ERROR_FIELDS = [
 	'teamId',
 	'streamId',
 	'postId',
-	'status',
 	'numReplies',
 	'lastActivityAt',
 	'stackTraces',
-	'providerUrl'
+	'providerUrl',
+	'accountId',
+	'objectId',
+	'objectType',
+	'permalink'
 ];
 
 const EXPECTED_CODE_ERROR_FIELDS = EXPECTED_BASE_CODE_ERROR_FIELDS.concat([

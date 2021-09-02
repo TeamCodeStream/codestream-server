@@ -139,7 +139,6 @@ class TestStreamCreator {
 				this.postOptions.postData[n].wantCodeError
 			)
 		) {
-			postOptions.wantMarkers = this.postOptions.wantMarkers;
 			this.setCodeErrorOptions(postOptions, n);	
 			if (this.postOptions.postData && this.postOptions.postData[n]) {
 				delete this.postOptions.postData[n].wantCodeError;
@@ -210,10 +209,6 @@ class TestStreamCreator {
 
 	setCodeErrorOptions (options, n) {
 		options.wantCodeError = true;
-		if (this.postOptions.wantMarkers || 
-			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarkers)) {
-			this.setMarkerOptions(options);
-		}
 	}
 
 	setMarkerOptions (options) {

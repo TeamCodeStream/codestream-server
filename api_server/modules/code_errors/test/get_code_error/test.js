@@ -3,17 +3,14 @@
 'use strict';
 
 const GetCodeErrorTest = require('./get_code_error_test');
-const GetCodeErrorWithMarkersTest = require('./get_code_error_with_markers_test');
-const ACLTeamTest = require('./acl_team_test');
+const ACLTest = require('./acl_test');
 const NotFoundTest = require('./not_found_test');
 
 class GetCodeErrorRequestTester {
 
 	test () {
 		new GetCodeErrorTest().test();
-		new GetCodeErrorWithMarkersTest().test();
-		new ACLTeamTest({ type: 'direct' }).test();
-		new ACLTeamTest({ type: 'channel' }).test();
+		new ACLTest().test();
 		new NotFoundTest().test();
 	}
 }

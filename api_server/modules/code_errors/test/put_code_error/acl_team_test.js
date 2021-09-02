@@ -11,7 +11,7 @@ class ACLTeamTest extends PutCodeErrorTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1010',
-			reason: 'user must be on the team that owns the code error'
+			reason: 'only the creator of the code error can make this update'
 		};
 	}
 

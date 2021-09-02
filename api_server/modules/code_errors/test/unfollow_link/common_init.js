@@ -16,12 +16,10 @@ class CommonInit {
 		this.streamOptions.type = this.streamType || 'channel';
 		this.streamOptions.isTeamStream = this.isTeamStream || false;
 		*/
-		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			numPosts: 1,
 			creatorIndex: 1,
-			wantCodeError: true,
-			wantMarkers: 2
+			wantCodeError: true
 		});
 
 		BoundAsync.series(this, [

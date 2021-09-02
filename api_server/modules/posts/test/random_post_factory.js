@@ -46,6 +46,9 @@ class RandomPostFactory {
 		if (options.wantReview) {
 			data.review = this.reviewFactory.getRandomReviewData(options);
 		}
+		if (options.wantCodeError) {
+			data.codeError = this.codeErrorFactory.getRandomCodeErrorData(options);
+		}
 		if (options.parentPostId) {
 			// for replies
 			data.parentPostId = options.parentPostId;

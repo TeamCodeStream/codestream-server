@@ -2,16 +2,15 @@
 
 const GetCodeErrorTest = require('./get_code_error_test');
 
-class ACLTeamTest extends GetCodeErrorTest {
+class ACLTest extends GetCodeErrorTest {
 
 	constructor (options) {
 		super(options);
-		this.streamOptions.members = [];
 		this.teamOptions.members = [];
 	}
 
 	get description () {
-		return `should return an error when trying to fetch a code error from a ${this.type} stream from a team that i'm not a member of`;
+		return 'should return an error when trying to fetch a code error from a team that i\'m not a member of';
 	}
 
 	getExpectedError () {
@@ -21,4 +20,4 @@ class ACLTeamTest extends GetCodeErrorTest {
 	}
 }
 
-module.exports = ACLTeamTest;
+module.exports = ACLTest;
