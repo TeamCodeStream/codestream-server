@@ -20,11 +20,7 @@ class NRCommentRequest extends RestfulRequest {
 	async authorize () {
 		// we rely on a secret, known only to the New Relic server and the
 		// API server ... disallowing arbitrary clients to call this request
-		const secret = (
-			this.api.config.integrations &&
-			this.api.config.integrations.newrelic &&
-			this.api.config.integrations.newrelic.commentEngineSecret
-		);
+		const secret = this.api.config.sharedSecrets.commentEngine;
 		if (!secret) {
 			throw this.errorHandler.error('readAuth', { reason: 'server is not configured to support the comment engine' });
 		}
