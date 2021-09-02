@@ -18,6 +18,7 @@ class PutNRCommentRequest extends NRCommentRequest {
 		await this.getUsers();			// get users associated with the post (creator and mentioned)
 		await this.doUpdate();			// do the update
 
+		this.post.attributes.version++;
 		this.responseData = {
 			post: Utils.ToNewRelic(this.observabilityObject, this.post, this.users)
 		};
