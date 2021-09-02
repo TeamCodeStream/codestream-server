@@ -256,6 +256,7 @@
 	},
 	"sharedSecrets": {
 		"auth": "secret used for authentication [CSSVC_AUTH_SECRET]",
+		"commentEngine": "for sharing comments with NR1 [CSSVC_COMMENT_ENGINE_SECRET]",
 		"confirmationCheat": "for bypassing email confirmation, used for unit testing [CSSVC_CONFIRMATION_CHEAT_CODE]",
 		"cookie": "secret used for permalinks [CSSVC_COOKIE_SECRET]",
 		"mail": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails [CSSVC_INBOUND_EMAIL_SECRET]",

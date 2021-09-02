@@ -760,6 +760,11 @@
 			"desc": "secret used for authentication",
 			"env": "CSSVC_AUTH_SECRET"
 		},
+		"commentEngine": {
+			"default": "commentEngineSecret",
+			"desc": "for sharing comments with NR1",
+			"env": "CSSVC_COMMENT_ENGINE_SECRET"
+		},
 		"confirmationCheat": {
 			"default": "ConfirmationCheatCode",
 			"desc": "for bypassing email confirmation, used for unit testing",
