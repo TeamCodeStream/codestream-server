@@ -19,7 +19,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 		// get the existing observablity object for this comment, if any
 		const { objectId, objectType } = this.request.body;
-		this.observabilityObject = await this.data.codeErrors.getOneByQuery(
+		this.ocodeError = await this.data.codeErrors.getOneByQuery(
 			{ objectId, objectType },
 			{ hint: CodeErrorIndexes.byObjectId }
 		);
@@ -28,10 +28,10 @@ class PostNRCommentRequest extends NRCommentRequest {
 		// which may involve both creating a (faux) user, and creating a (faux?) team
 		await this.resolveUserAndTeam();
 
-		// create an observability object linked to the New Relic object to which the comment is attached
+		// create a code error linked to the New Relic object to which the comment is attached
 		// for now, this is a "code error" object only
-		if (!this.observabilityObject) {
-			await this.createObservabilityObject();
+		if (!this.codeError) {
+			await this.createCodeError();
 		}
 
 		// handle any mentions in the post
@@ -57,8 +57,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 			}
 		);
 
-		if (!Utils.ObservabilityObjectTypes.includes(this.request.body.objectType)) {
-			throw this.errorHandler.error('validation', { info: 'objectType is not an accepted observability object type' });
+		if (!Utils.CodeErrorObjectTypes.includes(this.request.body.objectType)) {
+			throw this.errorHandler.error('validation', { info: 'objectType is not an accepted code error type' });
 		}
 	}
 
@@ -66,9 +66,9 @@ class PostNRCommentRequest extends NRCommentRequest {
 	// resolve the requesting user, and what team they belong to, 
 	// which may involve both creating a (faux) user, and creating a (faux?) team
 	async resolveUserAndTeam () {
-		// if we have an observability object, get the team that owns it
-		if (this.observabilityObject) {
-			this.team = await this.data.teams.getById(this.observabilityObject.get('teamId'));
+		// if we have a code error, get the team that owns it
+		if (this.codeError) {
+			this.team = await this.data.teams.getById(this.codeError.get('teamId'));
 			if (!this.team || this.team.get('deactivated')) {
 				throw this.errorHandler.error('notFound', { info: 'team' }); // shouldn't really happen
 			}
@@ -78,7 +78,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 		this.user = this.request.user = await this.findOrCreateUser(this.request.body.creator);
 		this.users.push(this.user);
 
-		// if we don't have an existing observability object already, then we don't know
+		// if we don't have an existing code error already, then we don't know
 		// what team to put the user on ... so if the user isn't on a team, we create one
 		if (!this.team) {
 			const teamId = (this.user.get('teamIds') || [])[0];
@@ -106,7 +106,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			} else {
 				this.team = await new TeamCreator({
 					request: this,
-					assumeTeamStreamSeqNum: 3 // for the observability object post, and the reply to it, that we are going to create
+					assumeTeamStreamSeqNum: 3 // for the code error post, and the reply to it, that we are going to create
 				}).createTeam({
 					name: 'general'
 				});
@@ -119,10 +119,9 @@ class PostNRCommentRequest extends NRCommentRequest {
 		await this.addUserToTeam(this.user);
 	}
 
-	// create an observability object linked to the New Relic object to which the comment is attached
-	async createObservabilityObject () {
-		// FIXME: generalize from "code errors"
-		this.observabilityObjectPost = await new PostCreator({
+	// create a code error linked to the New Relic object to which the comment is attached
+	async createCodeError () {
+		this.codeErrorPost = await new PostCreator({
 			request: this,
 			assumeSeqNum: this.teamWasCreated ? 1 : undefined
 		}).createPost({
@@ -134,18 +133,18 @@ class PostNRCommentRequest extends NRCommentRequest {
 				accountId: this.request.body.accountId
 			}
 		});
-		this.observabilityObject = this.transforms.createdCodeError;
+		this.codeError = this.transforms.createdCodeError;
 	}
 
-	// create the actual post, as a reply to the post pointing to the observability object
+	// create the actual post, as a reply to the post pointing to the code error
 	async createPost () {
 		this.postCreator = new PostCreator({ 
 			request: this,
-			assumeSeqNum: this.teamWasCreated ? 2 : undefined // because the actual observability object was 1
+			assumeSeqNum: this.teamWasCreated ? 2 : undefined // because the actual code error was 1
 		});
 		this.post = await this.postCreator.createPost({
-			parentPostId: this.observabilityObject.get('postId'),
-			streamId: this.observabilityObject.get('streamId'),
+			parentPostId: this.codeError.get('postId'),
+			streamId: this.codeError.get('streamId'),
 			text: this.request.body.text,
 			mentionedUserIds: this.mentionedUserIds
 		});
@@ -158,7 +157,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 		}
 
 		// return customized response data to New Relic
-		this.responseData = Utils.ToNewRelic(this.observabilityObject, this.post, this.users);
+		this.responseData = Utils.ToNewRelic(this.codeError, this.post, this.users);
 		return super.handleResponse();
 	}
 

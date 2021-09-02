@@ -10,11 +10,11 @@ class GetNRCommentRequest extends NRCommentRequest {
 	async process () {
 		await this.getPost(); 			// get the requested post
 		await this.getParentPost();		// get the parent post
-		await this.getObservabilityObject();	// get the associated observability object
+		await this.getCodeError();		// get the associated code error
 		await this.getUsers();			// get the associated users
 
 		this.responseData = {
-			post: Utils.ToNewRelic(this.observabilityObject, this.post, this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, this.users)
 		};
 	}
 
@@ -28,7 +28,7 @@ class GetNRCommentRequest extends NRCommentRequest {
 	}
 
 	// get the parent post to the requested post, it is assumed the fetched post is a reply to
-	// a post pointing to an observability object
+	// a post pointing to a code error
 	async getParentPost () {
 		const parentPostId = this.post.get('parentPostId');
 		if (!parentPostId) {
@@ -40,15 +40,15 @@ class GetNRCommentRequest extends NRCommentRequest {
 		}
 	}
 
-	// get the observability object pointed to by the parent post
-	async getObservabilityObject () {
+	// get the code error pointed to by the parent post
+	async getCodeError () {
 		const objectId = this.parentPost.get('codeErrorId');
 		if (!objectId) {
-			throw this.errorHandler.error('readAuth', { reason: 'parent is not an observability object' });
+			throw this.errorHandler.error('readAuth', { reason: 'parent is not a code error' });
 		}
-		this.observabilityObject = await this.data.codeErrors.getById(objectId);
-		if (!this.observabilityObject) {
-			throw this.errorHandler.error('notFound', { info: 'observability object '});
+		this.codeError = await this.data.codeErrors.getById(objectId);
+		if (!this.codeError) {
+			throw this.errorHandler.error('notFound', { info: 'code error '});
 		}
 	}
 

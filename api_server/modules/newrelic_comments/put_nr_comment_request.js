@@ -13,14 +13,14 @@ class PutNRCommentRequest extends NRCommentRequest {
 
 		await this.getPost(); 			// get the requested post
 		await this.getParentPost();		// get the parent post
-		await this.getObservabilityObject();	// get the associated observability object
-		await this.getTeam();			// get the team that owns the observability object
+		await this.getCodeError();		// get the associated code error
+		await this.getTeam();			// get the team that owns the code error
 		await this.getUsers();			// get users associated with the post (creator and mentioned)
 		await this.doUpdate();			// do the update
 
 		this.post.attributes.version++;
 		this.responseData = {
-			post: Utils.ToNewRelic(this.observabilityObject, this.post, this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, this.users)
 		};
 	}
 
@@ -34,7 +34,7 @@ class PutNRCommentRequest extends NRCommentRequest {
 	}
 
 	// get the parent post to the requested post, it is assumed the to-be-modified post is a reply to
-	// a post pointing to an observability object
+	// a post pointing to a code error object
 	async getParentPost () {
 		const parentPostId = this.post.get('parentPostId');
 		if (!parentPostId) {
@@ -46,21 +46,21 @@ class PutNRCommentRequest extends NRCommentRequest {
 		}
 	}
 
-	// get the observability object pointed to by the parent post
-	async getObservabilityObject () {
+	// get the code error pointed to by the parent post
+	async getCodeError () {
 		const objectId = this.parentPost.get('codeErrorId');
 		if (!objectId) {
-			throw this.errorHandler.error('readAuth', { reason: 'parent is not an observability object' });
+			throw this.errorHandler.error('readAuth', { reason: 'parent is not a code error' });
 		}
-		this.observabilityObject = await this.data.codeErrors.getById(objectId);
-		if (!this.observabilityObject) {
-			throw this.errorHandler.error('notFound', { info: 'observability object '});
+		this.codeError = await this.data.codeErrors.getById(objectId);
+		if (!this.codeError) {
+			throw this.errorHandler.error('notFound', { info: 'code error'});
 		}
 	}
 
-	// get the team that owns the observability object
+	// get the team that owns the code error
 	async getTeam () {
-		this.team = await this.data.teams.getById(this.observabilityObject.get('teamId'));
+		this.team = await this.data.teams.getById(this.codeError.get('teamId'));
 		if (!this.team || this.team.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}

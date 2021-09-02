@@ -109,6 +109,6 @@ module.exports = {
 	accountId: {
 		type: 'string',
 		maxLength: 100,
-		description: 'ID of the New Relic account that owns this observability object'
+		description: 'ID of the New Relic account that owns this code error'
 	}
 };

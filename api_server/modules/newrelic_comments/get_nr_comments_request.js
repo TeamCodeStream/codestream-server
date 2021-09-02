@@ -1,5 +1,5 @@
 // handle the "GET /nr-comments" request to fetch multiple New Relic comments associated 
-// with an observability object
+// with a code error
 
 'use strict';
 
@@ -13,17 +13,17 @@ class GetNRCommentsRequest extends NRCommentRequest {
 
 	// process the request...
 	async process () {
-		await this.getObservabilityObject();	// get the requested observability object
-		await this.getReplies();				// get the replies to the observability object
-		await this.getUsers();					// get all associated users
+		await this.getCodeError();	// get the requested code error
+		await this.getReplies();	// get the replies to the code error
+		await this.getUsers();		// get all associated users
 
 		this.responseData = this.posts.map(post => {
-			return Utils.ToNewRelic(this.observabilityObject, post, this.users);
+			return Utils.ToNewRelic(this.codeError, post, this.users);
 		});
 	}
 
-	// get the requested observability object
-	async getObservabilityObject () {
+	// get the requested code error
+	async getCodeError () {
 		const { objectId, objectType } = this.request.query;
 		if (!objectId) {
 			throw this.errorHandler.error('parameterRequired', { info: 'objectId' });
@@ -32,7 +32,7 @@ class GetNRCommentsRequest extends NRCommentRequest {
 			throw this.errorHandler.error('parameterRequired', { info: 'objectType' });
 		}
 
-		this.observabilityObject = await this.data.codeErrors.getOneByQuery(
+		this.codeError = await this.data.codeErrors.getOneByQuery(
 			{
 				objectId,
 				objectType 
@@ -41,14 +41,14 @@ class GetNRCommentsRequest extends NRCommentRequest {
 				hint: CodeErrorIndexes.byObjectId
 			}
 		);
-		if (!this.observabilityObject) {
-			throw this.errorHandler.error('notFound', { info: 'observabilityObject' });
+		if (!this.codeError) {
+			throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
 	}
 
-	// get all the replies to the observability object
+	// get all the replies to the code error
 	async getReplies () {
-		const postId = this.observabilityObject.get('postId');
+		const postId = this.codeError.get('postId');
 		if (!postId) {
 			throw this.errorHandler.error('notFound', { info: 'postId' });
 		}
@@ -56,8 +56,8 @@ class GetNRCommentsRequest extends NRCommentRequest {
 		// TODO this should be paginated
 		this.posts = await this.data.posts.getByQuery(
 			{
-				teamId: this.observabilityObject.get('teamId'),
-				streamId: this.observabilityObject.get('streamId'),
+				teamId: this.codeError.get('teamId'),
+				streamId: this.codeError.get('streamId'),
 				parentPostId: postId
 			},
 			{
