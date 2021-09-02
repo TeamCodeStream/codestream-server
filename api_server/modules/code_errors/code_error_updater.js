@@ -23,7 +23,7 @@ class CodeErrorUpdater extends ModelUpdater {
 	// get attributes that are allowed, we will ignore all others
 	getAllowedAttributes () {
 		return {
-			string: ['ticketUrl', 'ticketProviderId', 'title'],
+			string: ['ticketUrl', 'ticketProviderId', 'title', 'text'],
 			'array(object)': ['stackTraces']
 		};
 	}

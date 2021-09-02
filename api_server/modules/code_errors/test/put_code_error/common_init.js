@@ -45,7 +45,8 @@ class CommonInit {
 	// get the data to use when issuing the test request	
 	getCodeErrorUpdateData () {
 		const data = {
-			title: RandomString.generate(100)
+			title: RandomString.generate(100),
+			text: RandomString.generate(1000)
 		};
 		return data;
 	}
