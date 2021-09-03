@@ -28,6 +28,7 @@ class RandomCodeErrorFactory {
 	getRandomStackTraceInfo (/*options = {}*/) {
 		const stackInfo = {
 			text: `Error: ${RandomString.generate(32)}\n`,
+			traceId: RandomString.generate(20),
 			lines: []
 		};
 		for (let i = 0; i < 10; i++) {

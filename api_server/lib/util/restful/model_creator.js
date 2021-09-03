@@ -120,7 +120,7 @@ class ModelCreator {
 				return;
 			}
 			// override with the attributes passed in, we'll save these
-			this.attributes = Object.assign({}, this.existingModel.attributes, this.attributes);
+			this.attributes = Object.assign({}, this.existingModel.attributes, this.attributes, { id: this.existingModel.id });
 		}
 		else if (this.useId) {
 			this.attributes.id = this.useId;

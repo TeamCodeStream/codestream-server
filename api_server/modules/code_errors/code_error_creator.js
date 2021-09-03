@@ -92,7 +92,10 @@ class CodeErrorCreator extends ModelCreator {
 		// handle followers, either passed in or default for the given situation
 		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
 			this.attributes,
-			{ team: this.team }
+			{ 
+				mentionedUserIds: this.mentionedUserIds,
+				team: this.team
+			}
 		);
 
 		// create a permalink to this code error, as needed
@@ -107,7 +110,11 @@ class CodeErrorCreator extends ModelCreator {
 		if (this.existingModel) {
 			(this.attributes.stackTraces || []).forEach(incomingStackTrace => {
 				const index = (this.existingModel.get('stackTraces') || []).findIndex(existingStackTrace => {
-					return existingStackTrace.traceId === incomingStackTrace.traceId;
+					if (existingStackTrace.traceId && incomingStackTrace.traceId) {
+						return existingStackTrace.traceId === incomingStackTrace.traceId;
+					} else {
+						return existingStackTrace.text === incomingStackTrace.text;
+					}
 				});
 				if (index === -1) {
 					stackTracesToAdd.push(incomingStackTrace);

@@ -95,7 +95,12 @@ class PostCreator extends ModelCreator {
 		await this.createReview();		// create the associated review, if any
 		if (!await this.createCodeError()) { // create the associated code error, if any
 			// here we found a match to the code error, and we don't create a post at all
+			// instead make the code error's post the post we "seemed to" create
 			this.suppressSave = true;
+			const post = await this.data.posts.getById(this.transforms.createdCodeError.get('postId'));
+			if (post) {
+				this.attributes = post.attributes;
+			}
 			return;
 		}
 		await this.getSeqNum();			// requisition a sequence number for the post
@@ -252,6 +257,7 @@ class PostCreator extends ModelCreator {
 		const codeErrorCreator = new CodeErrorCreator({
 			request: this.request,
 			origin: this.attributes.origin,
+			mentionedUserIds: this.attributes.mentionedUserIds || [],
 			useId: this.codeErrorId, // if locked down previously
 		});
 		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(codeErrorAttributes);

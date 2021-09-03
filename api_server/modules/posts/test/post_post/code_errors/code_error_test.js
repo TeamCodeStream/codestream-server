@@ -6,14 +6,6 @@ const CodeErrorValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server
 
 class CodeErrorTest extends PostPostTest {
 
-	constructor (options) {
-		super(options);
-		this.streamUpdatesOk = true;
-		this.repoOptions.creatorIndex = 1;
-		this.expectedSeqNum = 2;
-		this.expectedStreamVersion = 3;
-	}
-
 	get description () {
 		return 'should return the post with a code error when creating a post with code error info';
 	}

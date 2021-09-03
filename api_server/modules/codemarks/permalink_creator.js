@@ -23,6 +23,7 @@ class PermalinkCreator {
 	// link may be public or private
 	async createLink () {
 		const thing = this.codemark || this.review || this.codeError;
+console.warn('CREATE A LINK FOR THING:', thing);
 		const type = (
 			(this.codemark && 'c') ||
 			(this.review && 'r') ||
@@ -91,7 +92,7 @@ class PermalinkCreator {
 	// one, just return it, we won't create a duplicate 
 	async findPermalink (attributes, markers, isPublic) {
 		// hash the relevant codemark attributes
-		const hash = this.makeHash(attributes, markers, isPublic);
+		const hash = this.makeHash(attributes, markers, isPublic, 'c');
 
 		// look for a link that matches this hash exactly
 		const codemarkLink = await this.request.data.codemarkLinks.getOneByQuery(
@@ -121,6 +122,7 @@ class PermalinkCreator {
 
 	// hash the distinguishing attributes
 	makeHash (attributes, markers, isPublic, type) {
+console.warn('TYPE=' + type);
 		const func = (
 			(type === 'c' && 'makeCodemarkHashText') ||
 			(type === 'r' && 'makeReviewHashText') ||

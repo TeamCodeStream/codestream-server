@@ -2,7 +2,7 @@
 
 const Assert = require('assert');
 const CodeErrorTestConstants = require('./code_error_test_constants');
-const MarkerValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/test/marker_validator');
+const DeepEqual = require('deep-equal');
 
 class CodeErrorValidator {
 
@@ -16,6 +16,7 @@ class CodeErrorValidator {
 		// verify we got back an code error with the attributes we specified
 		const codeError = data.codeError;
 		const expectedOrigin = this.expectedOrigin || '';
+		const expectedStackTraces = this.test.expectedStackTraces || this.inputCodeError.stackTraces;
 		let errors = [];
 		let result = (
 			((codeError.id === codeError._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
@@ -27,29 +28,15 @@ class CodeErrorValidator {
 			((codeError.lastActivityAt === codeError.createdAt) || errors.push('lastActivityAt should be set to createdAt')) &&
 			((codeError.modifiedAt >= codeError.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((codeError.creatorId === this.test.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
-			((codeError.status === this.inputCodeError.status) || errors.push('status does not match')) &&
 			((codeError.numReplies === 0) || errors.push('codeError should have 0 replies')) &&
 			((codeError.origin === expectedOrigin) || errors.push('origin not equal to expected origin')) &&
-			((codeError.stackTraces === this.inputCodeError.stackTraces) || errors.push('stackTraces does not match'))
+			(DeepEqual(codeError.stackTraces, expectedStackTraces) || errors.push('stackTraces does not match')) &&
 			((codeError.providerUrl === this.inputCodeError.providerUrl) || errors.push('providerUrl does not match'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 
 		// verify the code error in the response has no attributes that should not go to clients
 		this.test.validateSanitized(codeError, CodeErrorTestConstants.UNSANITIZED_ATTRIBUTES);
-
-		// if we are expecting a marker with the code error, validate it
-		if (this.test.expectMarkers) {
-			new MarkerValidator({
-				test: this.test,
-				objectName: 'codeError',
-				inputObject: this.inputCodeError,
-				usingCodeStreamChannels: true
-			}).validateMarkers(data);
-		}
-		else {
-			Assert(typeof data.markers === 'undefined', 'markers array should not be defined');
-		}
 
 		// validate the code error's permalink
 		this.validatePermalink(codeError.permalink);
