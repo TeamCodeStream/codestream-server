@@ -48,7 +48,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 			{
 				required: {
 					object: ['creator'],
-					string: ['accountId', 'objectId', 'objectType'],
+					number: ['accountId'],
+					string: ['objectId', 'objectType'],
 				},
 				optional: {
 					string: ['parentPostId', 'text'],

@@ -32,7 +32,8 @@ class CodeErrorCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'streamId', 'postId', 'objectId', 'objectType', 'accountId']
+				number: ['accountId'],
+				string: ['teamId', 'streamId', 'postId', 'objectId', 'objectType']
 			},
 			optional: {
 				string: ['providerUrl', 'entryPoint', 'title', 'text'],

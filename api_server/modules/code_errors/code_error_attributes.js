@@ -105,8 +105,7 @@ module.exports = {
 		description: 'Other metadata from the source of this code error'
 	},
 	accountId: {
-		type: 'string',
-		maxLength: 100,
+		type: 'number',
 		description: 'ID of the New Relic account that owns this code error'
 	}
 };

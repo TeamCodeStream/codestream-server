@@ -13,7 +13,7 @@ class RandomCodeErrorFactory {
 	// get some random codemark data
 	getRandomCodeErrorData (options = {}) {
 		const data = {
-			accountId: RandomString.generate(8),
+			accountId: Math.floor(Math.random() * 1000000),
 			objectId: RandomString.generate(40),
 			objectType: 'errorGroup',
 			stackTraces: [this.getRandomStackTraceInfo(options)],
