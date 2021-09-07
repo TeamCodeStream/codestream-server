@@ -75,7 +75,10 @@ const _require = function(object, requiredAttributes) {
 		return null;
 	}
 	else {
-		return { missing, invalid };
+		return { 
+			missing: missing.length > 0 ? missing : undefined,
+			invalid: invalid.length > 0 ? invalid : undefined
+		};
 	}
 };
 
