@@ -52,7 +52,8 @@ class ModelCreator {
 			throw this.errorHandler.error('parameterRequired', { info: info.missing.join(',') });
 		}
 		else if (info.invalid) {
-			throw this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') });
+			const infoText = info.invalid.map(i => `${i.attribute}(should be ${i.expectedType})`).join(',');
+			throw this.errorHandler.error('invalidParameter', { info: infoText });
 		}
 		else if (info.deleted && this.api) {
 			this.api.warn(`These attributes were deleted: ${info.deleted.join(',')}`);

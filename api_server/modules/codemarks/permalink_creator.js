@@ -23,7 +23,6 @@ class PermalinkCreator {
 	// link may be public or private
 	async createLink () {
 		const thing = this.codemark || this.review || this.codeError;
-console.warn('CREATE A LINK FOR THING:', thing);
 		const type = (
 			(this.codemark && 'c') ||
 			(this.review && 'r') ||
@@ -122,7 +121,6 @@ console.warn('CREATE A LINK FOR THING:', thing);
 
 	// hash the distinguishing attributes
 	makeHash (attributes, markers, isPublic, type) {
-console.warn('TYPE=' + type);
 		const func = (
 			(type === 'c' && 'makeCodemarkHashText') ||
 			(type === 'r' && 'makeReviewHashText') ||

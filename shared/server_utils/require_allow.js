@@ -67,7 +67,7 @@ const _require = function(object, requiredAttributes) {
 				missing.push(attribute);
 			}
 			else if (!_typeMatches(object[attribute], type)) {
-				invalid.push(attribute);
+				invalid.push({attribute, expectedType: type});
 			}
 		});
 	});

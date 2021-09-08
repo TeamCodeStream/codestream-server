@@ -248,6 +248,7 @@ const NoReplyWithCodeErrorTest = require('./code_errors/no_reply_with_code_error
 const CodeErrorReplyToAttachedCodemarkTest = require('./code_errors/code_error_reply_to_attached_codemark_test');
 const CodeErrorReplyToAttachedCodemarkNumRepliesTest = require('./code_errors/code_error_reply_to_attached_codemark_num_replies_test');
 const CodeErrorAttributeRequiredTest = require('./code_errors/code_error_attribute_required_test');
+const CodeErrorInvalidParameterTest = require('./code_errors/code_error_invalid_parameter_test');
 const CodeErrorEntryPointTest = require('./code_errors/code_error_entry_point_test');
 const CodeErrorExistsTest = require('./code_errors/code_error_exists_test');
 const AddStackTraceTest = require('./code_errors/add_stack_trace_test');
@@ -256,6 +257,7 @@ const CodeErrorWrongTeamTest = require('./code_errors/code_error_wrong_team_test
 class PostPostRequestTester {
 
 	postPostTest () {
+		/*
 		new PostPostTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new PostToChannelTest().test();
@@ -543,10 +545,16 @@ class PostPostRequestTester {
 		new CodeErrorAttributeRequiredTest({ attribute: 'accountId' }).test();
 		new CodeErrorAttributeRequiredTest({ attribute: 'objectId' }).test();
 		new CodeErrorAttributeRequiredTest({ attribute: 'objectType' }).test();
+		*/
+		new CodeErrorInvalidParameterTest({ attribute: 'accountId', shouldBeNumber: true }).test();
+		new CodeErrorInvalidParameterTest({ attribute: 'objectId' }).test();
+		new CodeErrorInvalidParameterTest({ attribute: 'objectType' }).test();
+		/*
 		new CodeErrorEntryPointTest().test();
 		new CodeErrorExistsTest().test();
 		new AddStackTraceTest().test();
 		new CodeErrorWrongTeamTest().test();
+		*/
 	}
 }
 

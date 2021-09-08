@@ -14,6 +14,7 @@ const RandomMarkerFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_serve
 const RandomCodemarkFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/test/random_codemark_factory');
 const RandomReviewFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/test/random_review_factory');
 const RandomCodeErrorFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/test/random_code_error_factory');
+const RandomNRCommentFactory = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/test/random_nr_comment_factory');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const TestTeamCreator = require('./test_team_creator');
@@ -67,6 +68,11 @@ class CodeStreamAPITest extends APIRequestTest {
 			repoFactory: this.repoFactory,
 			codemarkFactory: this.codemarkFactory,
 			reviewFactory: this.reviewFactory,
+			codeErrorFactory: this.codeErrorFactory
+		});
+		this.nrCommentFactory = new RandomNRCommentFactory({
+			apiRequester: this,
+			userFactory: this.userFactory,
 			codeErrorFactory: this.codeErrorFactory
 		});
 

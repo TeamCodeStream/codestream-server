@@ -28,7 +28,8 @@ class RestfulRequest extends APIRequest {
 		}
 		else if (info.invalid && info.invalid.length > 0) {
 			// invalid type
-			throw this.errorHandler.error('invalidParameter', { info: info.invalid.join(',') });
+			const infoText = info.invalid.map(i => `${i.attribute}(should be ${i.expectedType})`).join(',');
+			throw this.errorHandler.error('invalidParameter', { info: infoText });
 		}
 		else if (info.deleted && info.deleted.length > 0) {
 			// not allowed

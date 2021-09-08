@@ -10,11 +10,19 @@ class RandomCodeErrorFactory {
 		Object.assign(this, options);
 	}
 
+	randomAccountId () {
+		return Math.floor(Math.random() * 1000000);
+	}
+
+	randomObjectId () {
+		return RandomString.generate(40);
+	}
+
 	// get some random codemark data
 	getRandomCodeErrorData (options = {}) {
 		const data = {
-			accountId: Math.floor(Math.random() * 1000000),
-			objectId: RandomString.generate(40),
+			accountId: this.randomAccountId(),
+			objectId: this.randomObjectId(),
 			objectType: 'errorGroup',
 			stackTraces: [this.getRandomStackTraceInfo(options)],
 			providerUrl: 'https://one.newrelic.com',

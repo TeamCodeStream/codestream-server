@@ -19,7 +19,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 		// get the existing observablity object for this comment, if any
 		const { objectId, objectType } = this.request.body;
-		this.ocodeError = await this.data.codeErrors.getOneByQuery(
+		this.codeError = await this.data.codeErrors.getOneByQuery(
 			{ objectId, objectType },
 			{ hint: CodeErrorIndexes.byObjectId }
 		);
@@ -49,10 +49,10 @@ class PostNRCommentRequest extends NRCommentRequest {
 				required: {
 					object: ['creator'],
 					number: ['accountId'],
-					string: ['objectId', 'objectType'],
+					string: ['objectId', 'objectType', 'text'],
 				},
 				optional: {
-					string: ['parentPostId', 'text'],
+					string: ['parentPostId'],
 					'array(object)': ['mentionedUsers']
 				}
 			}
@@ -158,7 +158,9 @@ class PostNRCommentRequest extends NRCommentRequest {
 		}
 
 		// return customized response data to New Relic
-		this.responseData = Utils.ToNewRelic(this.codeError, this.post, this.users);
+		this.responseData = {
+			post: Utils.ToNewRelic(this.codeError, this.post, this.users)
+		};
 		return super.handleResponse();
 	}
 

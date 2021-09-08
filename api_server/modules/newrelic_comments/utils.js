@@ -27,6 +27,7 @@ const ToNewRelic = function(codeError, post, users) {
 		version: post.get('version'),
 		creator: {
 			email: creator.get('email'),
+			username: creator.get('username'),
 			fullName: creator.get('fullName') || ''
 		},
 		createdAt: post.get('createdAt'),
