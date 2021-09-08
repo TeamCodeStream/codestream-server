@@ -24,7 +24,7 @@ class LinkNewRelicRequest extends WebRequestBase {
 		// traceId (required, string): id of the instance of the error the user is looking at
 		// src (required, string, value=NR-errorsinbox) used for tracking. Once the Open In IDE links are extended to other areas besides the Inbox, the src value should be modified accordingly (e.g., NR-APM, NR-Slack, etc.)  
 		// entityId (required, string): entityId from this errorGroup
-		
+
 		// hash (optional, string, value=<hashOfRemote>) used for a better UX to open the last IDE based on a repo (this could also be some kind of unique identifier or guid that backs the remote)
 		// commit (optional, string) git commit sha, full version
 		// remote (optional, string) git remote url
@@ -48,7 +48,7 @@ class LinkNewRelicRequest extends WebRequestBase {
  		const templateProps = {			 
 			launchIde: this.parsedPayload.ide === ''
 					? 'default'
-					: this.queryStringide,
+					: this.parsedPayload.ide,
  			queryString: {			 		 
 				ide: this.parsedPayload.ide === ''
 						? 'default'
@@ -80,6 +80,14 @@ class LinkNewRelicRequest extends WebRequestBase {
 		cookieNames.push(defaultCookieName);
 		const queryStringIDE = this.parsedPayload.ide;
 		let autoOpen = !!(!queryStringIDE || queryStringIDE === 'default');
+
+		if (queryStringIDE && queryStringIDE !== 'default') {
+			const mappedQueryStringIDE = ides.find(_ => _.moniker === queryStringIDE);
+			if (mappedQueryStringIDE) {
+				return { ides: ides, lastOrigin: mappedQueryStringIDE, autoOpen: true, isSpecificIde: true };
+			}
+		}
+
 		const lastOrigin = ((function() {
 			for (const cookieName of cookieNames) {
 				const cookie = this.request.cookies && this.request.cookies[cookieName];
