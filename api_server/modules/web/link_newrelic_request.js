@@ -19,20 +19,40 @@ class LinkNewRelicRequest extends WebRequestBase {
 		return true;
 	}
 
+	parsedPayload = {
+		// errorGroupId (required, string): the guid of the error group
+		// traceId (required, string): id of the instance of the error the user is looking at
+		// src (required, string, value=NR-errorsinbox) used for tracking. Once the Open In IDE links are extended to other areas besides the Inbox, the src value should be modified accordingly (e.g., NR-APM, NR-Slack, etc.)  
+		// entityId (required, string): entityId from this errorGroup
+		
+		// hash (optional, string, value=<hashOfRemote>) used for a better UX to open the last IDE based on a repo (this could also be some kind of unique identifier or guid that backs the remote)
+		// commit (optional, string) git commit sha, full version
+		// remote (optional, string) git remote url
+		// tag (optional,  string) git tag
+	};
+	
 	async process () {
-	 	 await this.render();
+		if (this.request.query && this.request.query.payload) {
+			try {
+		 		const parsedPayload = JSON.parse(Buffer.from(decodeURI(this.request.query.payload), 'base64').toString('ascii'));
+			 	this.parsedPayload = {...parsedPayload};
+			}
+			catch(ex) {
+				this.api.logger.warn(ex);
+			}
+		}
+	 	await this.render();
 	}
  
 	async render () {
  		const templateProps = {			 
-			launchIde: this.request.query.ide === ''
+			launchIde: this.parsedPayload.ide === ''
 					? 'default'
-					: this.request.query.ide,
-			queryStringFull: JSON.stringify(this.request.query),	 
-			queryString: {			 		 
-				ide: this.request.query.ide === ''
+					: this.queryStringide,
+ 			queryString: {			 		 
+				ide: this.parsedPayload.ide === ''
 						? 'default'
-						: this.request.query.ide, 
+						: this.parsedPayload.ide, 
 			},			 
 			icons: {},	
 			// if we ever get a repoId pass it here		 
@@ -58,7 +78,7 @@ class LinkNewRelicRequest extends WebRequestBase {
 			cookieNames.push(`${defaultCookieName}--${repoId}`);
 		}
 		cookieNames.push(defaultCookieName);
-		const queryStringIDE = this.request.query && this.request.query.ide;
+		const queryStringIDE = this.parsedPayload.ide;
 		let autoOpen = !!(!queryStringIDE || queryStringIDE === 'default');
 		const lastOrigin = ((function() {
 			for (const cookieName of cookieNames) {
@@ -79,7 +99,7 @@ class LinkNewRelicRequest extends WebRequestBase {
 		const result = {		 
 			ides: ides,
 			csrf: this.request.csrfToken(),
-			src: decodeURIComponent(this.request.query.src || ''),		
+			src: decodeURIComponent(this.parsedPayload.src || ''),		
 			...lastOrigin
 		};	 
 		result.isDefaultJetBrains = result.lastOrigin && result.lastOrigin.moniker.indexOf('jb-') === 0; 

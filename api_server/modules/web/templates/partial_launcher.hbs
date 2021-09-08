@@ -342,14 +342,30 @@ window.CODESTREAM.openEditor = function(ide) {
 			const results = Object.keys(entries).map((key) => { return { key: key, value: entries[key] }; } );
 			if (options.teamId) {
 				results.push({key: 'teamId', value: options.teamId});
-			}
+			}			 
 			route = { controller: 'codeerror', action: 'open', id: options.id, query: results }
 			 
 		}
 		else if (type ==='errorsinbox' || type === 'pixie') {
 			const urlSearchParams = new URLSearchParams(window.location.search);
 			const entries = Object.fromEntries(urlSearchParams.entries());			 
-			const results = Object.keys(entries).map((key) => { return { key: key, value: entries[key] }; } );
+			let results = Object.keys(entries).map((key) => { return { key: key, value: entries[key] }; } );
+			const payload = results.find(_ => _.key === "payload");
+			if (payload) {
+				try { 
+					const parsed = JSON.parse(atob(decodeURIComponent(payload.value)));
+					Object.keys(parsed).forEach(_ => {
+						results.push({
+							key: _,
+							value: parsed[_]
+						})
+					});
+					results = results.filter(_ => _.key !== "payload");					
+				}
+				catch(ex) {
+					console.warn(ex)
+				}
+			}
 			route = { controller: 'newrelic', action: type, id: options.id, query: results }
 			 
 		}
