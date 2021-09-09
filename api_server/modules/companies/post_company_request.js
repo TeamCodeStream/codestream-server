@@ -3,11 +3,29 @@
 'use strict';
 
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
+const TeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_creator');
 
 class PostCompanyRequest extends PostRequest {
 
 	async authorize () {
 		// anyone can create a company at any time
+	}
+
+	// process the request
+	async process () {
+		this.teamCreatorClass = TeamCreator; // this avoids a circular require
+		return super.process();
+	}
+
+	// handle response to the incoming request
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+		if (this.transforms.createdTeam) {
+			this.responseData.team = this.transforms.createdTeam.getSanitizedObject({ request: this });
+		}
+		return super.handleResponse();
 	}
 
 	// after we've processed the request....
@@ -21,6 +39,7 @@ class PostCompanyRequest extends PostRequest {
 		const message = {
 			requestId: this.request.id,
 			company: this.responseData.company,
+			team: this.responseData.team,
 			user: this.transforms.userUpdate
 		};
 		const channel = `user-${this.user.id}`;
@@ -48,7 +67,7 @@ class PostCompanyRequest extends PostRequest {
 				'name*': '<Name of the company>'
 			}
 		};
-		description.returns.summary = 'The created team object';
+		description.returns.summary = 'The created company object';
 		return description;
 	}
 }

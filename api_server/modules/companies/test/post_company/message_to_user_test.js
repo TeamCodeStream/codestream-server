@@ -31,14 +31,19 @@ class MessageToUserTest extends CodeStreamMessageTest {
 							version: 6
 						},
 						$addToSet: {
-							companyIds: response.company.id
+							companyIds: response.company.id,
+							teamIds: response.team.id
+						},
+						$unset: {
+							companyName: true
 						},
 						$version: {
 							before: 5,
 							after: 6
 						}
 					},
-					company: response.company
+					company: response.company,
+					team: response.team
 				};
 				callback();
 			},

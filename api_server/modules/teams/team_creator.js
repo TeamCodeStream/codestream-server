@@ -52,6 +52,7 @@ class TeamCreator extends ModelCreator {
 
 	// validate attributes for the team we are creating
 	async validateAttributes () {
+		this.attributes.isEveryoneTeam = this.isEveryoneTeam; // don't allow to be set by client
 		this.validator = new CodeStreamModelValidator(TeamAttributes);
 		return this.validateName();
 	}
@@ -96,11 +97,13 @@ class TeamCreator extends ModelCreator {
 	// create a company document for the team, or if the company ID is provided, update the company
 	async createOrAttachToCompany () {
 		if (this.attributes.companyId) {
-			return this.attachToCompany();
+			if (!this.dontAttachToCompany) {
+				return this.attachToCompany();
+			} 
 		}
 		else {
 			return this.createCompany();
-		}
+		} 
 	}
 
 	// attach the team to an existing company 
@@ -185,7 +188,7 @@ class TeamCreator extends ModelCreator {
 
 	// update a user to indicate they have been added to a new team
 	async updateUser () {
-		// add the team's ID to the user's teamIds array, and the company ID to the companyIds array
+	// add the team's ID to the user's teamIds array, and the company ID to the companyIds array
 		const op = {
 			$addToSet: {
 				companyIds: this.attributes.companyId,

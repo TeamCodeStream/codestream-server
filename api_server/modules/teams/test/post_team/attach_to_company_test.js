@@ -17,6 +17,7 @@ class AttachToCompanyTest extends PostTeamTest {
 
 	// before the test runs...
 	before (callback) {
+		this.teamReferral = 'internal';
 		BoundAsync.series(this, [
 			super.before,
 			this.createCompany
