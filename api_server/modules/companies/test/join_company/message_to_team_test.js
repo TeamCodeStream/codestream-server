@@ -14,7 +14,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	// make the data that triggers the message to be received
 	makeData (callback) {
 		// don't try to listen as the user who is joining, listen as the team creator
-		this.listeningUser = 1;
+		this.listeningUserIndex = 1;
 		this.init(callback);
 	}
 
