@@ -23,6 +23,11 @@ const COMPANY_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: '/company-test-group/:id',
 		requestClass: require('./put_company_test_group_request')
+	},
+	{
+		method: 'put',
+		path: '/companies/join/:id',
+		requestClass: require('./join_company_request')
 	}
 ];
 

@@ -119,9 +119,12 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			return this.makeSocketClusterClientForClient(callback);
 		}
 
+		const listeningUserIndex = this.listeningUser || 0;
+		const listeningUser = this.users[listeningUserIndex];
+
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		const token = this.currentUser.broadcasterToken;
-		const user = this.currentUser.user;
+		const user = listeningUser.user;
+		const token = listeningUser.broadcasterToken;
 		let clientConfig = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
@@ -141,7 +144,9 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	}
 
 	makeSocketClusterClientForClient (callback) {
-		const { user, broadcasterToken } = this.currentUser;
+		const listeningUserIndex = this.listeningUser || 0;
+		const listeningUser = this.users[listeningUserIndex];
+		const { user, broadcasterToken } = listeningUser;
 		const broadcasterConfig = this.apiConfig.broadcastEngine.codestreamBroadcaster;
 		const config = Object.assign({},
 			{
@@ -204,7 +209,9 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 		(async () => {
 			// subscribe to the channel of interest
-			const broadcaster = this.broadcasterClientsForUser[this.currentUser.user.id];
+			const listeningUserIndex = this.listeningUser || 0;
+			const listeningUser = this.users[listeningUserIndex];
+			const broadcaster = this.broadcasterClientsForUser[listeningUser.user.id];
 			try {
 				await broadcaster.subscribe(
 					this.channelName,

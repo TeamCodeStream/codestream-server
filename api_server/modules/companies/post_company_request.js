@@ -24,6 +24,7 @@ class PostCompanyRequest extends PostRequest {
 		}
 		if (this.transforms.createdTeam) {
 			this.responseData.team = this.transforms.createdTeam.getSanitizedObject({ request: this });
+			this.responseData.team.companyMemberCount = 1;
 		}
 		if (this.transforms.createdTeamStream) {
 			this.responseData.streams = [
