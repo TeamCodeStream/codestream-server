@@ -35,6 +35,8 @@ const RepoBasedSignupMessageToTeamTest = require('./repo_based_signup_message_to
 const RepoBasedSignupConfirmationEmailTest = require('./repo_based_signup_confirmation_email_test');
 const GitLensReferralTest = require('./gitlens_referral_test');
 const GitLensReferralMachineIdTest = require('./gitlens_referral_machine_id_test');
+const WebmailTest = require('./webmail_test');
+const WebmailOverrideTest = require('./webmail_override_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -83,6 +85,8 @@ class RegistrationRequestTester {
 		new RepoBasedSignupMessageToTeamTest().test();
 		new GitLensReferralTest().test();
 		new GitLensReferralMachineIdTest().test();
+		new WebmailTest().test();
+		new WebmailOverrideTest().test();
 	}
 }
 
