@@ -4,8 +4,8 @@
 
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Company = require('./company');
-const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const LicenseManager = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/LicenseManager');
+const CompanyValidations = require('./company_validations');
 
 ///const TRIAL_PERIOD_FOR_30_DAY_TRIAL = 36 * 24 * 60 * 60 * 1000;	// NOTE - this is 36 days, which gives breathing room
 const TRIAL_PERIOD_FOR_14_DAY_TRIAL = 16 * 24 * 60 * 60 * 1000; // NOTE - this is 16 days, which gives breathing room
@@ -31,8 +31,16 @@ class CompanyCreator extends ModelCreator {
 		return {
 			required: {
 				string: ['name']
+			},
+			optional: {
+				'array(string)': ['domainJoining', 'codeHostJoining']
 			}
 		};
+	}
+
+	// validate attributes for the company we are creating
+	async validateAttributes () {
+		return CompanyValidations.validateAttributes(this.attributes);
 	}
 
 	// right before saving...
@@ -56,6 +64,7 @@ class CompanyCreator extends ModelCreator {
 				name: "Everyone"
 			});
 			this.teamIds = [this.transforms.createdTeam.id];
+			this.attributes.everyoneTeamId = this.transforms.createdTeam.id;
 		}
 		this.attributes.teamIds = this.teamIds || [];
 

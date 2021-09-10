@@ -33,6 +33,10 @@ class RandomCompanyFactory {
 		return callback(null, data);
 	}
 
+	// return a random company domain
+	randomDomain () {
+		return `${RandomString.generate(10)}.${RandomString.generate(3)}`;
+	}
 
 	// create a random comapny in the database
 	createRandomCompany (callback, options = {}) {

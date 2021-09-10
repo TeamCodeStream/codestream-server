@@ -25,6 +25,11 @@ class PostCompanyRequest extends PostRequest {
 		if (this.transforms.createdTeam) {
 			this.responseData.team = this.transforms.createdTeam.getSanitizedObject({ request: this });
 		}
+		if (this.transforms.createdTeamStream) {
+			this.responseData.streams = [
+				this.transforms.createdTeamStream.getSanitizedObject({ request: this })
+			]
+		}
 		return super.handleResponse();
 	}
 

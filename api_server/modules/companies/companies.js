@@ -2,17 +2,18 @@
 
 const Restful = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful');
 const CompanyCreator = require('./company_creator');
-//const CompanyUpdater = require('./company_updater');
+const CompanyUpdater = require('./company_updater');
 const Company = require('./company');
 
 // we'll expose only these routes
 const COMPANY_STANDARD_ROUTES = {
-	want: ['get', 'getMany', 'post'],
+	want: ['get', 'getMany', 'post', 'put'],
 	baseRouteName: 'companies',
 	requestClasses: {
 		'get': require('./get_company_request'),
 		'getMany': require('./get_companies_request'),
-		'post': require('./post_company_request')
+		'post': require('./post_company_request'),
+		'put': require('./put_company_request')
 	}
 };
 
@@ -47,11 +48,9 @@ class Companies extends Restful {
 		return Company;	// derived from DataModel, class to use for a company model
 	}
 
-	/*
 	get updaterClass () {
 		return CompanyUpdater;
 	}
-*/
 
 	// compile all the routes to expose
 	getRoutes () {

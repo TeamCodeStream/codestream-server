@@ -54,6 +54,7 @@ class PostCompanyTest extends CodeStreamAPITest {
 			((typeof company.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
+			((company.everyoneTeamId === team.id) || errors.push('everyoneTeamId not set to the ID of the everyone team')) &&
 			((team.id === team._id) || errors.push('team.id not set to team._id')) && // DEPRECATE ME
 			((team.name === 'Everyone') || errors.push('team name not set to "Everyone"')) &&
 			((team.isEveryoneTeam === true) || errors.push('team isEveryoneFlag not set')) &&
@@ -61,8 +62,28 @@ class PostCompanyTest extends CodeStreamAPITest {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepStrictEqual(company.teamIds, [team.id], 'teamIds should have single "Everyone" team');
+		this.validateTeamStream(data);
 		this.validateSanitized(company, CompanyTestConstants.UNSANITIZED_ATTRIBUTES);
 		this.validateSanitized(team, TeamTestConstants.UNSANITIZED_ATTRIBUTES);
+	}
+
+	// validate the stream part of the response (the team stream created for the team)
+	validateTeamStream (data) {
+		const stream = data.streams[0];
+		const errors = [];
+		const result = (
+			((stream.id === stream._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
+			((stream.name === 'general') || errors.push('team stream name should be general')) &&
+			((stream.deactivated === false) || errors.push('deactivated not false')) &&
+			((typeof stream.createdAt === 'number') || errors.push('createdAt not number')) &&
+			((stream.modifiedAt >= stream.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
+            ((stream.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
+            ((stream.type === 'channel') || errors.push('team stream type should be channel')) &&
+            ((stream.privacy === 'public') || errors.push('team stream should be public')) &&
+            ((stream.isTeamStream === true) || errors.push('isTeamStream should be true'))
+		);
+		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		this.validateSanitized(stream, TeamTestConstants.UNSANITIZED_STREAM_ATTRIBUTES);
 	}
 }
 
