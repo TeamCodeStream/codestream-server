@@ -31,6 +31,7 @@ const TrackTokenDeprecatedTest = require('./track_token_deprecated_test');
 const TrackCodeExpiredTest = require('./track_code_expired_test');
 const TrackIncorrectCodeTest = require('./track_incorrect_code_test');
 const ReuseCodeTest = require('./reuse_code_test');
+const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 
 class ConfirmationRequestTester {
 
@@ -67,6 +68,7 @@ class ConfirmationRequestTester {
 		new TrackCodeExpiredTest().test();
 		new TrackIncorrectCodeTest().test();
 		new ReuseCodeTest().test();
+		new EligibleJoinCompaniesTest().test();
 	}
 }
 

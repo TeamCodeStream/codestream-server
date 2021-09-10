@@ -6,6 +6,9 @@ const LoginHelper = require('./login_helper');
 const PasswordHasher = require('./password_hasher');
 const UsernameChecker = require('./username_checker');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
+const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
 
 class ConfirmHelper {
 
@@ -20,6 +23,7 @@ class ConfirmHelper {
 		//await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
+		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
 		return this.responseData;
 	}
 
@@ -160,6 +164,42 @@ class ConfirmHelper {
 			collection: this.request.data.users,
 			id: this.user.id
 		}).save(op);
+	}
+
+	// get list of companies the user is not a member of, but is eligible to join
+	async getEligibleJoinCompanies () {
+		if (this.notTrueLogin) { return; }
+		this.responseData.eligibleJoinCompanies = [];
+		const domain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
+
+		// ignore webmail domains
+		if (WebmailCompanies.includes(domain)) {
+			return;
+		}
+
+		// look for any companies with domain-based joining that match the domain of the user's email
+		const companies = await this.request.data.companies.getByQuery(
+			{
+				domainJoining: domain,
+				deactivated: false
+			},
+			{
+				hint: CompanyIndexes.byDomainJoining 
+			}
+		);
+
+		// return information about those companies (but not full company objects, 
+		// since the user is not actually a member (yet))
+		for (const company of companies) {
+			const memberCount = await company.getCompanyMemberCount(this.request.data);
+			this.responseData.eligibleJoinCompanies.push({
+				id: company.id,
+				name: company.get('name'),
+				domainJoining: company.get('domainJoining') || [],
+				codeHostJoining: company.get('codeHostJoining') || [],
+				memberCount
+			});
+		}
 	}
 }
 
