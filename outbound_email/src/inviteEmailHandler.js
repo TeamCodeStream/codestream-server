@@ -17,11 +17,16 @@ class InviteEmailHandler extends EmailHandler {
 
 	async renderEmail () {
 		const inviter = await this.data.users.getById(this.message.inviterId);
+		this.team = this.message.teamId ? await this.data.teams.getById(this.message.teamId) : null;
 		if (!inviter || inviter.deactivated) {
 			throw 'Inviter not found: ' + this.message.inviterId;
 		}
 		const inviterName = inviter.fullName || inviter.email;
-		this.subject = `${inviterName} invited you to collaborate with ${this.message.teamName}`;
+		if (this.team && this.team.isEveryoneTeam) {
+			this.subject = `${inviterName} invited you to collaborate`;
+		} else {
+			this.subject = `${inviterName} invited you to collaborate with ${this.message.teamName}`;
+		}
 		if (this.user.isRegistered) {
 			return await this.renderForRegisteredUser();
 		}
@@ -53,14 +58,22 @@ In the CodeStream extension, select “Switch Teams” under the headshot menu t
 		}
 		const allLinks = links.slice(0, links.length - 1).join(', ') + ' or ' + links[links.length - 1];
 
+		const downloadOrInstall = this.team && this.team.isEveryoneTeam ? 'Install' : 'Download';
+		const inviteCodeCopy =  this.team && this.team.isEveryoneTeam ? `
+2. Sign up using <b>${this.user.email}</b>.
+If you use a different email, paste in this invitation code after you sign up:<br/>
+${this.user.inviteCode}<br/>
+` : `
+2. Paste your invitation code in the "Is your team already on CodeStream?" section:<br/>
+<b>${this.user.inviteCode}</b><br/>
+`;
 		this.content = `
 <html>
 CodeStream's cloud-based service and IDE plugins help dev teams discuss, review, and understand code. Discussing code is now as simple as commenting on a Google Doc — select the code and type your question.<br/>
 <br/>
-1. Download CodeStream for ${allLinks}.<br/>
+1. ${downloadOrInstall} CodeStream for ${allLinks}.<br/>
 <br/>
-2. Paste your invitation code in the "Is your team already on CodeStream?" section:<br/>
-<b>${this.user.inviteCode}</b><br/>
+${inviteCodeCopy}
 <br/>
 Team CodeStream<br/>
 </html>
