@@ -32,6 +32,7 @@ const TrackCodeExpiredTest = require('./track_code_expired_test');
 const TrackIncorrectCodeTest = require('./track_incorrect_code_test');
 const ReuseCodeTest = require('./reuse_code_test');
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
+const IsWebmailTest = require('./is_webmail_test');
 
 class ConfirmationRequestTester {
 
@@ -69,6 +70,7 @@ class ConfirmationRequestTester {
 		new TrackIncorrectCodeTest().test();
 		new ReuseCodeTest().test();
 		new EligibleJoinCompaniesTest().test();
+		new IsWebmailTest().test();
 	}
 }
 

@@ -168,14 +168,16 @@ class ConfirmHelper {
 
 	// get list of companies the user is not a member of, but is eligible to join
 	async getEligibleJoinCompanies () {
-		if (this.notTrueLogin) { return; }
-		this.responseData.eligibleJoinCompanies = [];
 		const domain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
+		this.responseData.isWebmail = WebmailCompanies.includes(domain);
 
 		// ignore webmail domains
-		if (WebmailCompanies.includes(domain)) {
+		if (this.responseData.isWebmail) {
 			return;
 		}
+
+		if (this.notTrueLogin) { return; }
+		this.responseData.eligibleJoinCompanies = [];
 
 		// look for any companies with domain-based joining that match the domain of the user's email
 		const companies = await this.request.data.companies.getByQuery(
