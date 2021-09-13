@@ -17,6 +17,7 @@ class ConfirmHelper {
 	}
 
 	async confirm (data) {
+		this.responseData = {};
 		this.data = data;
 		await this.hashPassword();			// hash the provided password, if given
 		// username uniqueness is deprecated per https://trello.com/c/gG8fKXft
@@ -24,6 +25,7 @@ class ConfirmHelper {
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
 		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
+		this.responseData.isWebmail = this.isWebmail;
 		return this.responseData;
 	}
 
@@ -169,10 +171,10 @@ class ConfirmHelper {
 	// get list of companies the user is not a member of, but is eligible to join
 	async getEligibleJoinCompanies () {
 		const domain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
-		this.responseData.isWebmail = WebmailCompanies.includes(domain);
+		this.isWebmail = WebmailCompanies.includes(domain);
 
 		// ignore webmail domains
-		if (this.responseData.isWebmail) {
+		if (this.isWebmail) {
 			return;
 		}
 
