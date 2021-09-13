@@ -56,6 +56,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 				this.expectedEligibleJoinCompanies.push({
 					id: response.company.id,
 					name: response.company.name,
+					byDomain: domain.toLowerCase(),
 					domainJoining: response.company.domainJoining,
 					codeHostJoining: response.company.codeHostJoining,
 					memberCount: 1

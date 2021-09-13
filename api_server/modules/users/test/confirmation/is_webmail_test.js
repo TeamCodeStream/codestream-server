@@ -9,7 +9,6 @@ class IsWebmailTest extends ConfirmationTest {
 	}
 
 	getUserData () {
-console.warn('I AM GETTING THE USER DATA FOR THE IS WEBMAIL TEST');
 		this.isWebmail = true;
 		return this.userFactory.getRandomUserData({ wantWebmail: true });
 	}

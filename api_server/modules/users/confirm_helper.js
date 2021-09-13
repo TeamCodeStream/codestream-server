@@ -199,6 +199,7 @@ class ConfirmHelper {
 			this.responseData.eligibleJoinCompanies.push({
 				id: company.id,
 				name: company.get('name'),
+				byDomain: domain.toLowerCase(),
 				domainJoining: company.get('domainJoining') || [],
 				codeHostJoining: company.get('codeHostJoining') || [],
 				memberCount
