@@ -36,12 +36,6 @@ const ides = [
 	},
 	{},
 	{
-		ideName: 'Android Studio',
-		protocol: 'jetbrains://studio/codestream/',
-		moniker: 'jb-studio',
-		downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream'
-	},
-	{
 		ideName: 'IntelliJ IDEA',
 		protocol: 'jetbrains://idea/codestream/',
 		moniker: 'jb-idea',
@@ -99,6 +93,12 @@ const ides = [
 		ideName: 'AppCode',
 		protocol: 'jetbrains://appcode/codestream/',
 		moniker: 'jb-appcode',
+		downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream'
+	},
+	{
+		ideName: 'Android Studio',
+		protocol: 'jetbrains://studio/codestream/',
+		moniker: 'jb-studio',
 		downloadUrl: 'https://plugins.jetbrains.com/plugin/12206-codestream'
 	},
 	{},
