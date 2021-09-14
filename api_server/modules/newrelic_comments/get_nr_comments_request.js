@@ -50,21 +50,40 @@ class GetNRCommentsRequest extends NRCommentRequest {
 	async getReplies () {
 		const postId = this.codeError.get('postId');
 		if (!postId) {
-			throw this.errorHandler.error('notFound', { info: 'postId' });
+				throw this.errorHandler.error('notFound', { info: 'postId' });
 		}
 
 		// TODO this should be paginated
-		this.posts = await this.data.posts.getByQuery(
-			{
-				teamId: this.codeError.get('teamId'),
-				streamId: this.codeError.get('streamId'),
-				parentPostId: postId
-			},
-			{
-				hint: PostIndexes.byParentPostId,
-				sort: { seqNum: -1 }
-			}
+		const posts = await this.data.posts.getByQuery(
+				{
+						teamId: this.codeError.get('teamId'),
+						streamId: this.codeError.get('streamId'),
+						parentPostId: postId
+				},
+				{
+						hint: PostIndexes.byParentPostId
+				}
 		);
+
+		// also get posts that are replies to these posts
+		const postIds = posts.map(post => post.id);
+		const replies = await this.data.posts.getByQuery(
+				{
+						teamId: this.codeError.get('teamId'),
+						streamId: this.codeError.get('streamId'),
+						parentPostId: this.data.posts.inQuery(postIds)
+				},
+				{
+						hint: PostIndexes.byParentPostId
+				}
+		);
+
+		this.posts = [
+				...posts,
+				...replies
+		].sort((a, b) => {
+				return b.get('seqNum') - a.get('seqNum');
+		});
 	}
 
 	// get all users associated with the replies: all creators, and all mentioned users
