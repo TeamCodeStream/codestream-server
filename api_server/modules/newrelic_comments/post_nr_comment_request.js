@@ -143,8 +143,10 @@ class PostNRCommentRequest extends NRCommentRequest {
 			request: this,
 			assumeSeqNum: this.teamWasCreated ? 2 : undefined // because the actual code error was 1
 		});
+		// TODO: for replies, we should probably validate that the parent post ID is a code error
+		// for the same team/stream/etc. ... but for now, just allow it
 		this.post = await this.postCreator.createPost({
-			parentPostId: this.codeError.get('postId'),
+			parentPostId: this.request.body.parentPostId || this.codeError.get('postId'),
 			streamId: this.codeError.get('streamId'),
 			text: this.request.body.text,
 			mentionedUserIds: this.mentionedUserIds
