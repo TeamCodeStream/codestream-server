@@ -81,7 +81,7 @@ module.exports = {
 	stackTraces: {
 		type: 'arrayOfObjects',
 		maxLength: 100,
-		maxObjectLength: 10000,
+		maxObjectLength: 100000,
 		description: 'Array of objects giving stack trace info for the code error'
 	},
 	providerUrl: {
