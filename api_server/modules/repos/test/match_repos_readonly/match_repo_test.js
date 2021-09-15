@@ -24,7 +24,6 @@ class MatchRepoTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-console.warn('DATA:', JSON.stringify(data, undefined, 5));
 		const expectedRepos = this.expectedRepos || [this.repo];
 		Assert.deepEqual(data.repos, expectedRepos, 'incorrect repos returned in response');
 	}

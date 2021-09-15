@@ -23,7 +23,6 @@ class RepoMatcher {
 	}
 
 	async findOrCreateRepo (repoInfo) {
-console.warn('**** FIND ONLY:', this.findOnly);
 		if (!this.team) {
 			throw 'must provide team when matching repos';
 		}

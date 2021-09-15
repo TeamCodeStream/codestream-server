@@ -43,9 +43,7 @@ class MatchReposRequest extends RestfulRequest {
 
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
-console.warn('METHOD:', this.request.method);
-		if (this.request.method === 'get') {
-console.warn('REPOS:', this.request.query.repos);
+		if (this.request.method.toLowerCase() === 'get') {
 			if (!this.request.query.repos) {
 				throw this.errorHandler.error('parameterRequired', { info: 'repos' });
 			}
