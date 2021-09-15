@@ -94,7 +94,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 				}
 				this.teamStream = await this.data.streams.getOneByQuery(
 					{
-						teamId: this.teamId,
+						teamId: this.team.id,
 						type: 'channel',
 						isTeamStream: true
 					},
