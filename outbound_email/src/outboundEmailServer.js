@@ -27,7 +27,7 @@ const FS = require('fs');
 const UUID = require('uuid/v4');
 //const NewRelic = require('newrelic');
 
-const MONGO_COLLECTIONS = ['users', 'teams', 'repos', 'streams', 'posts', 'codemarks', 'reviews', 'markers'];
+const MONGO_COLLECTIONS = ['users', 'teams', 'companies', 'repos', 'streams', 'posts', 'codemarks', 'reviews', 'markers'];
 
 const HANDLERS = {
 	confirm: ConfirmationEmailHandler,

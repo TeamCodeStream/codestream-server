@@ -32,7 +32,7 @@ class EmailNotificationV2Handler {
 			await this.getRepos();					// get repos associated with all markers
 			await this.getFileStreams();			// get file streams associated with all markers
 			await this.getStream();					// get the stream the post belongs to
-			await this.getTeam();					// get the team that owns the stream that owns the post
+			await this.getTeamAndCompany();			// get the team and company that owns the stream that owns the post
 			await this.getAllMembers();				// get all members of the team
 			if (await this.filterByPreference()) {	// filter to those who haven't turned email notifications off
 				return; // indicates no emails will be sent, so just abort
@@ -214,11 +214,15 @@ class EmailNotificationV2Handler {
 		}
 	}
 
-	// get the team that owns the stream that owns the post
-	async getTeam () {
+	// get the team and company that owns the stream that owns the post
+	async getTeamAndCompany () {
 		this.team = await this.data.teams.getById(this.stream.teamId);
 		if (!this.team) {
 			throw `team ${this.stream.teamId} not found`;
+		}
+		this.company = await this.data.companies.getById(this.team.companyId);
+		if (!this.company) {
+			throw `company ${this.team.companyId} not found`;
 		}
 	}
 
@@ -388,6 +392,7 @@ class EmailNotificationV2Handler {
 			repos: this.repos,
 			members: this.teamMembers,
 			team: this.team,
+			company: this.company,
 			stream: this.stream,
 			mentionedUserIds: this.post.mentionedUserIds || [],
 			relatedCodemarks: this.relatedCodemarks,
@@ -567,7 +572,8 @@ class EmailNotificationV2Handler {
 			inviteCode: user.inviteCode,
 			ideLinks: Utils.getIDELinks(),
 			userBeingAddedToTeam,
-			teamName: this.team.name,
+			team: this.team,
+			company: this.company,
 			isReplyToCodeAuthor
 		});
 		let html = new EmailNotificationV2Renderer().render(this.renderOptions);
