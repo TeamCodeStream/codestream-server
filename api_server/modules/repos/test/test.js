@@ -8,6 +8,7 @@
 const ReposRequestTester = require('./repos_request_tester');
 const MatchReposRequestTester = require('./match_repos/test');
 const TeamLookupRequestTester = require('./team_lookup/test');
+const MatchReposReadOnlyRequestTester = require('./match_repos_readonly/test');
 
 const reposRequestTester = new ReposRequestTester();
 
@@ -20,4 +21,5 @@ describe('repo requests', function() {
 	describe('url normalizer', require('./normalize_url/test'));
 	describe('PUT /repos/match/:teamId', MatchReposRequestTester.test);
 	describe('GET /no-auth/team-lookup', TeamLookupRequestTester.test);
+	describe('GET /repos/match/:teamId', MatchReposReadOnlyRequestTester.test);
 });

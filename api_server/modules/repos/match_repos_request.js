@@ -26,7 +26,8 @@ class MatchReposRequest extends RestfulRequest {
 
 		const repoMatcher = new RepoMatcher({
 			request: this,
-			team
+			team,
+			findOnly: this.request.method === 'get'
 		});
 		this.repoIds = [];
 		for (let repo of this.request.body.repos) {
@@ -42,6 +43,19 @@ class MatchReposRequest extends RestfulRequest {
 
 	// require certain parameters, discard unknown parameters
 	async requireAndAllow () {
+console.warn('METHOD:', this.request.method);
+		if (this.request.method === 'get') {
+console.warn('REPOS:', this.request.query.repos);
+			if (!this.request.query.repos) {
+				throw this.errorHandler.error('parameterRequired', { info: 'repos' });
+			}
+			try {
+				this.request.body = JSON.parse(this.request.query.repos);
+			} 
+			catch (error) {
+				throw this.errorHandler.error('invalidParameter', { info: `JSON parse failed: ${error.message}` });
+			}
+		}
 		await this.requireAllowParameters(
 			'body',
 			{

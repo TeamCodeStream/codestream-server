@@ -23,6 +23,7 @@ class RepoMatcher {
 	}
 
 	async findOrCreateRepo (repoInfo) {
+console.warn('**** FIND ONLY:', this.findOnly);
 		if (!this.team) {
 			throw 'must provide team when matching repos';
 		}
@@ -54,8 +55,9 @@ class RepoMatcher {
 		const passedRemotes = JSON.stringify(remotes);
 		const passedHashes = JSON.stringify(knownCommitHashes);
 		if (matchingRepos.length === 0) {
-			if (remotes.length > 0) {
-				this.request.log(`No match found for remotes:\n${passedRemotes}\nor known commit hashes:\n${passedHashes}\nwill create repo instead...`);
+			this.request.log(`No match found for remotes:\n${passedRemotes}\nor known commit hashes:\n${passedHashes}`);
+			if (!this.findOnly && remotes.length > 0) {
+				this.request.log('Creating repo instead...');
 				repo = await this.createRepo({ remotes, knownCommitHashes });
 			}
 		}
@@ -65,7 +67,9 @@ class RepoMatcher {
 			const matchedHashes = JSON.stringify((repo.get('knownCommitHashes') || []));
 			if (matchingRepos.length === 1) {
 				this.request.log(`Match found for repo on remotes:\n${matchedRemotes}\nor on commit hashes:\n${matchedHashes}\n, from passed remotes:\n${passedRemotes}\nor passed commit hashes:\n${passedHashes}`);
-				await this.updateRepoWithNewInfo(repo, remotes, knownCommitHashes);
+				if (!this.findOnly) {
+					await this.updateRepoWithNewInfo(repo, remotes, knownCommitHashes);
+				}
 			}
 		}
 		return repo;
@@ -85,6 +89,10 @@ class RepoMatcher {
 
 	// create a new repo with the given remotes
 	async createRepo (repoInfo) {
+		if (this.findOnly) {
+			// sanity to ensure idempotency
+			throw new Error('cannot create repo, findOnly was set');
+		}
 		const repoData = Object.assign({}, repoInfo, { teamId: this.team.id });
 		const newRepo = await new RepoCreator({
 			request: this.request
@@ -99,6 +107,10 @@ class RepoMatcher {
 	// the remotes passed in are known for this repo; if not, update the repo with
 	// any unknown remotes
 	async updateRepoWithNewInfo (repo, remotes, knownCommitHashes) {
+		if (this.findOnly) {
+			// sanity to ensure idempotency
+			throw new Error('cannot update repo, findOnly was set');
+		}
 		const updateRepoInfo = this.getUpdateRepoInfo(repo, remotes, knownCommitHashes);
 		const { newRemotes, newCommitHashes, existingRepoUpdateOp } = updateRepoInfo;
 		if (newRemotes.length === 0 && newCommitHashes.length === 0) {
