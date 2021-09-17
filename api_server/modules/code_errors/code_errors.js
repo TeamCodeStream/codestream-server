@@ -36,16 +36,6 @@ const CODE_ERROR_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'no-auth/unfollow-link/code-error/:id',
 		requestClass: require('./unfollow_code_error_link_request')
-	},
-	{
-		method: 'put',
-		path: 'code-errors/resolve/:id',
-		requestClass: require('./resolve_code_error_request')
-	},
-	{
-		method: 'put',
-		path: 'code-errors/reopen/:id',
-		requestClass: require('./reopen_code_error_request')
 	}
 ];
 
