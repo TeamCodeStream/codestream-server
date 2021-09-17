@@ -1,4 +1,4 @@
-// base class for many tests of the "PUT /close" requests
+// base class for many tests of the "PUT /streams/close" requests
 
 'use strict';
 
@@ -23,7 +23,7 @@ class CommonInit {
 	}
 
 	setPath (callback) {
-		this.path = `/close/${this.stream.id}`;
+		this.path = `/streams/close/${this.stream.id}`;
 		const expectedVersion = this.expectedVersion || 5;
 		this.expectedResponse = {
 			user: {

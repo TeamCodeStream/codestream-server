@@ -109,6 +109,11 @@ class PostPostRequest extends PostRequest {
 			responseData.codemarks = transforms.updatedCodemarks;
 		}
 		
+		// if there are other reviews updated, add them
+		if (transforms.updatedReviews) {
+			responseData.reviews = transforms.updatedReviews;
+		}
+		
 		// if there are other code errors updated, add them
 		if (transforms.updatedCodeErrors) {
 			responseData.codeErrors = transforms.updatedCodeErrors;

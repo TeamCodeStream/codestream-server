@@ -29,7 +29,7 @@ class MessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/open/' + this.stream.id,
+				path: '/streams/open/' + this.stream.id,
 				data: {},
 				token: this.currentUser.accessToken
 			},

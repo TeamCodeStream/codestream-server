@@ -115,7 +115,7 @@ class PermalinkCreator {
 			return null;
 		}
 		const teamId = codemark.get ? codemark.get('teamId') : codemark.teamId;
-		const url = this.makePermalink(codemarkLink.id, isPublic, teamId);
+		const url = this.makePermalink(codemarkLink.id, isPublic, teamId, 'c');
 		return { permalink: codemarkLink, codemark, url };
 	}
 

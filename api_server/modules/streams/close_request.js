@@ -1,4 +1,4 @@
-// provides a request class for handling the PUT /close request,
+// provides a request class for handling the PUT /streams/close request,
 // for users to "close" streams (for themselves) 
 
 'use strict';
