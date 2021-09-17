@@ -257,7 +257,6 @@ const CodeErrorWrongTeamTest = require('./code_errors/code_error_wrong_team_test
 class PostPostRequestTester {
 
 	postPostTest () {
-		/*
 		new PostPostTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new PostToChannelTest().test();
@@ -545,16 +544,13 @@ class PostPostRequestTester {
 		new CodeErrorAttributeRequiredTest({ attribute: 'accountId' }).test();
 		new CodeErrorAttributeRequiredTest({ attribute: 'objectId' }).test();
 		new CodeErrorAttributeRequiredTest({ attribute: 'objectType' }).test();
-		*/
 		new CodeErrorInvalidParameterTest({ attribute: 'accountId', shouldBeNumber: true }).test();
 		new CodeErrorInvalidParameterTest({ attribute: 'objectId' }).test();
 		new CodeErrorInvalidParameterTest({ attribute: 'objectType' }).test();
-		/*
 		new CodeErrorEntryPointTest().test();
 		new CodeErrorExistsTest().test();
 		new AddStackTraceTest().test();
 		new CodeErrorWrongTeamTest().test();
-		*/
 	}
 }
 

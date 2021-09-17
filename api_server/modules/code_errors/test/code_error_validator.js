@@ -17,11 +17,13 @@ class CodeErrorValidator {
 		const codeError = data.codeError;
 		const expectedOrigin = this.expectedOrigin || '';
 		const expectedStackTraces = this.test.expectedStackTraces || this.inputCodeError.stackTraces;
+		const expectedTeamId = this.test.codeErrorInDifferentTeam ? this.test.codeErrorInDifferentTeam.teamId : this.test.team.id;
+		const expectedStreamId = this.test.codeErrorInDifferentTeam ? this.test.codeErrorInDifferentTeam.streamId : (this.inputCodeError.streamId || '');
 		let errors = [];
 		let result = (
 			((codeError.id === codeError._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
-			((codeError.teamId === this.test.team.id) || errors.push('teamId does not match the team')) &&
-			((codeError.streamId === (this.inputCodeError.streamId || '')) || errors.push('streamId does not match the stream')) &&
+			((codeError.teamId === expectedTeamId) || errors.push('teamId does not match the team')) &&
+			((codeError.streamId === expectedStreamId) || errors.push('streamId does not match the stream')) &&
 			((codeError.postId === (this.inputCodeError.postId || '')) || errors.push('postId does not match the post')) &&
 			((codeError.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof codeError.createdAt === 'number') || errors.push('createdAt not number')) &&
@@ -51,7 +53,8 @@ class CodeErrorValidator {
 		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);
 
 		const teamId = this.decodeLinkId(match[1]);
-		Assert.equal(teamId, this.test.team.id, 'permalink does not contain proper team ID');
+		const expectedTeamId = this.codeErrorInDifferentTeam ? this.codeErrorInDifferentTeam.teamId : this.test.team.id;
+		Assert.equal(expectedTeamId, this.test.team.id, 'permalink does not contain proper team ID');
 	}
 
 	decodeLinkId (linkId) {

@@ -36,7 +36,11 @@ class CodeErrorExistsTest extends CodeErrorTest {
 	}
 
 	validateResponse (data) {
-		Assert.equal(data.codeError.id, this.postData[0].codeError.id, 'returned code error was not the pre-existing code error');
+		if (this.codeErrorInDifferentTeam) {
+			Assert.notEqual(data.codeError.id, this.postData[0].codeError.id, 'returned code error was the same as the existing code error');
+		} else {
+			Assert.equal(data.codeError.id, this.postData[0].codeError.id, 'returned code error was not the same as the existing code error');
+		}
 		super.validateResponse(data);
 	}
 }

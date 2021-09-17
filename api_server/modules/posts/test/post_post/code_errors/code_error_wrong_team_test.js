@@ -5,13 +5,7 @@ const CodeErrorExistsTest = require('./code_error_exists_test');
 class CodeErrorWrongTeamTest extends CodeErrorExistsTest {
 
 	get description () {
-		return 'an error should be returned when creating a code error with identical object ID and object type, but in the wrong team';
-	}
-
-	getExpectedError () {
-		return {
-			code: 'RAPI-1004'
-		};
+		return 'should create a new code error when creating a code error with identical object ID and object type, but in a different team';
 	}
 
 	// form the data for the post we'll create in the test
@@ -22,6 +16,11 @@ class CodeErrorWrongTeamTest extends CodeErrorExistsTest {
 				if (error) { return callback(error); }
 				this.data.teamId = this.otherTeamResponse.team.id;
 				this.data.streamId = this.otherTeamResponse.streams[0].id;
+				this.codeErrorInDifferentTeam = {
+					teamId: this.data.teamId,
+					streamId: this.data.streamId
+				};
+				this.expectedTeamId = this.data.teamId;
 				callback();
 			});
 		});

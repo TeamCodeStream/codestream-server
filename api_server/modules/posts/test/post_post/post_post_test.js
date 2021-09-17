@@ -45,10 +45,11 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const expectedSeqNum = this.expectedSeqNum || 1;
 		const expectedOrigin = this.expectedOrigin || '';
 		const expectedOriginDetail = this.expectedOriginDetail || '';
+		const expectedTeamId = this.expectedTeamId || this.team.id;
 		const result = (
 			((post.id === post._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((post.text === this.data.text) || errors.push('text does not match')) &&
-			((post.teamId === this.team.id) || errors.push('teamId does not match the team')) &&
+			((post.teamId === expectedTeamId) || errors.push('teamId does not match the team')) &&
 			((post.streamId === this.data.streamId) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
