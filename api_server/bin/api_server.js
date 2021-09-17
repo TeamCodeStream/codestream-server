@@ -6,7 +6,7 @@
 
 'use strict';
 
-require('newrelic');
+//require('newrelic');
 
 // load configurations
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');

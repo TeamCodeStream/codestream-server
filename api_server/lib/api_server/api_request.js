@@ -67,6 +67,7 @@ class APIRequest {
 
 	// initialize the request
 	async initialize () {
+		/*
 		if (this.api.services.newrelic) {
 			const custom = {};
 			if (process.env.CS_NR_REPO_REMOTE) {
@@ -80,6 +81,7 @@ class APIRequest {
 			}
 			this.api.services.newrelic.addCustomAttributes(custom);
 		}
+		*/
 			
 		if (this.request.abortWith) {
 			// middleware error
@@ -207,9 +209,11 @@ class APIRequest {
 
 	// report error to monitoring service
 	reportError (error) {
+		/*
 		if (this.api.services.newrelic) {
 			this.api.services.newrelic.noticeError(error);
 		}
+		*/
 	}
 	
 	// close out this request
