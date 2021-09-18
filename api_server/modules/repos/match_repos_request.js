@@ -27,7 +27,7 @@ class MatchReposRequest extends RestfulRequest {
 		const repoMatcher = new RepoMatcher({
 			request: this,
 			team,
-			findOnly: this.request.method === 'get'
+			findOnly: this.request.method.toLowerCase() === 'get'
 		});
 		this.repoIds = [];
 		for (let repo of this.request.body.repos) {

@@ -26,8 +26,8 @@ class CommonInit {
 
 	// form the data for the test request
 	makeRequestData (callback) {
-		this.data = this.getRequestData();
-		this.path = `/repos/match/${this.team.id}?repos=` + encodeURIComponent(JSON.stringify(this.data));
+		this.requestData = this.getRequestData();
+		this.path = `/repos/match/${this.team.id}?repos=` + encodeURIComponent(JSON.stringify(this.requestData));
 		callback();
 	}
 
@@ -51,7 +51,6 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.testResponse = response;
-				this.requestData = this.data;
 				callback();
 			}
 		);
