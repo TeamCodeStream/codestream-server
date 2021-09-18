@@ -25,11 +25,11 @@ const StreamForWrongTeamTest = require('./stream_for_wrong_team_test');
 const MessageToTeamTest = require('./message_to_team_test');
 */
 
-class MoveRequestTester {
+class PostNRCommentRequestTester {
 
 	test () {
-		/*
 		new CreateNRCommentTest().test();
+		/*
 		new NoSecretTest().test();
 		new IncorrectSecretTest().test();
 		new ParameterRequiredTest({ parameter: 'creator' }).test();
@@ -66,4 +66,4 @@ class MoveRequestTester {
 	}
 }
 
-module.exports = new MoveRequestTester();
+module.exports = new PostNRCommentRequestTester();
