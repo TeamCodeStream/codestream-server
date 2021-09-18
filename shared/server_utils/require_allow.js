@@ -67,7 +67,7 @@ const _require = function(object, requiredAttributes) {
 				missing.push(attribute);
 			}
 			else if (!_typeMatches(object[attribute], type)) {
-				invalid.push(attribute);
+				invalid.push({attribute, expectedType: type});
 			}
 		});
 	});
@@ -75,7 +75,10 @@ const _require = function(object, requiredAttributes) {
 		return null;
 	}
 	else {
-		return { missing, invalid };
+		return { 
+			missing: missing.length > 0 ? missing : undefined,
+			invalid: invalid.length > 0 ? invalid : undefined
+		};
 	}
 };
 

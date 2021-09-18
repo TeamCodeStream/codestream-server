@@ -57,7 +57,25 @@ class AccessLogger extends APIServerModule {
 		}
 		const testNum = request.headers['x-cs-test-num'] || '';
 
-		this.api.log(
+		const json = {
+			id: request.id,
+			stat: status,
+			meth: request.method.toUpperCase(),
+			url: request.url,
+			uid: userId,
+			code: response.statusCode,
+			len: response.get('content-length'),
+			time: elapsedTime,
+			ip,
+			ref: request.headers.referer,
+			uag: request.headers['user-agent'],
+			ide,
+			ver: pluginVersion,
+			idev: ideVersion,
+			tnum: testNum
+		};
+			
+		const text = 
 			request.id                     + ' '   +
 			status                         + ' '   +
 			request.method.toUpperCase()   + ' '   +
@@ -72,8 +90,9 @@ class AccessLogger extends APIServerModule {
 			ide                            + '" "' +
 			pluginVersion                  + '" "' + 
 			ideVersion                     + '" '  +
-			testNum					
-		);
+			testNum;				
+
+		this.api.log(text, request.id, 'info', {}/*, json*/);
 	}
 }
 

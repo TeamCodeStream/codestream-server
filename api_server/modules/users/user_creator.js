@@ -295,11 +295,12 @@ class UserCreator extends ModelCreator {
 			// user creating themselves
 			this.model.attributes.creatorId = this.model.attributes.id;
 		}
-		if (this.teamIds) {
+		if (this.teamIds && this.companyIds) {
 			// NOTE - we don't allow setting this in the original attributes,
 			// because we need to be able to trust it ... so in this case it can
 			// only come from calling code, not from a request body
 			this.model.attributes.teamIds = this.teamIds;
+			this.model.attributes.companyIds = this.companyIds;
 		}
 		await super.create();
 	}

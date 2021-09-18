@@ -10,6 +10,7 @@ class GetPostRequest extends GetRequest {
 		await super.process();
 		await this.getCodemark();	// get the knowledge base codemark referenced by this post, if any
 		await this.getReview();		// get the code review object referenced by this post, if any
+		await this.getCodeError();	// get the code error object referenced by this post, if any
 		await this.getMarkers();	// get the markers referenced by this post, if any
 	}
 
@@ -29,6 +30,15 @@ class GetPostRequest extends GetRequest {
 		this.review = await this.data.reviews.getById(reviewId, { excludeFields: ['reviewDiffs', 'checkpointReviewDiffs'] });
 		if (!this.review) { return; }
 		this.responseData.review = this.review.getSanitizedObject({ request: this });
+	}
+
+	// get the code error referenced by this post, if any
+	async getCodeError () {
+		const codeErrorId = this.model.get('codeErrroId');
+		if (!codeErrorId) { return; }
+		this.codeError = await this.data.codeErrors.getById(codeErrorId);
+		if (!this.codeError) { return; }
+		this.responseData.codeError = this.codeError.getSanitizedObject({ request: this });
 	}
 
 	// get the markers referenced by this post, if any
@@ -58,6 +68,7 @@ class GetPostRequest extends GetRequest {
 			post: '<the fetched @@#post object#post@@>',
 			codemark: '<the @@#codemark object#codemark@@ referenced by this post, if any>',
 			review: '<the @@#code review object#review@@ referenced by this post, if any>',
+			codeError: '<the @@#codeError object#codeError@@ referenced by this post, if any>',
 			markers: '<any code @@#markers#markers@@ referenced by the codemark>'
 		});
 		return description;

@@ -1,4 +1,4 @@
-// base class for many tests of the "PUT /open" requests
+// base class for many tests of the "PUT /streams/open" requests
 
 'use strict';
 

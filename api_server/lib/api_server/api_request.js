@@ -67,6 +67,22 @@ class APIRequest {
 
 	// initialize the request
 	async initialize () {
+		/*
+		if (this.api.services.newrelic) {
+			const custom = {};
+			if (process.env.CS_NR_REPO_REMOTE) {
+				custom.repo = process.env.CS_NR_REPO_REMOTE;
+			}
+			if (process.env.CS_NR_COMMIT_SHA) {
+				custom.sha = process.env.CS_NR_COMMIT_SHA;
+			}
+			if (process.env.CS_NR_BRANCH) {
+				custom.branch = process.env.CS_NR_BRANCH;
+			}
+			this.api.services.newrelic.addCustomAttributes(custom);
+		}
+		*/
+			
 		if (this.request.abortWith) {
 			// middleware error
 			this.statusCode = this.request.abortWith.status;
@@ -101,6 +117,7 @@ class APIRequest {
 			catch (responsePhaseError) {
 				if (responsePhaseError) {
 					this.error('Error handling response: ' + responsePhaseError);
+					this.reportError(responsePhaseError);					
 				}
 			}
 		}
@@ -178,6 +195,7 @@ class APIRequest {
 				(typeof this.gotError === 'object' && this.gotError.internal)
 			) {
 				this.statusCode = 500; // internal errors get a 500
+				this.reportError(this.gotError);
 			}
 			else {
 				this.statusCode = 403; // others get a 403
@@ -189,6 +207,15 @@ class APIRequest {
 		this.response.status(this.statusCode).send(this.responseData);
 	}
 
+	// report error to monitoring service
+	reportError (error) {
+		/*
+		if (this.api.services.newrelic) {
+			this.api.services.newrelic.noticeError(error);
+		}
+		*/
+	}
+	
 	// close out this request
 	async close () {
 		if (this.response) {

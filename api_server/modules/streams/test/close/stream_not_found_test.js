@@ -20,7 +20,7 @@ class StreamNotFoundTest extends CloseTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/close/' + ObjectID(); // substitute an ID for a non-existent stream
+			this.path = '/streams/close/' + ObjectID(); // substitute an ID for a non-existent stream
 			callback();
 		});
 	}

@@ -49,6 +49,12 @@ class CodemarkCreator extends ModelCreator {
 		if (result) {
 			throw this.errorHandler.error('validation', { info: result });
 		}
+
+		/*
+		if (this.attributes.text && this.attributes.text.match(/nr codemark error/) && this.user.get('email').match(/codestream\.com$/)) {
+			throw new Error('hash table index out of range');
+		}
+		*/
 	}
 
 	// validate the markers sent with the codemark creation, this is too important to just drop,
@@ -176,8 +182,9 @@ class CodemarkCreator extends ModelCreator {
 			}
 			if (this.parentPost.get('reviewId')) {
 				await this.handleReviewCodemark();
-			}
-			else {
+			} else if (this.parentPost.get('codeErrorId')) {
+				await this.handleCodeErrorCodemark();
+			} else {
 				delete this.attributes.isChangeRequest; // not applicable outside of a code review codemark
 			}
 		}
@@ -191,6 +198,9 @@ class CodemarkCreator extends ModelCreator {
 		this.attributes.followerIds = this.attributes.followerIds || [];
 		if (this.review && !this.attributes.followerIds.includes(this.review.get('creatorId'))) {
 			this.attributes.followerIds.push(this.review.get('creatorId'));
+		}
+		if (this.codeError && !this.attributes.followerIds.includes(this.codeError.get('creatorId'))) {
+			this.attributes.followerIds.push(this.codeError.get('creatorId'));
 		}
 		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
 			this.attributes,
@@ -305,6 +315,30 @@ class CodemarkCreator extends ModelCreator {
 		// if this is a change request, set the codemark change request status to "open"
 		if (this.attributes.isChangeRequest) {
 			this.attributes.status = 'open';
+		}
+	}
+
+	// handle a codemark created as part of a code error
+	async handleCodeErrorCodemark () {
+		// first make sure the user has access to the code error, and that it belongs to the same team
+		this.attributes.codeErrorId = this.parentPost.get('codeErrorId');
+		this.codeError = await this.user.authorizeCodeError(this.attributes.codeErrorId, this.request);
+		if (!this.codeError) {
+			throw this.errorHandler.error('createAuth', { reason: 'user does not have access to the code error' });
+		}
+		if (this.codeError.get('teamId') !== this.attributes.teamId) {
+			throw this.errorHandler.error('createAuth', { reason: 'code error does not belong to the team that would own the codemark' });
+		}
+
+		// allow only comment type codemarks
+		if (this.attributes.type !== 'comment') {
+			throw this.errorHandler.error('validation', { reason: 'codemarks attached to code errors can only be comment-type codemarks' });
+		}
+
+		// don't allow change requests
+		// if this is a change request, set the codemark change request status to "open"
+		if (this.attributes.isChangeRequest) {
+			throw this.errorHandler.error('validation', { reason: 'codemarks attached to code errors can not be change requests' });
 		}
 	}
 

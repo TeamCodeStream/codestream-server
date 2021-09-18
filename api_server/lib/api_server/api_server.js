@@ -521,9 +521,9 @@ class APIServer {
 		}
 	}
 
-	log (message) {
+	log (message, a, b, c, d) {
 		if (this.logger && typeof this.logger.log === 'function') {
-			this.logger.log(message);
+			this.logger.log(message, a, b, c, d);
 		}
 	}
 

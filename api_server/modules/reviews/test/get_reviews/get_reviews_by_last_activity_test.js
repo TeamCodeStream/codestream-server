@@ -10,7 +10,6 @@ class GetReviewsByLastActivityTest extends GetReviewsWithMarkersTest {
 		return 'should return the correct reviews in correct order when requesting reviews for a team and by last activity';
 	}
 
-
 	setPath (callback) {
 		// set path, and then reply to a couple of the reviews, which should boost their lastActivityAt
 		// any of those posts

@@ -19,14 +19,15 @@ class PostDeleter extends ModelDeleter {
 	}
 
 	// completely override the delete method, we will end up deleting
-	// not only the post, but the codemark or review it references, along with any
-	// markers referenced, and for reviews, all the replies and their codemarks as well
+	// not only the post, but the codemark or review or code error it references, along with any
+	// markers referenced, and for reviews and code errors, all the replies and their codemarks as well
 	async delete () {
 		await this.getPost();
 		this.toDelete = {
 			posts: [this.post.id],
 			codemarks: [],
 			reviews: [],
+			codeErrors: [],
 			markers: []
 		};
 		this.codemarks = [];
@@ -39,6 +40,15 @@ class PostDeleter extends ModelDeleter {
 		if (this.post.get('reviewId')) {
 			// the referenced review and its markers...
 			await this.collectObjectsToDeleteFromReview(this.post.get('reviewId'));
+
+			// as well as any replies, their codemarks, and their replies
+			await this.collectObjectsToDeleteFromReplies([this.post]);
+		}
+
+		// and for code errors, it includes...
+		if (this.post.get('codeErrorId')) {
+			// the referenced code error and its markers...
+			await this.collectObjectsToDeleteFromCodeError(this.post.get('codeErrorId'));
 
 			// as well as any replies, their codemarks, and their replies
 			await this.collectObjectsToDeleteFromReplies([this.post]);
@@ -86,7 +96,7 @@ class PostDeleter extends ModelDeleter {
 		}
 	}
 
-	// for codemarks or reviews (we'll call them thingies, they both have markerIds arrays),
+	// for codemarks or reviews or code errors (we'll call them thingies, they all have markerIds arrays),
 	// collect all the markers for deletion
 	async collectMarkersToDelete (thingies) {
 		thingies.forEach(thingy => {
@@ -99,6 +109,13 @@ class PostDeleter extends ModelDeleter {
 		const review = await this.data.reviews.getById(reviewId);
 		this.toDelete.reviews.push(reviewId);
 		await this.collectMarkersToDelete([review]);
+	}
+
+	// for a code error, collect the code error, and all its markers for deletion
+	async collectObjectsToDeleteFromCodeError (codeErrorId) {
+		const codeError = await this.data.codeErrors.getById(codeErrorId);
+		this.toDelete.codeErrors.push(codeErrorId);
+		await this.collectMarkersToDelete([codeError]);
 	}
 
 	// for the replies to a post (for now, this only applies to a post pointing to a review),
@@ -176,7 +193,7 @@ class PostDeleter extends ModelDeleter {
 	}
 
 	// if the post to be deleted is a reply, decrement the parent post's numReplies attribute,
-	// and if it references a codemark or review, decrement the numReplies attribute of that as well
+	// and if it references a codemark or review or code error, decrement the numReplies attribute of that as well
 	async updateParents () {
 		if (!this.post.get('parentPostId')) {
 			return;
@@ -202,9 +219,17 @@ class PostDeleter extends ModelDeleter {
 				this.transforms.updatedReview = await this.decrementNumReplies(review, 'reviews');
 			}
 		}
+
+		const codeErrorId = parentPost.get('codeErrorId') || (grandParentPost && grandParentPost.get('codeErrorId'));
+		if (codeErrorId) {
+			const codeError = await this.data.codeErrors.getById(codeErrorId);
+			if (codeError) {
+				this.transforms.updatedCodeError = await this.decrementNumReplies(codeError, 'codeErrors');
+			}
+		}
 	}
 
-	// decrement the numReplies attribute for a thingy (post, codemark, or review)
+	// decrement the numReplies attribute for a thingy (post, codemark, review, or code error)
 	async decrementNumReplies (thingy, collection) {
 		const numReplies = thingy.get('numReplies');
 		if (!numReplies) { return; }
@@ -223,7 +248,7 @@ class PostDeleter extends ModelDeleter {
 
 	// perform the deletion of all the objects we've collected
 	async doDeletions () {
-		const collections = ['posts', 'codemarks', 'reviews', 'markers'];
+		const collections = ['posts', 'codemarks', 'reviews', 'codeErrors', 'markers'];
 		await Promise.all(collections.map(async collection => {
 			await this.doDeletionsForCollection(collection);
 		}));
@@ -249,8 +274,8 @@ class PostDeleter extends ModelDeleter {
 			}
 		};
 
-		// for reviews, with everything being deleted, there will no longer been any replies
-		if (this.post.get('reviewId') && collection !== 'markers') {
+		// for reviews and code errors, with everything being deleted, there will no longer been any replies
+		if ((this.post.get('reviewId') || this.post.get('codeErrorId')) && collection !== 'markers') {
 			op.$set.numReplies = 0;
 		}
 
@@ -276,7 +301,7 @@ class PostDeleter extends ModelDeleter {
 	// and put them into the response
 	handleResponse (responseData) {
 		// put all our deleted objects in the response
-		['posts', 'codemarks', 'reviews', 'markers'].forEach(collection => {
+		['posts', 'codemarks', 'reviews', 'codeErrors', 'markers'].forEach(collection => {
 			responseData[collection] = this.transforms[`${collection}Deleted`];
 		});
 
@@ -294,6 +319,10 @@ class PostDeleter extends ModelDeleter {
 		if (this.transforms.updatedReview) {
 			responseData.reviews = responseData.reviews || [];
 			responseData.reviews.push(this.transforms.updatedReview);
+		}
+		if (this.transforms.updatedCodeError) {
+			responseData.codeErrors = responseData.codeErrors || [];
+			responseData.codeErrors.push(this.transforms.updatedCodeError);
 		}
 
 		// if any related codemarks were touched, add that to the response

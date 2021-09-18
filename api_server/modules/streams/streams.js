@@ -34,12 +34,12 @@ const STREAM_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
-		path: 'close/:id',
+		path: 'streams/close/:id',
 		requestClass: require('./close_request')
 	},
 	{
 		method: 'put',
-		path: 'open/:id',
+		path: 'streams/open/:id',
 		requestClass: require('./open_request')
 	}
 ];

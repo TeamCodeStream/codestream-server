@@ -55,13 +55,6 @@ class LinkReviewRequest extends WebRequestBase {
 		return true;
 	}
 
-	decodeLinkId (linkId, pad) {
-		linkId = linkId.replace(/-/g, '+').replace(/_/g, '/');
-		const padding = '='.repeat(pad);
-		linkId = `${linkId}${padding}`;
-		return Buffer.from(linkId, 'base64').toString('hex');
-	}
-
 	async getReviewLink () {
 		// get the link to the review
 		const linkId = this.decodeLinkId(this.request.params.id, 2);

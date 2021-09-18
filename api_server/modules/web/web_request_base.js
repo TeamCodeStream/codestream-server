@@ -49,6 +49,13 @@ class WebRequestBase extends RestfulRequest {
 		return result;
 	}
 
+	decodeLinkId (linkId, pad) {
+		linkId = linkId.replace(/-/g, '+').replace(/_/g, '/');
+		const padding = '='.repeat(pad);
+		linkId = `${linkId}${padding}`;
+		return Buffer.from(linkId, 'base64').toString('hex');
+	}
+
 	/**
 	 * Gets the best IDE by checking:
 	 * 0) Check the queryString for a specific moniker

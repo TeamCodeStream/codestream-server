@@ -131,6 +131,20 @@ class TestStreamCreator {
 			}
 		}
 	
+		if (
+			this.postOptions.wantCodeError ||
+			(
+				this.postOptions.postData && 
+				this.postOptions.postData[n] && 
+				this.postOptions.postData[n].wantCodeError
+			)
+		) {
+			this.setCodeErrorOptions(postOptions, n);	
+			if (this.postOptions.postData && this.postOptions.postData[n]) {
+				delete this.postOptions.postData[n].wantCodeError;
+			}
+		}
+	
 		if (this.postOptions.postData && this.postOptions.postData[n]) {
 			const postData = this.postOptions.postData[n];
 			if (typeof postData.replyTo !== 'undefined') {
@@ -191,6 +205,10 @@ class TestStreamCreator {
 			(this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].wantMarkers)) {
 			this.setMarkerOptions(options);
 		}
+	}
+
+	setCodeErrorOptions (options, n) {
+		options.wantCodeError = true;
 	}
 
 	setMarkerOptions (options) {

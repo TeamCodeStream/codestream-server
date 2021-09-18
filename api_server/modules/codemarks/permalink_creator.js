@@ -22,24 +22,30 @@ class PermalinkCreator {
 	// create the link by assigning a UUID, combining it with the team ID
 	// link may be public or private
 	async createLink () {
-		const teamId = this.codemark ? this.codemark.teamId : this.review.teamId;
+		const thing = this.codemark || this.review || this.codeError;
+		const type = (
+			(this.codemark && 'c') ||
+			(this.review && 'r') ||
+			(this.codeError && 'e')
+		);
+		const attr = (
+			(this.codemark && 'codemarkId') ||
+			(this.review && 'reviewId') ||
+			(this.codeError && 'codeErrorId')
+		);
 		const linkId = UUID().replace(/-/g, '');
-		this.url = this.makePermalink(linkId, this.isPublic, teamId, !!this.review);
-		const hash = this.makeHash(this.codemark || this.review, this.markers, this.isPublic, !!this.review);
+		this.url = this.makePermalink(linkId, this.isPublic, thing.teamId, type);
+		const hash = this.makeHash(thing, this.markers, this.isPublic, type);
 
 		// upsert the link, which should be collision free
 		const update = {
 			$set: {
-				teamId,
-				md5Hash: hash
+				teamId: thing.teamId,
+				md5Hash: hash,
+				[attr]: thing.id
 			}
 		};
-		if (this.codemark) {
-			update.$set.codemarkId = this.codemark.id;
-		}
-		else {
-			update.$set.reviewId = this.review.id;
-		}
+
 		const func = this.request.data.codemarkLinks.updateDirectWhenPersist ||
 			this.request.data.codemarkLinks.updateDirect;	// allows for migration script
 		await func.call(
@@ -60,9 +66,9 @@ class PermalinkCreator {
 	}
 
 	// make the actual permalink
-	makePermalink (linkId, isPublic, teamId, isReview) {
+	makePermalink (linkId, isPublic, teamId, type) {
 		const origin = this.origin || this.request.api.config.apiServer.publicApiUrl;
-		const linkType = isReview ? 'r' : (isPublic ? 'p' : 'c');
+		const linkType = type === 'c' ? (isPublic ? 'p' : 'c') : type;
 		linkId = this.encodeLinkId(linkId);
 		teamId = this.encodeLinkId(teamId);
 		return `${origin}/${linkType}/${teamId}/${linkId}`;
@@ -85,7 +91,7 @@ class PermalinkCreator {
 	// one, just return it, we won't create a duplicate 
 	async findPermalink (attributes, markers, isPublic) {
 		// hash the relevant codemark attributes
-		const hash = this.makeHash(attributes, markers, isPublic);
+		const hash = this.makeHash(attributes, markers, isPublic, 'c');
 
 		// look for a link that matches this hash exactly
 		const codemarkLink = await this.request.data.codemarkLinks.getOneByQuery(
@@ -109,15 +115,18 @@ class PermalinkCreator {
 			return null;
 		}
 		const teamId = codemark.get ? codemark.get('teamId') : codemark.teamId;
-		const url = this.makePermalink(codemarkLink.id, isPublic, teamId);
+		const url = this.makePermalink(codemarkLink.id, isPublic, teamId, 'c');
 		return { permalink: codemarkLink, codemark, url };
 	}
 
 	// hash the distinguishing attributes
-	makeHash (attributes, markers, isPublic, isReview) {
-		const hashText = isReview ?
-			this.makeReviewHashText(attributes, markers) :
-			this.makeCodemarkHashText(attributes, markers, isPublic);
+	makeHash (attributes, markers, isPublic, type) {
+		const func = (
+			(type === 'c' && 'makeCodemarkHashText') ||
+			(type === 'r' && 'makeReviewHashText') ||
+			(type === 'e' && 'makeCodeErrorHashText')
+		);
+		const hashText = this[func](attributes, markers, isPublic);
 		return Crypto.createHash('md5').update(hashText).digest('hex');		
 	}
 
@@ -137,6 +146,15 @@ class PermalinkCreator {
 		const markerText = this.makeMarkerHashText(markers);
 		const reviewText = JSON.stringify(attributes.reviewDiffs || {}) + JSON.stringify(attributes.checkpointReviewDiffs || []);
 		return `${attributes.teamId}${markerText}${reviewText}`;
+	}
+
+	// make the text that reflects the distinguishing characteristics of a code error,
+	// a combination of team, code, repo, file, commit hash, and location
+	// if all of these are the same, we should get the same MD5 hash
+	makeCodeErrorHashText (attributes, markers) {
+		const markerText = this.makeMarkerHashText(markers);
+		const codeErrorText = JSON.stringify(attributes.stackTraces);
+		return `${attributes.teamId}${markerText}${codeErrorText}`;
 	}
 
 	makeMarkerHashText (markers) {

@@ -19,8 +19,16 @@ const REPOS_STANDARD_ROUTES = {
 
 // expose additional routes
 const REPOS_ADDITIONAL_ROUTES = [
+	// NOTE: these repos/match requests differ only in that the PUT one will make changes 
+	// to the existing repos (adding or updating as needed), while the GET will only
+	// match and make no changes
 	{
 		method: 'put',
+		path: 'repos/match/:teamId',
+		requestClass: require('./match_repos_request')
+	},
+	{
+		method: 'get',
 		path: 'repos/match/:teamId',
 		requestClass: require('./match_repos_request')
 	},

@@ -6,6 +6,8 @@
 
 'use strict';
 
+//require('newrelic');
+
 // load configurations
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const ModuleDirectory = process.env.CSSVC_BACKEND_ROOT + '/api_server/modules';
@@ -29,6 +31,7 @@ const DataCollections = {
 	markers: require(ModuleDirectory + '/markers/marker'),
 	codemarks: require(ModuleDirectory + '/codemarks/codemark'),
 	reviews: require(ModuleDirectory + '/reviews/review'),
+	codeErrors: require(ModuleDirectory + '/code_errors/code_error'),
 	markerLocations: require(ModuleDirectory + '/marker_locations/marker_locations'),
 	providerPosts: require(ModuleDirectory + '/provider_posts/provider_post'),
 	codemarkLinks: require(ModuleDirectory + '/codemarks/codemark_link'),

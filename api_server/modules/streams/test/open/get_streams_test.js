@@ -64,7 +64,7 @@ class GetStreamsTest extends OpenTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/close/' + this.otherStreams[0].id,
+				path: '/streams/close/' + this.otherStreams[0].id,
 				token: this.currentUser.accessToken
 			},
 			callback

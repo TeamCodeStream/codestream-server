@@ -30,7 +30,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/close/' + this.stream.id,
+				path: '/streams/close/' + this.stream.id,
 				data: {},
 				token: this.currentUser.accessToken
 			},
@@ -39,7 +39,7 @@ class CommonInit {
 	}
 
 	setPath (callback) {
-		this.path = `/open/${this.stream.id}`;
+		this.path = `/streams/open/${this.stream.id}`;
 		const version = this.expectedUserVersion || 6;
 		this.expectedResponse = {
 			user: {

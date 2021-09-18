@@ -152,7 +152,8 @@ class TeamCreator extends ModelCreator {
 			isTeamStream: true
 		};
 		this.transforms.createdTeamStream = await new StreamCreator({
-			request: this.request
+			request: this.request,
+			nextSeqNum: this.assumeTeamStreamSeqNum || undefined
 		}).createStream(stream);
 	}
 

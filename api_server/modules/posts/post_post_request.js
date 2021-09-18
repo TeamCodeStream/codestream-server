@@ -90,6 +90,11 @@ class PostPostRequest extends PostRequest {
 			delete responseData.review.checkpointReviewDiffs;
 		}
 
+		// a code error might have been created with the post, add it
+		if (transforms.createdCodeError) {
+			responseData.codeError = transforms.createdCodeError.getSanitizedObject({ request: this });
+		}
+
 		// if there is a parent post update, add it
 		if (transforms.postUpdate) {
 			responseData.posts = [transforms.postUpdate];
@@ -107,6 +112,11 @@ class PostPostRequest extends PostRequest {
 		// if there are other reviews updated, add them
 		if (transforms.updatedReviews) {
 			responseData.reviews = transforms.updatedReviews;
+		}
+		
+		// if there are other code errors updated, add them
+		if (transforms.updatedCodeErrors) {
+			responseData.codeErrors = transforms.updatedCodeErrors;
 		}
 		
 		// handle users invited to the team, filter out any users that were already on the team
@@ -132,6 +142,7 @@ class PostPostRequest extends PostRequest {
 				'parentPostId': '<For replies, the ID of the parent post>',
 				'codemark': '<Single @@#codemark#codemark@@ object, for creating a codemark referenced by the post>',
 				'review': '<Single @@review@review@@ object, for creating a code review referenced by the post>',
+				'codeError': '<Single @@code error@codeError@@ object, for creating a code error referenced by the post>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
 				'reviewCheckpoint': '<Checkpoint number of the review this post is associated with>',
 				'addedUsers': '<Array of emails representing non-team users being implicitly invited and mentioned>'
@@ -164,6 +175,8 @@ class PostPostRequest extends PostRequest {
 		description.errors.push('noReplyToReply');
 		description.errors.push('noReplyWithReview');
 		description.errors.push('noCodemarkAndReview');
+		description.errors.push('noReplyWithCodeError');
+		description.errors.push('noCodemarkAndCodeError');
 		return description;
 	}
 }

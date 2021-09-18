@@ -219,6 +219,41 @@ const ReviewAttributeRequiredTest = require('./reviews/review_attribute_required
 const EmptyReviewChangesetTest = require('./reviews/empty_review_changeset_test');
 const EntryPointTest = require('./reviews/entry_point_test');
 
+// concerning code errors...
+const CodeErrorTest = require('./code_errors/code_error_test');
+const CodeErrorNumRepliesTest = require('./code_errors/code_error_num_replies_test');
+const CodeErrorSecondReplyTest = require('./code_errors/code_error_second_reply_test');
+const CodeErrorOriginTest = require('./code_errors/code_error_origin_test');
+const CodeErrorOriginDetailTest = require('./code_errors/code_error_origin_detail_test');
+const AddCodeErrorFollowersTest = require('./code_errors/add_code_error_followers_test');
+const AddCodeErrorCreatorAsFollowerTest = require('./code_errors/add_code_error_creator_as_follower_test');
+const InvalidCodeErrorFollowerTest = require('./code_errors/invalid_code_error_follower_test');
+const CodeErrorFollowerNotOnTeamTest = require('./code_errors/code_error_follower_not_on_team_test');
+const CodeErrorFollowersMentionedTest = require('./code_errors/code_error_followers_mentioned_test');
+const FollowingCodeErrorFromReplyTest = require('./code_errors/following_code_error_from_reply_test');
+const InvalidCodeErrorMentionTest = require('./code_errors/invalid_code_error_mention_test');
+const CodeErrorMentionedNotOnTeamTest = require('./code_errors/code_error_mentioned_not_on_team_test');
+const FollowCodeErrorByPreferenceAllTest = require('./code_errors/follow_code_error_by_preference_all_test');
+const FollowCodeErrorByPreferenceCreationTest = require('./code_errors/follow_code_error_by_preference_creation_test');
+const FollowCodeErrorByPreferenceMentionTest = require('./code_errors/follow_code_error_by_preference_mention_test');
+const FollowCodeErrorByPreferenceDirectStreamTest = require('./code_errors/follow_code_error_by_preference_direct_stream_test');
+const FollowCodeErrorByPreferenceRepliesTest = require('./code_errors/follow_code_error_by_preference_replies_test');
+const NoFollowAllCodeErrorsByPreference = require('./code_errors/no_follow_all_code_errors_by_preference_test');
+const NoFollowCodeErrorCreationByPreferenceTest = require('./code_errors/no_follow_code_error_creation_by_preference_test');
+const NoFollowCodeErrorDirectStreamByPreferenceTest = require('./code_errors/no_follow_code_error_direct_stream_by_preference_test');
+const NoFollowCodeErrorMentionByPreferenceTest = require('./code_errors/no_follow_code_error_mention_by_preference_test');
+const NoFollowCodeErrorRepliesByPreferenceTest = require('./code_errors/no_follow_code_error_replies_by_preference_test');
+const NoCodeErrorAndCodemarkTest = require('./code_errors/no_code_error_and_codemark_test');
+const NoReplyWithCodeErrorTest = require('./code_errors/no_reply_with_code_error_test');
+const CodeErrorReplyToAttachedCodemarkTest = require('./code_errors/code_error_reply_to_attached_codemark_test');
+const CodeErrorReplyToAttachedCodemarkNumRepliesTest = require('./code_errors/code_error_reply_to_attached_codemark_num_replies_test');
+const CodeErrorAttributeRequiredTest = require('./code_errors/code_error_attribute_required_test');
+const CodeErrorInvalidParameterTest = require('./code_errors/code_error_invalid_parameter_test');
+const CodeErrorEntryPointTest = require('./code_errors/code_error_entry_point_test');
+const CodeErrorExistsTest = require('./code_errors/code_error_exists_test');
+const AddStackTraceTest = require('./code_errors/add_stack_trace_test');
+const CodeErrorWrongTeamTest = require('./code_errors/code_error_wrong_team_test');
+
 class PostPostRequestTester {
 
 	postPostTest () {
@@ -475,6 +510,47 @@ class PostPostRequestTester {
 		new ReviewAttributeRequiredTest({ attribute: 'reviewChangesets' }).test();
 		new EmptyReviewChangesetTest().test();
 		new EntryPointTest().test();
+
+		// concerning code errors...
+		// we do a subset of the tests for codemarks, assuming that marker validation 
+		// between the two API calls is basically the same
+		new CodeErrorTest().test();
+		new CodeErrorNumRepliesTest().test();
+		new CodeErrorSecondReplyTest().test();
+		new CodeErrorOriginTest().test();
+		new CodeErrorOriginDetailTest().test();
+		new AddCodeErrorFollowersTest().test();
+		new AddCodeErrorCreatorAsFollowerTest().test();
+		new InvalidCodeErrorFollowerTest().test();
+		new CodeErrorFollowerNotOnTeamTest().test();
+		new CodeErrorFollowersMentionedTest().test();
+		new FollowingCodeErrorFromReplyTest().test();
+		new InvalidCodeErrorMentionTest().test();
+		new CodeErrorMentionedNotOnTeamTest().test();
+		new FollowCodeErrorByPreferenceAllTest().test();
+		new FollowCodeErrorByPreferenceCreationTest().test();
+		new FollowCodeErrorByPreferenceMentionTest().test();
+		new FollowCodeErrorByPreferenceDirectStreamTest().test();
+		new FollowCodeErrorByPreferenceRepliesTest().test();
+		new NoFollowAllCodeErrorsByPreference().test();
+		new NoFollowCodeErrorCreationByPreferenceTest().test();
+		new NoFollowCodeErrorDirectStreamByPreferenceTest().test();
+		new NoFollowCodeErrorMentionByPreferenceTest().test();
+		new NoFollowCodeErrorRepliesByPreferenceTest().test();
+		new NoCodeErrorAndCodemarkTest().test();
+		new NoReplyWithCodeErrorTest().test();
+		new CodeErrorReplyToAttachedCodemarkTest().test();
+		new CodeErrorReplyToAttachedCodemarkNumRepliesTest().test();
+		new CodeErrorAttributeRequiredTest({ attribute: 'accountId' }).test();
+		new CodeErrorAttributeRequiredTest({ attribute: 'objectId' }).test();
+		new CodeErrorAttributeRequiredTest({ attribute: 'objectType' }).test();
+		new CodeErrorInvalidParameterTest({ attribute: 'accountId', shouldBeNumber: true }).test();
+		new CodeErrorInvalidParameterTest({ attribute: 'objectId' }).test();
+		new CodeErrorInvalidParameterTest({ attribute: 'objectType' }).test();
+		new CodeErrorEntryPointTest().test();
+		new CodeErrorExistsTest().test();
+		new AddStackTraceTest().test();
+		new CodeErrorWrongTeamTest().test();
 	}
 }
 

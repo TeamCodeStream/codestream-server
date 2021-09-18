@@ -297,6 +297,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
 		clubhouse: { appClientId: 'placeholder' },
+		newrelic: { appClientId: 'placeholder' }
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
@@ -375,9 +376,10 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'okta',
 		'clubhouse',
 		'linear',
+		'newrelic'
 	];
 	// matching these paths means Authorization header is not required
-	Cfg.apiServer.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/robots\\.txt$'];
+	Cfg.apiServer.unauthenticatedPaths = ['^\\/no-auth\\/', '^\\/nr-comments', '^\\/robots\\.txt$'];
 	// matching these paths means Authorization header is optional, behavior may vary
 	Cfg.apiServer.optionalAuthenticatedPaths = [
 		'^\\/help(\\/|$)',
@@ -385,11 +387,19 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'^\\/p\\/',
 		'^\\/r\\/',
 		'^\\/web\\/',
+		'^\\/open\\/',
 	];
 	// matching these paths means cookie authentication is required
-	Cfg.apiServer.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/r\\/', '^\\/web\\/'];
+	Cfg.apiServer.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/r\\/', '^\\/web\\/', '^\\/e\\/'];
 	// matching these paths means csrf protection is required
-	Cfg.apiServer.requiresCsrfProtectionPaths = ['^\\/c\\/', '^\\/p\\/', '^\\/r\\/', '^\\/web\\/'];
+	Cfg.apiServer.requiresCsrfProtectionPaths = [
+		'^\\/c\\/',
+		'^\\/p\\/',
+		'^\\/r\\/',
+		'^\\/web\\/',
+		'^\\/open\\/',
+		'^\\/e\\/',
+	];
 	// server will use this cookie to store identity token
 	Cfg.apiServer.identityCookie = 'tcs';
 	// for testing in mock mode

@@ -55,13 +55,6 @@ class LinkCodemarkRequest extends WebRequestBase {
 		return true;
 	}
 
-	decodeLinkId (linkId, pad) {
-		linkId = linkId.replace(/-/g, '+').replace(/_/g, '/');
-		const padding = '='.repeat(pad);
-		linkId = `${linkId}${padding}`;
-		return Buffer.from(linkId, 'base64').toString('hex');
-	}
-
 	async getCodemarkLink () {
 		// check if the user is on the indicated team
 		if (!this.isPublic && !this.user.hasTeam(this.teamId)) {

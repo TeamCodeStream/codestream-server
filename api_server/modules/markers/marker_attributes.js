@@ -32,6 +32,10 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the @@#code review#review@@ that references this marker'
 	},
+	codeErrorId: {
+		type: 'id',
+		description: 'ID of the @@#code error#codeError@@ that references this marker'
+	},
 	providerType: {
 		type: 'string',
 		maxLength: 25,
