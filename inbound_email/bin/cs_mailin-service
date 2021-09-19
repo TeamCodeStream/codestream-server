@@ -27,7 +27,7 @@ case "$1" in
 		fi
 		;;
 	stop)
-		service_stop $service_name
+		service_stop $service_name useForce
 		ec=$?
 		sleep 2
 		service_status $service_name
@@ -36,7 +36,7 @@ case "$1" in
 		service_status $service_name
 		;;
 	restart)
-		service_stop $service_name
+		service_stop $service_name useForce
 		sleep 2
 		service_status $service_name
 		[ $? -ne 0 ] && echo "$service_name failed to shutdown" && exit 1
