@@ -488,6 +488,16 @@ class MongoCollection {
 		);
 	}
 
+	// count documents matching query
+	async countByQuery (query, options = {}) {
+		query = this._normalizeQueryOptions(query, options, {});
+		return await this._runQuery(
+			'countDocuments',
+			query,
+			options
+		);
+	}
+	
 	// helper JSON.stringify to clean up whitespace
 	_jsonStringify (json) {
 		return JSON.stringify(json).

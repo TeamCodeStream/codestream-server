@@ -48,9 +48,10 @@ class CompanyCreator extends ModelCreator {
 		this.createId();
 		this.attributes.createdAt = Date.now();
 		this.attributes.creatorId = this.user.id;	// creator is the user making the request
-
+		
 		// create an "everyone" team, as needed
 		if (!(this.teamIds || []).length) {
+			this.attributes.hasBeenMigratedToCompanyCentric = true; // new companies are company-centric by default
 			if (!this.request.teamCreatorClass) { // this avoids a circular require
 				throw new Error('must provide teamCreatorClass in request calling CompanyCreator');
 			}

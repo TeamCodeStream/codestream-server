@@ -96,5 +96,15 @@ module.exports = {
 		type: 'arrayOfStrings',
 		maxLength: 100,
 		description: 'Array of strings indicating ability to join this company based on GitHub/GitLab/Bitbucket affiliation, in the form "host/org", eg. "github.com/acme"'
+	},
+	isBeingMigratedToCompanyCentric: {
+		type: 'boolean',
+		description: 'Indicates migration to the "company-centric" paradigm is currently in progress for this company',
+		serverOnly: true
+	},
+	hasBeenMigratedToCompanyCentric: {
+		type: 'boolean',
+		description: 'Indicates if this company has been migrated to the "company-centric" paradigm',
+		serverOnly: true
 	}
 };
