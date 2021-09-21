@@ -1,6 +1,6 @@
 'use strict';
 
-const MultiTeamMigrator = require('./multi_team_migrator');
+const TeamMerger = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_merger');
 
 class MigrationHandler {
 	
@@ -23,7 +23,16 @@ class MigrationHandler {
 			companies = [company];
 			companyIds = [company.id];
 		} else {
+			const excludeCompanyIds = (this.migrationData && this.migrationData.excludeCompanyIds) || [];
 			companyIds = this.request.user.get('companyIds') || [];
+			companyIds = companyIds.filter(companyId => {
+				if (excludeCompanyIds.includes(companyId)) {
+					this.log(`Excluding company ${companyId} from company-centric migration by order`);
+					return false;
+				} else {
+					return true;
+				}
+			});
 			companies = await this.api.data.companies.getByIds(companyIds);
 		}
 
@@ -82,7 +91,7 @@ class MigrationHandler {
 			companyIds = migrationStatus.unmigratedMultiTeam.map(c => c.id);
 			this.log(`Found ${companyIds.length} multi-team unmigrated companies (${companyIds}), kicking off migrations...`);
 			Promise.all(migrationStatus.unmigratedMultiTeam.map(async company => {
-				this.migrateMultiTeamCompany(company, this.request);
+				this.migrateMultiTeamCompany(company);
 			}));
 			errorCode = 'migrationInProgress';
 		}
@@ -130,13 +139,20 @@ class MigrationHandler {
 	}
 
 	// kick off the migration for a multi-team company
-	async migrateMultiTeamCompany (company, request) {
-		return new MultiTeamMigrator().migrate({
-			company,
-			request,
-			api: this.api,
-			dryRun: this.dryRun
-		});
+	async migrateMultiTeamCompany (company) {
+		try {
+			const requestId = `M-${company.id}`;
+			await new TeamMerger({
+				logger: this.api,
+				data: this.api.data,
+				dryRun: this.dryRun,
+				requestId
+			}).mergeAllTeams(company);
+		}
+		catch (error) {
+			this.api.warn(`Caught error trying to migrate multi-team company ${company.id}: ${error.message}`);
+			this.api.warn(error.stack);
+		}
 	}
 
 	warn (msg) {

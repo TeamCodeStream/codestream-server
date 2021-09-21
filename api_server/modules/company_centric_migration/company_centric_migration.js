@@ -52,7 +52,7 @@ class CompanyCentricMigration extends APIServerModule {
 		// and kick off the migration
 		return async (request, response, next) => {
 			// can manually trigger migrations using a secret
-			let dryRun, companyId;
+			let dryRun, companyId, migrationData;
 			if (
 				request.path.toLowerCase() === '/no-auth/trigger-migration' && 
 				request.method.toLowerCase() === 'get'
@@ -83,7 +83,7 @@ class CompanyCentricMigration extends APIServerModule {
 				if (this.lastMigrationCheckTime && Date.now() < this.lastMigrationCheckTime + 60 * 1000) {
 					return next();
 				}
-				const migrationData = (await this.api.data.globals.getByQuery(
+				migrationData = (await this.api.data.globals.getByQuery(
 					{ tag: 'companyCentricMigration' }, 
 					{ overrideHintRequired: true }
 				))[0];
@@ -98,7 +98,8 @@ class CompanyCentricMigration extends APIServerModule {
 				api: this.api,
 				request,
 				dryRun,
-				companyId
+				companyId,
+				migrationData
 			}).handleMigration();
 
 			// signal an error response as needed
