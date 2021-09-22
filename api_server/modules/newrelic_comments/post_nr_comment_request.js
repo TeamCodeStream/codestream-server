@@ -24,6 +24,12 @@ class PostNRCommentRequest extends NRCommentRequest {
 			{ objectId, objectType },
 			{ hint: CodeErrorIndexes.byObjectId }
 		);
+		if (this.codeError && this.headerAccountId !== this.codeError.get('accountId')) {
+			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match the object' });
+		}
+		if (!this.codeError && this.request.body.accountId !== this.headerAccountId) {
+			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match that given in the body' });
+		}
 
 		// resolve the requesting user, and what team they belong to, 
 		// which may involve both creating a (faux) user, and creating a (faux?) team

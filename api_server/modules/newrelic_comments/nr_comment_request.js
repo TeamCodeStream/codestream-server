@@ -29,6 +29,12 @@ class NRCommentRequest extends RestfulRequest {
 			this.request.abortWith = 401;
 			throw this.errorHandler.error('missingAuthorization');
 		}
+
+		this.headerAccountId = parseInt(this.request.headers['x-cs-newrelic-accountid'], 10);
+		if (!this.headerAccountId) {
+			this.request.abortWith = 401;
+			throw this.errorHandler.error('missingAuthorization', { reason: 'account ID of the parent object is required in X-CS-NewRelic-AccountId' });
+		}
 	}
 
 	// handle any mentions in the post

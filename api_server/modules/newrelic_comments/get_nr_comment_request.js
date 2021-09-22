@@ -50,6 +50,9 @@ class GetNRCommentRequest extends NRCommentRequest {
 		if (!this.codeError) {
 			throw this.errorHandler.error('notFound', { info: 'code error '});
 		}
+		if (this.codeError.get('accountId') !== this.headerAccountId) {
+			throw this.errorHandler.error('readAuth', { reason: 'accountId given in the header does not match the object' });
+		}
 	}
 
 	// get all users associated with the post, either the creator or those mentioned
