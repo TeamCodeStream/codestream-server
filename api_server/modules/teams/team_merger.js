@@ -173,6 +173,7 @@ class MultiTeamMigrator {
 		await this.getTeamStreams();
 		await this.flagReposForMerge();
 		await this.migrateContent();
+		await this.updateTeamStreams();
 		await this.updateTeam();
 		await this.updateUsers();
 	}
@@ -385,6 +386,22 @@ class MultiTeamMigrator {
 			this.log(`Would have flagged repo ${fromRepo.id} for merge with op:\n${JSON.stringify(op, undefined, 5)}`);
 		} else {
 			await this.data.repos.updateDirect({ id: this.data.repos.objectIdSafe(fromRepo.id) }, op, { requestId: this.requestId });
+		}
+	}
+
+	// for each merged team, update its team stream to no longer be a team stream
+	async updateTeamStreams () {
+		const teamStreamIds = this.mergingTeams.map(team => team.teamStream.id);
+		const op = {
+			$unset: {
+				isTeamStream: true
+			}
+		};
+		this.log(`Deleting team stream flag from streams ${teamStreamIds}...`);
+		if (this.dryRun) {
+			this.log(`Would have deleted team stream flag from streams ${teamStreamIds} with op:\n${JSON.stringify(op, undefined, 5)}`);
+		} else {
+			await this.data.streams.updateDirect({ id: this.data.streams.inQuerySafe(teamStreamIds) }, op, { requestId: this.requestId });
 		}
 	}
 
