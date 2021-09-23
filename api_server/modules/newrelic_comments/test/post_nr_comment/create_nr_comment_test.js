@@ -17,12 +17,9 @@ class CreateNRCommentTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		return 'post';
 	}
 
-	get path () {
-		return '/nr-comments';
-	}
-	
 	// before the test runs...
 	before (callback) {
+		this.path = '/nr-comments';
 		this.init(callback);
 	}
 
@@ -38,6 +35,12 @@ class CreateNRCommentTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(post.modifiedAt >= post.createdAt, 'modifiedAt is not greater than or equal to createdAt');
 		this.expectedResponse.post.createdAt = post.createdAt;
 		this.expectedResponse.post.modifiedAt = post.modifiedAt;
+		(this.expectedResponse.post.mentionedUsers || []).sort((a, b) => {
+			return a.email.localeCompare(b.email);
+		});
+		(data.post.mentionedUsers || []).sort((a, b) => {
+			return a.email.localeCompare(b.email);
+		});
 		Assert.deepStrictEqual(data, this.expectedResponse, 'response data is not correct');
 	}
 }

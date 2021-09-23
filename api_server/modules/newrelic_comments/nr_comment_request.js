@@ -30,11 +30,12 @@ class NRCommentRequest extends RestfulRequest {
 			throw this.errorHandler.error('missingAuthorization');
 		}
 
-		this.headerAccountId = parseInt(this.request.headers['x-cs-newrelic-accountid'], 10);
+		this.headerAccountId = this.request.headers['x-cs-newrelic-accountid'];
 		if (!this.headerAccountId) {
 			this.request.abortWith = 401;
 			throw this.errorHandler.error('missingAuthorization', { reason: 'account ID of the parent object is required in X-CS-NewRelic-AccountId' });
 		}
+		this.headerAccountId = parseInt(this.headerAccountId, 10);
 	}
 
 	// handle any mentions in the post
@@ -72,7 +73,7 @@ class NRCommentRequest extends RestfulRequest {
 		}
 		const error = new UserValidator().validateEmail(email);
 		if (error) {
-			throw this.errorHandler.error('validation', { info: `email ${error}` });
+			throw this.errorHandler.error('validation', { info: `email: ${error}` });
 		}
 
 		// see if the user already exists

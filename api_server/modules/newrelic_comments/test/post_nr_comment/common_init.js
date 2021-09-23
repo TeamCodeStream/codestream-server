@@ -6,6 +6,7 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const RandomString = require('randomstring');
 
 class CommonInit {
 
@@ -57,16 +58,67 @@ class CommonInit {
 				method: 'post',
 				path: `/nr-comments`,
 				data: this.data,
-				token: this.users[1].accessToken
+				requestOptions: {
+					headers: {
+						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
+						'X-CS-NewRelic-AccountId': this.data.accountId
+					}
+				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.nrCommentResponse = response;
 				//this.message = response;
+				this.requestData = this.data;
 				delete this.data;	// don't need this anymore
 				callback();
 			}
 		);
+	}
+
+	registerFauxUser (callback) {
+		BoundAsync.series(this, [
+			this.registerUser,
+			this.confirmUser
+		], callback);
+	}
+
+	registerUser (callback) {
+		// need to register the user so we are authorized to fetch the post
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/no-auth/register',
+				data: {
+					email: this.nrCommentResponse.post.creator.email,
+					password: RandomString.generate(12),
+					username: RandomString.generate(12),
+					_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat,
+					_forceConfirmation: true
+				}
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.registerUserResponse = response;
+				callback();
+			}
+		);
+	}
+
+	// confirm the mentioned user's registration
+	confirmUser (callback) {
+		this.doApiRequest({
+			method: 'post',
+			path: '/no-auth/confirm',
+			data: {
+				email: this.registerUserResponse.user.email,
+				confirmationCode: this.registerUserResponse.user.confirmationCode
+			}
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			this.token = response.accessToken;
+			callback();
+		});
 	}
 }
 

@@ -34,7 +34,7 @@ class GetPostRequest extends GetRequest {
 
 	// get the code error referenced by this post, if any
 	async getCodeError () {
-		const codeErrorId = this.model.get('codeErrroId');
+		const codeErrorId = this.model.get('codeErrorId');
 		if (!codeErrorId) { return; }
 		this.codeError = await this.data.codeErrors.getById(codeErrorId);
 		if (!this.codeError) { return; }
