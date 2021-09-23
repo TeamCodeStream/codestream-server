@@ -19,7 +19,10 @@ class MentionedRegisteredUserTest extends MentionsTest {
 				email: this.users[0].user.email
 			};
 			this.expectedResponse.post.mentionedUsers = DeepClone(this.data.mentionedUsers);
-			this.expectedResponse.post.mentionedUsers[1].fullName = this.users[0].user.fullName;
+			Object.assign(this.expectedResponse.post.mentionedUsers[1], {
+				fullName: this.users[0].user.fullName,
+				username: this.users[0].user.username
+			});
 			callback();
 		});
 	}

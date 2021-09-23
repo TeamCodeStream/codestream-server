@@ -27,14 +27,20 @@ class MentionsTest extends CreateNRCommentTest {
 		// add mentions to the test data
 		super.makeNRCommentData(error => {
 			if (error) { return callback(error); }
+			const emails = [
+				this.userFactory.randomEmail(),
+				this.userFactory.randomEmail()
+			];
 			this.data.mentionedUsers = [
 				{
-					email: this.userFactory.randomEmail(),
-					fullName: this.userFactory.randomFullName()
+					email: emails[0],
+					fullName: this.userFactory.randomFullName(),
+					username: emails[0].split('@')[0]
 				},
 				{
-					email: this.userFactory.randomEmail(),
-					fullName: this.userFactory.randomFullName()
+					email: emails[1],
+					fullName: this.userFactory.randomFullName(),
+					username: emails[1].split('@')[0]
 				}
 			];
 			this.expectedResponse.post.mentionedUsers = DeepClone(this.data.mentionedUsers);
@@ -81,9 +87,9 @@ class MentionsTest extends CreateNRCommentTest {
 				for (let i = 0; i < 2; i++) {
 					const mentionedUserId = this.fetchedPost.mentionedUserIds[i];
 					const user = response.users.find(u => u.id === mentionedUserId);
-					const mentionedUser = this.nrCommentResponse.post.mentionedUsers[i]; 
+					const mentionedUser = this.nrCommentResponse.post.mentionedUsers.find(u => u.username === user.username); 
 					Assert.equal(user.id, mentionedUserId, `fetched user #${i} does not match`);
-					Assert.equal(user.email, mentionedUser.email, `email of mentioned user #{i} does not match`);
+					Assert.equal(user.email, mentionedUser.email, `email of mentioned user #${i} does not match`);
 					if (!user.isRegistered) {
 						Assert.equal(user.externalUserId, `newrelic::${mentionedUser.email}`, `externalUserId of mentioned user #{i} does not match`);
 					}

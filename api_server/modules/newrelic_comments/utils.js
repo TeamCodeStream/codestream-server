@@ -18,7 +18,8 @@ const ToNewRelic = function(codeError, post, users) {
 		}
 		return {
 			email: user.get('email'),
-			fullName: user.get('fullName') || ''
+			fullName: user.get('fullName') || '',
+			username: user.get('username') || ''
 		};
 	});
 
