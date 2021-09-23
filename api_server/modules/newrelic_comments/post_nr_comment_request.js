@@ -27,6 +27,9 @@ class PostNRCommentRequest extends NRCommentRequest {
 		if (this.codeError && this.headerAccountId !== this.codeError.get('accountId')) {
 			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match the object' });
 		}
+		if (this.codeError && this.codeError.get('accountId') !== this.request.body.accountId) {
+			throw this.errorHandler.error('createAuth', { reason: 'accountId for the comment does not match the accountId of the parent object' });
+		}
 		if (!this.codeError && this.request.body.accountId !== this.headerAccountId) {
 			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match that given in the body' });
 		}

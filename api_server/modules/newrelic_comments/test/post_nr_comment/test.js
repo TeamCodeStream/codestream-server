@@ -22,6 +22,7 @@ const ExistingFauxUserTest = require('./existing_faux_user_test');
 const ExistingRegisteredUserTest = require('./existing_registered_user_test');
 const MentionsTest = require('./mentions_test');
 const MentionRegisteredUserTest = require('./mentioned_registered_user_test');
+const NoMatchAccountIdTest = require('./no_match_account_id_test');
 
 class PostNRCommentRequestTester {
 
@@ -53,6 +54,7 @@ class PostNRCommentRequestTester {
 		new ExistingRegisteredUserTest().test();
 		new MentionsTest().test();
 		new MentionRegisteredUserTest().test();
+		new NoMatchAccountIdTest().test();
 	}
 }
 
