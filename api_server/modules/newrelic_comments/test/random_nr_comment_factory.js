@@ -11,13 +11,21 @@ class RandomNRCommentFactory {
 	}
 
 	randomUser (options = {}) {
-		return {
+		const user = {
 			email: this.userFactory.randomEmail(options),
 			fullName: this.userFactory.randomFullName()
 		};
+		if (options.includeNewRelicUserId) {
+			user.newRelicUserId = this.randomNewRelicUserId();
+		}
+		return user;
 	}
 
-	// get some random marker data
+	randomNewRelicUserId () {
+		return RandomString.generate(20);
+	}
+	
+	// get some random NR comment data
 	getRandomNRCommentData (options = {}) {
 		const data = {
 			creator: this.randomUser(options),

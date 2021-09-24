@@ -37,6 +37,8 @@ const NoReplyToReplyTest = require('./no_reply_to_reply_test');
 const ReviewCheckpointTest = require('./review_checkpoint_test');
 const AttachmentsTest = require('./attachments_test');
 const SharedToTest = require('./shared_to_test');
+const NoStreamIdReplyMatchTest = require('./no_stream_id_reply_match_test');
+const ParentPostNotFoundTest = require('./parent_post_not_found_test');
 
 // concerning codemarks...
 const CodemarkTest = require('./codemarks/codemark_test');
@@ -308,6 +310,8 @@ class PostPostRequestTester {
 		new ReviewCheckpointTest().test();
 		new AttachmentsTest().test();
 		new SharedToTest().test();
+		new NoStreamIdReplyMatchTest().test();
+		new ParentPostNotFoundTest().test();
 
 		// concerning codemarks...
 		new CodemarkTest().test();

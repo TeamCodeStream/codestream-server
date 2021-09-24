@@ -31,13 +31,17 @@ class FetchUserTest extends FetchTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				const { user } = response;
-				Assert.equal(user.id, this.fetchedPost.creatorId, 'fetched user is not the creator of the comment');
-				Assert.equal(user.teamIds[0], this.fetchedPost.teamId, 'user is not on the team that owns the NR object');
-				Assert.equal(user.email, this.nrCommentResponse.post.creator.email, 'user\'s email does not match the email of the comment creator');
+				this.validateFetchedUser(response);
 				callback();
 			}
 		);
+	}
+
+	validateFetchedUser (response) {
+		const { user } = response;
+		Assert.equal(user.id, this.fetchedPost.creatorId, 'fetched user is not the creator of the comment');
+		Assert.equal(user.teamIds[0], this.fetchedPost.teamId, 'user is not on the team that owns the NR object');
+		Assert.equal(user.email, this.nrCommentResponse.post.creator.email, 'user\'s email does not match the email of the comment creator');
 	}
 }
 

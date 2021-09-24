@@ -358,9 +358,13 @@ class PostCreator extends ModelCreator {
 		if (!this.parentPost) { 
 			throw this.errorHandler.error('notFound', { info: 'parent post' });
 		}
+		if (this.parentPost.get('streamId') !== this.attributes.streamId) {
+			throw this.errorHandler.error('parentPostStreamIdMismatch');
+		}
 
 		if (this.parentPost.get('parentPostId')) {
-			// the only reply to a reply we allow is if the parent post of the post we are replying to is a code error post
+			// the only reply to a reply we allow is if the parent post of the post we are replying to is a 
+			// review or code error post
 			this.grandParentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
 			if (this.grandParentPost && !this.grandParentPost.get('reviewId') && !this.grandParentPost.get('codeErrorId')) {
 				throw this.errorHandler.error('noReplyToReply');

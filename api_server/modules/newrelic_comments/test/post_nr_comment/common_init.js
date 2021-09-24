@@ -19,6 +19,7 @@ class CommonInit {
 	}
 
 	setTestOptions (callback) {
+		this.nrCommentOptions = {};
 		this.teamOptions.creatorIndex = 1;
 		//this.streamOptions.creatorIndex = 1;
 		callback();
@@ -26,7 +27,7 @@ class CommonInit {
 
 	// form the data for the generating the NewRelic comment
 	makeNRCommentData (callback) {
-		this.data = this.nrCommentFactory.getRandomNRCommentData();
+		this.data = this.nrCommentFactory.getRandomNRCommentData(this.nrCommentOptions);
 		this.apiRequestOptions = {
 			headers: {
 				'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,

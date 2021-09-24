@@ -208,6 +208,8 @@ module.exports = {
 	},
 	providerIdentities: {
 		type: 'arrayOfStrings',
+		maxLength: 20,
+		maxStringLength: 200,
 		default: []
 	},
 	providerInfo: {

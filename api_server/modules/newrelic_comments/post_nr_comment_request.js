@@ -47,6 +47,9 @@ class PostNRCommentRequest extends NRCommentRequest {
 		// handle any mentions in the post
 		await this.handleMentions(this.request.body.mentionedUsers);
 
+		// for replies, validate that they are proper replies to a New Relic object
+		await this.validateReply();
+
 		// now create the actual post attached to the object
 		await this.createPost();
 	}
@@ -87,6 +90,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 		// find or create a "faux" user, as needed
 		this.user = this.request.user = await this.findOrCreateUser(this.request.body.creator);
+console.warn('NR COMMENT CREATOR:', JSON.stringify(this.user.attributes, 0, 5));
 		this.users.push(this.user);
 
 		// if we don't have an existing code error already, then we don't know
@@ -147,14 +151,37 @@ class PostNRCommentRequest extends NRCommentRequest {
 		this.codeError = this.transforms.createdCodeError;
 	}
 
+	// for replies, validate that they are proper replies to a New Relic object
+	async validateReply () {
+		// if a reply, the parent post must be a comment for this code error
+		if (!this.request.body.parentPostId) { return; }
+
+		const parentPost = await this.data.posts.getById(this.request.body.parentPostId);
+		if (!parentPost) {
+			throw this.errorHandler.error('notFound', { info: 'parent post' });
+		}
+		if (parentPost.get('codeErrorId')) {
+			if (parentPost.get('codeErrorId') !== this.codeError.id) {
+				throw this.errorHandler.error('replyToImproperPost', { reason: 'the parent post\'s object ID does not match the object referenced in the submitted reply' });
+			}
+		} else if (parentPost.get('parentPostId')) {
+			const grandparentPost = await this.data.posts.getById(parentPost.get('parentPostId'));
+			if (grandparentPost.get('codeErrorId') !== this.codeError.id) {
+				throw this.errorHandler.error('replyToImproperPost', { reason: 'the parent post is a reply to an object that does not match the object referenced in the submitted reply'});
+			}
+		} else {
+			throw this.errorHandler.error('replyToImproperPost', { reason: 'the parent post is not associated with a New Relic object' });
+		}
+	}
+
 	// create the actual post, as a reply to the post pointing to the code error
 	async createPost () {
 		this.postCreator = new PostCreator({ 
 			request: this,
-			assumeSeqNum: this.teamWasCreated ? 2 : undefined // because the actual code error was 1
+			assumeSeqNum: this.teamWasCreated ? 2 : undefined, // because the actual code error was 1
+			dontSendEmail: true
 		});
-		// TODO: for replies, we should probably validate that the parent post ID is a code error
-		// for the same team/stream/etc. ... but for now, just allow it
+
 		this.post = await this.postCreator.createPost({
 			parentPostId: this.request.body.parentPostId || this.codeError.get('postId'),
 			streamId: this.codeError.get('streamId'),
@@ -178,7 +205,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 	// after the request has been processed and response returned to the client....
 	async postProcess () {
-		await this.postCreator.postCreate();		
+		await this.postCreator.postCreate();
+		await this.publish();		
 	}
 }
 

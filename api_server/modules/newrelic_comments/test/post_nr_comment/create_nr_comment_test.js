@@ -30,7 +30,7 @@ class CreateNRCommentTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(post.id, 'returned post has no ID');
 		this.expectedResponse.post.id = post.id;
 		Assert(post.parentPostId, 'returned post has no parentPostId');
-		this.expectedResponse.post.parentPostId = post.parentPostId;
+		this.expectedResponse.post.parentPostId = this.expectedParentPostId || post.parentPostId;
 		Assert(post.createdAt >= this.createdAfter, 'createdAt is not greater than before the comment was created');
 		Assert(post.modifiedAt >= post.createdAt, 'modifiedAt is not greater than or equal to createdAt');
 		this.expectedResponse.post.createdAt = post.createdAt;

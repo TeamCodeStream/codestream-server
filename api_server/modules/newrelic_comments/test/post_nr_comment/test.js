@@ -23,6 +23,17 @@ const ExistingRegisteredUserTest = require('./existing_registered_user_test');
 const MentionsTest = require('./mentions_test');
 const MentionRegisteredUserTest = require('./mentioned_registered_user_test');
 const NoMatchAccountIdTest = require('./no_match_account_id_test');
+const NewRelicUserIdTest = require('./new_relic_user_id_test');
+const NewRelicUserIdExistingTest = require('./new_relic_user_id_existing_test');
+const NewRelicUserIdReplaceTest = require('./new_relic_user_id_replace_test');
+const NestedCommentTest = require('./nested_comment_test');
+const NumRepliesTest = require('./num_replies_test');
+const NoReplyToNestedTest = require('./no_reply_to_nested_test');
+const ParentPostNotFoundTest = require('./parent_post_not_found_test');
+const ReplyToWrongCodeErrorTest = require('./reply_to_wrong_code_error_test');
+const ReplyToWrongReplyTest = require('./reply_to_wrong_reply_test');
+const ReplyToNonNRObjectTest = require('./reply_to_non_nr_object_test');
+const ReplyToNonNRObjectReplyTest = require('./reply_to_non_nr_object_reply_test');
 
 class PostNRCommentRequestTester {
 
@@ -55,6 +66,17 @@ class PostNRCommentRequestTester {
 		new MentionsTest().test();
 		new MentionRegisteredUserTest().test();
 		new NoMatchAccountIdTest().test();
+		new NewRelicUserIdTest().test();
+		new NewRelicUserIdExistingTest().test();
+		new NewRelicUserIdReplaceTest().test();
+		new NestedCommentTest().test();
+		new NumRepliesTest().test();
+		new NoReplyToNestedTest().test();
+		new ParentPostNotFoundTest().test();
+		new ReplyToWrongCodeErrorTest().test();
+		new ReplyToWrongReplyTest().test();
+		new ReplyToNonNRObjectTest().test();
+		new ReplyToNonNRObjectReplyTest().test();
 	}
 }
 

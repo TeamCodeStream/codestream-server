@@ -3,7 +3,6 @@
 const CreateNRCommentTest = require('./create_nr_comment_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
-const RandomString = require('randomstring');
 
 class FetchTest extends CreateNRCommentTest {
 

@@ -100,6 +100,30 @@ class PutNRCommentRequest extends NRCommentRequest {
 			id: this.post.id
 		}).save(op);
 	}
+
+	// perform post-processing after response has been returned
+	async postProcess () {
+		await this.publish();
+
+		// publish the update to the team
+		const teamId = this.post.get('teamId');
+		const channel = `team-${teamId}`;
+		const message = {
+			requestId: this.request.id,
+			post: this.updateOp
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish NR comment update message to team ${teamId}: ${JSON.stringify(error)}`);
+		}
+	}
 }
 
 module.exports = PutNRCommentRequest;
