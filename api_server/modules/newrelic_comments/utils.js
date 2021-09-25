@@ -19,24 +19,59 @@ const UserToNewRelic = function (user) {
 	return newRelicUser;
 }
 
+const MarkerToCodeBlock = function(marker) {
+	return {
+		repo: marker.get('repo') || '',
+		file: marker.get('file') || '',
+		sha: marker.get('commitHashWhenCreated') || '',
+		code: marker.get('code') || ''
+	};
+}
+
 // return a function which customized code error data for return to New Relic
-const ToNewRelic = function(codeError, post, users) {
+const ToNewRelic = function(codeError, post, markers, users) {
 	const creator = users.find(u => u.id === post.get('creatorId'));
 	if (!creator) {
 		throw new Error(`creator ${post.get('creatorId')} not found in users array`);
 	}
+
+	const userMaps = {
+		[creator.id]: UserToNewRelic(creator)
+	};
+	
+	const mentionedUserIds = [];
 	const mentionedUsers = (post.get('mentionedUserIds') || []).map(uid => {
 		const user = users.find(u => u.id === uid);
 		if (!user) {
 			throw new Error(`mentioned user ${uid} not found in users array`);
 		}
-		return UserToNewRelic(user);
+		const newRelicUser = UserToNewRelic(user);
+		userMaps[user.id] = newRelicUser;
+		mentionedUserIds.push(user.id);
+		return newRelicUser;
+	});
+
+	const reactions = post.get('reactions') || {};
+	Object.keys(reactions).forEach(reaction => {
+		reactions[reaction].forEach(uid => {
+			const user = users.find(u => u.id === uid);
+			if (!user) {
+				throw new Error(`reacting user ${uid} not found in users array`);
+			}
+			const newRelicUser = UserToNewRelic(user);
+			userMaps[user.id] = newRelicUser;
+		});
+	});
+
+	const codeBlocks = (markers || []).map(marker => {
+		return MarkerToCodeBlock(marker);
 	});
 
 	return {
 		id: post.id,
 		version: post.get('version'),
 		creator: UserToNewRelic(creator),
+		creatorId: creator.id,
 		createdAt: post.get('createdAt'),
 		modifiedAt: post.get('modifiedAt'),
 		deactivated: post.get('deactivated'),
@@ -44,11 +79,14 @@ const ToNewRelic = function(codeError, post, users) {
 		objectId: codeError.get('objectId'),
 		objectType: codeError.get('objectType'),
 		mentionedUsers,
+		mentionedUserIds,
 		parentPostId: post.get('parentPostId'),
 		text: post.get('text'),
 		seqNum: post.get('seqNum'),
 		reactions: post.get('reactions') || {},
-		files: post.get('files') || []
+		files: post.get('files') || [],
+		codeBlocks,
+		userMaps
 	};
 }	
 

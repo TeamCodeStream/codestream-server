@@ -1,8 +1,6 @@
 'use strict';
 
 const MentionsTest = require('./mentions_test');
-const Assert = require('assert');
-const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 class MentionedRegisteredUserTest extends MentionsTest {

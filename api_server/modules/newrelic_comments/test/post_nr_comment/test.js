@@ -1,5 +1,5 @@
-// handle unit tests for the "PUT /markers/:id/move" request,
-// to move a marker
+// handle unit tests for the "POST /nr-comments" request,
+// to create a New Relic comment
 
 'use strict';
 

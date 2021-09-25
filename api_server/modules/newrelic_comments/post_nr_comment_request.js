@@ -90,7 +90,6 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 		// find or create a "faux" user, as needed
 		this.user = this.request.user = await this.findOrCreateUser(this.request.body.creator);
-console.warn('NR COMMENT CREATOR:', JSON.stringify(this.user.attributes, 0, 5));
 		this.users.push(this.user);
 
 		// if we don't have an existing code error already, then we don't know
@@ -198,7 +197,7 @@ console.warn('NR COMMENT CREATOR:', JSON.stringify(this.user.attributes, 0, 5));
 
 		// return customized response data to New Relic
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, [], this.users)
 		};
 		return super.handleResponse();
 	}

@@ -15,12 +15,13 @@ class PutNRCommentRequest extends NRCommentRequest {
 		await this.getParentPost();		// get the parent post
 		await this.getCodeError();		// get the associated code error
 		await this.getTeam();			// get the team that owns the code error
+		await this.getMarkers();		// for codemarks, get the associated markers
 		await this.getUsers();			// get users associated with the post (creator and mentioned)
 		await this.doUpdate();			// do the update
 
 		this.post.attributes.version++;
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, this.markers, this.users)
 		};
 	}
 
@@ -72,8 +73,7 @@ class PutNRCommentRequest extends NRCommentRequest {
 	// get users associated with the pre-modified post (creator and mentioned)
 	// get all users associated with the post, either the creator or those mentioned
 	async getUsers () {
-		const userIds = [this.post.get('creatorId'), ...(this.post.get('mentionedUserIds') || [])];
-		this.users = await this.data.users.getByIds(userIds);
+		this.users = await this.getUsersByPost(this.post);
 	}
 
 	// do the actual update

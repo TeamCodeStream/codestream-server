@@ -38,16 +38,23 @@ class CommonInit {
 		this.expectedResponse = {
 			post: Object.assign(DeepClone(this.data), {
 				version: 1,
+				creatorId: '', // placeholder
 				createdAt: now, // placeholder
 				modifiedAt: now, // placeholder
 				deactivated: false,
 				seqNum: this.expectedSeqNum || 2,
 				mentionedUsers: [],
+				mentionedUserIds: [],
 				reactions: {},
-				files: []
+				files: [],
+				codeBlocks: [],
+				userMaps: {
+					placeholder: DeepClone(this.data.creator)
+				}
 			})
 		};
-		this.expectedResponse.post.creator.username = EmailUtilities.parseEmail(this.data.creator.email).name;
+		this.expectedResponse.post.creator.username = this.expectedResponse.post.userMaps.placeholder.username = 
+			EmailUtilities.parseEmail(this.data.creator.email).name;
 		this.createdAfter = Date.now();
 		callback();
 	}

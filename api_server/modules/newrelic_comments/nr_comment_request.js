@@ -9,6 +9,7 @@ const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const UserValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_validator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const PostErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/errors');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class NRCommentRequest extends RestfulRequest {
 
@@ -184,6 +185,40 @@ class NRCommentRequest extends RestfulRequest {
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
 			this.request.warn(`Could not publish user identity update message to user ${op.id}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	// get the IDs of all users associated with a post
+	getUserIdsByPost (post) {
+		let userIds = [
+			post.get('creatorId'),
+			...(post.get('mentionedUserIds') || [])
+		];
+
+		const reactions = post.get('reactions') || {};
+		Object.keys(reactions).forEach(reaction => {
+			userIds.push.apply(userIds, reactions[reaction]);
+		});
+
+		return userIds;
+	}
+
+	// get all users associated with a post
+	async getUsersByPost (post) {
+		let userIds = this.getUserIdsByPost(post);
+		userIds = ArrayUtilities.unique(userIds);
+		return this.data.users.getByIds(userIds);
+	}
+
+	// for codemarks, get the associated markers
+	async getMarkers () {
+		if (!this.post.get('codemarkId')) { return; }
+		this.codemark = await this.data.codemarks.getById(this.post.get('codemarkId'));
+		if (!this.codemark) {
+			throw this.errorHandler.error('notFound', { info: 'codemark' });
+		}
+		if ((this.codemark.get('markerIds') || []).length > 0) {
+			this.markers = await this.data.markers.getByIds(this.codemark.get('markerIds'));
 		}
 	}
 }

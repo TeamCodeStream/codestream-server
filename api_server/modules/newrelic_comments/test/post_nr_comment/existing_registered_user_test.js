@@ -21,6 +21,7 @@ class ExistingRegisteredUserTest extends CreateNRCommentTest {
 				fullName: user.fullName,
 				username: user.username
 			});
+			this.expectedResponse.post.userMaps.placeholder = { ...this.expectedResponse.post.creator };
 			callback();
 		});
 	}

@@ -44,6 +44,9 @@ class MentionsTest extends CreateNRCommentTest {
 				}
 			];
 			this.expectedResponse.post.mentionedUsers = DeepClone(this.data.mentionedUsers);
+			this.expectedResponse.post.mentionedUserIds = ['user1', 'user2']; // placeholders
+			this.expectedResponse.post.userMaps.user1 = { ...(this.data.mentionedUsers[0]) };
+			this.expectedResponse.post.userMaps.user2 = { ...(this.data.mentionedUsers[1]) };
 			callback();
 		});
 	}
