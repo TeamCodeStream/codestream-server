@@ -15,7 +15,7 @@ class GetNRCommentRequest extends NRCommentRequest {
 		await this.getUsers();			// get the associated users
 
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, this.markers, this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, this.codemark, this.markers, this.users)
 		};
 	}
 

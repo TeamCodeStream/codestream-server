@@ -47,6 +47,7 @@ class CodeStreamPostReplyTest extends GetNRCommentTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.path = `/nr-comments/${response.post.id}`;
+				this.replyPostResponse = response;
 				Object.assign(this.expectedResponse.post, {
 					id: response.post.id,
 					createdAt: response.post.createdAt,

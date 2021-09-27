@@ -197,7 +197,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 		// return customized response data to New Relic
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, [], this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, null, [], this.users)
 		};
 		return super.handleResponse();
 	}

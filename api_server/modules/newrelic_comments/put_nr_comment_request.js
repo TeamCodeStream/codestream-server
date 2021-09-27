@@ -21,7 +21,7 @@ class PutNRCommentRequest extends NRCommentRequest {
 
 		this.post.attributes.version++;
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, this.markers, this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, this.codemark, this.markers, this.users)
 		};
 	}
 

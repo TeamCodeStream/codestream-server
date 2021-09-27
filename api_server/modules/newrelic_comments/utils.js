@@ -19,17 +19,18 @@ const UserToNewRelic = function (user) {
 	return newRelicUser;
 }
 
-const MarkerToCodeBlock = function(marker) {
+const MarkerToCodeBlock = function(codemark, marker) {
 	return {
 		repo: marker.get('repo') || '',
 		file: marker.get('file') || '',
 		sha: marker.get('commitHashWhenCreated') || '',
-		code: marker.get('code') || ''
+		code: marker.get('code') || '',
+		permalink: `${codemark.get('permalink')}?markerId=${marker.id}`
 	};
 }
 
 // return a function which customized code error data for return to New Relic
-const ToNewRelic = function(codeError, post, markers, users) {
+const ToNewRelic = function(codeError, post, codemark, markers, users) {
 	const creator = users.find(u => u.id === post.get('creatorId'));
 	if (!creator) {
 		throw new Error(`creator ${post.get('creatorId')} not found in users array`);
@@ -64,7 +65,7 @@ const ToNewRelic = function(codeError, post, markers, users) {
 	});
 
 	const codeBlocks = (markers || []).map(marker => {
-		return MarkerToCodeBlock(marker);
+		return MarkerToCodeBlock(codemark, marker);
 	});
 
 	return {

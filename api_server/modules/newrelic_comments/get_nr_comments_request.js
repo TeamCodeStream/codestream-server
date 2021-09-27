@@ -19,7 +19,7 @@ class GetNRCommentsRequest extends NRCommentRequest {
 		await this.getUsers();		// get all associated users
 
 		this.responseData = this.posts.map(post => {
-			return Utils.ToNewRelic(this.codeError, post, this.markersByPost[post.id], this.users);
+			return Utils.ToNewRelic(this.codeError, post, this.codemarksByPost[post.id], this.markersByPost[post.id], this.users);
 		});
 	}
 
@@ -93,6 +93,7 @@ class GetNRCommentsRequest extends NRCommentRequest {
 	// get all markers associated with codemarks as replies
 	async getMarkers () {
 		this.markersByPost = {};
+		this.codemarksByPost = {};
 		return Promise.all(this.posts.map(async post => {
 			await this.getMarkersForPost(post);
 		}));
@@ -109,6 +110,7 @@ class GetNRCommentsRequest extends NRCommentRequest {
 		if (markerIds.length > 0) {
 			this.markersByPost[post.id] = await this.data.markers.getByIds(markerIds);
 		}
+		this.codemarksByPost[post.id] = codemark;
 	}
 
 	// get all users associated with the replies: all creators, and all mentioned users
