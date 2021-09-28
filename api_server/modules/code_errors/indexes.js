@@ -9,8 +9,7 @@ module.exports = {
 	},
 	byObjectId: {
 		objectId: 1,
-		objectType: 1,
-		teamId: 1
+		objectType: 1
 	},
 
 	// WARNING -- DO NOT CHANGE OR REMOVE THIS INDEX
