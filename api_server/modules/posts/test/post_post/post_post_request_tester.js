@@ -255,7 +255,6 @@ const CodeErrorEntryPointTest = require('./code_errors/code_error_entry_point_te
 const CodeErrorExistsTest = require('./code_errors/code_error_exists_test');
 const AddStackTraceTest = require('./code_errors/add_stack_trace_test');
 const CodeErrorWrongTeamTest = require('./code_errors/code_error_wrong_team_test');
-const CodeErrorWrongAccountIdTest = require('./code_errors/code_error_wrong_account_id_test');
 
 class PostPostRequestTester {
 
@@ -556,7 +555,6 @@ class PostPostRequestTester {
 		new CodeErrorExistsTest().test();
 		new AddStackTraceTest().test();
 		new CodeErrorWrongTeamTest().test();
-		new CodeErrorWrongAccountIdTest().test();
 	}
 }
 

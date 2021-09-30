@@ -33,10 +33,10 @@ class CodeErrorCreator extends ModelCreator {
 		return {
 			required: {
 				number: ['accountId'],
-				string: ['postId', 'objectId', 'objectType']
+				string: ['teamId', 'streamId', 'postId', 'objectId', 'objectType']
 			},
 			optional: {
-				string: ['providerUrl', 'entryPoint', 'title', 'text', 'teamId', 'streamId', 'postId'],
+				string: ['providerUrl', 'entryPoint', 'title', 'text'],
 				object: ['objectInfo'],
 				boolean: ['_dontCreatePermalink'],
 				'array(string)': ['followerIds'],
@@ -50,6 +50,7 @@ class CodeErrorCreator extends ModelCreator {
 		// we match on a New Relic object ID and object type, in which case we add a new stack trace as needed
 		return {
 			query: {
+				teamId: this.attributes.teamId,
 				objectId: this.attributes.objectId,
 				objectType: this.attributes.objectType
 			},
@@ -82,10 +83,8 @@ class CodeErrorCreator extends ModelCreator {
 		// pre-allocate an ID
 		this.createId();
 		
-		// get the team that will own this code error (but note: code errors are not necessarily owned by a team)
-		if (this.attributes.teamId) {
-			await this.getTeam();
-		}
+		// get the team that will own this codemark
+		await this.getTeam();
 
 		// handle followers, either passed in or default for the given situation
 		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
@@ -101,10 +100,31 @@ class CodeErrorCreator extends ModelCreator {
 			await this.createPermalink();
 		}
 
-		// handle concerns with existing code errors as needed
+		// if the object ID matched a known object, check if this is a new stack trace ...
+		// if so, add it to the array of known stack traces
+		const stackTracesToAdd = [];
 		let didChange = false;
 		if (this.existingModel) {
-			didChange = this.handleExistingCodeError();
+			(this.attributes.stackTraces || []).forEach(incomingStackTrace => {
+				const index = (this.existingModel.get('stackTraces') || []).findIndex(existingStackTrace => {
+					if (existingStackTrace.traceId && incomingStackTrace.traceId) {
+						return existingStackTrace.traceId === incomingStackTrace.traceId;
+					} else {
+						return existingStackTrace.text === incomingStackTrace.text;
+					}
+				});
+				if (index === -1) {
+					stackTracesToAdd.push(incomingStackTrace);
+					didChange = true;
+				}
+			});
+			this.attributes.stackTraces = [
+				...(this.existingModel.get('stackTraces') || []),
+				...stackTracesToAdd
+			];
+
+			delete this.attributes.postId; // abort creating a new post
+			delete this.attributes.creatorId; // don't change authors
 		} else {
 			// pre-set createdAt and lastActivityAt attributes
 			this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
@@ -127,51 +147,6 @@ class CodeErrorCreator extends ModelCreator {
 			throw this.errorHandler.error('notFound', { info: 'team'});
 		}
 		this.attributes.teamId = this.team.id;	
-	}
-
-	// handle concerns with existing code errors
-	handleExistingCodeError () {
-		const stackTracesToAdd = [];
-		let didChange = false;
-
-		// account ID must match
-		if (this.attributes.accountId !== this.existingModel.get('accountId')) {
-			throw this.errorHandler.error('createAuth', { reason: 'found existing object but account ID does not match' });
-		}
-		// team must match
-		if (this.attributes.teamId && this.attributes.teamId !== this.existingModel.get('teamId')) {
-			throw this.errorHandler.error('createAuth', { reason: 'this object is already owned by another team' });
-		}
-
-		// check if the existing code error is now getting owned by a team
-		if (this.attributes.teamId && !this.existingModel) {
-			didChange = true;
-		}
-
-		// check if this is a new stack trace ...
-		// if so, add it to the array of known stack traces
-		(this.attributes.stackTraces || []).forEach(incomingStackTrace => {
-			const index = (this.existingModel.get('stackTraces') || []).findIndex(existingStackTrace => {
-				if (existingStackTrace.traceId && incomingStackTrace.traceId) {
-					return existingStackTrace.traceId === incomingStackTrace.traceId;
-				} else {
-					return existingStackTrace.text === incomingStackTrace.text;
-				}
-			});
-			if (index === -1) {
-				stackTracesToAdd.push(incomingStackTrace);
-				didChange = true;
-			}
-		});
-		this.attributes.stackTraces = [
-			...(this.existingModel.get('stackTraces') || []),
-			...stackTracesToAdd
-		];
-
-		delete this.attributes.postId; // abort creating a new post
-		delete this.attributes.creatorId; // don't change authors
-
-		return didChange;
 	}
 
 	// create a permalink url to the codemark

@@ -5,14 +5,7 @@ const CodeErrorExistsTest = require('./code_error_exists_test');
 class CodeErrorWrongTeamTest extends CodeErrorExistsTest {
 
 	get description () {
-		return 'should return an error when creating a code error with identical object ID and object type, but in a different team';
-	}
-
-	getExpectedError () {
-		return {
-			code: 'RAPI-1011',
-			reason: 'this object is already owned by another team'
-		};
+		return 'should create a new code error when creating a code error with identical object ID and object type, but in a different team';
 	}
 
 	// form the data for the post we'll create in the test

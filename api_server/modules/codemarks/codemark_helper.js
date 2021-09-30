@@ -173,7 +173,7 @@ class CodemarkHelper {
 		followerIds = ArrayUtilities.union(followerIds, mentionedWhoWantToFollow);
 
 		// users who have replied to this codemark are followers, if they want to be
-		if (options.parentPost && options.team) {
+		if (options.parentPost) {
 			const repliers = await this.getPostRepliers(options.parentPost.id, options.team.id, stream.id);
 			const repliersWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, repliers);
 			followerIds = ArrayUtilities.union(followerIds, repliersWhoWantToFollow);
@@ -188,7 +188,7 @@ class CodemarkHelper {
 	// get user preferences of all users who can see this codemark, so we can determine who should follow a codemark
 	async getUserFollowPreferences (stream, team, usersBeingAddedToTeam) {
 		if (!team && !stream) {
-			return;
+			throw 'must provide stream or team';
 		}
 		let memberIds;
 		if (stream && !stream.get('isTeamStream') && stream.get('type') !== 'file') {
