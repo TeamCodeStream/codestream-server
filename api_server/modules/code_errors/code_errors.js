@@ -22,6 +22,7 @@ const CODE_ERROR_STANDARD_ROUTES = {
 
 // additional routes for this module
 const CODE_ERROR_ADDITIONAL_ROUTES = [
+	/*
 	{
 		method: 'put',
 		path: 'code-errors/follow/:id',
@@ -37,6 +38,7 @@ const CODE_ERROR_ADDITIONAL_ROUTES = [
 		path: 'no-auth/unfollow-link/code-error/:id',
 		requestClass: require('./unfollow_code_error_link_request')
 	}
+	*/
 ];
 
 class CodeErrors extends Restful {

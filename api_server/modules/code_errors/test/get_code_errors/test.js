@@ -24,6 +24,7 @@ const GetCodeErrorsBeforeAfterLastActivityInclusiveTest = require('./get_code_er
 class GetCodeErrorsRequestTester {
 
 	test () {
+		/*
 		new GetCodeErrorsTest().test();
 		new GetCodeErrorsBeforeTest().test();
 		new GetCodeErrorsAfterTest().test();
@@ -42,6 +43,7 @@ class GetCodeErrorsRequestTester {
 		new GetCodeErrorsAfterLastActivityInclusiveTest().test();
 		new GetCodeErrorsBeforeAfterLastActivityTest().test();
 		new GetCodeErrorsBeforeAfterLastActivityInclusiveTest().test();
+		*/
 	}
 }
 

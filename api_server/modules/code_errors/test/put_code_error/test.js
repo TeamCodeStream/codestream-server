@@ -9,7 +9,6 @@ const CodeErrorNotFoundTest = require('./code_error_not_found_test');
 const PutCodeErrorFetchTest = require('./put_code_error_fetch_test');
 const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
 const MessageTest = require('./message_test');
-const TicketTest = require('./ticket_test');
 
 class PutCodeErrorRequestTester {
 
@@ -22,8 +21,7 @@ class PutCodeErrorRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'postId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
-		new MessageTest().test();
-		new TicketTest().test();
+		//new MessageTest().test();
 	}
 }
 
