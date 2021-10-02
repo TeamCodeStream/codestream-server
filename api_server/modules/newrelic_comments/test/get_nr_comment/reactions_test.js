@@ -15,8 +15,37 @@ class ReactionsTest extends GetNRCommentTest {
 		this.ownedByTeam = true;
 		BoundAsync.series(this, [
 			super.before,
+			this.reply,
 			this.react
 		], callback);
+	}
+
+	reply (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/nr-comments',
+				data: {
+					creator: {
+						email: this.users[0].user.email,
+						fullName: this.users[0].user.fullName,
+						username: this.users[0].user.username
+					},
+					objectId: this.nrCommentResponse.post.objectId,
+					objectType: this.nrCommentResponse.post.objectType,
+					accountId: this.nrCommentResponse.post.accountId,
+					text: RandomString.generate(100)
+				},
+				requestOptions: {
+					headers: {
+						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
+						'X-CS-NewRelic-AccountId': this.nrCommentResponse.post.accountId
+					}
+				},
+				token: this.users[0].accessToken
+			},
+			callback
+		)
 	}
 
 	react (callback) {

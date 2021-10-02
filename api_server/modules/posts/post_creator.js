@@ -44,10 +44,10 @@ class PostCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['streamId']
+				// kind of nutty, but strictly speaking, nothing is required here
 			},
 			optional: {
-				string: ['text', 'parentPostId', '_subscriptionCheat'],
+				string: ['text', 'parentPostId', '_subscriptionCheat', 'teamId', 'streamId'],
 				object: ['codemark', 'review', 'codeError', 'inviteInfo'],
 				boolean: ['dontSendEmail'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
@@ -59,19 +59,8 @@ class PostCreator extends ModelCreator {
 
 	// called before the post is actually saved
 	async preSave () {
-		if (this.attributes.codemark && this.attributes.review) {
-			throw this.errorHandler.error('noCodemarkAndReview');
-		}
-		if (this.attributes.parentPostId && this.attributes.review) {
-			throw this.errorHandler.error('noReplyWithReview');
-		}
-		if (this.attributes.codemark && this.attributes.codeError) {
-			throw this.errorHandler.error('noCodemarkAndCodeError');
-		}
-		if (this.attributes.parentPostId && this.attributes.codeError) {
-			throw this.errorHandler.error('noReplyWithCodeError');
-		}
-
+		this.validatePostObjects();
+		await this.checkCodeError();
 
 		// many attributes that are allowed but don't become attributes of the created user
 		['dontSendEmail', 'addedUsers', 'inviteInfo', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn'].forEach(parameter => {
@@ -89,7 +78,7 @@ class PostCreator extends ModelCreator {
 		this.createId();				// create an ID for the post
 		await this.getStream();			// get the stream for the post
 		await this.getTeam();			// get the team that owns the stream
-		await this.getCompany();		// get the company that owns the team
+		//await this.getCompany();		// get the company that owns the team
 		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
@@ -112,8 +101,90 @@ class PostCreator extends ModelCreator {
 		this.updateTeam();				// update info for team, note, no need to "await"
 	}
 
+	// validate the various options for objects attached to this post
+	validatePostObjects () { 
+		if (this.attributes.codemark) {
+			if (this.attributes.review) {
+				throw this.errorHandler.error('noCodemarkAndReview');
+			} else if (this.attributes.codeError) {
+				throw this.errorHandler.error('noCodemarkAndCodeError');
+			}
+		} else if (this.attributes.review) {
+			if (this.attributes.parentPostId) {
+				throw this.errorHandler.error('noReplyWithReview');
+			} else if (this.attributes.codeError) {
+				throw this.errorHandler.error('noReviewAndCodeError');
+			}
+		} else if (this.attributes.codeError) {
+			if (this.attributes.parentPostId) {
+				throw this.errorHandler.error('noReplyWithCodeError');
+			}
+		}
+	}
+
+	// check if the post is for a code error, or a reply to a code error
+	async checkCodeError () {
+		let codeErrorId;
+		/*if (this.codeError) {
+			// code error given by caller
+			return;
+		} else */if (this.attributes.codeError) {
+			// creating a code error
+			this.creatingCodeError = true;
+		} else if (this.attributes.parentPostId) {
+			// is the parent a code error?
+			this.parentPost = await this.data.posts.getById(this.attributes.parentPostId);
+			if (!this.parentPost) {
+				throw this.errorHandler.error('notFound', { info: 'parent post' });
+			}
+			if (this.parentPost.get('codeErrorId')) {
+				codeErrorId = this.parentPost.get('codeErrorId');
+			} else if (this.parentPost.get('parentPostId')) {
+				// maybe the grandparent is a code error?
+				this.grandParentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
+				if (!this.grandParentPost) {
+					throw this.errorHandler.error('notFound', { info: 'grandparent post' });
+				}
+				codeErrorId = this.grandParentPost.get('codeErrorId');
+			}
+		} 
+
+		// get the code error if this is a reply to one
+		if (codeErrorId) {
+			this.codeError = await this.data.codeErrors.getById(codeErrorId);
+			if (!this.codeError) {
+				throw this.errorHandler.error('notFound', { info: 'code error' });
+			}
+
+			// must be a follower of the code error to reply to it
+			if (!(this.codeError.get('followerIds') || []).includes(this.user.id)) {
+				throw this.errorHandler.error('createAuth', { reason: 'user is not following this object' });
+			}
+			// stream ID of the object must match the stream ID of the post
+			if (this.attributes.streamId !== this.codeError.get('streamId')) {
+				throw this.errorHandler.error('parentPostStreamIdMismatch');
+			}
+		}
+
+		// anything code error related, has no team, and its own stream
+		if (this.creatingCodeError || this.codeError) {
+			// replies to code errors get the code error's stream
+			delete this.attributes.streamId;
+		} else if (!this.attributes.streamId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'streamId' });
+		}
+	}
+
 	// get the stream we're trying to create the post in
 	async getStream () {
+		if (this.codeError) {
+			// replies to code errors become part of the code error stream
+			this.attributes.streamId = this.codeError.get('streamId');
+		} else if (this.creatingCodeError) {
+			// if creating a code error, we'll create a stream
+			return;
+		}
+
 		this.stream = await this.data.streams.getById(this.attributes.streamId);
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream'});
@@ -121,7 +192,11 @@ class PostCreator extends ModelCreator {
 		if (this.stream.get('type') === 'file') {
 			// creating posts in a file stream is no longer allowed
 			throw this.errorHandler.error('createAuth', { reason: 'can not post to a file stream' });
+		} else if (this.stream.get('type') === 'object' && !this.attributes.parentPostId) {
+			// can't create root posts in an object stream
+			throw this.errorHandler.error('createAuth', { reason: 'cannot create non-reply in object stream' });
 		}
+
 		if (this.addedUsers && this.addedUsers.length && !this.stream.get('isTeamStream')) {
 			throw this.errorHandler.error('validation', { reason: 'cannot add users to a stream that is not a team stream' });
 		}
@@ -129,25 +204,61 @@ class PostCreator extends ModelCreator {
 
 	// get the team that owns the stream for which the post is being created
 	async getTeam () {
-		this.team = await this.data.teams.getById(this.stream.get('teamId'));
+		if (!this.stream) {
+			// we get here if we are creating a code error
+			return;
+		}
+
+		let teamId = this.stream.get('teamId');
+		if (!teamId) {
+			// we should only get here if we are posting a reply to a code error
+			if (!this.codeError) {
+				// shouldn't really happen
+				throw this.errorHandler.error('createAuth', { reason: 'attempt to create a post with no team ID' });
+			}
+		
+			// more weirdness: if the post has a codemark, then we MUST have a team to associate the codemark
+			// with ... too much of what makes a codemark a codemark (repos, markers) needs a team association
+			if (this.attributes.codemark) {
+				if (!this.attributes.teamId) {
+					throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
+				}
+				teamId = this.attributes.teamId;
+			} else {
+				delete this.attributes.teamId; // ignore in all other cases, there should be no team ID
+				return;
+			}
+		}
+
+		this.team = await this.data.teams.getById(teamId);
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team'});
 		}
 		this.attributes.teamId = this.team.id;	// post gets the same teamId as the stream
 	}
 
+	/*
 	// get the company that owns the team for which the post is being created
 	// only needed for analytics so we only do this for inbound emails 
 	async getCompany () {
-		if (!this.forInboundEmail) {
+		if (!this.forInboundEmail || !this.team) {
 			// only needed for inbound email, for tracking
+			// or if no team, which can happen for replies to code errors
 			return;
 		}
 		this.company = await this.data.companies.getById(this.team.get('companyId'));
 	}
+	*/
 
 	// create any added users being mentioned, these users get invited "on-the-fly"
 	async createAddedUsers () {
+		if (!this.team) {
+			if (this.addedUsers && this.addedUsers.length > 0) {
+				this.request.warn('Cannot invite users on the fly with no team (is this a code error?)');
+			}
+			return;
+		}
+
 		// trickiness ... we need to include the codemark or review or code error ID in the invited user objects, but we
 		// don't know them yet, and we need to create the users first to make them followers ... so here we
 		// lock down the IDs we will use later in creating the codemark or review
@@ -248,26 +359,27 @@ class PostCreator extends ModelCreator {
 		if (!this.attributes.codeError) {
 			return true;
 		}
-		const codeErrorAttributes = Object.assign({}, this.attributes.codeError, {
-			teamId: this.team.id,
-			streamId: this.stream.id,
-			postId: this.attributes.id
-		});
+		this.attributes.codeError.postId = this.attributes.id;
 		
 		const codeErrorCreator = new CodeErrorCreator({
 			request: this.request,
 			origin: this.attributes.origin,
-			mentionedUserIds: this.attributes.mentionedUserIds || [],
 			useId: this.codeErrorId, // if locked down previously
 		});
-		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(codeErrorAttributes);
+		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(this.attributes.codeError);
+		if (this.transformsCreatedStreamForCodeError) {
+			this.stream = this.transforms.createdStreamForCodeError; // creation of a code error always creates a stream
+		} else {
+			this.stream = codeErrorCreator.stream;
+		}
+		this.attributes.streamId = this.stream.id;
+		this.assumeSeqNum = 1;
 		delete this.attributes.codeError;
 		if (codeErrorCreator.existingModel) {
 			// this means a matching code error was found, which means we don't actually
 			// create a new post at all
 			return false;
 		}
-
 		this.attributes.codeErrorId = this.transforms.createdCodeError.id;
 		return true;
 	}
@@ -313,6 +425,8 @@ class PostCreator extends ModelCreator {
 
 	// update the stream associated with the created post
 	async updateStream () {
+		if (this.transforms.createdStreamForCodeError) { return; }
+
 		// update the mostRecentPostId attribute, and the sortId attribute
 		// (which is the same if there is a post in the stream) to the ID of
 		// the created post
@@ -354,7 +468,7 @@ class PostCreator extends ModelCreator {
 		if (!this.model.get('parentPostId')) {
 			return;
 		}
-		this.parentPost = await this.data.posts.getById(this.model.get('parentPostId'));
+		this.parentPost = this.parentPost || await this.data.posts.getById(this.model.get('parentPostId'));
 		if (!this.parentPost) { 
 			throw this.errorHandler.error('notFound', { info: 'parent post' });
 		}
@@ -365,7 +479,7 @@ class PostCreator extends ModelCreator {
 		if (this.parentPost.get('parentPostId')) {
 			// the only reply to a reply we allow is if the parent post of the post we are replying to is a 
 			// review or code error post
-			this.grandParentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
+			this.grandParentPost = this.grandParentPost || await this.data.posts.getById(this.parentPost.get('parentPostId'));
 			if (this.grandParentPost && !this.grandParentPost.get('reviewId') && !this.grandParentPost.get('codeErrorId')) {
 				throw this.errorHandler.error('noReplyToReply');
 			}
@@ -471,17 +585,14 @@ class PostCreator extends ModelCreator {
 
 	// update numReplies for the parent post's code error, if any
 	async updateParentCodeError () {
-		if (!this.parentPost.get('codeErrorId') && !this.grandParentPost) {
+		if (!this.codeError) {
 			return;
 		}
-		const codeErrorId = this.parentPost.get('codeErrorId') || this.grandParentPost.get('codeErrorId');
-		const codeError = await this.request.data.codeErrors.getById(codeErrorId);
-		if (!codeError) { return; }
 
 		const now = Date.now();
 		const op = { 
 			$set: {
-				numReplies: (codeError.get('numReplies') || 0) + 1,
+				numReplies: (this.codeError.get('numReplies') || 0) + 1,
 				lastReplyAt: now,
 				lastActivityAt: now,
 				modifiedAt: now
@@ -489,19 +600,19 @@ class PostCreator extends ModelCreator {
 		};
 
 		// handle any followers that need to be added to the code error, as needed
-		await this.handleFollowers(codeError, op);
+		await this.handleFollowers(this.codeError, op, { ignorePreferences: true });
 
 		this.transforms.updatedCodeErrors = this.transforms.updatedCodeErrors || [];
 		const codeErrorUpdate = await new ModelSaver({
 			request: this.request,
 			collection: this.data.codeErrors,
-			id: codeError.id
+			id: this.codeError.id
 		}).save(op);
 		this.transforms.updatedCodeErrors.push(codeErrorUpdate);
 	}
 
 	// handle followers to parent codemark or review or code error as needed
-	async handleFollowers (thing, op) {
+	async handleFollowers (thing, op, options = {}) {
 		// if this is a legacy codemark, created before codemark following was introduced per the "sharing" model,
 		// we need to fill its followerIds array with the appropriate users
 		if (thing.get('followerIds') === undefined) {
@@ -517,7 +628,8 @@ class PostCreator extends ModelCreator {
 		}
 
 		// also add this user as a follower if they have that preference, and are not a follower already
-		const userNotificationPreference = (this.user.get('preferences') || {}).notifications || 'involveMe';
+		const userNotificationPreference = options.ignorePreferences ? 'involveMe' : 
+			((this.user.get('preferences') || {}).notifications || 'involveMe');
 		const followerIds = thing.get('followerIds') || [];
 		if (userNotificationPreference === 'involveMe' && followerIds.indexOf(this.user.id) === -1) {
 			if (op.$set.followerIds) {
@@ -528,32 +640,51 @@ class PostCreator extends ModelCreator {
 				}
 			}
 			else {
-				op.$addToSet = { followerIds: this.user.id };
+				op.$addToSet = { followerIds: [this.user.id] };
 			}
 		}
 
 		// if a user is mentioned that is not following the thing, and they have the preference to
-		// follow things they are mentioned in, then we'll presume to make them a follower
-		// fetch preferences for the members
+		// follow things they are mentioned in, or we're ignoring preferences,
+		//  then we'll presume to make them a follower
 		const mentionedUserIds = this.attributes.mentionedUserIds || [];
 		let newFollowerIds = ArrayUtilities.difference(mentionedUserIds, followerIds);
 		if (newFollowerIds.length === 0) { return; }
-		let newFollowers = await this.request.data.users.getByIds(
-			newFollowerIds,
-			{
-				fields: ['id', 'preferences'],
-				noCache: true,
-				ignoreCache: true
+
+		// search for followers within the provided user array first
+		let newFollowers = [];
+		if (this.users) {
+			for (let i = newFollowerIds.length-1; i >= 0; i--) {
+				const user = this.users.find(user => user.id === newFollowerIds[i]);
+				if (user) {
+					newFollowers.push(user);
+					newFollowerIds.splice(i, 1);
+				}
 			}
-		);
+		}
+		// get any others from the database
+		if (newFollowerIds.length > 0) {
+			let followersFromDb = await this.request.data.users.getByIds(
+				newFollowerIds,
+				{
+					fields: ['id', 'preferences'],
+					noCache: true,
+					ignoreCache: true
+				}
+			);
+			newFollowers = [...newFollowers, ...followersFromDb];
+		}
+
 		newFollowers = newFollowers.filter(user => {
 			const preferences = user.get('preferences') || {};
 			const notificationPreference = preferences.notifications || 'involveMe';
 			return (
-				!user.get('deactivated') && 
-				(
-					notificationPreference === 'all' ||
-					notificationPreference === 'involveMe'
+				options.ignorePreferences || (
+					!user.get('deactivated') && 
+					(
+						notificationPreference === 'all' ||
+						notificationPreference === 'involveMe'
+					)
 				)
 			);
 		});
@@ -592,6 +723,7 @@ class PostCreator extends ModelCreator {
 
 	// update the time the last post was created for the team
 	async updateTeam () {
+		if (!this.team) { return; }
 		return this.data.teams.updateDirectWhenPersist(
 			{
 				_id: this.data.teams.objectIdSafe(this.team.id)

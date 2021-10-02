@@ -8,6 +8,7 @@ const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const UserAttributes = require('./user_attributes');
 const Path = require('path');
+const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 
 class User extends CodeStreamModel {
 
@@ -113,7 +114,10 @@ class User extends CodeStreamModel {
 		if (!stream) {
 			throw request.errorHandler.error('notFound', { info: 'stream' });
 		}
-		if (
+		if (stream.get('type') === 'object') {
+			const object = await this.authorizeObject(stream.get('objectId'), stream.get('objectType'), request);
+			return object ? stream : false;
+		} else if (
 			stream.get('type') !== 'file' &&
 			!stream.get('isTeamStream') && 
 			!stream.get('memberIds').includes(this.id)
@@ -260,6 +264,18 @@ class User extends CodeStreamModel {
 			otherUser = await request.data.users.getById(id);
 		}
 		return otherUser;
+	}
+
+	// authorize user's access to an "observability" object (code error)
+	async authorizeObject (objectId, objectType, request) {
+		const codeError = await request.data.codeErrors.getOneByQuery(
+			{ objectId, objectType },
+			{ hint: CodeErrorIndexes.byObjectId }
+		);
+		if (!codeError) {
+			throw request.errorHandler.error('notFound', { info: 'object' });
+		}
+		return ((codeError.get('followerIds') || []).includes(request.user.id)) ? codeError : false;
 	}
 
 	// authorize the current user for access to a team, as given by IDs in the request

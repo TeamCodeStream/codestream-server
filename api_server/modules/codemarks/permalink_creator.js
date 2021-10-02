@@ -34,13 +34,16 @@ class PermalinkCreator {
 			(this.codeError && 'codeErrorId')
 		);
 		const linkId = UUID().replace(/-/g, '');
-		this.url = this.makePermalink(linkId, this.isPublic, thing.teamId, type);
+		const teamId = this.codeError ?
+			this.codeError.accountId.toString().split('').map(s => s.charCodeAt(0).toString(16)).join('') :
+			thing.teamId;
+		this.url = this.makePermalink(linkId, this.isPublic, teamId, type);
 		const hash = this.makeHash(thing, this.markers, this.isPublic, type);
 
 		// upsert the link, which should be collision free
 		const update = {
 			$set: {
-				teamId: thing.teamId,
+				teamId: teamId,
 				md5Hash: hash,
 				[attr]: thing.id
 			}
@@ -152,9 +155,8 @@ class PermalinkCreator {
 	// a combination of team, code, repo, file, commit hash, and location
 	// if all of these are the same, we should get the same MD5 hash
 	makeCodeErrorHashText (attributes, markers) {
-		const markerText = this.makeMarkerHashText(markers);
 		const codeErrorText = JSON.stringify(attributes.stackTraces);
-		return `${attributes.teamId}${markerText}${codeErrorText}`;
+		return `${attributes.accountId}${attributes.objectId}${attributes.objectType}${codeErrorText}`;
 	}
 
 	makeMarkerHashText (markers) {

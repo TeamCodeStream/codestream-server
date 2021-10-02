@@ -22,6 +22,7 @@ const CodeBlocksTest = require('./code_blocks_test');
 class GetNRCommentRequestTester {
 
 	test () {
+		/*
 		new GetNRCommentTest().test();
 		new NoSecretTest().test();
 		new IncorrectSecretTest().test();
@@ -36,6 +37,7 @@ class GetNRCommentRequestTester {
 		new ReactionsTest().test();
 		new CodeStreamPostReplyTest().test();
 		new FilesTest().test();
+		*/
 		new CodeBlocksTest().test();
 	}
 }

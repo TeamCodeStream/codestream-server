@@ -82,7 +82,7 @@ class MentionsTest extends CreateNRCommentTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: `/users?ids=${userIds}&teamId=${this.registerUserResponse.user.teamIds[0]}`,
+				path: `/users?ids=${userIds}&objectId=${this.nrCommentResponse.post.objectId}&objectType=${this.nrCommentResponse.post.objectType}`,
 				token: this.token
 			},
 			(error, response) => {

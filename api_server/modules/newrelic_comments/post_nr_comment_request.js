@@ -5,8 +5,6 @@
 const NRCommentRequest = require('./nr_comment_request');
 const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
 const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
-const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
-const TeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_creator');
 const Utils = require('./utils');
 
 class PostNRCommentRequest extends NRCommentRequest {
@@ -34,9 +32,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match that given in the body' });
 		}
 
-		// resolve the requesting user, and what team they belong to, 
-		// which may involve both creating a (faux) user, and creating a (faux?) team
-		await this.resolveUserAndTeam();
+		// resolve the requesting user, which may involve creating a (faux) user
+		await this.resolveUser();
 
 		// create a code error linked to the New Relic object to which the comment is attached
 		// for now, this is a "code error" object only
@@ -77,69 +74,34 @@ class PostNRCommentRequest extends NRCommentRequest {
 	}
 
 
-	// resolve the requesting user, and what team they belong to, 
-	// which may involve both creating a (faux) user, and creating a (faux?) team
-	async resolveUserAndTeam () {
-		// if we have a code error, get the team that owns it
-		if (this.codeError) {
-			this.team = await this.data.teams.getById(this.codeError.get('teamId'));
-			if (!this.team || this.team.get('deactivated')) {
-				throw this.errorHandler.error('notFound', { info: 'team' }); // shouldn't really happen
-			}
-		}
-
+	// resolve the requesting user, which may involve creating a (faux) user
+	async resolveUser () {
 		// find or create a "faux" user, as needed
 		this.user = this.request.user = await this.findOrCreateUser(this.request.body.creator);
 		this.users.push(this.user);
-
-		// if we don't have an existing code error already, then we don't know
-		// what team to put the user on ... so if the user isn't on a team, we create one
-		if (!this.team) {
-			const teamId = (this.user.get('teamIds') || [])[0];
-			if (teamId) {
-				// FIXME, TODO: deal with the accountId here, which we can use to match to 
-				// a user's company (therefore team) ... this is dependent on company-centric work
-				// (which isn't done yet)
-				this.team = await this.data.teams.getById(teamId);
-				if (!this.team || this.team.get('deactivated')) {
-					throw this.errorHandler.error('notFound', { info: 'team' }); // shouldn't really happen
-				}
-				this.teamStream = await this.data.streams.getOneByQuery(
-					{
-						teamId: this.team.id,
-						type: 'channel',
-						isTeamStream: true
-					},
-					{
-						hint: StreamIndexes.byType
-					}
-				);
-				if (!this.teamStream) {
-					throw this.errorHandler.error('notFound', { info: 'team stream' }); // shouldn't really happen
-				}
-			} else {
-				this.team = await new TeamCreator({
-					request: this,
-					assumeTeamStreamSeqNum: 3 // for the code error post, and the reply to it, that we are going to create
-				}).createTeam({
-					name: 'general'
-				});
-				this.teamStream = this.transforms.createdTeamStream;
-				this.teamWasCreated = true;
-			}
-		}
-
-		// add the user to the team as needed
-		await this.addUserToTeam(this.user);
 	}
 
 	// create a code error linked to the New Relic object to which the comment is attached
 	async createCodeError () {
+		// first, create a stream for the code error
+		this.stream = await new StreamCreator({
+			request: this,
+			nextSeqNum: 3
+		}).createStream({
+			type: 'object',
+			privacy: 'public',
+			accountId: this.request.body.accountId,
+			objectId: this.request.body.objectId,
+			objectType: this.request.body.objectType
+		});
+
+		// now create a post in the stream, along with the code error
 		this.codeErrorPost = await new PostCreator({
 			request: this,
-			assumeSeqNum: this.teamWasCreated ? 1 : undefined
+			assumeSeqNum: 1,
+			users: this.users
 		}).createPost({
-			streamId: this.teamStream.id,
+			streamId: this.stream.id,
 			dontSendEmail: true,
 			codeError: {
 				objectId: this.request.body.objectId,
@@ -148,6 +110,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			}
 		});
 		this.codeError = this.transforms.createdCodeError;
+		this.codeErrorWasCreated = true;
 	}
 
 	// for replies, validate that they are proper replies to a New Relic object
@@ -177,8 +140,9 @@ class PostNRCommentRequest extends NRCommentRequest {
 	async createPost () {
 		this.postCreator = new PostCreator({ 
 			request: this,
-			assumeSeqNum: this.teamWasCreated ? 2 : undefined, // because the actual code error was 1
-			dontSendEmail: true
+			assumeSeqNum: this.codeErrorWasCreated ? 2 : undefined, // because the actual code error was 1
+			dontSendEmail: true,
+			users: this.users
 		});
 
 		this.post = await this.postCreator.createPost({

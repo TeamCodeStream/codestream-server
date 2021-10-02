@@ -12,7 +12,8 @@ const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modu
 const BASIC_QUERY_PARAMETERS = [
 	'teamId',
 	'streamId',
-	'parentPostId'
+	'parentPostId',
+	'codeErrorId'
 ];
 
 // additional options for post fetches
@@ -37,7 +38,16 @@ class GetPostsRequest extends GetManyRequest {
 	// authorize the request for the current user
 	async authorize () {
 		let info;
-		if (this.request.query.streamId) {
+		if (this.request.query.codeErrorId) {
+			this.codeError = await this.data.codeErrors.getById(this.request.query.codeErrorId.toLowerCase());
+			if (!this.codeError) {
+				throw this.errorHandler.error('notFound', { info: 'codeError' });
+			}
+			if (!(this.codeError.followerIds || []).includes(this.user.id)) {
+				throw this.errorHandler.error('readAuth', { reason: 'user is not a follower of this object' });
+			}
+		}
+		else if (this.request.query.streamId) {
 			info = await this.user.authorizeFromTeamIdAndStreamId(
 				this.request.query,
 				this
@@ -55,6 +65,15 @@ class GetPostsRequest extends GetManyRequest {
 	// called before the actual fetch operation, here we fetch the streams the user is 
 	// a member of if posts for a particular stream are not being fetched
 	async preQueryHook () {
+		// for code errors (observability objects), we'll figure out the stream ID from the
+		// code error's post
+		if (this.codeError) {
+			const codeErrorPost = await this.data.posts.getById(this.codeError.get('postId'));
+			if (codeErrorPost) {
+				this.request.query.streamId = codeErrorPost.get('streamId');
+			}
+		}
+
 		// we'll give the caller the benefit of figuring out the stream ID if they're looking for replies to a post
 		if (this.request.query.parentPostId && !this.request.query.streamId) {
 			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());

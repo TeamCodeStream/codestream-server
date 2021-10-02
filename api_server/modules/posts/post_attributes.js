@@ -5,7 +5,6 @@
 module.exports = {
 	teamId: {
 		type: 'id',
-		required: true,
 		description: 'ID of the @@#team#team@@ that owns this post'
 	},
 	streamId: {

@@ -10,20 +10,22 @@ class PostPublisher {
 	}
 
 	async publishPost () {
+		let channel;
 		if (this.stream.type === 'file' || this.stream.isTeamStream) {
 			// for file-type streams, or team-streams (streams for which everyone on the team is a member),
 			// we publish to the team that owns the stream
-			const channel = `team-${this.stream.teamId}`;
-			await this.publishPostToChannel(channel);
-		}
-		else {
+			channel = `team-${this.stream.teamId}`;
+		} else if (this.stream.type === 'object') {
+			// object streams get their own channel
+			channel = `obj-${this.stream.objectType}-${this.stream.objectId}`;
+		} else {
 			throw 'stream channels are deprecated';
 			/*
 			// for channels and direct, we publish to the stream itself
-			const channel = `stream-${this.stream.id}`;
-			await this.publishPostToChannel(channel);
+			channel = `stream-${this.stream.id}`;
 			*/
 		}
+		await this.publishPostToChannel(channel);
 	}
 
 	// publish a post to the given channel

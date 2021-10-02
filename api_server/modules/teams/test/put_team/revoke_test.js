@@ -30,7 +30,6 @@ client.addListener({
 	message: message => {
 		console.log('RX', message);
 		if (didReceiveMessage) {
-			console.warn('RECEIVED SECOND MESSAGE!!!');
 			process.exit(1);
 		}
 		else {

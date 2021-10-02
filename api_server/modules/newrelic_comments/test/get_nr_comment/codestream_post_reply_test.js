@@ -2,7 +2,6 @@
 
 const GetNRCommentTest = require('./get_nr_comment_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const RandomString = require('randomstring');
 
 class CodeStreamPostReplyTest extends GetNRCommentTest {
 
@@ -15,9 +14,26 @@ class CodeStreamPostReplyTest extends GetNRCommentTest {
 		this.ownedByTeam = true;
 		BoundAsync.series(this, [
 			super.before,
+			this.getPost,
 			this.makePostData,
-			this.makePost
+			this.makePost,
 		], callback);
+	}
+
+	getPost (callback) {
+		// needed to get the stream ID
+		this.doApiRequest(
+			{
+				method: 'get',
+				path: `/posts/${this.nrCommentResponse.post.id}`,
+				token: this.users[1].accessToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.streamId = response.post.streamId;
+				callback();
+			}
+		);
 	}
 
 	makePostData (callback) {
@@ -31,7 +47,7 @@ class CodeStreamPostReplyTest extends GetNRCommentTest {
 				callback();
 			},
 			{
-				streamId: this.teamStream.id
+				streamId: this.streamId
 			}
 		);
 	}

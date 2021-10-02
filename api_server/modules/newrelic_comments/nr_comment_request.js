@@ -49,22 +49,6 @@ class NRCommentRequest extends RestfulRequest {
 			const user = await this.findOrCreateUser(mentionedUser);
 			this.users.push(user);
 			this.mentionedUserIds.push(user.id);
-			await this.addUserToTeam(user);
-		}
-	}
-
-	// add the given user to the current team, as needed
-	async addUserToTeam (user) {
-		// if we didn't just create a team, and the user isn't a member, add them automagically
-		if (!(user.get('teamIds') || []).includes(this.team.id)) {
-			await new AddTeamMembers({
-				request: this,
-				addUsers: [user],
-				team: this.team
-			}).addTeamMembers();
-			return await this.data.users.getById(user.id); // refetch to know the user is on the team, should just go to cache
-		} else {
-			return user;
 		}
 	}
 
@@ -113,7 +97,6 @@ class NRCommentRequest extends RestfulRequest {
 
 		const options = {
 			request: this,
-			userBeingAddedToTeamId: this.team ? this.team.id : undefined,
 			externalUserId: `newrelic::${email}`,
 			dontSetInviteCode: true,
 			ignoreUsernameOnConflict: true

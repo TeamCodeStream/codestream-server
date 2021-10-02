@@ -11,6 +11,7 @@ class CodeErrorExistsTest extends CodeErrorTest {
 
 	setTestOptions (callback) {
 		this.noStreamUpdate = true;
+		this.dontExpectCreatedStream = true;
 		super.setTestOptions(() => {
 			Object.assign(this.postOptions, {
 				creatorIndex: 0,
@@ -36,11 +37,8 @@ class CodeErrorExistsTest extends CodeErrorTest {
 	}
 
 	validateResponse (data) {
-		if (this.codeErrorInDifferentTeam) {
-			Assert.notEqual(data.codeError.id, this.postData[0].codeError.id, 'returned code error was the same as the existing code error');
-		} else {
-			Assert.equal(data.codeError.id, this.postData[0].codeError.id, 'returned code error was not the same as the existing code error');
-		}
+		Assert.equal(data.codeError.id, this.postData[0].codeError.id, 'returned code error was not the same as the existing code error');
+		Assert.equal(data.post.id, this.postData[0].post.id, 'returned post was not the same as the post pointing to the existing code error');
 		super.validateResponse(data);
 	}
 }

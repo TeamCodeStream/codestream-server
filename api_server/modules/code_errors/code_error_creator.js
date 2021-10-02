@@ -7,6 +7,7 @@ const CodeError = require('./code_error');
 const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_helper');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const Indexes = require('./indexes');
+const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
 
 class CodeErrorCreator extends ModelCreator {
 
@@ -39,7 +40,6 @@ class CodeErrorCreator extends ModelCreator {
 				string: ['providerUrl', 'entryPoint', 'title', 'text'],
 				object: ['objectInfo'],
 				boolean: ['_dontCreatePermalink'],
-				'array(string)': ['followerIds'],
 				'array(object)': ['stackTraces']
 			}
 		};
@@ -71,6 +71,11 @@ class CodeErrorCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 
+		// create a teamless stream for this code error
+		if (!this.existingModel) {
+			await this.createStream();
+		}
+
 		// establish some default attributes
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
@@ -83,17 +88,8 @@ class CodeErrorCreator extends ModelCreator {
 		// pre-allocate an ID
 		this.createId();
 		
-		// get the team that will own this codemark
-		await this.getTeam();
-
 		// handle followers, either passed in or default for the given situation
-		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(
-			this.attributes,
-			{ 
-				mentionedUserIds: this.mentionedUserIds,
-				team: this.team
-			}
-		);
+		this.attributes.followerIds = await this.codemarkHelper.handleFollowers(this.attributes, { ignorePreferences: true });
 
 		// create a permalink to this code error, as needed
 		if (!this.dontCreatePermalink && !this.existingModel) {
@@ -105,26 +101,11 @@ class CodeErrorCreator extends ModelCreator {
 		const stackTracesToAdd = [];
 		let didChange = false;
 		if (this.existingModel) {
-			(this.attributes.stackTraces || []).forEach(incomingStackTrace => {
-				const index = (this.existingModel.get('stackTraces') || []).findIndex(existingStackTrace => {
-					if (existingStackTrace.traceId && incomingStackTrace.traceId) {
-						return existingStackTrace.traceId === incomingStackTrace.traceId;
-					} else {
-						return existingStackTrace.text === incomingStackTrace.text;
-					}
-				});
-				if (index === -1) {
-					stackTracesToAdd.push(incomingStackTrace);
-					didChange = true;
-				}
-			});
-			this.attributes.stackTraces = [
-				...(this.existingModel.get('stackTraces') || []),
-				...stackTracesToAdd
-			];
-
-			delete this.attributes.postId; // abort creating a new post
-			delete this.attributes.creatorId; // don't change authors
+			didChange = this.handleExistingCodeError();
+			this.stream = await this.data.streams.getById(this.existingModel.get('streamId'));
+			if (!this.stream) {
+				throw this.errorHandler.error('notFound', { info: 'code error stream' });
+			}
 		} else {
 			// pre-set createdAt and lastActivityAt attributes
 			this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
@@ -140,13 +121,56 @@ class CodeErrorCreator extends ModelCreator {
 		}
 	}
 
-	// get the team that will own this code error
-	async getTeam () {
-		this.team = await this.data.teams.getById(this.attributes.teamId);
-		if (!this.team) {
-			throw this.errorHandler.error('notFound', { info: 'team'});
+	// create a teamless stream for this code error
+	async createStream () {
+		// first, create a stream for the code error
+		this.transforms.createdStreamForCodeError = this.stream = await new StreamCreator({
+			request: this.request,
+			nextSeqNum: 2
+		}).createStream({
+			type: 'object',
+			privacy: 'public',
+			accountId: this.attributes.accountId,
+			objectId: this.attributes.objectId,
+			objectType: this.attributes.objectType
+		});
+		this.attributes.streamId = this.stream.id;
+	}
+	
+	// handle concerns with existing code errors
+	handleExistingCodeError () {
+		const stackTracesToAdd = [];
+		let didChange = false;
+
+		// account ID must match
+		if (this.attributes.accountId !== this.existingModel.get('accountId')) {
+			throw this.errorHandler.error('createAuth', { reason: 'found existing object but account ID does not match' });
 		}
-		this.attributes.teamId = this.team.id;	
+
+		// check if this is a new stack trace ...
+		// if so, add it to the array of known stack traces
+		(this.attributes.stackTraces || []).forEach(incomingStackTrace => {
+			const index = (this.existingModel.get('stackTraces') || []).findIndex(existingStackTrace => {
+				if (existingStackTrace.traceId && incomingStackTrace.traceId) {
+					return existingStackTrace.traceId === incomingStackTrace.traceId;
+				} else {
+					return existingStackTrace.text === incomingStackTrace.text;
+				}
+			});
+			if (index === -1) {
+				stackTracesToAdd.push(incomingStackTrace);
+				didChange = true;
+			}
+		});
+		this.attributes.stackTraces = [
+			...(this.existingModel.get('stackTraces') || []),
+			...stackTracesToAdd
+		];
+
+		delete this.attributes.postId; // abort creating a new post
+		delete this.attributes.creatorId; // don't change authors
+
+		return didChange;
 	}
 
 	// create a permalink url to the codemark

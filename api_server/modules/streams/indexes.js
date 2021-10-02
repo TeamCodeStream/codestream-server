@@ -29,5 +29,9 @@ module.exports = {
 		teamId: 1,
 		isTeamStream: 1,
 		sortId: -1
+	},
+	byObjectId: {
+		type: 1,
+		objectId: 1
 	}
 };

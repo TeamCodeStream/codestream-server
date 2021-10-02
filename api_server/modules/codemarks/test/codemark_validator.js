@@ -76,6 +76,13 @@ class CodemarkValidator {
 		else {
 			Assert(typeof data.markers === 'undefined', 'markers array should not be defined');
 		}
+
+		// validate the array of followers
+		const expectedFollowerIds = this.test.expectedFollowerIds || [this.test.currentUser.user.id];
+		expectedFollowerIds.sort();
+		const gotFollowerIds = [...(codemark.followerIds || [])];
+		gotFollowerIds.sort();
+		Assert.deepEqual(gotFollowerIds, expectedFollowerIds, 'codemark does not have correct followerIds');
 	}
 
 	// validate the returned permalink URL is correct

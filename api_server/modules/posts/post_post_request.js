@@ -10,15 +10,29 @@ class PostPostRequest extends PostRequest {
 	async authorize () {
 		const streamId = this.request.body.streamId;
 		if (!streamId) {
-			return this.errorHandler.error('parameterRequired', { info: 'streamId' });
+			// this is acceptable ONLY if we are creating a code error
+			if (!this.request.body.codeError) {
+				throw this.errorHandler.error('parameterRequired', { info: 'streamId' });
+			} else {
+				return;
+			}
 		}
+
 		const stream = await this.user.authorizeStream(streamId.toLowerCase(), this);
 		if (!stream) {
 			throw this.errorHandler.error('createAuth');
 		}
 
-		if (!stream.get('isTeamStream')) {
+		if (!stream.get('isTeamStream') && stream.get('type') !== 'object') {
 			throw 'stream channels are deprecated';
+		}
+
+		if (stream.get('type') === 'object' && this.request.body.codemark) {
+			// when creating a codemark to go with a reply to an object, we MUST have a team ID
+			// since there is no other way to make an associated to repos ... an admitted weirdness
+			if (!this.request.body.teamId) {
+				return this.errorHandler.error('parameterRequired', { info: 'teamId', reason: 'team ID is required when replying to a code error with a codemark' });
+			}
 		}
 	}
 
@@ -54,6 +68,12 @@ class PostPostRequest extends PostRequest {
 		// add any file streams created for markers
 		if (transforms.createdStreamsForMarkers && transforms.createdStreamsForMarkers.length > 0) {
 			responseData.streams = transforms.createdStreamsForMarkers.map(stream => stream.getSanitizedObject({ request: this }));
+		}
+
+		// add any object stream created for a code error
+		if (transforms.createdStreamForCodeError) {
+			responseData.streams = responseData.stream || [];
+			responseData.streams.push(transforms.createdStreamForCodeError.getSanitizedObject({ request: this }));
 		}
 
 		// the stream gets updated as a result of the new post, so add that

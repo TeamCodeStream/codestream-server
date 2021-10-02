@@ -223,28 +223,20 @@ const EntryPointTest = require('./reviews/entry_point_test');
 
 // concerning code errors...
 const CodeErrorTest = require('./code_errors/code_error_test');
+const NoStreamIdOkTest = require('./code_errors/no_stream_id_ok_test');
+const CodeErrorReplyTest = require('./code_errors/code_error_reply_test');
+const CodeErrorReplyToReplyTest = require('./code_errors/code_error_reply_to_reply_test');
+const CodeErrorReplyWithCodemarkTest = require('./code_errors/code_error_reply_with_codemark_test');
+const CodeErrorReplyToReplyWithCodemarkTest = require('./code_errors/code_error_reply_to_reply_with_codemark_test');
 const CodeErrorNumRepliesTest = require('./code_errors/code_error_num_replies_test');
 const CodeErrorSecondReplyTest = require('./code_errors/code_error_second_reply_test');
 const CodeErrorOriginTest = require('./code_errors/code_error_origin_test');
 const CodeErrorOriginDetailTest = require('./code_errors/code_error_origin_detail_test');
-const AddCodeErrorFollowersTest = require('./code_errors/add_code_error_followers_test');
-const AddCodeErrorCreatorAsFollowerTest = require('./code_errors/add_code_error_creator_as_follower_test');
-const InvalidCodeErrorFollowerTest = require('./code_errors/invalid_code_error_follower_test');
-const CodeErrorFollowerNotOnTeamTest = require('./code_errors/code_error_follower_not_on_team_test');
-const CodeErrorFollowersMentionedTest = require('./code_errors/code_error_followers_mentioned_test');
-const FollowingCodeErrorFromReplyTest = require('./code_errors/following_code_error_from_reply_test');
-const InvalidCodeErrorMentionTest = require('./code_errors/invalid_code_error_mention_test');
-const CodeErrorMentionedNotOnTeamTest = require('./code_errors/code_error_mentioned_not_on_team_test');
-const FollowCodeErrorByPreferenceAllTest = require('./code_errors/follow_code_error_by_preference_all_test');
-const FollowCodeErrorByPreferenceCreationTest = require('./code_errors/follow_code_error_by_preference_creation_test');
-const FollowCodeErrorByPreferenceMentionTest = require('./code_errors/follow_code_error_by_preference_mention_test');
-const FollowCodeErrorByPreferenceDirectStreamTest = require('./code_errors/follow_code_error_by_preference_direct_stream_test');
-const FollowCodeErrorByPreferenceRepliesTest = require('./code_errors/follow_code_error_by_preference_replies_test');
-const NoFollowAllCodeErrorsByPreference = require('./code_errors/no_follow_all_code_errors_by_preference_test');
-const NoFollowCodeErrorCreationByPreferenceTest = require('./code_errors/no_follow_code_error_creation_by_preference_test');
-const NoFollowCodeErrorDirectStreamByPreferenceTest = require('./code_errors/no_follow_code_error_direct_stream_by_preference_test');
-const NoFollowCodeErrorMentionByPreferenceTest = require('./code_errors/no_follow_code_error_mention_by_preference_test');
-const NoFollowCodeErrorRepliesByPreferenceTest = require('./code_errors/no_follow_code_error_replies_by_preference_test');
+const DontFollowCodeErrorByPreferenceAllTest = require('./code_errors/dont_follow_code_error_by_preference_all_test');
+const FollowCodeErrorCreationByPreferenceTest = require('./code_errors/follow_code_error_creation_by_preference_test');
+const FollowCodeErrorCreationDespitePreferenceTest = require('./code_errors/follow_code_error_creation_despite_preference_test');
+const FollowCodeErrorWhenMentionedTest = require('./code_errors/follow_code_error_when_mentioned_test');
+const FollowCodeErrorWhenMentionedDespitePreferenceTest = require('./code_errors/follow_code_error_when_mentioned_despite_preference_test');
 const NoCodeErrorAndCodemarkTest = require('./code_errors/no_code_error_and_codemark_test');
 const NoReplyWithCodeErrorTest = require('./code_errors/no_reply_with_code_error_test');
 const CodeErrorReplyToAttachedCodemarkTest = require('./code_errors/code_error_reply_to_attached_codemark_test');
@@ -254,11 +246,21 @@ const CodeErrorInvalidParameterTest = require('./code_errors/code_error_invalid_
 const CodeErrorEntryPointTest = require('./code_errors/code_error_entry_point_test');
 const CodeErrorExistsTest = require('./code_errors/code_error_exists_test');
 const AddStackTraceTest = require('./code_errors/add_stack_trace_test');
-const CodeErrorWrongTeamTest = require('./code_errors/code_error_wrong_team_test');
+const CodeErrorWrongAccountIdTest = require('./code_errors/code_error_wrong_account_id_test');
+const NoReviewAndCodeErrorTest = require('./code_errors/no_review_and_code_error_test');
+const IgnoreStreamIdTest = require('./code_errors/ignore_stream_id_test');
+const NoAddedUsersTest = require('./code_errors/no_added_users_test');
+const CodeErrorStreamIdRequiredTest = require('./code_errors/code_error_stream_id_required_test');
+const CodeErrorReplyACLTest = require('./code_errors/code_error_reply_acl_test');
+const StreamIdMismatchTest = require('./code_errors/stream_id_mismatch_test');
+const CodeErrorReplyTeamIdRequiredTest = require('./code_errors/code_error_reply_team_id_required_test');
+const NoRootPostInObjectStreamTest = require('./code_errors/no_root_post_in_object_stream_test');
+const CanReplyToCodeErrorAfterMentionTest = require('./code_errors/can_reply_to_code_error_after_mention_test');
 
 class PostPostRequestTester {
 
 	postPostTest () {
+		/*
 		new PostPostTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new PostToChannelTest().test();
@@ -514,33 +516,27 @@ class PostPostRequestTester {
 		new ReviewAttributeRequiredTest({ attribute: 'reviewChangesets' }).test();
 		new EmptyReviewChangesetTest().test();
 		new EntryPointTest().test();
+*/
 
 		// concerning code errors...
 		// we do a subset of the tests for codemarks, assuming that marker validation 
 		// between the two API calls is basically the same
+		/*
 		new CodeErrorTest().test();
+		new NoStreamIdOkTest().test();
+		new CodeErrorReplyTest().test();
+		new CodeErrorReplyToReplyTest().test();
+		new CodeErrorReplyWithCodemarkTest().test();
+		new CodeErrorReplyToReplyWithCodemarkTest().test();
 		new CodeErrorNumRepliesTest().test();
 		new CodeErrorSecondReplyTest().test();
 		new CodeErrorOriginTest().test();
 		new CodeErrorOriginDetailTest().test();
-		new AddCodeErrorFollowersTest().test();
-		new AddCodeErrorCreatorAsFollowerTest().test();
-		new InvalidCodeErrorFollowerTest().test();
-		new CodeErrorFollowerNotOnTeamTest().test();
-		new CodeErrorFollowersMentionedTest().test();
-		new FollowingCodeErrorFromReplyTest().test();
-		new InvalidCodeErrorMentionTest().test();
-		new CodeErrorMentionedNotOnTeamTest().test();
-		new FollowCodeErrorByPreferenceAllTest().test();
-		new FollowCodeErrorByPreferenceCreationTest().test();
-		new FollowCodeErrorByPreferenceMentionTest().test();
-		new FollowCodeErrorByPreferenceDirectStreamTest().test();
-		new FollowCodeErrorByPreferenceRepliesTest().test();
-		new NoFollowAllCodeErrorsByPreference().test();
-		new NoFollowCodeErrorCreationByPreferenceTest().test();
-		new NoFollowCodeErrorDirectStreamByPreferenceTest().test();
-		new NoFollowCodeErrorMentionByPreferenceTest().test();
-		new NoFollowCodeErrorRepliesByPreferenceTest().test();
+		new DontFollowCodeErrorByPreferenceAllTest().test();
+		new FollowCodeErrorCreationByPreferenceTest().test();
+		new FollowCodeErrorCreationDespitePreferenceTest().test();
+		new FollowCodeErrorWhenMentionedTest().test();
+		new FollowCodeErrorWhenMentionedDespitePreferenceTest().test();
 		new NoCodeErrorAndCodemarkTest().test();
 		new NoReplyWithCodeErrorTest().test();
 		new CodeErrorReplyToAttachedCodemarkTest().test();
@@ -554,7 +550,17 @@ class PostPostRequestTester {
 		new CodeErrorEntryPointTest().test();
 		new CodeErrorExistsTest().test();
 		new AddStackTraceTest().test();
-		new CodeErrorWrongTeamTest().test();
+		new CodeErrorWrongAccountIdTest().test();
+		new NoReviewAndCodeErrorTest().test();
+		new IgnoreStreamIdTest().test();
+		new NoAddedUsersTest().test();
+		new CodeErrorStreamIdRequiredTest().test();
+		new CodeErrorReplyACLTest().test();
+		new StreamIdMismatchTest().test();
+		new CodeErrorReplyTeamIdRequiredTest().test();
+		new NoRootPostInObjectStreamTest().test();
+		*/
+		new CanReplyToCodeErrorAfterMentionTest().test();
 	}
 }
 

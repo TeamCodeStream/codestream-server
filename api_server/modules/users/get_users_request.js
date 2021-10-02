@@ -9,12 +9,29 @@ const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 class GetUsersRequest extends GetManyRequest {
 
 	async authorize () {
-		// members of the same team can fetch each other
-		await this.user.authorizeFromTeamId(this.request.query, this);
+		if (this.request.query.objectId) {
+			if (!this.request.query.objectType) {
+				throw this.errorHandler.error('parameterRequired', { info: 'objectType' });
+			}
+			// for observability objects (code errors?), can fetch the users associated with the object
+			this.codeError = await this.user.authorizeObject(
+				this.request.query.objectId,
+				this.request.query.objectType,
+				this
+			);
+			if (!this.codeError) {
+				throw this.errorHandler.error('readAuth', { reason: 'user is not a follower of this object' });
+			}
+		} else {
+			// members of the same team can fetch each other
+			await this.user.authorizeFromTeamId(this.request.query, this);
+		}
 	}
 
 	// called before the fetch query
 	async preQueryHook () {
+		if (this.codeError) { return; }
+
 		// we need the members of the team, since this includes removed users who would otherwise not
 		// show up as on the team at all
 		this.team = await this.data.teams.getById(this.request.query.teamId.toLowerCase());
@@ -26,8 +43,14 @@ class GetUsersRequest extends GetManyRequest {
 
 	// build the query for fetching the users, based on input parameters
 	buildQuery () {
-		// we'll get all the team members
-		let ids = this.team.get('memberIds') || [];
+		let ids;
+		if (this.codeError) {
+			// can get users following a code error
+			ids = this.codeError.get('followerIds') || [];
+		} else {
+			// or users from the team
+			ids = this.team.get('memberIds') || [];
+		}
 
 		// can also specify individual IDs as a subset
 		if (this.request.query.ids) {
