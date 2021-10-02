@@ -162,12 +162,14 @@ class CodemarkHelper {
 			followerIds.push(attributes.creatorId);
 		}
 
+		/*
 		// if the stream is a DM, everyone in the DM is a follower who wants to be
 		// (deprecated)
 		if (stream && stream.get('type') === 'direct') {
 			const membersWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, stream.get('memberIds') || []);
 			followerIds = ArrayUtilities.union(followerIds, membersWhoWantToFollow);
 		}
+		*/
 
 		// must validate mentioned users and explicit followers, since these come directly from the request
 		let validateUserIds = ArrayUtilities.union(options.mentionedUserIds || [], attributes.followerIds || []);

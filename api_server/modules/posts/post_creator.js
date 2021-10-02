@@ -205,7 +205,8 @@ class PostCreator extends ModelCreator {
 	// get the team that owns the stream for which the post is being created
 	async getTeam () {
 		if (!this.stream) {
-			// we get here if we are creating a code error
+			// we get here if we are creating or replying to a code error
+			delete this.attributes.teamId;
 			return;
 		}
 

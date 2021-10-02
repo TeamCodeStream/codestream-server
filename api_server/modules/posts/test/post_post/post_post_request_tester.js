@@ -122,7 +122,7 @@ const AddFollowersTest = require('./codemarks/add_followers_test');
 const AddCreatorAsFollowerTest = require('./codemarks/add_creator_as_follower_test');
 const InvalidFollowerTest = require('./codemarks/invalid_follower_test');
 const FollowerNotOnTeamTest = require('./codemarks/follower_not_on_team_test');
-const FollowersFromDirectStreamTest = require('./codemarks/followers_from_direct_stream_test');
+//const FollowersFromDirectStreamTest = require('./codemarks/followers_from_direct_stream_test');
 const FollowersMentionedTest = require('./codemarks/followers_mentioned_test');
 const FollowingFromReplyTest = require('./codemarks/following_from_reply_test');
 const InvalidMentionTest = require('./codemarks/invalid_mention_test');
@@ -130,11 +130,11 @@ const MentionedNotOnTeamTest = require('./codemarks/mentioned_not_on_team_test')
 const FollowByPreferenceAllTest = require('./codemarks/follow_by_preference_all_test');
 const FollowByPreferenceCreationTest = require('./codemarks/follow_by_preference_creation_test');
 const FollowByPreferenceMentionTest = require('./codemarks/follow_by_preference_mention_test');
-const FollowByPreferenceDirectStreamTest = require('./codemarks/follow_by_preference_direct_stream_test');
+//const FollowByPreferenceDirectStreamTest = require('./codemarks/follow_by_preference_direct_stream_test');
 const FollowByPreferenceRepliesTest = require('./codemarks/follow_by_preference_replies_test');
 const NoFollowAllByPreference = require('./codemarks/no_follow_all_by_preference_test');
 const NoFollowCreationByPreferenceTest = require('./codemarks/no_follow_creation_by_preference_test');
-const NoFollowDirectStreamByPreferenceTest = require('./codemarks/no_follow_direct_stream_by_preference_test');
+//const NoFollowDirectStreamByPreferenceTest = require('./codemarks/no_follow_direct_stream_by_preference_test');
 const NoFollowMentionByPreferenceTest = require('./codemarks/no_follow_mention_by_preference_test');
 const NoFollowRepliesByPreferenceTest = require('./codemarks/no_follow_replies_by_preference_test');
 const AttachToReviewTest = require('./codemarks/attach_to_review_test');
@@ -189,7 +189,7 @@ const AddReviewFollowersTest = require('./reviews/add_review_followers_test');
 const AddReviewCreatorAsFollowerTest = require('./reviews/add_review_creator_as_follower_test');
 const InvalidReviewFollowerTest = require('./reviews/invalid_review_follower_test');
 const ReviewFollowerNotOnTeamTest = require('./reviews/review_follower_not_on_team_test');
-const ReviewFollowersFromDirectStreamTest = require('./reviews/review_followers_from_direct_stream_test');
+//const ReviewFollowersFromDirectStreamTest = require('./reviews/review_followers_from_direct_stream_test');
 const ReviewFollowersMentionedTest = require('./reviews/review_followers_mentioned_test');
 const FollowingReviewFromReplyTest = require('./reviews/following_review_from_reply_test');
 const InvalidReviewMentionTest = require('./reviews/invalid_review_mention_test');
@@ -197,11 +197,11 @@ const ReviewMentionedNotOnTeamTest = require('./reviews/review_mentioned_not_on_
 const FollowReviewByPreferenceAllTest = require('./reviews/follow_review_by_preference_all_test');
 const FollowReviewByPreferenceCreationTest = require('./reviews/follow_review_by_preference_creation_test');
 const FollowReviewByPreferenceMentionTest = require('./reviews/follow_review_by_preference_mention_test');
-const FollowReviewByPreferenceDirectStreamTest = require('./reviews/follow_review_by_preference_direct_stream_test');
+//const FollowReviewByPreferenceDirectStreamTest = require('./reviews/follow_review_by_preference_direct_stream_test');
 const FollowReviewByPreferenceRepliesTest = require('./reviews/follow_review_by_preference_replies_test');
 const NoFollowAllReviewsByPreference = require('./reviews/no_follow_all_reviews_by_preference_test');
 const NoFollowReviewCreationByPreferenceTest = require('./reviews/no_follow_review_creation_by_preference_test');
-const NoFollowReviewDirectStreamByPreferenceTest = require('./reviews/no_follow_review_direct_stream_by_preference_test');
+//const NoFollowReviewDirectStreamByPreferenceTest = require('./reviews/no_follow_review_direct_stream_by_preference_test');
 const NoFollowReviewMentionByPreferenceTest = require('./reviews/no_follow_review_mention_by_preference_test');
 const NoFollowReviewRepliesByPreferenceTest = require('./reviews/no_follow_review_replies_by_preference_test');
 const NoReviewAndCodemarkTest = require('./reviews/no_review_and_codemark_test');
@@ -249,6 +249,8 @@ const AddStackTraceTest = require('./code_errors/add_stack_trace_test');
 const CodeErrorWrongAccountIdTest = require('./code_errors/code_error_wrong_account_id_test');
 const NoReviewAndCodeErrorTest = require('./code_errors/no_review_and_code_error_test');
 const IgnoreStreamIdTest = require('./code_errors/ignore_stream_id_test');
+const IgnoreTeamIdTest = require('./code_errors/ignore_team_id_test');
+const IgnoreTeamIdInReplyTest = require('./code_errors/ignore_team_id_in_reply_test');
 const NoAddedUsersTest = require('./code_errors/no_added_users_test');
 const CodeErrorStreamIdRequiredTest = require('./code_errors/code_error_stream_id_required_test');
 const CodeErrorReplyACLTest = require('./code_errors/code_error_reply_acl_test');
@@ -256,11 +258,11 @@ const StreamIdMismatchTest = require('./code_errors/stream_id_mismatch_test');
 const CodeErrorReplyTeamIdRequiredTest = require('./code_errors/code_error_reply_team_id_required_test');
 const NoRootPostInObjectStreamTest = require('./code_errors/no_root_post_in_object_stream_test');
 const CanReplyToCodeErrorAfterMentionTest = require('./code_errors/can_reply_to_code_error_after_mention_test');
+const NoAddedUsersInReplyTest = require('./code_errors/no_added_users_in_reply_test');
 
 class PostPostRequestTester {
 
 	postPostTest () {
-		/*
 		new PostPostTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new PostToChannelTest().test();
@@ -411,17 +413,17 @@ class PostPostRequestTester {
 		new AddCreatorAsFollowerTest().test();
 		new InvalidFollowerTest().test();
 		new FollowerNotOnTeamTest().test();
-		new FollowersFromDirectStreamTest().test();
+		//new FollowersFromDirectStreamTest().test();
 		new FollowersMentionedTest().test();
 		new FollowingFromReplyTest().test();
 		new FollowByPreferenceAllTest().test();
 		new FollowByPreferenceCreationTest().test();
 		new FollowByPreferenceMentionTest().test();
-		new FollowByPreferenceDirectStreamTest().test();
+		//new FollowByPreferenceDirectStreamTest().test();
 		new FollowByPreferenceRepliesTest().test();
 		new NoFollowAllByPreference().test();
 		new NoFollowCreationByPreferenceTest().test();
-		new NoFollowDirectStreamByPreferenceTest().test();
+		//new NoFollowDirectStreamByPreferenceTest().test();
 		new NoFollowMentionByPreferenceTest().test();
 		new NoFollowRepliesByPreferenceTest().test();
 		new AttachToReviewTest().test();
@@ -484,7 +486,7 @@ class PostPostRequestTester {
 		new AddReviewCreatorAsFollowerTest().test();
 		new InvalidReviewFollowerTest().test();
 		new ReviewFollowerNotOnTeamTest().test();
-		new ReviewFollowersFromDirectStreamTest().test();
+		//new ReviewFollowersFromDirectStreamTest().test();
 		new ReviewFollowersMentionedTest().test();
 		new FollowingReviewFromReplyTest().test();
 		new InvalidReviewMentionTest().test();
@@ -492,11 +494,11 @@ class PostPostRequestTester {
 		new FollowReviewByPreferenceAllTest().test();
 		new FollowReviewByPreferenceCreationTest().test();
 		new FollowReviewByPreferenceMentionTest().test();
-		new FollowReviewByPreferenceDirectStreamTest().test();
+		//new FollowReviewByPreferenceDirectStreamTest().test();
 		new FollowReviewByPreferenceRepliesTest().test();
 		new NoFollowAllReviewsByPreference().test();
 		new NoFollowReviewCreationByPreferenceTest().test();
-		new NoFollowReviewDirectStreamByPreferenceTest().test();
+		//new NoFollowReviewDirectStreamByPreferenceTest().test();
 		new NoFollowReviewMentionByPreferenceTest().test();
 		new NoFollowReviewRepliesByPreferenceTest().test();
 		new NoReviewAndCodemarkTest().test();
@@ -516,12 +518,10 @@ class PostPostRequestTester {
 		new ReviewAttributeRequiredTest({ attribute: 'reviewChangesets' }).test();
 		new EmptyReviewChangesetTest().test();
 		new EntryPointTest().test();
-*/
 
 		// concerning code errors...
 		// we do a subset of the tests for codemarks, assuming that marker validation 
 		// between the two API calls is basically the same
-		/*
 		new CodeErrorTest().test();
 		new NoStreamIdOkTest().test();
 		new CodeErrorReplyTest().test();
@@ -553,14 +553,16 @@ class PostPostRequestTester {
 		new CodeErrorWrongAccountIdTest().test();
 		new NoReviewAndCodeErrorTest().test();
 		new IgnoreStreamIdTest().test();
+		new IgnoreTeamIdTest().test();
+		new IgnoreTeamIdInReplyTest().test();
 		new NoAddedUsersTest().test();
 		new CodeErrorStreamIdRequiredTest().test();
 		new CodeErrorReplyACLTest().test();
 		new StreamIdMismatchTest().test();
 		new CodeErrorReplyTeamIdRequiredTest().test();
 		new NoRootPostInObjectStreamTest().test();
-		*/
 		new CanReplyToCodeErrorAfterMentionTest().test();
+		new NoAddedUsersInReplyTest().test();
 	}
 }
 
