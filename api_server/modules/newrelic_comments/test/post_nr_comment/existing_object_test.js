@@ -14,7 +14,7 @@ class ExistingObjectTest extends CreateNRCommentTest {
 		super.setTestOptions(() => {
 			Object.assign(this.postOptions, {
 				numPosts: 1,
-				creatorIndex: 1,
+				creatorIndex: 0,
 				wantCodeError: true
 			});
 			callback();

@@ -126,7 +126,7 @@ class CodeErrorCreator extends ModelCreator {
 		// first, create a stream for the code error
 		this.transforms.createdStreamForCodeError = this.stream = await new StreamCreator({
 			request: this.request,
-			nextSeqNum: 2
+			nextSeqNum: this.replyIsComing ? 3 : 2
 		}).createStream({
 			type: 'object',
 			privacy: 'public',

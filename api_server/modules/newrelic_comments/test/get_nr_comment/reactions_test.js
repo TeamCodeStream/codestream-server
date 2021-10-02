@@ -41,8 +41,7 @@ class ReactionsTest extends GetNRCommentTest {
 						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
 						'X-CS-NewRelic-AccountId': this.nrCommentResponse.post.accountId
 					}
-				},
-				token: this.users[0].accessToken
+				}
 			},
 			callback
 		)

@@ -83,25 +83,14 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 	// create a code error linked to the New Relic object to which the comment is attached
 	async createCodeError () {
-		// first, create a stream for the code error
-		this.stream = await new StreamCreator({
-			request: this,
-			nextSeqNum: 3
-		}).createStream({
-			type: 'object',
-			privacy: 'public',
-			accountId: this.request.body.accountId,
-			objectId: this.request.body.objectId,
-			objectType: this.request.body.objectType
-		});
-
-		// now create a post in the stream, along with the code error
+		// now create a post in the stream, along with the code error,
+		// this will also create a stream for the code error
 		this.codeErrorPost = await new PostCreator({
 			request: this,
 			assumeSeqNum: 1,
+			replyIsComing: true,
 			users: this.users
 		}).createPost({
-			streamId: this.stream.id,
 			dontSendEmail: true,
 			codeError: {
 				objectId: this.request.body.objectId,
@@ -110,6 +99,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			}
 		});
 		this.codeError = this.transforms.createdCodeError;
+		this.stream = this.transforms.createdStreamForCodeError;
 		this.codeErrorWasCreated = true;
 	}
 
@@ -142,14 +132,15 @@ class PostNRCommentRequest extends NRCommentRequest {
 			request: this,
 			assumeSeqNum: this.codeErrorWasCreated ? 2 : undefined, // because the actual code error was 1
 			dontSendEmail: true,
-			users: this.users
+			users: this.users,
+			allowFromUserId: this.user.id
 		});
 
 		this.post = await this.postCreator.createPost({
 			parentPostId: this.request.body.parentPostId || this.codeError.get('postId'),
 			streamId: this.codeError.get('streamId'),
 			text: this.request.body.text,
-			mentionedUserIds: this.mentionedUserIds
+			mentionedUserIds: this.mentionedUserIds,
 		});
 	}
 
@@ -168,8 +159,10 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 	// after the request has been processed and response returned to the client....
 	async postProcess () {
+		/*
 		await this.postCreator.postCreate();
 		await this.publish();		
+		*/
 	}
 }
 

@@ -157,9 +157,16 @@ class PostCreator extends ModelCreator {
 			}
 
 			// must be a follower of the code error to reply to it
-			if (!(this.codeError.get('followerIds') || []).includes(this.user.id)) {
+			if (
+				!(this.codeError.get('followerIds') || []).includes(this.user.id) &&
+				(
+					!this.allowFromUserId ||
+					this.allowFromUserId !== this.user.id
+				)
+			) {
 				throw this.errorHandler.error('createAuth', { reason: 'user is not following this object' });
 			}
+
 			// stream ID of the object must match the stream ID of the post
 			if (this.attributes.streamId !== this.codeError.get('streamId')) {
 				throw this.errorHandler.error('parentPostStreamIdMismatch');
@@ -366,6 +373,7 @@ class PostCreator extends ModelCreator {
 			request: this.request,
 			origin: this.attributes.origin,
 			useId: this.codeErrorId, // if locked down previously
+			replyIsComing: this.replyIsComing
 		});
 		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(this.attributes.codeError);
 		if (this.transformsCreatedStreamForCodeError) {

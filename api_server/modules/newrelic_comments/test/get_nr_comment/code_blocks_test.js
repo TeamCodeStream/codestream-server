@@ -22,7 +22,7 @@ class CodeBlocksTest extends CodeStreamPostReplyTest {
 			{
 				method: 'get',
 				path: '/posts/' + this.replyPostResponse.post.id,
-				token: this.token
+				token: this.users[1].accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -39,6 +39,7 @@ class CodeBlocksTest extends CodeStreamPostReplyTest {
 				wantMarkers: 3,
 				withRandomStream: true
 			});
+			this.postData.teamId = this.team.id;
 			this.expectedResponse.post.codeBlocks = this.postData.codemark.markers.map(marker => {
 				return {
 					code: marker.code,
