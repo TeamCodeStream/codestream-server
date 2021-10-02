@@ -260,6 +260,9 @@ class LinkReviewRequest extends WebRequestBase {
 		this.creator = await this.data.users.getById(
 			this.review.get('creatorId')
 		);
+		this.company = await this.data.companies.getById(
+			this.team.get('companyId')
+		);
 
 		const username = this.creator && this.creator.get('username');
 		const { authorInitials, emailHash } = this.getAvatar(username);
@@ -301,6 +304,7 @@ class LinkReviewRequest extends WebRequestBase {
 			reviewId: this.review.get('id'),
 			status: status ? status[0].toUpperCase() + status.slice(1) : '',
 			teamName: this.team.get('name'),
+			companyName: this.company.get("name"),
 			launchIde:
 				this.request.query.ide === ''
 					? 'default'
@@ -308,8 +312,7 @@ class LinkReviewRequest extends WebRequestBase {
 			repos: changes.repos,
 			uniqueRepoId: uniqueRepoId,
 			teamId: this.team.id,
-			teamName: this.team.get('name'),
-			changes: changes.files,
+ 			changes: changes.files,
 			queryString: {
 				ide:
 					this.request.query.ide === ''

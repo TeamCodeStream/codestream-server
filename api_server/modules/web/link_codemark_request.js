@@ -371,6 +371,9 @@ class LinkCodemarkRequest extends WebRequestBase {
 		this.creator = await this.data.users.getById(
 			this.codemark.get('creatorId')
 		);
+		this.company = await this.data.companies.getById(
+			this.team.get('companyId')
+		);
 
 		const username = this.creator && this.creator.get('username');
 		const showComment = username && !this.codemark.get('invisible');
@@ -427,9 +430,10 @@ class LinkCodemarkRequest extends WebRequestBase {
 				uniqueFileName = fileNames[0];
 			}
 		}
-		const templateProps = {
+ 		const templateProps = {
 			codemarkId: this.codemark.get('id'),
 			teamName: this.team.get('name'),
+			companyName: this.company.get("name"),
 			launchIde:
 				this.request.query.ide === ''
 					? 'default'
