@@ -1,8 +1,8 @@
 'use strict';
 
-const ValidateEmailTest = require('./validate_email_test');
+const GetSignupJWTTest = require('./get_signup_jwt_test');
 
-class JetBrainsTest extends ValidateEmailTest {
+class JetBrainsTest extends GetSignupJWTTest {
 
 	get description () {
 		return 'should return valid paylaod when sending a validate email request for a user who has lastOrigin set to JetBrains';
@@ -13,7 +13,10 @@ class JetBrainsTest extends ValidateEmailTest {
 		this.useIDE = 'JetBrains';
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.expectedResponse.payload.ide = 'jetbrains';
+			Object.assign(this.expectedResponse.payload, {
+				protocolHandling: false,
+				ide: 'jetbrains'
+			})
 			callback();
 		});
 	}

@@ -138,9 +138,9 @@ const USERS_ADDITIONAL_ROUTES = [
 		requestClass: require('./unsubscribe_weekly_email_request')
 	},
 	{
-		method: 'post',
-		path: 'no-auth/validate-email',
-		requestClass: require('./validate_email_request')
+		method: 'get',
+		path: 'signup-jwt',
+		requestClass: require('./get_signup_jwt_request')
 	}
 ];
 

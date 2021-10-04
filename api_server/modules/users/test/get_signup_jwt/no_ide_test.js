@@ -1,8 +1,8 @@
 'use strict';
 
-const ValidateEmailTest = require('./validate_email_test');
+const GetSignupJWTTest = require('./get_signup_jwt_test');
 
-class NoIdeTest extends ValidateEmailTest {
+class NoIdeTest extends GetSignupJWTTest {
 
 	get description () {
 		return 'should return valid paylaod with protocolHandling set to false when sending a validate email request for a user who has no lastOrigin set';

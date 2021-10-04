@@ -5,18 +5,18 @@ const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const JWT = require('jsonwebtoken');
 
-class ValidateEmailTest extends CodeStreamAPITest {
+class GetSignupJWTTest extends CodeStreamAPITest {
 
 	get description () {
 		return 'should return JWT with user data in the payload when checking if a registered user has confirmed email';
 	}
 
 	get method () {
-		return 'post';
+		return 'get';
 	}
 
 	get path () {
-		return '/no-auth/validate-email';
+		return '/signup-jwt';
 	}
 
 	getExpectedFields () {
@@ -28,7 +28,7 @@ class ValidateEmailTest extends CodeStreamAPITest {
 		BoundAsync.series(this, [
 			super.before,
 			this.login,
-			this.makeRequestData
+			this.setExpectedResponse
 		], callback);
 	}
 
@@ -52,13 +52,10 @@ class ValidateEmailTest extends CodeStreamAPITest {
 		this.doApiRequest(request, callback);
 	}
 
-	// make the data to be sent in the request
-	makeRequestData (callback) {
+	// set the expected response
+	setExpectedResponse (callback) {
 		const { user } = this.currentUser;
 		this.requestSentAfter = Date.now();
-		this.data = {
-			email: user.email
-		};
 		this.expectedResponse = {
 			header: {
 				alg: 'HS256',
@@ -82,11 +79,7 @@ class ValidateEmailTest extends CodeStreamAPITest {
 		const decoded = this.verify(data.token);
 		Assert(decoded.payload.iat >= Math.floor(this.requestSentAfter/1000), 'iat not set to time of request');
 		this.expectedResponse.payload.iat = decoded.payload.iat;
-		if (this.expectedErrorCode) {
-			Assert.strictEqual(decoded.payload.errorCode, this.expectedErrorCode, 'did not get expected error code');
-		} else {
-			Assert.deepStrictEqual(decoded, this.expectedResponse, 'response is incorrect');
-		}
+		Assert.deepStrictEqual(decoded, this.expectedResponse, 'response is incorrect');
 	}
 
 	verify (token) {
@@ -97,4 +90,4 @@ class ValidateEmailTest extends CodeStreamAPITest {
 	}
 }
 
-module.exports = ValidateEmailTest;
+module.exports = GetSignupJWTTest;
