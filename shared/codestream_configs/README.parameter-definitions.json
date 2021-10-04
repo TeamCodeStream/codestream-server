@@ -33,6 +33,7 @@
 		"phoneHomeUrl": "server-side endpoint for phone home data collection [CS_API_PHONE_HOME_URL]",
 		"port": "Network port for the api service [CS_API_PORT]",
 		"publicApiUrl": "public url to access the API server from beyond [CS_API_PUBLIC_URL]",
+		"requireTLS12": "enable TLS 1.2 communications for compliance [CS_API_TLS_12]",
 		"securePort": "Secure network port for the api service [CS_API_SECURE_PORT]",
 		"sessionAwayTimeout": "how long before we call a user 'away' from keyboard (in millisecs) [CS_API_SESSION_AWAY_TIMEOUT]",
 		"showConfig": "print exported api configuration data to console [CS_API_SHOW_CFG]",
@@ -252,9 +253,11 @@
 	"sharedSecrets": {
 		"auth": "secret used for authentication [CSSVC_AUTH_SECRET]",
 		"commentEngine": "for sharing comments with NR1 [CSSVC_COMMENT_ENGINE_SECRET]",
+		"commentEngineAlt": "for sharing comments with NR1 during key rotation [CSSVC_COMMENT_ENGINE_ALT_SECRET]",
 		"confirmationCheat": "for bypassing email confirmation, used for unit testing [CSSVC_CONFIRMATION_CHEAT_CODE]",
 		"cookie": "secret used for permalinks [CSSVC_COOKIE_SECRET]",
 		"mail": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails [CSSVC_INBOUND_EMAIL_SECRET]",
+		"signupFlowJWT": "to enable data exchange with NR1 during signup flow [CSSVC_SIGNUP_FLOW_JWT_SECRET]",
 		"subscriptionCheat": "allows unregistered users to subscribe to their me-channel, for testing emails [CSSVC_SUBSCRIPTION_CHEAT_CODE]",
 		"telemetry": "for accessing the api prior to authentication (pre-auth secret) [CSSVC_PRE_AUTH_SECRET]"
 	},

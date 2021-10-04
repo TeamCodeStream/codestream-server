@@ -458,5 +458,14 @@ module.exports = function customConfigFunc(nativeCfg) {
 	// we need a better way to determine if the client is running against an on-prem installation but this will do for now
 	Cfg.sharedGeneral.isOnPrem = !Cfg.adminServer.adminServerDisabled || Cfg.sharedGeneral.runTimeEnvironment === 'onprem';
 
+	// shared secrets
+	// For now there are only two commentEngine secrets in order to support
+	// secrets rotation, but the application should check a list of N.
+	Cfg.sharedSecrets.commentEngineSecrets = [];
+	if (Cfg.sharedSecrets.commentEngine)
+		Cfg.sharedSecrets.commentEngineSecrets.push(Cfg.sharedSecrets.commentEngine);
+	if (Cfg.sharedSecrets.commentEngineAlt)
+		Cfg.sharedSecrets.commentEngineSecrets.push(Cfg.sharedSecrets.commentEngineAlt);
+
 	return Cfg;
 }

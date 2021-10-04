@@ -164,6 +164,11 @@
 			"desc": "public url to access the API server from beyond",
 			"env": "CS_API_PUBLIC_URL"
 		},
+		"requireTLS12": {
+			"default": false,
+			"desc": "enable TLS 1.2 communications for compliance",
+			"env": "CS_API_TLS_12"
+		},
 		"securePort": {
 			"default": 12078,
 			"desc": "Secure network port for the api service",
@@ -757,6 +762,11 @@
 			"desc": "for sharing comments with NR1",
 			"env": "CSSVC_COMMENT_ENGINE_SECRET"
 		},
+		"commentEngineAlt": {
+			"default": "commentEngineAltSecret",
+			"desc": "for sharing comments with NR1 during key rotation",
+			"env": "CSSVC_COMMENT_ENGINE_ALT_SECRET"
+		},
 		"confirmationCheat": {
 			"default": "ConfirmationCheatCode",
 			"desc": "for bypassing email confirmation, used for unit testing",
@@ -771,6 +781,11 @@
 			"default": "InboundEmailSecret",
 			"desc": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails",
 			"env": "CSSVC_INBOUND_EMAIL_SECRET"
+		},
+		"signupFlowJWT": {
+			"default": "signupFlowJWTSecret",
+			"desc": "to enable data exchange with NR1 during signup flow",
+			"env": "CSSVC_SIGNUP_FLOW_JWT_SECRET"
 		},
 		"subscriptionCheat": {
 			"default": "SubscriptionCheatCode",

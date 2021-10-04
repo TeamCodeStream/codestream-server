@@ -9,8 +9,10 @@ const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/c
 const Express = require('express');
 const HTTPS = require('https');
 const HTTP = require('http');
+const Constants = require('constants');
 const AwaitUtils = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const IPCResponse = require('./ipc_response');
+const { constants } = require('buffer');
 
 // The APIServer is instantiated via the cluster wrapper.
 // Options are passed through from the ClusterWrapper() call made in the
@@ -234,6 +236,35 @@ class APIServer {
 			options.key = this.config.apiServer.sslCert.key;
 			options.cert = this.config.apiServer.sslCert.cert;
 			if (this.config.apiServer.sslCert.caChain) options.ca = this.config.apiServer.sslCert.caChain;
+			if (this.config.apiServer.requireTLS12) {
+				// this list was taken from the AWS ELBSecurityPolicy-TLS-1-2-2017-01 policy
+				// AWS Security policies
+				//    https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html#describe-ssl-policies
+				// protos & ciphers in Node 12:
+				//    https://developer.ibm.com/blogs/migrating-to-tls13-in-nodejs/
+				options.ciphers = [
+					"ECDHE-ECDSA-AES128-GCM-SHA256",
+					"ECDHE-RSA-AES128-GCM-SHA256",
+					"ECDHE-ECDSA-AES128-SHA256",
+					"ECDHE-RSA-AES128-SHA256",
+					"ECDHE-ECDSA-AES256-GCM-SHA384",
+					"ECDHE-RSA-AES256-GCM-SHA384",
+					"ECDHE-ECDSA-AES256-SHA384",
+					"ECDHE-RSA-AES256-SHA384",
+					"AES128-GCM-SHA256",
+					"AES128-SHA256",
+					"AES256-GCM-SHA384",
+					"AES256-SHA256",
+					// TLS 1.3 ciphers
+					"TLS_AES_256_GCM_SHA384",
+					"TLS_CHACHA20_POLY1305_SHA256",
+					"TLS_AES_128_GCM_SHA256",
+					"TLS_AES_128_CCM_8_SHA256",
+					"TLS_AES_128_CCM_SHA256"
+				].join(':'),
+				options.secureOptions = constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1;
+				if (this.logger) this.logger.log('setting TLS 1.2 restrictions for express server');
+			}
 		}
 	}
 
