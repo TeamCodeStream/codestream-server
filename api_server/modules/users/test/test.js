@@ -19,6 +19,7 @@ const DeleteUserRequestTester = require('./delete_user/test');
 const GitLensUserRequestTester = require('./gitlens_user/test');
 const ReadItemRequestTester = require('./read_item/test');
 const UnsubscribeWeeklyRequestTester = require('./unsubscribe_weekly/test');
+const ValidateEmailRequestTester = require('./validate_email/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -52,4 +53,5 @@ describe('user requests', function() {
 	describe('POST /no-auth/gitlens-user', GitLensUserRequestTester.test);
 	describe('PUT /read-item/:postId', ReadItemRequestTester.test);
 	describe('GET /no-auth/unsubscribe-weekly', UnsubscribeWeeklyRequestTester.test);
+	describe('POST /no-auth/validate-email', ValidateEmailRequestTester.test);
 });

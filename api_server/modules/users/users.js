@@ -136,6 +136,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'no-auth/unsubscribe-weekly',
 		requestClass: require('./unsubscribe_weekly_email_request')
+	},
+	{
+		method: 'post',
+		path: 'no-auth/validate-email',
+		requestClass: require('./validate_email_request')
 	}
 ];
 
