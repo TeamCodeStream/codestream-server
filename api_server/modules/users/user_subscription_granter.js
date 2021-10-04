@@ -4,6 +4,7 @@
 
 // const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
 // const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
+const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 
 class UserSubscriptionGranter  {
 
@@ -13,23 +14,30 @@ class UserSubscriptionGranter  {
 
 	// grant all permissions necessary
 	async grantAll () {
+		if (!this.user.get('broadcasterToken')) {
+			throw `no broadcaster token available for user ${this.user.id}`;
+		}
+
 		this.channels = [
 			`user-${this.user.id}`
 		];
-		for (let teamId of this.user.get('teamIds') || []) {
-			this.channels.push({
-				name: `team-${teamId}`
-				//includePresence: true
-			});
-		}
+		this.channels.push.apply(
+			this.channels,
+			(this.user.get('teamIds') || []).map(teamId => {
+				return { name: `team-${teamId}` };
+			})
+		);
+
 		if (this.api.config.sharedGeneral.isOnPrem) {
 			// for on-prem, grant special channel for test "echoes"
 			this.channels.push({
 				name: 'echo'
 			});
 		}
+
 		//await this.getRepoChannels();			
 		//await this.getStreamChannels();		
+		await this.getObjectChannels();
 		await this.grantAllChannels();
 	}
 
@@ -94,11 +102,26 @@ class UserSubscriptionGranter  {
 	}
 	*/
 
-	// grant permission for the user to subscribe to a given channel
+	// get channels for all objects the user is are following
+	async getObjectChannels () {
+		const objects = await this.data.codeErrors.getByQuery(
+			{ followerIds: this.user.id },
+			{
+				fields: ['id'],
+				hint: CodeErrorIndexes.byFollowerIds,
+				noCache: true
+			}
+		);
+		this.channels.push.apply(
+			this.channels,
+			objects.map(o => { 
+				return { name: `object-${o.id}` };
+			})
+		);
+	}
+
+	// grant permission for the user to subscribe to a given set of channel
 	async grantAllChannels () {
-		if (!this.user.get('broadcasterToken')) {
-			throw `no broadcaster token available for user ${this.user.id}`;
-		}
 		try {
 			await this.api.services.broadcaster.grantMultiple(
 				this.user.get('broadcasterToken'),

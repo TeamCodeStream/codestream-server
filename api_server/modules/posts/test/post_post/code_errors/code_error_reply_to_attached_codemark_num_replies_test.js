@@ -7,7 +7,7 @@ const Assert = require('assert');
 class CodeErrorReplyToAttachedCodemarkNumRepliesTest extends CodeErrorReplyToAttachedCodemarkTest {
 
 	get description () {
-		return 'grantparent post\'s code error should get its numReplies attribute incremented when a reply is created for a codemark which is itself a reply to a code error';
+		return 'grandparent post\'s code error should get its numReplies attribute incremented when a reply is created for a codemark which is itself a reply to a code error';
 	}
 
 	// run the test...

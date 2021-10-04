@@ -32,6 +32,7 @@ class CodeErrorReplyTest extends PostReplyTest {
 			if (error) { return callback(error); }
 			this.data.streamId = this.postData[0].codeError.streamId;
 			this.expectedStreamId = this.postData[0].codeError.streamId;
+			delete this.data.codeError;
 			callback();
 		});
 	}

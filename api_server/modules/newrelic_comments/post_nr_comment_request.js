@@ -89,6 +89,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			request: this,
 			assumeSeqNum: 1,
 			replyIsComing: true,
+
 			users: this.users
 		}).createPost({
 			dontSendEmail: true,
@@ -149,10 +150,12 @@ class PostNRCommentRequest extends NRCommentRequest {
 		if (this.gotError) {
 			return super.handleResponse();
 		}
-
+		
 		// return customized response data to New Relic
+		const secret = this.api.config.sharedSecrets.commentEngine;
+		const includeCodeErrorId = this.request.headers['x-cs-want-code-error-id'] === secret;
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, null, [], this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, null, [], this.users, { includeCodeErrorId })
 		};
 		return super.handleResponse();
 	}

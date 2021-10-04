@@ -8,12 +8,15 @@ const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const Indexes = require('./indexes');
 const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
+const ObjectSubscriptionGranter = require('./object_subscription_granter');
+const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
 
 class CodeErrorCreator extends ModelCreator {
 
 	constructor (options) {
 		super(options);
 		this.codemarkHelper = new CodemarkHelper({ request: this });
+		this.errorHandler.add(StreamErrors);
 	}
 
 	get modelClass () {
@@ -180,6 +183,31 @@ class CodeErrorCreator extends ModelCreator {
 			codeError: this.attributes
 		}).createPermalink();
 	}
+
+	// after the code error has been saved...
+	async postSave () {
+		await super.postSave();
+		await this.grantFollowerMessagingPermissions();		// grant permission to all followers to subscribe to the object broadcaster channel
+	}
+
+	// grant permission to all followers to subscribe to the object broadcaster channel
+	async grantFollowerMessagingPermissions () {
+		const granterOptions = {
+			data: this.data,
+			broadcaster: this.api.services.broadcaster,
+			object: this.model,
+			followers: [this.user],
+			request: this.request
+		};
+		try {
+			await new ObjectSubscriptionGranter(granterOptions).grantToFollowers();
+		}
+		catch (error) {
+			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
+		}
+	}
+
+
 }
 
 module.exports = CodeErrorCreator;

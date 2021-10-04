@@ -30,7 +30,7 @@ const MarkerToCodeBlock = function(codemark, marker) {
 }
 
 // return a function which customized code error data for return to New Relic
-const ToNewRelic = function(codeError, post, codemark, markers, users) {
+const ToNewRelic = function(codeError, post, codemark, markers, users, options={}) {
 	const creator = users.find(u => u.id === post.get('creatorId'));
 	if (!creator) {
 		throw new Error(`creator ${post.get('creatorId')} not found in users array`);
@@ -68,7 +68,7 @@ const ToNewRelic = function(codeError, post, codemark, markers, users) {
 		return MarkerToCodeBlock(codemark, marker);
 	});
 
-	return {
+	const response = {
 		id: post.id,
 		version: post.get('version'),
 		creator: UserToNewRelic(creator),
@@ -89,6 +89,10 @@ const ToNewRelic = function(codeError, post, codemark, markers, users) {
 		codeBlocks,
 		userMaps
 	};
+	if (options.includeCodeErrorId) {
+		response.codeErrorId = codeError.id;
+	}
+	return response;
 }	
 
 module.exports = {

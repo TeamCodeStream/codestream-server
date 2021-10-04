@@ -18,12 +18,15 @@ const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const UserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_inviter');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const ObjectSubscriptionGranter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/object_subscription_granter');
+const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
 
 class PostCreator extends ModelCreator {
 
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
+		this.errorHandler.add(StreamErrors);
 	}
 	
 	get modelClass () {
@@ -609,7 +612,7 @@ class PostCreator extends ModelCreator {
 		};
 
 		// handle any followers that need to be added to the code error, as needed
-		await this.handleFollowers(this.codeError, op, { ignorePreferences: true });
+		const newFollowerIds = await this.handleFollowers(this.codeError, op, { ignorePreferences: true });
 
 		this.transforms.updatedCodeErrors = this.transforms.updatedCodeErrors || [];
 		const codeErrorUpdate = await new ModelSaver({
@@ -618,6 +621,11 @@ class PostCreator extends ModelCreator {
 			id: this.codeError.id
 		}).save(op);
 		this.transforms.updatedCodeErrors.push(codeErrorUpdate);
+
+		// grant messaging permissions to any new followers
+		if (newFollowerIds.length > 0) {
+			this.grantFollowerMessagingPermissions(newFollowerIds);
+		}
 	}
 
 	// handle followers to parent codemark or review or code error as needed
@@ -658,7 +666,7 @@ class PostCreator extends ModelCreator {
 		//  then we'll presume to make them a follower
 		const mentionedUserIds = this.attributes.mentionedUserIds || [];
 		let newFollowerIds = ArrayUtilities.difference(mentionedUserIds, followerIds);
-		if (newFollowerIds.length === 0) { return; }
+		if (newFollowerIds.length === 0) { return []; }
 
 		// search for followers within the provided user array first
 		let newFollowers = [];
@@ -706,6 +714,24 @@ class PostCreator extends ModelCreator {
 				op.$addToSet = op.$addToSet || { followerIds: [] };
 				op.$addToSet.followerIds = ArrayUtilities.union(op.$addToSet.followerIds, newFollowerIds);
 			}
+		}
+		return newFollowerIds;
+	}
+
+	// grant messaging permissions to any new followers to the code error
+	async grantFollowerMessagingPermissions (followerIds) {
+		const granterOptions = {
+			data: this.data,
+			broadcaster: this.api.services.broadcaster,
+			object: this.codeError,
+			followerIds,
+			request: this.request
+		};
+		try {
+			await new ObjectSubscriptionGranter(granterOptions).grantToFollowers();
+		}
+		catch (error) {
+			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
 	}
 
@@ -837,7 +863,8 @@ class PostCreator extends ModelCreator {
 			request: this.request,
 			data: customData || this.request.responseData,
 			broadcaster: this.api.services.broadcaster,
-			stream: this.stream.attributes
+			stream: this.stream.attributes,
+			object: this.transforms.createdCodeError
 		}).publishPost();
 	}
 
@@ -856,9 +883,11 @@ class PostCreator extends ModelCreator {
 		if (this.transforms.updatedReviews) {
 			data.reviews = this.transforms.updatedReviews;
 		}
+		/*
 		if (this.transforms.updatedCodeErrors) {
 			data.codeErrors = this.transforms.updatedCodeErrors;
 		}
+*/
 
 		await new PostPublisher({
 			request: this.request,

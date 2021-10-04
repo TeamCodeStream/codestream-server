@@ -17,7 +17,10 @@ class PostPublisher {
 			channel = `team-${this.stream.teamId}`;
 		} else if (this.stream.type === 'object') {
 			// object streams get their own channel
-			channel = `obj-${this.stream.objectType}-${this.stream.objectId}`;
+			if (!this.object) {
+				throw 'must provide object to PostPublisher for object streams';
+			}
+			channel = `object-${this.object.id}`;
 		} else {
 			throw 'stream channels are deprecated';
 			/*

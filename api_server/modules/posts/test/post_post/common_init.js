@@ -50,6 +50,23 @@ class CommonInit {
 			callback
 		);
 	}
+
+	// do the actual post creation
+	createPost (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/posts',
+				data: this.data,
+				token: this.useToken || this.token
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.message = this.createPostResponse = response;
+				callback();
+			}
+		);
+	}
 }
 
 module.exports = CommonInit;

@@ -47,6 +47,7 @@ class RandomPostFactory {
 			data.review = this.reviewFactory.getRandomReviewData(options);
 		}
 		if (options.wantCodeError) {
+			delete data.streamId;
 			data.codeError = this.codeErrorFactory.getRandomCodeErrorData(options);
 		}
 		if (options.parentPostId) {

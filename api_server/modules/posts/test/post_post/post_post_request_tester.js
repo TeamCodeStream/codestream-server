@@ -259,6 +259,8 @@ const CodeErrorReplyTeamIdRequiredTest = require('./code_errors/code_error_reply
 const NoRootPostInObjectStreamTest = require('./code_errors/no_root_post_in_object_stream_test');
 const CanReplyToCodeErrorAfterMentionTest = require('./code_errors/can_reply_to_code_error_after_mention_test');
 const NoAddedUsersInReplyTest = require('./code_errors/no_added_users_in_reply_test');
+const CreatorSubscriptionTest = require('./code_errors/creator_subscription_test');
+const MentionSubscriptionTest = require('./code_errors/mention_subscription_test');
 
 class PostPostRequestTester {
 
@@ -563,6 +565,8 @@ class PostPostRequestTester {
 		new NoRootPostInObjectStreamTest().test();
 		new CanReplyToCodeErrorAfterMentionTest().test();
 		new NoAddedUsersInReplyTest().test();
+		new CreatorSubscriptionTest().test();
+		new MentionSubscriptionTest().test();
 	}
 }
 
