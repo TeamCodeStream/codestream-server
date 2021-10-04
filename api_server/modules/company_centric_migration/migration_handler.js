@@ -1,6 +1,7 @@
 'use strict';
 
 const TeamMerger = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_merger');
+const TeamSeparator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_separator');
 
 class MigrationHandler {
 	
@@ -142,12 +143,21 @@ class MigrationHandler {
 	async migrateMultiTeamCompany (company) {
 		try {
 			const requestId = `M-${company.id}`;
-			await new TeamMerger({
-				logger: this.api,
-				data: this.api.data,
-				dryRun: this.dryRun,
-				requestId
-			}).mergeAllTeams(company);
+			if (this.doMerge) {
+				await new TeamMerger({
+					logger: this.api,
+					data: this.api.data,
+					dryRun: this.dryRun,
+					requestId
+				}).mergeAllTeams(company);
+			} else {
+				await new TeamSeparator({
+					logger: this.api,
+					data: this.api.data,
+					dryRun: this.dryRun,
+					requestId
+				}).separateAllTeams(company);
+			}
 		}
 		catch (error) {
 			this.api.warn(`Caught error trying to migrate multi-team company ${company.id}: ${error.message}`);

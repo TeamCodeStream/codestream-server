@@ -16,6 +16,6 @@ module.exports = {
 	'migrationInProgress': {
 		code: 'CCMG-1002',
 		message: 'Client needs to wait',
-		description: 'Client needs to wait for company-centric migration to complete; client should poll until successful'
+		description: 'Client needs to wait for company-centric migration to complete; client should poll until successful and then refresh'
 	}
 };

@@ -52,7 +52,7 @@ class CompanyCentricMigration extends APIServerModule {
 		// and kick off the migration
 		return async (request, response, next) => {
 			// can manually trigger migrations using a secret
-			let dryRun, companyId, migrationData;
+			let dryRun, companyId, migrationData, doMerge;
 			if (
 				request.path.toLowerCase() === '/no-auth/trigger-migration' && 
 				request.method.toLowerCase() === 'get'
@@ -66,6 +66,7 @@ class CompanyCentricMigration extends APIServerModule {
 				}
 				dryRun = !request.query.forReal;
 				companyId = request.query.companyId;
+				doMerge = !!request.query.doMerge;
 				if (!companyId) {
 					request.abortWith = {
 						status: 401,
@@ -83,10 +84,10 @@ class CompanyCentricMigration extends APIServerModule {
 				if (this.lastMigrationCheckTime && Date.now() < this.lastMigrationCheckTime + 60 * 1000) {
 					return next();
 				}
-				migrationData = (await this.api.data.globals.getByQuery(
+				migrationData = (await this.api.data.globals.getOneByQuery(
 					{ tag: 'companyCentricMigration' }, 
 					{ overrideHintRequired: true }
-				))[0];
+				));
 				this.lastMigrationCheckTime = Date.now();
 				if (!migrationData || !migrationData.enabled) {
 					return next();
@@ -98,6 +99,7 @@ class CompanyCentricMigration extends APIServerModule {
 				api: this.api,
 				request,
 				dryRun,
+				doMerge,
 				companyId,
 				migrationData
 			}).handleMigration();
