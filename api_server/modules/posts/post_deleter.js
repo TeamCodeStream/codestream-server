@@ -115,7 +115,6 @@ class PostDeleter extends ModelDeleter {
 	async collectObjectsToDeleteFromCodeError (codeErrorId) {
 		const codeError = await this.data.codeErrors.getById(codeErrorId);
 		this.toDelete.codeErrors.push(codeErrorId);
-		await this.collectMarkersToDelete([codeError]);
 	}
 
 	// for the replies to a post (for now, this only applies to a post pointing to a review),

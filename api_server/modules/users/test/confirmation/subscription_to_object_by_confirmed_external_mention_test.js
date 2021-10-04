@@ -47,7 +47,6 @@ class SubscriptionToObjectByConfirmedExternalMentionTest extends SubscriptionTes
 	mentionUser (callback) {
 		const data = this.nrCommentFactory.getRandomNRCommentData(this.nrCommentOptions);
 		data.creator.email = this.users[2].user.email;
-console.warn('MENTIONinG uSER ' + this.users[3].user.id + ':' + this.users[3].user.email);
 		Object.assign(data, {
 			mentionedUsers: [{ email: this.users[3].user.email }],
 			objectId: this.nrCommentResponse.post.objectId,
