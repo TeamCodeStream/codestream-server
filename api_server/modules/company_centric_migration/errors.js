@@ -4,7 +4,7 @@
 
 module.exports = {
 	'internal': {
-		code: 'VERS-1000',
+		code: 'CCMG-1000',
 		message: 'Internal error',
 		internal: true
 	},
