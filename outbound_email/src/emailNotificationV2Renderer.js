@@ -9,6 +9,7 @@ class EmailNotificationV2Renderer {
 	// render an email notification for a codemark or reply and for a given user
 	render (options) {
 		const { 
+			user,
 			content,
 			unfollowLink,
 			inboundEmailDisabled,
@@ -27,7 +28,8 @@ class EmailNotificationV2Renderer {
 
 		const installText = team && team.isEveryoneTeam ? `
 <br/>
-Install the extension for ${ideLinks}.<br/>
+1. Install the extension for ${ideLinks}.<br/>
+2. Sign up using <b>${user.email}</b>.<br/>
 ` : `
 <br/>
 1. Install the extension for ${ideLinks}.<br/>

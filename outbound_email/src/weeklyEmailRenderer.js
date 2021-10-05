@@ -26,7 +26,8 @@ class WeeklyEmailRenderer {
 		let inviteDiv = '';
 		if (!user.isRegistered && user.inviteCode) {
 			const inviteCopy = this.teamData.team.isEveryoneTeam ? `
-Install the extension for ${ideLinks}.<br/>
+1. Install the extension for ${ideLinks}.<br/>
+2. Sign up using <b>${user.email}</b>.<br/>
 ` : `
 1. Install the extension for ${ideLinks}.<br/>
 2. Paste in your invitation code:<br/>
