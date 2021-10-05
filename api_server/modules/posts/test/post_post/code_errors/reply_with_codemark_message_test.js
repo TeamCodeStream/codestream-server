@@ -27,7 +27,6 @@ class ReplyWithCodemarkMessageTest extends CodeErrorReplyMessageToObjectStreamTe
 	validateMessage (message) {
 		// ignore the post update message ... this should probably not be published separately anyway, but TODO
 		if (message.message.post && message.message.post.$set) { return false; }
-console.warn('RX:', JSON.stringify(message, 0, 5));
 		Assert(message.message.codemark, 'no codemark');
 		return super.validateMessage(message);
 	}

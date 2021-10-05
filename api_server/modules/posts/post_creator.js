@@ -771,6 +771,118 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	/* eslint complexity: 0 */
+	makeResponseData (options) {
+
+		// handle various data transforms that may have occurred as a result of creating the post,
+		// adding objects to the response returned
+		const { transforms, initialResponseData } = options;
+		const responseData = initialResponseData;
+
+		// add permalink, if requested
+		if (transforms.permalink) {
+			responseData.permalink = transforms.permalink;
+		}
+
+		// add any repos created for posts with codemarks and markers
+		if (transforms.createdRepos && transforms.createdRepos.length > 0) {
+			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject({ request: this }));
+		}
+
+		// add any repos updated for posts with codemarks and markers, which may have brought 
+		// new remotes into the fold for the repo
+		if (transforms.repoUpdates && transforms.repoUpdates.length > 0) {
+			responseData.repos = [
+				...(responseData.repos || []),
+				...transforms.repoUpdates
+			];
+		}
+
+		// add any file streams created for markers
+		if (transforms.createdStreamsForMarkers && transforms.createdStreamsForMarkers.length > 0) {
+			responseData.streams = transforms.createdStreamsForMarkers.map(stream => stream.getSanitizedObject({ request: this }));
+		}
+
+		// add any object stream created for a code error
+		if (transforms.createdStreamForCodeError) {
+			responseData.streams = responseData.stream || [];
+			responseData.streams.push(transforms.createdStreamForCodeError.getSanitizedObject({ request: this }));
+		}
+
+		// the stream gets updated as a result of the new post, so add that
+		if (transforms.streamUpdateForPost) {
+			responseData.streams = [
+				...(responseData.streams || []),
+				transforms.streamUpdateForPost
+			];
+		}
+
+		// add any markers created 
+		if (transforms.createdMarkers && transforms.createdMarkers.length > 0) {
+			responseData.markers = [
+				...(responseData.markers || []),
+				...transforms.createdMarkers.map(marker => marker.getSanitizedObject({ request: this }))
+			];
+		}
+
+		// markers with locations will have a separate markerLocations object
+		if (transforms.markerLocations && transforms.markerLocations.length > 0) {
+			responseData.markerLocations = transforms.markerLocations;
+		}
+
+		// a codemark might have been created with the post, add it
+		if (transforms.createdCodemark) {
+			responseData.codemark = transforms.createdCodemark.getSanitizedObject({ request: this });
+		}
+
+		// a code review might have been created with the post, add it
+		if (transforms.createdReview) {
+			responseData.review = transforms.createdReview.getSanitizedObject({ request: this });
+			// don't send these back, or broadcast
+			delete responseData.review.reviewDiffs; 
+			delete responseData.review.checkpointReviewDiffs;
+		}
+
+		// a code error might have been created with the post, add it
+		if (transforms.createdCodeError) {
+			responseData.codeError = transforms.createdCodeError.getSanitizedObject({ request: this });
+		}
+
+		// if there is a parent post update, add it
+		if (transforms.postUpdate) {
+			responseData.posts = [transforms.postUpdate];
+		}
+		if (transforms.grandParentPostUpdate) {
+			responseData.posts = responseData.posts || [];
+			responseData.posts.push(transforms.grandParentPostUpdate);
+		}
+		
+		// if there are other codemarks updated, add them
+		if (transforms.updatedCodemarks) {
+			responseData.codemarks = transforms.updatedCodemarks;
+		}
+		
+		// if there are other reviews updated, add them
+		if (transforms.updatedReviews) {
+			responseData.reviews = transforms.updatedReviews;
+		}
+		
+		// if there are other code errors updated, add them
+		if (transforms.updatedCodeErrors) {
+			responseData.codeErrors = transforms.updatedCodeErrors;
+		}
+		
+		// handle users invited to the team, filter out any users that were already on the team
+		if (transforms.invitedUsers) {
+			const newUsers = transforms.invitedUsers.filter(userData => !userData.wasOnTeam);
+			responseData.users = [
+				...newUsers.map(userData => userData.user.getSanitizedObject({ request: this }))
+			];
+		}
+
+		return responseData;
+	}
+
 	// after the post was created...
 	async postCreate (options) {
 		// all these operations are independent and can happen in parallel

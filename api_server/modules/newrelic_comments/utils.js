@@ -89,9 +89,6 @@ const ToNewRelic = function(codeError, post, codemark, markers, users, options={
 		codeBlocks,
 		userMaps
 	};
-	if (options.includeCodeErrorId) {
-		response.codeErrorId = codeError.id;
-	}
 	return response;
 }	
 

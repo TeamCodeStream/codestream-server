@@ -151,21 +151,34 @@ class PostNRCommentRequest extends NRCommentRequest {
 			return super.handleResponse();
 		}
 		
+		// response data is special data returned to New Relic, so save the "nominal" response data,
+		// and use that for the later publish, which goes to registered users following the code error
+		this.postResponseData = this.postCreator.makeResponseData({
+			transforms: this.transforms,
+			initialResponseData: { 
+				post: this.post.getSanitizedObject({ request: this })
+			}
+		});
+
 		// return customized response data to New Relic
-		const secret = this.api.config.sharedSecrets.commentEngine;
-		const includeCodeErrorId = this.request.headers['x-cs-want-code-error-id'] === secret;
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, null, [], this.users, { includeCodeErrorId })
+			post: Utils.ToNewRelic(this.codeError, this.post, null, [], this.users)
 		};
+
+		// optionally return the nominal CodeStream response, for testing
+		const secret = this.api.config.sharedSecrets.commentEngine;
+		if (this.request.headers['x-cs-want-cs-response'] === secret) {
+			this.responseData.codeStreamResponse = this.postResponseData;
+		}
+
 		return super.handleResponse();
 	}
 
 	// after the request has been processed and response returned to the client....
 	async postProcess () {
-		/*
-		await this.postCreator.postCreate();
-		await this.publish();		
-		*/
+		// restore response data for registered CodeStream users, and use that for publishing
+		this.responseData = this.postResponseData;
+		return this.postCreator.postCreate();
 	}
 }
 

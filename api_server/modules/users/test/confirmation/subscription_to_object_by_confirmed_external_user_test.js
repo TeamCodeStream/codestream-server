@@ -29,14 +29,14 @@ class SubscriptionToObjectByConfirmedExternalUserTest extends SubscriptionTest {
 					headers: {
 						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
 						'X-CS-NewRelic-AccountId': data.accountId,
-						'X-CS-Want-Code-Error-Id': this.apiConfig.sharedSecrets.commentEngine
+						'X-CS-Want-CS-Response': this.apiConfig.sharedSecrets.commentEngine
 					}
 				}
 			}, 
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.which = 'object';
-				this.object = { id: response.post.codeErrorId };
+				this.object = { id: response.codeStreamResponse.codeError.id };
 				callback();
 			}
 		);
