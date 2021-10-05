@@ -115,6 +115,7 @@ class CompanyCentricMigration extends APIServerModule {
 						status: 401,
 						error: this.errorHandler.error(errorCode)
 					};
+					response.set('X-CS-Migration-Error', this.errorHandler.error(errorCode).code);
 				}
 			} 
 
