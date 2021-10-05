@@ -261,6 +261,10 @@ const CanReplyToCodeErrorAfterMentionTest = require('./code_errors/can_reply_to_
 const NoAddedUsersInReplyTest = require('./code_errors/no_added_users_in_reply_test');
 const CreatorSubscriptionTest = require('./code_errors/creator_subscription_test');
 const MentionSubscriptionTest = require('./code_errors/mention_subscription_test');
+const NoMessageToTeamStreamTest = require('./code_errors/no_message_to_team_stream_test');
+const CodeErrorReplyMessageToObjectStreamTest = require('./code_errors/code_error_reply_message_to_object_stream_test');
+const ReplyNoMessageToTeamStreamTest = require('./code_errors/reply_no_message_to_team_stream_test');
+const ReplyWithCodemarkMessageTest = require('./code_errors/reply_with_codemark_message_test');
 
 class PostPostRequestTester {
 
@@ -269,7 +273,7 @@ class PostPostRequestTester {
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new PostToChannelTest().test();
 		//new PostToDirectTest().test();
-		//new PostToFileStreamTest().test();	
+		//new PostToFileStreamTest().test();
 		new PostReplyTest().test();
 		new NoStreamIdTest().test();
 		new InvalidStreamIdTest().test();
@@ -567,6 +571,10 @@ class PostPostRequestTester {
 		new NoAddedUsersInReplyTest().test();
 		new CreatorSubscriptionTest().test();
 		new MentionSubscriptionTest().test();
+		new NoMessageToTeamStreamTest().test();
+		new CodeErrorReplyMessageToObjectStreamTest().test();
+		new ReplyNoMessageToTeamStreamTest().test();
+		new ReplyWithCodemarkMessageTest().test();
 	}
 }
 

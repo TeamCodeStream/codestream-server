@@ -864,37 +864,40 @@ class PostCreator extends ModelCreator {
 			data: customData || this.request.responseData,
 			broadcaster: this.api.services.broadcaster,
 			stream: this.stream.attributes,
-			object: this.transforms.createdCodeError
+			object: this.codeError
 		}).publishPost();
 	}
 
 	// if the parent post or codemark was updated, publish the parent post or codemark
 	async publishParents () {
-		if (!this.transforms.postUpdate && (this.transforms.updatedCodemarks || []).length === 0) {
-			return;
-		}
+		let needPublish = false;
 		const data = {};
 		if (this.transforms.postUpdate) {
 			data.post = this.transforms.postUpdate;
+			needPublish = true;
 		}
 		if (this.transforms.updatedCodemarks) {
 			data.codemarks = this.transforms.updatedCodemarks;
+			needPublish = true;
 		}
 		if (this.transforms.updatedReviews) {
 			data.reviews = this.transforms.updatedReviews;
+			needPublish = true;
 		}
-		/*
 		if (this.transforms.updatedCodeErrors) {
 			data.codeErrors = this.transforms.updatedCodeErrors;
+			needPublish = true;
 		}
-*/
 
-		await new PostPublisher({
-			request: this.request,
-			data,
-			broadcaster: this.api.services.broadcaster,
-			stream: this.stream.attributes	// assuming stream for the parent post is the same as for the reply
-		}).publishPost();
+		if (needPublish) {
+			await new PostPublisher({
+				request: this.request,
+				data,
+				broadcaster: this.api.services.broadcaster,
+				stream: this.stream.attributes,	// assuming stream for the parent post is the same as for the reply
+				object: this.codeError
+			}).publishPost();
+		}
 	}
 
 	// send an email notification as needed to users who are offline
