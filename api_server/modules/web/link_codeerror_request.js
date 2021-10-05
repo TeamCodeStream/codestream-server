@@ -5,7 +5,6 @@ const CodemarkLinkIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_serve
 const Crypto = require('crypto');
 const MomentTimezone = require('moment-timezone');
 const WebRequestBase = require('./web_request_base');
-const { defaultCookieName, ides} = require('./config');
 
 class LinkCodeErrorRequest extends WebRequestBase {
 	async authorize () {
@@ -13,12 +12,28 @@ class LinkCodeErrorRequest extends WebRequestBase {
 	}
 
 	async process () {
-		this.teamId = this.decodeLinkId(this.request.params.teamId);
-	 	
+		const { accountId, hexAccountId } = this.decodeAccountId(this.request.params.accountId);
+		this.accountId = accountId;
+		this.teamId = hexAccountId; // not really a team ID
+
 	  	(await this.checkAuthentication()) &&
 		(await this.getCodeErrorLink()) &&
 		(await this.getCodeError()) && 
+		(await this.checkFollowing()) &&
 		(await this.render());
+	}
+
+	decodeAccountId (accountId) {
+		accountId = accountId
+			.replace(/-/g, '+')
+			.replace(/_/g, '/');
+		const hex = Buffer.from(accountId, 'base64').toString('hex');
+		let decodedAccountId = '';
+		for (let i = 0; i < hex.length; i += 2) {
+			const c = hex.substring(i, i+2);
+			decodedAccountId = decodedAccountId + String.fromCharCode(parseInt(c, 16));
+		}
+		return { accountId: decodedAccountId, hexAccountId: hex };
 	}
 
 	async checkAuthentication () {
@@ -29,7 +44,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			);
 			let redirect = `/web/login?url=${encodeURIComponent(
 				this.request.path
-			)}&teamId=${this.teamId}`;
+			)}`;
 			if (this.request.query.error) {
 				redirect += `&error=${this.request.query.error}`;
 			}
@@ -47,13 +62,6 @@ class LinkCodeErrorRequest extends WebRequestBase {
 	}
 
 	async getCodeErrorLink () {
-		// check if the user is on the indicated team
-		if (!this.user.hasTeam(this.teamId)) {
-			this.warn(
-				'User requesting codeError link is not on the team that owns the codeError'
-			);
-			return this.redirect404(this.teamId);
-		}
 		// get the link to the codemark
 		const linkId = this.decodeLinkId(this.request.params.id, 2);
 		const codemarkLinks = await this.data.codemarkLinks.getByQuery(
@@ -62,7 +70,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 		);
 		if (codemarkLinks.length === 0) {
 			this.warn('User requested a codeError link that was not found');
-			return this.redirect404(this.teamId);
+			return this.redirect404();
 		}
 		this.codemarkLink = codemarkLinks[0];
 		return true;
@@ -76,11 +84,20 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			this.warn(
 				'User requested to link to a codeError but the codeError was not found'
 			);
-			return this.redirect404(this.teamId);
+			return this.redirect404();
 		}
 	 
 		return true;
 	} 
+
+	async checkFollowing () {
+		if (!(this.codeError.get('followerIds') || []).includes(this.user.id)) {
+			this.warn(
+				'User requesting code error link is not on a follower of the code error'
+			);
+			return this.redirect404();
+		}
+	}
 
 	getAvatar (username) {
 		let authorInitials;
@@ -150,9 +167,8 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			authorInitials,
 			codeError: {
 				id: this.codeError.get('id'),
-				title: (this.codeError.get('title') || "").trimStart().trim(),
-				text: (this.codeError.get('text') || "").trimStart().trim(),
-				stackTrace: stackTrace 
+				title: (this.codeError.get('title') || "").trim(),
+				stackTrace: stackTrace.trim().replace(/\n/g,"<br />")
 			}
 		};
 	 
@@ -173,12 +189,8 @@ class LinkCodeErrorRequest extends WebRequestBase {
 	}
 
 
-	redirect404 (teamId) {
-		let url = '/web/404';
-		if (teamId) {
-			url += `?teamId=${teamId}`;
-		}
-		this.response.redirect(url);
+	redirect404 () {
+		this.response.redirect('/web/404');
 		this.responseHandled = true;
 	}
 }
