@@ -111,10 +111,13 @@ class CompanyCentricMigration extends APIServerModule {
 					this.api.log(`Would have thrown ${errorCode}`);
 					this.api.log('*************************************************************************************');
 				} else {
-					request.abortWith = {
-						status: 401,
-						error: this.errorHandler.error(errorCode)
-					};
+					// we'll continue to honor GET requests, but still return the header
+					if (request.method.toLowerCase() !== 'get') {
+						request.abortWith = {
+							status: 401,
+							error: this.errorHandler.error(errorCode)
+						};
+					}
 					response.set('X-CS-Migration-Error', this.errorHandler.error(errorCode).code);
 				}
 			} 
