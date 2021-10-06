@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.11] - 2021-10-7
+
+### Changed
+
+- Changes to support making CodeStream organization-centric
+
 ## [11.0.10] - 2021-9-18
 
 ### Changed
