@@ -228,6 +228,7 @@ class UserInviter {
 				needsAutoReinvites: REINVITE_REPEATS,
 				autoReinviteInfo: {
 					inviterId: this.user.id,
+					teamId: this.team.id,
 					teamName: this.team.get('name'),
 					isReinvite: true
 				}

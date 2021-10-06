@@ -18,7 +18,6 @@ class InviteEmailHandler extends EmailHandler {
 	async renderEmail () {
 		const inviter = await this.data.users.getById(this.message.inviterId);
 		this.team = this.message.teamId ? await this.data.teams.getById(this.message.teamId) : null;
-		this.logger.log(`TEAM IS: ${this.team ? this.team.id : (NONE)}:${this.team ? this.team.name : (NONE)} isEveryoneTeam? ${this.team ? this.team.isEveryoneTeam : (NONE)}`);
 		if (!inviter || inviter.deactivated) {
 			throw 'Inviter not found: ' + this.message.inviterId;
 		}
@@ -60,8 +59,7 @@ In the CodeStream extension, select “Switch Teams” under the headshot menu t
 		const allLinks = links.slice(0, links.length - 1).join(', ') + ' or ' + links[links.length - 1];
 
 		const downloadOrInstall = this.team && this.team.isEveryoneTeam ? 'Install' : 'Download';
-		this.logger.log(`CHOOSING COPY: isEveryoneTeam? ${this.team && this.team.isEveryoneTeam}`);
-		const inviteCodeCopy =  this.team && this.team.isEveryoneTeam ? `
+		const inviteCodeCopy =  (this.message.forceCompanyCentricInviteCopy || (this.team && this.team.isEveryoneTeam)) ? `
 2. Sign up using <b>${this.user.email}</b>.<br/>
 <br/>
 ` :
