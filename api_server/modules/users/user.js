@@ -249,7 +249,7 @@ class User extends CodeStreamModel {
 		// user are able to access any other user that is a member of their teams,
 		// this includes members that have been removed and are in the removedMemberIds array for that team
 		const teams = await request.data.teams.getByIds(request.user.get('teamIds') || []);
-		const authorized = teams.find(team => {
+		let authorized = teams.find(team => {
 			// the requesting user must be a member of this team (not a removed member)
 			if (
 				!(team.get('memberIds') || []).includes(request.user.id) ||
@@ -260,6 +260,19 @@ class User extends CodeStreamModel {
 			return (team.get('memberIds') || []).includes(id);
 		});
 		let otherUser = false;
+
+		// users are also able to access any user that is a follower of any code errors the
+		// current user is a follower of
+		if (!authorized) {
+			const codeErrors = await request.data.codeErrors.getByQuery({
+				$and: [
+					{ followerIds: this.id},
+					{ followerIds: id }
+				]
+			}, { hint: CodeErrorIndexes.byFollowerIds, fields: ['followerIds'] });
+			authorized = codeErrors.length > 0;
+		}
+
 		if (authorized) {
 			otherUser = await request.data.users.getById(id);
 		}
