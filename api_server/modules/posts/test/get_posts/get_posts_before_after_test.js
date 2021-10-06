@@ -10,7 +10,7 @@ class GetPostsBeforeAfterTest extends GetPostsTest {
 	}
 
 	get description () {
-		return 'should return the correct posts when requesting posts in a stream with a seqnum range';
+		return 'should return the correct posts when requesting posts within an ID range';
 	}
 
 	// set the path to use for the request
@@ -18,10 +18,10 @@ class GetPostsBeforeAfterTest extends GetPostsTest {
 		// pick a pivot point, then filter our expected posts based on that pivot,
 		// and specify the before parameter to fetch based on the pivot
 		this.expectedPosts = this.postData.map(postData => postData.post);
-		const lowerPivot = this.expectedPosts[2].seqNum;
-		const upperPivot = this.expectedPosts[5].seqNum;
-		this.expectedPosts = this.expectedPosts.filter(post => post.seqNum > lowerPivot && post.seqNum < upperPivot);
-		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}&before=${upperPivot}&after=${lowerPivot}`;
+		const lowerPivot = this.expectedPosts[2].id;
+		const upperPivot = this.expectedPosts[5].id;
+		this.expectedPosts = this.expectedPosts.filter(post => post.id > lowerPivot && post.id < upperPivot);
+		this.path = `/posts?teamId=${this.team.id}&before=${upperPivot}&after=${lowerPivot}`; // &streamId=${this.teamStream.id}
 		callback();
 	}
 }

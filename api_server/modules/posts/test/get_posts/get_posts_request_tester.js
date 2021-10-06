@@ -18,6 +18,7 @@ const ACLTeamTest = require('./acl_team_test');
 //const ACLStreamTest = require('./acl_stream_test');
 const StreamNotFoundTest = require('./stream_not_found_test');
 const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
+const StreamIdIgnoredTest = require('./stream_id_ignored_test');
 const GetPostsBeforeTest = require('./get_posts_before_test');
 const GetPostsAfterTest = require('./get_posts_after_test');
 const GetPostsBeforeInclusiveTest = require('./get_posts_before_inclusive_test');
@@ -26,16 +27,18 @@ const GetPostsBeforeAfterTest = require('./get_posts_before_after_test');
 const GetPostsBeforeAfterInclusiveTest = require('./get_posts_before_after_inclusive_test');
 const InvalidSeqNumTest = require('./invalid_seqnum_test');
 const GetPostsWithReviewsTest = require('./get_posts_with_reviews_test');
+const GetPostsWithCodeErrorsTest = require('./get_posts_with_code_errors_test');
+const NeedIncludeFollowedTest = require('./need_include_followed_test');
+const ComplexTest = require('./complex_test');
 
 class GetPostsRequestTester {
 
 	getPostsTest () {
 		
 		new GetPostsTest().test();
-		/* NOTE - posting to streams other than the team stream is no longer supported
-		new GetPostsTest({type: 'channel'}).test();
-		new GetPostsTest({type: 'direct'}).test();
-		*/
+		// NOTE - posting to streams other than the team stream is no longer supported
+		//new GetPostsTest({type: 'channel'}).test();
+		//new GetPostsTest({type: 'direct'}).test();
 		new GetPostsWithCodemarksTest().test();
 		new GetPostsWithMarkersTest().test();
 		new GetChildPostsTest().test();
@@ -53,16 +56,20 @@ class GetPostsRequestTester {
 		//new StreamIDRequiredTest().test();
 		new ACLTeamTest().test();
 		//new ACLStreamTest().test();
-		new StreamNotFoundTest().test();
-		new StreamNoMatchTeamTest().test();
+		//new StreamNotFoundTest().test();
+		//new StreamNoMatchTeamTest().test();
+		new StreamIdIgnoredTest().test();
 		new GetPostsBeforeTest().test();
 		new GetPostsAfterTest().test();
 		new GetPostsBeforeInclusiveTest().test();
 		new GetPostsAfterInclusiveTest().test();
 		new GetPostsBeforeAfterTest().test();
 		new GetPostsBeforeAfterInclusiveTest().test();
-		new InvalidSeqNumTest().test();
+		//new InvalidSeqNumTest().test();
 		new GetPostsWithReviewsTest().test();
+		new GetPostsWithCodeErrorsTest().test();
+		new NeedIncludeFollowedTest().test();
+		new ComplexTest().test();
 	}
 }
 

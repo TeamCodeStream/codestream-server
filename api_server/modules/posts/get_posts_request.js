@@ -7,6 +7,7 @@ const Indexes = require('./indexes');
 const PostErrors = require('./errors.js');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
+const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 
 // these parameters essentially get passed verbatim to the query
 const BASIC_QUERY_PARAMETERS = [
@@ -19,7 +20,8 @@ const BASIC_QUERY_PARAMETERS = [
 // additional options for post fetches
 const NON_FILTERING_PARAMETERS = [
 	'limit',
-	'sort'
+	'sort',
+	'includeFollowed'
 ];
 
 const RELATIONAL_PARAMETERS = [
@@ -37,24 +39,35 @@ class GetPostsRequest extends GetManyRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		let info;
+		delete this.request.query.streamId; // tolerated but ignored
+
 		if (this.request.query.codeErrorId) {
+			// fetching replies to a code error
 			this.codeError = await this.data.codeErrors.getById(this.request.query.codeErrorId.toLowerCase());
 			if (!this.codeError) {
 				throw this.errorHandler.error('notFound', { info: 'codeError' });
 			}
+			this.stream = await this.user.authorizeStream(this.codeError.get('streamId'), this);
+			if (!this.stream) {
+				throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this object stream' });
+			} 
+
 			if (!(this.codeError.followerIds || []).includes(this.user.id)) {
 				throw this.errorHandler.error('readAuth', { reason: 'user is not a follower of this object' });
 			}
 		}
-		else if (this.request.query.streamId) {
-			info = await this.user.authorizeFromTeamIdAndStreamId(
-				this.request.query,
-				this
-			);
-			Object.assign(this, info);
-		}
-		else {
+		else if (this.request.query.parentPostId) {
+			// fetching replies to a parent post
+			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
+			if (!parentPost) {
+				throw this.errorHandler.error('notFound', { info: 'parent post' });
+			}
+			this.stream = await this.user.authorizeStream(parentPost.get('streamId'), this);
+			if (!this.stream) {
+				throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this stream' });
+			} 
+		} else {
+			// this forces a teamId
 			await this.user.authorizeFromTeamId(
 				this.request.query,
 				this
@@ -65,29 +78,18 @@ class GetPostsRequest extends GetManyRequest {
 	// called before the actual fetch operation, here we fetch the streams the user is 
 	// a member of if posts for a particular stream are not being fetched
 	async preQueryHook () {
-		// for code errors (observability objects), we'll figure out the stream ID from the
-		// code error's post
-		if (this.codeError) {
-			const codeErrorPost = await this.data.posts.getById(this.codeError.get('postId'));
-			if (codeErrorPost) {
-				this.request.query.streamId = codeErrorPost.get('streamId');
-			}
-		}
+		if (this.stream) { return; }
 
-		// we'll give the caller the benefit of figuring out the stream ID if they're looking for replies to a post
-		if (this.request.query.parentPostId && !this.request.query.streamId) {
-			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
-			if (parentPost) {
-				this.request.query.streamId = parentPost.get('streamId');
-			}
-		}
-		if (this.request.query.streamId) { return; }
-		
-		// if no stream ID is given, we'll fetch for all streams the user is a member of...
-		// this includes any "team streams" and channels/DMs they are explicit members of
+		// if no stream ID is given, we'll fetch posts associated with the team stream,
+		// and optionally followed observability objects
+		// note that stream channels and DMs are now deprecated
 		this.byId = true;
-		const teamId = this.request.query.teamId.toLowerCase();
+		this.teamId = this.request.query.teamId.toLowerCase();
 		const results = await awaitParallel([
+			this.getTeamStreams,
+			this.getStreamsByFollow
+		], this);
+			/*
 			async () => {
 				return this.data.streams.getByQuery(
 					{
@@ -101,7 +103,8 @@ class GetPostsRequest extends GetManyRequest {
 					}
 				);
 			},
-			async () => {
+
+	 		async () => {
 				return this.data.streams.getByQuery(
 					{
 						teamId,
@@ -114,19 +117,51 @@ class GetPostsRequest extends GetManyRequest {
 					}
 				);
 			}
-		], this);
-		this.streamIds = [...results[0], ...results[1]].map(stream => stream.id);
+			*/
+			
+		this.streamIds = [...results[0], ...results[1]];
+	}
+
+	// get the team streams for the team (should only be one)
+	async getTeamStreams () {
+		const streams = await this.data.streams.getByQuery(
+			{
+				teamId: this.teamId,
+				isTeamStream: true
+			},
+			{
+				hint: StreamIndexes.byIsTeamStream,
+				fields: ['id'],
+				noCache: true
+			}
+		);
+		return streams.map(stream => stream.id);
+ 	}
+
+	// get streams representing code errors being followed, as needed
+	async getStreamsByFollow () {
+		if (!this.request.query.includeFollowed) {
+			return [];
+		}
+		const codeErrors = await this.data.codeErrors.getByQuery(
+			{
+				followerIds: this.user.id
+			},
+			{
+				hint: CodeErrorIndexes.byFollowerIds,
+				fields: ['streamId'],
+				noCache: true
+			}
+		);
+		return codeErrors.map(codeError => codeError.streamId);
 	}
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
 	buildQuery () {
 		const query = {};
 
-		// if no stream ID given, then query on all streams the user is a member of,
-		// as determined in preQueryHook(), above
-		if (!this.request.query.streamId) {
-			query.streamId = { $in: this.streamIds };
-		}
+		// query on stream or streams, as determined above
+		query.streamId = this.stream ? this.stream.id : { $in: this.streamIds };
 
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
@@ -141,6 +176,11 @@ class GetPostsRequest extends GetManyRequest {
 		if (Object.keys(query).length === 0) {
 			return null;
 		}
+
+		if (this.request.query.includeFollowed) {
+			query.teamId = { $in: [ query.teamId, null ] };
+		}
+		
 		return query;
 	}
 
@@ -349,8 +389,8 @@ class GetPostsRequest extends GetManyRequest {
 		let replies = await this.data.posts.getByQuery(
 			{
 				parentPostId: this.data.posts.inQuery(postIds),
-				streamId: this.request.query.streamId.toLowerCase(),
-				teamId: this.request.query.teamId.toLowerCase()
+				streamId: this.stream.id,
+				teamId: this.stream.get('teamId')
 			},
 			{
 				hint: Indexes.byParentPostId

@@ -91,6 +91,7 @@ class TestStreamCreator {
 		if (!this.stream && !this.teamStream) {
 			throw 'no stream for creating test post';
 		}
+
 		const postOptions = {
 			streamId: this.stream ? this.stream.id : this.teamStream.id
 		};
@@ -149,14 +150,21 @@ class TestStreamCreator {
 			const postData = this.postOptions.postData[n];
 			if (typeof postData.replyTo !== 'undefined') {
 				postOptions.parentPostId = this.postData[postData.replyTo].post.id;
+				postOptions.streamId = this.postData[postData.replyTo].post.streamId;
 				delete postData.replyTo;
 			}
 			Object.assign(postOptions, this.postOptions.postData[n]);
 		}
 
-		const creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
-			this.postOptions.creatorIndex[n] :
-			this.postOptions.creatorIndex;
+		let creatorIndex;
+		if (this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].creatorIndex !== undefined) {
+			creatorIndex = this.postOptions.postData[n].creatorIndex;
+		} else {
+			creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
+				this.postOptions.creatorIndex[n] :
+				this.postOptions.creatorIndex;
+		}
+	
 		postOptions.token = this.users[creatorIndex || 0].accessToken;
 		this.test.postFactory.createRandomPost(
 			(error, response) => {
