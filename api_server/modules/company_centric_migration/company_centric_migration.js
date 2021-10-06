@@ -104,6 +104,7 @@ class CompanyCentricMigration extends APIServerModule {
 				migrationData
 			}).handleMigration();
 
+			/*
 			// signal an error response as needed
 			if (errorCode) {
 				if (dryRun && errorCode !== 'notFound') {
@@ -121,6 +122,7 @@ class CompanyCentricMigration extends APIServerModule {
 					response.set('X-CS-Migration-Error', this.errorHandler.error(errorCode).code);
 				}
 			} 
+			*/
 
 			next();
 		};

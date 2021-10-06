@@ -86,13 +86,13 @@ class MigrationHandler {
 			await this.migrateSingleTeamCompanies(companies);
 		}
 
-		// if we have any multi-team companies that must be migrated, these are non-trivial and may take time
-		// so kick off the migration here
+		// if we have any multi-team companies that must be migrated, kick these off now
+		// if they are merges they are non-trivial and may take time, but for now those won't be automatic
 		if (migrationStatus.unmigratedMultiTeam.length > 0) {
 			companyIds = migrationStatus.unmigratedMultiTeam.map(c => c.id);
 			this.log(`Found ${companyIds.length} multi-team unmigrated companies (${companyIds}), kicking off migrations...`);
-			Promise.all(migrationStatus.unmigratedMultiTeam.map(async company => {
-				this.migrateMultiTeamCompany(company);
+			await Promise.all(migrationStatus.unmigratedMultiTeam.map(async company => {
+				await this.migrateMultiTeamCompany(company);
 			}));
 			errorCode = 'migrationInProgress';
 		}
