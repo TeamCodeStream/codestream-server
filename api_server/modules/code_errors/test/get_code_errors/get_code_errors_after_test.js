@@ -12,8 +12,8 @@ class GetCodeErrorsAfterTest extends GetCodeErrorsTest {
 	setPath (callback) {
 		// pick a pivot point, then filter our expected code errors based on that pivot,
 		// and specify the before parameter to fetch based on the pivot
-		const pivot = this.codeErrors[5].createdAt;
-		this.expectedCodeErrors = this.codeErrors.filter(codeError => codeError.createdAt > pivot);
+		const pivot = this.codeErrors[5].lastActivityAt;
+		this.expectedCodeErrors = this.codeErrors.filter(codeError => codeError.lastActivityAt > pivot);
 		this.expectedCodeErrors.reverse();
 		this.path = `/code-errors?teamId=${this.team.id}&after=${pivot}`;
 		callback();

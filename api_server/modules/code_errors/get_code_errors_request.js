@@ -9,37 +9,36 @@ class GetCodeErrorsRequest extends GetManyRequest {
 
 	// authorize the request
 	async authorize () {
-		// authorize against the team, this is required
-		this.teamId = this.request.query.teamId;
-		if (!this.teamId) {
-			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
-		}
-		this.teamId = this.teamId.toLowerCase();
-		const authorized = await this.user.authorizeTeam(this.teamId, this);
-		if (!authorized) {
-			throw this.errorHandler.error('readAuth', { reason: 'user not on team' });
-		}
+		// no authorization required, returns all code errors followed by the user
 	}
 
 	// process the request...
 	async process () {
 		await super.process();	// do the usual "get-many" processing
 		await this.getPosts();	// get associated posts, as needed
-		await this.getMarkers();	// get associated markers, as needed
 	}
 
+	// called before running the fetch query
+	async preQueryHook () {
+		// get code errors followed by this user
+		const codeErrors = await this.data.codeErrors.getByQuery(
+			{
+				followerIds: this.user.id
+			},
+			{
+				hint: Indexes.byFollowerIds,
+				fields: ['streamId'],
+				noCache: true
+			}
+		);
+		this.streamIds = codeErrors.map(codeError => codeError.streamId);
+	}
+	
 	// build the database query to use to fetch the code errors
 	buildQuery () {
-		if (this.request.query.streamId && this.request.query.byLastActivityAt) {
-			return 'can not query on streamId and also on lastActivityAt';
-		}
 		const query = {
-			teamId: this.teamId
+			streamId: this.data.posts.inQuery(this.streamIds)
 		};
-		if (this.request.query.streamId) {
-			query.streamId = this.request.query.streamId.toLowerCase();
-		}
-		const indexAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
 		let { before, after, inclusive } = this.request.query;
 		inclusive = inclusive !== undefined;
 		if (before !== undefined) {
@@ -47,12 +46,12 @@ class GetCodeErrorsRequest extends GetManyRequest {
 			if (!before) {
 				return 'before must be a number';
 			}
-			query[indexAttribute] = query[indexAttribute] || {};
+			query.lastActivityAt = query.lastActivityAt || {};
 			if (inclusive) {
-				query[indexAttribute].$lte = before;
+				query.lastActivityAt.$lte = before;
 			}
 			else {
-				query[indexAttribute].$lt = before;
+				query.lastActivityAt.$lt = before;
 			}
 		}
 		if (after !== undefined) {
@@ -60,12 +59,12 @@ class GetCodeErrorsRequest extends GetManyRequest {
 			if (!after) {
 				return 'after must be a number';
 			}
-			query[indexAttribute] = query[indexAttribute] || {};
+			query.lastActivityAt = query.lastActivityAt || {};
 			if (inclusive) {
-				query[indexAttribute].$gte = after;
+				query.lastActivityAt.$gte = after;
 			}
 			else {
-				query[indexAttribute].$gt = after;
+				query.lastActivityAt.$gt = after;
 			}
 		}
 		return query;
@@ -73,20 +72,9 @@ class GetCodeErrorsRequest extends GetManyRequest {
 
 	// get database options to associate with the database fetch request
 	getQueryOptions () {
-		let hint;
-		if (this.request.query.streamId) {
-			hint = Indexes.byStreamId;
-		}
-		else if (this.request.query.byLastActivityAt) {
-			hint = Indexes.byLastActivityAt;
-		}
-		else {
-			hint = Indexes.byTeamId;
-		}
-		const sortAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
 		return {
-			hint,
-			sort: { [sortAttribute]: -1 }
+			hint: Indexes.byLastActivityAt,
+			sort: { lastActivityAt: -1 }
 		};
 	}
 
@@ -99,20 +87,7 @@ class GetCodeErrorsRequest extends GetManyRequest {
 		this.posts = await this.data.posts.getByIds(postIds);
 		this.responseData.posts = this.posts.map(post => post.getSanitizedObject({ request: this }));
 	}
-
-	// get the markers associated with the fetched codemarks, as needed
-	async getMarkers () {
-		const markerIds = this.models.reduce((markerIds, codeError) => {
-			markerIds.push(...(codeError.get('markerIds') || []));
-			return markerIds;
-		}, []);
-		if (markerIds.length === 0) {
-			return;
-		}
-		this.markers = await this.data.markers.getByIds(markerIds);
-		this.responseData.markers = this.markers.map(marker => marker.getSanitizedObject({ request: this }));
-	}
-
+	
 	// describe this route for help
 	static describe (module) {
 		const description = GetManyRequest.describe(module);
