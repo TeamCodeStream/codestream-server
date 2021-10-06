@@ -1,6 +1,7 @@
 'use strict';
 
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class MultiTeamSeparator {
 
@@ -94,7 +95,51 @@ class MultiTeamSeparator {
 		} else {
 			await this.data.teams.updateDirect({ id: this.data.teams.objectIdSafe(team.id) }, op, { requestId: this.requestId });
 		}
+
+		this.updateMembers(team);
 	}
+
+	// for each member of a team:
+	//  -- add the new company ID to their companyIds
+	//  -- if not a member of the first team, remove the first company from their company IDs
+	async updateMembers (team) {
+		const companyId = this.companiesByTeam[team.id].id;
+		const memberIds = ArrayUtilities.difference(team.memberIds || [], team.removedMemberIds || []);
+		let op = {
+			$addToSet: {
+				companyIds: companyId
+			}
+		};
+		this.log(`Updating companyIds for members of team ${team.id} to include new company ${companyId}...`);
+		if (this.dryRun) {
+			this.log(`Would have updated users ${memberIds} to include ${companyId} with op:\n${JSON.stringify(op, undefined, 5)}`);
+		} else {
+			await this.data.users.updateDirect(
+				{ id: this.data.users.inQuerySafe(memberIds) },
+				op
+			);
+		}
+
+		const membersOfFirstTeam = ArrayUtilities.difference(this.firstTeam.memberIds || [], this.firstTeam.removedMemberIds || []);
+		const removingMemberIds = ArrayUtilities.difference(memberIds, membersOfFirstTeam);
+		if (removingMemberIds.length > 0) {
+			op = {
+				$pull: {
+					companyIds: this.company.id
+				}
+			};
+			this.log(`Updating companyIds for members of team ${team.id} who are not in first team ${this.firstTeam.id} to exclude company ${this.company.id}...`);
+			if (this.dryRun) {
+				this.log(`Would have updated users ${removingMemberIds} to exclude ${this.company.id} with op:\n${JSON.stringify(op, undefined, 5)}`);
+			} else {
+				await this.data.users.updateDirect(
+					{ id: this.data.users.inQuerySafe(removingMemberIds) },
+					op
+				);
+			}
+		}
+	}
+
 
 	// set the company as migrated, once and for all!
 	async setCompanyMigrated () {
