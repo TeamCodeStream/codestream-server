@@ -9,17 +9,13 @@ const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 class GetUsersRequest extends GetManyRequest {
 
 	async authorize () {
-		if (this.request.query.objectId) {
-			if (!this.request.query.objectType) {
-				throw this.errorHandler.error('parameterRequired', { info: 'objectType' });
-			}
-			// for observability objects (code errors?), can fetch the users associated with the object
-			this.codeError = await this.user.authorizeObject(
-				this.request.query.objectId,
-				this.request.query.objectType,
-				this
-			);
+		if (this.request.query.codeErrorId) {
+			// fetch users who are followers of this code error
+			this.codeError = await this.data.codeErrors.getById(this.request.query.codeErrorId.toLowerCase());
 			if (!this.codeError) {
+				throw this.errorHandler.error('notFound', { info: 'code error' });
+			}
+			if (!(this.codeError.get('followerIds') || []).includes(this.user.id)) {
 				throw this.errorHandler.error('readAuth', { reason: 'user is not a follower of this object' });
 			}
 		} else {
