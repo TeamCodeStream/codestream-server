@@ -43,20 +43,16 @@ class GetPostsRequest extends GetManyRequest {
 
 		if (this.request.query.codeErrorId) {
 			// fetching replies to a code error
-			this.codeError = await this.data.codeErrors.getById(this.request.query.codeErrorId.toLowerCase());
+			this.codeError = await this.user.authorizeCodeError(this.request.query.codeErrorId, this);
 			if (!this.codeError) {
-				throw this.errorHandler.error('notFound', { info: 'codeError' });
-			}
-			this.stream = await this.user.authorizeStream(this.codeError.get('streamId'), this);
-			if (!this.stream) {
-				throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this object stream' });
-			} 
-
-			if (!(this.codeError.followerIds || []).includes(this.user.id)) {
 				throw this.errorHandler.error('readAuth', { reason: 'user is not a follower of this object' });
 			}
-		}
-		else if (this.request.query.parentPostId) {
+			this.stream = await this.data.streams.getById(this.codeError.get('streamId'));
+			if (!this.stream) {
+				throw this.errorHandler.error('notFound', { info: 'stream' }); // shouldn't happen
+			}
+			delete this.request.query.codeErrorId;
+		} else if (this.request.query.parentPostId) {
 			// fetching replies to a parent post
 			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
 			if (!parentPost) {
@@ -258,6 +254,18 @@ class GetPostsRequest extends GetManyRequest {
 		const sort = this.setSort();
 		const hint = this.setHint();
 		return { limit, sort, hint };
+	}
+
+	async fetch () {
+		await super.fetch();
+
+		// if these are code error replies, we don't actually want to return the code error post itself
+		if (this.codeError) {
+			const index = this.models.findIndex(model => model.id === this.codeError.get('postId'));
+			if (index !== -1) {
+				this.models.splice(index, 1);
+			}
+		}
 	}
 
 	// set the limit to use in the fetch query, according to options passed in

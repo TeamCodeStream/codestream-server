@@ -279,6 +279,15 @@ class User extends CodeStreamModel {
 		return otherUser;
 	}
 
+	// authorize user's access to a code error
+	async authorizeCodeError (codeErrorId, request) {
+		const codeError = await request.data.codeErrors.getById(codeErrorId.toLowerCase());
+		if (!codeError) {
+			throw request.errorHandler.error('notFound', { info: 'code error' });
+		}
+		return ((codeError.get('followerIds') || []).includes(request.user.id)) ? codeError : false;
+	}
+
 	// authorize user's access to an "observability" object (code error)
 	async authorizeObject (objectId, objectType, request) {
 		const codeError = await request.data.codeErrors.getOneByQuery(
