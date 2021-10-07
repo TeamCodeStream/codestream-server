@@ -5,16 +5,19 @@ class Partials {
 		this.data = data;
 	}
 
-	async getMenu(user, teamName) {
+	async getMenu(user, team) {
+		let companyName;
 		try {
-			if (user && !teamName) {
+			if (user && !team) {
 				const teamIds = user.get('teamIds');
 				if (teamIds && teamIds.length > 0) {
-					const team = await this.data.teams.getById(teamIds[0]);
-					if (team) {
-						teamName = team.get('name');
-					}
+					  team = await this.data.teams.getById(teamIds[0]);
+				
 				}
+			}
+			if (team) {
+				const company = await this.data.companies.getById(team.get('companyId'))
+				companyName = company.get('name');
 			}
 		}
 		catch (ex) {
@@ -22,7 +25,7 @@ class Partials {
 		}
 
 		return {
-			teamName: teamName,
+			companyName: companyName,
 			isAuthenticated: user != null
 		};
 	}

@@ -2,17 +2,31 @@
 
 # re-generate codestream config files and config templates for distribution
 
+function usage {
+	echo -e "usage: $0 [-fyv] [-e <env-list>]
+
+use -f to force execution with default settings
+default environment list: local ci pi pd qa prod dev nr
+"
+	exit 1
+}
+
 [ -z "$KM_SECRETS" ] && echo "Set KM_SECRETS to the location of the PKI database (use -y to bypass prompts)" && exit 1
+[ -z "$1" ] && usage
 yes=""
 verbose=""
+force=0
+environmentList="local ci pi pd qa prod dev nr"
 #onpremInstallDir=""
-while getopts "yvo:" arg
+while getopts "yvfe:" arg
 do
 	case $arg in
 	y) yes=y;;
 	v) verbose=1;;
-	o) onpremInstallDir=$OPTARG;;
-	*) echo "usage: $0 [-yv] [-o onprem-install-dir]"; exit 1;;
+	f) force=1;;
+	e) environmentList="$OPTARG";;
+	# o) onpremInstallDir=$OPTARG;;
+	*) usage;;
 	esac
 done
 shift `expr $OPTIND - 1`
@@ -34,6 +48,8 @@ schemaVersion=`cat $codestream_configs/parameters.version`
 # echo -e "I found onprem-install in $onpremInstallDir"
 
 # verbose=1
+
+# This assumes a sandbox install where 'private' is the remote for private branches
 
 . $codestream_configs/lib/update_funcs.sh
 
@@ -83,7 +99,7 @@ diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 # done
 
 # cloud configuration files, all environments (consumed by developers via dt-update-secrets)
-for csEnv in "local" ci pi pd qa prod dev nr
+for csEnv in $environmentList
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
 	$binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1

@@ -506,7 +506,7 @@ class WeeklyEmailPerUserHandler {
 
 	// get the appropriate subject for the email
 	getSubject () {
-		const teamName = this.teamData.team.name;
+		const teamName = this.teamData.team.isEveryoneTeam ? this.teamData.company.name : this.teamData.team.name;
 		const earlierMonday = this.findEarlierMonday();
 		return `${teamName} activity for the week of ${earlierMonday}`;
 	}

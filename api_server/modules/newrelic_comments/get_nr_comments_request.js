@@ -44,6 +44,9 @@ class GetNRCommentsRequest extends NRCommentRequest {
 		if (!this.codeError) {
 			throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
+		if (this.headerAccountId !== this.codeError.get('accountId')) {
+			throw this.errorHandler.error('readAuth', { reason: 'accountId given in the header does not match the object' });
+		}
 	}
 
 	// get all the replies to the code error

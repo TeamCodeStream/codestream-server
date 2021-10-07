@@ -91,5 +91,9 @@ module.exports = {
 		type: 'number',
 		description: 'How many attempts at a weekly email run for this team should be continued if no weekly activity',
 		serverOnly: true
+	},
+	isEveryoneTeam: {
+		type: 'boolean',
+		description: 'For company-centric paradigm, indicates that this is the one and only team for the company'
 	}
 };

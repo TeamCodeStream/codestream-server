@@ -78,5 +78,33 @@ module.exports = {
 		type: 'object',
 		maxLength: 200,
 		description: 'Info indicating random test group assignments'
+	},
+	everyoneTeamId: {
+		type: 'string',
+		description: 'ID of the "everyone" team for this company',
+	},
+	enableDomainBasedJoining: {
+		type: 'boolean',
+		description: 'Flag indicating whether users with matching domains in their email can join this company'
+	},
+	domainJoining: {
+		type: 'arrayOfStrings',
+		maxLength: 100,
+		description: 'Array of domains recognized by this company for which users with those domains in their emails can automatically join'
+	},
+	codeHostJoining: {
+		type: 'arrayOfStrings',
+		maxLength: 100,
+		description: 'Array of strings indicating ability to join this company based on GitHub/GitLab/Bitbucket affiliation, in the form "host/org", eg. "github.com/acme"'
+	},
+	isBeingMigratedToCompanyCentric: {
+		type: 'boolean',
+		description: 'Indicates migration to the "company-centric" paradigm is currently in progress for this company',
+		serverOnly: true
+	},
+	hasBeenMigratedToCompanyCentric: {
+		type: 'boolean',
+		description: 'Indicates if this company has been migrated to the "company-centric" paradigm',
+		serverOnly: true
 	}
 };

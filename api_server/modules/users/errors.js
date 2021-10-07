@@ -137,5 +137,10 @@ module.exports = {
 		code: 'USRC-1025',
 		message: 'The email is already taken',
 		description: 'The user is trying to change their email, but that email is already taken'
+	},
+	'emailIsWebmail': {
+		code: 'USRC-1026',
+		message: 'Webmail email addresses need to be confirmed',
+		description: 'The user tried to register using a webmail email address, but we need to make sure they really want to do this, rather than using a domain address'
 	}
 };

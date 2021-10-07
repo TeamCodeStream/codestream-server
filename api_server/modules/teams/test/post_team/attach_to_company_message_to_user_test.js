@@ -72,9 +72,6 @@ class AttachToCompanyMessageToUserTest extends CodeStreamMessageTest {
 						_id: this.currentUser.user.id,	// DEPRECATE ME
 						id: this.currentUser.user.id,
 						$set: {
-							joinMethod: 'Created Team',
-							primaryReferral: 'external',
-							originTeamId: response.team.id,
 							version: 4
 						},
 						$addToSet: {

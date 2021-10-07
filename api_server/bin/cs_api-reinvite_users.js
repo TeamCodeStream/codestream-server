@@ -14,9 +14,10 @@ const OS = require('os');
 const SQSClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/sqs_client');
 const AWS = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/aws');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const SignupTokenIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/signup_token_indexes');
 
 // need these collections from mongo
-const COLLECTIONS = ['users', 'reinviteUsersLastRunAt'];
+const COLLECTIONS = ['users', 'reinviteUsersLastRunAt', 'signupTokens'];
 
 const THROTTLE_TIME = 100;
 const REINVITE_INTERVAL = 24 * 60 * 60 * 1000;
@@ -160,11 +161,30 @@ class Reinviter {
 
 	// re-invite this user by sending an invite email, updating the user, and publishing user changes
 	async reinviteUser (user) {
+		let teamId, forceCompanyCentricInviteCopy;
+		if (user.autoReinviteInfo && user.autoReinviteInfo.teamId) {
+			teamId = user.autoReinviteInfo.teamId;
+		} else if (user.teamIds && user.teamIds.length === 1) {
+			teamId = user.teamIds[0];
+		} else if (user.inviteCode) {
+			const token = await this.data.signupTokens.getOneByQuery(
+				{ token: user.inviteCode },
+				{ hint: SignupTokenIndexes.byToken }
+			);
+			if (token) {
+				teamId = token.teamId;
+			} else {
+				forceCompanyCentricInviteCopy = true;
+			}
+		}
+
 		// queue invite email for send by outbound email service
 		this.log(`Triggering auto invite email to ${user.email}...`);
 		const message = {
 			type: 'invite',
 			userId: user.id,
+			teamId,
+			forceCompanyCentricInviteCopy,
 			...user.autoReinviteInfo
 		};
 		const queueName = this.config.queuingEngine[this.config.queuingEngine.selected].outboundEmailQueueName;

@@ -56,6 +56,9 @@ class PutNRCommentRequest extends NRCommentRequest {
 		if (!this.codeError) {
 			throw this.errorHandler.error('notFound', { info: 'code error'});
 		}
+		if (this.headerAccountId !== this.codeError.get('accountId')) {
+			throw this.errorHandler.error('updateAuth', { reason: 'accountId given in the header does not match the object' });
+		}
 	}
 
 	// get the team that owns the code error

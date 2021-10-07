@@ -17,7 +17,7 @@ class WebRequestBase extends RestfulRequest {
 		const partials = new Partials(this.data);
 
 		this.module.evalTemplate(this, templateName, Object.assign(viewModel, {
-			partial_menu_model: await partials.getMenu(this.user, viewModel.teamName),
+			partial_menu_model: await partials.getMenu(this.user, this.team),
 			partial_html_head_model: {
 				version: this.module.versionInfo()
 			}

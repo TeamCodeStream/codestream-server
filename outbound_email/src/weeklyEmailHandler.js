@@ -49,7 +49,11 @@ class WeeklyEmailHandler {
 			this.warn(`Team not found: ${this.message.teamId}`);
 			return;
 		}
-
+		this.teamData.company = await this.data.companies.getById(team.companyId);
+		if (!this.teamData.company) {
+			this.warn(`Company not found: ${team.companyId}`);
+		}
+		
 		// check for deactivate or inactive teams
 		const threeWeeksAgo = Date.now() - 3 * ONE_WEEK;
 		if (team.deactivated) {

@@ -101,7 +101,13 @@ class TestTeamCreator {
 			return callback();
 		}
 		const token = this.teamOptions.creatorToken || this.users[this.teamOptions.creatorIndex].accessToken;
-		this.test.teamFactory.createRandomTeam(
+
+		// TODO: eventually all tests should pass through the company factory
+		const func = this.teamOptions.createCompanyInstead ?
+			this.test.companyFactory.createRandomCompany.bind(this.test.companyFactory) :
+			this.test.teamFactory.createRandomTeam.bind(this.test.teamFactory);
+		
+		func(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;

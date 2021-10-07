@@ -4,8 +4,8 @@
 
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Company = require('./company');
-const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const LicenseManager = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/LicenseManager');
+const CompanyValidations = require('./company_validations');
 
 ///const TRIAL_PERIOD_FOR_30_DAY_TRIAL = 36 * 24 * 60 * 60 * 1000;	// NOTE - this is 36 days, which gives breathing room
 const TRIAL_PERIOD_FOR_14_DAY_TRIAL = 16 * 24 * 60 * 60 * 1000; // NOTE - this is 16 days, which gives breathing room
@@ -31,14 +31,42 @@ class CompanyCreator extends ModelCreator {
 		return {
 			required: {
 				string: ['name']
+			},
+			optional: {
+				'array(string)': ['domainJoining', 'codeHostJoining']
 			}
 		};
 	}
 
+	// validate attributes for the company we are creating
+	async validateAttributes () {
+		return CompanyValidations.validateAttributes(this.attributes);
+	}
+
 	// right before saving...
 	async preSave () {
+		this.createId();
 		this.attributes.createdAt = Date.now();
 		this.attributes.creatorId = this.user.id;	// creator is the user making the request
+		
+		// create an "everyone" team, as needed
+		if (!(this.teamIds || []).length) {
+			this.attributes.hasBeenMigratedToCompanyCentric = true; // new companies are company-centric by default
+			if (!this.request.teamCreatorClass) { // this avoids a circular require
+				throw new Error('must provide teamCreatorClass in request calling CompanyCreator');
+			}
+			this.transforms.createdTeam = await new this.request.teamCreatorClass({
+				request: this.request,
+				teamIds: [this.attributes.id],
+				isEveryoneTeam: true,
+				dontAttachToCompany: true
+			}).createTeam({
+				companyId: this.attributes.id,
+				name: "Everyone"
+			});
+			this.teamIds = [this.transforms.createdTeam.id];
+			this.attributes.everyoneTeamId = this.transforms.createdTeam.id;
+		}
 		this.attributes.teamIds = this.teamIds || [];
 
 		// now that we have createdAt, start the trial ticket from that time forward
@@ -55,30 +83,6 @@ class CompanyCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 		await super.preSave();
-	}
-
-	// after the team has been saved...
-	async postSave () {
-		await super.postSave();
-		await this.updateUser();	// update the current user to indicate they are a member of the company
-	}
-
-	// update a user to indicate they have been added to a new company
-	async updateUser () {
-		// add the company's ID to the user's companyIds array
-		const op = {
-			$addToSet: {
-				companyIds: this.model.id
-			},
-			$set: {
-				modifiedAt: Date.now()
-			}
-		};
-		this.transforms.userUpdate = await new ModelSaver({
-			request: this.request,
-			collection: this.data.users,
-			id: this.user.id
-		}).save(op);
 	}
 
 	// is this an on-prem installation?

@@ -89,7 +89,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		// and then add them to our comparison message for validation
 		const user = message.message.users[0];
 		Assert(typeof user.modifiedAt === 'number' && user.modifiedAt >= this.beforeConfirmTime, 'modifiedAt not updated properly');
-		Assert(typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime, 'registeredAt not updated properly');
+		Assert(typeof user.registeredAt === 'number' && user.registeredAt >= this.beforeConfirmTime, 'registeredAt not updated properly');
 		Assert(typeof user.lastLogin === 'number' && user.lastLogin > this.beforeConfirmTime, 'lastLogin not updated properly');
 		Assert.equal(user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		this.message.users[0].modifiedAt = user.modifiedAt;

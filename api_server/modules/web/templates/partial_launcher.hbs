@@ -331,6 +331,9 @@ window.CODESTREAM.openEditor = function(ide) {
 				if (options.teamName) {
 					route.query.push({key: 'teamName', value: encodeURIComponent(options.teamName)});
 				}
+				if (options.companyName) {
+					route.query.push({key: 'companyName', value: encodeURIComponent(options.companyName)});
+				}
 				if (options.isLink === 'true') {
 					route.query.push({key: 'isLink', value: 'true' });
 				}
@@ -376,6 +379,9 @@ window.CODESTREAM.openEditor = function(ide) {
 			}
 			if (options.teamName) {
 				route.query.push({ key: 'teamName', value: encodeURIComponent(options.teamName) });
+			}
+			if (options.companyName) {
+				route.query.push({key: 'companyName', value: encodeURIComponent(options.companyName)});
 			}
 		}
 		else if (type === 'navigate') {

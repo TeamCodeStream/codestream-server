@@ -25,14 +25,21 @@ class WeeklyEmailRenderer {
 
 		let inviteDiv = '';
 		if (!user.isRegistered && user.inviteCode) {
+			const inviteCopy = this.teamData.team.isEveryoneTeam ? `
+1. Install the extension for ${ideLinks}.<br/>
+2. Sign up using <b>${user.email}</b>.<br/>
+` : `
+1. Install the extension for ${ideLinks}.<br/>
+2. Paste in your invitation code:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<b>${user.inviteCode}</b><br/>
+`;
+
 			inviteDiv = `
 <div class="ensure-white">
 	Join your teammates on CodeStream.<br/>
 	Your teammates don’t need to leave their IDE to discuss and review code. You shouldn’t either!<br/>
 	<br/>
-	1. Install the extension for ${ideLinks}.<br/>
-	2. Paste in your invitation code:<br/>
-	&nbsp;&nbsp;&nbsp;&nbsp;<b>${user.inviteCode}</b><br/>
+	${inviteCopy}
 	<br/>
 </div>
 `;

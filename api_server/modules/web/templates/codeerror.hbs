@@ -31,6 +31,12 @@
     		margin: auto;
     		width: 100%;
 		} 
+		.stack-frame {
+			white-space:nowrap;
+			text-align:right;
+			text-overflow:ellipsis; 
+			direction:rtl;
+		}
 	</style>
 </head>
 <body>
@@ -55,14 +61,31 @@
 							</div>
 						</div>
 					</div> 
-					<span class="title">{{codeError.title}}</span>											
-						<div class="row no-gutters mt-4">
-							<div class="col-sm-12">
-								<div class="code-wrapper" style="max-height:275px;" data-action-expand-id="611ebeca57be8e75fe94c298">
-									<code class="prettyprint" style="">{{{codeError.stackTrace}}}</code>            
-								</div>
+					<div class="title mb-2">{{codeError.title}}</div>			
+						{{#if codeError.text}}
+						<div class="mb-2">
+							{{codeError.text}}
+						</div>		
+					{{/if}}			
+					<div class="row no-gutters mt-1">
+						<div class="col-sm-12">
+							{{#if codeError.stackTrace}}
+							<div class="code-wrapper" style="max-height:275px;" data-action-expand-id="611ebeca57be8e75fe94c298">
+								<code class="prettyprint" style="">
+									{{#with codeError.stackTrace}}
+										{{#each lines}}
+											<div class="stack-frame"> 
+												<span title="{{method}}({{fileFullPath}}:{{line}}{{#if column}}:{{column}}{{/if}})">
+													{{method}}({{fileFullPath}}:{{line}}{{#if column}}:{{column}}{{/if}})
+												</span>
+											</div>
+										{{/each}}
+									{{/with}}
+									</code>            
 							</div>
-						</div>					
+							{{/if}}
+						</div>
+					</div>					
 				</div>
 		</div>			 	
 	</div>

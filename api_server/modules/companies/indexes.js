@@ -7,5 +7,8 @@ module.exports = {
 	byPlan: {
 		plan: 1,
 		deactivated: 1
+	},
+	byDomainJoining: {
+		domainJoining: 1
 	}
 };

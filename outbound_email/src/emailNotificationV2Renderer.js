@@ -9,6 +9,7 @@ class EmailNotificationV2Renderer {
 	// render an email notification for a codemark or reply and for a given user
 	render (options) {
 		const { 
+			user,
 			content,
 			unfollowLink,
 			inboundEmailDisabled,
@@ -19,30 +20,37 @@ class EmailNotificationV2Renderer {
 			isReply,
 			inviteCode,
 			userBeingAddedToTeam,
-			teamName,
+			team,
+			company,
 			isReplyToCodeAuthor
 		} = options;
 		const what = review ? 'feedback request' : 'codemark';
 
-		const installWithInviteCode = `
+		const installText = team && team.isEveryoneTeam ? `
+<br/>
+1. Install the extension for ${ideLinks}.<br/>
+2. Sign up using <b>${user.email}</b>.<br/>
+` : `
 <br/>
 1. Install the extension for ${ideLinks}.<br/>
 2. Paste in your invitation code:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;<b>${inviteCode}</b><br/>
-`;
+ `;
 
 		let firstFooterDiv = '', secondFooterDiv = '', inviteDiv = '';
 		if (userIsRegistered) {
 			if (userBeingAddedToTeam) {
+				const addedTo = team.isEveryoneTeam ? `${company.name} organization` : `${team.name} team`;
+				const teamOrg = team.isEveryoneTeam ? 'Organizations' : 'Teams';
 				firstFooterDiv = `
 <div class="following ensure-white">
-	<span>You received this email because you’ve been added to the ${teamName} team.&nbsp;<a clicktracking="off" href="${unfollowLink}"><span class="hover-underline">Unfollow</span></a>		
+	<span>You received this email because you’ve been added to the ${addedTo}.&nbsp;<a clicktracking="off" href="${unfollowLink}"><span class="hover-underline">Unfollow</span></a>		
 </div>
 `;
 				const replyPart = inboundEmailDisabled ? 'G' : 'Reply to this email, or g';
 				secondFooterDiv = `
 <div class="ensure-white">
-	${replyPart}o to the team by selecting “Switch Teams” under the headshot menu in the CodeStream extension.
+	${replyPart}o to the team by selecting "${teamOrg}" under the headshot menu in the CodeStream extension.
 </div>
 `;
 
@@ -80,7 +88,7 @@ class EmailNotificationV2Renderer {
 				inviteDiv = `
 <div class="ensure-white">
 	${inviteMessage}<br/>
-	${installWithInviteCode}
+	${installText}
 	<br/>
 </div>
 `;
@@ -90,7 +98,7 @@ class EmailNotificationV2Renderer {
 				inviteDiv = `
 <div class="ensure-white">
 	${replyPart}nstall codestream to view in your IDE.<br/>
-	${installWithInviteCode}
+	${installText}
 	<br/>
 </div>
 `;

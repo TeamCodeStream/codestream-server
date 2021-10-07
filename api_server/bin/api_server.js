@@ -53,7 +53,8 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'phoneHomeStats',
 	'gitLensUsers',
 	'reinviteUsersLastRunAt',
-	'activeServerAlerts'
+	'activeServerAlerts',
+	'globals'
 ]);
 
 

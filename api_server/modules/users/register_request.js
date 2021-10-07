@@ -14,6 +14,8 @@ const ConfirmHelper = require('./confirm_helper');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const ConfirmRepoSignup = require('./confirm_repo_signup');
 const GitLensReferralLookup = require('./gitlens_referral_lookup');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
 
 // how long we can use the same confirmation code for
 const CONFIRMATION_CODE_USABILITY_WINDOW = 60 * 60 * 1000;
@@ -37,6 +39,7 @@ class RegisterRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
+		await this.checkWebmail();			// check for webmail address, as needed
 		await this.confirmRepoSignup();		// for signup by virtue of access to a repo, confirm this is allowed
 		await this.getInvitedUser();		// get the user associated with an invite code, as needed
 		await this.getExistingUser();		// get the existing user matching this email, if any
@@ -72,7 +75,8 @@ class RegisterRequest extends RestfulRequest {
 			'teamId',
 			'repoId',
 			'commitHash',
-			'machineId'
+			'machineId',
+			'checkForWebmail'
 		].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
@@ -93,6 +97,21 @@ class RegisterRequest extends RestfulRequest {
 		);
 
 		this.request.body.email = this.request.body.email.trim();
+	}
+
+	// check for a webmail email address if requested, and return an error code if the
+	// email is indeed a webmail
+	async checkWebmail () {
+		if (!this.checkForWebmail) { return; }
+
+		const parsed = EmailUtilities.parseEmail(this.request.body.email);
+		if (typeof parsed === 'string') {
+			throw this.errorHandler.error('validation', { email: parsed });
+		}
+
+		if (WebmailCompanies.includes(parsed.domain.toLowerCase())) {
+			throw this.errorHandler.error('emailIsWebmail');
+		}
 	}
 
 	// for signup by virtue of access to a repo, confirm this is allowed

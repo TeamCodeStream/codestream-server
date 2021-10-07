@@ -31,15 +31,15 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		// members added to the conversation. this is what is called right after a bot is installed
 		this.onMembersAdded(async (context, next) => {
 			// Iterate over all new members added to the conversation
-			for (const idx in context.activity.membersAdded) {
+			// for (const idx in context.activity.membersAdded) {
 				// Greet anyone that was not the target (recipient) of this message.
 				// Since the bot is the recipient for events from the channel,
 				// context.activity.membersAdded === context.activity.recipient.Id indicates the
 				// bot was added to the conversation, and the opposite indicates this is a user.
-				if (context.activity.membersAdded[idx].id !== context.activity.recipient.id) {
-					await this.firstRun(context);
-				}
-			}
+				// if (context.activity.membersAdded[idx].id !== context.activity.recipient.id) {
+				// 	await this.firstRun(context);
+				// }
+			// }
 			// By calling next() you ensure that the next BotHandler is run.
 			await next();
 		});

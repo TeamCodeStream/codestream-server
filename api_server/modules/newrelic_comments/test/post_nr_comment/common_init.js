@@ -25,12 +25,13 @@ class CommonInit {
 
 	// form the data for the generating the NewRelic comment
 	makeNRCommentData (callback) {
+		this.data = this.nrCommentFactory.getRandomNRCommentData();
 		this.apiRequestOptions = {
 			headers: {
-				'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine
+				'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
+				'X-CS-NewRelic-AccountId': this.data.accountId
 			}
 		};
-		this.data = this.nrCommentFactory.getRandomNRCommentData();
 		const now = Date.now();
 		this.expectedResponse = {
 			post: Object.assign(DeepClone(this.data), {

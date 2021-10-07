@@ -1,29 +1,42 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="https://codestream.com">
-        <img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
-    </a>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown"></div>
-    <ul class="navbar-nav" id="menu">
-        <li class="nav-item dropdown">
-            <a class="nav-link" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="false">
-                <span class="navbar-toggler-icon"></span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                {{#if isAuthenticated}}
-                {{#if teamName}}
-                <span class="dropdown-item">{{teamName}}</span>
-                <div class="dropdown-divider"></div>
-                {{/if}}
-                {{/if}}
-                <a class="dropdown-item" href="mailto:support@codestream.com">Feedback</a>
-                <a class="dropdown-item" href="https://docs.codestream.com/userguide/"
-                    target="_blank">Help</a>
-                {{#if isAuthenticated}}
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/web/logout">Sign Out</a>
-                {{/if}}
-            </div>
-        </li>
-    </ul>
+<nav class='navbar navbar-expand-lg navbar-dark bg-dark'>
+	<a class='navbar-brand' href='https://codestream.com'>
+		<img
+			alt='CodeStream'
+			class='logo'
+			src='https://images.codestream.com/logos/cs-banner-1764x272.png'
+		/>
+	</a>
+	<div class='collapse navbar-collapse' id='navbarNavDropdown'></div>
+	<ul class='navbar-nav' id='menu'>
+		<li class='nav-item dropdown'>
+			<a
+				class='nav-link'
+				href='#'
+				id='navbarDropdownMenuLink'
+				data-toggle='dropdown'
+				aria-haspopup='true'
+				aria-expanded='false'
+			>
+				<span class='navbar-toggler-icon'></span>
+			</a>
+			<div class='dropdown-menu dropdown-menu-right' aria-labelledby='navbarDropdownMenuLink'>
+				{{#if isAuthenticated}}
+					{{#if companyName}}
+						<span class='dropdown-item'>{{companyName}}</span>
+						<div class='dropdown-divider'></div>
+					{{/if}}
+				{{/if}}
+				<a class='dropdown-item' href='mailto:support@codestream.com'>Feedback</a>
+				<a
+					class='dropdown-item'
+					href='https://docs.codestream.com/userguide/'
+					target='_blank'
+				>Help</a>
+				{{#if isAuthenticated}}
+					<div class='dropdown-divider'></div>
+					<a class='dropdown-item' href='/web/logout'>Sign Out</a>
+				{{/if}}
+			</div>
+		</li>
+	</ul>
 </nav>

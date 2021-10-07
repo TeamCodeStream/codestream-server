@@ -124,7 +124,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 		let stackTrace;
 		const stackTraces = this.codeError.get('stackTraces') || [];
 		if (stackTraces.length) {
-			stackTrace = stackTraces[0].text || '';
+			stackTrace = stackTraces[0]
 		}
 
  		const templateProps = {			 
@@ -151,7 +151,8 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			codeError: {
 				id: this.codeError.get('id'),
 				title: (this.codeError.get('title') || "").trimStart().trim(),
-				stackTrace: stackTrace.trim().replace(/\n/g,"<br />")
+				text: (this.codeError.get('text') || "").trimStart().trim(),
+				stackTrace: stackTrace 
 			}
 		};
 	 
