@@ -26,7 +26,7 @@ class EmailNotificationV2Renderer {
 		} = options;
 		const what = review ? 'feedback request' : 'codemark';
 
-		const installText = team && team.isEveryoneTeam ? `
+		const installText = true /*team && team.isEveryoneTeam*/ ? `
 <br/>
 1. Install the extension for ${ideLinks}.<br/>
 2. Sign up using <b>${user.email}</b>.<br/>
@@ -40,8 +40,8 @@ class EmailNotificationV2Renderer {
 		let firstFooterDiv = '', secondFooterDiv = '', inviteDiv = '';
 		if (userIsRegistered) {
 			if (userBeingAddedToTeam) {
-				const addedTo = team.isEveryoneTeam ? `${company.name} organization` : `${team.name} team`;
-				const teamOrg = team.isEveryoneTeam ? 'Organizations' : 'Teams';
+				const addedTo = true/*team.isEveryoneTeam*/ ? `${company.name} organization` : `${team.name} team`;
+				const teamOrg = true/*team.isEveryoneTeam*/ ? 'Organizations' : 'Teams';
 				firstFooterDiv = `
 <div class="following ensure-white">
 	<span>You received this email because you’ve been added to the ${addedTo}.&nbsp;<a clicktracking="off" href="${unfollowLink}"><span class="hover-underline">Unfollow</span></a>		
