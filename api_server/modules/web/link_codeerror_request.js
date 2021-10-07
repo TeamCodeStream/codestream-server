@@ -97,6 +97,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			);
 			return this.redirect404();
 		}
+		return true;
 	}
 
 	getAvatar (username) {
@@ -171,7 +172,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 				stackTrace: stackTrace.trim().replace(/\n/g,"<br />")
 			}
 		};
-	 
+
 		await super.render('codeerror', templateProps);		 
 	} 
 
