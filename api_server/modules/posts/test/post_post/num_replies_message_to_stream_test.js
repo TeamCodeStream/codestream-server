@@ -28,7 +28,7 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 			callback,
 			{
 				token: this.users[1].accessToken,
-				streamId: this.teamStream.id,
+				streamId: this.postData[0].post.streamId,
 				parentPostId: this.postData[0].post.id
 			}
 		);
@@ -48,7 +48,7 @@ class NumRepliesMessageToStreamTest extends Aggregation(CodeStreamMessageTest, C
 		// numReplies for the parent post is set to 2
 		const postOptions = {
 			token: this.users[1].accessToken,
-			streamId: this.teamStream.id,
+			streamId: this.postData[0].post.streamId,
 			parentPostId: this.postData[0].post.id
 		};
 		this.postCreatedAt = Date.now();

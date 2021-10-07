@@ -265,6 +265,8 @@ const NoMessageToTeamStreamTest = require('./code_errors/no_message_to_team_stre
 const CodeErrorReplyMessageToObjectStreamTest = require('./code_errors/code_error_reply_message_to_object_stream_test');
 const ReplyNoMessageToTeamStreamTest = require('./code_errors/reply_no_message_to_team_stream_test');
 const ReplyWithCodemarkMessageTest = require('./code_errors/reply_with_codemark_message_test');
+const NumRepliesToCodeErrorMessageTest = require('./code_errors/num_replies_to_code_error_message_test');
+const NumRepliesToCodeErrorNRCommentMessageTest = require('./code_errors/num_replies_to_code_error_nr_comment_message_test');
 
 class PostPostRequestTester {
 
@@ -575,6 +577,8 @@ class PostPostRequestTester {
 		new CodeErrorReplyMessageToObjectStreamTest().test();
 		new ReplyNoMessageToTeamStreamTest().test();
 		new ReplyWithCodemarkMessageTest().test();
+		new NumRepliesToCodeErrorMessageTest().test();
+		new NumRepliesToCodeErrorNRCommentMessageTest().test();
 	}
 }
 

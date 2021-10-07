@@ -54,6 +54,9 @@ class RandomPostFactory {
 			// for replies
 			data.parentPostId = options.parentPostId;
 		}
+		if (options.mentionedUserIds) {
+			data.mentionedUserIds = [...options.mentionedUserIds];
+		}
 		data.text = this.randomText();
 		callback(null, data);
 	}
