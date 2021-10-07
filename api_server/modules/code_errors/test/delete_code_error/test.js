@@ -20,7 +20,7 @@ class DeleteCodeErrorRequestTester {
 		new CodeErrorNotFoundTest().test();
 		new AlreadyDeletedTest().test();
 		new AdminCannotDeleteTest().test();
-		//new MessageTest().test();
+		new MessageTest().test();
 		new DeleteRepliesTest().test();
 	}
 }

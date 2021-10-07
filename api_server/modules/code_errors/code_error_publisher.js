@@ -9,18 +9,7 @@ class CodeErrorPublisher {
 	}
 
 	async publishCodeError () {
-		let channel;
-		const stream = this.stream || await this.request.data.streams.getById(this.codeError.get('streamId'));
-		if (!stream) { return; } // sanity
-		if (!stream.get('isTeamStream')) {
-			throw 'stream channels are deprecated';
-		}
-		channel = `team-${this.codeError.get('teamId')}`;
-		/*
-		channel = stream.get('isTeamStream') ? 
-			`team-${this.codeError.get('teamId')}` : 
-			`stream-${stream.id}`;
-		*/
+		const channel = `object-${this.codeError.id}`;
 		const message = Object.assign({}, this.data, {
 			requestId: this.request.request.id
 		});

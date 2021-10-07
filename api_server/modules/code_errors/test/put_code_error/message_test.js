@@ -8,7 +8,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
 		const type = this.streamType || 'team';
-		return `members of the team or stream should receive a message with the code error when a code error is updated in a ${type} stream`;
+		return `followers of a code error should receive a message with the code error when a code error is updated`;
 	}
 
 	// make the data that triggers the message to be received
@@ -18,21 +18,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		// since posting to streams other than the team stream is no longer allowed,
-		// just listen on the team channel
-		this.channelName = `team-${this.team.id}`;
-
-		/*
-		// for channels and directs the message comes on the stream channel
-		if (this.stream.isTeamStream) {
-			this.channelName = `team-${this.team.id}`;
-		}
-		else {
-			throw 'stream channels are deprecated';
-			//this.channelName = `stream-${this.stream.id}`;
-		}
-		*/
-
+		this.channelName = `object-${this.postData[0].codeError.id}`;
 		callback();
 	}
 

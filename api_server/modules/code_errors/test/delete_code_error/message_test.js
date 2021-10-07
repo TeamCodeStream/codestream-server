@@ -7,8 +7,7 @@ const CommonInit = require('./common_init');
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		const type = this.streamType || 'team';
-		return `members of the ${type} should receive a message with the deactivated code error when a code error is deleted from a ${type} stream`;
+		return 'followers of a code error should receive a message with the code error when a code error is deleted';
 	}
 
 	// make the data that triggers the message to be received
@@ -18,20 +17,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		// since posting to streams other than the team stream is no longer allowed,
-		// just listen on the team channel
-		this.channelName = `team-${this.team.id}`;
-
-		/*
-		if (this.streamType === 'team stream') {
-			this.channelName = `team-${this.team.id}`;
-		}
-		else {
-			throw 'stream channels are deprecated';
-			//this.channelName = `stream-${this.stream.id}`;
-		}
-		*/
-
+		this.channelName = `object-${this.postData[0].codeError.id}`;
 		callback();
 	}
 

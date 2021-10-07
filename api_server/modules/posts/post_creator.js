@@ -976,7 +976,7 @@ class PostCreator extends ModelCreator {
 			data: customData || this.request.responseData,
 			broadcaster: this.api.services.broadcaster,
 			stream: this.stream.attributes,
-			object: this.codeError
+			object: this.codeError || this.transforms.createdCodeError
 		}).publishPost();
 	}
 

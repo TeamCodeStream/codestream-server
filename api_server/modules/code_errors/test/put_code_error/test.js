@@ -21,7 +21,7 @@ class PutCodeErrorRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'postId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
-		//new MessageTest().test();
+		new MessageTest().test();
 	}
 }
 
