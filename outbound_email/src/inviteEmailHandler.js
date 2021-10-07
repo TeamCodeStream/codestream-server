@@ -22,7 +22,7 @@ class InviteEmailHandler extends EmailHandler {
 			throw 'Inviter not found: ' + this.message.inviterId;
 		}
 		const inviterName = inviter.fullName || inviter.email;
-		if (this.team && this.team.isEveryoneTeam) {
+		if (true/*this.team && this.team.isEveryoneTeam*/) {
 			this.subject = `${inviterName} invited you to collaborate`;
 		} else {
 			this.subject = `${inviterName} invited you to collaborate with ${this.message.teamName}`;
@@ -58,8 +58,8 @@ In the CodeStream extension, select “Switch Teams” under the headshot menu t
 		}
 		const allLinks = links.slice(0, links.length - 1).join(', ') + ' or ' + links[links.length - 1];
 
-		const downloadOrInstall = this.team && this.team.isEveryoneTeam ? 'Install' : 'Download';
-		const inviteCodeCopy =  (this.message.forceCompanyCentricInviteCopy || (this.team && this.team.isEveryoneTeam)) ? `
+		const downloadOrInstall = true/*this.team && this.team.isEveryoneTeam*/ ? 'Install' : 'Download';
+		const inviteCodeCopy =  true /*(this.message.forceCompanyCentricInviteCopy || (this.team && this.team.isEveryoneTeam))*/ ? `
 2. Sign up using <b>${this.user.email}</b>.<br/>
 <br/>
 ` :
