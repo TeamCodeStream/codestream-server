@@ -183,7 +183,7 @@ class CodemarkHelper {
 		followerIds = ArrayUtilities.union(followerIds, mentionedWhoWantToFollow);
 
 		// users who have replied to this codemark are followers, if they want to be
-		if (options.parentPost) {
+		if (options.parentPost && options.team) {
 			const repliers = await this.getPostRepliers(options.parentPost.id, options.team.id, stream.id);
 			const repliersWhoWantToFollow = options.ignorePreferences ?
 				repliers :

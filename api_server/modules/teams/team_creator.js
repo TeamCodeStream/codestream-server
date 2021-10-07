@@ -188,7 +188,7 @@ class TeamCreator extends ModelCreator {
 
 	// update a user to indicate they have been added to a new team
 	async updateUser () {
-	// add the team's ID to the user's teamIds array, and the company ID to the companyIds array
+		// add the team's ID to the user's teamIds array, and the company ID to the companyIds array
 		const op = {
 			$addToSet: {
 				companyIds: this.attributes.companyId,

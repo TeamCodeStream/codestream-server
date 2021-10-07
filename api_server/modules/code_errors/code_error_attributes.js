@@ -5,7 +5,6 @@
 module.exports = {
 	teamId: {
 		type: 'id',
-		required: true,
 		description: 'ID of the @@#team#team@@ that owns this code error'
 	},
 	streamId: {
@@ -63,16 +62,6 @@ module.exports = {
 		maxLength: 1000,
 		description: 'Private permalink URL for this code error'
 	},
-	ticketUrl: {
-		type: 'string',
-		maxLength: 1000,
-		description: 'URL for the third-party ticket or issue associated with this code error'
-	},
-	ticketProviderId: {
-		type: 'string',
-		maxLength: 50,
-		description: 'Identifies the third-party provider hosting the ticket or issue associated with this code error'
-	},
 	entryPoint: {
 		type: 'string',
 		maxLength: 100,
@@ -91,11 +80,13 @@ module.exports = {
 	},
 	objectId: {
 		type: 'string',
+		required: true,
 		maxLength: 200,
 		description: 'Id from the source of this code error'
 	},
 	objectType: {
 		type: 'string',
+		required: true,
 		maxLength: 200,
 		description: 'Type from the source of this code error'
 	},
@@ -106,6 +97,7 @@ module.exports = {
 	},
 	accountId: {
 		type: 'number',
+		required: true,
 		description: 'ID of the New Relic account that owns this code error'
 	}
 };

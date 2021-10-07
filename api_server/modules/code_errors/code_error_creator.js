@@ -37,7 +37,7 @@ class CodeErrorCreator extends ModelCreator {
 		return {
 			required: {
 				number: ['accountId'],
-				string: ['teamId', 'streamId', 'postId', 'objectId', 'objectType']
+				string: ['postId', 'objectId', 'objectType']
 			},
 			optional: {
 				string: ['providerUrl', 'entryPoint', 'title', 'text'],
@@ -53,7 +53,6 @@ class CodeErrorCreator extends ModelCreator {
 		// we match on a New Relic object ID and object type, in which case we add a new stack trace as needed
 		return {
 			query: {
-				teamId: this.attributes.teamId,
 				objectId: this.attributes.objectId,
 				objectType: this.attributes.objectType
 			},
@@ -99,9 +98,7 @@ class CodeErrorCreator extends ModelCreator {
 			await this.createPermalink();
 		}
 
-		// if the object ID matched a known object, check if this is a new stack trace ...
-		// if so, add it to the array of known stack traces
-		const stackTracesToAdd = [];
+		// handle concerns with existing code errors as needed
 		let didChange = false;
 		if (this.existingModel) {
 			didChange = this.handleExistingCodeError();
