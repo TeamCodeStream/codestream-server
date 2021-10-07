@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.14] - 2021-10-7
+
+### Changed
+
+- Set minimum required version of the CodeStream extensions to 11.1.0
+
 ## [11.0.13] - 2021-10-7
 
 ### Changed
@@ -16,13 +22,13 @@
 
 ### Changed
 
-- Set minimum required version of the JetBrains extension to 11.0.13.
+- Set minimum required version of the JetBrains extension to 11.0.13
 
 ## [11.0.10] - 2021-8-27
 
 ### Changed
 
-- Set minimum required versions of the VS and VS Code extensions to 11.0.14.
+- Set minimum required versions of the VS and VS Code extensions to 11.0.14
 
 ## [11.0.9] - 2021-8-24
 
