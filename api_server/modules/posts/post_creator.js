@@ -81,7 +81,7 @@ class PostCreator extends ModelCreator {
 		this.createId();				// create an ID for the post
 		await this.getStream();			// get the stream for the post
 		await this.getTeam();			// get the team that owns the stream
-		//await this.getCompany();		// get the company that owns the team
+		await this.getCompany();		// get the company that owns the team
 		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
@@ -248,7 +248,6 @@ class PostCreator extends ModelCreator {
 		this.attributes.teamId = this.team.id;	// post gets the same teamId as the stream
 	}
 
-	/*
 	// get the company that owns the team for which the post is being created
 	// only needed for analytics so we only do this for inbound emails 
 	async getCompany () {
@@ -259,7 +258,6 @@ class PostCreator extends ModelCreator {
 		}
 		this.company = await this.data.companies.getById(this.team.get('companyId'));
 	}
-	*/
 
 	// create any added users being mentioned, these users get invited "on-the-fly"
 	async createAddedUsers () {

@@ -104,7 +104,7 @@ class ReviewReplyMessageTest extends Aggregation(CodeStreamMessageTest, CommonIn
 					}]
 				};
 				if (this.type !== 'direct') {
-					this.updateMessage.reviews[0].$addToSet = { followerIds: this.users[1].user.id };
+					this.updateMessage.reviews[0].$addToSet = { followerIds: [this.users[1].user.id] };
 				}
 				callback();
 			}

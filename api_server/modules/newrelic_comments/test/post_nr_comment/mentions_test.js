@@ -19,6 +19,7 @@ class MentionsTest extends CreateNRCommentTest {
 			super.run,
 			this.registerFauxUser,
 			this.fetchPost,
+			this.fetchParentPost,
 			this.fetchUsers
 		], callback);
 	}
@@ -75,14 +76,30 @@ class MentionsTest extends CreateNRCommentTest {
 			}
 		);
 	}
-
+ 
+	// fetch the parent post to the comment, so we have the code error id
+	fetchParentPost (callback) {
+		this.doApiRequest(
+			{
+				method: 'get',
+				path: '/posts/' + this.fetchedPost.parentPostId,
+				token: this.token
+			}, 
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.fetchedParent = response.post;
+				callback();
+			}
+		);
+	}
+ 
 	// fetch the mentioned users and assert they match
 	fetchUsers (callback) {
 		const userIds = this.fetchedPost.mentionedUserIds.join(',');
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: `/users?ids=${userIds}&objectId=${this.nrCommentResponse.post.objectId}&objectType=${this.nrCommentResponse.post.objectType}`,
+				path: `/users?ids=${userIds}&codeErrorId=${this.fetchedParent.codeErrorId}`,
 				token: this.token
 			},
 			(error, response) => {

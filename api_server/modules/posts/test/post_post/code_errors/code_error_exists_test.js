@@ -27,6 +27,7 @@ class CodeErrorExistsTest extends CodeErrorTest {
 			// we'll use the pre-existing code error instead of generating one randomly
 			const existingCodeError = this.postData[0].codeError;
 			Object.assign(this.data.codeError, {
+				accountId: existingCodeError.accountId,
 				objectId: existingCodeError.objectId,
 				objectType: existingCodeError.objectType,
 				stackTraces: existingCodeError.stackTraces
