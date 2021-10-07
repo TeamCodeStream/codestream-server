@@ -183,7 +183,7 @@ class TeamCreator extends ModelCreator {
 		await super.postSave();
 		await this.updateUser();	// update the current user to indicate they are a member of the team
 		await this.grantUserMessagingPermissions();		// grant permission to the team creator to subscribe to the team broadcaster channel
-		await this.sendTeamCreatedEmail();	// send email to us that a new team has been created
+		//await this.sendTeamCreatedEmail();	// send email to us that a new team has been created
 	}
 
 	// update a user to indicate they have been added to a new team
