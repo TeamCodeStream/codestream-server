@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.15] - 2021-10-7
+
+### Changed
+
+- Fixes an issue where users couldn't create an organization
+
 ## [11.0.14] - 2021-10-7
 
 ### Changed
