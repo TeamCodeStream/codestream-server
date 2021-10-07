@@ -1,25 +1,25 @@
 [
 	{
 		"clientType": "VS Code",
-		"currentRelease": "11.0.14",
-		"minimumPreferredRelease": "11.0.14",
-		"earliestSupportedRelease": "11.0.14"
+		"currentRelease": "11.1.0",
+		"minimumPreferredRelease": "11.1.0",
+		"earliestSupportedRelease": "11.1.0"
 	},
 	{
 		"clientType": "VS",
-		"currentRelease": "11.0.14",
-		"minimumPreferredRelease": "11.0.14",
-		"earliestSupportedRelease": "11.0.14"
+		"currentRelease": "11.1.0",
+		"minimumPreferredRelease": "11.1.0",
+		"earliestSupportedRelease": "11.1.0"
 	},
 	{
 		"clientType": "JetBrains",
-		"currentRelease": "11.0.13",
-		"minimumPreferredRelease": "11.0.13",
-		"earliestSupportedRelease": "11.0.13"
+		"currentRelease": "11.1.0",
+		"minimumPreferredRelease": "11.1.0",
+		"earliestSupportedRelease": "11.1.0"
 	},
 	{
 		"clientType": "Atom",
-		"currentRelease": "11.0.5",
+		"currentRelease": "11.1.0",
 		"minimumPreferredRelease": "11.0.0",
 		"earliestSupportedRelease": "11.0.0"
 	}
