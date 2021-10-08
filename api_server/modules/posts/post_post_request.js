@@ -8,7 +8,7 @@ class PostPostRequest extends PostRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		let streamId = this.request.body.streamId.toLowerCase();
+		let streamId = this.request.body.streamId;
 		if (!streamId) {
 			// this is acceptable ONLY if we are creating a code error
 			if (!this.request.body.codeError) {
@@ -17,7 +17,8 @@ class PostPostRequest extends PostRequest {
 				return;
 			}
 		}
-
+		streamId = streamId.toLowerCase();
+		
 		// for replies, the stream ID always comes from the parent, ignore otherwise
 		const parentPostId = this.request.body.parentPostId;
 		if (parentPostId) {
