@@ -8,7 +8,7 @@ class PostPostRequest extends PostRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		const streamId = this.request.body.streamId;
+		let streamId = this.request.body.streamId.toLowerCase();
 		if (!streamId) {
 			// this is acceptable ONLY if we are creating a code error
 			if (!this.request.body.codeError) {
@@ -18,7 +18,17 @@ class PostPostRequest extends PostRequest {
 			}
 		}
 
-		const stream = await this.user.authorizeStream(streamId.toLowerCase(), this);
+		// for replies, the stream ID always comes from the parent, ignore otherwise
+		const parentPostId = this.request.body.parentPostId;
+		if (parentPostId) {
+			const parentPost = await this.data.posts.getById(parentPostId.toLowerCase());
+			if (!parentPost) {
+				throw this.errorHandler.error('notFound', { info: 'parentPost' });
+			}
+			streamId = this.request.body.streamId = parentPost.get('streamId');
+		}
+
+		const stream = await this.user.authorizeStream(streamId, this);
 		if (!stream) {
 			throw this.errorHandler.error('createAuth');
 		}
