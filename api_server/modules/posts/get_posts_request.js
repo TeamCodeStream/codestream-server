@@ -61,7 +61,10 @@ class GetPostsRequest extends GetManyRequest {
 			this.stream = await this.user.authorizeStream(parentPost.get('streamId'), this);
 			if (!this.stream) {
 				throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this stream' });
-			} 
+			}
+			if (this.stream.get('type') === 'object') {
+				delete this.request.query.teamId; // tolerated but ignored
+			}
 		} else {
 			// this forces a teamId
 			await this.user.authorizeFromTeamId(
