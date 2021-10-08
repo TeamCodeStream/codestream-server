@@ -128,10 +128,7 @@ class PostCreator extends ModelCreator {
 	// check if the post is for a code error, or a reply to a code error
 	async checkCodeError () {
 		let codeErrorId;
-		/*if (this.codeError) {
-			// code error given by caller
-			return;
-		} else */if (this.attributes.codeError) {
+		if (this.attributes.codeError) {
 			// creating a code error
 			this.creatingCodeError = true;
 		} else if (this.attributes.parentPostId) {
@@ -610,7 +607,7 @@ class PostCreator extends ModelCreator {
 		};
 
 		// handle any followers that need to be added to the code error, as needed
-		const newFollowerIds = await this.handleFollowers(this.codeError, op, { ignorePreferences: true });
+		this.newCodeErrorFollowerIds = await this.handleFollowers(this.codeError, op, { ignorePreferences: true });
 
 		this.transforms.updatedCodeErrors = this.transforms.updatedCodeErrors || [];
 		const codeErrorUpdate = await new ModelSaver({
@@ -621,8 +618,8 @@ class PostCreator extends ModelCreator {
 		this.transforms.updatedCodeErrors.push(codeErrorUpdate);
 
 		// grant messaging permissions to any new followers
-		if (newFollowerIds.length > 0) {
-			this.grantFollowerMessagingPermissions(newFollowerIds);
+		if (this.newCodeErrorFollowerIds.length > 0) {
+			this.grantFollowerMessagingPermissions(this.newCodeErrorFollowerIds);
 		}
 	}
 
@@ -889,6 +886,7 @@ class PostCreator extends ModelCreator {
 			this.publishRepos,					// publish any created or updated repos to the team
 			this.publishPost.bind(this, options && options.postPublishData), // publish the actual post to members of the team or stream
 			this.publishParents,				// if this post was a reply and we updated the parent post or codemark, publish that
+			this.publishCodeError,				// publish created code error to any new followers of that code error
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
 			this.publishToAuthor,				// publish directives to the author's me-channel
 			this.trackPost,						// for server-generated posts, send analytics info
@@ -1184,6 +1182,41 @@ class PostCreator extends ModelCreator {
 			{ id: this.data.users.objectIdSafe(user.id) },
 			update
 		);
+	}
+
+	// publish code error and post to any new followers of a code error
+	async publishCodeError () {
+		if (!this.codeError) { return; }
+		if (!this.newCodeErrorFollowerIds || !this.newCodeErrorFollowerIds.length) { return; }
+
+		return Promise.all(this.newCodeErrorFollowerIds.map(async userId => {
+			await this.publishCodeErrorToUser(userId);
+		}));
+	}
+
+	// publish the code error and its post, along with the post created, to any new followers
+	// of the code error (who were mentioned), so they now have access
+	async publishCodeErrorToUser (userId) {
+		const channel = `user-${userId}`;
+		const parentPost = this.parentPost.getSanitizedObject({ request: this.request });
+		const post = this.model.getSanitizedObject({ request: this.request });
+		const codeError = this.codeError.getSanitizedObject({ request: this.request });
+		const message = {
+			posts: [parentPost, post],
+			codeErrors: [codeError],
+			requestId: this.request.request.id
+		};
+		try {
+			await this.request.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish code error message to user ${userId}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// determine if special header was sent with the request that says to block emails
