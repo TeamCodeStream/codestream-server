@@ -101,6 +101,7 @@ class PostCreator extends ModelCreator {
 		await this.updateLastReads();	// update lastReads attributes for affected users
 		await this.updateParents();		// update the parent post and codemark if applicable
 		await this.updatePostCount();	// update the post count for the author of the post
+		await this.updateCodeErrorStreamMembers(); // for a code error with new followers, update membership of stream
 		this.updateTeam();				// update info for team, note, no need to "await"
 	}
 
@@ -751,6 +752,26 @@ class PostCreator extends ModelCreator {
 		}).save(op);
 	}
 
+	// for a code error with new followers, update the members of the code error stream
+	async updateCodeErrorStreamMembers () {
+		if (!this.codeError || (this.newCodeErrorFollowerIds || []).length === 0) {
+			return;
+		}
+		const op = {
+			$addToSet: {
+				memberIds: this.newCodeErrorFollowerIds
+			},
+			$set: {
+				modifiedAt: Date.now()
+			}
+		};
+		this.transforms.updatedCodeErrorStreamOp = await new ModelSaver({
+			request: this.request,
+			collection: this.data.streams,
+			id: this.codeError.get('streamId')
+		}).save(op);
+	}
+
 	// update the time the last post was created for the team
 	async updateTeam () {
 		if (!this.team) { return; }
@@ -800,7 +821,7 @@ class PostCreator extends ModelCreator {
 
 		// add any object stream created for a code error
 		if (transforms.createdStreamForCodeError) {
-			responseData.streams = responseData.stream || [];
+			responseData.streams = responseData.streams || [];
 			responseData.streams.push(transforms.createdStreamForCodeError.getSanitizedObject({ request: this }));
 		}
 
@@ -810,6 +831,12 @@ class PostCreator extends ModelCreator {
 				...(responseData.streams || []),
 				transforms.streamUpdateForPost
 			];
+		}
+
+		// code error stream might have been updated with new members
+		if (transforms.updatedCodeErrorStreamOp) {
+			responseData.streams = responseData.streams || [];
+			responseData.streams.push(transforms.updatedCodeErrorStreamOp);
 		}
 
 		// add any markers created 
@@ -995,6 +1022,9 @@ class PostCreator extends ModelCreator {
 		if (this.transforms.updatedCodeErrors) {
 			data.codeErrors = this.transforms.updatedCodeErrors;
 			needPublish = true;
+		}
+		if (this.transforms.updatedCodeErrorStreamOp) {
+			data.streams = [this.transforms.updatedCodeErrorStreamOp];
 		}
 
 		if (needPublish) {
@@ -1201,9 +1231,11 @@ class PostCreator extends ModelCreator {
 		const parentPost = this.parentPost.getSanitizedObject({ request: this.request });
 		const post = this.model.getSanitizedObject({ request: this.request });
 		const codeError = this.codeError.getSanitizedObject({ request: this.request });
+		const stream = this.stream.getSanitizedObject({ request: this.request });
 		const message = {
 			posts: [parentPost, post],
 			codeErrors: [codeError],
+			streams: [stream],
 			requestId: this.request.request.id
 		};
 		try {

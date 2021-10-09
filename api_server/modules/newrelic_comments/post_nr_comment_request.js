@@ -89,7 +89,6 @@ class PostNRCommentRequest extends NRCommentRequest {
 			request: this,
 			assumeSeqNum: 1,
 			replyIsComing: true,
-
 			users: this.users
 		}).createPost({
 			dontSendEmail: true,

@@ -62,8 +62,7 @@ class LastReadsUpdater {
 		if (type === 'file' || this.stream.get('isTeamStream')) {
 			// file-type streams - or team-streams - go to the whole team
 			memberIds = this.team.get('memberIds');
-		}
-		else {
+		} else {
 			// otherwise we go to the members of the stream
 			memberIds = this.stream.get('memberIds');
 		}

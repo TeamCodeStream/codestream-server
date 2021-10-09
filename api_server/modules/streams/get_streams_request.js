@@ -24,7 +24,8 @@ const RELATIONAL_PARAMETERS = [
 // additional options for post fetches
 const NON_FILTERING_PARAMETERS = [
 	'limit',
-	'sort'
+	'sort',
+	'includeFollowed'
 ];
 
 class GetStreamsRequest extends GetManyRequest {
@@ -68,6 +69,7 @@ class GetStreamsRequest extends GetManyRequest {
 				return false;
 			}
 		}
+
 		return query;
 	}
 
@@ -144,6 +146,12 @@ class GetStreamsRequest extends GetManyRequest {
 					privacy: 'public'
 				}
 			];
+			if (this.includeFollowed) {
+				query.$or[1].type = { $in: ['channel', 'object'] };
+			}
+		}
+		if (this.includeFollowed) {
+			query.teamId = { $in: [ query.teamId, null ] };
 		}
 		return query;
 	}
@@ -166,9 +174,10 @@ class GetStreamsRequest extends GetManyRequest {
 				// no unreads
 				return false;
 			}
-			else {
-				query.id = this.data.streams.inQuerySafe(ids);
-			}
+			query.id = this.data.streams.inQuerySafe(ids);
+		} 
+		else if (parameter === 'includeFollowed') {
+			this.includeFollowed = true;
 		}
 		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
 			// lt, gt, lte, gte

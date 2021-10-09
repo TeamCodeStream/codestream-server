@@ -132,7 +132,8 @@ class CodeErrorCreator extends ModelCreator {
 			privacy: 'public',
 			accountId: this.attributes.accountId,
 			objectId: this.attributes.objectId,
-			objectType: this.attributes.objectType
+			objectType: this.attributes.objectType,
+			memberIds: [this.user.id]
 		});
 		this.attributes.streamId = this.stream.id;
 	}
