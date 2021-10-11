@@ -169,7 +169,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			codeError: {
 				id: this.codeError.get('id'),
 				title: (this.codeError.get('title') || "").trim(),
-				stackTrace: stackTrace.trim().replace(/\n/g,"<br />")
+				stackTrace: (stackTrace || '').trim().replace(/\n/g,"<br />")
 			}
 		};
 
