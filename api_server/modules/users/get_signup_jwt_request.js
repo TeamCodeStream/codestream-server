@@ -30,7 +30,7 @@ class GetSignupJWTRequest extends RestfulRequest {
 		const ide = IDEMappings[origin] || '';
 		const payload = {
 			id: this.user.id,
-			name: this.user.get('fullName'),
+			name: this.user.get('fullName') || this.user.get('username'),
 			email: this.user.get('email'),
 			protocolHandling: ide === 'vscode',
 			ide
