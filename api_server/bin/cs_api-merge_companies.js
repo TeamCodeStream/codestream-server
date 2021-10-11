@@ -10,12 +10,13 @@ const Commander = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/node_mod
 const TeamMerger = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_merger');
 
 Commander
-	.option('-f, --fromCompanyId <fromCompanyId>', 'ID of the company to merge and delete')
+	.option('-f, --fromCompanyIds <fromCompanyIds>', 'Comma-separated IDs of the companies to merge and delete')
 	.option('-t, --toCompanyId <toCompanyId>', 'ID of the company to merge to')
 	.option('--dryrun', 'Do a dry run with informational messages, but don\'t actually DO anything')
+	.option('--merge-teams', 'Also merge the team for the from company, before merging to the to company')
 	.parse(process.argv);
 
-if (!Commander.fromCompanyId || !Commander.toCompanyId) {
+if (!Commander.fromCompanyIds || !Commander.toCompanyId) {
 	Commander.help();
 }
 
@@ -50,22 +51,26 @@ class CompanyMerger {
 	}
 
 	async process () {
-console.warn('MERGE ' + this.fromCompanyId + ' INTO ' + this.toCompanyId);
-		return new TeamMerger({
-			logger: this.logger,
-			data: this.data,
-			dryRun: this.dryRun
-		}).mergeCompanies(this.fromCompanyId, this.toCompanyId);
+		for (let fromCompanyId of this.fromCompanyIds) {
+			await new TeamMerger({
+				logger: this.logger,
+				data: this.data,
+				dryRun: this.dryRun,
+				mergeTeams: this.mergeTeams
+			}).mergeCompanies(fromCompanyId, this.toCompanyId);
+		}
 	}
 }
 
 (async function() {
 	try {
 		await ApiConfig.loadPreferredConfig();
+		const fromCompanyIds = Commander.fromCompanyIds.split(',');
 		await new CompanyMerger().go({
-			fromCompanyId: Commander.fromCompanyId.toLowerCase(),
+			fromCompanyIds: fromCompanyIds.map(id => id.toLowerCase()),
 			toCompanyId: Commander.toCompanyId.toLowerCase(),
-			dryRun: Commander.dryrun
+			dryRun: Commander.dryrun,
+			mergeTeams: Commander.mergeTeams
 		});
 	}
 	catch (error) {

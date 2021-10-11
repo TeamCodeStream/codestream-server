@@ -17,7 +17,7 @@ const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const COLLECTIONS_TO_MIGRATE = [
 	'codemarkLinks',
 	'codemarks',
-	'markerLocations',
+	//'markerLocations',
 	'markers',
 	'posts',
 	'codeErrors',
@@ -62,6 +62,7 @@ class MultiTeamMigrator {
 	async mergeCompanies (fromCompanyId, toCompanyId) {
 		this.fromCompanyId = fromCompanyId;
 		this.toCompanyId = toCompanyId;
+		this.log(`Merging company ${this.fromCompanyId} to ${this.toCompanyId}...`);
 		await this.getCompaniesAndTeams();
 		await this.countPostsPerTeam();
 		await this.mergeTeams();
@@ -86,13 +87,21 @@ class MultiTeamMigrator {
 			throw new Error('company not found: ' + this.fromCompanyId);
 		}
 		if (!this.fromCompany.everyoneTeamId) {
-			throw new Error('from company has no everyone team');
+			const possibleTeams = await this.data.teams.getByQuery({companyId: this.fromCompany.id}, { overrideHintRequired: true });
+			if (possibleTeams.length > 1) {
+				throw new Error(`From company ${this.fromCompany.id} has no everyone team, and has more than one team`);
+			} else {
+				this.log(`NOTE: From company ${this.fromCompany.id} has no everyone team, but has only one team`);
+				this.fromTeam = possibleTeams[0];
+			}
+		} else {
+			this.fromTeam = await this.data.teams.getById (this.fromCompany.everyoneTeamId);
 		}
-		this.fromTeam = await this.data.teams.getById (this.fromCompany.everyoneTeamId);
 		if (!this.fromTeam) {
 			throw new Error('did not find everyone team for from company');
 		}
 		this.mergingTeams = [this.fromTeam];
+		this.log(`Teams to merge will be: ${this.mergingTeams.map(team => team.id)}`);
 
 		this.toCompany = await this.data.companies.getById(this.toCompanyId);
 		if (!this.toCompany) {
@@ -102,6 +111,7 @@ class MultiTeamMigrator {
 			throw new Error('to company has no everyone team');
 		}
 		this.mergeToTeam = await this.data.teams.getById(this.toCompany.everyoneTeamId);
+		this.log(`Will merge into team ${this.mergeToTeam.id}`);
 		if (!this.mergeToTeam) {
 			throw new Error('did not find everyone team for to company');
 		}
@@ -186,7 +196,7 @@ class MultiTeamMigrator {
 				{ hint: StreamIndexes.byIsTeamStream, requestId: this.requestId }
 			))[0];
 			if (!team.teamStream) {
-				this.warn(`Team ${team.id} has no team stream!!!`);
+				throw new Error(`Team ${team.id} has no team stream!!!`);
 			}
 		}));
 	}
@@ -216,22 +226,6 @@ class MultiTeamMigrator {
 
 	// migrate all content in one collection belonging to one team to the merge-to team
 	async migrateContentForCollection (team, collection) {
-		// this is the core performance hit ... changing all these teamIds at once
-		// could hurt indexing, but let's hope not
-		this.log(`Moving ${collection} from team ${team.id} to ${this.mergeToTeam.id}...`);
-		const op = {
-			$set: {
-				originalTeamId: team.id,
-				teamId: this.mergeToTeam.id
-			}
-		};
-
-		if (this.dryRun) {
-			this.log(`Would have updated ${collection} documents in team ${team.id} to point to team ${this.mergeToTeam.id} with op:\n${JSON.stringify(op, undefined, 5)}`);
-		} else if (this.data[collection]) {
-			await this.data[collection].updateDirect({ teamId: team.id }, op, { requestId: this.requestId });
-		}
-
 		// certain collections have pointers to the stream, which for the team stream, should also be merged
 		// into the team stream for the team
 		const mergeToTeamStreamId = this.mergeToTeam.teamStream && this.mergeToTeam.teamStream.id;
@@ -239,6 +233,7 @@ class MultiTeamMigrator {
 		if (mergeToTeamStreamId && COLLECTIONS_WITH_TEAM_STREAM[collection]) {
 			const streamIdField = COLLECTIONS_WITH_TEAM_STREAM[collection];
 			const query = {
+				teamId: team.id,
 				[streamIdField]: teamStreamId
 			};
 			const streamOp = {
@@ -248,12 +243,20 @@ class MultiTeamMigrator {
 				}
 			};
 
-			if (this.dryRun) {
-				this.log(`Would have moved ${collection} to merged team stream ${mergeToTeamStreamId} with op:\n${JSON.stringify(streamOp, undefined, 5)}`);
-			} else {
-				await this.data[collection].updateDirect(query, streamOp);
-			}
+			await this.doDirect(`Moving ${collection} to merged team stream ${mergeToTeamStreamId}...`, collection, query, streamOp);
 		}
+
+		// this is the core performance hit ... changing all these teamIds at once
+		// could hurt indexing, but let's hope not
+		const op = {
+			$set: {
+				originalTeamId: team.id,
+				teamId: this.mergeToTeam.id
+			}
+		};
+
+		const query = { teamId: team.id };
+		await this.doDirect(`Moving ${collection} documents in team ${team.id} to point to team ${this.mergeToTeam.id}...`, collection, query, op);
 	}
 
 	// look for any repos that seem duplicative between the merging teams and the merge-to team,
@@ -283,8 +286,8 @@ class MultiTeamMigrator {
 		// lovely quadruple nested loop, let's just hope the numbers are small
 		for (const mergingRepo of mergingRepos) {
 			for (const mergeToRepo of mergeToRepos) {
-				this.log(`Merge-to repo ${mergeToRepo.id} remotes: ${(mergeToRepo.remotes || []).map(rem => rem.normalizedUrl)}`);
-				this.log(`Merging repo ${mergingRepo.id} remotes: ${(mergingRepo.remotes || []).map(rem => rem.normalizedUrl)}`);
+				//this.log(`Merge-to repo ${mergeToRepo.id} remotes: ${(mergeToRepo.remotes || []).map(rem => rem.normalizedUrl)}`);
+				//this.log(`Merging repo ${mergingRepo.id} remotes: ${(mergingRepo.remotes || []).map(rem => rem.normalizedUrl)}`);
 				if ((mergeToRepo.remotes || []).find(mergeToRemote => {
 					return (mergingRepo.remotes || []).find(mergingRemote => {
 						return mergeToRemote.normalizedUrl === mergingRemote.normalizedUrl;
@@ -381,12 +384,10 @@ class MultiTeamMigrator {
 				}
 			}
 		};
-		this.log(`Repo ${fromRepo.id} is being flagged for merge because ${reason}`);
-		if (this.dryRun) {
-			this.log(`Would have flagged repo ${fromRepo.id} for merge with op:\n${JSON.stringify(op, undefined, 5)}`);
-		} else {
-			await this.data.repos.updateDirect({ id: this.data.repos.objectIdSafe(fromRepo.id) }, op, { requestId: this.requestId });
-		}
+		const query = {
+			id: this.data.repos.objectIdSafe(fromRepo.id)
+		};
+		await this.doDirect(`Flagging repo ${fromRepo.id} for merge because ${reason}...`, 'repos', query, op);
 	}
 
 	// for each merged team, update its team stream to no longer be a team stream
@@ -397,12 +398,10 @@ class MultiTeamMigrator {
 				isTeamStream: true
 			}
 		};
-		this.log(`Deleting team stream flag from streams ${teamStreamIds}...`);
-		if (this.dryRun) {
-			this.log(`Would have deleted team stream flag from streams ${teamStreamIds} with op:\n${JSON.stringify(op, undefined, 5)}`);
-		} else {
-			await this.data.streams.updateDirect({ id: this.data.streams.inQuerySafe(teamStreamIds) }, op, { requestId: this.requestId });
-		}
+		const query = {
+			id: this.data.streams.inQuerySafe(teamStreamIds)
+		};
+		await this.doDirect(`Deleting team stream flag from streams ${teamStreamIds}...`, 'streams', query, op);
 	}
 
 	// merge each team's membership and settings into the merge-to team 
@@ -432,14 +431,10 @@ class MultiTeamMigrator {
 		if (this.company) {
 			op.$set.isEveryoneTeam = true;
 		}
-		this.log(`Merging to team ${this.mergeToTeam.id} with op:\n${JSON.stringify(op, undefined, 5)}`);
-		if (this.dryRun) {
-			this.log(`Would have merged to team ${this.mergeToTeam.id} with op:\n${JSON.stringify(op, undefined, 5)}`);
-		} else {
-			// store this membership to the merge-to team, also saving what the original membership
-			// details were, in case we need to back off
-			return this.data.teams.updateDirect({ id: this.data.teams.objectIdSafe(this.mergeToTeam.id) }, op, { requestId: this.requestId });
-		}
+		const query = {
+			id: this.data.teams.objectIdSafe(this.mergeToTeam.id)
+		};
+		await this.doDirect(`Merging to team ${this.mergeToTeam.id}...`, 'teams', query, op);
 	}
 
 	// merge the membership of all teams into the merge-to team
@@ -564,7 +559,7 @@ class MultiTeamMigrator {
 		// for "dontSuggestInvitees", merge keys that are set to true
 		if (typeof teamSettings.dontSuggestInvitees === 'object') {
 			mergeToSettings.dontSuggestInvites = mergeToSettings.dontSuggestInvites || {};
-			Object.keys(teamSettings.dontSuggestInvites).forEach(email => {
+			Object.keys(teamSettings.dontSuggestInvites || {}).forEach(email => {
 				if (teamSettings.dontSuggestInvites[email]) {
 					mergeToSettings.dontSuggestInvites[email] = true;
 				}
@@ -574,7 +569,7 @@ class MultiTeamMigrator {
 		// for "blameMap", merge blame settings that don't override whatever is in the merge-to team blame map
 		if (typeof teamSettings.blameMap === 'object') {
 			mergeToSettings.blameMap = mergeToSettings.blameMap || {};
-			Object.keys(teamSettings.blameMap).forEach(email => {
+			Object.keys(teamSettings.blameMap || {}).forEach(email => {
 				if (
 					teamSettings.blameMap[email] &&
 					!mergeToSettings.blameMap[email]
@@ -601,15 +596,22 @@ class MultiTeamMigrator {
 		// ensure user has the merge-to team (and possibly company)
 		const teamIds = user.teamIds || [];
 		const companyIds = user.companyIds || [];
+		let newCompanyIds = [...companyIds];
 		if (!this.removedMemberIds.includes(user.id)) {
 			if (!teamIds.includes(this.mergeToTeam.id)) {
 				op.$push = op.$push || {};
 				op.$push.teamIds = this.mergeToTeam.id;
 				needsUpdate = true;
 			}
-			if (this.toCompany && !companyIds.includes(this.toCompany.id)) {
-				op.$push = op.$push || {};
-				op.$push.companyIds = this.toCompany.id;
+			if (this.toCompany && !newCompanyIds.includes(this.toCompany.id)) {
+				newCompanyIds.push(this.toCompany.id);
+				needsUpdate = true;
+			}
+			if (this.fromCompany && newCompanyIds.includes(this.fromCompany.id)) {
+				const idx = newCompanyIds.indexOf(this.fromCompany.id);
+				if (idx !== -1) {
+					newCompanyIds.splice(idx, 1);
+				}
 				needsUpdate = true;
 			}
 		}
@@ -638,15 +640,16 @@ class MultiTeamMigrator {
 		if (providerInfoWasUpdated) {
 			op.$set = op.$set || {};
 			op.$set[`providerInfo.${this.mergeToTeam.id}`] = mergeToTeamProviderInfo;
-			this.log(`Merging provider info for user ${user.id} with op:\n${JSON.stringify(op, undefined, 5)}`);
+			this.log(`Merging provider info for user ${user.id}...`);
 		}
 
 		if (needsUpdate) {
-			if (this.dryRun) {
-				this.log(`Would have updated user ${user.id} with op:\n${JSON.stringify(op, undefined, 5)}`);
-			} else {
-				return this.data.users.updateDirect({ id: this.data.users.objectIdSafe(user.id) }, op, { requestId: this.requestId });
-			}
+			op.$set = op.$set || {};
+			op.$set.companyIds = newCompanyIds;
+			const query = {
+				id: this.data.users.objectIdSafe(user.id)	
+			};
+			await this.doDirect(`Updating user ${user.id}`, 'users', query, op);
 		}
 	}
 
@@ -662,12 +665,10 @@ class MultiTeamMigrator {
 				isBeingMigratedToCompanyCentric: true
 			}
 		}
-		this.log(`Migrating multi-team company ${this.company.id} to company-centric...`);
-		if (this.dryRun) {
-			this.log(`Would have migrated multi-team company ${this.company.id} to company-centric with op:\n${JSON.stringify(op, undefined, 5)}`);
-		} else {
-			return this.data.companies.updateDirect({ id: this.data.companies.objectIdSafe(this.company.id) }, op, { requestId: this.requestId });
-		}
+		const query = {
+			id: this.data.companies.objectIdSafe(this.company.id)
+		};
+		await this.doDirect(`Migrating multi-team company ${this.company.id} to company-centric...`, 'companies', query, op);
 	}
 
 	// when merging from one company to another, deactivate the "from" company
@@ -685,19 +686,15 @@ class MultiTeamMigrator {
 			}
 		};
 
-		this.log(`Deactivating from-company ${this.fromCompany.id}`);
-		if (this.dryRun) {
-			this.log(`Would have deactivated from-company ${this.fromCompany.id} with op:\n${JSON.stringify(companyOp, undefined, 5)}`);
-		} else {
-			return this.data.companies.updateDirect({ id: this.data.companies.objectIdSafe(this.fromCompany.id) }, companyOp, { request: this.requestId });
-		}
+		const companyQuery = {
+			id: this.data.companies.objectIdSafe(this.fromCompany.id)
+		};
+		await this.doDirect(`Deactivating from-company ${this.fromCompany.id}`, 'companies', companyQuery, companyOp);
 
-		this.log(`Demoting from-team ${this.fromTeam.id} from being everyone team`);
-		if (this.dryRun) {
-			this.log(`Would have demoted from-team ${this.fromTeam.id} from being everyone team with op:\n${JSON.stringify(teamOp, undefined, 5)}`);
-		} else {
-			return this.data.teams.updateDirect({ id: this.data.teams.objectIdSafe(this.fromTeam.id) }, teamOp, { request: this.requestId });
-		}
+		const teamQuery = {
+			id: this.data.teams.objectIdSafe(this.fromTeam.id)
+		};
+		await this.doDirect(`Demoting from-team ${this.fromTeam.id} from being everyone team...`, 'teams', teamQuery, teamOp);
 	}
 
 	// when merging from one company to another, move all teams from the "from" company to the other, just in case we need them
@@ -709,12 +706,10 @@ class MultiTeamMigrator {
 				originalCompanyId: this.fromCompany.id
 			}
 		};
-		this.log(`Moving all teams in company ${this.fromCompany.id} to company ${this.toCompany.id}...`);
-		if (this.dryRun) {
-			this.log(`Would have moved all teams in company ${this.fromCompany.id} to company ${this.toCompany.id} with op:\n${JSON.stringify(teamOp, undefined, 5)}`);
-		} else {
-			await this.data.teams.updateDirect({ id: this.data.teams.inQuerySafe(teamIds) }, teamOp, { requestId: this.requestId });
-		}
+		const teamQuery = {
+			id: this.data.teams.inQuerySafe(teamIds)
+		};
+		await this.doDirect(`Moving all teams in company ${this.fromCompany.id} to company ${this.toCompany.id}...`, 'teams', teamQuery, teamOp);
 	
 		// update the to-company with all these new teams
 		const newTeamIds = [...this.toCompany.teamIds, ...this.fromCompany.teamIds].sort();
@@ -724,11 +719,21 @@ class MultiTeamMigrator {
 				originalTeamIds: this.toCompany.teamIds
 			}
 		};
-		this.log(`Updating company ${this.toCompany.id} with new teams ${teamIds}...`);
+		const companyQuery = {
+			id: this.data.companies.objectIdSafe(this.toCompany.id)
+		};
+		await this.doDirect(`Updating company ${this.toCompany.id} with new teams ${teamIds}...`, 'companies', companyQuery, companyOp);
+	}
+
+	async doDirect (msg, collection, query, op) {
+		let log = `${msg}\nON ${collection}:\n${JSON.stringify(query, undefined, 10)}\nOP:\n${JSON.stringify(op, undefined, 10)}`;
 		if (this.dryRun) {
-			this.log(`Would have updated with company ${this.toCompany.id} with op:\n${JSON.stringify(companyOp, undefined, 5)}`);
+			this.log(`WOULD HAVE PERFORMED: ${log}`);
 		} else {
-			await this.data.companies.updateDirect({ id: this.data.companies.objectIdSafe(this.toCompany.id) }, companyOp, { requestId: this.requestId });
+			this.log(log);
+		}
+		if (!this.dryRun) {
+			await this.data[collection].updateDirect(query, op, { requestId: this.requestId });
 		}
 	}
 
