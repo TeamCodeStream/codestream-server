@@ -13,13 +13,20 @@ class DeletePostRequest extends DeleteRequest {
 		if (!this.post) {
 			throw this.errorHandler.error('notFound', { info: 'post' });
 		}
-		this.team = await this.data.teams.getById(this.post.get('teamId'));
-		if (!this.team) {
-			throw this.errorHandler.error('notFound', { info: 'team' });	// really shouldn't happen
+
+		if (this.post.get('teamId')) {
+			this.team = await this.data.teams.getById(this.post.get('teamId'));
+			if (!this.team) {
+				throw this.errorHandler.error('notFound', { info: 'team' });	// really shouldn't happen
+			}
 		}
+
 		if (
 			this.post.get('creatorId') !== this.user.id &&
-			!(this.team.get('adminIds') || []).includes(this.user.id)
+			(
+				!this.team ||
+				!(this.team.get('adminIds') || []).includes(this.user.id)
+			)
 		) {
 			throw this.errorHandler.error('deleteAuth', { reason: 'only the post author or a team admin can delete the post' });
 		}
