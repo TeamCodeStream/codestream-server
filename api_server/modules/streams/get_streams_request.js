@@ -25,7 +25,7 @@ const RELATIONAL_PARAMETERS = [
 const NON_FILTERING_PARAMETERS = [
 	'limit',
 	'sort',
-	'includeFollowed'
+//	'includeFollowed'
 ];
 
 class GetStreamsRequest extends GetManyRequest {
@@ -146,13 +146,15 @@ class GetStreamsRequest extends GetManyRequest {
 					privacy: 'public'
 				}
 			];
-			if (this.includeFollowed) {
-				query.$or[1].type = { $in: ['channel', 'object'] };
-			}
+			// allow teamless object streams to be fetched
+			//if (this.includeFollowed) {
+			query.$or[1].type = { $in: ['channel', 'object'] };
+			//}
 		}
-		if (this.includeFollowed) {
-			query.teamId = { $in: [ query.teamId, null ] };
-		}
+		// allow teamless object streams to be fetched
+		//if (this.includeFollowed) {
+		query.teamId = { $in: [ query.teamId, null ] };
+		//}
 		return query;
 	}
 
@@ -176,9 +178,11 @@ class GetStreamsRequest extends GetManyRequest {
 			}
 			query.id = this.data.streams.inQuerySafe(ids);
 		} 
+		/*
 		else if (parameter === 'includeFollowed') {
 			this.includeFollowed = true;
 		}
+		*/
 		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
 			// lt, gt, lte, gte
 			let error = this.processRelationalParameter(parameter, value, query);

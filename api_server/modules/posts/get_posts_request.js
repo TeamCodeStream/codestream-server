@@ -21,7 +21,7 @@ const BASIC_QUERY_PARAMETERS = [
 const NON_FILTERING_PARAMETERS = [
 	'limit',
 	'sort',
-	'includeFollowed'
+//	'includeFollowed'
 ];
 
 const RELATIONAL_PARAMETERS = [
@@ -139,9 +139,11 @@ class GetPostsRequest extends GetManyRequest {
 
 	// get streams representing code errors being followed, as needed
 	async getStreamsByFollow () {
+		/*
 		if (!this.request.query.includeFollowed) {
 			return [];
 		}
+		*/
 		const codeErrors = await this.data.codeErrors.getByQuery(
 			{
 				followerIds: this.user.id
@@ -176,9 +178,10 @@ class GetPostsRequest extends GetManyRequest {
 			return null;
 		}
 
-		if (this.request.query.includeFollowed) {
-			query.teamId = { $in: [ query.teamId, null ] };
-		}
+		// this allows posts from teamless object streams to be fetched
+		//if (this.request.query.includeFollowed) {
+		query.teamId = { $in: [ query.teamId, null ] };
+		//}
 		
 		return query;
 	}
