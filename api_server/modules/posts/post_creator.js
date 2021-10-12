@@ -1216,26 +1216,32 @@ class PostCreator extends ModelCreator {
 	}
 
 	// publish code error and post to any new followers of a code error
+	// this includes the initial code error to the code error's creator
 	async publishCodeError () {
-		if (!this.codeError) { return; }
+		if (this.transforms.createdCodeError) {
+			return this.publishCodeErrorToUser(this.user.id, this.transforms.createdCodeError);
+		} else if (!this.codeError) {
+			return;
+		}
 		if (!this.newCodeErrorFollowerIds || !this.newCodeErrorFollowerIds.length) { return; }
 
 		return Promise.all(this.newCodeErrorFollowerIds.map(async userId => {
-			await this.publishCodeErrorToUser(userId);
+			await this.publishCodeErrorToUser(userId, this.codeError);
 		}));
 	}
 
 	// publish the code error and its post, along with the post created, to any new followers
 	// of the code error (who were mentioned), so they now have access
-	async publishCodeErrorToUser (userId) {
+	async publishCodeErrorToUser (userId, codeError) {
 		const channel = `user-${userId}`;
-		const parentPost = this.parentPost.getSanitizedObject({ request: this.request });
+		const parentPost = this.parentPost && this.parentPost.getSanitizedObject({ request: this.request });
 		const post = this.model.getSanitizedObject({ request: this.request });
-		const codeError = this.codeError.getSanitizedObject({ request: this.request });
+		const codeErrorSanitized = codeError.getSanitizedObject({ request: this.request });
 		const stream = this.stream.getSanitizedObject({ request: this.request });
+		const posts = parentPost ? [parentPost, post] : [post];
 		const message = {
-			posts: [parentPost, post],
-			codeErrors: [codeError],
+			posts,
+			codeErrors: [codeErrorSanitized],
 			streams: [stream],
 			requestId: this.request.request.id
 		};
