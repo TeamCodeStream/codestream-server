@@ -101,7 +101,7 @@ class CodeErrorCreator extends ModelCreator {
 		// handle concerns with existing code errors as needed
 		let didChange = false;
 		if (this.existingModel) {
-			didChange = this.handleExistingCodeError();
+			didChange = await this.handleExistingCodeError();
 			this.stream = await this.data.streams.getById(this.existingModel.get('streamId'));
 			if (!this.stream) {
 				throw this.errorHandler.error('notFound', { info: 'code error stream' });
@@ -139,13 +139,18 @@ class CodeErrorCreator extends ModelCreator {
 	}
 	
 	// handle concerns with existing code errors
-	handleExistingCodeError () {
+	async handleExistingCodeError () {
 		const stackTracesToAdd = [];
 		let didChange = false;
 
 		// account ID must match
 		if (this.attributes.accountId !== this.existingModel.get('accountId')) {
 			throw this.errorHandler.error('createAuth', { reason: 'found existing object but account ID does not match' });
+		}
+
+		// creator of the code error must be a fellow teammate
+		if (!(this.allowFromUserId && this.allowFromUserId === this.user.id)) {
+			await this.ensureAuthorized();
 		}
 
 		// check if this is a new stack trace ...
@@ -172,6 +177,22 @@ class CodeErrorCreator extends ModelCreator {
 		delete this.attributes.creatorId; // don't change authors
 
 		return didChange;
+	}
+
+	// ensure an existing code error has been created by one of my teammates, otherwise i cannot contribute
+	async ensureAuthorzied () {
+		const teamIds = this.user.get('teamIds') || [];
+		let teams;
+		if (teamIds.length > 0) {
+			teams = await this.data.teams.getByIds(teamIds, { fields: [ 'memberIds' ] });
+		} else {
+			teams = [];
+		}
+		if (!teams.find(team => {
+			return (team.get('memberIds') || []).includes(this.existingModel.get('creatorId'));
+		})) {
+			throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this object' });
+		}
 	}
 
 	// create a permalink url to the codemark

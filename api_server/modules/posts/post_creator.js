@@ -372,7 +372,8 @@ class PostCreator extends ModelCreator {
 			request: this.request,
 			origin: this.attributes.origin,
 			useId: this.codeErrorId, // if locked down previously
-			replyIsComing: this.replyIsComing
+			replyIsComing: this.replyIsComing,
+			allowFromUserId: this.allowFromUserId
 		});
 		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(this.attributes.codeError);
 		if (this.transformsCreatedStreamForCodeError) {
