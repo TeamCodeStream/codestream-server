@@ -63,6 +63,7 @@ class GetPostsRequest extends GetManyRequest {
 				throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this stream' });
 			}
 			if (this.stream.get('type') === 'object') {
+				this.teamId = this.request.query.teamId;
 				delete this.request.query.teamId; // tolerated but ignored
 			}
 		} else {
@@ -83,7 +84,7 @@ class GetPostsRequest extends GetManyRequest {
 		// and optionally followed observability objects
 		// note that stream channels and DMs are now deprecated
 		this.byId = true;
-		this.teamId = this.request.query.teamId.toLowerCase();
+		this.teamId = this.teamId || this.request.query.teamId.toLowerCase();
 		const results = await awaitParallel([
 			this.getTeamStreams,
 			this.getStreamsByFollow
@@ -180,7 +181,7 @@ class GetPostsRequest extends GetManyRequest {
 
 		// this allows posts from teamless object streams to be fetched
 		//if (this.request.query.includeFollowed) {
-		query.teamId = { $in: [ query.teamId, null ] };
+		query.teamId = { $in: [ this.teamId, null ] };
 		//}
 		
 		return query;
