@@ -1123,7 +1123,7 @@ class PostCreator extends ModelCreator {
 				if (this.grandParentPost.get('reviewId')) {
 					parentType = 'Review.Codemark';
 				} else if (this.grandParentPost.get('codeErrorId')) {
-					parentType = 'CodeError.Codemark';
+					parentType = 'Error.Codemark';
 				}
 			}
 			else {
