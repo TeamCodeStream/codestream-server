@@ -27,7 +27,7 @@ class ReviewRenderer extends RendererBase {
 
 	// renders a smaller (collapsed) version of the review
 	renderCollapsed (options) {
-		const codemarkAuthorDiv = this.renderReviewAuthorDiv(options);
+		const reviewAuthorDiv = this.renderAuthorDiv(options);
 		const titleDiv = this.renderTitleDiv(options);
 		const activityDiv = this.renderActivityDiv(options);
 		return `

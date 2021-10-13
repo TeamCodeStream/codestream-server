@@ -3,6 +3,7 @@
 const ReplyRenderer = require('./replyRenderer');
 const CodemarkRenderer = require('./codemarkRenderer');
 const ReviewRenderer = require('./reviewRenderer');
+const CodeErrorRenderer = require('./codeErrorRenderer');
 const EmailNotificationV2Renderer = require('./emailNotificationV2Renderer');
 const EmailNotificationV2Sender = require('./emailNotificationV2Sender');
 const Utils = require('./utils');
@@ -93,14 +94,20 @@ class EmailNotificationV2Handler {
 			}
 		}
 
+		if (this.parentPost && this.parentPost.parentPostId) {
+			this.grandparentPost = await this.data.posts.getById(this.parentPost.parentPostId);
+		}
+
 		if (this.parentPost && this.parentPost.reviewId) {
 			this.parentReview = await this.data.reviews.getById(this.parentPost.reviewId);
+		} else if (this.grandparentPost && this.grandparentPost.reviewId) {
+			this.parentReview = await this.data.reviews.getById(this.grandparentPost.reviewId);
 		}
-		else if (this.parentPost && this.parentPost.parentPostId) {
-			this.grandparentPost = await this.data.posts.getById(this.parentPost.parentPostId);
-			if (this.grandparentPost.reviewId) {
-				this.parentReview = await this.data.reviews.getById(this.grandparentPost.reviewId);
-			}
+
+		if (this.parentPost && this.parentPost.codeErrorId) {
+			this.parentCodeError = await this.data.codeErrors.getById(this.parentPost.codeErrorId);
+		} else if (this.grandparentPost && this.grandparentPost.codeErrorId) {
+			this.parentCodeError = await this.data.codeErrors.getById(this.grandparentPost.codeErrorId);
 		}
 	}
 
@@ -216,6 +223,11 @@ class EmailNotificationV2Handler {
 
 	// get the team and company that owns the stream that owns the post
 	async getTeamAndCompany () {
+		// could belong to a teamless code error
+		if (!this.stream.teamId) { 
+			return;
+		}
+
 		this.team = await this.data.teams.getById(this.stream.teamId);
 		if (!this.team) {
 			throw `team ${this.stream.teamId} not found`;
@@ -232,10 +244,17 @@ class EmailNotificationV2Handler {
 		if (this.message.isReminder && this.review) {
 			// special case for review reminders ... in this case the "members" are the reviewers
 			currentMemberIds = this.review.reviewers || [];
-		} else {
+		} else if (this.parentCodeError) {
+			// members for a code error are the followers of the code error
+			currentMemberIds = this.parentCodeError.followerIds || [];
+		} else if (this.team) {
 			currentMemberIds = this.team.memberIds;
+		} else {
+			throw new Error('no team found');
 		}
-		currentMemberIds = ArrayUtilities.difference(currentMemberIds, this.team.removedMemberIds || []);
+		if (this.team) {
+			currentMemberIds = ArrayUtilities.difference(currentMemberIds, this.team.removedMemberIds || []);
+		}
 
 		// always get the creator, even if removed from the team
 		if (!currentMemberIds.includes(this.post.creatorId)) {
@@ -243,10 +262,13 @@ class EmailNotificationV2Handler {
 		}
 
 		this.teamMembers = await this.data.users.getByIds(currentMemberIds);
-		if (this.stream.type === 'file' || this.stream.isTeamStream) {
+		if (
+			this.stream.type === 'file' ||
+			this.stream.isTeamStream ||
+			this.stream.type === 'object'
+		) {
 			this.streamMembers = this.teamMembers;
-		}
-		else {
+		} else {
 			this.streamMembers = this.teamMembers.filter(member => {
 				return this.stream.memberIds.indexOf(member.id) !== -1;
 			});
@@ -270,7 +292,7 @@ class EmailNotificationV2Handler {
 		}
 
 		// users who have been removed from the team never get emails
-		if ((this.team.removedMemberIds || []).includes(user.id)) {
+		if (this.team && (this.team.removedMemberIds || []).includes(user.id)) {
 			this.log(`User ${user.id}:${user.email} has been removed from team so will not receive an email notification`);
 			return false;
 		}
@@ -296,8 +318,8 @@ class EmailNotificationV2Handler {
 		// note that, for review reminders, this means they've specifically opted out of reviewing this review,
 		// so we shouldn't send a reminder
 		const thingToFollow = this.post.parentPostId ?
-			(this.parentReview || this.parentCodemark) :
-			(this.review || this.codemark);
+			(this.parentCodeError || this.parentReview || this.parentCodemark) :
+			(this.codeError || this.review || this.codemark);
 		const followerIds = (thingToFollow && thingToFollow.followerIds) || [];
 		if (followerIds.indexOf(user.id) !== -1) {
 			// the one exception: if a review has been created and the user is one of the "code authors",
@@ -387,6 +409,7 @@ class EmailNotificationV2Handler {
 			parentPost: this.parentPost,
 			codemark: this.parentCodemark || this.codemark,
 			review: this.parentReview || this.review,
+			codeError: this.parentCodeError || this.codeError,
 			markers: this.markers,
 			fileStreams: this.fileStreams,
 			repos: this.repos,
@@ -399,18 +422,51 @@ class EmailNotificationV2Handler {
 			creator
 		};
 		// HACK ugh, don't want to do this here...	
-		this.renderOptions.clickUrl = Utils.getIDEUrl(((this.renderOptions.review || this.renderOptions.codemark) || {}).permalink, null);
+		const thing = this.renderOptions.codeError || this.renderOptions.review || this.renderOptions.codemark;
+		if (thing) {
+			this.renderOptions.clickUrl = Utils.getIDEUrl(thing.permalink, null);
+		}
 
 		if (this.post.parentPostId) {
 			let creatorId;
 			if (this.grandparentPost) {
 				creatorId = this.parentPost.creatorId;
 			} else {
-				creatorId = (this.parentCodemark || this.parentReview).creatorId;
+				creatorId = (this.parentCodemark || this.parentReview || this.parentCodeError).creatorId;
 			}
 			this.renderOptions.parentObjectCreator = this.teamMembers.find(member => member.id === creatorId);
 
-			if (this.parentReview) {
+			if (this.parentCodeError) {
+				if (this.codemark) {
+					// new codemark for a code error
+					this.renderOptions.parentObject = this.parentCodeError;
+					this.renderOptions.codemarkCreator = this.renderOptions.creator;
+					const codeErrorContent = new CodeErrorRenderer().renderCollapsed(this.renderOptions);
+					const codemarkContent = new CodemarkRenderer().render({ ...this.renderOptions, 
+						suppressNewContent: true 
+					});					
+					this.renderedHtml = new ReplyRenderer().renderContentAsReply(this.renderOptions, codeErrorContent, codemarkContent);
+					return;
+				} else if (this.parentCodemark) {
+					// new reply to a codemark reply to a code error
+					// here, we aren't showing the full code error object, just the code error header in the codemark
+					this.renderOptions.parentObject = this.parentCodemark;
+					this.renderOptions.codemarkCreator = this.renderOptions.parentObjectCreator;
+					const parentCodemark = new CodemarkRenderer().render({ ...this.renderOptions, 
+						includeActivity: true,
+						suppressNewContent: true, 
+						includeCodeErrorSection: true
+					});
+					this.renderedHtml = new ReplyRenderer().render(this.renderOptions, parentCodemark);					
+					return;
+				} else {
+					// new reply to a code error
+					this.renderOptions.parentObject = this.parentCodeError;
+					const codeErrorContent = new CodeErrorRenderer().renderCollapsed(this.renderOptions);
+					this.renderedHtml = new ReplyRenderer().render(this.renderOptions, codeErrorContent);
+					return;
+				}
+			} else if (this.parentReview) {
 				if (this.codemark) {
 					// new codemark for a review
 					this.renderOptions.parentObject = this.parentReview;
@@ -421,8 +477,7 @@ class EmailNotificationV2Handler {
 					});					
 					this.renderedHtml = new ReplyRenderer().renderContentAsReply(this.renderOptions, reviewContent, codemarkContent);
 					return;
-				}
-				else if (this.parentCodemark) {
+				} else if (this.parentCodemark) {
 					// new reply to a codemark in a review
 					// here, we aren't showing the full review object, just the review header in the codemark
 					this.renderOptions.parentObject = this.parentCodemark;
@@ -434,16 +489,14 @@ class EmailNotificationV2Handler {
 					});
 					this.renderedHtml = new ReplyRenderer().render(this.renderOptions, parentCodemark);					
 					return;
-				}
-				else {
+				} else {
 					// new reply to a review
 					this.renderOptions.parentObject = this.parentReview;
 					const reviewContent = new ReviewRenderer().renderCollapsed(this.renderOptions);
 					this.renderedHtml = new ReplyRenderer().render(this.renderOptions, reviewContent);
 					return;
 				}
-			}			
-			else if (this.parentCodemark) {
+			} else if (this.parentCodemark) {
 				// new reply to a codemark
 				this.renderOptions.parentObject = this.parentCodemark;
 				this.renderOptions.codemarkCreator = this.renderOptions.parentObjectCreator;
@@ -451,19 +504,19 @@ class EmailNotificationV2Handler {
 				this.renderedHtml = new ReplyRenderer().render(this.renderOptions, codemarkContent);
 				return;
 			}
-		}
-		else if (this.codemark) {
+		} else if (this.codemark) {
 			// new codemark
 			this.renderOptions.codemarkCreator = this.renderOptions.creator;
 			this.renderedHtml = new CodemarkRenderer().render(this.renderOptions);
 			return;
-		}
-		else if (this.review) {
+		} else if (this.review) {
 			// new review, or a review reminder
 			this.renderedHtml = new ReviewRenderer().render(this.renderOptions);
 			return;
-		}
-		else {
+		} else if (this.codeError) {
+			// new code error, this really shouldn't happen
+			throw new Error('email notification for a created code error, should not happen');
+		} else {
 			this.warn(`Post ${this.post.id} is not a reply and does not refer to a codemark; email notifications for plain posts are no longer supported; how the F did we get here?`);
 			return true;
 		}
@@ -488,8 +541,8 @@ class EmailNotificationV2Handler {
 		renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{datetime\}\}\}/g, datetime);
 
 		// also format the timestamp of the parent codemark as needed
-		if (this.parentCodemark || this.parentReview) {
-			const createdAt = (this.parentCodemark || this.parentReview).createdAt;
+		if (this.parentCodemark || this.parentReview || this.parentCodeError) {
+			const createdAt = (this.parentCodemark || this.parentReview || this.parentCodeError).createdAt;
 			const parentObjectDatetime = Utils.formatTime(createdAt, user.timeZone || DEFAULT_TIME_ZONE);
 			renderedHtmlForUser = renderedHtmlForUser.replace(/\{\{\{parentObjectDatetime\}\}\}/g, parentObjectDatetime);
 		}
@@ -554,11 +607,15 @@ class EmailNotificationV2Handler {
 
 	// render a single email for the given user
 	async renderEmailForUser (user) {
-		const { codemark, review } = this.renderOptions; 
-		const thingToUnfollow = this.parentReview || codemark || review;
+		const { codemark, review, codeError } = this.renderOptions; 
+		const thingToUnfollow = this.parentReview || this.parentCodeError || codemark || review || codeError;
 		const isReview = !!(this.parentReview || review);
-		const unfollowLink = this.getUnfollowLink(user, thingToUnfollow, isReview);
+		const isCodeError = !!(this.parentCodeError || codeError);
+		const unfollowLink = isCodeError ? null : this.getUnfollowLink(user, thingToUnfollow, isReview);
 		const userBeingAddedToTeam = (this.message.usersBeingAddedToTeam || []).includes(user.id);
+		if (isCodeError && userBeingAddedToTeam) {
+			throw new Error('cannot add a user to a team while creating or replying to a code error');
+		}
 		const isReplyToCodeAuthor = this.parentReview && !user.isRegistered && (this.parentReview.codeAuthorIds ||[]).includes(user.id);
 		Object.assign(this.renderOptions, {
 			user: user,
@@ -615,6 +672,7 @@ class EmailNotificationV2Handler {
 		const isReply = !!this.post.parentPostId;
 		const codemark = isReply ? this.parentCodemark : this.codemark;
 		const review = isReply ? this.parentReview : this.review;
+		const codeError = isReply ? this.parentCodeError : this.codeError;
 
 		// figure out the post that a reply to the email will be a child of, this is pretty complicated logic
 		// and should be altered very carefully
@@ -631,10 +689,10 @@ class EmailNotificationV2Handler {
 				replyToPostId = this.post.parentPostId;
 			}
 		}
-		else if (this.codemark || this.review) {
+		else if (this.codemark || this.review || this.codeError) {
 			// for non-replies, replies via email get attached to the codemark or review that is
 			// generating the email notification
-			replyToPostId = (this.codemark || this.review).postId;
+			replyToPostId = (this.codemark || this.review || this.codeError).postId;
 		}
 		else {
 			// this shouldn't really happen since it's not really possible to create a post without a 
@@ -642,7 +700,7 @@ class EmailNotificationV2Handler {
 			replyToPostId = this.post.id;
 		}
 
-		const creatorId = isReply ? this.post.creatorId : (codemark || review).creatorId;
+		const creatorId = isReply ? this.post.creatorId : (codemark || review || codeError).creatorId;
 		const creator = this.teamMembers.find(member => member.id === creatorId);
 		const options = {
 			sender: this.sender,
@@ -651,6 +709,7 @@ class EmailNotificationV2Handler {
 			creator,
 			codemark,
 			review,
+			codeError,
 			stream: this.stream,
 			team: this.team,
 			replyToPostId,
@@ -660,7 +719,7 @@ class EmailNotificationV2Handler {
 			requestId: this.requestId,
 			isReplyToCodeAuthor: this.parentReview && (this.parentReview.codeAuthorIds || []).includes(user.id)
 		};
-		const which = review ? 'review' : 'codemark';
+		const which = codeError ? 'code error' : review ? 'review' : 'codemark';
 		const reminder = this.message.isReminder ? 'reminder ' : '';
 		try {
 			this.logger.log(`Sending ${which}-based ${reminder}email notification to ${user.email}, post ${this.post.id}, isReply=${isReply}...`, options.requestId);

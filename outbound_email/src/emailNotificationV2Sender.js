@@ -6,12 +6,13 @@ class EmailNotificationV2Sender {
 
 	// send an email notification to the user specified
 	async sendEmailNotification (options, outboundEmailServerConfig) {
-		const { user, creator, team, stream, replyToPostId, content, sender, category, requestId } = options;
+		const { user, creator, team, stream, replyToPostId, content, sender, codeError, category, requestId } = options;
 		const inboundEmailDisabled = outboundEmailServerConfig.inboundEmailServer.inboundEmailDisabled;
 		const { replyToDomain, senderEmail } = outboundEmailServerConfig.email;
 		const fromName = creator ? `${sender.getUserDisplayName(creator)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
-		const replyTo = inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${team.id}@${replyToDomain}`;
+		const teamId = codeError ? codeError.accountId : team.id;
+		const replyTo = inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${teamId}@${replyToDomain}`;
 		await sender.sendEmail({
 			type: 'notification',
 			from: { email: senderEmail, name: fromName },
@@ -26,8 +27,8 @@ class EmailNotificationV2Sender {
 
 	// determine the subject of an email notification
 	getNotificationSubject (options) {
-		const { codemark, review, isReply, isReminder, creator, sender, user, isReplyToCodeAuthor } = options;
-		const codemarkOrReview = review || codemark;
+		const { codemark, review, codeError, isReply, isReminder, creator, sender, user, isReplyToCodeAuthor } = options;
+		const codemarkOrReview = codeError || review || codemark;
 		let subject;
 		if (isReminder) {
 			const fromName = creator ? sender.getUserDisplayName(creator, true) : 'The author of this feedback request'; // total fallback here

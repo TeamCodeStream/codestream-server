@@ -599,6 +599,7 @@ const Utils = {
 	// render the set of tags
 	renderTags: function (options) {
 		const { tags = [], team } = options;
+		if (!team) return '';
 		const teamTags = team.tags || [];
 		let hasTags = false;
 		let tagsHtml = '<table cellpadding=1 cellspacing=1 border=0><tr>';
