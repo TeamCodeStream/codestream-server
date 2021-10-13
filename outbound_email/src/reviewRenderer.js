@@ -32,7 +32,7 @@ class ReviewRenderer extends RendererBase {
 		const activityDiv = this.renderActivityDiv(options);
 		return `
 		<div class="inner-content">
-			${codemarkAuthorDiv}
+			${reviewAuthorDiv}
 			${titleDiv}
 			${activityDiv}
 		</div>`;
