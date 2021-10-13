@@ -29,6 +29,11 @@ const ROUTES = [
 		method: 'delete',
 		path: 'nr-comments/:id',
 		requestClass: require('./delete_nr_comment_request')
+	},
+	{
+		method: 'get',
+		path: 'lookup-nr-org',
+		requestClass: require('./lookup_nr_org_request')
 	}
 ];
 
