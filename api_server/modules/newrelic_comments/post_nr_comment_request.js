@@ -133,7 +133,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 			assumeSeqNum: this.codeErrorWasCreated ? 2 : undefined, // because the actual code error was 1
 			dontSendEmail: true,
 			users: this.users,
-			allowFromUserId: this.user.id
+			allowFromUserId: this.user.id,
+			forCommentEngine: true
 		});
 
 		this.post = await this.postCreator.createPost({

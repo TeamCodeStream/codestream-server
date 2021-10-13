@@ -1088,23 +1088,23 @@ class PostCreator extends ModelCreator {
 
 	// track this post for analytics, with the possibility that the user may have opted out
 	async trackPost () {
-		const { request, user, team, company } = this;
-
 		// only track for email replies, client-originating posts are tracked by the client
-		if (!this.forInboundEmail || !this.parentPost) {
+		if ((!this.forInboundEmail && !this.forCommentEngine) || !this.parentPost) {
 			return;
 		}
+		const { request, user, team, company } = this;
 
 		const dateOfLastPost = new Date(this.model.get('createdAt')).toISOString();
 		const parentId = (
 			this.parentPost.get('codemarkId') ||
 			this.parentPost.get('reviewId') || 
+			this.parentPost.get('codeErrorId') ||
 			(this.grandParentPost && this.grandParentPost.get('reviewId')) ||
 			(this.grandParentPost && this.grandParentPost.get('codeErrorId'))
 		);
 		const trackData = {
 			'Parent ID': parentId,
-			Endpoint: 'Email',
+			Endpoint: this.forCommentEngine ? 'NR1' : 'Email',
 			'Date of Last Post': dateOfLastPost
 		};
 		if (user.get('totalPosts') === 1) {
@@ -1116,7 +1116,7 @@ class PostCreator extends ModelCreator {
 			parentType = 'Review';
 		}
 		else if (this.parentPost.get('codeErrorId')) {
-			parentType = 'Code Error';
+			parentType = 'Error';
 		}
 		else if (this.parentPost.get('codemarkId')) {
 			if (this.grandParentPost) {
@@ -1134,7 +1134,7 @@ class PostCreator extends ModelCreator {
 			if (this.grandParentPost.get('reviewId')) {
 				parentType = 'Review.Reply';
 			} else if (this.grandParentPost.get('codeErrorId')) {
-				parentType = 'CodeError.Reply';
+				parentType = 'Error.Reply';
 			}
 		}
 		else {
