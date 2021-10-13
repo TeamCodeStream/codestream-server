@@ -5,6 +5,7 @@
 const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
+const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 
 class GetUsersRequest extends GetManyRequest {
 
@@ -18,7 +19,7 @@ class GetUsersRequest extends GetManyRequest {
 			if (!(this.codeError.get('followerIds') || []).includes(this.user.id)) {
 				throw this.errorHandler.error('readAuth', { reason: 'user is not a follower of this object' });
 			}
-		} else {
+		} else if (this.request.query.allCodeErrors === undefined) {
 			// members of the same team can fetch each other
 			await this.user.authorizeFromTeamId(this.request.query, this);
 		}
@@ -28,12 +29,27 @@ class GetUsersRequest extends GetManyRequest {
 	async preQueryHook () {
 		if (this.codeError) { return; }
 
-		// we need the members of the team, since this includes removed users who would otherwise not
-		// show up as on the team at all
-		this.team = await this.data.teams.getById(this.request.query.teamId.toLowerCase());
-		if (!this.team) {
-			// shouldn't really happen, as we would have already authorized against the team
-			throw this.errorHandler.error('notFound', { info: 'team' });
+		this.allCodeErrors = this.request.query.allCodeErrors !== undefined;
+		if (this.allCodeErrors) {
+			// fetch all the code errors this user is following, we'll then fetch the other users that follow those code errors
+			this.codeErrors = await this.data.codeErrors.getByQuery(
+				{ 
+					followerIds: this.user.id
+				}, 
+				{
+					hint: CodeErrorIndexes.byFollowerIds,
+					fields: ['followerIds'],
+					noCache: true
+				}
+			);
+		} else {
+			// we need the members of the team, since this includes removed users who would otherwise not
+			// show up as on the team at all
+			this.team = await this.data.teams.getById(this.request.query.teamId.toLowerCase());
+			if (!this.team) {
+				// shouldn't really happen, as we would have already authorized against the team
+				throw this.errorHandler.error('notFound', { info: 'team' });
+			}
 		}
 	}
 
@@ -43,6 +59,13 @@ class GetUsersRequest extends GetManyRequest {
 		if (this.codeError) {
 			// can get users following a code error
 			ids = this.codeError.get('followerIds') || [];
+		} else if (this.allCodeErrors) {
+			// or users following ALL code errors i'm following
+			ids = this.codeErrors.reduce((ids, codeError) => {
+				ids.push.apply(ids, codeError.followerIds || []);
+				return ids;
+			}, []);
+			ids = ArrayUtilities.unique(ids);
 		} else {
 			// or users from the team
 			ids = this.team.get('memberIds') || [];
