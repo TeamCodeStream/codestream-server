@@ -180,7 +180,7 @@ class CodeErrorCreator extends ModelCreator {
 	}
 
 	// ensure an existing code error has been created by one of my teammates, otherwise i cannot contribute
-	async ensureAuthorzied () {
+	async ensureAuthorized () {
 		const teamIds = this.user.get('teamIds') || [];
 		let teams;
 		if (teamIds.length > 0) {
