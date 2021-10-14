@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// desc// dump records mapping New Relic account IDs to org IDs to mongo
+
 /* eslint no-console: 0 */
 
 'use strict';
