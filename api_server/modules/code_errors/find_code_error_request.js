@@ -76,9 +76,6 @@ class FindCodeErrorRequest extends RestfulRequest {
 			collection: this.data.codeErrors,
 			id: this.codeError.id
 		}).save(op);
-
-		this.responseData.codeError.followerIds.push(this.user.id);
-		this.responseData.codeError.modifiedAt = now;
 	}
 
 	// called after the response is returned
