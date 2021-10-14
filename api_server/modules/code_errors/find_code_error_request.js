@@ -4,7 +4,6 @@
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const Indexes = require("./indexes");
-const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const CodeErrorPublisher = require('./code_error_publisher');
 
@@ -15,11 +14,14 @@ class FindCodeErrorRequest extends RestfulRequest {
 	}
 
 	async process () {
-		await this.getCodeError();
-		await this.authorizeCodeError();
-		await this.getPost();
-		await this.getReplies();
-		await this.makeFollower();
+		if (!await this.getCodeError()) {
+			this.responseData = { notFound: true };
+		} else if (!await this.authorizeCodeError()) {
+			this.responseData = { unauthorized: true };
+		} else {
+			await this.makeFollower();
+			this.responseData = { found: true };
+		}
 	}
 
 	// get any code error matching the object ID and object type passed
@@ -35,9 +37,7 @@ class FindCodeErrorRequest extends RestfulRequest {
 			{ objectId, objectType },
 			{ hint: Indexes.byobjectId}
 		);
-		if (!this.codeError) {
-			throw this.errorHandler.error('notFound', { info: 'code error' });
-		}
+		return !!this.codeError;
 	}
 
 	// authorize the code error: if created by any of my teammates, i can access it
@@ -49,43 +49,11 @@ class FindCodeErrorRequest extends RestfulRequest {
 		} else {
 			teams = [];
 		}
-		if (!teams.find(team => {
+		return !!teams.find(team => {
 			return (team.get('memberIds') || []).includes(this.codeError.get('creatorId'));
-		})) {
-			throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this object' });
-		}
-		this.responseData.codeError = this.codeError.getSanitizedObject({ request: this });
+		});
 	}
 
-	// get the post pointing to this code error, if any
-	async getPost () {
-		const postId = this.codeError.get('postId');
-		if (!postId) { return; }
-		this.post = await this.data.posts.getById(postId);
-		if (!this.post) {
-			throw this.errorHandler.error('notFound', { info: 'post' });
-		}
-		this.responseData.posts = [this.post.getSanitizedObject({ request: this })];
-	}
-
-	// get any replies to this code error
-	async getReplies () {
-		const replies = await this.data.posts.getByQuery(
-			{ 
-				teamId: null,
-				streamId: this.codeError.get('streamId'),
-				parentPostId: this.post.id
-			},
-			{
-				hint: PostIndexes.byParentPostId,
-				sort: { seqNum: -1 }
-			}
-		);
-		this.responseData.posts.push.apply(
-			this.responseData.posts,
-			replies.map(reply => reply.getSanitizedObject({ request: this }))
-		);
-	}
 
 	// make the current user a follower of this code error
 	async makeFollower () {
