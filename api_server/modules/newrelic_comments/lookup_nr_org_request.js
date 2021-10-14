@@ -22,7 +22,7 @@ class LookupNROrgRequest extends RestfulRequest {
 		}
 		const record = await this.api.data.newRelicOrgs.getOneByQuery(
 			{ accountId: accountIdNum },
-			{ overrideHintRequired: true } //{ hint: Indexes.byAccountId }
+			{ hint: Indexes.byAccountId }
 		);
 		if (!record) {
 			this.responseData = {}
