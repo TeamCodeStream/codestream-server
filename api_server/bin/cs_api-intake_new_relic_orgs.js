@@ -14,6 +14,7 @@ const FS = require('fs');
 
 Commander
 	.option('-f, --file <file>', 'CSV file containing data to pull in')
+	.option('-s, --start <start>', 'Start at this number')
 	.option('-l, --limit <limit>', 'Limit to this number of records')
 	.parse(process.argv);
 
@@ -63,23 +64,30 @@ class IntakeEngine {
 
 	// write out the account to org mapping collection, with throttling
 	async writeCollection () {
-		let n = 0;
-		await this.data.newRelicOrgs.deleteByQuery({});
+		let nRead = 0;
+		let nWritten = 0;
+		if (!this.start) {
+			await this.data.newRelicOrgs.deleteByQuery({});
+		}
 		for await (const line of this.readLine) {
+			nRead++;
 			const [accountId, orgId] = line.split(',');
 			const accountIdNum = parseInt(accountId, 10);
 			if (!accountIdNum) continue;
+			if (this.start && nRead < this.start) {
+				continue;
+			}
 			await this.data.newRelicOrgs.create({
 				accountId: accountIdNum,
 				orgId
 			}, { noVersion: true });
-			n++;
-			if (n === this.limit) {
+			nWritten++;
+			if (this.limit && nWritten === this.limit) {
 				console.log('Reached limit');
 				break;
 			}
-			if (n % 1000 == 0) {
-				console.log(`Wrote ${n} documents`);
+			if (nRead % 1000 == 0) {
+				console.log(`Read ${nRead}, wrote ${nWritten}`);
 				await Wait(THROTTLE_TIME);
 			}
 		}
@@ -96,15 +104,21 @@ class IntakeEngine {
 		if (!file) {
 			throw 'must provide teamId or all';
 		}
-		let limit;
+		let limit, start;
 		if (Commander.limit) {
 			limit = parseInt(Commander.limit);
 			if (isNaN(limit)) {
 				throw 'limit is not a number'
 			}
 		}
+		if (Commander.start) {
+			start = parseInt(Commander.start);
+			if (isNaN(start)) {
+				throw 'start is not a number'
+			}
+		}
 		await ApiConfig.loadPreferredConfig();
-		await new IntakeEngine({ file, limit }).go();
+		await new IntakeEngine({ file, limit, start }).go();
 	}
 	catch (error) {
 		console.error(error);
