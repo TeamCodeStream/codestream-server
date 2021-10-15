@@ -49,7 +49,7 @@ class CodeErrorRenderer extends RendererBase {
 			datetimeField: 'datetime'
 		};
 		const authorDiv = Utils.renderAuthorDiv(authorOptions);
-		const text = Utils.prepareForEmail(parentPost.text, options);
+		const text = Utils.prepareForEmail(parentPost.text || '', options);
 		const textDiv = `<div><span class="ensure-white">${text}</span></div>`;
 		return authorDiv + textDiv;
 	}
@@ -57,7 +57,7 @@ class CodeErrorRenderer extends RendererBase {
 	// render the div for the title of the code error
 	renderTitleDiv (options) {
 		const { codeError } = options;
-		return Utils.renderTitleDiv(codeError.title, options);
+		return Utils.renderTitleDiv(codeError.title || '', options);
 	}
 
 	// render the author line

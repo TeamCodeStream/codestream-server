@@ -296,6 +296,12 @@ class EmailNotificationV2Handler {
 			return false;
 		}
 
+		// "faux" users (who haven't registered) don't receive notifications
+		if (user.externalUserId && !user.isRegistered) {
+			this.log(`User ${user.id}:${user.email} is a "faux" user and so will not receive an email notification`);
+			return false;
+		}
+
 		// users who have been removed from the team never get emails
 		if (this.team && (this.team.removedMemberIds || []).includes(user.id)) {
 			this.log(`User ${user.id}:${user.email} has been removed from team so will not receive an email notification`);

@@ -28,7 +28,7 @@ class EmailNotificationV2Sender {
 	// determine the subject of an email notification
 	getNotificationSubject (options) {
 		const { codemark, review, codeError, isReply, isReminder, creator, sender, user, isReplyToCodeAuthor } = options;
-		const codemarkOrReview = codeError || review || codemark;
+		const thing = codeError || review || codemark;
 		let subject;
 		if (isReminder) {
 			const fromName = creator ? sender.getUserDisplayName(creator, true) : 'The author of this feedback request'; // total fallback here
@@ -40,7 +40,7 @@ class EmailNotificationV2Sender {
 			const fromName = creator ? sender.getUserDisplayName(creator, true) : 'The author of this feedback request'; // total fallback here
 			subject = `${fromName} commented on your changes`;
 		} else {	
-			subject = codemarkOrReview.title || codemarkOrReview.text;
+			subject = thing.title || thing.text || '';
 			if (subject.length >= 80) {
 				subject = subject.substring(0, 80) + '...';
 			}
