@@ -86,11 +86,15 @@ class EmailNotificationV2Handler {
 			if (!this.codemark) {
 				throw `codemark ${this.post.codemarkId} not found`;
 			}
-		}
-		else if (this.post.reviewId) {
+		} else if (this.post.reviewId) {
 			this.review = await this.data.reviews.getById(this.post.reviewId);
 			if (!this.review) {
 				throw `review ${this.post.reviewId} not found`;
+			}
+		} else if (this.post.codeErrorId) {
+			this.codeError = await this.data.codeErrors.getById(this.post.codeErrorId);
+			if (!this.codeError) {
+				throw `code error ${this.post.codeErrorId} not found`;
 			}
 		}
 
@@ -244,9 +248,10 @@ class EmailNotificationV2Handler {
 		if (this.message.isReminder && this.review) {
 			// special case for review reminders ... in this case the "members" are the reviewers
 			currentMemberIds = this.review.reviewers || [];
-		} else if (this.parentCodeError) {
+		} else if (this.codeError || this.parentCodeError) {
 			// members for a code error are the followers of the code error
-			currentMemberIds = this.parentCodeError.followerIds || [];
+			const codeError = this.codeError || this.parentCodeError;
+			currentMemberIds = codeError.followerIds || [];
 		} else if (this.team) {
 			currentMemberIds = this.team.memberIds;
 		} else {
@@ -623,7 +628,7 @@ class EmailNotificationV2Handler {
 			unfollowLink,
 			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailServer.inboundEmailDisabled,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
-			needButtons: !!this.parentPost || review || (codemark.markerIds || []).length === 1,
+			needButtons: !!this.parentPost || review || codeError || (codemark.markerIds || []).length === 1,
 			isReply: !!this.post.parentPostId,
 			userIsRegistered: user.isRegistered,
 			inviteCode: user.inviteCode,

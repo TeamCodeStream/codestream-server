@@ -8,6 +8,15 @@ class PostPostRequest extends PostRequest {
 
 	// authorize the request for the current user
 	async authorize () {
+		let teamId = this.request.body.teamId;
+		if (!teamId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
+		}
+		teamId = teamId.toLowerCase();
+		if (!this.user.authorizeTeam(teamId)) {
+			throw this.errorHandler.error('createAtuh', { reason: 'user is not a member of the team' });
+		}
+
 		let streamId = this.request.body.streamId;
 		if (!streamId) {
 			// this is acceptable ONLY if we are creating a code error
@@ -38,6 +47,7 @@ class PostPostRequest extends PostRequest {
 			throw 'stream channels are deprecated';
 		}
 
+		/*
 		if (stream.get('type') === 'object' && this.request.body.codemark) {
 			// when creating a codemark to go with a reply to an object, we MUST have a team ID
 			// since there is no other way to make an associated to repos ... an admitted weirdness
@@ -45,6 +55,7 @@ class PostPostRequest extends PostRequest {
 				return this.errorHandler.error('parameterRequired', { info: 'teamId', reason: 'team ID is required when replying to a code error with a codemark' });
 			}
 		}
+		*/
 	}
 
 	/* eslint complexity: 0 */

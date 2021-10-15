@@ -21,6 +21,10 @@ class FindCodeErrorRequest extends RestfulRequest {
 				unauthorized: true,
 				accountId: this.codeError.get('accountId')
 			};
+			await this.getTeamAndCompany();
+			if (this.company) {
+				this.responseData.ownedBy = this.company.get('name');
+			}
 		} else {
 			await this.makeFollower();
 			const post = await this.data.posts.getById(this.codeError.get('postId'));
@@ -50,10 +54,13 @@ class FindCodeErrorRequest extends RestfulRequest {
 	}
 
 	// authorize the code error: if created by any of my teammates, i can access it
+	// exception: if it is not "claimed" by a team (no nominalTeamId), then it is free for anyone to take
 	async authorizeCodeError () {
 		const teamIds = this.user.get('teamIds') || [];
 		let teams;
-		if (teamIds.length > 0) {
+		if (!this.codeError.get('nominalTeamId')) {
+			return true;
+		} if (teamIds.length > 0) {
 			teams = await this.data.teams.getByIds(teamIds);
 		} else {
 			teams = [];
@@ -63,6 +70,13 @@ class FindCodeErrorRequest extends RestfulRequest {
 		});
 	}
 
+	// get the team and company that nominally owns this code error
+	async getTeamAndCompany () {
+		if (!this.codeError.get('nominalTeamId')) { return; }
+		this.team = await this.data.teams.getById(this.codeError.get('nominalTeamId'));
+		if (!this.team || !this.team.get('companyId')) { return; }
+		this.company = await this.data.companies.getById(this.team.get('companyId'));
+	}
 
 	// make the current user a follower of this code error
 	async makeFollower () {

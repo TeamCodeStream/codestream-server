@@ -50,7 +50,7 @@ class PostCreator extends ModelCreator {
 				// kind of nutty, but strictly speaking, nothing is required here
 			},
 			optional: {
-				string: ['text', 'parentPostId', '_subscriptionCheat', 'teamId', 'streamId'],
+				string: ['text', 'parentPostId', '_subscriptionCheat', 'streamId', 'teamId'],
 				object: ['codemark', 'review', 'codeError', 'inviteInfo'],
 				boolean: ['dontSendEmail'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
@@ -214,6 +214,7 @@ class PostCreator extends ModelCreator {
 	async getTeam () {
 		if (!this.stream) {
 			// we get here if we are creating or replying to a code error
+			this.nominalTeamId = this.attributes.teamId;
 			delete this.attributes.teamId;
 			return;
 		}
@@ -234,6 +235,7 @@ class PostCreator extends ModelCreator {
 				}
 				teamId = this.attributes.teamId;
 			} else {
+				this.nominalTeamId = this.attributes.teamId;
 				delete this.attributes.teamId; // ignore in all other cases, there should be no team ID
 				return;
 			}
@@ -367,7 +369,8 @@ class PostCreator extends ModelCreator {
 			return true;
 		}
 		this.attributes.codeError.postId = this.attributes.id;
-		
+		this.attributes.codeError.nominalTeamId = this.nominalTeamId;
+
 		const codeErrorCreator = new CodeErrorCreator({
 			request: this.request,
 			origin: this.attributes.origin,
@@ -607,6 +610,9 @@ class PostCreator extends ModelCreator {
 				modifiedAt: now
 			}
 		};
+		if (!this.codeError.get('nominalTeamId') && this.nominalTeamId) {
+			op.$set.nominalTeamId = this.nominalTeamId;
+		}
 
 		// handle any followers that need to be added to the code error, as needed
 		this.newCodeErrorFollowerIds = await this.handleFollowers(this.codeError, op, { ignorePreferences: true });
