@@ -16,12 +16,18 @@ class PutCodeErrorRequest extends PutRequest {
 			throw this.errorHandler.error('notFound', { info: 'code error' });
 		}
 
-		// only the author can edit a code error
+		// if only updated stackTraces, anyone who is following can update
+		if (Object.keys(this.request.body).length === 1 && this.request.body.stackTraces) {
+			if (!(this.codeError.get('followerIds') || []).includes(this.user.id)) {
+				throw this.errorHandler.error('updateAuth', { reason: 'only a follower of the code error can update the stack traces' });
+			}
+			return;
+		}
+
+		// otherwise only the author can edit a code error
 		if (this.codeError.get('creatorId') !== this.user.id) {
 			throw this.errorHandler.error('updateAuth', { reason: 'only the creator of the code error can make this update' });
 		}
-
-		// TODO: probably need to allow any user on the team to update the stack traces
 	}
 
 	// after the code error is updated...
