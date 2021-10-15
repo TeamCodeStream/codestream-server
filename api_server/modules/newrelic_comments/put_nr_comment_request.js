@@ -5,6 +5,7 @@
 const NRCommentRequest = require('./nr_comment_request');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const Utils = require('./utils');
+const PostPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_publisher');
 
 class PutNRCommentRequest extends NRCommentRequest {
 
@@ -14,7 +15,7 @@ class PutNRCommentRequest extends NRCommentRequest {
 		await this.getPost(); 			// get the requested post
 		await this.getParentPost();		// get the parent post
 		await this.getCodeError();		// get the associated code error
-		await this.getTeam();			// get the team that owns the code error
+		await this.getStream();			// get the stream for the code error
 		await this.getMarkers();		// for codemarks, get the associated markers
 		await this.getUsers();			// get users associated with the post (creator and mentioned)
 		await this.doUpdate();			// do the update
@@ -62,11 +63,11 @@ class PutNRCommentRequest extends NRCommentRequest {
 		}
 	}
 
-	// get the team that owns the code error
-	async getTeam () {
-		this.team = await this.data.teams.getById(this.codeError.get('teamId'));
-		if (!this.team || this.team.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'team' });
+	// get the stream for the code error
+	async getStream () {
+		this.stream = await this.data.streams.getById(this.codeError.get('streamId'));
+		if (!this.stream || this.stream.get('deactivated')) {
+			throw this.errorHandler.error('notFound', { info: 'stream' });
 		}
 	}
 
@@ -105,24 +106,14 @@ class PutNRCommentRequest extends NRCommentRequest {
 	async postProcess () {
 		await this.publish();
 
-		// publish the update to the team
-		const teamId = this.post.get('teamId');
-		const channel = `team-${teamId}`;
-		const message = {
-			requestId: this.request.id,
-			post: this.updateOp
-		};
-		try {
-			await this.api.services.broadcaster.publish(
-				message,
-				channel,
-				{ request: this }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish NR comment update message to team ${teamId}: ${JSON.stringify(error)}`);
-		}
+		// publish the post to the code error stream
+		await new PostPublisher({
+			request: this,
+			data: { post: this.updateOp },
+			broadcaster: this.api.services.broadcaster,
+			stream: this.stream.attributes,
+			object: this.codeError
+		}).publishPost();
 	}
 }
 
