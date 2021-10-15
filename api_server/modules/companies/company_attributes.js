@@ -106,5 +106,15 @@ module.exports = {
 		type: 'boolean',
 		description: 'Indicates if this company has been migrated to the "company-centric" paradigm',
 		serverOnly: true
+	},
+	nrAccountIds: {
+		type: 'arrayOfNumbers',
+		maxLength: 5000,
+		description: 'Array of New Relic account IDs associated with this company'
+	},
+	nrOrgIds: {
+		type: 'arrayOfStrings',
+		maxLength: 1000,
+		description: 'Array of New Relic organization IDs associated with this company'
 	}
 };
