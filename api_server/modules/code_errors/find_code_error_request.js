@@ -17,10 +17,19 @@ class FindCodeErrorRequest extends RestfulRequest {
 		if (!await this.getCodeError()) {
 			this.responseData = { notFound: true };
 		} else if (!await this.authorizeCodeError()) {
-			this.responseData = { unauthorized: true };
+			this.responseData = { 
+				unauthorized: true,
+				accountId: this.codeError.get('accountId')
+			};
 		} else {
 			await this.makeFollower();
-			this.responseData = { found: true };
+			const post = await this.data.posts.getById(this.codeError.get('postId'));
+			const stream = await this.data.streams.getById(this.codeError.get('streamId'));
+			this.responseData = {
+				codeError: this.codeError.getSanitizedObject({ request: this }),
+				post: post.getSanitizedObject({ request: this }),
+				stream: stream.getSanitizedObject({ request: this })
+			};
 		}
 	}
 
