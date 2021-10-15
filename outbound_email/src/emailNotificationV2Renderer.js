@@ -136,7 +136,8 @@ class EmailNotificationV2Renderer {
 								</tr>
 							</table>						 
 						</div>
-						${buttons}						
+						${buttons}	
+						<br/>					
 						${firstFooterDiv}
 						${secondFooterDiv}
 					</div>				 			 
