@@ -103,5 +103,9 @@ module.exports = {
 		type: 'number',
 		required: true,
 		description: 'ID of the New Relic account that owns this code error'
+	},
+	_forNRMigration: {
+		type: 'boolean',
+		serverOnly: true
 	}
 };

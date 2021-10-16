@@ -52,7 +52,7 @@ class PostCreator extends ModelCreator {
 			optional: {
 				string: ['text', 'parentPostId', '_subscriptionCheat', 'streamId', 'teamId'],
 				object: ['codemark', 'review', 'codeError', 'inviteInfo'],
-				boolean: ['dontSendEmail'],
+				boolean: ['dontSendEmail', '_forNRMigration'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
 				'array(string)': ['mentionedUserIds', 'addedUsers'],
 				'array(object)': ['files', 'sharedTo']

@@ -87,5 +87,9 @@ module.exports = {
 	codeErrorId: {
 		type: 'id',
 		description: 'ID of the code error attached to this post, if any'
+	},
+	_forNRMigration: {
+		type: 'boolean',
+		serverOnly: true
 	}
 };

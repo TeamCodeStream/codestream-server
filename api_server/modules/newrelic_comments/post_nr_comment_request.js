@@ -85,19 +85,25 @@ class PostNRCommentRequest extends NRCommentRequest {
 	async createCodeError () {
 		// now create a post in the stream, along with the code error,
 		// this will also create a stream for the code error
+		const codeErrorAttributes = {
+			objectId: this.request.body.objectId,
+			objectType: this.request.body.objectType,
+			accountId: this.request.body.accountId
+		};
+		const postAttributes = {
+			dontSendEmail: true,
+			codeError: codeErrorAttributes
+		};
+		if (this.request.headers['x-cs-newrelic-migration']) {
+			postAttributes.codeError._forNRMigration = postAttributes._forNRMigration = true;
+		}
+
 		this.codeErrorPost = await new PostCreator({
 			request: this,
 			assumeSeqNum: 1,
 			replyIsComing: true,
 			users: this.users
-		}).createPost({
-			dontSendEmail: true,
-			codeError: {
-				objectId: this.request.body.objectId,
-				objectType: this.request.body.objectType,
-				accountId: this.request.body.accountId
-			}
-		});
+		}).createPost(postAttributes);
 		this.codeError = this.transforms.createdCodeError;
 		this.stream = this.transforms.createdStreamForCodeError;
 		this.codeErrorWasCreated = true;
@@ -128,6 +134,15 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 	// create the actual post, as a reply to the post pointing to the code error
 	async createPost () {
+		const postAttributes = {
+			parentPostId: this.request.body.parentPostId || this.codeError.get('postId'),
+			streamId: this.codeError.get('streamId'),
+			text: this.request.body.text,
+			mentionedUserIds: this.mentionedUserIds,
+		};
+		if (this.request.headers['x-cs-newrelic-migration']) {
+			postAttributes._forNRMigration = true;
+		}
 		this.postCreator = new PostCreator({ 
 			request: this,
 			assumeSeqNum: this.codeErrorWasCreated ? 2 : undefined, // because the actual code error was 1
@@ -137,12 +152,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			forCommentEngine: true
 		});
 
-		this.post = await this.postCreator.createPost({
-			parentPostId: this.request.body.parentPostId || this.codeError.get('postId'),
-			streamId: this.codeError.get('streamId'),
-			text: this.request.body.text,
-			mentionedUserIds: this.mentionedUserIds,
-		});
+		this.post = await this.postCreator.createPost(postAttributes);
 	}
 
 	// handle the response to the request

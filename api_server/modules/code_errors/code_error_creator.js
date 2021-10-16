@@ -42,7 +42,7 @@ class CodeErrorCreator extends ModelCreator {
 			optional: {
 				string: ['providerUrl', 'entryPoint', 'title', 'text', 'nominalTeamId'],
 				object: ['objectInfo'],
-				boolean: ['_dontCreatePermalink'],
+				boolean: ['_dontCreatePermalink', '_forNRMigration'],
 				'array(object)': ['stackTraces']
 			}
 		};
