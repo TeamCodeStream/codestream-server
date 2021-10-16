@@ -74,7 +74,7 @@ class PostCreator extends ModelCreator {
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
 		this.attributes.creatorId = this.user.id;
-		this.attributes.createdAt = Date.now();
+		this.attributes.createdAt = this.setCreatedAt || Date.now();
 		if (this.request.isForTesting && this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
@@ -376,7 +376,8 @@ class PostCreator extends ModelCreator {
 			origin: this.attributes.origin,
 			useId: this.codeErrorId, // if locked down previously
 			replyIsComing: this.replyIsComing,
-			allowFromUserId: this.allowFromUserId
+			allowFromUserId: this.allowFromUserId,
+			setCreatedAt: this.setCreatedAt
 		});
 		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(this.attributes.codeError);
 		if (this.transformsCreatedStreamForCodeError) {

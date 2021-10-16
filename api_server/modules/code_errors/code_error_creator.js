@@ -108,7 +108,7 @@ class CodeErrorCreator extends ModelCreator {
 			}
 		} else {
 			// pre-set createdAt and lastActivityAt attributes
-			this.attributes.createdAt = this.attributes.lastActivityAt = Date.now();
+			this.attributes.createdAt = this.attributes.lastActivityAt = this.setCreatedAt || Date.now();
 		}
 
 		// proceed with the save...

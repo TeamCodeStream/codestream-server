@@ -63,7 +63,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 				},
 				optional: {
 					string: ['parentPostId'],
-					'array(object)': ['mentionedUsers']
+					'array(object)': ['mentionedUsers'],
+					number: ['createdAt']
 				}
 			}
 		);
@@ -102,7 +103,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 			request: this,
 			assumeSeqNum: 1,
 			replyIsComing: true,
-			users: this.users
+			users: this.users,
+			setCreatedAt: this.request.body.createdAt
 		}).createPost(postAttributes);
 		this.codeError = this.transforms.createdCodeError;
 		this.stream = this.transforms.createdStreamForCodeError;
@@ -149,7 +151,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 			dontSendEmail: true,
 			users: this.users,
 			allowFromUserId: this.user.id,
-			forCommentEngine: true
+			forCommentEngine: true,
+			setCreatedAt: this.request.body.createdAt
 		});
 
 		this.post = await this.postCreator.createPost(postAttributes);
