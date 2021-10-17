@@ -175,7 +175,16 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 		if (foreignMemberIds.length > 0) {
 			await this.data.teams.updateDirectWhenPersist(
 				{ id: this.data.teams.objectIdSafe(this.teamId) },
-				{ $addToSet: { foreignMemberIds: foreignMemberIds } }
+				{ 
+					$addToSet: {
+						foreignMemberIds: { 
+							$each: foreignMemberIds
+						},
+						memberIds: {
+							$each: foreignMemberIds
+						}
+					}
+				}
 			);
 		}
 	}

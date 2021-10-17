@@ -252,7 +252,6 @@ class PostCreator extends ModelCreator {
 		}
 		*/
 
-		console.warn('LOOKING FOR TEAM ' + teamId);
 		this.team = await this.data.teams.getById(teamId);
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team'});
@@ -395,7 +394,6 @@ class PostCreator extends ModelCreator {
 		this.attributes.codeError.streamId = this.attributes.streamId;
 		//this.attributes.codeError.nominalTeamId = this.nominalTeamId;
 
-		console.warn('CREATING CODE ERROR...');
 		const codeErrorCreator = new CodeErrorCreator({
 			request: this.request,
 			origin: this.attributes.origin,
@@ -406,7 +404,6 @@ class PostCreator extends ModelCreator {
 			forCommentEngine: this.forCommentEngine
 		});
 		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(this.attributes.codeError);
-		console.warn('CREATED CODE ERROR!!!');
 		if (this.transformsCreatedStreamForCodeError) {
 			this.stream = this.transforms.createdStreamForCodeError; // creation of a code error always creates a stream
 		} else {

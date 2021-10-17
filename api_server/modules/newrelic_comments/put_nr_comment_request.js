@@ -19,6 +19,7 @@ class PutNRCommentRequest extends NRCommentRequest {
 		await this.getMarkers();		// for codemarks, get the associated markers
 		await this.getUsers();			// get users associated with the post (creator and mentioned)
 		await this.doUpdate();			// do the update
+		await this.updateTeam();		// update the team that owns the code error, as needed
 
 		this.post.attributes.version++;
 		this.responseData = {

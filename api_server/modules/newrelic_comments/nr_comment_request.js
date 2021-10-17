@@ -146,9 +146,13 @@ class NRCommentRequest extends RestfulRequest {
 
 	// publish any messages not handled by the post creator
 	async publish () {
-		return Promise.all((this.transforms.userUpdateIdentityOps || []).map(async op => {
+		await Promise.all((this.transforms.userUpdateIdentityOps || []).map(async op => {
 			await this.publishUser(op);
 		}));
+
+		if (this.transforms.updateTeamOp) {
+			await this.publishTeam(this.transforms.updateTeamOp);
+		}
 	}
 
 	// publish a user update message
@@ -168,6 +172,26 @@ class NRCommentRequest extends RestfulRequest {
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
 			this.request.warn(`Could not publish user identity update message to user ${op.id}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	// publish a team update message
+	async publishTeam (op) {
+		const channel = `team-${op.id}`;
+		const message = {
+			requestId: this.request.id,
+			team: op
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish team update message to team ${op.id}: ${JSON.stringify(error)}`);
 		}
 	}
 
@@ -203,6 +227,29 @@ class NRCommentRequest extends RestfulRequest {
 		if ((this.codemark.get('markerIds') || []).length > 0) {
 			this.markers = await this.data.markers.getByIds(this.codemark.get('markerIds'));
 		}
+	}
+
+	// update the team that owns the code error, if any, to reflect any foreign users added
+	async updateTeam () {
+		const teamId = this.codeError && this.codeError.get('teamId');
+		if (!teamId) { return; }
+
+		const userIds = [this.user.id];
+		if (this.mentionedUserIds) {
+			userIds.push.apply(userIds, this.mentionedUserIds);
+		}
+
+		const op = {
+			$addToSet: {
+				memberIds: userIds,
+				foreignMemberIds: userIds
+			}
+		};
+		this.transforms.updateTeamOp = await new ModelSaver({
+			request: this,
+			collection: this.data.teams,
+			id: teamId
+		}).save(op);
 	}
 }
 

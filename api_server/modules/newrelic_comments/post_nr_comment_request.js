@@ -31,7 +31,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 		if (!this.codeError && this.request.body.accountId !== this.headerAccountId) {
 			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match that given in the body' });
 		}
-
+		
 		// resolve the requesting user, which may involve creating a (faux) user
 		await this.resolveUser();
 
@@ -49,6 +49,9 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 		// now create the actual post attached to the object
 		await this.createPost();
+
+		// update the team, as needed, to reflect any foreign users added
+		await this.updateTeam();
 	}
 
 	// handle which attributes are required and allowed for this request

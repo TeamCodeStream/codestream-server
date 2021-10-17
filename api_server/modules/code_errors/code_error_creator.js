@@ -144,6 +144,7 @@ class CodeErrorCreator extends ModelCreator {
 			accountId: this.attributes.accountId,
 			objectId: this.attributes.objectId,
 			objectType: this.attributes.objectType,
+			teamId: this.attributes.teamId
 			//memberIds: [this.user.id]
 		});
 		this.attributes.streamId = this.stream.id;
