@@ -104,7 +104,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 			assumeSeqNum: 1,
 			replyIsComing: true,
 			users: this.users,
-			setCreatedAt: this.request.body.createdAt
+			setCreatedAt: this.request.body.createdAt,
+			forCommentEngine: true
 		}).createPost(postAttributes);
 		this.codeError = this.transforms.createdCodeError;
 		this.stream = this.transforms.createdStreamForCodeError;
@@ -150,7 +151,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			assumeSeqNum: this.codeErrorWasCreated ? 2 : undefined, // because the actual code error was 1
 			dontSendEmail: true,
 			users: this.users,
-			allowFromUserId: this.user.id,
+			//allowFromUserId: this.user.id,
 			forCommentEngine: true,
 			setCreatedAt: this.request.body.createdAt
 		});

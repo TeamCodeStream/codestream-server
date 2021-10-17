@@ -34,9 +34,9 @@ class PermalinkCreator {
 			(this.codeError && 'codeErrorId')
 		);
 		const linkId = UUID().replace(/-/g, '');
-		const teamId = this.codeError ?
+		const teamId = /*this.codeError ?
 			this.codeError.accountId.toString().split('').map(s => s.charCodeAt(0).toString(16)).join('') :
-			thing.teamId;
+			*/thing.teamId;
 		this.url = this.makePermalink(linkId, this.isPublic, teamId, type);
 		const hash = this.makeHash(thing, this.markers, this.isPublic, type);
 

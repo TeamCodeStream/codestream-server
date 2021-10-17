@@ -41,6 +41,7 @@ class GetPostsRequest extends GetManyRequest {
 	async authorize () {
 		delete this.request.query.streamId; // tolerated but ignored
 
+		/*
 		if (this.request.query.codeErrorId) {
 			// fetching replies to a code error
 			this.codeError = await this.user.authorizeCodeError(this.request.query.codeErrorId, this);
@@ -52,7 +53,7 @@ class GetPostsRequest extends GetManyRequest {
 				throw this.errorHandler.error('notFound', { info: 'stream' }); // shouldn't happen
 			}
 			delete this.request.query.codeErrorId;
-		} else if (this.request.query.parentPostId) {
+		} else */if (this.request.query.parentPostId) {
 			// fetching replies to a parent post
 			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
 			if (!parentPost) {
@@ -62,10 +63,12 @@ class GetPostsRequest extends GetManyRequest {
 			if (!this.stream) {
 				throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this stream' });
 			}
+			/*
 			if (this.stream.get('type') === 'object') {
 				this.teamId = this.request.query.teamId;
 				delete this.request.query.teamId; // tolerated but ignored
 			}
+			*/
 		} else {
 			// this forces a teamId
 			await this.user.authorizeFromTeamId(
@@ -78,6 +81,7 @@ class GetPostsRequest extends GetManyRequest {
 	// called before the actual fetch operation, here we fetch the streams the user is 
 	// a member of if posts for a particular stream are not being fetched
 	async preQueryHook () {
+		/*
 		if (this.stream) { return; }
 
 		// if no stream ID is given, we'll fetch posts associated with the team stream,
@@ -88,40 +92,12 @@ class GetPostsRequest extends GetManyRequest {
 		const results = await awaitParallel([
 			this.getTeamStreams,
 			this.getStreamsByFollow
-		], this);
-			/*
-			async () => {
-				return this.data.streams.getByQuery(
-					{
-						teamId,
-						memberIds: this.user.id
-					},
-					{
-						hint: StreamIndexes.byMembers,
-						fields: ['id'],
-						noCache: true
-					}
-				);
-			},
-
-	 		async () => {
-				return this.data.streams.getByQuery(
-					{
-						teamId,
-						isTeamStream: true
-					},
-					{
-						hint: StreamIndexes.byIsTeamStream,
-						fields: ['id'],
-						noCache: true
-					}
-				);
-			}
-			*/
-			
+		], this);			
 		this.streamIds = [...results[0], ...results[1]];
+		*/
 	}
 
+	/*
 	// get the team streams for the team (should only be one)
 	async getTeamStreams () {
 		const streams = await this.data.streams.getByQuery(
@@ -140,11 +116,9 @@ class GetPostsRequest extends GetManyRequest {
 
 	// get streams representing code errors being followed, as needed
 	async getStreamsByFollow () {
-		/*
-		if (!this.request.query.includeFollowed) {
-			return [];
-		}
-		*/
+		//if (!this.request.query.includeFollowed) {
+		//	return [];
+		//}
 		const codeErrors = await this.data.codeErrors.getByQuery(
 			{
 				followerIds: this.user.id
@@ -157,13 +131,14 @@ class GetPostsRequest extends GetManyRequest {
 		);
 		return codeErrors.map(codeError => codeError.streamId);
 	}
+	*/
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
 	buildQuery () {
 		const query = {};
 
 		// query on stream or streams, as determined above
-		query.streamId = this.stream ? this.stream.id : { $in: this.streamIds };
+		//query.streamId = this.stream ? this.stream.id : { $in: this.streamIds };
 
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
@@ -179,11 +154,13 @@ class GetPostsRequest extends GetManyRequest {
 			return null;
 		}
 
+		/*
 		// this allows posts from teamless object streams to be fetched
 		//if (this.request.query.includeFollowed) {
 		query.teamId = { $in: [ this.teamId, null ] };
 		//}
-		
+		*/
+
 		return query;
 	}
 
@@ -263,6 +240,7 @@ class GetPostsRequest extends GetManyRequest {
 		return { limit, sort, hint };
 	}
 
+	/*
 	async fetch () {
 		await super.fetch();
 
@@ -274,6 +252,7 @@ class GetPostsRequest extends GetManyRequest {
 			}
 		}
 	}
+	*/
 
 	// set the limit to use in the fetch query, according to options passed in
 	setLimit () {
@@ -307,7 +286,7 @@ class GetPostsRequest extends GetManyRequest {
 	// set the indexing hint to use in the fetch query
 	setHint () {
 		if (this.byId) {
-			return Indexes.byId;
+			return Indexes.byTeamId; // should be byTeamId?
 		}
 		else if (this.request.query.parentPostId) {
 			return Indexes.byParentPostId;

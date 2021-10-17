@@ -23,9 +23,9 @@ const CODE_ERROR_STANDARD_ROUTES = {
 // additional routes for this module
 const CODE_ERROR_ADDITIONAL_ROUTES = [
 	{
-		method: 'get',
-		path: 'code-errors/find/object',
-		requestClass: require('./find_code_error_request')
+		method: 'post',
+		path: 'code-errors/claim/:teamId',
+		requestClass: require('./claim_code_error_request')
 	}
 	/*
 	{

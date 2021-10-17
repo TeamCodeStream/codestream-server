@@ -258,7 +258,10 @@ class EmailNotificationV2Handler {
 			throw new Error('no team found');
 		}
 		if (this.team) {
-			currentMemberIds = ArrayUtilities.difference(currentMemberIds, this.team.removedMemberIds || []);
+			currentMemberIds = ArrayUtilities.difference(
+				ArrayUtilities.difference(currentMemberIds, this.team.removedMemberIds || []),
+				this.team.foreignMemberIds || []
+			);
 		}
 
 		// always get the creator, even if removed from the team
@@ -305,6 +308,12 @@ class EmailNotificationV2Handler {
 		// users who have been removed from the team never get emails
 		if (this.team && (this.team.removedMemberIds || []).includes(user.id)) {
 			this.log(`User ${user.id}:${user.email} has been removed from team so will not receive an email notification`);
+			return false;
+		}
+
+		// users who are "foreign" to the team never get emails
+		if (this.team && (this.team.foreignMemberIds || []).includes(user.id)) {
+			this.log(`User ${user.id}:${user.email} is foreign to the team so will not receive an email notification`);
 			return false;
 		}
 

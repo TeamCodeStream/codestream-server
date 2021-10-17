@@ -18,8 +18,9 @@ const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const UserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_inviter');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
-const ObjectSubscriptionGranter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/object_subscription_granter');
+//const ObjectSubscriptionGranter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/object_subscription_granter');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
+const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 class PostCreator extends ModelCreator {
 
@@ -45,12 +46,11 @@ class PostCreator extends ModelCreator {
 	// get attributes that are required for post creation, and those that are optional,
 	// along with their types
 	getRequiredAndOptionalAttributes () {
-		return {
+		const attributes = {
 			required: {
-				// kind of nutty, but strictly speaking, nothing is required here
 			},
 			optional: {
-				string: ['text', 'parentPostId', '_subscriptionCheat', 'streamId', 'teamId'],
+				string: ['text', 'parentPostId', '_subscriptionCheat'],
 				object: ['codemark', 'review', 'codeError', 'inviteInfo'],
 				boolean: ['dontSendEmail', '_forNRMigration'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
@@ -58,6 +58,14 @@ class PostCreator extends ModelCreator {
 				'array(object)': ['files', 'sharedTo']
 			}
 		};
+
+		// teamId and streamId required except for comment engine
+		if (!this.forCommentEngine) {
+			attributes.required.string = ['teamId', 'streamId'];
+		} else {
+			attributes.optional.string.push('teamId');
+			attributes.optional.string.push('streamId');
+		}
 	}
 
 	// called before the post is actually saved
@@ -101,7 +109,7 @@ class PostCreator extends ModelCreator {
 		await this.updateLastReads();	// update lastReads attributes for affected users
 		await this.updateParents();		// update the parent post and codemark if applicable
 		await this.updatePostCount();	// update the post count for the author of the post
-		await this.updateCodeErrorStreamMembers(); // for a code error with new followers, update membership of stream
+		//await this.updateCodeErrorStreamMembers(); // for a code error with new followers, update membership of stream
 		this.updateTeam();				// update info for team, note, no need to "await"
 	}
 
@@ -157,6 +165,7 @@ class PostCreator extends ModelCreator {
 				throw this.errorHandler.error('notFound', { info: 'code error' });
 			}
 
+			/*
 			// must be a follower of the code error to reply to it
 			if (
 				!(this.codeError.get('followerIds') || []).includes(this.user.id) &&
@@ -167,6 +176,7 @@ class PostCreator extends ModelCreator {
 			) {
 				throw this.errorHandler.error('createAuth', { reason: 'user is not following this object' });
 			}
+			*/
 
 			// stream ID of the object must match the stream ID of the post
 			if (this.attributes.streamId !== this.codeError.get('streamId')) {
@@ -174,6 +184,7 @@ class PostCreator extends ModelCreator {
 			}
 		}
 
+		/*
 		// anything code error related, has no team, and its own stream
 		if (this.creatingCodeError || this.codeError) {
 			// replies to code errors get the code error's stream
@@ -181,6 +192,7 @@ class PostCreator extends ModelCreator {
 		} else if (!this.attributes.streamId) {
 			throw this.errorHandler.error('parameterRequired', { info: 'streamId' });
 		}
+		*/
 	}
 
 	// get the stream we're trying to create the post in
@@ -212,14 +224,12 @@ class PostCreator extends ModelCreator {
 
 	// get the team that owns the stream for which the post is being created
 	async getTeam () {
-		if (!this.stream) {
-			// we get here if we are creating or replying to a code error
-			this.nominalTeamId = this.attributes.teamId;
-			delete this.attributes.teamId;
+		const teamId = (this.stream && this.stream.get('teamId')) || this.attributes.teamId;
+		if (!teamId) {
+			// we get here if we are creating or replying to a code error that is teamless
 			return;
 		}
-
-		let teamId = this.stream.get('teamId');
+		/*
 		if (!teamId) {
 			// we should only get here if we are posting a reply to a code error
 			if (!this.codeError) {
@@ -240,12 +250,22 @@ class PostCreator extends ModelCreator {
 				return;
 			}
 		}
+		*/
 
+		console.warn('LOOKING FOR TEAM ' + teamId);
 		this.team = await this.data.teams.getById(teamId);
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team'});
 		}
 		this.attributes.teamId = this.team.id;	// post gets the same teamId as the stream
+
+		// will need team stream for publishing code errors
+		if (this.codeError || this.creatingCodeError) {
+			this.teamStream = await this.data.streams.getOneByQuery(
+				{ teamId: this.team.id, isTeamStream: true },
+				{ hint: StreamIndexes.byIsTeamStream }
+			);
+		}
 	}
 
 	// get the company that owns the team for which the post is being created
@@ -253,7 +273,7 @@ class PostCreator extends ModelCreator {
 	async getCompany () {
 		if (!this.forInboundEmail || !this.team) {
 			// only needed for inbound email, for tracking
-			// or if no team, which can happen for replies to code errors
+			// or if no team, which can happen for replies to teamless code errors
 			return;
 		}
 		this.company = await this.data.companies.getById(this.team.get('companyId'));
@@ -369,17 +389,24 @@ class PostCreator extends ModelCreator {
 			return true;
 		}
 		this.attributes.codeError.postId = this.attributes.id;
-		this.attributes.codeError.nominalTeamId = this.nominalTeamId;
+		if (this.attributes.teamId ) {
+			this.attributes.codeError.teamId = this.attributes.teamId;
+		}
+		this.attributes.codeError.streamId = this.attributes.streamId;
+		//this.attributes.codeError.nominalTeamId = this.nominalTeamId;
 
+		console.warn('CREATING CODE ERROR...');
 		const codeErrorCreator = new CodeErrorCreator({
 			request: this.request,
 			origin: this.attributes.origin,
 			useId: this.codeErrorId, // if locked down previously
 			replyIsComing: this.replyIsComing,
-			allowFromUserId: this.allowFromUserId,
-			setCreatedAt: this.setCreatedAt
+			//allowFromUserId: this.allowFromUserId,
+			setCreatedAt: this.setCreatedAt,
+			forCommentEngine: this.forCommentEngine
 		});
 		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(this.attributes.codeError);
+		console.warn('CREATED CODE ERROR!!!');
 		if (this.transformsCreatedStreamForCodeError) {
 			this.stream = this.transforms.createdStreamForCodeError; // creation of a code error always creates a stream
 		} else {
@@ -438,7 +465,7 @@ class PostCreator extends ModelCreator {
 
 	// update the stream associated with the created post
 	async updateStream () {
-		if (this.transforms.createdStreamForCodeError) { return; }
+		//if (this.transforms.createdStreamForCodeError) { return; }
 
 		// update the mostRecentPostId attribute, and the sortId attribute
 		// (which is the same if there is a post in the stream) to the ID of
@@ -611,12 +638,14 @@ class PostCreator extends ModelCreator {
 				modifiedAt: now
 			}
 		};
+		/*
 		if (!this.codeError.get('nominalTeamId') && this.nominalTeamId) {
 			op.$set.nominalTeamId = this.nominalTeamId;
 		}
+		*/
 
 		// handle any followers that need to be added to the code error, as needed
-		this.newCodeErrorFollowerIds = await this.handleFollowers(this.codeError, op, { ignorePreferences: true });
+		/*this.newCodeErrorFollowerIds = */await this.handleFollowers(this.codeError, op, { ignorePreferences: true });
 
 		this.transforms.updatedCodeErrors = this.transforms.updatedCodeErrors || [];
 		const codeErrorUpdate = await new ModelSaver({
@@ -626,10 +655,12 @@ class PostCreator extends ModelCreator {
 		}).save(op);
 		this.transforms.updatedCodeErrors.push(codeErrorUpdate);
 
+		/*
 		// grant messaging permissions to any new followers
 		if (this.newCodeErrorFollowerIds.length > 0) {
 			this.grantFollowerMessagingPermissions(this.newCodeErrorFollowerIds);
 		}
+		*/
 	}
 
 	// handle followers to parent codemark or review or code error as needed
@@ -719,9 +750,10 @@ class PostCreator extends ModelCreator {
 				op.$addToSet.followerIds = ArrayUtilities.union(op.$addToSet.followerIds, newFollowerIds);
 			}
 		}
-		return newFollowerIds;
+		//return newFollowerIds;
 	}
 
+	/*
 	// grant messaging permissions to any new followers to the code error
 	async grantFollowerMessagingPermissions (followerIds) {
 		const granterOptions = {
@@ -738,6 +770,7 @@ class PostCreator extends ModelCreator {
 			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
 	}
+	*/
 
 	// update the total post count for the author of the post, along with the date/time of last post,
 	// also clear lastReads for the stream 
@@ -760,6 +793,7 @@ class PostCreator extends ModelCreator {
 		}).save(op);
 	}
 
+	/*
 	// for a code error with new followers, update the members of the code error stream
 	async updateCodeErrorStreamMembers () {
 		if (!this.codeError || (this.newCodeErrorFollowerIds || []).length === 0) {
@@ -779,6 +813,7 @@ class PostCreator extends ModelCreator {
 			id: this.codeError.get('streamId')
 		}).save(op);
 	}
+	*/
 
 	// update the time the last post was created for the team
 	async updateTeam () {
@@ -841,11 +876,13 @@ class PostCreator extends ModelCreator {
 			];
 		}
 
+		/*
 		// code error stream might have been updated with new members
 		if (transforms.updatedCodeErrorStreamOp) {
 			responseData.streams = responseData.streams || [];
 			responseData.streams.push(transforms.updatedCodeErrorStreamOp);
 		}
+		*/
 
 		// add any markers created 
 		if (transforms.createdMarkers && transforms.createdMarkers.length > 0) {
@@ -921,7 +958,7 @@ class PostCreator extends ModelCreator {
 			this.publishRepos,					// publish any created or updated repos to the team
 			this.publishPost.bind(this, options && options.postPublishData), // publish the actual post to members of the team or stream
 			this.publishParents,				// if this post was a reply and we updated the parent post or codemark, publish that
-			this.publishCodeError,				// publish created code error to any new followers of that code error
+			//this.publishCodeError,				// publish created code error to any new followers of that code error
 			this.triggerNotificationEmails,		// trigger email notifications to members who should receive them
 			this.publishToAuthor,				// publish directives to the author's me-channel
 			this.trackPost,						// for server-generated posts, send analytics info
@@ -1002,17 +1039,21 @@ class PostCreator extends ModelCreator {
 	
 	// publish the post to the appropriate broadcaster channel
 	async publishPost (customData) {
+		if (!this.team) { return; }
+		const streamForPublish = this.teamStream || this.stream;
+		if (!streamForPublish) { return; }
 		await new PostPublisher({
 			request: this.request,
 			data: customData || this.request.responseData,
 			broadcaster: this.api.services.broadcaster,
-			stream: this.stream.attributes,
-			object: this.codeError || this.transforms.createdCodeError
+			stream: streamForPublish.attributes,
+			//object: this.codeError || this.transforms.createdCodeError
 		}).publishPost();
 	}
 
 	// if the parent post or codemark was updated, publish the parent post or codemark
 	async publishParents () {
+		if (!this.team) { return; }
 		let needPublish = false;
 		const data = {};
 		if (this.transforms.postUpdate) {
@@ -1031,17 +1072,21 @@ class PostCreator extends ModelCreator {
 			data.codeErrors = this.transforms.updatedCodeErrors;
 			needPublish = true;
 		}
+		/*
 		if (this.transforms.updatedCodeErrorStreamOp) {
 			data.streams = [this.transforms.updatedCodeErrorStreamOp];
 		}
-
+		*/
+		
 		if (needPublish) {
+			const streamForPublish = this.teamStream || this.stream;
+			if (!streamForPublish) { return; }
 			await new PostPublisher({
 				request: this.request,
 				data,
 				broadcaster: this.api.services.broadcaster,
-				stream: this.stream.attributes,	// assuming stream for the parent post is the same as for the reply
-				object: this.codeError
+				stream: streamForPublish.attributes,	// assuming stream for the parent post is the same as for the reply
+				//object: this.codeError
 			}).publishPost();
 		}
 	}
@@ -1055,6 +1100,9 @@ class PostCreator extends ModelCreator {
 		}
 		if (this.dontSendEmail) {
 			this.request.log('Email notification trigger blocked by caller for stream ' + this.stream.id);
+			return;
+		} else if (!this.team) {
+			this.request.log('No email notification for teamless posts');
 			return;
 		}
 
@@ -1075,6 +1123,10 @@ class PostCreator extends ModelCreator {
 	// this includes an increase in the post count, and a clearing of the 
 	// author's lastReads for the stream
 	async publishToAuthor () {
+		if (!this.user.get('isRegistered')) {
+			// this can happen from the NR comment engine
+			return;
+		}
 		const channel = `user-${this.user.id}`;
 		const message = {
 			requestId: this.request.request.id,
@@ -1095,7 +1147,8 @@ class PostCreator extends ModelCreator {
 
 	// track this post for analytics, with the possibility that the user may have opted out
 	async trackPost () {
-		// only track for email replies, client-originating posts are tracked by the client
+		// only track for email replies and NR comment engine comments,
+		// client-originating posts are tracked by the client
 		if ((!this.forInboundEmail && !this.forCommentEngine) || !this.parentPost) {
 			return;
 		}
@@ -1222,6 +1275,7 @@ class PostCreator extends ModelCreator {
 		);
 	}
 
+	/*
 	// publish code error and post to any new followers of a code error
 	// this includes the initial code error to the code error's creator
 	async publishCodeError () {
@@ -1264,6 +1318,7 @@ class PostCreator extends ModelCreator {
 			this.request.warn(`Could not publish code error message to user ${userId}: ${JSON.stringify(error)}`);
 		}
 	}
+	*/
 
 	// determine if special header was sent with the request that says to block emails
 	requestSaysToBlockEmails () {

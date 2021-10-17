@@ -19,6 +19,16 @@ module.exports = {
 		required: true,
 		description: 'Array of @@#user#user@@ IDs representing the members of the team'
 	},
+	removedMemberIds: {
+		type: 'arrayOfIds',
+		maxLength: 256,
+		description: 'Array of @@#user#user@@ IDs representing users who have been removed from the team (but their content is still visible and accessible to other members)'
+	},
+	foreignMemberIds: {
+		type: 'arrayOfIds',
+		maxLength: 256,
+		description: 'Array of @@#user#user@@ IDs representing users who are not members of the team but who may have contributed content which is still visible and accessible to other members'
+	},
 	integrations: {
 		type: 'object',
 		description: 'An object whose keys are possible integrations ("slack", "msteams", etc.); one attribute of the object is "enabled", defining whether the integration is currently enabled. Other attributes in the value are integration-dependent.'

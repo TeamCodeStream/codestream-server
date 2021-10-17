@@ -118,6 +118,10 @@ class WeeklyEmailHandler {
 			// NOTE: this will not preclude the user receiving an email for another team, when that team runs
 			this.log(`User ${user.id} has been removed from team ${team.id} so will not receive a weekly email for this team`);
 			return false;
+		} else if ((team.foreignMemberIds || []).includes(user.id)) {
+			// NOTE: this will not preclude the user receiving an email for another team, when that team runs
+			this.log(`User ${user.id} is foreign to team ${team.id} so will not receive a weekly email for this team`);
+			return false;
 		} else if (lastEmailSentAt > Date.now() - this.message.userCutoffTime) {
 			this.log(`User ${user.id}:${user.email} has received a weekly email within ${this.message.userCutoffTime}ms, so will not receive another`);
 			return false;

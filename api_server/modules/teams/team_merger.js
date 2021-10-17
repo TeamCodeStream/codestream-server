@@ -128,7 +128,7 @@ class MultiTeamMigrator {
 					teamId: team.id
 				},
 				{
-					hint: PostIndexes.byId,
+					hint: PostIndexes.byTeamId,
 					requestId: this.requestId
 				}
 			);
@@ -366,7 +366,7 @@ class MultiTeamMigrator {
 		const latestPosts = await this.data.posts.getByQuery(
 			{ teamId: fromRepo.teamId },
 			{ 
-				hint: PostIndexes.byId ,
+				hint: PostIndexes.byTeamId ,
 				sort: { _id: -1 }, 
 				limit: 1,
 				requestId: this.requestId
@@ -407,10 +407,11 @@ class MultiTeamMigrator {
 	// merge each team's membership and settings into the merge-to team 
 	async updateTeam () {
 		// merge team memberships and settings
-		const { memberIds, adminIds, removedMemberIds } = this.mergeMemberships();
+		const { memberIds, adminIds, removedMemberIds, foreignMemberIds } = this.mergeMemberships();
 		const settings = this.mergeSettings();
 		this.allMemberIds = memberIds;
 		this.removedMemberIds = removedMemberIds;
+		this.foreignMemberIds = foreignMemberIds;
 
 		// merge provider identities
 		const providerIdentities = this.mergeProviderIdentities();
@@ -419,11 +420,13 @@ class MultiTeamMigrator {
 			$set: {
 				memberIds,
 				removedMemberIds,
+				foreignMemberIds,
 				adminIds,
 				settings,
 				providerIdentities,
 				originalMemberIds: this.mergeToTeam.memberIds || [],
 				originalRemovedMemberIds: this.mergeToTeam.removedMemberIds || [],
+				originalForeignMemberIds: this.mergeToTeam.foreignMemberIds || [],
 				originalAdminIds: this.mergeToTeam.adminIds || [],
 				originalSettings: this.mergeToTeam.settings
 			}
@@ -443,15 +446,23 @@ class MultiTeamMigrator {
 		// the ultimate removed members are those who are not active on any of the teams
 		let activeMemberIds = [];
 		let possibleRemovedMemberIds = [];
+		let possibleForeignMemberIds = [];
 		let adminIds = [];
 		for (const team of this.allTeams) {
+			const activeTeamMemberIds = ArrayUtilities.difference(
+				ArrayUtilities.difference(team.memberIds || [], team.removedMemberIds || []),
+				team.foreignMemberIds || []);
 			activeMemberIds = ArrayUtilities.unique([
-				...activeMemberIds,
-				...ArrayUtilities.difference(team.memberIds || [], team.removedMemberIds || [])
+				activeMemberIds,
+				activeTeamMemberIds
 			]);
 			possibleRemovedMemberIds = [
 				...possibleRemovedMemberIds,
 				...(team.removedMemberIds || [])
+			];
+			possibleForeignMemberIds = [
+				...possibleForeignMemberIds,
+				...(team.foreignMemberIds || [])
 			];
 			adminIds = [
 				...adminIds,
@@ -468,15 +479,25 @@ class MultiTeamMigrator {
 			}
 		});
 
+		// same for foreign members
+		let foreignMemberIds = [];
+		possibleForeignMemberIds.forEach(id => {
+			if (!activeMemberIds.includes(id)) {
+				foreignMemberIds.push(id);
+			}
+		});
+
 		// sort and unique-ify everything
 		const memberIds = ArrayUtilities.unique([
 			...activeMemberIds,
-			...removedMemberIds
+			...removedMemberIds,
+			...foreignMemberids
 		]).sort();
 		removedMemberIds = ArrayUtilities.unique(removedMemberIds).sort();
+		foreignMemberIds = ArrayUtilities.unique(foreignMemberIds).sort();
 		adminIds = ArrayUtilities.unique(adminIds).sort();
 
-		return { memberIds, adminIds, removedMemberIds };
+		return { memberIds, adminIds, removedMemberIds, foreignMemberIds };
 	}
 
 	// set the providerIdentities for the merge-to team as long as it doesn't already have it
@@ -597,7 +618,7 @@ class MultiTeamMigrator {
 		const teamIds = user.teamIds || [];
 		const companyIds = user.companyIds || [];
 		let newCompanyIds = [...companyIds];
-		if (!this.removedMemberIds.includes(user.id)) {
+		if (!this.removedMemberIds.includes(user.id) && !this.foreignMemberIds.includes(user.id)) {
 			if (!teamIds.includes(this.mergeToTeam.id)) {
 				op.$push = op.$push || {};
 				op.$push.teamIds = this.mergeToTeam.id;

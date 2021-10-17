@@ -8,7 +8,7 @@ const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const Indexes = require('./indexes');
 const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
-const ObjectSubscriptionGranter = require('./object_subscription_granter');
+//const ObjectSubscriptionGranter = require('./object_subscription_granter');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
 
 class CodeErrorCreator extends ModelCreator {
@@ -34,18 +34,24 @@ class CodeErrorCreator extends ModelCreator {
 
 	// these attributes are required or optional to create a code error document
 	getRequiredAndOptionalAttributes () {
-		return {
+		const attributes = {
 			required: {
 				number: ['accountId'],
 				string: ['postId', 'objectId', 'objectType']
 			},
 			optional: {
-				string: ['providerUrl', 'entryPoint', 'title', 'text', 'nominalTeamId'],
+				string: ['providerUrl', 'entryPoint', 'title', 'text'],
 				object: ['objectInfo'],
 				boolean: ['_dontCreatePermalink', '_forNRMigration'],
 				'array(object)': ['stackTraces']
 			}
 		};
+
+		if (!this.forCommentEngine) {
+			attributes.required.string.push('teamId');
+		} else {
+			attributes.optional.string.push('teamId');
+		}
 	}
 
 	// get the query to determine if there is a matching code error already
@@ -76,6 +82,12 @@ class CodeErrorCreator extends ModelCreator {
 		// create a teamless stream for this code error
 		if (!this.existingModel) {
 			await this.createStream();
+		} else if (
+			this.attributes.teamId &&
+			this.existingModel.get('teamId') &&
+			this.attributes.teamId !== this.existingModel.get('teamId')
+		) {
+		 	throw this.errorHandler.error('createAuth', { reason: 'code error exists and is owned by another team' });
 		}
 
 		// establish some default attributes
@@ -121,9 +133,8 @@ class CodeErrorCreator extends ModelCreator {
 		}
 	}
 
-	// create a teamless stream for this code error
+	// create a stream for this code error
 	async createStream () {
-		// first, create a stream for the code error
 		this.transforms.createdStreamForCodeError = this.stream = await new StreamCreator({
 			request: this.request,
 			nextSeqNum: this.replyIsComing ? 3 : 2
@@ -133,11 +144,11 @@ class CodeErrorCreator extends ModelCreator {
 			accountId: this.attributes.accountId,
 			objectId: this.attributes.objectId,
 			objectType: this.attributes.objectType,
-			memberIds: [this.user.id]
+			//memberIds: [this.user.id]
 		});
 		this.attributes.streamId = this.stream.id;
 	}
-	
+
 	// handle concerns with existing code errors
 	async handleExistingCodeError () {
 		const stackTracesToAdd = [];
@@ -148,10 +159,21 @@ class CodeErrorCreator extends ModelCreator {
 			throw this.errorHandler.error('createAuth', { reason: 'found existing object but account ID does not match' });
 		}
 
+		// must be a member of the team that owns the code error, if any
+		if (
+			!this.forCommentEngine &&	// TODO: decide whether users automatically become members of the team
+			this.existingModel.get('teamId') &&
+			!this.user.hasTeam(this.existingModel.get('teamId'))
+		) {
+			throw this.errorHandler.error('readAuth', { reason: 'user is not on the team that owns this code error' });
+		}
+	
+		/*
 		// creator of the code error must be a fellow teammate
 		if (!(this.allowFromUserId && this.allowFromUserId === this.user.id)) {
 			await this.ensureAuthorized();
 		}
+		*/
 
 		// check if this is a new stack trace ...
 		// if so, add it to the array of known stack traces
@@ -179,6 +201,7 @@ class CodeErrorCreator extends ModelCreator {
 		return didChange;
 	}
 
+	/*
 	// ensure an existing code error has been created by one of my teammates, otherwise i cannot contribute
 	async ensureAuthorized () {
 		const teamIds = this.user.get('teamIds') || [];
@@ -194,21 +217,25 @@ class CodeErrorCreator extends ModelCreator {
 			throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this object' });
 		}
 	}
+	*/
 
 	// create a permalink url to the codemark
 	async createPermalink () {
-		this.attributes.permalink = await new PermalinkCreator({
-			request: this.request,
-			codeError: this.attributes
-		}).createPermalink();
+		if (this.attributes.teamId) {
+			this.attributes.permalink = await new PermalinkCreator({
+				request: this.request,
+				codeError: this.attributes
+			}).createPermalink();
+		}
 	}
 
 	// after the code error has been saved...
 	async postSave () {
 		await super.postSave();
-		await this.grantFollowerMessagingPermissions();		// grant permission to all followers to subscribe to the object broadcaster channel
+		//await this.grantFollowerMessagingPermissions();		// grant permission to all followers to subscribe to the object broadcaster channel
 	}
 
+	/*
 	// grant permission to all followers to subscribe to the object broadcaster channel
 	async grantFollowerMessagingPermissions () {
 		const granterOptions = {
@@ -225,8 +252,7 @@ class CodeErrorCreator extends ModelCreator {
 			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
 		}
 	}
-
-
+	*/
 }
 
 module.exports = CodeErrorCreator;

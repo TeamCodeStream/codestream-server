@@ -7,10 +7,12 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the @@#team#team@@ that owns this code error'
 	},
+	/*
 	nominalTeamId: {
 		type: 'id',
 		description: 'The nominal @@#team#team@@ that owns this code error, but with no ACL implications'
 	},
+	*/
 	streamId: {
 		type: 'string',
 		required: true,

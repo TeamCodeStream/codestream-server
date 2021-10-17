@@ -9,9 +9,10 @@ module.exports = {
 	// IT IS USED BY THE OUTBOUND EMAIL SERVER, VERBATIM,
 	// BUT WITHOUT SIGNIFICANT STRUCTURAL CHANGES TO OUR
 	// CODEBASE CANNOT BE DIRECTLY READ FROM THIS FILE
-	byId: {
+	// BUT NOTE: we may want to eliminate streamId here
+	byTeamId: {
 		teamId: 1,
-		streamId: 1,
+		//streamId: 1,
 		_id: -1
 	},
 	

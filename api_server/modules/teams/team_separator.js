@@ -104,7 +104,10 @@ class MultiTeamSeparator {
 	//  -- if not a member of the first team, remove the first company from their company IDs
 	async updateMembers (team) {
 		const companyId = this.companiesByTeam[team.id].id;
-		const memberIds = ArrayUtilities.difference(team.memberIds || [], team.removedMemberIds || []);
+		const memberIds = ArrayUtilities.difference(
+			ArrayUtilities.difference(team.memberIds || [], team.removedMemberIds || []),
+			team.foreignMemberIds || []
+		);
 		let op = {
 			$addToSet: {
 				companyIds: companyId
@@ -120,7 +123,10 @@ class MultiTeamSeparator {
 			);
 		}
 
-		const membersOfFirstTeam = ArrayUtilities.difference(this.firstTeam.memberIds || [], this.firstTeam.removedMemberIds || []);
+		const membersOfFirstTeam = ArrayUtilities.difference(
+			ArrayUtilities.difference(this.firstTeam.memberIds || [], this.firstTeam.removedMemberIds || []),
+			this.firstTeam.foreignMemberIds || []
+		);
 		const removingMemberIds = ArrayUtilities.difference(memberIds, membersOfFirstTeam);
 		if (removingMemberIds.length > 0) {
 			op = {
@@ -139,7 +145,6 @@ class MultiTeamSeparator {
 			}
 		}
 	}
-
 
 	// set the company as migrated, once and for all!
 	async setCompanyMigrated () {

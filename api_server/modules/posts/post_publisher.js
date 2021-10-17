@@ -16,11 +16,13 @@ class PostPublisher {
 			// we publish to the team that owns the stream
 			channel = `team-${this.stream.teamId}`;
 		} else if (this.stream.type === 'object') {
-			// object streams get their own channel
+			throw 'should not be publishing to an object stream';
+			/*
 			if (!this.object) {
 				throw 'must provide object to PostPublisher for object streams';
 			}
 			channel = `object-${this.object.id}`;
+			*/
 		} else {
 			throw 'stream channels are deprecated';
 			/*
