@@ -490,6 +490,7 @@ class PostCreator extends ModelCreator {
 	// update the lastReads attribute for each user in the stream or team,
 	// for those users for whom this post represents a new unread message
 	async updateLastReads () {
+		if (!this.team) { return; }
 		await new LastReadsUpdater({
 			data: this.data,
 			user: this.user,
