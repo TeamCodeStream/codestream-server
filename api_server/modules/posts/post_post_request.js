@@ -8,54 +8,17 @@ class PostPostRequest extends PostRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		let teamId = this.request.body.teamId;
-		if (!teamId) {
-			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
-		}
-		teamId = teamId.toLowerCase();
-		if (!this.user.authorizeTeam(teamId)) {
-			throw this.errorHandler.error('createAtuh', { reason: 'user is not a member of the team' });
-		}
-
-		let streamId = this.request.body.streamId;
+		const streamId = this.request.body.streamId;
 		if (!streamId) {
-			// this is acceptable ONLY if we are creating a code error
-			if (!this.request.body.codeError) {
-				throw this.errorHandler.error('parameterRequired', { info: 'streamId' });
-			} else {
-				return;
-			}
+			throw this.errorHandler.error('parameterRequired', { info: 'streamId' });
 		}
-		streamId = streamId.toLowerCase();
-		
-		// for replies, the stream ID always comes from the parent, ignore otherwise
-		const parentPostId = this.request.body.parentPostId;
-		if (parentPostId) {
-			const parentPost = await this.data.posts.getById(parentPostId.toLowerCase());
-			if (!parentPost) {
-				throw this.errorHandler.error('notFound', { info: 'parentPost' });
-			}
-			streamId = this.request.body.streamId = parentPost.get('streamId');
-		}
-
-		const stream = await this.user.authorizeStream(streamId, this);
+		const stream = await this.user.authorizeStream(streamId.toLowerCase(), this);
 		if (!stream) {
 			throw this.errorHandler.error('createAuth');
 		}
-
 		if (!stream.get('isTeamStream') && stream.get('type') !== 'object') {
 			throw 'stream channels are deprecated';
 		}
-
-		/*
-		if (stream.get('type') === 'object' && this.request.body.codemark) {
-			// when creating a codemark to go with a reply to an object, we MUST have a team ID
-			// since there is no other way to make an associated to repos ... an admitted weirdness
-			if (!this.request.body.teamId) {
-				return this.errorHandler.error('parameterRequired', { info: 'teamId', reason: 'team ID is required when replying to a code error with a codemark' });
-			}
-		}
-		*/
 	}
 
 	/* eslint complexity: 0 */

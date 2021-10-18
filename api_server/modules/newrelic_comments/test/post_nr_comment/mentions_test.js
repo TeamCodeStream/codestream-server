@@ -17,7 +17,8 @@ class MentionsTest extends CreateNRCommentTest {
 		// so we knows the IDs of the users, then fetch those users and confirm they match
 		BoundAsync.series(this, [
 			super.run,
-			this.registerFauxUser,
+			this.claimCodeError,
+			this.inviteAndRegisterFauxUser,
 			this.fetchPost,
 			this.fetchParentPost,
 			this.fetchUsers

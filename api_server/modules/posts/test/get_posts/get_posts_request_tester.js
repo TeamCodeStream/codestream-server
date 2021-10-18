@@ -31,7 +31,6 @@ const GetPostsWithCodeErrorsTest = require('./get_posts_with_code_errors_test');
 const NeedIncludeFollowedTest = require('./need_include_followed_test');
 const ComplexTest = require('./complex_test');
 const GetRepliesToCodeErrorTest = require('./get_replies_to_code_error_test');
-const GetRepliesToCodeErrorByParentPostIdTest = require('./get_replies_to_code_error_by_parent_post_id_test');
 const TeamIdIgnoredForRepliesToCodeErrorTest = require('./team_id_ignored_for_replies_to_code_error_test');
 
 class GetPostsRequestTester {
@@ -71,10 +70,9 @@ class GetPostsRequestTester {
 		//new InvalidSeqNumTest().test();
 		new GetPostsWithReviewsTest().test();
 		new GetPostsWithCodeErrorsTest().test();
-		new NeedIncludeFollowedTest().test();
+		//new NeedIncludeFollowedTest().test();
 		new ComplexTest().test();
 		new GetRepliesToCodeErrorTest().test();
-		new GetRepliesToCodeErrorByParentPostIdTest().test();
 		new TeamIdIgnoredForRepliesToCodeErrorTest().test();
 	}
 }

@@ -20,7 +20,8 @@ class FetchTest extends CreateNRCommentTest {
 			super.before,
 			this.createNRComment,
 			this.setPath,
-			this.registerFauxUser
+			this.claimCodeError,
+			this.inviteAndRegisterFauxUser
 		], callback);
 	}
 

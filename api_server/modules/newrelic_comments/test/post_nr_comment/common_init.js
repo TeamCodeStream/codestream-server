@@ -84,11 +84,44 @@ class CommonInit {
 		);
 	}
 
-	registerFauxUser (callback) {
+	// claim code error for the team, as requested
+	claimCodeError (callback) {
+		const data = this.data || (this.nrCommentResponse && this.nrCommentResponse.post);
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/code-errors/claim/' + this.team.id,
+				data: {
+					objectId: data.objectId,
+					objectType: data.objectType
+				},
+				token: this.users[1].accessToken
+			},
+			callback
+		);
+	}
+
+	inviteAndRegisterFauxUser (callback) {
 		BoundAsync.series(this, [
+			this.inviteFauxUser,
 			this.registerUser,
 			this.confirmUser
 		], callback);
+	}
+
+	inviteFauxUser (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/users',
+				data: {
+					teamId: this.team.id,
+					email: this.nrCommentResponse.post.creator.email
+				},
+				token: this.users[1].accessToken
+			},
+			callback
+		);
 	}
 
 	registerUser (callback) {

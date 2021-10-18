@@ -1,6 +1,6 @@
 'use strict';
 
-const GetRepliesToCodeErrorByParentPostIdTest = require('./get_replies_to_code_error_by_parent_post_id_test');
+const GetRepliesToCodeErrorByParentPostIdTest = require('./get_replies_to_code_error_test');
 
 class TeamIdIgnoredForRepliesToCodeErrorTest extends GetRepliesToCodeErrorByParentPostIdTest {
 

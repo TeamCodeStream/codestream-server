@@ -7,19 +7,15 @@ class GetPostsWithCodeErrorsTest extends GetPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.wantCodeError = true;
-		this.postOptions.creatorIndex = 0;
+		Object.assign(this.postOptions, {
+			wantCodeError: true,
+			creatorIndex: 0,
+			claimCodeErrors: true
+		});
 	}
 
 	get description () {
 		return 'should return the correct posts with code errors when requesting posts created with code errors';
-	}
-
-	setPath (callback) {
-		super.setPath(() => {
-			this.path += `&includeFollowed=1`;
-			callback();
-		});
 	}
 
 	// validate the response to the fetch request

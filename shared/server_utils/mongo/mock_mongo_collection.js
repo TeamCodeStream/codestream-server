@@ -187,9 +187,9 @@ class MockMongoCollection {
 	_itemMatchesCondition (item, conditionName, conditionValue) {
 		if (conditionName.startsWith('$')) {
 			return this._itemMatchesOperator(item, conditionName, conditionValue);
-		}
-		else if (
-			typeof conditionValue === 'object' &&
+		} else if (
+			typeof conditionValue === 'object' && 
+			conditionValue !== null && 
 			conditionValue.$exists !== undefined
 		) {
 			return this._itemMatchesExists(item, conditionName, conditionValue.$exists);
@@ -231,6 +231,7 @@ class MockMongoCollection {
 	_valueMatches (value, conditionValue) {
 		if (
 			typeof conditionValue === 'object' &&
+			conditionValue !==  null && 
 			Object.keys(conditionValue).find(key => key.startsWith('$'))
 		) {
 			return this._valueMatchesOperators(value, conditionValue);

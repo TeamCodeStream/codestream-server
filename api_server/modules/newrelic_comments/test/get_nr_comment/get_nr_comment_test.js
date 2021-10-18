@@ -15,7 +15,8 @@ class GetNRCommentTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.createNRComment
+			this.createNRComment,
+			this.claimCodeError
 		], callback);
 	}
 
@@ -61,6 +62,23 @@ class GetNRCommentTest extends CodeStreamAPITest {
 				this.expectedResponse = DeepClone(this.nrCommentResponse);
 				callback();
 			}
+		);
+	}
+
+	// claim code error for the team, as requested
+	claimCodeError (callback) {
+		if (!this.ownedByTeam) { return callback(); }
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/code-errors/claim/' + this.team.id,
+				data: {
+					objectId: this.nrCommentResponse.post.objectId,
+					objectType: this.nrCommentResponse.post.objectType
+				},
+				token: this.users[1].accessToken
+			},
+			callback
 		);
 	}
 

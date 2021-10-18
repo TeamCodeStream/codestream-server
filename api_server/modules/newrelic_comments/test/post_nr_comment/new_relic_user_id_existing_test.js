@@ -23,7 +23,7 @@ class NewRelicUserIdExistingTest extends NewRelicUserIdTest {
 		});
 	}
 
-	registerFauxUser (callback) {
+	inviteAndRegisterFauxUser (callback) {
 		// override base class
 		callback();
 	}

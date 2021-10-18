@@ -5,23 +5,18 @@
 const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 const PostErrors = require('./errors.js');
-const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
-const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
-const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 
 // these parameters essentially get passed verbatim to the query
 const BASIC_QUERY_PARAMETERS = [
 	'teamId',
 	'streamId',
-	'parentPostId',
-	'codeErrorId'
+	'parentPostId'
 ];
 
 // additional options for post fetches
 const NON_FILTERING_PARAMETERS = [
 	'limit',
-	'sort',
-//	'includeFollowed'
+	'sort'
 ];
 
 const RELATIONAL_PARAMETERS = [
@@ -41,19 +36,7 @@ class GetPostsRequest extends GetManyRequest {
 	async authorize () {
 		delete this.request.query.streamId; // tolerated but ignored
 
-		/*
-		if (this.request.query.codeErrorId) {
-			// fetching replies to a code error
-			this.codeError = await this.user.authorizeCodeError(this.request.query.codeErrorId, this);
-			if (!this.codeError) {
-				throw this.errorHandler.error('readAuth', { reason: 'user is not a follower of this object' });
-			}
-			this.stream = await this.data.streams.getById(this.codeError.get('streamId'));
-			if (!this.stream) {
-				throw this.errorHandler.error('notFound', { info: 'stream' }); // shouldn't happen
-			}
-			delete this.request.query.codeErrorId;
-		} else */if (this.request.query.parentPostId) {
+		if (this.request.query.parentPostId) {
 			// fetching replies to a parent post
 			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
 			if (!parentPost) {
@@ -136,7 +119,8 @@ class GetPostsRequest extends GetManyRequest {
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
 	buildQuery () {
 		const query = {};
-
+		this.byId = true;
+		
 		// query on stream or streams, as determined above
 		//query.streamId = this.stream ? this.stream.id : { $in: this.streamIds };
 
@@ -198,11 +182,14 @@ class GetPostsRequest extends GetManyRequest {
 		}
 		else 
 		{
+			throw 'queries by seqNum are deprecated';
+			/*
 			const seqNum = parseInt(value, 10);
 			if (isNaN(seqNum) || seqNum.toString() !== value) {
 				return 'invalid seqnum: ' + value;
 			}
 			this.relationals[parameter] = seqNum;
+			*/
 		}
 	}
 
@@ -286,13 +273,14 @@ class GetPostsRequest extends GetManyRequest {
 	// set the indexing hint to use in the fetch query
 	setHint () {
 		if (this.byId) {
-			return Indexes.byTeamId; // should be byTeamId?
+			return Indexes.byTeamId;
 		}
 		else if (this.request.query.parentPostId) {
 			return Indexes.byParentPostId;
 		}
 		else {
-			return Indexes.bySeqNum;
+			throw 'queries by seqNum are deprecated';
+			//return Indexes.bySeqNum;
 		}
 	}
 
@@ -405,12 +393,15 @@ class GetPostsRequest extends GetManyRequest {
 				}
 			}
 			else {
+				throw 'queries by seqNum are deprecated';
+				/*
 				if ((this.request.query.sort || '').toLowerCase() === 'asc') {
 					return a.seqNum - b.seqNum;
 				}
 				else {
 					return b.seqNum - a.seqNum;
 				}
+				*/
 			}
 		});
 	}

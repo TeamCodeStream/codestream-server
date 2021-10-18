@@ -31,8 +31,25 @@ class GetReplyToCodeErrorTest extends GetPostTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
+			this.claimCodeError,
 			this.createReply
 		], callback);
+	}
+
+	// claim code error for the team, as requested
+	claimCodeError (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/code-errors/claim/' + this.team.id,
+				data: {
+					objectId: this.postData[0].codeError.objectId,
+					objectType: this.postData[0].codeError.objectType
+				},
+				token: this.users[1].accessToken
+			},
+			callback
+		);
 	}
 
 	// reply to the code error

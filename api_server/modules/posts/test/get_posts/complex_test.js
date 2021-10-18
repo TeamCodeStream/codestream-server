@@ -11,6 +11,7 @@ class ComplexTest extends GetPostsTest {
 		this.postOptions.creatorIndex = 1;
 		this.postOptions.numPosts = 45;
 		this.postOptions.postData = [];
+		this.postOptions.claimCodeErrors = true;
 		for (let i = 0; i < this.postOptions.numPosts; i++) {
 			const nInterval = this.postOptions.numPosts / 3;
 			const n = i % nInterval;
@@ -44,7 +45,6 @@ class ComplexTest extends GetPostsTest {
 
 	setPath (callback) {
 		super.setPath(() => {
-			this.path += `&includeFollowed=1`;
 			this.expectedPosts.push(this.repoPost);
 			this.expectedPosts.reverse();
 			callback();

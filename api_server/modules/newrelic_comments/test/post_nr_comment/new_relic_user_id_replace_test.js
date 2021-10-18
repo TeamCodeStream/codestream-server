@@ -45,7 +45,8 @@ class NewRelicUserIdReplaceTest extends CreateNRCommentTest {
 		// run the base test, but then register the creator so we can fetch them
 		BoundAsync.series(this, [
 			super.run,
-			this.registerFauxUser,
+			this.claimCodeError,
+			this.inviteAndRegisterFauxUser,
 			this.fetchUser
 		], callback);
 	}

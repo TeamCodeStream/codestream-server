@@ -36,7 +36,8 @@ class ExistingFauxUserTest extends CreateNRCommentTest {
 		// then fetch them
 		BoundAsync.series(this, [
 			super.run,
-			this.registerFauxUser,
+			this.claimCodeError,
+			this.inviteAndRegisterFauxUser,
 			this.fetchFirstPost,
 			this.fetchSecondPost
 		], callback);

@@ -79,8 +79,9 @@ class PostNRCommentRequestTester {
 		new ReplyToWrongReplyTest().test();
 		new ReplyToNonNRObjectTest().test();
 		new ReplyToNonNRObjectReplyTest().test();
-		new MessageToObjectChannelTest().test();
-		new MessageToObjectChannelFromCodeStreamCodeErrorTest().test();
+		// TODO
+		//new MessageToObjectChannelTest().test();
+		//new MessageToObjectChannelFromCodeStreamCodeErrorTest().test();
 	}
 }
 

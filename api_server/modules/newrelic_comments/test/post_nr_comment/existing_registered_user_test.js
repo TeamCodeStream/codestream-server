@@ -31,6 +31,7 @@ class ExistingRegisteredUserTest extends CreateNRCommentTest {
 		// run the base test, but then fetch the post created 
 		BoundAsync.series(this, [
 			super.run,
+			this.claimCodeError,
 			this.fetchPost
 		], callback);
 	}

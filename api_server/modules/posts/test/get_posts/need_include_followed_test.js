@@ -1,15 +1,9 @@
 'use strict';
 
-const GetPostsTest = require('./get_posts_test');
+const GetPostsWithCodeErrorsTest = require('./get_posts_with_code_errors_test');
 const Assert = require('assert');
 
-class NeedIncludeFollowedTest extends GetPostsTest {
-
-	constructor (options) {
-		super(options);
-		this.postOptions.wantCodeError = true;
-		this.postOptions.creatorIndex = 0;
-	}
+class NeedIncludeFollowedTest extends GetPostsWithCodeErrorsTest {
 
 	get description () {
 		return 'should return no posts when requesting posts and there are no posts in the team stream and includeFollowed is not sent, even though there are posts for code errors';

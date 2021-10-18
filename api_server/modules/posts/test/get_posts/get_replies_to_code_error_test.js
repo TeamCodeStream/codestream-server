@@ -7,17 +7,18 @@ class GetRepliesToCodeErrorTest extends GetChildPostsTest {
 	constructor (options) {
 		super(options);
 		this.postOptions.creatorIndex = 0;
+		this.postOptions.claimCodeErrors = true;
 		this.postOptions.postData[this.whichPostToReplyTo] = { wantCodeError: true };
 	}
 
 	get description () {
-		return 'should return the correct posts when requesting replies to a code error';
+		return 'should return the correct posts when requesting replies to a code error, specified by parent post';
 	}
 
 	// set the path for the request
 	setPath (callback) {
 		super.setPath(() => {
-			this.path = `/posts?codeErrorId=${this.postData[this.whichPostToReplyTo].post.codeErrorId}`;
+			this.path = `/posts?parentPostId=${this.postData[this.whichPostToReplyTo].post.id}`;
 			callback();
 		});
 	}

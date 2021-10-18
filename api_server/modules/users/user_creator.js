@@ -308,6 +308,7 @@ class UserCreator extends ModelCreator {
 		await super.create();
 	}
 
+	/*
 	async determineChanges () {
 		super.determineChanges();
 		if (this.existingModel && this.existingModel.get('externalUserId') &&
@@ -315,6 +316,7 @@ class UserCreator extends ModelCreator {
 			this.changes.externalUserId = null;
 		}
 	}
+	*/
 
 	// after the user object is saved...
 	async postSave () {

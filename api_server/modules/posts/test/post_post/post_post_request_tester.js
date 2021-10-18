@@ -528,6 +528,7 @@ class PostPostRequestTester {
 		new EmptyReviewChangesetTest().test();
 		new EntryPointTest().test();
 
+		/*
 		// concerning code errors...
 		// we do a subset of the tests for codemarks, assuming that marker validation 
 		// between the two API calls is basically the same
@@ -581,6 +582,7 @@ class PostPostRequestTester {
 		new NumRepliesToCodeErrorMessageTest().test();
 		new NumRepliesToCodeErrorNRCommentMessageTest().test();
 		new CodeErrorMentionMessageTest().test();
+		*/
 	}
 }
 

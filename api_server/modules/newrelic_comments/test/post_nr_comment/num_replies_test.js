@@ -14,7 +14,8 @@ class NumRepliesTest extends NestedCommentTest {
 	run (callback) {
 		BoundAsync.series(this, [
 			super.run,	// this posts the reply and checks the result, but then...
-			this.registerFauxUser, 	// need to register to read the post
+			this.claimCodeError, // claim the code error for the team
+			this.inviteAndRegisterFauxUser, 	// need to register to read the post
 			this.checkParentPost	// ...we'll check the parent post as well
 		], callback);
 	}
