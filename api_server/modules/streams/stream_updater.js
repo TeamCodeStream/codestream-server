@@ -105,6 +105,8 @@ class StreamUpdater extends ModelUpdater {
 		if (!this.attributes.name) {
 			return;
 		}
+		throw 'updating stream names is deprecated';
+		/*
 		const matchingStreams = await this.data.streams.getByQuery(
 			{
 				teamId: this.stream.get('teamId'),
@@ -119,6 +121,7 @@ class StreamUpdater extends ModelUpdater {
 		if (matchingStreams.find(stream => stream.id !== this.stream.id)) {
 			throw this.errorHandler.error('duplicateName');
 		}
+		*/
 	}
 
 	// if the name of a channel is being changed, and the team that owns the stream is

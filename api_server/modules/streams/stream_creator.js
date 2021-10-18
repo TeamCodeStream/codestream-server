@@ -152,8 +152,11 @@ class StreamCreator extends ModelCreator {
 		let hint;
 		if (this.attributes.type === 'channel') {
 			// channel streams match by name
+			throw 'creating channel streams is deprecated';
+			/*
 			query.name = this.attributes.name;
 			hint = Indexes.byName;
+			*/
 		} else if (this.attributes.type === 'direct') {
 			// direct stream match by membership
 			query.memberIds = this.attributes.memberIds;
