@@ -166,10 +166,14 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			hasEmailHashOrAuthorInitials: emailHash || authorInitials,
 			emailHash,
 			authorInitials,
-			codeError: {
-				id: this.codeError.get('id'),
-				title: (this.codeError.get('title') || "").trim(),
-				stackTrace: (stackTrace || '').trim().replace(/\n/g,"<br />")
+			codeError: { 
+				id: this.codeError.get('id'), 
+				title: (this.codeError.get('title') || "").trimStart().trim(),
+				text: (this.codeError.get('text') || "").trimStart().trim(), 
+				hasStackTrace: stackTrace != null,
+				hasParsedStack: stackTrace && stackTrace.lines && stackTrace.lines.length > 0,
+				stackTraceText: stackTrace && stackTrace.text ? stackTrace.text.trim().replace(/\t/g,"") : "",
+				stackTraceLines: stackTrace && stackTrace.lines ? stackTrace.lines : null  
 			}
 		};
 

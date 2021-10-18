@@ -69,20 +69,22 @@
 					{{/if}}			
 					<div class="row no-gutters mt-1">
 						<div class="col-sm-12">
-							{{#if codeError.stackTrace}}
-							<div class="code-wrapper" style="max-height:275px;" data-action-expand-id="611ebeca57be8e75fe94c298">
-								<code class="prettyprint" style="">
-									{{#with codeError.stackTrace}}
-										{{#each lines}}
-											<div class="stack-frame"> 
-												<span title="{{method}}({{fileFullPath}}:{{line}}{{#if column}}:{{column}}{{/if}})">
-													{{method}}({{fileFullPath}}:{{line}}{{#if column}}:{{column}}{{/if}})
-												</span>
-											</div>
-										{{/each}}
-									{{/with}}
-									</code>            
-							</div>
+							{{#if codeError.hasStackTrace}}							
+								<div class="code-wrapper" style="max-height:275px;" data-action-expand-id="611ebeca57be8e75fe94c298">
+									{{#if codeError.hasParsedStack}}	
+										<code class="prettyprint">																	
+											{{#each codeError.stackTraceLines}}										 
+												<div class="stack-frame"> 
+													<span title="{{method}}({{fileFullPath}}:{{line}}{{#if column}}:{{column}}{{/if}})">
+														{{method}}({{fileFullPath}}:{{line}}{{#if column}}:{{column}}{{/if}})
+													</span>
+												</div>
+											{{/each}}									 
+										</code>  
+									{{else}}															 
+										<pre style="color: #8e8e8d;">{{codeError.stackTraceText}}</pre>
+									{{/if}}							          
+								</div>
 							{{/if}}
 						</div>
 					</div>					
