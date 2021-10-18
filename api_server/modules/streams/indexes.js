@@ -4,6 +4,9 @@
 'use strict';
 
 module.exports = {
+	byTeamId: {
+		teamId: 1
+	},
 	byName: {
 		teamId: 1,
 		name: 1,
@@ -27,11 +30,6 @@ module.exports = {
 	},
 	byIsTeamStream: {
 		teamId: 1,
-		isTeamStream: 1,
-		sortId: -1
-	},
-	byObjectId: {
-		type: 1,
-		objectId: 1
+		isTeamStream: 1
 	}
 };

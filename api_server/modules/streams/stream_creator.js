@@ -145,9 +145,12 @@ class StreamCreator extends ModelCreator {
 		let query = {
 			type: this.attributes.type
 		};
+
+		/*
 		if (this.attributes.type !== 'object') {
 			query.teamId = this.attributes.teamId;
 		}
+		*/
 
 		let hint;
 		if (this.attributes.type === 'channel') {
@@ -158,9 +161,12 @@ class StreamCreator extends ModelCreator {
 			hint = Indexes.byName;
 			*/
 		} else if (this.attributes.type === 'direct') {
+			throw 'creating direct streams is deprecated';
 			// direct stream match by membership
+			/*
 			query.memberIds = this.attributes.memberIds;
 			hint = Indexes.byMembers;
+			*/
 		} else if (this.attributes.type === 'file') {
 			// file stream match by repo and file
 			query.repoId = this.attributes.repoId;
@@ -170,7 +176,7 @@ class StreamCreator extends ModelCreator {
 			// object streams match by object ID
 			query.objectId = this.attributes.objectId;
 			query.objectType = this.attributes.objectType;
-			hint = Indexes.byObjectId;
+			hint = Indexes.byTeamId; // few enough streams now that this should be ok
 		}
 		return { query, hint };
 	}

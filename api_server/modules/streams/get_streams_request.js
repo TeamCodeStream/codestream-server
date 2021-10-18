@@ -113,7 +113,7 @@ class GetStreamsRequest extends GetManyRequest {
 			return Indexes.byFile;
 		}
 		else {
-			return Indexes.byMembers;
+			return Indexes.byTeamId;
 		}
 	}
 
