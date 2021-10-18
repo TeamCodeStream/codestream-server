@@ -104,7 +104,7 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		await this.getSeqNum();			// requisition a sequence number for the post
-		await super.preSave({ setModifiedAt: this.setCreatedAt });			// base-class preSave
+		await super.preSave({ setModifiedAt: this.setModifiedAt || this.setCreatedAt });			// base-class preSave
 		await this.updateStream();		// update the stream as needed
 		await this.updateLastReads();	// update lastReads attributes for affected users
 		await this.updateParents();		// update the parent post and codemark if applicable
@@ -401,6 +401,7 @@ class PostCreator extends ModelCreator {
 			replyIsComing: this.replyIsComing,
 			//allowFromUserId: this.allowFromUserId,
 			setCreatedAt: this.setCreatedAt,
+			setModifiedAt: this.setModifiedAt,
 			forCommentEngine: this.forCommentEngine
 		});
 		this.transforms.createdCodeError = await codeErrorCreator.createCodeError(this.attributes.codeError);

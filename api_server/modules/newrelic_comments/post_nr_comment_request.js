@@ -108,6 +108,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			replyIsComing: true,
 			users: this.users,
 			setCreatedAt: this.request.body.createdAt,
+			setModifiedAt: this.request.body.modifiedAt,
 			forCommentEngine: true
 		}).createPost(postAttributes);
 		this.codeError = this.transforms.createdCodeError;
@@ -156,7 +157,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 			users: this.users,
 			//allowFromUserId: this.user.id,
 			forCommentEngine: true,
-			setCreatedAt: this.request.body.createdAt
+			setCreatedAt: this.request.body.createdAt,
+			setModifiedAt: this.request.body.modifiedAt
 		});
 
 		this.post = await this.postCreator.createPost(postAttributes);

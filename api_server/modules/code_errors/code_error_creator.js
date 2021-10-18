@@ -124,7 +124,7 @@ class CodeErrorCreator extends ModelCreator {
 		}
 
 		// proceed with the save...
-		await super.preSave({ setModifiedAt: this.setCreatedAt });
+		await super.preSave({ setModifiedAt: this.setModifiedAt || this.setCreatedAt });
 
 		// if we have an existing code error, and we added a stack trace, then the code error was truly modified,
 		// otherwise, there are no changes to save
