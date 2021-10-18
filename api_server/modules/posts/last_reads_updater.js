@@ -59,8 +59,8 @@ class LastReadsUpdater {
 	memberIdsWithoutCurrentUser () {
 		let memberIds;
 		const type = this.stream.get('type');
-		if (type === 'file' || this.stream.get('isTeamStream')) {
-			// file-type streams - or team-streams - go to the whole team
+		if (type === 'file' || type === 'object' || this.stream.get('isTeamStream')) {
+			// file-type or object-type streams - or team-streams - go to the whole team
 			memberIds = this.team.get('memberIds');
 		} else {
 			// otherwise we go to the members of the stream
