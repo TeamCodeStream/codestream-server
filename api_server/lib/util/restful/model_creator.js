@@ -112,7 +112,7 @@ class ModelCreator {
 	}
 
 	// right before the document gets saved....
-	async preSave () {
+	async preSave (options = {}) {
 		if (this.existingModel) {
 			if (this.dontSaveIfExists) {
 				// we have a document that matches the input attributes, and there's no need
@@ -130,7 +130,7 @@ class ModelCreator {
 		// this is where pre-save validation of the attributes happens
 		this.model = new this.modelClass(this.attributes);
 		try {
-			await this.model.preSave({ new: !this.existingModel });
+			await this.model.preSave({ ...options, new: !this.existingModel });
 		}
 		catch (error) {
 			throw this.errorHandler.error('validation', { info: error });

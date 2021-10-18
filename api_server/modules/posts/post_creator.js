@@ -96,7 +96,7 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		await this.getSeqNum();			// requisition a sequence number for the post
-		await super.preSave();			// base-class preSave
+		await super.preSave({ setModifiedAt: this.setCreatedAt });			// base-class preSave
 		await this.updateStream();		// update the stream as needed
 		await this.updateLastReads();	// update lastReads attributes for affected users
 		await this.updateParents();		// update the parent post and codemark if applicable

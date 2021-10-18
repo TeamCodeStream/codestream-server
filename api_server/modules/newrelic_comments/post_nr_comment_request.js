@@ -64,7 +64,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 				optional: {
 					string: ['parentPostId'],
 					'array(object)': ['mentionedUsers'],
-					number: ['createdAt']
+					number: ['createdAt', 'modifiedAt']
 				}
 			}
 		);
