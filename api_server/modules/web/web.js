@@ -123,7 +123,7 @@ const ROUTES = [
 	},
 	{ 
 		method: 'get',
-		path: 'e/:accountId/:id',
+		path: 'e/:teamId/:id',
 		requestClass: require('./link_codeerror_request')
 	},
 	{
