@@ -116,5 +116,9 @@ module.exports = {
 		type: 'arrayOfStrings',
 		maxLength: 1000,
 		description: 'Array of New Relic organization IDs associated with this company'
+	},
+	isNRConnected: {
+		type: 'boolean',
+		description: 'Indicates this company has at least one user who is connected to New Relic'
 	}
 };

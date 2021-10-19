@@ -73,7 +73,8 @@ class AnalyticsClient {
 				'$email': user.get('email'),
 				name: user.get('fullName'),
 				'Join Method': user.get('joinMethod'),
-				'Last Invite Type': user.get('lastInviteType')
+				'Last Invite Type': user.get('lastInviteType'),
+				'Country': user.get('countryCode')
 			});
 			if (user.get('registeredAt')) {
 				trackObject['$created'] = new Date(user.get('registeredAt')).toISOString();
@@ -81,7 +82,23 @@ class AnalyticsClient {
 			if (user.get('lastPostCreatedAt')) {
 				trackObject['Date of Last Post'] = new Date(user.get('lastPostCreatedAt')).toISOString();
 			}
-	
+			if (user.get('providerInfo')) {
+ 				const providerInfo = user.get('providerInfo');
+				const data = (
+					team &&
+					providerInfo[team.id] &&
+					providerInfo[team.id].newrelic &&
+					providerInfo[team.id].newrelic.data
+				);
+				if (data) {
+					if (data.userId) {
+						trackObject['NR User ID'] = data.userId;
+					} 
+					if (data.orgIds && data.orgIds.length) {
+						trackObject['NR Organization ID'] = data.orgIds[0];
+					}
+				}
+			}
 		}
 
 		if (team) {
@@ -115,6 +132,7 @@ class AnalyticsClient {
 					return `${key}|${company.get('testGroups')[key]}`;
 				});
 			}
+			trackObject['NR Connected Org'] = !!company.get('isNRConnected');
 		}
 
 		Object.assign(trackObject, data);

@@ -5,6 +5,8 @@ const CodemarkLinkIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_serve
 const Crypto = require('crypto');
 const MomentTimezone = require('moment-timezone');
 const WebRequestBase = require('./web_request_base');
+const ProviderDisplayNames = require('./provider_display_names');
+const Identify = require('./identify');
 
 class LinkCodeErrorRequest extends WebRequestBase {
 	async authorize () {
@@ -12,12 +14,11 @@ class LinkCodeErrorRequest extends WebRequestBase {
 	}
 
 	async process () {
-		console.warn('DECODING ' + this.request.params.teamId);
 		this.teamId = this.decodeLinkId(this.request.params.teamId);
-		console.warn('this.teamId=' + this.teamId);
 	  	(await this.checkAuthentication()) &&
 		(await this.getCodeErrorLink()) &&
 		(await this.getCodeError()) && 
+		(await this.getIdentifyingInfo()) && 
 		(await this.render());
 	}
 
@@ -83,12 +84,14 @@ class LinkCodeErrorRequest extends WebRequestBase {
 		return true;
 	} 
 
-	async checkFollowing () {
-		if (!(this.codeError.get('followerIds') || []).includes(this.user.id)) {
-			this.warn(
-				'User requesting code error link is not on a follower of the code error'
-			);
-			return this.redirect404();
+	async getIdentifyingInfo () {
+		this.team = await this.data.teams.getById(this.teamId);
+		if (this.request.query.identify) {
+			if (this.team) {
+				this.company = await this.data.companies.getById(
+					this.team.get('companyId')
+				);
+			}
 		}
 		return true;
 	}
@@ -170,10 +173,26 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			}
 		};
 
+		if (this.request.query.identify) {
+			this.addIdentifyScript(templateProps);
+		}
+
 		await super.render('codeerror', templateProps);		 
 	} 
 
-	
+	addIdentifyScript (props) {
+		const identifyOptions = {
+			provider:
+				ProviderDisplayNames[this.request.query.provider] ||
+				this.request.query.provider,
+			user: this.user,
+			team: this.team,
+			company: this.company,
+			module: this.module
+		};
+		props.identifyScript = Identify(identifyOptions);
+	}
+
 	formatTime (timeStamp) {
 		const format = 'h:mm A MMM D';
 		let timeZone = this.user && this.user.get('timeZone');

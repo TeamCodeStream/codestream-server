@@ -239,10 +239,15 @@ class NRCommentRequest extends RestfulRequest {
 			userIds.push.apply(userIds, this.mentionedUserIds);
 		}
 
+		let foreignMemberIds = userIds.filter(userId => {
+			const user = this.users.find(u => u.id === userId);
+			return !user || !user.hasTeam(teamId);
+		});
+
 		const op = {
 			$addToSet: {
 				memberIds: userIds,
-				foreignMemberIds: userIds
+				foreignMemberIds
 			}
 		};
 		this.transforms.updateTeamOp = await new ModelSaver({
