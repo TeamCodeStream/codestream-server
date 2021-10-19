@@ -51,6 +51,7 @@ class DeleteRepliesTest extends DeleteCodeErrorTest {
 				path: '/posts',
 				data: {
 					streamId: codeError.streamId,
+					teamId: this.team.id, // must be provided with a codemark
 					parentPostId: codeError.postId,
 					text: this.postFactory.randomText(),
 					codemark: codemarkData

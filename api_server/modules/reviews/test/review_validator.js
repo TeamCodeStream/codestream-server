@@ -51,6 +51,13 @@ class ReviewValidator {
 			Assert(typeof data.markers === 'undefined', 'markers array should not be defined');
 		}
 
+		// validate the array of followers
+		const expectedFollowerIds = this.test.expectedFollowerIds || [this.test.currentUser.user.id];
+		expectedFollowerIds.sort();
+		const gotFollowerIds = [...(review.followerIds || [])];
+		gotFollowerIds.sort();
+		Assert.deepEqual(gotFollowerIds, expectedFollowerIds, 'review does not have correct followerIds');
+
 		// validate the review's permalink
 		this.validatePermalink(review.permalink);
 	}

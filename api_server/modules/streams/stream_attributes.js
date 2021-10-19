@@ -5,7 +5,6 @@
 module.exports = {
 	teamId: {
 		type: 'id',
-		required: true,
 		description: 'ID of the @@#team#team@@ to which this stream belongs'
 	},
 	repoId: {
@@ -97,5 +96,19 @@ module.exports = {
 		type: 'object',
 		maxLength: 10000,
 		description: 'For channel streams created for a particular service (eg. LiveShare), holds any meta-data associated with the service session'
+	},
+	accountId: {
+		type: 'number',
+		description: 'For object streams, the account ID of the account that owns the object'
+	},
+	objectId: {
+		type: 'string',
+		maxLength: 200,
+		description: 'For object streams, the object identifier for the object'
+	},
+	objectType: {
+		type: 'string',
+		maxLength: 200,
+		description: 'For object streams, object type for the object'
 	}
 };

@@ -236,7 +236,8 @@ class CodemarkCreator extends ModelCreator {
 	async getTeamRepos () {
 		this.teamRepos = await this.data.repos.getByQuery(
 			{ 
-				teamId: this.team.id
+				teamId: this.team.id,
+				deactivated: false
 			},
 			{ 
 				hint: RepoIndexes.byTeamId 
@@ -320,14 +321,11 @@ class CodemarkCreator extends ModelCreator {
 
 	// handle a codemark created as part of a code error
 	async handleCodeErrorCodemark () {
-		// first make sure the user has access to the code error, and that it belongs to the same team
+		// first make sure the user has access to the code error
 		this.attributes.codeErrorId = this.parentPost.get('codeErrorId');
 		this.codeError = await this.user.authorizeCodeError(this.attributes.codeErrorId, this.request);
 		if (!this.codeError) {
 			throw this.errorHandler.error('createAuth', { reason: 'user does not have access to the code error' });
-		}
-		if (this.codeError.get('teamId') !== this.attributes.teamId) {
-			throw this.errorHandler.error('createAuth', { reason: 'code error does not belong to the team that would own the codemark' });
 		}
 
 		// allow only comment type codemarks

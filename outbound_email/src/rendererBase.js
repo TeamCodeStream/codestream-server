@@ -5,26 +5,17 @@ class RendererBase {
 	
 	constructor() { }
 	
-	renderCodemarkAuthorDiv (options) {
-		const { codemark, parentObjectCreator, timeZone } = options;
+	renderAuthorDiv (options) {
+		const { parentObjectCreator, timeZone } = options;
+		const thing = options.codeError || options.review || options.codemark;
 		return Utils.renderAuthorDiv({
-			time: codemark.createdAt,
+			time: thing.createdAt,
 			creator: parentObjectCreator,
 			timeZone,
 			datetimeField: 'parentObjectDatetime'
 		});
 	}
 
-	renderReviewAuthorDiv (options) {
-		const { parentObjectCreator, timeZone, review } = options;
-		return Utils.renderAuthorDiv({
-			time: review.createdAt,
-			creator: parentObjectCreator,
-			timeZone,
-			datetimeField: 'parentObjectDatetime'
-		});
-	}
-	
 	renderTitleDiv (/*options*/) {
 		throw Error('override');
 	}
@@ -73,8 +64,9 @@ class RendererBase {
 
 	// render the headshots or initials of assignees
 	renderAssigneesCore (options) {
-		const { codemark, review, members } = options;
+		const { codemark, review, codeError, members } = options;
 
+		if (codeError) return '';
 		let assignees = [];
 		// TODO abstract this better
 		const parentObjectAssignees = codemark ? codemark.assignees : review.reviewers;

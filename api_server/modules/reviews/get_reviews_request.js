@@ -75,7 +75,8 @@ class GetReviewsRequest extends GetManyRequest {
 	getQueryOptions () {
 		let hint;
 		if (this.request.query.streamId) {
-			hint = Indexes.byStreamId;
+			throw 'fetching reviews by streamId is deprecated';
+			//hint = Indexes.byStreamId;
 		}
 		else if (this.request.query.byLastActivityAt) {
 			hint = Indexes.byLastActivityAt;

@@ -5,5 +5,6 @@
 module.exports = [
 	'channel',
 	'direct',
-	'file'
+	'file',
+	'object'
 ];

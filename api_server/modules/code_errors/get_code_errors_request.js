@@ -25,9 +25,26 @@ class GetCodeErrorsRequest extends GetManyRequest {
 	async process () {
 		await super.process();	// do the usual "get-many" processing
 		await this.getPosts();	// get associated posts, as needed
-		await this.getMarkers();	// get associated markers, as needed
 	}
 
+	/*
+	// called before running the fetch query
+	async preQueryHook () {
+		// get code errors followed by this user
+		const codeErrors = await this.data.codeErrors.getByQuery(
+			{
+				followerIds: this.user.id
+			},
+			{
+				hint: Indexes.byFollowerIds,
+				fields: ['streamId'],
+				noCache: true
+			}
+		);
+		this.streamIds = codeErrors.map(codeError => codeError.streamId);
+	}
+	*/
+	
 	// build the database query to use to fetch the code errors
 	buildQuery () {
 		if (this.request.query.streamId && this.request.query.byLastActivityAt) {
@@ -69,24 +86,47 @@ class GetCodeErrorsRequest extends GetManyRequest {
 			}
 		}
 		return query;
+		/*
+		const query = {
+			streamId: this.data.posts.inQuery(this.streamIds)
+		};
+		let { before, after, inclusive } = this.request.query;
+		inclusive = inclusive !== undefined;
+		if (before !== undefined) {
+			before = parseInt(before, 10);
+			if (!before) {
+				return 'before must be a number';
+			}
+			query.lastActivityAt = query.lastActivityAt || {};
+			if (inclusive) {
+				query.lastActivityAt.$lte = before;
+			}
+			else {
+				query.lastActivityAt.$lt = before;
+			}
+		}
+		if (after !== undefined) {
+			after = parseInt(after, 10);
+			if (!after) {
+				return 'after must be a number';
+			}
+			query.lastActivityAt = query.lastActivityAt || {};
+			if (inclusive) {
+				query.lastActivityAt.$gte = after;
+			}
+			else {
+				query.lastActivityAt.$gt = after;
+			}
+		}
+		return query;
+		*/
 	}
 
 	// get database options to associate with the database fetch request
 	getQueryOptions () {
-		let hint;
-		if (this.request.query.streamId) {
-			hint = Indexes.byStreamId;
-		}
-		else if (this.request.query.byLastActivityAt) {
-			hint = Indexes.byLastActivityAt;
-		}
-		else {
-			hint = Indexes.byTeamId;
-		}
-		const sortAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
 		return {
-			hint,
-			sort: { [sortAttribute]: -1 }
+			hint: Indexes.byLastActivityAt,
+			sort: { lastActivityAt: -1 }
 		};
 	}
 
@@ -99,20 +139,7 @@ class GetCodeErrorsRequest extends GetManyRequest {
 		this.posts = await this.data.posts.getByIds(postIds);
 		this.responseData.posts = this.posts.map(post => post.getSanitizedObject({ request: this }));
 	}
-
-	// get the markers associated with the fetched codemarks, as needed
-	async getMarkers () {
-		const markerIds = this.models.reduce((markerIds, codeError) => {
-			markerIds.push(...(codeError.get('markerIds') || []));
-			return markerIds;
-		}, []);
-		if (markerIds.length === 0) {
-			return;
-		}
-		this.markers = await this.data.markers.getByIds(markerIds);
-		this.responseData.markers = this.markers.map(marker => marker.getSanitizedObject({ request: this }));
-	}
-
+	
 	// describe this route for help
 	static describe (module) {
 		const description = GetManyRequest.describe(module);

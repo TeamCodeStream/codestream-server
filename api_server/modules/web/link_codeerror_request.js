@@ -5,7 +5,6 @@ const CodemarkLinkIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_serve
 const Crypto = require('crypto');
 const MomentTimezone = require('moment-timezone');
 const WebRequestBase = require('./web_request_base');
-const { defaultCookieName, ides} = require('./config');
 
 class LinkCodeErrorRequest extends WebRequestBase {
 	async authorize () {
@@ -13,8 +12,9 @@ class LinkCodeErrorRequest extends WebRequestBase {
 	}
 
 	async process () {
+		console.warn('DECODING ' + this.request.params.teamId);
 		this.teamId = this.decodeLinkId(this.request.params.teamId);
-	 	
+		console.warn('this.teamId=' + this.teamId);
 	  	(await this.checkAuthentication()) &&
 		(await this.getCodeErrorLink()) &&
 		(await this.getCodeError()) && 
@@ -29,7 +29,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			);
 			let redirect = `/web/login?url=${encodeURIComponent(
 				this.request.path
-			)}&teamId=${this.teamId}`;
+			)}&teamId=${this.teamId}`;			
 			if (this.request.query.error) {
 				redirect += `&error=${this.request.query.error}`;
 			}
@@ -54,6 +54,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			);
 			return this.redirect404(this.teamId);
 		}
+				 
 		// get the link to the codemark
 		const linkId = this.decodeLinkId(this.request.params.id, 2);
 		const codemarkLinks = await this.data.codemarkLinks.getByQuery(
@@ -81,6 +82,16 @@ class LinkCodeErrorRequest extends WebRequestBase {
 	 
 		return true;
 	} 
+
+	async checkFollowing () {
+		if (!(this.codeError.get('followerIds') || []).includes(this.user.id)) {
+			this.warn(
+				'User requesting code error link is not on a follower of the code error'
+			);
+			return this.redirect404();
+		}
+		return true;
+	}
 
 	getAvatar (username) {
 		let authorInitials;
@@ -124,7 +135,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 		let stackTrace;
 		const stackTraces = this.codeError.get('stackTraces') || [];
 		if (stackTraces.length) {
-			stackTrace = stackTraces[0]
+			stackTrace = stackTraces[0];
 		}
 
  		const templateProps = {			 
@@ -148,14 +159,17 @@ class LinkCodeErrorRequest extends WebRequestBase {
 			hasEmailHashOrAuthorInitials: emailHash || authorInitials,
 			emailHash,
 			authorInitials,
-			codeError: {
-				id: this.codeError.get('id'),
+			codeError: { 
+				id: this.codeError.get('id'), 
 				title: (this.codeError.get('title') || "").trimStart().trim(),
-				text: (this.codeError.get('text') || "").trimStart().trim(),
-				stackTrace: stackTrace 
+				text: (this.codeError.get('text') || "").trimStart().trim(), 
+				hasStackTrace: stackTrace != null,
+				hasParsedStack: stackTrace && stackTrace.lines && stackTrace.lines.length > 0,
+				stackTraceText: stackTrace && stackTrace.text ? stackTrace.text.trim().replace(/\t/g,"") : "",
+				stackTraceLines: stackTrace && stackTrace.lines ? stackTrace.lines : null  
 			}
 		};
-	 
+
 		await super.render('codeerror', templateProps);		 
 	} 
 

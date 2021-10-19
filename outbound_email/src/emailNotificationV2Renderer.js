@@ -15,50 +15,42 @@ class EmailNotificationV2Renderer {
 			inboundEmailDisabled,
 			needButtons,
 			review,
+			codeError,
 			userIsRegistered,
 			ideLinks,
 			isReply,
-			inviteCode,
 			userBeingAddedToTeam,
-			team,
 			company,
 			isReplyToCodeAuthor
 		} = options;
-		const what = review ? 'feedback request' : 'codemark';
+		const what = codeError ? 'code error' : review ? 'feedback request' : 'codemark';
 
-		const installText = true /*team && team.isEveryoneTeam*/ ? `
+		const installText = `
 <br/>
 1. Install the extension for ${ideLinks}.<br/>
 2. Sign up using <b>${user.email}</b>.<br/>
-` : `
-<br/>
-1. Install the extension for ${ideLinks}.<br/>
-2. Paste in your invitation code:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;<b>${inviteCode}</b><br/>
- `;
+`;
+		const unfollowText = unfollowLink ? `&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>.` : '';
 
 		let firstFooterDiv = '', secondFooterDiv = '', inviteDiv = '';
 		if (userIsRegistered) {
 			if (userBeingAddedToTeam) {
-				const addedTo = true/*team.isEveryoneTeam*/ ? `${company.name} organization` : `${team.name} team`;
-				const teamOrg = true/*team.isEveryoneTeam*/ ? 'Organizations' : 'Teams';
 				firstFooterDiv = `
 <div class="following ensure-white">
-	<span>You received this email because you’ve been added to the ${addedTo}.&nbsp;<a clicktracking="off" href="${unfollowLink}"><span class="hover-underline">Unfollow</span></a>		
+	<span>You received this email because you’ve been added to the ${company.name} organiziation.${unfollowText}		
 </div>
 `;
 				const replyPart = inboundEmailDisabled ? 'G' : 'Reply to this email, or g';
 				secondFooterDiv = `
 <div class="ensure-white">
-	${replyPart}o to the team by selecting "${teamOrg}" under the headshot menu in the CodeStream extension.
+	${replyPart}o to the team by selecting "Organizations" under the headshot menu in the CodeStream extension.
 </div>
 `;
 
-			}
-			else {
+			} else {
 				firstFooterDiv = `
 <div class="following ensure-white">
-	<span>You received this email because you are following this ${what}.&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>
+	<span>You received this email because you are following this ${what}.${unfollowText}
 </div>
 `;
 				if (!inboundEmailDisabled) {
@@ -75,7 +67,7 @@ class EmailNotificationV2Renderer {
 				secondFooterDiv = `
 <div class="following ensure-white">
 	<br/>
-	You received this email because you were added to CodeStream. <a clicktracking="off" href="${unfollowLink}"><span class="hover-underline">Unfollow</span></a>
+	You received this email because you were added to CodeStream.${unfollowText}
 </div>
 `;
 			}
@@ -144,7 +136,8 @@ class EmailNotificationV2Renderer {
 								</tr>
 							</table>						 
 						</div>
-						${buttons}						
+						${buttons}	
+						<br/>					
 						${firstFooterDiv}
 						${secondFooterDiv}
 					</div>				 			 

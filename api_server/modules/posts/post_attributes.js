@@ -5,7 +5,6 @@
 module.exports = {
 	teamId: {
 		type: 'id',
-		required: true,
 		description: 'ID of the @@#team#team@@ that owns this post'
 	},
 	streamId: {
@@ -88,5 +87,9 @@ module.exports = {
 	codeErrorId: {
 		type: 'id',
 		description: 'ID of the code error attached to this post, if any'
+	},
+	_forNRMigration: {
+		type: 'boolean',
+		serverOnly: true
 	}
 };

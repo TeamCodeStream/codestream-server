@@ -143,25 +143,33 @@ class CodemarkHelper {
 		}
 
 		// get user preferences of all users who can see this codemark
-		const preferences = await this.getUserFollowPreferences(stream, options.team, options.usersBeingAddedToTeam || []);
+		let preferences;
+		if (!options.ignorePreferences) {
+			preferences = await this.getUserFollowPreferences(stream, options.team, options.usersBeingAddedToTeam || []);
+		} else {
+			preferences = { all: [], involveMe: [] };
+		}
 
 		// add as followers any users who choose to follow all codemarks
-		let followerIds = [...preferences.all];
+		let followerIds = options.ignorePreferences ? [] : [...preferences.all];
 
 		// ensure codemark creator is a follower if they want to be
 		if (
 			attributes.creatorId &&
 			followerIds.indexOf(attributes.creatorId) === -1 &&
-			preferences.involveMe.indexOf(attributes.creatorId) !== -1
+			(options.ignorePreferences || preferences.involveMe.indexOf(attributes.creatorId) !== -1)
 		) {
 			followerIds.push(attributes.creatorId);
 		}
 
+		/*
 		// if the stream is a DM, everyone in the DM is a follower who wants to be
+		// (deprecated)
 		if (stream && stream.get('type') === 'direct') {
 			const membersWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, stream.get('memberIds') || []);
 			followerIds = ArrayUtilities.union(followerIds, membersWhoWantToFollow);
 		}
+		*/
 
 		// must validate mentioned users and explicit followers, since these come directly from the request
 		let validateUserIds = ArrayUtilities.union(options.mentionedUserIds || [], attributes.followerIds || []);
@@ -169,13 +177,17 @@ class CodemarkHelper {
 		await this.validateUsersOnTeam(validateUserIds, attributes.teamId, 'followers', options.usersBeingAddedToTeam);
 
 		// any mentioned users are followers if they want to be
-		const mentionedWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, options.mentionedUserIds || []);
+		const mentionedWhoWantToFollow = options.ignorePreferences ? 
+			(options.mentionedUserIds || []) : 
+			ArrayUtilities.intersection(preferences.involveMe, options.mentionedUserIds || []);
 		followerIds = ArrayUtilities.union(followerIds, mentionedWhoWantToFollow);
 
 		// users who have replied to this codemark are followers, if they want to be
-		if (options.parentPost) {
+		if (options.parentPost && options.team) {
 			const repliers = await this.getPostRepliers(options.parentPost.id, options.team.id, stream.id);
-			const repliersWhoWantToFollow = ArrayUtilities.intersection(preferences.involveMe, repliers);
+			const repliersWhoWantToFollow = options.ignorePreferences ?
+				repliers :
+				ArrayUtilities.intersection(preferences.involveMe, repliers);
 			followerIds = ArrayUtilities.union(followerIds, repliersWhoWantToFollow);
 		}
 
@@ -187,11 +199,16 @@ class CodemarkHelper {
 
 	// get user preferences of all users who can see this codemark, so we can determine who should follow a codemark
 	async getUserFollowPreferences (stream, team, usersBeingAddedToTeam) {
-		if (!team && !stream) {
-			throw 'must provide stream or team';
+		if (!team) {
+			return { all: [], involveMe: [] };
 		}
 		let memberIds;
-		if (stream && !stream.get('isTeamStream') && stream.get('type') !== 'file') {
+		if (
+			stream &&
+			!stream.get('isTeamStream') &&
+			stream.get('type') !== 'object' &&
+			stream.get('type') !== 'file'
+		) {
 			// members come from the stream
 			memberIds = stream.get('memberIds') || [];
 		}

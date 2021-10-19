@@ -10,7 +10,6 @@ const EXPECTED_BASE_CODE_ERROR_FIELDS = [
 	'createdAt',
 	'modifiedAt',
 	'creatorId',
-	'teamId',
 	'streamId',
 	'postId',
 	'numReplies',

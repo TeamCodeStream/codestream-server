@@ -57,16 +57,18 @@ class NewUsersMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Commo
 				usersAdded.sort((a, b) => {
 					return a.id.localeCompare(b.id);
 				});
+				const userIds = usersAdded.map(user => user.id);
 				this.message = {
 					users: usersAdded,
 					team: {
 						_id: this.team.id,	// DEPRECATE ME
 						id: this.team.id,
 						$addToSet: {
-							memberIds: usersAdded.map(user => user.id)
+							memberIds: userIds
 						},
 						$pull: {
-							removedMemberIds: usersAdded.map(user => user.id),
+							removedMemberIds: userIds,
+							foreignMemberIds: userIds
 						},
 						$set: {
 							version: 4

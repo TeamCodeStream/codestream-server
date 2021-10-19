@@ -39,7 +39,7 @@ class GetPostsTest extends CodeStreamAPITest {
 
 	// set the path to use for the fetch request
 	setPath (callback) {
-		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}`;
+		this.path = `/posts?teamId=${this.team.id}` //&streamId=${this.teamStream.id}`;
 		this.expectedPosts = this.postData.map(postData => postData.post);
 		callback();
 	}

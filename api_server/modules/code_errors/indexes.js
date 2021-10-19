@@ -3,14 +3,10 @@
 'use strict';
 
 module.exports = {
-	byTeamId: {
-		teamId: 1,
-		createdAt: -1
-	},
+
 	byObjectId: {
 		objectId: 1,
-		objectType: 1,
-		teamId: 1
+		objectType: 1
 	},
 
 	// WARNING -- DO NOT CHANGE OR REMOVE THIS INDEX
@@ -20,5 +16,11 @@ module.exports = {
 	byLastActivityAt: {
 		teamId: 1,
 		lastActivityAt: -1
+	},
+	
+	/*
+	byFollowerIds: {
+		followerIds: 1
 	}
+	*/
 };

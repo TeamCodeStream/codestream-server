@@ -1,13 +1,13 @@
 'use strict';
 
-const ReplyToAttachedCodemarkTest = require('./code_error_reply_to_attached_codemark_test');
+const CodeErrorReplyToAttachedCodemarkTest = require('./code_error_reply_to_attached_codemark_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
 
-class CodeErrorReplyToAttachedCodemarkNumRepliesTest extends ReplyToAttachedCodemarkTest {
+class CodeErrorReplyToAttachedCodemarkNumRepliesTest extends CodeErrorReplyToAttachedCodemarkTest {
 
 	get description () {
-		return 'grantparent post\'s code error should get its numReplies attribute incremented when a reply is created for a codemark which is itself a reply to a code error';
+		return 'grandparent post\'s code error should get its numReplies attribute incremented when a reply is created for a codemark which is itself a reply to a code error';
 	}
 
 	// run the test...

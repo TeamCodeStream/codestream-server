@@ -45,8 +45,11 @@ class Team extends CodeStreamModel {
 	// get the members of the team, accounting for members who may have been removed
 	getActiveMembers () {
 		return ArrayUtilities.difference(
-			this.attributes.memberIds || [],
-			this.attributes.removedMemberIds || []
+			ArrayUtilities.difference(
+				this.attributes.memberIds || [],
+				this.attributes.removedMemberIds || []
+			),
+			this.attributes.foreignMemberIds || []
 		);
 	}
 }

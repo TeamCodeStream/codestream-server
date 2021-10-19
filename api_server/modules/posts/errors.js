@@ -32,5 +32,20 @@ module.exports = {
 		code: 'POST-1005',
 		message: 'Can not post a code error as a reply',
 		description: 'With the submitted post, a parentPostId and a code error object were sent, but a code error can not be posted as a reply'
+	},
+	'parentPostStreamIdMismatch': {
+		code: 'POST-1006',
+		message: 'The stream of the post does not match the stream of the parent post',
+		description: 'The submitted post had a parentPostId referring to a post that is in a different stream than the streamId in the submitted post'
+	},
+	'replyToImproperPost': {
+		code: 'POST-1007',
+		message: 'A reply is being posted to an improper post',
+		description: 'The submitted post was in reply to another post, but the submitted data does not match the parent post'
+	},
+	'noReviewAndCodeError': {
+		code: 'POST-1008',
+		message: 'Can not post a review and a code error at the same time',
+		description: 'With the submitted post, a review object and a code error object were sent, but only one of these is allowed'
 	}
 };

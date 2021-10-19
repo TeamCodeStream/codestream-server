@@ -6,7 +6,7 @@ class ACLTest extends GetCodeErrorTest {
 
 	constructor (options) {
 		super(options);
-		this.teamOptions.members = [];
+		this.postOptions.creatorIndex = 1;
 	}
 
 	get description () {

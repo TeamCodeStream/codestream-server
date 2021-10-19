@@ -147,7 +147,8 @@ class ReviewUpdater extends ModelUpdater {
 		}
 		this.teamRepos = await this.data.repos.getByQuery(
 			{ 
-				teamId: this.team.id
+				teamId: this.team.id,
+				deactivated: false
 			},
 			{ 
 				hint: RepoIndexes.byTeamId 

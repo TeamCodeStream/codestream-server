@@ -36,11 +36,12 @@ class StreamCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			required: {
-				string: ['teamId', 'type']
+				string: ['type']
 			},
 			optional: {
 				boolean: ['isTeamStream'],
-				string: ['repoId', 'file', 'name', 'privacy', 'purpose', 'serviceType', 'serviceKey'],
+				number: ['accountId'],
+				string: ['teamId', 'repoId', 'file', 'name', 'privacy', 'purpose', 'serviceType', 'serviceKey', 'objectId', 'objectType'],
 				'array(string)': ['memberIds'],
 				'object': ['serviceInfo']
 			}
@@ -55,6 +56,22 @@ class StreamCreator extends ModelCreator {
 			// only allow recognized stream types
 			return this.errorHandler.error('invalidStreamType', { info: this.attributes.type });
 		}
+		if (this.attributes.type !== 'object' && !this.attributes.teamId) {
+			// only object-type streams can go without a teamId
+			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
+		} else if (this.attributes.type === 'object') {
+			// otherwise we need an account ID and object ID; the teamId gets built-in
+			if (!this.attributes.accountId) {
+				throw this.errorHandler.error('parameterRequired', { info: 'accountId' });
+			}
+			if (!this.attributes.objectId) {
+				throw this.errorHandler.error('parameterRequired', { info: 'objectId' });
+			}
+			if (!this.attributes.objectType) {
+				throw this.errorHandler.error('parameterRequired', { info: 'objectType' });
+			}
+		}
+
 		if (this.attributes.isTeamStream) {
 			// team-streams must be channels
 			if (this.attributes.type !== 'channel') {
@@ -106,8 +123,8 @@ class StreamCreator extends ModelCreator {
 
 	// ensure the user making the request is a member of channel or direct streams
 	ensureUserIsMember () {
-		if (this.attributes.type === 'file') {
-			return; // not required for files
+		if (this.attributes.type === 'file' || this.attributes.type === 'object') {
+			return; // not required for files or object streams
 		}
 		if (this.attributes.isTeamStream) {
 			return;	// a team-stream acts like a stream in which everyone is a member
@@ -126,25 +143,46 @@ class StreamCreator extends ModelCreator {
 	// return database query to check if a matching stream already exists
 	checkExistingQuery () {
 		let query = {
-			teamId: this.attributes.teamId,
 			type: this.attributes.type
 		};
+
+		query.teamId = this.attributes.teamId;
+		/*
+		if (this.attributes.type !== 'object') {
+			query.teamId = this.attributes.teamId;
+		}
+		*/
+
 		let hint;
 		if (this.attributes.type === 'channel') {
-			// channel streams match by name
-			query.name = this.attributes.name;
-			hint = Indexes.byName;
-		}
-		else if (this.attributes.type === 'direct') {
+			if (this.attributes.isTeamStream) {
+				query.isTeamStream = true;
+				hint = Indexes.byIsTeamStream;
+			} else {
+				// channel streams match by name
+				throw 'creating channel streams is deprecated';
+				/*
+				query.name = this.attributes.name;
+				hint = Indexes.byName;
+				*/
+			}
+		} else if (this.attributes.type === 'direct') {
+			throw 'creating direct streams is deprecated';
 			// direct stream match by membership
+			/*
 			query.memberIds = this.attributes.memberIds;
 			hint = Indexes.byMembers;
-		}
-		else if (this.attributes.type === 'file') {
+			*/
+		} else if (this.attributes.type === 'file') {
 			// file stream match by repo and file
 			query.repoId = this.attributes.repoId;
 			query.file = this.attributes.file;
 			hint = Indexes.byFile;
+		} else if (this.attributes.type === 'object') {
+			// object streams match by object ID
+			query.objectId = this.attributes.objectId;
+			query.objectType = this.attributes.objectType;
+			hint = Indexes.byTeamId; // few enough streams now that this should be ok
 		}
 		return { query, hint };
 	}
@@ -152,6 +190,7 @@ class StreamCreator extends ModelCreator {
 	// return whether a matching stream can exist or if an error should be returned
 	modelCanExist () {
 		// matching file-type streams and direct streams are permitted, but not channel streams
+		// (also object streams)
 		return this.attributes.type !== 'channel';
 	}
 

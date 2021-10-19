@@ -1,47 +1,41 @@
 'use strict';
 
-const PostReplyTest = require('../post_reply_test');
+const CodeErrorReplyWithCodemarkTest = require('./code_error_reply_with_codemark_test');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const Assert = require('assert');
 
-class CodeErrorReplyToAttachedCodemarkTest extends PostReplyTest {
+class CodeErrorReplyToAttachedCodemarkTest extends CodeErrorReplyWithCodemarkTest {
 
 	get description () {
 		return 'should be ok to reply to a codemark that is a reply to a code error';
 	}
 
-	setTestOptions (callback) {
-		this.expectedSeqNum = 4;
-		this.expectedStreamVersion = 5;
-		super.setTestOptions(() => {
-			this.repoOptions.creatorIndex = 1;
-			Object.assign(this.postOptions, {
-				wantCodeError: true
-			});
-			callback();
-		});
+	// run the test...
+	run (callback) {
+		BoundAsync.series(this, [
+			super.run,	// this posts the codemark reply and checks the result, but then...
+			this.createCodemarkReply	// create a reply to the codemark
+		], callback);
 	}
 
-	// form the data for the post we'll create in the test
-	makePostData (callback) {
-		super.makePostData(() => {
-			const codemarkData = this.codemarkFactory.getRandomCodemarkData();
-			this.doApiRequest(
-				{
-					method: 'post',
-					path: '/posts',
-					data: {
-						streamId: this.teamStream.id,
-						parentPostId: this.postData[0].post.id,
-						codemark: codemarkData
-					},
-					token: this.token
-				},
-				(error, response) => {
-					if (error) { return callback(error); }
-					this.data.parentPostId = response.post.id;
-					callback();
-				}
-			);
-		});
+	validateResponse (data) {
+		this.codemarkResponse = data;
+		super.validateResponse(data);
+	}
+
+	createCodemarkReply (callback) {
+		this.postFactory.createRandomPost(
+			(error, response) => {
+				if (error) { return callback(error); }
+				Assert.equal(response.post.parentPostId, this.codemarkResponse.post.id, 'parentPostId of reply not equal to the codemark post');
+				callback();
+			},
+			{
+				streamId: this.codemarkResponse.post.streamId,
+				parentPostId: this.codemarkResponse.post.id,
+				token: this.users[0].accessToken
+			}
+		);
 	}
 }
 

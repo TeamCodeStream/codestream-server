@@ -36,12 +36,14 @@ class AddTeamMembers  {
 
 	// add users to the team by adding IDs to the memberIds array
 	async addToTeam () {
+		const addedMemberIds = this.addUsers.map(user => user.id);
 		const op = { 
 			$addToSet: { 
-				memberIds: this.addUsers.map(user => user.id) 
+				memberIds: addedMemberIds
 			},
 			$pull: {
-				removedMemberIds: this.addUsers.map(user => user.id)
+				removedMemberIds: addedMemberIds,
+				foreignMemberIds: addedMemberIds
 			},
 			$set: {
 				modifiedAt: Date.now()

@@ -37,7 +37,7 @@ class PaginationTest extends GetPostsTest {
 		// we need them sorted for pagination to make sense, expectedPosts is what we'll
 		// be comparing the results to
 		this.expectedPosts.sort((a, b) => {
-			return a.seqNum - b.seqNum;
+			return a.id - b.id;
 		});
 		// figure out the number of pages we expect
 		this.numPages = Math.floor(this.postOptions.numPosts / this.postsPerPage);
@@ -61,7 +61,7 @@ class PaginationTest extends GetPostsTest {
 
 	// page a single page of posts
 	fetchPage (pageNum, callback) {
-		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}`;
+		this.path = `/posts?teamId=${this.team.id}`; // &streamId=${this.teamStream.id}
 		if (this.tryOverLimit) {
 			// we should get limited to maxPostsPerRequest
 			let limit = this.apiConfig.apiServer.limits.maxPostsPerRequest * 2;
@@ -79,7 +79,7 @@ class PaginationTest extends GetPostsTest {
 			// after the first page, we use the last ID fetches and get the next
 			// page in sequence
 			let op = this.ascending ? 'after' : 'before';
-			this.path += `&${op}=${this.lastSeqNum}`;
+			this.path += `&${op}=${this.lastId}`;
 		}
 		// fetch the page and validate the response
 		this.doApiRequest(
@@ -111,7 +111,7 @@ class PaginationTest extends GetPostsTest {
 		this.validateResponse(response);
 		// prepare for the next page fetch by establishing the ID of the last post fetched
 		let lastPost = this.expectedPosts[this.expectedPosts.length - 1];
-		this.lastSeqNum = lastPost.seqNum;
+		this.lastId = lastPost.id;
 	}
 }
 

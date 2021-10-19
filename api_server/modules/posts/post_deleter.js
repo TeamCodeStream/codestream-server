@@ -113,9 +113,8 @@ class PostDeleter extends ModelDeleter {
 
 	// for a code error, collect the code error, and all its markers for deletion
 	async collectObjectsToDeleteFromCodeError (codeErrorId) {
-		const codeError = await this.data.codeErrors.getById(codeErrorId);
+		this.codeError = await this.data.codeErrors.getById(codeErrorId);
 		this.toDelete.codeErrors.push(codeErrorId);
-		await this.collectMarkersToDelete([codeError]);
 	}
 
 	// for the replies to a post (for now, this only applies to a post pointing to a review),
@@ -347,7 +346,8 @@ class PostDeleter extends ModelDeleter {
 			data: this.responseData,
 			request: this.request,
 			broadcaster: this.api.services.broadcaster,
-			stream: this.stream.attributes
+			stream: this.stream.attributes,
+			object: this.codeError
 		}).publishPost();
 	}
 

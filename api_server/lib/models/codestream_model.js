@@ -28,8 +28,8 @@ class CodeStreamModel extends DataModel {
 	}
 
 	// called just before a model is saved
-	async preSave (options) {
-		this.attributes.modifiedAt = new Date().getTime();
+	async preSave (options = {}) {
+		this.attributes.modifiedAt = options.setModifiedAt || Date.now();
 		await super.preSave(options);
 	}
 

@@ -5,6 +5,7 @@
 const NRCommentRequest = require('./nr_comment_request');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const Utils = require('./utils');
+const PostPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_publisher');
 
 class PutNRCommentRequest extends NRCommentRequest {
 
@@ -14,13 +15,15 @@ class PutNRCommentRequest extends NRCommentRequest {
 		await this.getPost(); 			// get the requested post
 		await this.getParentPost();		// get the parent post
 		await this.getCodeError();		// get the associated code error
-		await this.getTeam();			// get the team that owns the code error
+		await this.getStream();			// get the stream for the code error
+		await this.getMarkers();		// for codemarks, get the associated markers
 		await this.getUsers();			// get users associated with the post (creator and mentioned)
 		await this.doUpdate();			// do the update
+		await this.updateTeam();		// update the team that owns the code error, as needed
 
 		this.post.attributes.version++;
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, this.codemark, this.markers, this.users)
 		};
 	}
 
@@ -61,19 +64,18 @@ class PutNRCommentRequest extends NRCommentRequest {
 		}
 	}
 
-	// get the team that owns the code error
-	async getTeam () {
-		this.team = await this.data.teams.getById(this.codeError.get('teamId'));
-		if (!this.team || this.team.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'team' });
+	// get the stream for the code error
+	async getStream () {
+		this.stream = await this.data.streams.getById(this.codeError.get('streamId'));
+		if (!this.stream || this.stream.get('deactivated')) {
+			throw this.errorHandler.error('notFound', { info: 'stream' });
 		}
 	}
 
 	// get users associated with the pre-modified post (creator and mentioned)
 	// get all users associated with the post, either the creator or those mentioned
 	async getUsers () {
-		const userIds = [this.post.get('creatorId'), ...(this.post.get('mentionedUserIds') || [])];
-		this.users = await this.data.users.getByIds(userIds);
+		this.users = await this.getUsersByPost(this.post);
 	}
 
 	// do the actual update
@@ -99,6 +101,20 @@ class PutNRCommentRequest extends NRCommentRequest {
 			collection: this.data.posts,
 			id: this.post.id
 		}).save(op);
+	}
+
+	// perform post-processing after response has been returned
+	async postProcess () {
+		await this.publish();
+
+		// publish the post to the code error stream
+		await new PostPublisher({
+			request: this,
+			data: { post: this.updateOp },
+			broadcaster: this.api.services.broadcaster,
+			stream: this.stream.attributes,
+			object: this.codeError
+		}).publishPost();
 	}
 }
 

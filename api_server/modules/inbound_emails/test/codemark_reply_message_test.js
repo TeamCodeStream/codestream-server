@@ -102,7 +102,7 @@ class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, Common
 					}]
 				};
 				if (this.type !== 'direct') {
-					this.updateMessage.codemarks[0].$addToSet = { followerIds: this.users[1].user.id };
+					this.updateMessage.codemarks[0].$addToSet = { followerIds: [this.users[1].user.id] };
 				}
 				callback();
 			}

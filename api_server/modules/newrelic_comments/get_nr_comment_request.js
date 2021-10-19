@@ -11,10 +11,11 @@ class GetNRCommentRequest extends NRCommentRequest {
 		await this.getPost(); 			// get the requested post
 		await this.getParentPost();		// get the parent post
 		await this.getCodeError();		// get the associated code error
+		await this.getMarkers();		// for codemarks, get the associated markers
 		await this.getUsers();			// get the associated users
 
 		this.responseData = {
-			post: Utils.ToNewRelic(this.codeError, this.post, this.users)
+			post: Utils.ToNewRelic(this.codeError, this.post, this.codemark, this.markers, this.users)
 		};
 	}
 
@@ -28,7 +29,7 @@ class GetNRCommentRequest extends NRCommentRequest {
 	}
 
 	// get the parent post to the requested post, it is assumed the fetched post is a reply to
-	// a post pointing to a code error
+	// a post pointing to a code error, or a reply to a reply to a post that is pointing to a code error
 	async getParentPost () {
 		const parentPostId = this.post.get('parentPostId');
 		if (!parentPostId) {
@@ -42,9 +43,16 @@ class GetNRCommentRequest extends NRCommentRequest {
 
 	// get the code error pointed to by the parent post
 	async getCodeError () {
-		const objectId = this.parentPost.get('codeErrorId');
+		if (this.parentPost.get('parentPostId')) {
+			this.grandparentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
+			if (!this.grandparentPost) {
+				throw this.errorHandler.error('notFound', { info: 'grandparent post' });
+			}
+		}
+
+		const objectId = this.grandparentPost ? this.grandparentPost.get('codeErrorId') : this.parentPost.get('codeErrorId');
 		if (!objectId) {
-			throw this.errorHandler.error('readAuth', { reason: 'parent is not a code error' });
+			throw this.errorHandler.error('readAuth', { reason: 'parent or grandparent is not a code error' });
 		}
 		this.codeError = await this.data.codeErrors.getById(objectId);
 		if (!this.codeError) {
@@ -55,10 +63,9 @@ class GetNRCommentRequest extends NRCommentRequest {
 		}
 	}
 
-	// get all users associated with the post, either the creator or those mentioned
+	// get all the users associated with this comment
 	async getUsers () {
-		const userIds = [this.post.get('creatorId'), ...(this.post.get('mentionedUserIds') || [])];
-		this.users = await this.data.users.getByIds(userIds);
+		this.users = await this.getUsersByPost(this.post);
 	}
 }
 

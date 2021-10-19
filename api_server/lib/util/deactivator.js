@@ -59,13 +59,8 @@ class Deleter {
 		if (!this.teamIdOrName) {
 			return;
 		}
-		try {
-			this.teamId = ObjectID(this.teamIdOrName).toString();
-			await this.getTeamById();
-		}
-		catch (error) {
-			await this.getTeamByName();
-		}
+		this.teamId = ObjectID(this.teamIdOrName).toString();
+		await this.getTeamById();
 	}
 
 	async getTeamById () {
@@ -81,6 +76,8 @@ class Deleter {
 	}
 
 	async getTeamByName () {
+		throw 'getting team by name is no longer supported';
+		/*
 		let teams;
 		try {
 			teams = await this.mongoClient.mongoCollections.teams.getByQuery(
@@ -101,6 +98,7 @@ class Deleter {
 		}
 		this.team = teams[0];
 		this.teamId = this.team.id;
+		*/
 	}
 
 	async getRepo () {
@@ -205,7 +203,7 @@ class Deleter {
 		let query, hint;
 		if (this.teamId) {
 			query = { teamId: this.teamId };
-			hint = StreamIndexes.byName;
+			hint = StreamIndexes.byTeamId; // ???
 		}
 		else {
 			if (!this.repoIds && !this.repoId) {

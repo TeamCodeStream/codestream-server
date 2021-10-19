@@ -91,13 +91,16 @@ class GetCodemarksRequest extends GetManyRequest {
 	getQueryOptions () {
 		let hint;
 		if (this.request.query.type) {
-			hint = Indexes.byType;
+			throw 'fetching codemarks by type is deprecated';
+			//hint = Indexes.byType;
 		}
 		else if (this.request.query.fileStreamIds) {
-			hint = Indexes.byFileStreamIds;
+			throw 'fetching codemarks by fileStreamIds is deprecated';
+			//hint = Indexes.byFileStreamIds;
 		}
 		else if (this.request.query.streamId) {
-			hint = Indexes.byStreamId;
+			throw 'fetching codemarks by streamId is deprecated';
+			//hint = Indexes.byStreamId;
 		}
 		else if (this.request.query.reviewId) {
 			hint = Indexes.byReviewId;

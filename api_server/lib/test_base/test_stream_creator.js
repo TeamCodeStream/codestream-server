@@ -91,6 +91,7 @@ class TestStreamCreator {
 		if (!this.stream && !this.teamStream) {
 			throw 'no stream for creating test post';
 		}
+
 		const postOptions = {
 			streamId: this.stream ? this.stream.id : this.teamStream.id
 		};
@@ -130,7 +131,7 @@ class TestStreamCreator {
 				delete this.postOptions.postData[n].wantReview;
 			}
 		}
-	
+
 		if (
 			this.postOptions.wantCodeError ||
 			(
@@ -149,14 +150,21 @@ class TestStreamCreator {
 			const postData = this.postOptions.postData[n];
 			if (typeof postData.replyTo !== 'undefined') {
 				postOptions.parentPostId = this.postData[postData.replyTo].post.id;
+				postOptions.streamId = this.postData[postData.replyTo].post.streamId;
 				delete postData.replyTo;
 			}
 			Object.assign(postOptions, this.postOptions.postData[n]);
 		}
 
-		const creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
-			this.postOptions.creatorIndex[n] :
-			this.postOptions.creatorIndex;
+		let creatorIndex;
+		if (this.postOptions.postData && this.postOptions.postData[n] && this.postOptions.postData[n].creatorIndex !== undefined) {
+			creatorIndex = this.postOptions.postData[n].creatorIndex;
+		} else {
+			creatorIndex = this.postOptions.creatorIndex instanceof Array ? 
+				this.postOptions.creatorIndex[n] :
+				this.postOptions.creatorIndex;
+		}
+	
 		postOptions.token = this.users[creatorIndex || 0].accessToken;
 		this.test.postFactory.createRandomPost(
 			(error, response) => {
@@ -164,9 +172,32 @@ class TestStreamCreator {
 				this.inputPostData.push(this.test.postFactory.lastInputData);
 				this.postData.push(response);
 				const wait = this.postOptions.postCreateThrottle || 0;
-				setTimeout(callback, wait);
+				setTimeout((error) => {
+					if (error) { return callback(error); }
+					if (postOptions.wantCodeError && this.postOptions.claimCodeErrors) {
+						this.claimCodeError(response, callback);
+					} else {
+						callback();
+					}
+				}, wait);
 			},
 			postOptions
+		);
+	}
+
+	claimCodeError (postData, callback) {
+		if (!postData.codeError) { return; }
+		this.test.doApiRequest(
+			{
+				method: 'post',
+				path: '/code-errors/claim/' + this.team.id,
+				data: {
+					objectId: postData.codeError.objectId,
+					objectType: postData.codeError.objectType
+				},
+				token: this.users[1].accessToken
+			},
+			callback
 		);
 	}
 

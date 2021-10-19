@@ -75,7 +75,7 @@ class CodemarkRenderer extends RendererBase {
 	renderCollapsed (options) {
 		const { includeActivity } = options;
 		
-		const codemarkAuthorDiv = this.renderCodemarkAuthorDiv(options);
+		const codemarkAuthorDiv = this.renderAuthorDiv(options);
 		const titleDiv = this.renderTitleDiv(options);		
 		const codeBlockDivs = this.renderCodeBlockDivs(options);
 		let activityDiv = '';

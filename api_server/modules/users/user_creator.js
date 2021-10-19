@@ -148,7 +148,10 @@ class UserCreator extends ModelCreator {
 		if (this.options && this.options.externalUserId) {
 			this.attributes.externalUserId = this.options.externalUserId;
 		}
-
+		if (this.options && this.options.providerIdentities) {
+			this.attributes.providerIdentities = this.options.providerIdentities;
+		}
+		
 		if (this.userBeingAddedToTeamId && (!this.options || !this.options.dontSetInviteCode)) {
 			this.setInviteInfo();			// set an invite code for the user to accept an invite
 		}
@@ -305,6 +308,7 @@ class UserCreator extends ModelCreator {
 		await super.create();
 	}
 
+	/*
 	async determineChanges () {
 		super.determineChanges();
 		if (this.existingModel && this.existingModel.get('externalUserId') &&
@@ -312,6 +316,7 @@ class UserCreator extends ModelCreator {
 			this.changes.externalUserId = null;
 		}
 	}
+	*/
 
 	// after the user object is saved...
 	async postSave () {

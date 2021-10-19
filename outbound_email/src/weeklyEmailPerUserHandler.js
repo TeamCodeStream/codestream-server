@@ -143,7 +143,7 @@ class WeeklyEmailPerUserHandler {
 			{
 				hint: {
 					teamId: 1,
-					streamId: 1,
+					//streamId: 1,
 					_id: -1
 				},
 				sort: { _id: -1 },

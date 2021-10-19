@@ -28,6 +28,11 @@ const COMPANY_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: '/companies/join/:id',
 		requestClass: require('./join_company_request')
+	},
+	{
+		method: 'post',
+		path: '/companies/add-nr-info/:id',
+		requestClass: require('./add_nr_info_request')
 	}
 ];
 

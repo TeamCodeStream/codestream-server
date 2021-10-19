@@ -5,8 +5,6 @@
 const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 const PostErrors = require('./errors.js');
-const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
-const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 // these parameters essentially get passed verbatim to the query
 const BASIC_QUERY_PARAMETERS = [
@@ -36,15 +34,26 @@ class GetPostsRequest extends GetManyRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		let info;
-		if (this.request.query.streamId) {
-			info = await this.user.authorizeFromTeamIdAndStreamId(
-				this.request.query,
-				this
-			);
-			Object.assign(this, info);
-		}
-		else {
+		delete this.request.query.streamId; // tolerated but ignored
+
+		if (this.request.query.parentPostId) {
+			// fetching replies to a parent post
+			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
+			if (!parentPost) {
+				throw this.errorHandler.error('notFound', { info: 'parent post' });
+			}
+			this.stream = await this.user.authorizeStream(parentPost.get('streamId'), this);
+			if (!this.stream) {
+				throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this stream' });
+			}
+			/*
+			if (this.stream.get('type') === 'object') {
+				this.teamId = this.request.query.teamId;
+				delete this.request.query.teamId; // tolerated but ignored
+			}
+			*/
+		} else {
+			// this forces a teamId
 			await this.user.authorizeFromTeamId(
 				this.request.query,
 				this
@@ -55,59 +64,65 @@ class GetPostsRequest extends GetManyRequest {
 	// called before the actual fetch operation, here we fetch the streams the user is 
 	// a member of if posts for a particular stream are not being fetched
 	async preQueryHook () {
-		// we'll give the caller the benefit of figuring out the stream ID if they're looking for replies to a post
-		if (this.request.query.parentPostId && !this.request.query.streamId) {
-			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
-			if (parentPost) {
-				this.request.query.streamId = parentPost.get('streamId');
-			}
-		}
-		if (this.request.query.streamId) { return; }
-		
-		// if no stream ID is given, we'll fetch for all streams the user is a member of...
-		// this includes any "team streams" and channels/DMs they are explicit members of
+		/*
+		if (this.stream) { return; }
+
+		// if no stream ID is given, we'll fetch posts associated with the team stream,
+		// and optionally followed observability objects
+		// note that stream channels and DMs are now deprecated
 		this.byId = true;
-		const teamId = this.request.query.teamId.toLowerCase();
+		this.teamId = this.teamId || this.request.query.teamId.toLowerCase();
 		const results = await awaitParallel([
-			async () => {
-				return this.data.streams.getByQuery(
-					{
-						teamId,
-						memberIds: this.user.id
-					},
-					{
-						hint: StreamIndexes.byMembers,
-						fields: ['id'],
-						noCache: true
-					}
-				);
-			},
-			async () => {
-				return this.data.streams.getByQuery(
-					{
-						teamId,
-						isTeamStream: true
-					},
-					{
-						hint: StreamIndexes.byIsTeamStream,
-						fields: ['id'],
-						noCache: true
-					}
-				);
-			}
-		], this);
-		this.streamIds = [...results[0], ...results[1]].map(stream => stream.id);
+			this.getTeamStreams,
+			this.getStreamsByFollow
+		], this);			
+		this.streamIds = [...results[0], ...results[1]];
+		*/
 	}
+
+	/*
+	// get the team streams for the team (should only be one)
+	async getTeamStreams () {
+		const streams = await this.data.streams.getByQuery(
+			{
+				teamId: this.teamId,
+				isTeamStream: true
+			},
+			{
+				hint: StreamIndexes.byIsTeamStream,
+				fields: ['id'],
+				noCache: true
+			}
+		);
+		return streams.map(stream => stream.id);
+ 	}
+
+	// get streams representing code errors being followed, as needed
+	async getStreamsByFollow () {
+		//if (!this.request.query.includeFollowed) {
+		//	return [];
+		//}
+		const codeErrors = await this.data.codeErrors.getByQuery(
+			{
+				followerIds: this.user.id
+			},
+			{
+				hint: CodeErrorIndexes.byFollowerIds,
+				fields: ['streamId'],
+				noCache: true
+			}
+		);
+		return codeErrors.map(codeError => codeError.streamId);
+	}
+	*/
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
 	buildQuery () {
 		const query = {};
-
-		// if no stream ID given, then query on all streams the user is a member of,
-		// as determined in preQueryHook(), above
-		if (!this.request.query.streamId) {
-			query.streamId = { $in: this.streamIds };
-		}
+		this.byId = true;
+		
+		// query on stream or streams, as determined above
+		//query.streamId = this.stream ? this.stream.id : { $in: this.streamIds };
 
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
@@ -122,6 +137,14 @@ class GetPostsRequest extends GetManyRequest {
 		if (Object.keys(query).length === 0) {
 			return null;
 		}
+
+		/*
+		// this allows posts from teamless object streams to be fetched
+		//if (this.request.query.includeFollowed) {
+		query.teamId = { $in: [ this.teamId, null ] };
+		//}
+		*/
+
 		return query;
 	}
 
@@ -159,11 +182,14 @@ class GetPostsRequest extends GetManyRequest {
 		}
 		else 
 		{
+			throw 'queries by seqNum are deprecated';
+			/*
 			const seqNum = parseInt(value, 10);
 			if (isNaN(seqNum) || seqNum.toString() !== value) {
 				return 'invalid seqnum: ' + value;
 			}
 			this.relationals[parameter] = seqNum;
+			*/
 		}
 	}
 
@@ -201,6 +227,20 @@ class GetPostsRequest extends GetManyRequest {
 		return { limit, sort, hint };
 	}
 
+	/*
+	async fetch () {
+		await super.fetch();
+
+		// if these are code error replies, we don't actually want to return the code error post itself
+		if (this.codeError) {
+			const index = this.models.findIndex(model => model.id === this.codeError.get('postId'));
+			if (index !== -1) {
+				this.models.splice(index, 1);
+			}
+		}
+	}
+	*/
+
 	// set the limit to use in the fetch query, according to options passed in
 	setLimit () {
 		// the limit can never be greater than maxPostsPerRequest
@@ -233,13 +273,14 @@ class GetPostsRequest extends GetManyRequest {
 	// set the indexing hint to use in the fetch query
 	setHint () {
 		if (this.byId) {
-			return Indexes.byId;
+			return Indexes.byTeamId;
 		}
 		else if (this.request.query.parentPostId) {
 			return Indexes.byParentPostId;
 		}
 		else {
-			return Indexes.bySeqNum;
+			throw 'queries by seqNum are deprecated';
+			//return Indexes.bySeqNum;
 		}
 	}
 
@@ -330,8 +371,8 @@ class GetPostsRequest extends GetManyRequest {
 		let replies = await this.data.posts.getByQuery(
 			{
 				parentPostId: this.data.posts.inQuery(postIds),
-				streamId: this.request.query.streamId.toLowerCase(),
-				teamId: this.request.query.teamId.toLowerCase()
+				streamId: this.stream.id,
+				teamId: this.stream.get('teamId')
 			},
 			{
 				hint: Indexes.byParentPostId
@@ -352,12 +393,15 @@ class GetPostsRequest extends GetManyRequest {
 				}
 			}
 			else {
+				throw 'queries by seqNum are deprecated';
+				/*
 				if ((this.request.query.sort || '').toLowerCase() === 'asc') {
 					return a.seqNum - b.seqNum;
 				}
 				else {
 					return b.seqNum - a.seqNum;
 				}
+				*/
 			}
 		});
 	}

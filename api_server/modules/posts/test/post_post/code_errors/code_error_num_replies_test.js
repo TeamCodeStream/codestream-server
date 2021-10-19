@@ -1,29 +1,13 @@
 'use strict';
 
-const PostReplyTest = require('../post_reply_test');
+const CodeErrorReplyTest = require('./code_error_reply_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
 
-class CodeErrorNumRepliesTest extends PostReplyTest {
-
-	constructor (options) {
-		super(options);
-		this.expectedSeqNum = 3;
-		this.expectedStreamVersion = 4;
-	}
+class CodeErrorNumRepliesTest extends CodeErrorReplyTest {
 
 	get description () {
 		return 'parent post\'s code error should get its numReplies attribute incremented when a reply is created for a post with a code error';
-	}
-
-	setTestOptions (callback) {
-		super.setTestOptions(() => {
-			this.repoOptions.creatorIndex = 1;
-			Object.assign(this.postOptions, {
-				wantCodeError: true
-			});
-			callback();
-		});
 	}
 
 	// run the test...

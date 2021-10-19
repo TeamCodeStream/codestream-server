@@ -11,6 +11,7 @@ class FollowersFromDirectStreamTest extends CodemarkTest {
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
 			this.userOptions.numRegistered = 5;
+			this.streamOptions.creatorIndex = 1;
 			this.streamOptions.type = 'direct';
 			this.streamOptions.members = [0, 3];
 			callback();

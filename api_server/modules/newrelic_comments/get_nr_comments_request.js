@@ -15,10 +15,11 @@ class GetNRCommentsRequest extends NRCommentRequest {
 	async process () {
 		await this.getCodeError();	// get the requested code error
 		await this.getReplies();	// get the replies to the code error
+		await this.getMarkers();	// get all markers associated with codemarks as replies
 		await this.getUsers();		// get all associated users
 
 		this.responseData = this.posts.map(post => {
-			return Utils.ToNewRelic(this.codeError, post, this.users);
+			return Utils.ToNewRelic(this.codeError, post, this.codemarksByPost[post.id], this.markersByPost[post.id], this.users);
 		});
 	}
 
@@ -85,14 +86,38 @@ class GetNRCommentsRequest extends NRCommentRequest {
 				...posts,
 				...replies
 		].sort((a, b) => {
-				return b.get('seqNum') - a.get('seqNum');
+			return b.get('seqNum') - a.get('seqNum');
 		});
+	}
+
+	// get all markers associated with codemarks as replies
+	async getMarkers () {
+		this.markersByPost = {};
+		this.codemarksByPost = {};
+		return Promise.all(this.posts.map(async post => {
+			await this.getMarkersForPost(post);
+		}));
+	}
+
+	// get the markers associated with a given post
+	async getMarkersForPost (post) {
+		if (!post.get('codemarkId')) { return; }
+		const codemark = await this.data.codemarks.getById(post.get('codemarkId'));
+		if (!codemark) {
+			throw this.errorHandler.error('notFound', { info: 'codemark' });
+		}
+		const markerIds = codemark.get('markerIds') || [];
+		if (markerIds.length > 0) {
+			this.markersByPost[post.id] = await this.data.markers.getByIds(markerIds);
+		}
+		this.codemarksByPost[post.id] = codemark;
 	}
 
 	// get all users associated with the replies: all creators, and all mentioned users
 	async getUsers () {
 		let userIds = this.posts.reduce((accum, post) => {
-			accum = [...accum, post.get('creatorId'), ...(post.get('mentionedUserIds') || [])];
+			const ids = this.getUserIdsByPost(post);
+			accum.push.apply(accum, ids);
 			return accum;
 		}, []);
 		userIds = ArrayUtilities.unique(userIds);

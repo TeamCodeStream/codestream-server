@@ -7,10 +7,12 @@ module.exports = {
 	byProviderIdentities: {
 		providerIdentities: 1
 	},
+	/*
 	byPlan: { // this index is deprecated in favor of companies collection
 		plan: 1,
 		deactivated: 1
 	},
+	*/
 	byLastPostCreatedAt: {
 		lastPostCreatedAt: 1,
 		lastWeeklyEmailRunAt: 1

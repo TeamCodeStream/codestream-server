@@ -43,7 +43,6 @@ class AddMarkersTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			this.expectedResponse.codemark.$set.fileStreamIds[at + i] = createdMarker.fileStreamId;
 		}
 
-
 		this.codemark.markerIds = data.codemark.$set.markerIds;
 		this.codemark.fileStreamIds = data.codemark.$set.fileStreamIds;
 		new MarkerValidator({

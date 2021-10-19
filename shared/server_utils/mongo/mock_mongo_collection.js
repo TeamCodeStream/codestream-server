@@ -187,18 +187,20 @@ class MockMongoCollection {
 	_itemMatchesCondition (item, conditionName, conditionValue) {
 		if (conditionName.startsWith('$')) {
 			return this._itemMatchesOperator(item, conditionName, conditionValue);
-		}
-		else if (
-			typeof conditionValue === 'object' &&
+		} else if (
+			typeof conditionValue === 'object' && 
+			conditionValue !== null && 
 			conditionValue.$exists !== undefined
 		) {
 			return this._itemMatchesExists(item, conditionName, conditionValue.$exists);
 		}
 		const keys = conditionName.split('.');
 		const topKey = keys[0];
+		/*
 		if (item[topKey] === undefined) {
 			return false;
 		}
+		*/
 		if (keys.length === 1) {
 			return this._valueMatches(item[topKey], conditionValue);
 		}
@@ -229,6 +231,7 @@ class MockMongoCollection {
 	_valueMatches (value, conditionValue) {
 		if (
 			typeof conditionValue === 'object' &&
+			conditionValue !==  null && 
 			Object.keys(conditionValue).find(key => key.startsWith('$'))
 		) {
 			return this._valueMatchesOperators(value, conditionValue);
@@ -292,7 +295,7 @@ class MockMongoCollection {
 	}
 
 	_valueIn (arr, value) {
-		return arr.find(elem => {
+		const index = arr.findIndex(elem => {
 			if (value instanceof Array) {
 				return value.find(valueElem => {
 					return this._valuesAreEqual(valueElem, elem);
@@ -302,11 +305,13 @@ class MockMongoCollection {
 				return this._valuesAreEqual(value, elem);
 			}
 		});
+		return index !== -1;
 	}
 
 	_valuesAreEqual (val1, val2) {
 		if (
 			typeof val1 === 'object' &&
+			val1 !== null && 
 			!(val1 instanceof RegExp) && 
 			typeof val1.toString === 'function'
 		) {
@@ -314,6 +319,7 @@ class MockMongoCollection {
 		}
 		if (
 			typeof val2 === 'object' &&
+			val2 !== null && 
 			!(val2 instanceof RegExp) && 
 			typeof val2.toString === 'function'
 		) {
@@ -326,7 +332,9 @@ class MockMongoCollection {
 		else if (val2 instanceof RegExp && typeof val1 === 'string') {
 			return !!val1.match(val2);
 		}
-		else {
+		else if (val2 === null && (val1 === null || val1 === undefined)) {
+			return true;
+		} else {
 			return DeepEqual(val1, val2);
 		}
 	}

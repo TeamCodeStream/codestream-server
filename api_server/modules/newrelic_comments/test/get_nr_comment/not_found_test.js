@@ -1,12 +1,12 @@
 'use strict';
 
-const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
+const GetNRCommentTest = require('./get_nr_comment_test');
 const ObjectID = require('mongodb').ObjectID;
 
-class NotFoundTest extends CodeStreamAPITest {
+class NotFoundTest extends GetNRCommentTest {
 
 	get description () {
-		return 'should return an error when trying to fetch a marker that doesn\'t exist';
+		return 'should return an error when trying to fetch a New Relic comment that doesn\'t exist';
 	}
 
 	getExpectedError () {
@@ -20,7 +20,7 @@ class NotFoundTest extends CodeStreamAPITest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// try to get a bogus marker, with an ID that doesn't exist
-			this.path = '/markers/' + ObjectID();
+			this.path = '/nr-comments/' + ObjectID();
 			callback();
 		});
 	}

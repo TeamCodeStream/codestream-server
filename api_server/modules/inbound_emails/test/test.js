@@ -77,5 +77,4 @@ describe('inbound emails', function() {
 	new ReviewNotFoundTest().test();
 	new ReviewNoMatchTeamTest().test();
 	new ReviewNoMatchStreamTest().test();
-
 });

@@ -9,19 +9,24 @@ class PutCodeErrorRequest extends PutRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		// first get the code error
+		// allow anyone on the team to make changes
 		const codeErrorId = this.request.params.id.toLowerCase();
-		this.codeError = await this.data.codeErrors.getById(codeErrorId);
+		this.codeError = await this.user.authorizeCodeError(codeErrorId, this);
 		if (!this.codeError) {
-			throw this.errorHandler.error('notFound', { info: 'code error' });
+			this.errorHandler.error('updateAuth', { reason: 'user is not on the team that owns this code error' });
 		}
 
-		// only the author can edit a code error
+		/*
+		// if only updating stackTraces, anyone on the team can update
+		if (Object.keys(this.request.body).length === 1 && this.request.body.stackTraces) {
+			return;
+		}
+
+		// otherwise only the author can edit a code error
 		if (this.codeError.get('creatorId') !== this.user.id) {
 			throw this.errorHandler.error('updateAuth', { reason: 'only the creator of the code error can make this update' });
 		}
-
-		// TODO: probably need to allow any user on the team to update the stack traces
+		*/
 	}
 
 	// after the code error is updated...

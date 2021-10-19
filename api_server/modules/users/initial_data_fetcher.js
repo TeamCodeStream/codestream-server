@@ -5,7 +5,10 @@
 'use strict';
 
 const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
+const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
+const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 
 class InitialDataFetcher  {
 
@@ -20,6 +23,7 @@ class InitialDataFetcher  {
 		await this.getCompanies();		// get the companies associated with these teams
 		this.updateTeamPlans();			// copy company plan info to their teams
 		await this.getRepos();			// get the repos owned by their teams
+		await this.getStreams();		// get streams owned by the teams
 		return this.initialData;
 	}
 
@@ -78,6 +82,66 @@ class InitialDataFetcher  {
 		);
 		this.initialData.repos = await this.request.sanitizeModels(repos);
 	}
+	
+	// get team streams and streams associated with followed objects
+	async getStreams () {
+		const teamIds = this.user.get('teamIds') || [];
+		if (teamIds.length === 0) {
+			return [];
+		}
+		const streams = await this.request.data.streams.getByQuery(
+			{
+				teamId: this.request.data.streams.inQuery(teamIds)
+			},
+			{
+				hint: StreamIndexes.byTeamId
+			}
+		);
+		this.initialData.streams = await this.request.sanitizeModels(streams);
+		/*
+		const results = await awaitParallel([
+			this.getTeamStreams,
+			this.getStreamsByFollow
+		], this);
+		this.initialData.streams = await this.request.sanitizeModels([
+			...results[0],
+			...results[1]
+		]);
+		*/
+	}
+
+	/*
+	// get the team streams for all the teams 
+	async getTeamStreams () {
+		const teamIds = this.user.get('teamIds') || [];
+		if (teamIds.length === 0) {
+			return [];
+		}
+		return await this.request.data.streams.getByQuery(
+			{
+				teamId: this.request.data.teams.inQuery(teamIds),
+				isTeamStream: true
+			},
+			{
+				hint: StreamIndexes.byIsTeamStream,
+			}
+		);
+ 	}
+
+	// get streams representing code errors being followed, as needed
+	async getStreamsByFollow () {
+		const codeErrors = await this.request.data.codeErrors.getByQuery(
+			{
+				followerIds: this.user.id
+			},
+			{
+				hint: CodeErrorIndexes.byFollowerIds,
+			}
+		);
+		const streamIds = codeErrors.map(codeError => codeError.get('streamId'));
+		return this.request.data.streams.getByIds(streamIds);
+	}
+	*/
 }
 
 module.exports = InitialDataFetcher;

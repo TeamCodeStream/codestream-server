@@ -408,13 +408,13 @@ const Utils = {
 
 	// render buttons to display, associated with a codemark or a review
 	renderButtons: function (options) {
-		const { codemark, review, markers } = options;
+		const { codemark, review, codeError, markers } = options;
 		// in this case, we would have already rendered the buttons next to the codeblocks		
 		if (codemark && codemark.markerIds && codemark.markerIds.length > 1) return '';
 
-		if (review) {
+		if (review || codeError) {
 			// if there's some kind of parented review, we use that
-			return Utils.renderReviewButtons(options);
+			return Utils.renderStandardButtons(options);
 		}
 		else if (codemark) {
 			let marker;
@@ -493,11 +493,12 @@ const Utils = {
 		return markup;
 	},
 
-	renderReviewButtons: function (options) {
-		const { review, user } = options;	
-		if (!review) return '';
+	renderStandardButtons: function (options) {
+		const { review, codeError, user } = options;
+		const thing = review || codeError;	
+		if (!thing) return '';
 
-		const ideUrl = Utils.getIDEUrl(review.permalink, null);
+		const ideUrl = Utils.getIDEUrl(thing.permalink, null);
 		if (!ideUrl || !user.isRegistered) return '';		
 		
 		let markup = `<table border="0" cellspacing="0" cellpadding="0">
@@ -599,6 +600,7 @@ const Utils = {
 	// render the set of tags
 	renderTags: function (options) {
 		const { tags = [], team } = options;
+		if (!team) return '';
 		const teamTags = team.tags || [];
 		let hasTags = false;
 		let tagsHtml = '<table cellpadding=1 cellspacing=1 border=0><tr>';
