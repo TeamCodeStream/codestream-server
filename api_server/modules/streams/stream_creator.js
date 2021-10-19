@@ -146,6 +146,7 @@ class StreamCreator extends ModelCreator {
 			type: this.attributes.type
 		};
 
+		query.teamId = this.attributes.teamId;
 		/*
 		if (this.attributes.type !== 'object') {
 			query.teamId = this.attributes.teamId;
@@ -154,12 +155,17 @@ class StreamCreator extends ModelCreator {
 
 		let hint;
 		if (this.attributes.type === 'channel') {
-			// channel streams match by name
-			throw 'creating channel streams is deprecated';
-			/*
-			query.name = this.attributes.name;
-			hint = Indexes.byName;
-			*/
+			if (this.attributes.isTeamStream) {
+				query.isTeamStream = true;
+				hint = Indexes.byIsTeamStream;
+			} else {
+				// channel streams match by name
+				throw 'creating channel streams is deprecated';
+				/*
+				query.name = this.attributes.name;
+				hint = Indexes.byName;
+				*/
+			}
 		} else if (this.attributes.type === 'direct') {
 			throw 'creating direct streams is deprecated';
 			// direct stream match by membership
