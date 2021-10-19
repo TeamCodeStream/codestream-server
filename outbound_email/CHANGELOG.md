@@ -1,5 +1,17 @@
 # Change Log
 
+## [11.0.15] - 2021-10-19
+
+### Changed
+
+- Release bump to support latest API version
+
+## [11.0.14] - 2021-10-7
+
+### Fixed
+
+- Fixes an issue with signups
+
 ## [11.0.13] - 2021-10-7
 
 ### Changed
