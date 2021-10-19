@@ -135,7 +135,7 @@ class LinkCodeErrorRequest extends WebRequestBase {
 		let stackTrace;
 		const stackTraces = this.codeError.get('stackTraces') || [];
 		if (stackTraces.length) {
-			stackTrace = stackTraces[0].text || '';
+			stackTrace = stackTraces[0];
 		}
 
  		const templateProps = {			 
