@@ -12,7 +12,7 @@ class CodemarkUpdater extends ModelUpdater {
 
 	constructor (options) {
 		super(options);
-		this.codemarkHelper = new CodemarkHelper({ request: this });
+		this.codemarkHelper = new CodemarkHelper({ request: this.request });
 	}
 
 	get modelClass () {
@@ -78,7 +78,7 @@ class CodemarkUpdater extends ModelUpdater {
 		await this.codemarkHelper.changeCodemarkRelations(this.codemark.attributes, this.attributes, this.team.id);
 
 		// validate any assignees, for issues
-		await this.codemarkHelper.validateAssignees(this.codemark.attributes, this.attributes);
+		await this.codemarkHelper.validateAssignees(this.codemark.attributes, this.attributes, { team: this.team });
 
 		// proceed with the save...
 		this.attributes.modifiedAt = Date.now();

@@ -17,7 +17,7 @@ class CodemarkCreator extends ModelCreator {
 
 	constructor (options) {
 		super(options);
-		this.codemarkHelper = new CodemarkHelper({ request: this });
+		this.codemarkHelper = new CodemarkHelper({ request: this.request });
 	}
 
 	get modelClass () {
@@ -172,7 +172,7 @@ class CodemarkCreator extends ModelCreator {
 		await this.codemarkHelper.changeCodemarkRelations({}, this.attributes, this.team.id);
 
 		// validate assignees, for issues
-		await this.codemarkHelper.validateAssignees({}, this.attributes);
+		await this.codemarkHelper.validateAssignees({}, this.attributes, { team: this.team });
 
 		// handle this codemark as attached to a review, if applicable
 		if (this.attributes.parentPostId && !this.attributes.providerType) {
