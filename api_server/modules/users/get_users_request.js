@@ -68,7 +68,7 @@ class GetUsersRequest extends GetManyRequest {
 
 	// build the query for fetching the users, based on input parameters
 	buildQuery () {
-		const ids = this.team.get('memberIds') || [];
+		let ids = this.team.get('memberIds') || [];
 		/*
 		let ids;
 		if (this.codeError) {

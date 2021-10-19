@@ -11,7 +11,7 @@ class CodemarkHelper {
 	}
 
 	// if this is an issue, validate the assignees ... all users must be on the team
-	async validateAssignees (existingAttributes, newAttributes) {
+	async validateAssignees (existingAttributes, newAttributes, options) {
 		const type = newAttributes.type || existingAttributes.type;
 		const providerType = newAttributes.providerType || existingAttributes.providerType;
 		const teamId = newAttributes.teamId || existingAttributes.teamId;
@@ -29,12 +29,24 @@ class CodemarkHelper {
 		}
 
 		// get the assignees and make sure they're on the same team
-		await this.validateUsersOnTeam(newAttributes.assignees, teamId, 'assignees');
+		await this.validateUsersOnTeam(newAttributes.assignees, options.team, 'assignees');
 	}
 
 	// validate the given users are all on the same team
-	async validateUsersOnTeam (userIds, teamId, name, usersBeingAddedToTeam) {
+	async validateUsersOnTeam (userIds, team, name, usersBeingAddedToTeam = [], foreignOk = false) {
 		userIds = ArrayUtilities.difference(userIds, usersBeingAddedToTeam || []);
+		if (userIds.find(userId => {
+			if ((team.get('memberIds') || []).includes(userId)) {
+				return false;
+			} else if (foreignOk && (team.get('foreignMemberIds') || []).includes(userId)) {
+				return false;
+			} else {
+				return true;
+			}
+		})) {
+			throw this.request.errorHandler.error('validation', { info: `${name} must contain only users on the team` });
+		}
+		/*
 		const users = await this.request.data.users.getByIds(
 			userIds,
 			{
@@ -48,6 +60,7 @@ class CodemarkHelper {
 		) {
 			throw this.request.errorHandler.error('validation', { info: `${name} must contain only users on the team` });
 		}
+		*/
 	}
 	
 	// if there are tags, each tag must be known to the team
@@ -174,7 +187,7 @@ class CodemarkHelper {
 		// must validate mentioned users and explicit followers, since these come directly from the request
 		let validateUserIds = ArrayUtilities.union(options.mentionedUserIds || [], attributes.followerIds || []);
 		validateUserIds = ArrayUtilities.unique(validateUserIds);
-		await this.validateUsersOnTeam(validateUserIds, attributes.teamId, 'followers', options.usersBeingAddedToTeam);
+		await this.validateUsersOnTeam(validateUserIds, options.team, 'followers', options.usersBeingAddedToTeam, { foreignOk: true });
 
 		// any mentioned users are followers if they want to be
 		const mentionedWhoWantToFollow = options.ignorePreferences ? 
@@ -257,7 +270,7 @@ class CodemarkHelper {
 			categorizedPreferences.involveMe,
 			usersBeingAddedToTeam || []
 		);
-		
+
 		return categorizedPreferences;
 	}
 

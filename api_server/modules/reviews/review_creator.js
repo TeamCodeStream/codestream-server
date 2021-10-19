@@ -18,7 +18,7 @@ class ReviewCreator extends ModelCreator {
 
 	constructor (options) {
 		super(options);
-		this.codemarkHelper = new CodemarkHelper({ request: this });
+		this.codemarkHelper = new CodemarkHelper({ request: this.request });
 	}
 
 	get modelClass () {
@@ -245,7 +245,7 @@ class ReviewCreator extends ModelCreator {
 		}
 
 		// get the users and make sure they're on the same team
-		await this.codemarkHelper.validateUsersOnTeam(userIds, this.team.id, 'reviewers or authors', this.usersBeingAddedToTeam);
+		await this.codemarkHelper.validateUsersOnTeam(userIds, this.team, 'reviewers or authors', this.usersBeingAddedToTeam);
 	}
 }
 

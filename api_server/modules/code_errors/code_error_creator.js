@@ -15,7 +15,7 @@ class CodeErrorCreator extends ModelCreator {
 
 	constructor (options) {
 		super(options);
-		this.codemarkHelper = new CodemarkHelper({ request: this });
+		this.codemarkHelper = new CodemarkHelper({ request: this.request });
 		this.errorHandler.add(StreamErrors);
 	}
 
