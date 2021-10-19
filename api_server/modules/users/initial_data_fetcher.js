@@ -23,7 +23,7 @@ class InitialDataFetcher  {
 		await this.getCompanies();		// get the companies associated with these teams
 		this.updateTeamPlans();			// copy company plan info to their teams
 		await this.getRepos();			// get the repos owned by their teams
-		await this.getStreams();		// get team streams and streams associated with followed objects
+		await this.getStreams();		// get streams owned by the teams
 		return this.initialData;
 	}
 
@@ -85,6 +85,20 @@ class InitialDataFetcher  {
 	
 	// get team streams and streams associated with followed objects
 	async getStreams () {
+		const teamIds = this.user.get('teamIds') || [];
+		if (teamIds.length === 0) {
+			return [];
+		}
+		const streams = await this.request.data.streams.getByQuery(
+			{
+				teamId: this.request.data.streams.inQuery(teamIds)
+			},
+			{
+				hint: StreamIndexes.byTeamId
+			}
+		);
+		this.initialData.streams = await this.request.sanitizeModels(streams);
+		/*
 		const results = await awaitParallel([
 			this.getTeamStreams,
 			this.getStreamsByFollow
@@ -93,8 +107,10 @@ class InitialDataFetcher  {
 			...results[0],
 			...results[1]
 		]);
+		*/
 	}
 
+	/*
 	// get the team streams for all the teams 
 	async getTeamStreams () {
 		const teamIds = this.user.get('teamIds') || [];
@@ -125,6 +141,7 @@ class InitialDataFetcher  {
 		const streamIds = codeErrors.map(codeError => codeError.get('streamId'));
 		return this.request.data.streams.getByIds(streamIds);
 	}
+	*/
 }
 
 module.exports = InitialDataFetcher;

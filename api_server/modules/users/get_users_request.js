@@ -5,11 +5,13 @@
 const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
-const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
+//const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 
 class GetUsersRequest extends GetManyRequest {
 
 	async authorize () {
+		await this.user.authorizeFromTeamId(this.request.query, this);
+		/*
 		if (this.request.query.codeErrorId) {
 			// fetch users who are followers of this code error
 			this.codeError = await this.data.codeErrors.getById(this.request.query.codeErrorId.toLowerCase());
@@ -23,10 +25,20 @@ class GetUsersRequest extends GetManyRequest {
 			// members of the same team can fetch each other
 			await this.user.authorizeFromTeamId(this.request.query, this);
 		}
+		*/
 	}
 
 	// called before the fetch query
 	async preQueryHook () {
+		// we need the members of the team, since this includes removed users who would otherwise not
+		// show up as on the team at all
+		this.team = await this.data.teams.getById(this.request.query.teamId.toLowerCase());
+		if (!this.team) {
+			// shouldn't really happen, as we would have already authorized against the team
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+
+		/*
 		if (this.codeError) { return; }
 
 		this.allCodeErrors = this.request.query.allCodeErrors !== undefined;
@@ -51,10 +63,13 @@ class GetUsersRequest extends GetManyRequest {
 				throw this.errorHandler.error('notFound', { info: 'team' });
 			}
 		}
+		*/
 	}
 
 	// build the query for fetching the users, based on input parameters
 	buildQuery () {
+		const ids = this.team.get('memberIds') || [];
+		/*
 		let ids;
 		if (this.codeError) {
 			// can get users following a code error
@@ -70,6 +85,7 @@ class GetUsersRequest extends GetManyRequest {
 			// or users from the team
 			ids = this.team.get('memberIds') || [];
 		}
+		*/
 
 		// can also specify individual IDs as a subset
 		if (this.request.query.ids) {

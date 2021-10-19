@@ -9,7 +9,16 @@ class GetCodeErrorsRequest extends GetManyRequest {
 
 	// authorize the request
 	async authorize () {
-		// no authorization required, returns all code errors followed by the user
+		// authorize against the team, this is required
+		this.teamId = this.request.query.teamId;
+		if (!this.teamId) {
+			throw this.errorHandler.error('parameterRequired', { info: 'teamId' });
+		}
+		this.teamId = this.teamId.toLowerCase();
+		const authorized = await this.user.authorizeTeam(this.teamId, this);
+		if (!authorized) {
+			throw this.errorHandler.error('readAuth', { reason: 'user not on team' });
+		}
 	}
 
 	// process the request...
@@ -18,6 +27,7 @@ class GetCodeErrorsRequest extends GetManyRequest {
 		await this.getPosts();	// get associated posts, as needed
 	}
 
+	/*
 	// called before running the fetch query
 	async preQueryHook () {
 		// get code errors followed by this user
@@ -33,9 +43,50 @@ class GetCodeErrorsRequest extends GetManyRequest {
 		);
 		this.streamIds = codeErrors.map(codeError => codeError.streamId);
 	}
+	*/
 	
 	// build the database query to use to fetch the code errors
 	buildQuery () {
+		if (this.request.query.streamId && this.request.query.byLastActivityAt) {
+			return 'can not query on streamId and also on lastActivityAt';
+		}
+		const query = {
+			teamId: this.teamId
+		};
+		if (this.request.query.streamId) {
+			query.streamId = this.request.query.streamId.toLowerCase();
+		}
+		const indexAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
+		let { before, after, inclusive } = this.request.query;
+		inclusive = inclusive !== undefined;
+		if (before !== undefined) {
+			before = parseInt(before, 10);
+			if (!before) {
+				return 'before must be a number';
+			}
+			query[indexAttribute] = query[indexAttribute] || {};
+			if (inclusive) {
+				query[indexAttribute].$lte = before;
+			}
+			else {
+				query[indexAttribute].$lt = before;
+			}
+		}
+		if (after !== undefined) {
+			after = parseInt(after, 10);
+			if (!after) {
+				return 'after must be a number';
+			}
+			query[indexAttribute] = query[indexAttribute] || {};
+			if (inclusive) {
+				query[indexAttribute].$gte = after;
+			}
+			else {
+				query[indexAttribute].$gt = after;
+			}
+		}
+		return query;
+		/*
 		const query = {
 			streamId: this.data.posts.inQuery(this.streamIds)
 		};
@@ -68,6 +119,7 @@ class GetCodeErrorsRequest extends GetManyRequest {
 			}
 		}
 		return query;
+		*/
 	}
 
 	// get database options to associate with the database fetch request

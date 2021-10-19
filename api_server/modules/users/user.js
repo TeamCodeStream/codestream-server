@@ -271,6 +271,7 @@ class User extends CodeStreamModel {
 		});
 		let otherUser = false;
 
+		/*
 		// users are also able to access any user that is a follower of any code errors the
 		// current user is a follower of
 		if (!authorized) {
@@ -282,7 +283,8 @@ class User extends CodeStreamModel {
 			}, { hint: CodeErrorIndexes.byFollowerIds, fields: ['followerIds'] });
 			authorized = codeErrors.length > 0;
 		}
-
+		*/
+		
 		if (authorized) {
 			otherUser = await request.data.users.getById(id);
 		}

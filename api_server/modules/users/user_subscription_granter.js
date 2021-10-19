@@ -37,7 +37,7 @@ class UserSubscriptionGranter  {
 
 		//await this.getRepoChannels();			
 		//await this.getStreamChannels();		
-		await this.getObjectChannels();
+		//await this.getObjectChannels();
 		await this.grantAllChannels();
 	}
 
@@ -102,6 +102,7 @@ class UserSubscriptionGranter  {
 	}
 	*/
 
+	/*
 	// get channels for all objects the user is are following
 	async getObjectChannels () {
 		const objects = await this.data.codeErrors.getByQuery(
@@ -119,7 +120,8 @@ class UserSubscriptionGranter  {
 			})
 		);
 	}
-
+	*/
+	
 	// grant permission for the user to subscribe to a given set of channel
 	async grantAllChannels () {
 		try {
