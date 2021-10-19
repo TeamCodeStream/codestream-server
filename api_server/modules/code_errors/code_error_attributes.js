@@ -109,5 +109,9 @@ module.exports = {
 	_forNRMigration: {
 		type: 'boolean',
 		serverOnly: true
+	},
+	_fromNREngine: {
+		type: 'boolean',
+		serverOnly: true
 	}
 };

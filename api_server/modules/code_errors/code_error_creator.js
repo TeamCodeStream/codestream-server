@@ -42,7 +42,7 @@ class CodeErrorCreator extends ModelCreator {
 			optional: {
 				string: ['providerUrl', 'entryPoint', 'title', 'text'],
 				object: ['objectInfo'],
-				boolean: ['_dontCreatePermalink', '_forNRMigration'],
+				boolean: ['_dontCreatePermalink', '_forNRMigration', '_fromNREngine'],
 				'array(object)': ['stackTraces']
 			}
 		};

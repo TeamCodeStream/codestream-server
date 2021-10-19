@@ -98,6 +98,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			dontSendEmail: true,
 			codeError: codeErrorAttributes
 		};
+		postAttributes.codeError._fromNREngine = postAttributes._fromNREngine = true;
 		if (this.request.headers['x-cs-newrelic-migration']) {
 			postAttributes.codeError._forNRMigration = postAttributes._forNRMigration = true;
 		}
@@ -147,6 +148,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 			text: this.request.body.text,
 			mentionedUserIds: this.mentionedUserIds,
 		};
+		postAttributes._fromNREngine = true;
 		if (this.request.headers['x-cs-newrelic-migration']) {
 			postAttributes._forNRMigration = true;
 		}
