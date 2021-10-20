@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.17] - 2021-10-20
+
+### Added
+
+- Backend support for new integration
+
 ## [11.0.16] - 2021-10-19
 
 ### Added
