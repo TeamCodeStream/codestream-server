@@ -48,11 +48,18 @@ class PutNRCommentRequest extends NRCommentRequest {
 		if (!this.parentPost) {
 			throw this.errorHandler.error('notFound', { info: 'parent post' });
 		}
+
+		if (this.parentPost.get('parentPostId')) {
+			this.grandparentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
+			if (!this.grandparentPost) {
+				throw this.errorHandler.error('notFound', { info: 'grandparent post' });
+			}
+		}
 	}
 
 	// get the code error pointed to by the parent post
 	async getCodeError () {
-		const objectId = this.parentPost.get('codeErrorId');
+		const objectId = this.parentPost.get('codeErrorId') || (this.grandparentPost && this.grandparentPost.get('codeErrorId'));
 		if (!objectId) {
 			throw this.errorHandler.error('readAuth', { reason: 'parent is not a code error' });
 		}
