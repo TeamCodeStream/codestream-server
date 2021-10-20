@@ -37,6 +37,7 @@ class ProviderInfoRequest extends RestfulRequest {
 		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
 		await this.getTeam();			// get the team the user is auth'd with
 		await this.saveInfo();			// save the provider info data for the user
+		await this.providerInfoHook();	// perform any special provider-specific processing	
 	}
 
 	// require certain parameters, discard unknown parameters
@@ -106,6 +107,19 @@ class ProviderInfoRequest extends RestfulRequest {
 		}).save(op);
 	}
 
+	// perform any special provider-specific processing
+	async providerInfoHook () {
+		if (typeof this.serviceAuth.providerInfoHook === 'function') {
+			await this.serviceAuth.providerInfoHook({ ...this.request.body, request: this });
+		}
+	}
+	
+	async providerInfoPostProcessHook () {
+		if (typeof this.serviceAuth.providerInfoPostProcessHook === 'function') {
+			await this.serviceAuth.providerInfoPostProcessHook({ ...this.request.body, request: this });
+		}
+	}
+
 	// handle the response to the request
 	async handleResponse () {
 		// the response will be the user update, with an update of the token data
@@ -120,6 +134,7 @@ class ProviderInfoRequest extends RestfulRequest {
 	async postProcess () {
 		if (!this.user) { return; }
 		await this.publishUserToSelf();
+		await this.providerInfoPostProcessHook();
 	}
 
 	// publish updated user to themselves, to propagate the new token
