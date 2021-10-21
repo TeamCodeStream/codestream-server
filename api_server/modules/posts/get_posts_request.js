@@ -35,37 +35,48 @@ class GetPostsRequest extends GetManyRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		const whichParams = ArrayUtilities.intersection(Object.keys(this.request.query), BASIC_QUERY_PARAMETERS);
-		if (whichParams.length === 0) {
-			throw this.errorHandler.error('parameterRequired', { info: 'one of: ' + BASIC_QUERY_PARAMETERS.join(',') });
-		}
-		else if (whichParams.length > 1) {
-			throw this.errorHandler.error('badQuery', { reason: 'can only query on one of: ' + BASIC_QUERY_PARAMETERS.join(',') });
-		}
-		const whichParam = whichParams[0];
-
-		if (whichParam === 'teamId') {
-			return await this.user.authorizeFromTeamId(
-				this.request.query,
-				this
-			);
-		}
-
 		let streamId;
-		if (whichParam === 'parentPostId') {
-			// fetching replies to a parent post
+		if (this.request.query.parentPostId) {
 			const parentPost = await this.data.posts.getById(this.request.query.parentPostId.toLowerCase());
 			if (!parentPost) {
 				throw this.errorHandler.error('notFound', { info: 'parent post' });
 			}
 			streamId = parentPost.get('streamId');
-		} else if (this.request.query.streamId) {
+		}
+		if (this.request.query.streamId) {
+			if (streamId && this.request.query.streamId.toLowerCase() !== streamId) {
+				throw this.errorHandler.error('badQuery', { reason: 'streamId must match the stream of parentPostId' });
+			}
 			streamId = this.request.query.streamId.toLowerCase();
 		}
 
-		this.stream = await this.user.authorizeStream(streamId, this);
-		if (!this.stream) {
-			throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this stream' });
+		if (streamId) {
+			this.stream = await this.user.authorizeStream(streamId, this);
+			if (!this.stream) {
+				throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this stream' });
+			}
+		}
+
+		if (this.request.query.teamId) {
+			if (this.stream) {
+				if (this.request.query.teamId.toLowerCase() !== this.stream.get('teamId')) {
+					throw this.errorHandler.error('badQuery', { reason: 'teamId must match the team of the stream' });
+				}
+			} else {
+				return await this.user.authorizeFromTeamId(
+					this.request.query,
+					this
+				);
+			}
+		} else if (!this.stream) {
+			throw this.errorHandler.error('parameterRequired', { info: 'teamId, streamId, or parentPostId' });
+		}
+
+		if (this.request.query.parentPostId) {
+			delete this.request.query.streamId;
+			delete this.request.query.teamId;
+		} else if (this.request.query.streamId) {
+			delete this.request.query.teamId;
 		}
 	}
 
