@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.18] - 2021-10-21
+
+### Fixed
+
+- Fixes a post fetching issue
+
 ## [11.0.17] - 2021-10-20
 
 ### Added
