@@ -44,7 +44,7 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 		const { objectId, objectType } = this.request.body;
 		this.codeError = await this.data.codeErrors.getOneByQuery(
 			{ objectId, objectType },
-			{ hint: Indexes.byobjectId}
+			{ hint: Indexes.byObjectId }
 		);
 		if (!this.codeError) {
 			this.responseData = { notFound: true };
