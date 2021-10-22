@@ -183,6 +183,7 @@ class MultiTeamMigrator {
 		await this.getTeamStreams();
 		await this.flagReposForMerge();
 		await this.migrateContent();
+		await this.updateSeqNums();
 		await this.updateTeamStreams();
 		await this.updateTeam();
 		await this.updateUsers();
@@ -257,6 +258,49 @@ class MultiTeamMigrator {
 
 		const query = { teamId: team.id };
 		await this.doDirect(`Moving ${collection} documents in team ${team.id} to point to team ${this.mergeToTeam.id}...`, collection, query, op);
+	}
+
+	// reorder seqNums for all posts that have been combined to the team stream
+	async updateSeqNums () {
+		const mergeToTeamStreamId = this.mergeToTeam.teamStream && this.mergeToTeam.teamStream.id;
+		if (!mergeToTeamStreamId) { return; }
+		
+		const posts = await this.data.posts.getByQuery(
+			{ streamId: mergeToTeamStreamId }, 
+			{ hint: PostIndexes.byStreamId }
+		);
+		posts.sort((a, b) => {
+			return a.createdAt - b.createdAt;
+		});
+
+		let i;
+		for (i = 1; i <= posts.length; i++) {
+			const post = posts[i - 1];
+			const op = {
+				$set: {
+					seqNum: i
+				}
+			};
+			const query = { id: this.data.posts.objectIdSafe(post.id) };
+			await this.doDirect(`Setting seqNum for post ${post.id} to ${i}...`, 'posts', query, op);
+			if (i % 50 === 0) {
+				this.log(`Waiting ${throttleTime}...`);
+				await new Promise(resolve => {
+					setTimeout(resolve, throttleTime);
+				});
+			}
+		}
+
+		const streamUpdateQuery = {
+			id: this.data.streams.objectIdSafe(mergeToTeamStreamId)
+		};
+		const streamUpdateOp = {
+			$set: {
+				nextSeqNum: i
+			}
+		};
+
+		await this.doDirect(`Updating nextSeqNum for stream ${mergeToTeamStreamId} to ${i}...`, 'streams', streamUpdateQuery, streamUpdateOp);
 	}
 
 	// look for any repos that seem duplicative between the merging teams and the merge-to team,
@@ -491,7 +535,7 @@ class MultiTeamMigrator {
 		const memberIds = ArrayUtilities.unique([
 			...activeMemberIds,
 			...removedMemberIds,
-			...foreignMemberids
+			...foreignMemberIds
 		]).sort();
 		removedMemberIds = ArrayUtilities.unique(removedMemberIds).sort();
 		foreignMemberIds = ArrayUtilities.unique(foreignMemberIds).sort();
@@ -754,6 +798,10 @@ class MultiTeamMigrator {
 			this.log(log);
 		}
 		if (!this.dryRun) {
+			if (!this.data[collection]) {
+				this.log(`NOTE: NO ${collection}, skipping...`);
+				return;
+			}
 			await this.data[collection].updateDirect(query, op, { requestId: this.requestId });
 		}
 	}

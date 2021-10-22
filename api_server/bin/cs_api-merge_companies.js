@@ -55,8 +55,7 @@ class CompanyMerger {
 			await new TeamMerger({
 				logger: this.logger,
 				data: this.data,
-				dryRun: this.dryRun,
-				mergeTeams: this.mergeTeams
+				dryRun: this.dryRun
 			}).mergeCompanies(fromCompanyId, this.toCompanyId);
 		}
 	}
