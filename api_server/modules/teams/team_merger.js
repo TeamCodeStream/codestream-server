@@ -1,18 +1,14 @@
 'use strict';
 
+const RepoMerger = require("../repos/repo_merger");
+
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
 const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 const MarkerIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/markers/indexes');
 const ReviewIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/indexes');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
-
-// IF REPOS NEED TO BE MERGED:
-//  reviews: reviewChangesets, reviewDiffs, checkpointReviewDiffs all key off repo ID
-//  reposByCommitHash
-//  fileStreams
-//  user.compactifiedModifiedRepos
-//  user.modifiedReposModifiedAt
+const RepoMerger = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_merger');
 
 const COLLECTIONS_TO_MIGRATE = [
 	'codemarkLinks',
@@ -181,7 +177,7 @@ class MultiTeamMigrator {
 	// merge a set of teams into a single team, either within a single company or from one company to another
 	async mergeTeams () {
 		await this.getTeamStreams();
-		await this.flagReposForMerge();
+		await this.mergeOrFlagRepos();
 		await this.migrateContent();
 		await this.updateSeqNums();
 		await this.updateTeamStreams();
@@ -304,20 +300,18 @@ class MultiTeamMigrator {
 	}
 
 	// look for any repos that seem duplicative between the merging teams and the merge-to team,
-	// and flag for merge if the team that owns the duplicate repo has any content pointing to the repo
-	// (we're not going to deal with the actual merge at this time)
-	async flagReposForMerge () {
+	// and merge or flag for merge if the team that owns the duplicate repo has any content pointing to the repo
+	async mergeOrFlagRepos () {
 		for (const team of this.mergingTeams) {
 			if (this.postsByTeam[team.id] > 0) {
-				await this.flagReposForMergeForTeam(team);
+				await this.mergeOrFlagReposForTeam(team);
 			}
 		}
 	}
 
 	// look for any repos that seem duplicative between the merging team and the merge-to team,
-	// and flag for merge if the team that owns the duplicate repo has any content pointing to the repo
-	// (we're not going to deal with the actual merge at this time)
-	async flagReposForMergeForTeam (team) {
+	// and merge or flag for merge if the team that owns the duplicate repo has any content pointing to the repo
+	async mergeOrFlagReposForTeam (team) {
 		const mergingRepos = await this.data.repos.getByQuery(
 			{ teamId: team.id },
 			{ hint: RepoIndexes.byTeamId, requestId: this.requestId }
@@ -338,15 +332,15 @@ class MultiTeamMigrator {
 					});
 				})) {
 					this.log(`Will possibly flag repo ${mergingRepo.id} for merge to ${mergeToRepo.id}`);
-					await this.possiblyFlagReposForMerge(mergingRepo, mergeToRepo);
+					await this.possiblyMergeOrFlagRepos(mergingRepo, mergeToRepo);
 				}
 			}
 		}
 	}
 
-	// possibly flag a repo for merging, by checking for whether the team that owns the
+	// possibly merge or flag a repo for merging, by checking for whether the team that owns the
 	// second one has any content pointing at that repo
-	async possiblyFlagReposForMerge (fromRepo, toRepo) {
+	async possiblyMergeOrFlagRepos (fromRepo, toRepo) {
 		// get any file streams in the "from" repo
 		const fileStreams = await this.data.streams.getByQuery(
 			{
@@ -374,7 +368,7 @@ class MultiTeamMigrator {
 			);
 			this.log(`Repo ${fromRepo.id} has ${markerCount} markers`);
 			if (markerCount > 0) {
-				await this.flagRepoForMerge(fromRepo, toRepo, 'at least one code block points to this repo');
+				await this.mergeOrFlagRepo(fromRepo, toRepo, 'at least one code block points to this repo');
 				return;
 			}
 		}
@@ -390,7 +384,7 @@ class MultiTeamMigrator {
 				needsMerge = true;
 				break;
 			}
-			if (Object.keys(review.reviewDiffs || {}).find(rId => rId === fromRepo.id)) {
+			if ((review.reviewDiffs || {})[fromRepo.id]) {
 				needsMerge = true;
 				break;
 			}
@@ -405,7 +399,16 @@ class MultiTeamMigrator {
 	}
 
 	// flag the first repo for merge into the second repo
-	async flagRepoForMerge (fromRepo, toRepo, reason) {
+	async mergeOrFlagRepo (fromRepo, toRepo, reason) {
+		if (!this.dontMergeRepos) {
+			this.log(`Merging repo ${fromRepo.id} into ${toRepo.id}...`);
+			return await new RepoMerger({
+				data: this.data,
+				requestId: this.requestId,
+				logger: this.logger
+			}).mergeRepos(fromRepo, toRepo);
+		}
+
 		// get the most recent post in the team, which gives us a sense of the team's recent activity
 		const latestPosts = await this.data.posts.getByQuery(
 			{ teamId: fromRepo.teamId },
@@ -432,6 +435,100 @@ class MultiTeamMigrator {
 			id: this.data.repos.objectIdSafe(fromRepo.id)
 		};
 		await this.doDirect(`Flagging repo ${fromRepo.id} for merge because ${reason}...`, 'repos', query, op);
+	}
+
+	// merge one repo into another by updating all markers, all reviews, and all code errors with references
+	async mergeRepos (fromRepo, toRepo) {
+		await this.moveMarkersToRepo(fromRepo, toRepo);
+		await this.moveReviewsToRepo(fromRepo, toRepo);
+		await this.moveCodeErrorsToRepo(fromRepo, toRepo);
+		await this.deactivateRepo(fromRepo);
+	}
+
+	// move all markers referencing a repo to another repo
+	async moveMarkersToRepo (fromRepo, toRepo) {
+		const query = {
+			teamId: fromRepo.teamId,
+			repoId: fromRepo.id
+		};
+		const op = {
+			$set: {
+				repoId: toRepo.id
+			}
+		};
+
+		await this.doDirect(`Moving markers from repo ${fromRepo.id} to repo ${toRepo.id}...`, 'markers', query, op);
+	}
+
+	// move all reviews referencing a repo to another repo
+	async moveReviewsToRepo (fromRepo, toRepo) {
+		// unfortunately we have to just fetch all the reviews for the team,
+		// since the repo ID is embedded as keys to their attributes
+		const reviews = await this.data.reviews.getByQuery(
+			{ teamId: fromRepo.teamId },
+			{ hint: ReviewIndexes.byTeamId, requestId: this.requestId }
+		);
+		const reviewsToMove = reviews.filter(review => {
+			return (
+				(review.reviewChangesets || []).find(cs => cs.repoId === fromRepo.id) ||
+				(review.reviewDiffs || {})[fromRepo.id] ||
+				(review.checkpointReviewDiffs || []).find(diff => diff.repoId === fromRepoId)
+			);
+		});
+
+		for (const review of reviewsToMove) {
+			const op = { $set: { } };
+			for (const cs of (review.reviewChangesets)) {
+				if (cs.repoId === fromRepo.id) {
+					cs.repoId = toRepo.id;
+					op.$set.reviewChangesets = review.reviewChangesets;
+				}
+			}
+			if ((review.reviewDiffs || {})[fromRepoId]) {
+				review.reviewDiffs[toRepoId] = review.reviewDiffs[fromRepoId];
+				delete review.reviewDiffs[fromRepoId];
+				op.$set.reviewDiffs = review.reviewDiffs;
+			}
+			for (const rd of (review.checkpointReviewDiffs)) {
+				if (rd.repoId === fromRepo.id) {
+					rd.repoId = toRepo.id;
+					op.$set.checkpointReviewDiffs = review.checkpointReviewDiffs;
+				}
+			}
+
+			const query = {
+				id: this.data.reviews.objectIdSafe(review.id)
+			};
+			await this.doDirect(`Moving review from repo ${fromRepo.id} to repo ${toRepo.id}...`, 'reviews', query, op);
+		}
+	}
+
+	// move all code errors referencing a repo to another repo
+	async moveCodeErrorsToRepo (fromRepo, toRepo) {
+		// unfortunately we have to just fetch all the code errors for the team,
+		// since the repo ID is embedded as keys to the stack traces
+		const codeErrors = await this.data.codeErrors.getByQuery(
+			{ teamId: fromRepo.teamId },
+			{ hint: ReviewIndexes.byLastActivityAt, requestId: this.requestId }
+		);
+		const codeErrorsToMove = codeErrors.filter(codeError => {
+			return (codeError.stackTraces || []).find(stackTrace => stackTrace.repoId === fromRepo.id);
+		});
+
+		for (const codeError of codeErrorsToMove) {
+			const op = { $set: { } };
+			for (const stackTrace of (codeError.stackTraces || [])) {
+				if (stackTrace.repoId === fromRepo.id) {
+					stackTrace.repoId = toRepo.id;
+					op.$set.stackTraces = codeError.stackTraces;
+				}
+			}
+
+			const query = {
+				id: this.data.codeErrors.objectIdSafe(codeError.id)
+			};
+			await this.doDirect(`Moving code error from repo ${fromRepo.id} to repo ${toRepo.id}...`, 'codeErrors', query, op);
+		}
 	}
 
 	// for each merged team, update its team stream to no longer be a team stream
