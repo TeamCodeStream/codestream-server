@@ -18,7 +18,7 @@ const ACLTeamTest = require('./acl_team_test');
 //const ACLStreamTest = require('./acl_stream_test');
 const StreamNotFoundTest = require('./stream_not_found_test');
 const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
-const StreamIdIgnoredTest = require('./stream_id_ignored_test');
+//const StreamIdIgnoredTest = require('./stream_id_ignored_test');
 const GetPostsBeforeTest = require('./get_posts_before_test');
 const GetPostsAfterTest = require('./get_posts_after_test');
 const GetPostsBeforeInclusiveTest = require('./get_posts_before_inclusive_test');
@@ -60,7 +60,7 @@ class GetPostsRequestTester {
 		//new ACLStreamTest().test();
 		//new StreamNotFoundTest().test();
 		//new StreamNoMatchTeamTest().test();
-		new StreamIdIgnoredTest().test();
+		//new StreamIdIgnoredTest().test();
 		new GetPostsBeforeTest().test();
 		new GetPostsAfterTest().test();
 		new GetPostsBeforeInclusiveTest().test();
