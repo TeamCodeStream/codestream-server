@@ -115,7 +115,9 @@ class MigrationHandler {
 
 	// migrate all the single-team companies
 	async migrateSingleTeamCompanies (companies) {
-		const teamIds = companies.map(company => company.teamIds[0]);
+		let teamIds = companies.map(company => {
+			return (company.teamIds || [])[0];
+		}).filter(teamId => teamId);
 
 		// mark their single teams as the "everyone" team
 		if (this.dryRun) {
@@ -130,16 +132,20 @@ class MigrationHandler {
 
 		// update the companies
 		await Promise.all(companies.map(async company => {
-			const op = {
-				$set: {
-					everyoneTeamId: company.teamIds[0],
-					hasBeenMigratedToCompanyCentric: true
+			if (company.teamIds && company.teamIds.length) {
+				const op = {
+					$set: {
+						everyoneTeamId: company.teamIds[0],
+						hasBeenMigratedToCompanyCentric: true
+					}
+				};
+				if (this.dryRun) {
+					this.log(`Would have updated single-team company ${company.id} to company-centric with op:\n${JSON.stringify(op, undefined, 5)}`);
+				} else {
+					await this.data.companies.updateDirect({ id: this.data.companies.objectIdSafe(company.id) }, op);
 				}
-			};
-			if (this.dryRun) {
-				this.log(`Would have updated single-team company ${company.id} to company-centric with op:\n${JSON.stringify(op, undefined, 5)}`);
 			} else {
-				await this.data.companies.updateDirect({ id: this.data.companies.objectIdSafe(company.id) }, op);
+				this.log(`Company ${company.id} has no teams`);
 			}
 		}));
 	}
