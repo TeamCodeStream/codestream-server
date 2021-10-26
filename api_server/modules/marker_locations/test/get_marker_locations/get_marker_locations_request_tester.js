@@ -18,7 +18,7 @@ class GetMarkerLocationsRequestTester {
 		new NoParameterTest({ parameter: 'streamId' }).test();
 		new NoParameterTest({ parameter: 'commitHash' }).test();
 		new StreamNotFoundTest().test();
-		new ACLStreamTest().test();
+		//new ACLStreamTest().test();
 		new ACLTeamTest().test();
 		new StreamNoMatchTeamTest().test();
 		new NoMarkerLocationsForCommitTest().test();
