@@ -75,10 +75,10 @@ class ConfirmationRequestTester {
 		new ReuseCodeTest().test();
 		new EligibleJoinCompaniesTest().test();
 		new IsWebmailTest().test();
-		new SubscriptionToObjectByMentionTest().test();
-		new SubscriptionToObjectByMentionOtherTeamTest().test();
-		new SubscriptionToObjectByConfirmedExternalUserTest().test();
-		new SubscriptionToObjectByConfirmedExternalMentionTest().test();
+		//new SubscriptionToObjectByMentionTest().test();
+		//new SubscriptionToObjectByMentionOtherTeamTest().test();
+		//new SubscriptionToObjectByConfirmedExternalUserTest().test();
+		//new SubscriptionToObjectByConfirmedExternalMentionTest().test();
 	}
 }
 

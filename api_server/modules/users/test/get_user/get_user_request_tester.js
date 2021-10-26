@@ -29,8 +29,8 @@ class GetUserRequestTester {
 		new GetMyselfNoMeAttributesTest().test();
 		new GetRemovedTeamMemberTest().test();
 		new ACLRemovedTeamMemberTest().test();
-		new GetCodeErrorFollowerTest().test();
-		new GetExternalCodeErrorFollowerTest().test();
+		//new GetCodeErrorFollowerTest().test();
+		//new GetExternalCodeErrorFollowerTest().test();
 	}
 }
 

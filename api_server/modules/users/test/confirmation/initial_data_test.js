@@ -15,7 +15,7 @@ class InitialDataTest extends ConfirmationTest {
 			numAdditionalInvites: 2
 		});
 		this.teamOptions.numAdditionalInvites = 2;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
 	}
 

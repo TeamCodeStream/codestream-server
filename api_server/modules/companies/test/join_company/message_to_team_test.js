@@ -58,7 +58,8 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					memberIds: [ this.currentUser.user.id ]
 				},
 				$pull: {
-					removedMemberIds: [ this.currentUser.user.id ]
+					removedMemberIds: [ this.currentUser.user.id ],
+					foreignMemberIds: [ this.currentUser.user.id ]
 				},
 				$version: {
 					before: 2,

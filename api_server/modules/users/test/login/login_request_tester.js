@@ -40,9 +40,9 @@ class LoginRequestTester {
 		// new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new DontUpdateLastLoginFromWebTest().test();
 		new ClearFirstSessionTest().test();
-		new SubscriptionToObjectByMentionTest().test();
-		new SubscriptionToObjectByCreationTest().test();
-		new SubscriptionToObjectByMentionOtherTeamTest().test();
+		//new SubscriptionToObjectByMentionTest().test();
+		//new SubscriptionToObjectByCreationTest().test();
+		//new SubscriptionToObjectByMentionOtherTeamTest().test();
 	}
 }
 

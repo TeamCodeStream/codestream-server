@@ -23,9 +23,9 @@ class GetUsersRequestTester {
 		new GetUsersOnlyFromTeamTest().test();
 		new GetDeactivatedUsersTest().test();
 		new GetRemovedUsersTest().test();
-		new GetCodeErrorFollowersTest().test();
-		new CodeErrorNotFoundTest().test();
-		new ACLCodeErrorTest().test();
+		//new GetCodeErrorFollowersTest().test();
+		//new CodeErrorNotFoundTest().test();
+		//new ACLCodeErrorTest().test();
 	}
 }
 

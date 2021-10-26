@@ -23,9 +23,9 @@ class RawLoginRequestTester {
 		new SubscriptionTest({ which: 'user' }).test();
 		new SubscriptionTest({ which: 'team' }).test();
 		//new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
-		new SubscriptionToObjectByMentionTest().test();
-		new SubscriptionToObjectByCreationTest().test();
-		new SubscriptionToObjectByMentionOtherTeamTest().test();
+		//new SubscriptionToObjectByMentionTest().test();
+		//new SubscriptionToObjectByCreationTest().test();
+		//new SubscriptionToObjectByMentionOtherTeamTest().test();
 	}
 }
 
