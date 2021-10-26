@@ -52,6 +52,7 @@ class CodeErrorCreator extends ModelCreator {
 		} else {
 			attributes.optional.string.push('teamId');
 		}
+		return attributes;
 	}
 
 	// get the query to determine if there is a matching code error already
@@ -109,7 +110,6 @@ class CodeErrorCreator extends ModelCreator {
 		if (!this.dontCreatePermalink && !this.existingModel) {
 			await this.createPermalink();
 		}
-
 		// handle concerns with existing code errors as needed
 		let didChange = false;
 		if (this.existingModel) {

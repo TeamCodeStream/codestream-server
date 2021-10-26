@@ -14,14 +14,14 @@ class PutCodeErrorRequestTester {
 
 	test () {
 		new PutCodeErrorTest().test();
-		new ACLTest().test();
-		new ACLTeamTest().test();
+		//new ACLTest().test();
+		//new ACLTeamTest().test();
 		new CodeErrorNotFoundTest().test();
 		new PutCodeErrorFetchTest().test();
 		new NoUpdateOtherAttributeTest({ attribute: 'teamId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'postId' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'streamId' }).test();
-		new MessageTest().test();
+		//new MessageTest().test();
 	}
 }
 

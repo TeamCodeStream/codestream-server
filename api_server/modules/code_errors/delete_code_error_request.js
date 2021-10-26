@@ -12,16 +12,24 @@ class DeleteCodeErrorRequest extends DeleteRequest {
 	async authorize () {
 		// get the code error, only the author or the team admin can delete it
 		const codeErrorId = this.request.params.id.toLowerCase();
-		this.codeError = this.user.authorizeCodeError(codeErrorId, this);
-		/*
-		this.codeError = await this.data.codeErrors.getById(codeErrorId);
-		if (!this.codeError) {
-			throw this.errorHandler.error('notFound', { info: 'code error' });
+		this.codeError = await this.user.authorizeCodeError(codeErrorId, this);
+		// only an admin or the code error creator can delete it
+		let isAdmin = false;
+		if (this.codeError && this.codeError.get('teamId')) {
+			const team = await this.data.teams.getById(this.codeError.get('teamId'));
+			if (team && team.get('adminIds').includes(this.user.id)) {
+				isAdmin = true;
+			} 
+		
 		}
-		*/
-
-		if (this.codeError.get('creatorId') !== this.user.id) {
-			throw this.errorHandler.error('deleteAuth', { reason: 'only the creator of a code error can delete it' });
+		if (
+			!this.codeError || 
+			(
+				!isAdmin &&
+				this.codeError.get('creatorId') !== this.user.id
+			)
+		) {
+			throw this.errorHandler.error('deleteAuth', { reason: 'only the creator or a team admin can delete a code error' });
 		}
 	}
 

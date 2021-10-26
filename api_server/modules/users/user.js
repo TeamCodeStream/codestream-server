@@ -116,11 +116,7 @@ class User extends CodeStreamModel {
 		}
 		if (stream.get('type') === 'object' && !stream.get('teamId')) {
 			return false;
-		}
-		/*if (stream.get('type') === 'object') {
-			const object = await this.authorizeObject(stream.get('objectId'), stream.get('objectType'), request);
-			return object ? stream : false;
-		} else*/ if (
+		} else if (
 			stream.get('type') !== 'file' &&
 			stream.get('type') !== 'object' && 
 			!stream.get('isTeamStream') && 
@@ -233,14 +229,6 @@ class User extends CodeStreamModel {
 		}
 		// to access a code error, the user must be on the team that owns it
 		const authorized = codeError.get('teamId') && this.hasTeam(codeError.get('teamId'));
-		/*
-		// to access a code error, the user must have access to the stream it belongs to
-		// (for read access)
-		const authorized = await this.authorizeStream(
-			codeError.get('streamId'),
-			request
-		);
-		*/
 		return authorized ? codeError : false;
 	}
 
@@ -289,27 +277,6 @@ class User extends CodeStreamModel {
 			otherUser = await request.data.users.getById(id);
 		}
 		return otherUser;
-	}
-
-	// authorize user's access to a code error
-	async authorizeCodeError (codeErrorId, request) {
-		const codeError = await request.data.codeErrors.getById(codeErrorId.toLowerCase());
-		if (!codeError) {
-			throw request.errorHandler.error('notFound', { info: 'code error' });
-		}
-		return ((codeError.get('followerIds') || []).includes(request.user.id)) ? codeError : false;
-	}
-
-	// authorize user's access to an "observability" object (code error)
-	async authorizeObject (objectId, objectType, request) {
-		const codeError = await request.data.codeErrors.getOneByQuery(
-			{ objectId, objectType },
-			{ hint: CodeErrorIndexes.byObjectId }
-		);
-		if (!codeError) {
-			throw request.errorHandler.error('notFound', { info: 'object' });
-		}
-		return ((codeError.get('followerIds') || []).includes(request.user.id)) ? codeError : false;
 	}
 
 	// authorize the current user for access to a team, as given by IDs in the request

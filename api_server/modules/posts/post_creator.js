@@ -66,6 +66,7 @@ class PostCreator extends ModelCreator {
 			attributes.optional.string.push('teamId');
 			attributes.optional.string.push('streamId');
 		}
+		return attributes;
 	}
 
 	// called before the post is actually saved
