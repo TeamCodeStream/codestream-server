@@ -35,9 +35,9 @@ class GetCodemarksRequestTester {
 	test () {
 		new GetCodemarksTest().test();
 		new GetCodemarksWithMarkersTest().test();
-		new GetCodemarksByTypeTest().test();
+		//new GetCodemarksByTypeTest().test();
 		new GetPostlessCodemarksTest().test();
-		new GetPostlessCodemarksByTypeTest().test();
+		//new GetPostlessCodemarksByTypeTest().test();
 		new GetPostlessCodemarksWithMarkersTest().test();
 		new GetCodemarksBeforeTest().test();
 		new GetCodemarksAfterTest().test();
