@@ -81,7 +81,8 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				},
 				'AB Test': Object.keys(this.testGroupData).map(key => {
 					return `${key}|${this.testGroupData[key]}`;
-				})
+				}),
+				'NR Connected Org': false
 			}
 		};
 		if (trial) {
