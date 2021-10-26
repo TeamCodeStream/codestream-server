@@ -35,7 +35,7 @@ class GetMarkersRequestTester {
 		new NoParameterTest({ parameter: 'teamId' }).test();
 		new NoParameterTest({ parameter: 'streamId' }).test();
 		new StreamNotFoundTest().test();
-		new ACLStreamTest().test();
+		//new ACLStreamTest().test();
 		new ACLTeamTest().test();
 		new StreamNoMatchTeamTest().test();
 		new TooManyIDsTest().test();
