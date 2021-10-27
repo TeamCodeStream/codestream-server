@@ -18,19 +18,6 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
-		/*
-		this.streamOptions.creatorIndex = 1;
-		this.streamOptions.type = this.type || 'channel';
-		if (this.isTeamStream) {
-			this.streamOptions.isTeamStream = true;
-		}
-		if (this.makePublic) {
-			this.streamOptions.privacy = 'public';
-		}
-		if (this.type === 'file') {
-			this.repoOptions.creatorIndex = 1;
-		}
-		*/
 		callback();
 	}
 

@@ -19,7 +19,7 @@ class OriginatorNotInTeamTest extends InboundEmailTest {
 			this.teamOptions.creatorIndex = 0;
 			this.teamOptions.members = [];
 			this.teamOptions.numAdditionalInvites = 0;
-			this.streamOptions.creatorIndex = 0;
+			//this.streamOptions.creatorIndex = 0;
 			callback();
 		});
 	}
