@@ -7,14 +7,29 @@ function usage {
     exit 1
 }
 
+function mail_service_stop_and_wait {
+	mail_service_is_running && mail_service_init --stop
+	local unprocessedMsgs=`ls $CS_MAILIN_INBOUND_EMAIL_DIRECTORY | wc -l`
+	local loopCount=0
+	while [ $unprocessedMsgs -gt 0  -o $loopCount -ge 20 ]; do
+		echo "WARNING: there are $unprocessedMsgs unprocessed messages in $CS_MAILIN_INBOUND_EMAIL_DIRECTORY"
+		sleep 2
+		unprocessedMsgs=`ls $CS_MAILIN_INBOUND_EMAIL_DIRECTORY | wc -l`
+		loopCount=`expr $loopCount + 1`
+	done
+	[ $loopCount -ge 20 ] && echo "ERROR: timed out waiting for all messages to be processed. Giving up."
+}
+
 service_name=inbound_email_server.js
 [ -z "$1" ] && usage
 [ -z "$CS_MAILIN_SANDBOX" ] && echo "sandbox not loaded">&2 && exit 1
 . $DT_TOP/lib/init_funcs.sh
+. $CS_MAILIN_TOP/sandbox/shared/mail-service.sh
 
 ec=0
 case "$1" in
 	start)
+		[ -n "$CS_MAILIN_MAIL_SERVICE_INIT" ] && { mail_service_is_running || mail_service_init --start; }
 		if [ -n "$(service_pid_from_pstree $service_name)" ]; then
 			echo "$service_name is aleady running"
 			service_status $service_name
@@ -27,6 +42,7 @@ case "$1" in
 		fi
 		;;
 	stop)
+		[ -n "$CS_MAILIN_MAIL_SERVICE_INIT" ] && mail_service_stop_and_wait
 		service_stop $service_name useForce
 		ec=$?
 		sleep 2
