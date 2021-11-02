@@ -98,50 +98,7 @@ class InitialDataFetcher  {
 			}
 		);
 		this.initialData.streams = await this.request.sanitizeModels(streams);
-		/*
-		const results = await awaitParallel([
-			this.getTeamStreams,
-			this.getStreamsByFollow
-		], this);
-		this.initialData.streams = await this.request.sanitizeModels([
-			...results[0],
-			...results[1]
-		]);
-		*/
 	}
-
-	/*
-	// get the team streams for all the teams 
-	async getTeamStreams () {
-		const teamIds = this.user.get('teamIds') || [];
-		if (teamIds.length === 0) {
-			return [];
-		}
-		return await this.request.data.streams.getByQuery(
-			{
-				teamId: this.request.data.teams.inQuery(teamIds),
-				isTeamStream: true
-			},
-			{
-				hint: StreamIndexes.byIsTeamStream,
-			}
-		);
- 	}
-
-	// get streams representing code errors being followed, as needed
-	async getStreamsByFollow () {
-		const codeErrors = await this.request.data.codeErrors.getByQuery(
-			{
-				followerIds: this.user.id
-			},
-			{
-				hint: CodeErrorIndexes.byFollowerIds,
-			}
-		);
-		const streamIds = codeErrors.map(codeError => codeError.get('streamId'));
-		return this.request.data.streams.getByIds(streamIds);
-	}
-	*/
 }
 
 module.exports = InitialDataFetcher;

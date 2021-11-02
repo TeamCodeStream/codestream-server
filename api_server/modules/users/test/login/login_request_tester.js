@@ -16,9 +16,6 @@ const TokenIsValidTest = require('./token_is_valid_test');
 const SubscriptionTest = require('./subscription_test');
 const DontUpdateLastLoginFromWebTest = require('./dont_update_last_login_from_web_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
-const SubscriptionToObjectByMentionTest = require('./subscription_to_object_by_mention_test');
-const SubscriptionToObjectByCreationTest = require('./subscription_to_object_by_creation_test');
-const SubscriptionToObjectByMentionOtherTeamTest = require('./subscription_to_object_by_mention_other_team_test');
 
 class LoginRequestTester {
 
@@ -40,9 +37,6 @@ class LoginRequestTester {
 		// new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new DontUpdateLastLoginFromWebTest().test();
 		new ClearFirstSessionTest().test();
-		//new SubscriptionToObjectByMentionTest().test();
-		//new SubscriptionToObjectByCreationTest().test();
-		//new SubscriptionToObjectByMentionOtherTeamTest().test();
 	}
 }
 
