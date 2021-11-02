@@ -122,7 +122,7 @@ class EmailNotificationV2Renderer {
 				<td bgcolor="#1e1e1e"> 
 					<div class="master">				 
 						<a href="https://codestream.com" clicktracking="off">
-							<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-400x60.png" />
+							<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/nrcs_logo_400x100_dark.png" />
 						</a>
 						<!--[if mso]><br><br><![endif]-->
 						${inviteDiv}
