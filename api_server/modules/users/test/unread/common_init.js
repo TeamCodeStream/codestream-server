@@ -9,7 +9,6 @@ class CommonInit {
 
 	init (callback) {
 		this.teamOptions.creatorIndex = 1;
-		//this.streamOptions.creatorIndex = 1;
 		this.postOptions.numPosts = 5;
 		this.postOptions.creatorIndex = 1;
 		this.unreadPost = 2;
@@ -22,11 +21,9 @@ class CommonInit {
 
 	// mark the stream as read
 	markRead (callback) {
-		/*
-		if (!this.stream.memberIds.includes(this.currentUser.user.id)) {
-			return callback();
+		if (this.skipMarkRead) { 
+			return callback(); 
 		}
-		*/
 		this.doApiRequest(
 			{
 				method: 'put',

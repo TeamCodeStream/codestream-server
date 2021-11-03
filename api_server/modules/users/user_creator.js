@@ -308,16 +308,6 @@ class UserCreator extends ModelCreator {
 		await super.create();
 	}
 
-	/*
-	async determineChanges () {
-		super.determineChanges();
-		if (this.existingModel && this.existingModel.get('externalUserId') &&
-			this.attributes.externalUserId) {
-			this.changes.externalUserId = null;
-		}
-	}
-	*/
-
 	// after the user object is saved...
 	async postSave () {
 		// save an invite code as a signup token for this user

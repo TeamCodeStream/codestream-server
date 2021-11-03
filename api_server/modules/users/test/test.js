@@ -27,6 +27,7 @@ describe('user requests', function() {
 
 	this.timeout(20000);
 
+	/*
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /no-auth/login', userRequestTester.loginTest);
@@ -37,7 +38,9 @@ describe('user requests', function() {
 	describe('PUT /unread/:postId', userRequestTester.unreadTest);
 	describe('GET /preferences', userRequestTester.getPreferencesTest);
 	describe('PUT /preferences', userRequestTester.putPreferencesTest);
+	*/
 	describe('PUT /users/:id', userRequestTester.putUserTest);
+	/*
 	describe('POST /users', userRequestTester.postUserTest);
 	describe('PUT /grant/:channel', userRequestTester.grantTest);
 	describe('GET /sessions', GetSessionsRequestTester.test);
@@ -54,4 +57,5 @@ describe('user requests', function() {
 	describe('PUT /read-item/:postId', ReadItemRequestTester.test);
 	describe('GET /no-auth/unsubscribe-weekly', UnsubscribeWeeklyRequestTester.test);
 	describe('GET /signup-jwt', GetSignupJWTRequestTester.test);
+	*/
 });
