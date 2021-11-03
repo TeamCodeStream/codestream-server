@@ -19,7 +19,7 @@ class AccountIsConnectedByOrgTest extends InitialDataTest {
 	}
 
 	// add an accout to org mapping
-	async addNROrg (callback) {
+	addNROrg (callback) {
 		this.accountId = this.codeErrorFactory.randomAccountId();
 		this.orgId = this.codeErrorFactory.randomOrgId();
 		this.doApiRequest(
@@ -42,7 +42,7 @@ class AccountIsConnectedByOrgTest extends InitialDataTest {
 	}
 
 	// add info to the company indicating it is connected to a New Relic accont
-	async addNRInfo (callback) {
+	addNRInfo (callback) {
 		this.data.nrAccountId = this.accountId;
 		this.doApiRequest(
 			{

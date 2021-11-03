@@ -17,7 +17,7 @@ class AccountIsConnectedTest extends InitialDataTest {
 	}
 
 	// add info to the company indicating it is connected to a New Relic accont
-	async addNRInfo (callback) {
+	addNRInfo (callback) {
 		const accountId = this.codeErrorFactory.randomAccountId();
 		this.data.nrAccountId = accountId;
 		this.doApiRequest(

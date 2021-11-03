@@ -18,7 +18,7 @@ class AccountIsConnectedByOrgFalseTest extends InitialDataTest {
 	}
 
 	// add an accout to org mapping
-	async addNROrg (callback) {
+	addNROrg (callback) {
 		this.accountId = this.codeErrorFactory.randomAccountId();
 		this.orgId = this.codeErrorFactory.randomOrgId();
 		this.data.nrAccountId = this.accountId;
