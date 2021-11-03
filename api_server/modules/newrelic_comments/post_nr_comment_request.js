@@ -77,7 +77,6 @@ class PostNRCommentRequest extends NRCommentRequest {
 		}
 	}
 
-
 	// resolve the requesting user, which may involve creating a (faux) user
 	async resolveUser () {
 		// find or create a "faux" user, as needed

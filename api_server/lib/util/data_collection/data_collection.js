@@ -184,6 +184,11 @@ class DataCollection {
 		});
 	}
 
+	// count by query, pass through to the database collection
+	async countByQuery(query, options = {}) {
+		return await this.databaseCollection.countByQuery(query, options);
+	}
+
 	// perform a direct find-and-modify operation against the database
 	// find-and-modify performs an operation on a document but also returns the document in
 	// its original state (before the operation) ... it is an atomic operation so can be used

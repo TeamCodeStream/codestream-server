@@ -44,7 +44,8 @@ class WebProviderAuthRequest extends APIRequest {
 			tenantId: 'tid',
 			hostUrl: 'hu',
 			repoInfo: 'ri',
-			machineId: 'mi'
+			machineId: 'mi',
+			nrAccountId: 'nri'
 		};
 		Object.keys(payloadMappings).forEach(mapping => {
 			if (this.request.query[mapping]) {

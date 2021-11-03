@@ -9,6 +9,7 @@ const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
 const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
+const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
 
 class ConfirmHelper {
 
@@ -25,6 +26,7 @@ class ConfirmHelper {
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
 		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
+		await this.getAccountIsConnected();		// get whether this user's account is connected to a CS company
 		this.responseData.isWebmail = this.isWebmail;
 		return this.responseData;
 	}
@@ -205,6 +207,42 @@ class ConfirmHelper {
 				memberCount
 			});
 		}
+	}
+
+	// set flag indicating whether this user's New Relic account is connected to a CodeStream company
+	async getAccountIsConnected () {
+		if (!this.nrAccountId || (this.responseData.eligibleJoinCompanies || []).length > 0) {
+			// doesn't apply if no NR account ID is given, or there are companies the user is
+			// already eligible to join by domain
+			return;
+		}
+
+		// first check to see if any companies are directly tied to this account
+		let numCompanies = await this.request.data.companies.countByQuery(
+			{ nrAccountIds: this.nrAccountId },
+			{ hint: CompanyIndexes.byNRAccountId }
+		);
+		if (numCompanies) {
+			this.responseData.accountIsConnected = true;
+			return;
+		}
+
+		// now lookup the NR org associated with this account
+		const nrOrgInfo = await this.request.api.data.newRelicOrgs.getOneByQuery(
+			{ accountId: this.nrAccountId },
+			{ hint: NewRelicOrgIndexes.byAccountId }
+		);
+		if (!nrOrgInfo) {
+			this.responseData.accountIsConnected = false;
+			return;
+		}
+
+		// if we found a match, see if any companies match the org
+		numCompanies = await this.request.data.companies.countByQuery(
+			{ nrOrgIds: nrOrgInfo.orgId },
+			{ hint: CompanyIndexes.byNROrgId }
+		);
+		this.responseData.accountIsConnected = !!numCompanies;
 	}
 }
 
