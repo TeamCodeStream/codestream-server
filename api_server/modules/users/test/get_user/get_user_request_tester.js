@@ -12,8 +12,8 @@ const GetMyAttributesTest = require('./get_my_attributes_test');
 const GetMyselfNoMeAttributesTest = require('./get_myself_no_me_attributes_test');
 const GetRemovedTeamMemberTest = require('./get_removed_team_member_test');
 const ACLRemovedTeamMemberTest = require('./acl_removed_team_member_test');
-const GetCodeErrorFollowerTest = require('./get_code_error_follower_test');
-const GetExternalCodeErrorFollowerTest = require('./get_external_code_error_follower_test');
+const GetForeignTeamMemberTest = require('./get_foreign_team_member_test');
+const ACLForeignTeamMemberTest = require('./acl_foreign_team_member_test');
 
 class GetUserRequestTester {
 
@@ -29,8 +29,8 @@ class GetUserRequestTester {
 		new GetMyselfNoMeAttributesTest().test();
 		new GetRemovedTeamMemberTest().test();
 		new ACLRemovedTeamMemberTest().test();
-		//new GetCodeErrorFollowerTest().test();
-		//new GetExternalCodeErrorFollowerTest().test();
+		new GetForeignTeamMemberTest().test();
+		new ACLForeignTeamMemberTest().test();
 	}
 }
 

@@ -38,7 +38,8 @@ class GetRemovedUsersTest extends GetUsersByTeamIdTest {
 	validateResponse (data) {
 		const removedUser = data.users.find(user => user.id === this.removedUser.id);
 		Assert(removedUser, 'removed user not found among the users returned');
-		Assert(!removedUser.teamIds.includes(this.team.id), 'removed user was not actually removed');
+		Assert(!removedUser.teamIds.includes(this.team.id), 'removed user was not actually removed from the team');
+		Assert(!removedUser.companyIds.includes(this.company.id), 'removed user was not actually removed from the company');
 		super.validateResponse(data);
 	}
 }

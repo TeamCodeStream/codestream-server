@@ -5,7 +5,7 @@ const GetTeamMemberTest = require('./get_team_member_test');
 class ACLRemovedTeamMemberTest extends GetTeamMemberTest {
 
 	get description() {
-		return 'a user who has been removed from a team should not be able to fetch users who on that team';
+		return 'a user who has been removed from a team should not be able to fetch users who are on that team';
 	}
 
 	getExpectedError() {

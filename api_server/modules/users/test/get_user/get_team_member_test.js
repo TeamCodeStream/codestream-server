@@ -13,6 +13,7 @@ class GetTeamMemberTest extends CodeStreamAPITest {
 			numAdditionalInvites: 2
 		});
 	}
+
 	get description () {
 		return 'should return user when requesting someone else who is on one of my teams (from a team created by a third user)';
 	}
