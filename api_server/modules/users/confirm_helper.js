@@ -6,10 +6,6 @@ const LoginHelper = require('./login_helper');
 const PasswordHasher = require('./password_hasher');
 const UsernameChecker = require('./username_checker');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
-const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
-const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
-const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
-const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
 
 class ConfirmHelper {
 
@@ -25,9 +21,6 @@ class ConfirmHelper {
 		//await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
-		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
-		await this.getAccountIsConnected();		// get whether this user's account is connected to a CS company
-		this.responseData.isWebmail = this.isWebmail;
 		return this.responseData;
 	}
 
@@ -74,7 +67,8 @@ class ConfirmHelper {
 		const loginHelper = new LoginHelper({
 			request: this.request,
 			user: this.user,
-			loginType: this.loginType
+			loginType: this.loginType,
+			nrAccountId: this.nrAccountId
 		});
 		if (this.notTrueLogin) {
 			await loginHelper.allowLogin();
@@ -168,81 +162,6 @@ class ConfirmHelper {
 			collection: this.request.data.users,
 			id: this.user.id
 		}).save(op);
-	}
-
-	// get list of companies the user is not a member of, but is eligible to join
-	async getEligibleJoinCompanies () {
-		const domain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
-		this.isWebmail = WebmailCompanies.includes(domain);
-
-		// ignore webmail domains
-		if (this.isWebmail) {
-			return;
-		}
-
-		if (this.notTrueLogin) { return; }
-		this.responseData.eligibleJoinCompanies = [];
-
-		// look for any companies with domain-based joining that match the domain of the user's email
-		const companies = await this.request.data.companies.getByQuery(
-			{
-				domainJoining: domain,
-				deactivated: false
-			},
-			{
-				hint: CompanyIndexes.byDomainJoining 
-			}
-		);
-
-		// return information about those companies (but not full company objects, 
-		// since the user is not actually a member (yet))
-		for (const company of companies) {
-			const memberCount = await company.getCompanyMemberCount(this.request.data);
-			this.responseData.eligibleJoinCompanies.push({
-				id: company.id,
-				name: company.get('name'),
-				byDomain: domain.toLowerCase(),
-				domainJoining: company.get('domainJoining') || [],
-				codeHostJoining: company.get('codeHostJoining') || [],
-				memberCount
-			});
-		}
-	}
-
-	// set flag indicating whether this user's New Relic account is connected to a CodeStream company
-	async getAccountIsConnected () {
-		if (!this.nrAccountId || (this.responseData.eligibleJoinCompanies || []).length > 0) {
-			// doesn't apply if no NR account ID is given, or there are companies the user is
-			// already eligible to join by domain
-			return;
-		}
-
-		// first check to see if any companies are directly tied to this account
-		let numCompanies = await this.request.data.companies.countByQuery(
-			{ nrAccountIds: this.nrAccountId },
-			{ hint: CompanyIndexes.byNRAccountId }
-		);
-		if (numCompanies) {
-			this.responseData.accountIsConnected = true;
-			return;
-		}
-
-		// now lookup the NR org associated with this account
-		const nrOrgInfo = await this.request.api.data.newRelicOrgs.getOneByQuery(
-			{ accountId: this.nrAccountId },
-			{ hint: NewRelicOrgIndexes.byAccountId }
-		);
-		if (!nrOrgInfo) {
-			this.responseData.accountIsConnected = false;
-			return;
-		}
-
-		// if we found a match, see if any companies match the org
-		numCompanies = await this.request.data.companies.countByQuery(
-			{ nrOrgIds: nrOrgInfo.orgId },
-			{ hint: CompanyIndexes.byNROrgId }
-		);
-		this.responseData.accountIsConnected = !!numCompanies;
 	}
 }
 

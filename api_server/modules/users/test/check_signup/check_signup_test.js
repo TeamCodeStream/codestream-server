@@ -66,16 +66,17 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		if (this.apiConfig.email.suppressEmails) {
 			delete expectedCapabilities.emailSupport;
 		}
-		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
+		Assert.deepStrictEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 		if (!this.dontCreateTeam) {
 			Assert(data.teams.length === 1, 'no team in response');
 			const providerHosts = GetStandardProviderHosts(this.apiConfig);
-			Assert.deepEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
+			Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 			this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		}
 		else {
 			Assert(data.teams.length === 0, 'team in response');
 		}
+		Assert.strictEqual(!!data.isWebmail, !!this.wantWebmail, 'isWebmail flag is incorrect');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
