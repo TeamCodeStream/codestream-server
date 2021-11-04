@@ -117,22 +117,13 @@ class PutNRCommentRequest extends NRCommentRequest {
 
 		if (!this.post.get('teamId')) { return; }
 
-		const teamStream = await this.data.streams.getOneByQuery(
-			{ 
-				teamId: this.post.get('teamId'),
-				isTeamStream: true
-			}, 
-			{
-				hint: StreamIndexes.byIsTeamStream
-			}
-		);
 		if (teamStream) {
 			// publish the post to the team that owns the code error
 			await new PostPublisher({
 				request: this,
 				data: { post: this.updateOp },
 				broadcaster: this.api.services.broadcaster,
-				stream: teamStream.attributes
+				teamId: this.post.get('teamId')
 			}).publishPost();
 		}
 	}

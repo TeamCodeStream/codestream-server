@@ -80,30 +80,11 @@ class ReactRequest extends RestfulRequest {
 
 	// publish the update to the appropriate broadcaster channel
 	async publishUpdate () {
-		let stream = await this.data.streams.getById(this.post.get('streamId'));
-		if (!stream) {
-			return;	// failsafe, should never really happen
-		}
-		if (stream.get('type') === 'object') {
-			// get the team stream instead
-			const teamStream = await this.data.streams.getOneByQuery(
-				{ 
-					teamId: stream.get('teamId'),
-					isTeamStream: true
-				},
-				{
-					hint: StreamIndexes.byIsTeamStream
-				}
-			);
-			if (!teamStream) { return; } // failsafe
-			stream = teamStream;
-		} 
-
 		await new PostPublisher({
 			data: this.responseData,
 			request: this,
 			broadcaster: this.api.services.broadcaster,
-			stream: stream.attributes
+			teamId: this.post.get('teamId')
 		}).publishPost();
 	}
 

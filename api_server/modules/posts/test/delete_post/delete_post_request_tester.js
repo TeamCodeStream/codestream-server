@@ -27,6 +27,11 @@ const DeleteReviewMarkersTest = require('./delete_review_markers_test');
 const DeleteReviewMarkersFetchTest = require('./delete_review_markers_fetch_test');
 const ReviewMarkersMessageTest = require('./review_markers_message_test');
 const DeleteReviewRepliesTest = require('./delete_review_replies_test');
+const DeleteReplyToCodemarkTest = require('./delete_reply_to_codemark_test');
+const DeleteReplyToReviewTest = require('./delete_reply_to_review_test');
+const DeleteReplyToCodeErrorTest = require('./delete_reply_to_code_error_test');
+const DeleteCodemarkReplyToReviewTest = require('./delete_codemark_reply_to_review_test');
+const DeleteCodemarkReplyToCodeErrorTest = require('./delete_codemark_reply_to_code_error_test');
 
 class DeletePostRequestTester {
 
@@ -70,6 +75,11 @@ class DeletePostRequestTester {
 		new DeleteReviewMarkersTest().test();
 		new DeleteReviewMarkersFetchTest().test();
 		new DeleteReviewRepliesTest().test();
+		new DeleteReplyToCodemarkTest().test();
+		new DeleteReplyToReviewTest().test();
+		new DeleteReplyToCodeErrorTest().test();
+		new DeleteCodemarkReplyToReviewTest().test();
+		new DeleteCodemarkReplyToCodeErrorTest().test();
 	}
 }
 

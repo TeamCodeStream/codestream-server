@@ -258,14 +258,6 @@ class PostCreator extends ModelCreator {
 			throw this.errorHandler.error('notFound', { info: 'team'});
 		}
 		this.attributes.teamId = this.team.id;	// post gets the same teamId as the stream
-
-		// will need team stream for publishing code errors
-		if (this.codeError || this.creatingCodeError) {
-			this.teamStream = await this.data.streams.getOneByQuery(
-				{ teamId: this.team.id, isTeamStream: true },
-				{ hint: StreamIndexes.byIsTeamStream }
-			);
-		}
 	}
 
 	// get the company that owns the team for which the post is being created
@@ -1040,14 +1032,11 @@ class PostCreator extends ModelCreator {
 	// publish the post to the appropriate broadcaster channel
 	async publishPost (customData) {
 		if (!this.team) { return; }
-		const streamForPublish = this.teamStream || this.stream;
-		if (!streamForPublish) { return; }
 		await new PostPublisher({
 			request: this.request,
 			data: customData || this.request.responseData,
 			broadcaster: this.api.services.broadcaster,
-			stream: streamForPublish.attributes,
-			//object: this.codeError || this.transforms.createdCodeError
+			teamId: this.team.id
 		}).publishPost();
 	}
 
@@ -1079,14 +1068,11 @@ class PostCreator extends ModelCreator {
 		*/
 		
 		if (needPublish) {
-			const streamForPublish = this.teamStream || this.stream;
-			if (!streamForPublish) { return; }
 			await new PostPublisher({
 				request: this.request,
 				data,
 				broadcaster: this.api.services.broadcaster,
-				stream: streamForPublish.attributes,	// assuming stream for the parent post is the same as for the reply
-				//object: this.codeError
+				teamId: this.team.id
 			}).publishPost();
 		}
 	}
