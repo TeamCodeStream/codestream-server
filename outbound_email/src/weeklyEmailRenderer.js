@@ -82,7 +82,7 @@ class WeeklyEmailRenderer {
 					<div class="master">
 						<div>			 
 							<a href="https://codestream.com" clicktracking="off">
-								<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-400x60.png" />
+								<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/nrcs_logo_240x60_dark.png" />
 							</a>
 						</div>
 						<!--[if mso]><br><br><![endif]-->

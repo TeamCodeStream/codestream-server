@@ -7,13 +7,6 @@ module.exports = {
 		teamId: 1,
 		createdAt: -1
 	},
-	/*
-	byStreamId: {
-		teamId: 1,
-		streamId: 1,
-		createdAt: -1
-	},
-	*/
 	
 	// WARNING -- DO NOT CHANGE OR REMOVE THIS INDEX
 	// IT IS USED BY THE OUTBOUND EMAIL SERVER, VERBATIM,

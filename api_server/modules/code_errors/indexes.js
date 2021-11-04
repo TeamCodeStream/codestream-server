@@ -16,11 +16,5 @@ module.exports = {
 	byLastActivityAt: {
 		teamId: 1,
 		lastActivityAt: -1
-	},
-	
-	/*
-	byFollowerIds: {
-		followerIds: 1
 	}
-	*/
 };

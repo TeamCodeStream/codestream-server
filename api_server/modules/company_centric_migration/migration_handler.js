@@ -7,6 +7,8 @@ class MigrationHandler {
 	
 	constructor (options) {
 		Object.assign(this, options);
+		this.data = this.data || this.api.data;
+		this.logger = this.api || this.logger || console;
 	}
 
 	// look for any companies the user is in that have not yet been migrated to company-centric,
@@ -17,12 +19,15 @@ class MigrationHandler {
 		// (or get the manually set company)
 		let companyIds, companies;
 		if (this.companyId) {
-			const company = await this.api.data.companies.getById(this.companyId.toLowerCase());
+			const company = await this.data.companies.getById(this.companyId.toLowerCase());
 			if (!company) {
 				return 'notFound';
 			}
 			companies = [company];
 			companyIds = [company.id];
+		} else if (this.company) {
+			companies = [this.company];
+			companyIds = [this.company.id];
 		} else {
 			const excludeCompanyIds = (this.migrationData && this.migrationData.excludeCompanyIds) || [];
 			companyIds = this.request.user.get('companyIds') || [];
@@ -34,7 +39,7 @@ class MigrationHandler {
 					return true;
 				}
 			});
-			companies = await this.api.data.companies.getByIds(companyIds);
+			companies = await this.data.companies.getByIds(companyIds);
 		}
 
 		const migrationStatus = companies.reduce((stat, company) => {
@@ -50,8 +55,8 @@ class MigrationHandler {
 				if (this.dryRun) {
 					this.log(`Would have marked company ${company.id} as being migrated`);
 				} else {
-					this.api.data.companies.updateDirect(
-						{ id: this.api.data.companies.objectIdSafe(company.id) },
+					this.data.companies.updateDirect(
+						{ id: this.data.companies.objectIdSafe(company.id) },
 						{ $set: { isBeingMigratedToCompanyCentric: true } }
 					);
 				}
@@ -72,7 +77,7 @@ class MigrationHandler {
 			migrationStatus.unmigratedMultiTeam.length === 0 &&
 			migrationStatus.migrationInProgress.length === 0) {
 			// all companies migrated
-			this.log('All companies have already been migrated');
+			this.log(`All companies of (${companyIds}) have already been migrated`);
 			return;
 		}
 
@@ -110,14 +115,16 @@ class MigrationHandler {
 
 	// migrate all the single-team companies
 	async migrateSingleTeamCompanies (companies) {
-		const teamIds = companies.map(company => company.teamIds[0]);
+		let teamIds = companies.map(company => {
+			return (company.teamIds || [])[0];
+		}).filter(teamId => teamId);
 
 		// mark their single teams as the "everyone" team
 		if (this.dryRun) {
 			this.log(`Would have updated teams ${teamIds} for single-team companies to everyone teams`);
 		} else {
-			await this.api.data.teams.updateDirect(
-				{ id: this.api.data.teams.inQuerySafe(teamIds) }, 
+			await this.data.teams.updateDirect(
+				{ id: this.data.teams.inQuerySafe(teamIds) }, 
 				{ $set: { isEveryoneTeam: true } },
 				{ multi: true }
 			);
@@ -125,16 +132,20 @@ class MigrationHandler {
 
 		// update the companies
 		await Promise.all(companies.map(async company => {
-			const op = {
-				$set: {
-					everyoneTeamId: company.teamIds[0],
-					hasBeenMigratedToCompanyCentric: true
+			if (company.teamIds && company.teamIds.length) {
+				const op = {
+					$set: {
+						everyoneTeamId: company.teamIds[0],
+						hasBeenMigratedToCompanyCentric: true
+					}
+				};
+				if (this.dryRun) {
+					this.log(`Would have updated single-team company ${company.id} to company-centric with op:\n${JSON.stringify(op, undefined, 5)}`);
+				} else {
+					await this.data.companies.updateDirect({ id: this.data.companies.objectIdSafe(company.id) }, op);
 				}
-			};
-			if (this.dryRun) {
-				this.log(`Would have updated single-team company ${company.id} to company-centric with op:\n${JSON.stringify(op, undefined, 5)}`);
 			} else {
-				await this.api.data.companies.updateDirect({ id: this.api.data.companies.objectIdSafe(company.id) }, op);
+				this.log(`Company ${company.id} has no teams`);
 			}
 		}));
 	}
@@ -145,40 +156,41 @@ class MigrationHandler {
 			const requestId = `M-${company.id}`;
 			if (this.doMerge) {
 				await new TeamMerger({
-					logger: this.api,
-					data: this.api.data,
+					logger: this.logger,
+					data: this.data,
 					dryRun: this.dryRun,
 					requestId
 				}).mergeAllTeams(company);
 			} else {
 				await new TeamSeparator({
-					logger: this.api,
-					data: this.api.data,
+					logger: this.logger,
+					data: this.data,
 					dryRun: this.dryRun,
 					requestId
 				}).separateAllTeams(company);
 			}
+			this.didMigrateMultiTeamCompany = true;
 		}
 		catch (error) {
-			this.api.warn(`Caught error trying to migrate multi-team company ${company.id}: ${error.message}`);
-			this.api.warn(error.stack);
+			this.logger.warn(`Caught error trying to migrate multi-team company ${company.id}: ${error.message}`);
+			this.logger.warn(error.stack);
 		}
 	}
 
 	warn (msg) {
-		this.api.warn('*************************************************************************************');
-		this.api.warn('*************************************************************************************');
-		this.api.warn('*************************************************************************************');
-		this.api.warn(msg);
-		this.api.warn('*************************************************************************************');
-		this.api.warn('*************************************************************************************');
-		this.api.warn('*************************************************************************************');
+		this.logger.warn('*************************************************************************************');
+		this.logger.warn('*************************************************************************************');
+		this.logger.warn('*************************************************************************************');
+		this.logger.warn(msg);
+		this.logger.warn('*************************************************************************************');
+		this.logger.warn('*************************************************************************************');
+		this.logger.warn('*************************************************************************************');
 	}
 	
 	log (msg) {
-		this.api.log('*************************************************************************************');
-		this.api.log(msg);
-		this.api.log('*************************************************************************************');
+		this.logger.log('*************************************************************************************');
+		this.logger.log(msg);
+		this.logger.log('*************************************************************************************');
 	}
 }
 

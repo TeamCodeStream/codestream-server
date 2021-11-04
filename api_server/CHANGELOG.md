@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.20] - 2021-11-4
+
+### Fixed
+
+- Fixes an issue with domain-based joining after authenticating via a code host
+
 ## [11.0.18] - 2021-10-21
 
 ### Fixed

@@ -46,7 +46,8 @@ class RemoveUserTest extends PutTeamTest {
 					_id: this.removedUsers[i].id, // DEPRECATE ME
 					id: this.removedUsers[i].id,
 					$pull: {
-						teamIds: this.team.id
+						teamIds: this.team.id,
+						companyIds: this.team.companyId
 					},
 					$set: {
 						modifiedAt: Date.now(), // placeholder

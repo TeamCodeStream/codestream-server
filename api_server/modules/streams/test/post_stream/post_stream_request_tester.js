@@ -44,6 +44,8 @@ const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/<>?|\'".,';
 class PostStreamRequestTester {
 
 	postStreamTest () {
+		/*
+		TODO - this all needs to be revisited in the context on one and only one team stream
 		new PostFileStreamTest().test();
 		new PostChannelStreamTest().test();
 		new PostDirectStreamTest().test();

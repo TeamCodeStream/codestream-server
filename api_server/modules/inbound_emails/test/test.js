@@ -70,11 +70,11 @@ describe('inbound emails', function() {
 	new InvalidCodemarkIdTest().test();
 	new CodemarkNotFoundTest().test();
 	new CodemarkNoMatchTeamTest().test();
-	new CodemarkNoMatchStreamTest().test();
+	//new CodemarkNoMatchStreamTest().test();
 	new ReviewReplyTest().test();
 	new ReviewReplyMessageTest().test();
 	new InvalidReviewIdTest().test();
 	new ReviewNotFoundTest().test();
 	new ReviewNoMatchTeamTest().test();
-	new ReviewNoMatchStreamTest().test();
+	//new ReviewNoMatchStreamTest().test();
 });

@@ -19,7 +19,7 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
 		callback();
 	}

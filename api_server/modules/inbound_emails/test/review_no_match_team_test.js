@@ -21,7 +21,6 @@ class ReviewNoMatchTeamTest extends ReviewReplyTest {
 			super.before,			// normal test setup
 			this.createOtherTeam,	// create another team
 			this.inviteUser,		// invite the replying user to this team
-			this.createOtherStream,	// create another stream in this team
 			this.makePostData
 		], callback);
 	}
@@ -33,6 +32,7 @@ class ReviewNoMatchTeamTest extends ReviewReplyTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;
+				this.otherTeamStream = response.streams[0];
 				callback();
 			},
 			{
@@ -57,22 +57,6 @@ class ReviewNoMatchTeamTest extends ReviewReplyTest {
 		);
 	}
 	
-	// create a stream in this team, we'll also use that stream's ID
-	createOtherStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherStream = response.stream;
-				callback();
-			},
-			{
-				token: this.token,
-				teamId: this.otherTeam.id,
-				type: 'channel'
-			}
-		);
-	}
-
 	// make the data to be used in the request that triggers the message
 	makePostData (callback) {
 		if (!this.otherTeam) { return callback(); }
@@ -82,7 +66,7 @@ class ReviewNoMatchTeamTest extends ReviewReplyTest {
 			const atSplit = toAddress.split('@');
 			const dotSplit = atSplit[0].split('.');
 			dotSplit[2] = this.otherTeam.id;
-			dotSplit[1] = this.otherStream.id;
+			dotSplit[1] = this.otherTeamStream.id;
 			this.data.to[0].address = `${dotSplit.join('.')}@${atSplit[1]}`;
 			callback();
 		});

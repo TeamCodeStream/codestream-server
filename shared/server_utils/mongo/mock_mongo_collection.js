@@ -163,6 +163,16 @@ class MockMongoCollection {
 		});
 	}
 
+	countDocuments (query) {
+		let count = 0;
+		for (let i = this.collection.length - 1; i >= 0; i--) {
+			if (this._itemMatchesQuery(this.collection[i], query)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	_sanitizeUpdate (update) {
 		let setKeys = [], unsetKeys = [];
 		if (update.$set) {

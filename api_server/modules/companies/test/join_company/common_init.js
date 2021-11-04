@@ -69,7 +69,11 @@ class CommonInit {
 						}
 					},
 					company: Object.assign(DeepClone(this.company)),
-					team: Object.assign(DeepClone(this.team), { removedMemberIds: [], version: 2 })
+					team: Object.assign(DeepClone(this.team), {
+						foreignMemberIds: [],
+						removedMemberIds: [],
+						version: 2
+					})
 				};
 				this.expectedUser = Object.assign(
 					DeepClone(this.users[0].user),

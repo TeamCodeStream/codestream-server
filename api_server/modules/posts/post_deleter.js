@@ -6,6 +6,7 @@ const ModelDeleter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/u
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const Indexes = require('./indexes');
 const PostPublisher = require('./post_publisher');
+const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 class PostDeleter extends ModelDeleter {
 
@@ -342,12 +343,29 @@ class PostDeleter extends ModelDeleter {
 
 	// publish the post and all other deletions to the appropriate broadcaster channel
 	async publishPost () {
+		let stream;
+		if (this.codeError) {
+			const teamStream = await this.data.streams.getOneByQuery(
+				{
+					teamId: this.codeError.get('teamId'),
+					isTeamStream: true
+				},
+				{
+					hint: StreamIndexes.byIsTeamStream
+				}
+			);
+			if (!teamStream) {
+				throw this.errorHandler.error('notFound', { info: 'team stream' });
+			}
+			stream = teamStream;
+		} else {
+			stream = this.stream;
+		}
 		await new PostPublisher({
 			data: this.responseData,
 			request: this.request,
 			broadcaster: this.api.services.broadcaster,
-			stream: this.stream.attributes,
-			object: this.codeError
+			stream: stream.attributes
 		}).publishPost();
 	}
 

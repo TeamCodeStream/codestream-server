@@ -37,7 +37,7 @@ class PaginationTest extends GetPostsTest {
 		// we need them sorted for pagination to make sense, expectedPosts is what we'll
 		// be comparing the results to
 		this.expectedPosts.sort((a, b) => {
-			return a.id - b.id;
+			return a.id.localeCompare(b.id);
 		});
 		// figure out the number of pages we expect
 		this.numPages = Math.floor(this.postOptions.numPosts / this.postsPerPage);

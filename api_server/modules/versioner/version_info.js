@@ -30,7 +30,7 @@ class VersionInfo {
 		let versionInfo;
 		if (readFromDatabase) {
 			this.api.log(`NOTE: Reading version info for IDE ${pluginIDE} from database...`);
-			versionInfo = await this.data.versionMatrix.getOneByQuery({ clientType: pluginIDE });
+			versionInfo = await this.data.versionMatrix.getOneByQuery({ clientType: pluginIDE }, { overrideHintRequired: true });
 		}
 		else {
 			// look up the specific version info for this plugin and release

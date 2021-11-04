@@ -100,7 +100,7 @@ class MentionsTest extends CreateNRCommentTest {
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: `/users?ids=${userIds}&codeErrorId=${this.fetchedParent.codeErrorId}`,
+				path: `/users?ids=${userIds}&teamId=${this.team.id}`,
 				token: this.token
 			},
 			(error, response) => {

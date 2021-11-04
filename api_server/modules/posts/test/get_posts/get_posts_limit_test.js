@@ -19,7 +19,7 @@ class GetPostsLimitTest extends GetPostsTest {
 		// size we're going to limit to, then use the limit parameter to fetch
 		this.expectedPosts = this.postData.map(postData => postData.post);
 		this.expectedPosts.sort((a, b) => {
-			return a.seqNum - b.seqNum;
+			return a.id.localeCompare(b.id);
 		});
 		this.expectedPosts.splice(0, this.postOptions.numPosts - 3);
 		this.path = `/posts?teamId=${this.team.id}&limit=3`; // &streamId=${this.teamStream.id}

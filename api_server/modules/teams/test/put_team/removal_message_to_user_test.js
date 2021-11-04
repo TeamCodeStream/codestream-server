@@ -46,7 +46,8 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 					_id: this.currentUser.user.id,	// DEPRECATE ME
 					id: this.currentUser.user.id,
 					$pull: {
-						teamIds: this.team.id
+						teamIds: this.team.id,
+						companyIds: this.team.companyId
 					},
 					$set: {
 						version: 4

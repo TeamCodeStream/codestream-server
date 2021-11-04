@@ -15,7 +15,7 @@ body {
 
 .logo {
 	width: 200px;
-	height: 30px;
+	height: 50px;
 	margin-bottom: 10px;
 }
 
@@ -31,7 +31,7 @@ body {
 }
 
 .new-content {
-	border-left: 3px solid #009aef;
+	border-left: 3px solid #0AB0BF;
 }
 
 .title {
@@ -63,7 +63,7 @@ body {
 }
 
 .following a {
-	color: #009aef !important;
+	color: #0AB0BF !important;
 	text-decoration: none !important;
 }
 
@@ -150,16 +150,16 @@ td {
 }
 
 .issue a {
-	color: #009aef !important;
+	color: #0AB0BF !important;
 	text-decoration: none !important;
 }
 
 .related-title {
-	color: #009aef !important;
+	color: #0AB0BF !important;
 }
 
 .related a {
-	color: #009aef !important;
+	color: #0AB0BF !important;
 	text-decoration: none !important;
 }
 
@@ -222,12 +222,12 @@ td {
 
 .button {
 	cursor: pointer;
-	background-color: #007bcb;
+	background-color: #008c99;
 	/*these borders mimic rounded bgs*/
-	border-top: 5px solid #007bcb;
-	border-bottom: 5px solid #007bcb;
-	border-right: 12px solid #007bcb;
-	border-left: 12px solid #007bcb;
+	border-top: 5px solid #008c99;
+	border-bottom: 5px solid #008c99;
+	border-right: 12px solid #008c99;
+	border-left: 12px solid #008c99;
 	border-radius: 3px;
 	color: #ffffff;
 	display: inline-block;
@@ -269,7 +269,7 @@ td {
 }
 
 .replies-earlier a {
-	color: #009aef !important;
+	color: #0AB0BF !important;
 	text-decoration: none;
 }
 
@@ -278,12 +278,12 @@ td {
 }
 
 .mention {
-	color: #009aef;
+	color: #0AB0BF;
 	font-weight: 400;
 }
 
 .mention-me {
-	background: #009aef;
+	background: #0AB0BF;
 	color: #efefef;
 	border-radius: 8px;
 	padding: 1px 4px 1px 4px;
@@ -355,12 +355,12 @@ blockquote {
 }
 
 .weekly-listing a {
-	color: #009aef !important;
+	color: #0AB0BF !important;
 	text-decoration: none !important;
 }
 
 .weekly-email-atag {
-	color: #009aef !important;
+	color: #0AB0BF !important;
 	text-decoration: none !important;
 }
 
@@ -370,7 +370,7 @@ blockquote {
 }
 
 .latest-news-atag {
-	color: #009aef;
+	color: #0AB0BF;
 	text-decoration: none !important;
 }
 
@@ -380,6 +380,6 @@ blockquote {
 }
 
 .unsubscribe-weekly a {
-	color: #009aef !important;
+	color: #0AB0BF !important;
 	text-decoration: none !important;
 }

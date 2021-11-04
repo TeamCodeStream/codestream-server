@@ -6,9 +6,6 @@ const LoginHelper = require('./login_helper');
 const PasswordHasher = require('./password_hasher');
 const UsernameChecker = require('./username_checker');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
-const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
-const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
-const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
 
 class ConfirmHelper {
 
@@ -24,8 +21,6 @@ class ConfirmHelper {
 		//await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
-		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
-		this.responseData.isWebmail = this.isWebmail;
 		return this.responseData;
 	}
 
@@ -72,7 +67,8 @@ class ConfirmHelper {
 		const loginHelper = new LoginHelper({
 			request: this.request,
 			user: this.user,
-			loginType: this.loginType
+			loginType: this.loginType,
+			nrAccountId: this.nrAccountId
 		});
 		if (this.notTrueLogin) {
 			await loginHelper.allowLogin();
@@ -166,45 +162,6 @@ class ConfirmHelper {
 			collection: this.request.data.users,
 			id: this.user.id
 		}).save(op);
-	}
-
-	// get list of companies the user is not a member of, but is eligible to join
-	async getEligibleJoinCompanies () {
-		const domain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
-		this.isWebmail = WebmailCompanies.includes(domain);
-
-		// ignore webmail domains
-		if (this.isWebmail) {
-			return;
-		}
-
-		if (this.notTrueLogin) { return; }
-		this.responseData.eligibleJoinCompanies = [];
-
-		// look for any companies with domain-based joining that match the domain of the user's email
-		const companies = await this.request.data.companies.getByQuery(
-			{
-				domainJoining: domain,
-				deactivated: false
-			},
-			{
-				hint: CompanyIndexes.byDomainJoining 
-			}
-		);
-
-		// return information about those companies (but not full company objects, 
-		// since the user is not actually a member (yet))
-		for (const company of companies) {
-			const memberCount = await company.getCompanyMemberCount(this.request.data);
-			this.responseData.eligibleJoinCompanies.push({
-				id: company.id,
-				name: company.get('name'),
-				byDomain: domain.toLowerCase(),
-				domainJoining: company.get('domainJoining') || [],
-				codeHostJoining: company.get('codeHostJoining') || [],
-				memberCount
-			});
-		}
 	}
 }
 

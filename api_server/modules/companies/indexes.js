@@ -4,13 +4,13 @@
 'use strict';
 
 module.exports = {
-	/*
-	byPlan: {
-		plan: 1,
-		deactivated: 1
-	},
-	*/
 	byDomainJoining: {
 		domainJoining: 1
+	},
+	byNRAccountId: {
+		nrAccountIds: 1
+	},
+	byNROrgId: {
+		nrOrgIds: 1
 	}
 };

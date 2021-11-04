@@ -33,11 +33,10 @@ const TrackIncorrectCodeTest = require('./track_incorrect_code_test');
 const ReuseCodeTest = require('./reuse_code_test');
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 const IsWebmailTest = require('./is_webmail_test');
-const SubscriptionToObjectByMentionTest = require('./subscription_to_object_by_mention_test');
-const SubscriptionToObjectByCreationTest = require('./subscription_to_object_by_creation_test');
-const SubscriptionToObjectByMentionOtherTeamTest = require('./subscription_to_object_by_mention_other_team_test');
-const SubscriptionToObjectByConfirmedExternalUserTest = require('./subscription_to_object_by_confirmed_external_user_test');
-const SubscriptionToObjectByConfirmedExternalMentionTest = require('./subscription_to_object_by_confirmed_external_mention_test');
+const AccountIsConnectedTest = require('./account_is_connected_test');
+const AccountIsConnectedFalseTest = require('./account_is_connected_false_test');
+const AccountIsConnectedByOrgTest = require('./account_is_connected_by_org_test');
+const AccountIsConnectedByOrgFalseTest = require('./account_is_connected_by_org_false_test');
 
 class ConfirmationRequestTester {
 
@@ -75,10 +74,10 @@ class ConfirmationRequestTester {
 		new ReuseCodeTest().test();
 		new EligibleJoinCompaniesTest().test();
 		new IsWebmailTest().test();
-		new SubscriptionToObjectByMentionTest().test();
-		new SubscriptionToObjectByMentionOtherTeamTest().test();
-		new SubscriptionToObjectByConfirmedExternalUserTest().test();
-		new SubscriptionToObjectByConfirmedExternalMentionTest().test();
+		new AccountIsConnectedTest().test();
+		new AccountIsConnectedFalseTest().test();
+		new AccountIsConnectedByOrgTest().test();
+		new AccountIsConnectedByOrgFalseTest().test();
 	}
 }
 

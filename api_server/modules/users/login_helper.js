@@ -10,6 +10,10 @@ const APICapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/et
 const VersionErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/errors');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const Fetch = require('node-fetch');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
+const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
+const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
 
 class LoginHelper {
 
@@ -36,6 +40,8 @@ class LoginHelper {
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		await this.updateLastLogin();
 		this.getThirdPartyProviders();
+		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
+		await this.getAccountIsConnected();		// get whether this user's account is connected to a CS company
 		await this.formResponse();
 		return this.responseData;
 	}
@@ -209,7 +215,10 @@ class LoginHelper {
 			},
 			isOnPrem,
 			isProductionCloud,
-			runtimeEnvironment: runTimeEnvironment
+			runtimeEnvironment: runTimeEnvironment,
+			isWebmail: this.isWebmail,
+			eligibleJoinCompanies: this.eligibleJoinCompanies,
+			accountIsConnected: this.accountIsConnected
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub
@@ -253,6 +262,81 @@ class LoginHelper {
 		catch (error) {
 			throw this.request.errorHandler.error('userMessagingGrant', { reason: error });
 		}
+	}
+
+	// get list of companies the user is not a member of, but is eligible to join
+	async getEligibleJoinCompanies () {
+		const domain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
+		this.isWebmail = WebmailCompanies.includes(domain);
+
+		// ignore webmail domains
+		if (this.isWebmail) {
+			return;
+		}
+
+		if (this.notTrueLogin) { return; }
+		this.eligibleJoinCompanies = [];
+
+		// look for any companies with domain-based joining that match the domain of the user's email
+		const companies = await this.request.data.companies.getByQuery(
+			{
+				domainJoining: domain,
+				deactivated: false
+			},
+			{
+				hint: CompanyIndexes.byDomainJoining 
+			}
+		);
+
+		// return information about those companies (but not full company objects, 
+		// since the user is not actually a member (yet))
+		for (const company of companies) {
+			const memberCount = await company.getCompanyMemberCount(this.request.data);
+			this.eligibleJoinCompanies.push({
+				id: company.id,
+				name: company.get('name'),
+				byDomain: domain.toLowerCase(),
+				domainJoining: company.get('domainJoining') || [],
+				codeHostJoining: company.get('codeHostJoining') || [],
+				memberCount
+			});
+		}
+	}
+
+	// set flag indicating whether this user's New Relic account is connected to a CodeStream company
+	async getAccountIsConnected () {
+		if (!this.nrAccountId || (this.eligibleJoinCompanies || []).length > 0) {
+			// doesn't apply if no NR account ID is given, or there are companies the user is
+			// already eligible to join by domain
+			return;
+		}
+
+		// first check to see if any companies are directly tied to this account
+		let company = await this.request.data.companies.getOneByQuery(
+			{ nrAccountIds: this.nrAccountId },
+			{ hint: CompanyIndexes.byNRAccountId }
+		);
+		if (company) {
+			this.accountIsConnected = true;
+			return;
+		}
+
+		// now lookup the NR org associated with this account
+		const nrOrgInfo = await this.request.api.data.newRelicOrgs.getOneByQuery(
+			{ accountId: this.nrAccountId },
+			{ hint: NewRelicOrgIndexes.byAccountId }
+		);
+		if (!nrOrgInfo) {
+			this.accountIsConnected = false;
+			return;
+		}
+
+		// if we found a match, see if any companies match the org
+		company = await this.request.data.companies.getOneByQuery(
+			{ nrOrgIds: nrOrgInfo.orgId },
+			{ hint: CompanyIndexes.byNROrgId }
+		);
+		this.accountIsConnected = !!company;
 	}
 }
 

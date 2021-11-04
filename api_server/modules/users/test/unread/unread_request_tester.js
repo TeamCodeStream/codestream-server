@@ -5,18 +5,20 @@
 
 const UnreadTest = require('./unread_test');
 const UnreadFetchTest = require('./unread_fetch_test');
-//const UnreadACLTest = require('./unread_acl_test');
+const UnreadACLTest = require('./unread_acl_test');
 const PostNotFoundTest = require('./post_not_found_test');
 const UnreadMessageTest = require('./unread_message_test');
+const UnreadObjectStreamTest = require('./unread_object_stream_test');
 
 class UnreadRequestTester {
 
 	unreadTest () {
 		new UnreadTest().test();
 		new UnreadFetchTest().test();
-		//new UnreadACLTest().test();
+		new UnreadACLTest().test();
 		new PostNotFoundTest().test();
 		new UnreadMessageTest().test();
+		new UnreadObjectStreamTest().test();
 	}
 }
 

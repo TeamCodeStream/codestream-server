@@ -171,7 +171,8 @@ class TeamUpdater extends ModelUpdater {
 	async removeUserFromTeam (user) {
 		const op = {
 			$pull: {
-				teamIds: this.team.id 
+				teamIds: this.team.id,
+				companyIds: this.team.get('companyId')
 			},
 			$set: {
 				modifiedAt: Date.now()

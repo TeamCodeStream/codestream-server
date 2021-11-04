@@ -34,6 +34,11 @@ const ROUTES = [
 		method: 'post',
 		path: 'lookup-nr-orgs',
 		requestClass: require('./lookup_nr_orgs_request')
+	},
+	{
+		method: 'post',
+		path: 'no-auth/add-nr-org',
+		requestClass: require('./add_nr_org_request')
 	}
 ];
 

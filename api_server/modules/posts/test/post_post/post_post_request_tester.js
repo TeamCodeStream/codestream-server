@@ -350,8 +350,8 @@ class PostPostRequestTester {
 		new MarkerHasUnknownStreamIdTest().test();
 		new MarkerHasInvalidRepoIdTest().test();
 		new MarkerHasUnknownRepoIdTest().test();
-		new MarkerForBadStreamTypeTest({ streamType: 'direct' }).test();
-		new MarkerForBadStreamTypeTest({ streamType: 'channel' }).test();
+		//new MarkerForBadStreamTypeTest({ streamType: 'direct' }).test();
+		//new MarkerForBadStreamTypeTest({ streamType: 'channel' }).test();
 		new MarkerFromDifferentTeamTest().test();
 		new NumMarkersTest().test();
 		new MarkerStreamOnTheFly().test();

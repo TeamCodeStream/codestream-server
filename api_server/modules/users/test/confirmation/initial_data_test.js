@@ -14,9 +14,11 @@ class InitialDataTest extends ConfirmationTest {
 			creatorIndex: 1,
 			numAdditionalInvites: 2
 		});
-		this.teamOptions.numAdditionalInvites = 2;
-		this.streamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
+		Object.assign(this.postOptions, {
+			creatorIndex: 1,
+			wantCodeError: true
+		});
 	}
 
 	get description () {
@@ -39,13 +41,22 @@ class InitialDataTest extends ConfirmationTest {
 			
 	// validate the response to the test request
 	validateResponse (data) {
-		// validate that we got the company, team, and repo in the response
+		// validate that we got the company, team, and repo in the response,
+		// along with the expected streams
 		Assert(data.companies.length === 1, 'no company in response');
 		this.validateMatchingObject(this.company.id, data.companies[0], 'company');
 		Assert(data.teams.length === 1, 'no team in response');
 		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
 		Assert(data.repos.length === 1, 'no repo in response');
 		this.validateMatchingObject(this.repo.id, data.repos[0], 'repo');
+		Assert(data.streams.length === 3, 'expected 3 streams');
+		const teamStream = data.streams.find(stream => stream.isTeamStream);
+		const fileStream = data.streams.find(stream => stream.type === 'file');
+		const repoStream = this.repoStreams.find(stream => stream.type === 'file');
+		const objectStream = data.streams.find(stream => stream.type === 'object');
+		this.validateMatchingObject(this.teamStream.id, teamStream, 'team stream');
+		this.validateMatchingObject(repoStream.id, fileStream, 'file stream');
+		this.validateMatchingObject(this.postData[0].codeError.streamId, objectStream, 'object stream');
 		const providerHosts = GetStandardProviderHosts(this.apiConfig);
 		Assert.deepEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		super.validateResponse(data);

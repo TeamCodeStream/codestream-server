@@ -19,6 +19,7 @@ class PostPostRequest extends PostRequest {
 		if (!stream.get('isTeamStream') && stream.get('type') !== 'object') {
 			throw 'stream channels are deprecated';
 		}
+		this.request.body.teamId = stream.get('teamId');
 	}
 
 	/* eslint complexity: 0 */

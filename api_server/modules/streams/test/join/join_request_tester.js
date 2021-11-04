@@ -15,6 +15,8 @@ const MessageToTeamTest = require('./message_to_team_test');
 class JoinRequestTester {
 
 	joinTest () {
+		/*
+		TODO - this all needs to be revisited in the context on one and only one team stream
 		new JoinTest().test();
 		new JoinFetchTest().test();
 		new StreamNotFoundTest().test();
@@ -25,6 +27,7 @@ class JoinRequestTester {
 		new ACLTeamTest().test();
 		new MessageToTeamTest().test();
 		// new SubscriptionTest().test(); // subscribing to stream channels is deprecated
+		*/
 	}
 }
 

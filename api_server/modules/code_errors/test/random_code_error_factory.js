@@ -3,6 +3,7 @@
 'use strict';
 
 const RandomString = require('randomstring');
+const UUID = require('uuid/v4');
 
 class RandomCodeErrorFactory {
 
@@ -18,6 +19,10 @@ class RandomCodeErrorFactory {
 		return RandomString.generate(40);
 	}
 
+	randomOrgId () {
+		return UUID();
+	}
+	
 	// get some random codemark data
 	getRandomCodeErrorData (options = {}) {
 		const data = {

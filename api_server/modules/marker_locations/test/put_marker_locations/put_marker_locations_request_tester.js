@@ -37,10 +37,10 @@ class PutMarkerLocationsRequestTester {
 		new BadTypeLocationTest().test();
 		new LocationsTooLargeTest().test();
 		new StreamNotFoundTest().test();
-		new ACLStreamTest().test();
+		//new ACLStreamTest().test();
 		new ACLTeamTest().test();
-		new NonFileStreamTest({ streamType: 'channel' }).test();
-		new NonFileStreamTest({ streamType: 'direct' }).test();
+		//new NonFileStreamTest({ streamType: 'channel' }).test();
+		//new NonFileStreamTest({ streamType: 'direct' }).test();
 		new OtherTeamTest().test();
 		new BadMarkerIdTest().test();
 		new BadLocationTest().test();

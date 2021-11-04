@@ -37,7 +37,6 @@ class InboundEmailRequest extends RestfulRequest {
 		await this.parseToAddresses();
 		await this.getStream();
 		await this.getParentPost();
-		await this.getCodeError();
 		await this.validate();
 		await this.handleAttachments();
 		await this.getTeam();
@@ -123,11 +122,9 @@ class InboundEmailRequest extends RestfulRequest {
 		}
 
 		// check that the IDs are valid
-		/*
 		if (!this.data.streams.objectIdSafe(idParts[0])) {
 			return this.log(`Email ${email} does not reference a valid team ID`);
 		}
-		*/
 		if (!this.data.teams.objectIdSafe(idParts[1])) {
 			return this.log(`Email ${email} does not reference a valid stream ID`);
 		}
@@ -173,56 +170,18 @@ class InboundEmailRequest extends RestfulRequest {
 		}
 	}
 
-	// get associated code error, as needed
-	async getCodeError () {
-		let codeErrorPost
-		if (this.parentPost.get('codeErrorId')) {
-			codeErrorPost = this.parentPost;
-		} else if (this.parentPost.get('parentPostId')) {
-			this.grandparentPost = await this.data.posts.getById(this.parentPost.get('parentPostId'));
-			if (!this.grandparentPost) {
-				throw this.errorHandler.error('internal', { reason: 'grandparent post not found' });
-			}
-			if (this.grandparentPost.get('codeErrorId')) {
-				codeErrorPost = this.grandparentPost;
-			}
-		}
-
-		if (codeErrorPost) {
-			this.codeError = await this.data.codeErrors.getById(codeErrorPost.get('codeErrorId'));
-			if (!this.codeError) {
-				throw this.errorHandler.error('internal', { reason: 'code error not found' });
-			}
-		}
-	}
-
 	// validate the stream: the stream must be owned by the correct team, and the
 	// user originating the email must be on the team
 	async validate () {
-		if (this.codeError) {
-			if (this.codeError.get('accountId').toString() !== this.teamId) {
-				throw this.errorHandler.error('internal', { reason: 'reply from code error but account ID does not match' });
-			}
-			if (this.stream.get('objectId') !== this.codeError.get('objectId')) {
-				throw this.errorHandler.error('internal', { reason: 'stream objectId does not match the code error objectId' });
-			}
-			if (!(this.codeError.get('followerIds') || []).includes(this.fromUser.id)) {
-				this.log(`User ${this.fromUser.id} is not a follower of code error ${this.codeError.id}`);
-				throw this.errorHandler.error('unauthorized');
-			}
-		}
-		else if (this.stream.get('teamId') !== this.teamId) {
+		if (this.stream.get('teamId') !== this.teamId) {
 			throw this.errorHandler.error('streamNoMatchTeam', { info: this.streamId });
 		}
-
-		if (!this.codeError) {
-			if (!this.fromUser.hasTeam(this.teamId)) {
-				this.log(`User ${this.fromUser.id} is not on team ${this.teamId}`);
-				throw this.errorHandler.error('unauthorized');
-			}
-			if (this.parentPost && this.parentPost.get('teamId') !== this.teamId) {
-				throw this.errorHandler.error('parentPostNoMatchTeam', { info: this.parentPostId });
-			}
+		if (!this.fromUser.hasTeam(this.teamId)) {
+			this.log(`User ${this.fromUser.id} is not on team ${this.teamId}`);
+			throw this.errorHandler.error('unauthorized');
+		}
+		if (this.parentPost && this.parentPost.get('teamId') !== this.teamId) {
+			throw this.errorHandler.error('parentPostNoMatchTeam', { info: this.parentPostId });
 		}
 		if (this.parentPost && this.parentPost.get('streamId') !== this.streamId) {
 			throw this.errorHandler.error('parentPostNoMatchStream', { info: this.parentPostId });
@@ -236,7 +195,6 @@ class InboundEmailRequest extends RestfulRequest {
 
 	// get the team, unfortunately we need this for tracking
 	async getTeam () {
-		if (this.codeError) { return; }
 		this.team = await this.data.teams.getById(this.stream.get('teamId'));
 	}
 
@@ -250,6 +208,7 @@ class InboundEmailRequest extends RestfulRequest {
 			origin: 'email'
 		});
 		const postData = {
+			teamId: this.team.id,
 			streamId: this.streamId,
 			text: this.request.body.text
 		};

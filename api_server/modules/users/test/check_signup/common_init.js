@@ -21,7 +21,7 @@ class CommonInit {
 	// register (but don't confirm) a user, 
 	registerUser (callback) {
 		this.signupToken = UUID();
-		const userData = this.userFactory.getRandomUserData();
+		const userData = this.userFactory.getRandomUserData({ wantWebmail: this.wantWebmail });
 		//userData.wantLink = true;   // we'll get back a confirmation link 
 		userData._confirmationCheat = this.apiConfig.sharedSecrets.confirmationCheat;  // cheat code to get back the confirmation link 
 		userData._subscriptionCheat = this.apiConfig.sharedSecrets.subscriptionCheat;
