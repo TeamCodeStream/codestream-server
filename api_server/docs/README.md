@@ -1,6 +1,6 @@
 # API Documentation Library
 
-- [Integrations and OAuth](integrations.md) - OAuth integration flow overview
+- [Integrations](integrations/README.md)
 - [RabbitMQ Notes](rabbitmq.md)
 - [Version Compatibility Matrix](version-matrix.md)
 - [Unified Config File](unified-cfg-file.md) - Details on the unified structured config file used for backend services.
