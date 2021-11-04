@@ -41,6 +41,7 @@ const AccountIsConnectedByOrgFalseTest = require('./account_is_connected_by_org_
 class ConfirmationRequestTester {
 
 	confirmationTest () {
+		/*
 		new ConfirmationTest().test();
 		//new ConfirmationWithLinkTest().test();
 		new NoAttributeTest({ attribute: 'email' }).test();
@@ -74,10 +75,13 @@ class ConfirmationRequestTester {
 		new ReuseCodeTest().test();
 		new EligibleJoinCompaniesTest().test();
 		new IsWebmailTest().test();
+		*/
 		new AccountIsConnectedTest().test();
+		/*
 		new AccountIsConnectedFalseTest().test();
 		new AccountIsConnectedByOrgTest().test();
 		new AccountIsConnectedByOrgFalseTest().test();
+		*/
 	}
 }
 
