@@ -117,7 +117,7 @@ class MultiTeamMigrator {
 	async countPostsPerTeam () {
 		this.postsByTeam = {};
 		for (const team of this.allTeams) {
-			this.postsByTeam[team.id] = await this .data.posts.countByQuery(
+			this.postsByTeam[team.id] = await this.data.posts.countByQuery(
 				{
 					teamId: team.id
 				},

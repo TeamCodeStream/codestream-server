@@ -77,11 +77,9 @@ class ConfirmationRequestTester {
 		new IsWebmailTest().test();
 		*/
 		new AccountIsConnectedTest().test();
-		/*
 		new AccountIsConnectedFalseTest().test();
 		new AccountIsConnectedByOrgTest().test();
 		new AccountIsConnectedByOrgFalseTest().test();
-		*/
 	}
 }
 

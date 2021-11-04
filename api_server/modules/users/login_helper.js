@@ -312,10 +312,11 @@ class LoginHelper {
 		}
 
 		// first check to see if any companies are directly tied to this account
-		let numCompanies = await this.request.data.companies.countByQuery(
-			{ nrAccountIds: this.nrAccountId }
+		let company = await this.request.data.companies.getOneByQuery(
+			{ nrAccountIds: this.nrAccountId },
+			{ hint: CompanyIndexes.byNRAccountId }
 		);
-		if (numCompanies) {
+		if (company) {
 			this.accountIsConnected = true;
 			return;
 		}
@@ -331,10 +332,11 @@ class LoginHelper {
 		}
 
 		// if we found a match, see if any companies match the org
-		numCompanies = await this.request.data.companies.countByQuery(
-			{ nrOrgIds: nrOrgInfo.orgId }
+		company = await this.request.data.companies.getOneByQuery(
+			{ nrOrgIds: nrOrgInfo.orgId },
+			{ hint: CompanyIndexes.byNROrgId }
 		);
-		this.accountIsConnected = !!numCompanies;
+		this.accountIsConnected = !!company;
 	}
 }
 
