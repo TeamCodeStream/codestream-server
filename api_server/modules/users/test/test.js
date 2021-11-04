@@ -27,11 +27,8 @@ describe('user requests', function() {
 
 	this.timeout(20000);
 
-	/*
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
-	*/
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
-	/*
 	describe('PUT /no-auth/login', userRequestTester.loginTest);
 	describe('PUT /login', userRequestTester.rawLoginTest);
 	describe('GET /users/:id', userRequestTester.getUserTest);
@@ -57,5 +54,4 @@ describe('user requests', function() {
 	describe('PUT /read-item/:postId', ReadItemRequestTester.test);
 	describe('GET /no-auth/unsubscribe-weekly', UnsubscribeWeeklyRequestTester.test);
 	describe('GET /signup-jwt', GetSignupJWTRequestTester.test);
-	*/
 });
