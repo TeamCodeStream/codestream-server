@@ -171,7 +171,7 @@ class SlackInteractiveComponentsHandler {
 				this.log('Caught error creating post: ' + postError.message);
 				this.log('Details: ' + JSON.stringify(postError));
 				this.log('Stack: ' + postError.stack);
-				throw ee;
+				throw postError;
 			}
 			const timeEnd = new Date();
 			const timeDiff = timeStart.getTime() - timeEnd.getTime();
