@@ -24,8 +24,7 @@ const RELATIONAL_PARAMETERS = [
 // additional options for post fetches
 const NON_FILTERING_PARAMETERS = [
 	'limit',
-	'sort',
-//	'includeFollowed'
+	'sort'
 ];
 
 class GetStreamsRequest extends GetManyRequest {
@@ -147,14 +146,10 @@ class GetStreamsRequest extends GetManyRequest {
 				}
 			];
 			// allow teamless object streams to be fetched
-			//if (this.includeFollowed) {
 			query.$or[1].type = { $in: ['channel', 'object'] };
-			//}
 		}
 		// allow teamless object streams to be fetched
-		//if (this.includeFollowed) {
 		query.teamId = { $in: [ query.teamId, null ] };
-		//}
 		return query;
 	}
 
@@ -163,13 +158,11 @@ class GetStreamsRequest extends GetManyRequest {
 		if (BASIC_QUERY_PARAMETERS.includes(parameter)) {
 			// basic query parameters go directly into the query
 			query[parameter] = value;
-		}
-		else if (parameter === 'ids') {
+		} else if (parameter === 'ids') {
 			// fetch by array of IDs
 			let ids = value.split(',');
 			query.id = this.data.streams.inQuerySafe(ids);
-		}
-		else if (parameter === 'unread') {
+		} else if (parameter === 'unread') {
 			// fetch streams in which there are unread messages for this user
 			let ids = Object.keys(this.user.get('lastReads') || {});
 			if (ids.length === 0) {
@@ -177,18 +170,11 @@ class GetStreamsRequest extends GetManyRequest {
 				return false;
 			}
 			query.id = this.data.streams.inQuerySafe(ids);
-		} 
-		/*
-		else if (parameter === 'includeFollowed') {
-			this.includeFollowed = true;
-		}
-		*/
-		else if (RELATIONAL_PARAMETERS.includes(parameter)) {
+		} else if (RELATIONAL_PARAMETERS.includes(parameter)) {
 			// lt, gt, lte, gte
 			let error = this.processRelationalParameter(parameter, value, query);
 			if (error) { return error; }
-		}
-		else if (!NON_FILTERING_PARAMETERS.includes(parameter)) {
+		} else if (!NON_FILTERING_PARAMETERS.includes(parameter)) {
 			// sort, limit
 			return 'invalid query parameter: ' + parameter;
 		}

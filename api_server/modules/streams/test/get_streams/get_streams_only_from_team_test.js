@@ -13,15 +13,19 @@ class GetStreamsOnlyFromTeamTest extends GetStreamsTest {
 		// we'll try to fetch a few streams from our team, and one from the "foreign" team, which we
 		// don't belong to ... we should get back only the streams from our team
 		const teamId = this.team.id;
-		const foreignTeamId = this.foreignTeam.id;
+		const codeErrorPosts = this.postData.filter(postData => postData.post.codeErrorId);
+		const objectStreams = codeErrorPosts.map(postData => postData.streams[0]);
+		const foreignCodeErrorPosts = this.foreignStreamResponse.postData.filter(postData => postData.post.codeErrorId);
+		const foreignObjectStreams = foreignCodeErrorPosts.map(postData => postData.streams[0]);
 		this.expectedStreams = [
-			this.streamsByTeam[teamId][1],
-			this.streamsByTeam[teamId][5],
-			this.streamsByTeam[teamId][7]
+			objectStreams[3],
+			this.teamStream,
+			objectStreams[1]
 		];
 		const otherStreams = [
-			this.streamsByTeam[teamId][0],
-			this.streamsByTeam[foreignTeamId][2]
+			foreignObjectStreams[3],
+			this.foreignTeamResponse.teamStream,
+			foreignObjectStreams[0]
 		];
 		const allStreams = [...this.expectedStreams, ...otherStreams];
 		const ids = allStreams.map(stream => stream.id);

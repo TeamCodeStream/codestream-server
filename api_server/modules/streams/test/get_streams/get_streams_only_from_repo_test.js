@@ -14,13 +14,22 @@ class GetStreamsOnlyFromRepoTest extends GetStreamsTest {
 		// don't have access to ... we should get back only the streams from our repo
 		const teamId = this.team.id;
 		const repoId = this.repo.id;
-		const foreignRepoId = this.foreignRepo.id;
+		const codemarkPosts = this.postData.filter(postData => postData.post.codemarkId);
+		let fileStreams = codemarkPosts.map(postData => postData.streams[0]);
+		fileStreams = fileStreams.filter(stream => stream.repoId === this.repo.id);
+		const foreignRepoId = this.foreignTeamResponse.repo.id;
+		let foreignCodemarkPosts = this.foreignStreamResponse.postData.filter(postData => postData.post.codemarkId);
+		let foreignFileStreams = foreignCodemarkPosts.map(postData => postData.streams[0]);
+		foreignFileStreams = foreignFileStreams.filter(stream => stream.repoId === foreignRepoId); 
 		this.expectedStreams = [
-			this.streamsByRepo[repoId][0],
-			this.streamsByRepo[repoId][2]
+			fileStreams[2],
+			this.repoStreams[0],
+			fileStreams[1]
 		];
 		const otherStreams = [
-			this.streamsByRepo[foreignRepoId][1],
+			foreignFileStreams[2],
+			this.foreignTeamResponse.teamStream,
+			foreignFileStreams[1]
 		];
 		const allStreams = [...this.expectedStreams, ...otherStreams];
 		const ids = allStreams.map(stream => stream.id);

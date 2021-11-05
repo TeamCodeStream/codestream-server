@@ -16,6 +16,12 @@ const EXPECTED_STREAM_FIELDS = [
 	'sortId'
 ];
 
+// fields expected for team streams
+const EXPECTED_TEAM_STREAM_FIELDS = [
+	'name',
+	'isTeamStream'
+];
+
 // fields expected for channel streams
 const EXPECTED_CHANNEL_STREAM_FIELDS = [
 	'name',
@@ -34,6 +40,12 @@ const EXPECTED_FILE_STREAM_FIELDS = [
 	'file'
 ];
 
+// fields expected for object-type streams
+const EXPECTED_OBJECT_STREAM_FIELDS = [
+	'objectId',
+	'objectType'
+];
+
 const EXPECTED_STREAM_RESPONSE = {
 	stream: EXPECTED_STREAM_FIELDS
 };
@@ -44,9 +56,11 @@ const UNSANITIZED_ATTRIBUTES = Object.keys(StreamAttributes).filter(attribute =>
 
 module.exports = {
 	EXPECTED_STREAM_FIELDS,
+	EXPECTED_TEAM_STREAM_FIELDS,
 	EXPECTED_CHANNEL_STREAM_FIELDS,
 	EXPECTED_DIRECT_STREAM_FIELDS,
 	EXPECTED_FILE_STREAM_FIELDS,
+	EXPECTED_OBJECT_STREAM_FIELDS,	
 	EXPECTED_STREAM_RESPONSE,
 	UNSANITIZED_ATTRIBUTES
 };

@@ -11,12 +11,12 @@ class GetFileStreamsByRepoTest extends GetStreamsTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// we'll fetch all the file streams from the repo
-		const repoId = this.repo.id;
 		const teamId = this.team.id;
-		this.expectedStreams = [
-			...this.streamsByRepo[repoId],
-			this.repoStreams[0]
-		];
+		const repoId = this.repo.id;
+		const codemarkPosts = this.postData.filter(postData => postData.post.codemarkId);
+		this.expectedStreams = codemarkPosts.map(postData => postData.streams[0]);
+		this.expectedStreams = this.expectedStreams.filter(stream => stream.repoId === repoId);
+		this.expectedStreams.push(this.repoStreams[0]);
 		this.path = `/streams?type=file&repoId=${repoId}&teamId=${teamId}`;
 		callback();
 	}

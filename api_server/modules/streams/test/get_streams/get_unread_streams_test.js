@@ -13,6 +13,7 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,		// set up standard test conditions
+			this.markAllRead,	// mark all the streams created so far as read
 			this.createPosts 	// create posts in some of the streams, the current user hasn't read these posts so we expect these streams
 		], callback);
 	}
@@ -24,34 +25,46 @@ class GetUnreadStreamsTest extends GetStreamsTest {
 		callback();
 	}
 
+	// mark all the streams created so far as read
+	markAllRead (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/read/all',
+				token: this.token
+			},
+			callback
+		);
+	}
+
 	// create posts in some of the streams we created
 	createPosts (callback) {
-		// since we now can only create posts in the team stream, do it there
-		this.expectedStreams = [this.teamStream];
-		this.createPostInStream(this.teamStream, callback);
-		/*
+		// we can create posts in the team stream, and object streams
+		this.expectedStreams = this.getExpectedStreams();
+
 		// we'll select a subset of the stream we created, then create posts there ... 
 		// we then expect only those streams
-		const myStreams = this.streamsByTeam[this.team.id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user.id);
-		});
-		this.expectedStreams = myStreams.slice(1, 3);
-		BoundAsync.forEach(
+		this.expectedStreams = this.expectedStreams.slice(0, 3);
+		BoundAsync.forEachSeries(
 			this,
 			this.expectedStreams,
 			this.createPostInStream,
 			callback
 		);
-		*/
 	}
 
 	// create a post in the given stream
 	createPostInStream (stream, callback) {
+		let parentPostId;
+		if (stream.type === 'object') {
+			parentPostId = stream.post.id;
+		}
 		this.postFactory.createRandomPost(
 			callback,
 			{
 				teamId: this.team.id,
 				streamId: stream.id,
+				parentPostId,
 				token: this.users[1].accessToken	// have the "other" user create the post
 			}
 		);

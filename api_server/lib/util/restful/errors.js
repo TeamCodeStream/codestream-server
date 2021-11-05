@@ -86,5 +86,10 @@ module.exports = {
 		code: 'RAPI-1015',
 		message: 'The object is too large to store',
 		description: 'Indicates the object exceeds the storage limits for a single document (16MB for a mongo document)'
+	},
+	'deprecated': {
+		code: 'RAPI-1016',
+		message: 'The requested function is deprecated',
+		description: 'A call was made to an endpoint or functionality that has been deprecated'
 	}
 };

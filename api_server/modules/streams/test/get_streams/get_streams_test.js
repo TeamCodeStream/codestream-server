@@ -6,27 +6,63 @@ const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const StreamTestConstants = require('../stream_test_constants');
 const TestTeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/test_team_creator');
+const TestStreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/test_stream_creator');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 class GetStreamsTest extends CodeStreamAPITest {
 
-	constructor (options) {
-		super(options);
-		this.numStreams = 3;
-		this.userOptions.numRegistered = 3;
-		this.teamOptions.numAdditionalInvites = 3;
-		this.repoOptions.creatorIndex = 0;
+	get description () {
+		return 'should return the correct streams when requesting streams by team ID';
 	}
 
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
+			this.setTestOptions,
 			super.before,
 			this.createForeignTeam,			// create another team without the current user as a member
 			this.wait1Sec,
-			this.createChannelDirectStreams,	// create some channel and direct streams in both teams
-			this.createFileStreams,		// create some file-type streams in both team
+			//this.createChannelDirectStreams,	// create some channel and direct streams in both teams
+			//this.createFileStreams,		// create some file-type streams in both team
 			this.setPath				// set the path to use when issuing the test request, this should be overridden by derived test classes
 		], callback);
+	}
+
+	// set options to use when setting up data 
+	setTestOptions (callback) {
+		this.userOptions.numRegistered = 3;
+		this.teamOptions.numAdditionalInvites = 3;
+		const remote = this.repoFactory.randomUrl();
+		if (!this.dontDoFileStreams) {
+			Object.assign(this.repoOptions, {
+				creatorIndex: 1,
+				withRemotes: [remote]
+			});
+		}
+		Object.assign(this.postOptions, {
+			numPosts: this.numStreams || 12,
+			creatorIndex: 1,
+			claimCodeErrors: true,
+			postData: []
+		});
+		for (let i = 0; i < this.postOptions.numPosts; i++) {
+			if (!this.dontDoFileStreams && i % 2 === 0) {
+				// this will create a file stream
+				this.postOptions.postData.push({
+					wantCodemark: true,
+					wantMarkers: 1,
+					withRandomStream: true,
+					withRemotes: i % 4 === 0 ? [remote] : undefined
+				});
+			} else {
+				// this will create an object stream
+				this.postOptions.postData.push({
+					wantCodeError: true
+				});
+			}
+		}
+		this.originalPostOptions = DeepClone(this.postOptions);
+		callback();
 	}
 
 	// wait one second, to ensure IDs of streams created are greater than IDs of the other objects created
@@ -38,27 +74,40 @@ class GetStreamsTest extends CodeStreamAPITest {
 
 	// create a "foreign" team, for which the current user is not a member
 	createForeignTeam (callback) {
+		if (this.dontDoForeign) { return callback(); }
+
 		new TestTeamCreator({
 			test: this,
-			teamOptions: Object.assign({}, this.teamOptions, {
+			teamOptions: Object.assign(DeepClone(this.teamOptions), {
 				creatorToken: this.users[1].accessToken
 			}),
-			repoOptions: {
-				creatorIndex: 1
-			},
-			userOptions: this.userOptions
+			userOptions: DeepClone(this.userOptions),
+			repoOptions: DeepClone(this.repoOptions)
 		}).create((error, response) => {
 			if (error) { return callback(error); }
-			this.foreignTeam = response.team;
-			this.foreignRepo = response.repo;
+			this.foreignTeamResponse = response;
 			this.usersByTeam = {
 				[this.team.id]: this.users,
-				[this.foreignTeam.id]: response.users
+				[this.foreignTeamResponse.team.id]: response.users
 			};
-			callback();
+
+			new TestStreamCreator({
+				test: this,
+				postOptions: DeepClone(this.originalPostOptions),
+				repoOptions: DeepClone(this.repoOptions),
+				streamOptions: {},
+				team: response.team,
+				teamStream: response.teamStream,
+				users: response.users
+			}).create((error, response) => {
+				if (error) { return callback(error); }
+				this.foreignStreamResponse = response;
+				callback();
+			});
 		});
 	}
 
+	/*
 	// create some channel and direct streams in the main team, and in the "foreign" team as needed
 	createChannelDirectStreams (callback) {	
 		this.streamsByTeam = {};
@@ -180,6 +229,25 @@ class GetStreamsTest extends CodeStreamAPITest {
 			},
 			options
 		);
+	}
+	*/
+
+	setPath (callback) {
+		this.path = '/streams?teamId=' + this.team.id;
+		this.expectedStreams = this.getExpectedStreams();
+		callback();
+	}
+ 
+	getExpectedStreams () {
+		const codeErrorPosts = this.postData.filter(postData => postData.post.codeErrorId);
+		const objectStreams = codeErrorPosts.map(postData => {
+			postData.streams[0].post = postData.post;
+			return postData.streams[0]
+		});
+		return [
+			this.teamStream,
+			...objectStreams
+		];
 	}
 
 	// validate the response to the test request

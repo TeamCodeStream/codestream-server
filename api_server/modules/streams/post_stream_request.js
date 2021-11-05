@@ -9,6 +9,7 @@ class PostStreamRequest extends PostRequest {
 
 	// authorize the request for the current user
 	async authorize () {
+		throw this.errorHandler.error('deprecated');
 		// team ID must be provided, and the user must be a member of the team
 		await this.user.authorizeFromTeamId(this.request.body, this, { error: 'createAuth' });
 	}
