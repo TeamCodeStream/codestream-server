@@ -160,6 +160,7 @@ class SlackInteractiveComponentsHandler {
 
 			try {
 				await this.postCreator.createPost({
+					teamId: privateMetadata.tId,
 					streamId: privateMetadata.sId,
 					text: text,
 					// TODO what goes here?
@@ -168,7 +169,8 @@ class SlackInteractiveComponentsHandler {
 				});
 			} catch (postError) {
 				this.log('Caught error creating post: ' + postError.message);
-				this.log('Stack: ' + error.stack);
+				this.log('Details: ' + JSON.stringify(postError));
+				this.log('Stack: ' + postError.stack);
 				throw ee;
 			}
 			const timeEnd = new Date();
