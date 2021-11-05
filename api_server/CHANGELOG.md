@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.21] - 2021-11-5
+
+### Fixed
+
+- Fixes an issue with replies from Slack
+
 ## [11.0.20] - 2021-11-4
 
 ### Fixed
