@@ -24,7 +24,6 @@ class GetPostsDefaultSortTest extends GetPostsTest {
 	// validate the request response
 	validateResponse (data) {
 		// this will check that the received posts not only match, but they are in the expected order
-		this.expectedStreams.forEach(stream => { delete stream.post });
 		this.validateSortedMatchingObjects(data.posts, this.expectedPosts, 'posts');
 		super.validateResponse(data);
 	}
