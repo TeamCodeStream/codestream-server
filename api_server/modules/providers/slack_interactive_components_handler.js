@@ -158,13 +158,21 @@ class SlackInteractiveComponentsHandler {
 				request: this
 			});
 
-			await this.postCreator.createPost({
-				streamId: privateMetadata.sId,
-				text: text,
-				// TODO what goes here?
-				origin: 'Slack',
-				parentPostId: privateMetadata.ppId
-			});
+			try {
+				await this.postCreator.createPost({
+					teamId: privateMetadata.tId,
+					streamId: privateMetadata.sId,
+					text: text,
+					// TODO what goes here?
+					origin: 'Slack',
+					parentPostId: privateMetadata.ppId
+				});
+			} catch (postError) {
+				this.log('Caught error creating post: ' + postError.message);
+				this.log('Details: ' + JSON.stringify(postError));
+				this.log('Stack: ' + postError.stack);
+				throw postError;
+			}
 			const timeEnd = new Date();
 			const timeDiff = timeStart.getTime() - timeEnd.getTime();
 			const secondsBetween = Math.abs(timeDiff / 1000);
@@ -172,7 +180,8 @@ class SlackInteractiveComponentsHandler {
 				throw new Error(REPLY_SUBMISSION_TOO_SLOW);
 			}
 		} catch (err) {
-			this.log(err);
+			this.log('Caught error creating slack reply: ' + err.message);
+			this.log('Stack: ' + err.stack);
 			error = {
 				eventName: 'Provider Reply Denied',
 				reason: err.message === REPLY_SUBMISSION_TOO_SLOW ?

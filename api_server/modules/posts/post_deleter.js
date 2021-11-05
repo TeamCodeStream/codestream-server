@@ -343,29 +343,12 @@ class PostDeleter extends ModelDeleter {
 
 	// publish the post and all other deletions to the appropriate broadcaster channel
 	async publishPost () {
-		let stream;
-		if (this.codeError) {
-			const teamStream = await this.data.streams.getOneByQuery(
-				{
-					teamId: this.codeError.get('teamId'),
-					isTeamStream: true
-				},
-				{
-					hint: StreamIndexes.byIsTeamStream
-				}
-			);
-			if (!teamStream) {
-				throw this.errorHandler.error('notFound', { info: 'team stream' });
-			}
-			stream = teamStream;
-		} else {
-			stream = this.stream;
-		}
+		if (!this.stream.get('teamId')) { return; }
 		await new PostPublisher({
 			data: this.responseData,
 			request: this.request,
 			broadcaster: this.api.services.broadcaster,
-			stream: stream.attributes
+			teamId: this.stream.get('teamId')
 		}).publishPost();
 	}
 
