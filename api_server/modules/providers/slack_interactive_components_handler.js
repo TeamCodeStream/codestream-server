@@ -179,7 +179,7 @@ class SlackInteractiveComponentsHandler {
 			}
 		} catch (err) {
 			this.log('Caught error creating slack reply: ' + err.message);
-			this.log('Stack: ' + error.stack);
+			this.log('Stack: ' + err.stack);
 			error = {
 				eventName: 'Provider Reply Denied',
 				reason: err.message === REPLY_SUBMISSION_TOO_SLOW ?
