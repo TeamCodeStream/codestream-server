@@ -2,7 +2,7 @@
 
 const MoveTest = require('./move_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const RandomString = require('randomstring');
+const TestTeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/test_team_creator');
 
 class StreamForWrongTeamTest extends MoveTest {
 
@@ -20,67 +20,29 @@ class StreamForWrongTeamTest extends MoveTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.createOtherTeam,
-			this.createOtherRepo,
-			this.createOtherStream
+			this.createForeignStream
 		], callback);
 	}
 
-	createOtherTeam (callback) {
-		this.teamFactory.createRandomTeam(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherTeam = response.team;
-				this.otherTeamStream = response.streams[0];
-				callback();
-			},
-			{ token: this.token }
-		);
-	}
-
-	createOtherRepo (callback) {
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/posts',
-				data: {
-					streamId: this.otherTeamStream.id,
-					codemark: {
-						type: 'comment',
-						text: 'x',
-						markers: [{
-							file: this.streamFactory.randomFile(),
-							remotes: [this.repoFactory.randomUrl()],
-							commitHash: this.markerFactory.randomCommitHash(),
-							code: RandomString.generate(100)
-						}]
-					}
-				},
-				token: this.token
-			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.otherRepo = response.repos[0];
-				callback();
+	createForeignStream (callback) {
+		new TestTeamCreator({
+			test: this,
+			teamOptions: Object.assign({}, this.teamOptions, {
+				creatorIndex: null,
+				creatorToken: this.users[1].accessToken,
+				members: [this.currentUser.user.email],
+				numAdditionalInvites: 0
+			}),
+			userOptions: this.userOptions,
+			repoOptions: { 
+				creatorToken: this.users[1].accessToken
 			}
-		);
-	}
-
-	createOtherStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) return callback(error);
-				delete this.data.file;
-				this.data.fileStreamId = response.stream.id;
-				callback();
-			},
-			{
-				teamId: this.otherTeam.id,
-				repoId: this.otherRepo.id,
-				type: 'file',
-				token: this.token
-			}
-		);
+		}).create((error, response) => {
+			if (error) { return callback(error); }
+			const foreignStream = response.repoStreams.find(stream => stream.type === 'file');
+			this.data.fileStreamId = foreignStream.id;
+			callback();
+		});
 	}
 }
 

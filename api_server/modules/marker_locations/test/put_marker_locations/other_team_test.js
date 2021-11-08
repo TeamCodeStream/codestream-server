@@ -21,12 +21,11 @@ class OtherTeamTest extends PutMarkerLocationsTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.createOtherTeam,
-			this.createOtherStream
+			this.createForeignStream
 		], callback);
 	}
 
-	createOtherTeam (callback) {
+	createForeignStream (callback) {
 		new TestTeamCreator({
 			test: this,
 			teamOptions: Object.assign({}, this.teamOptions, {
@@ -36,32 +35,15 @@ class OtherTeamTest extends PutMarkerLocationsTest {
 				numAdditionalInvites: 0
 			}),
 			userOptions: this.userOptions,
-			repoOptions: {
+			repoOptions: { 
 				creatorToken: this.users[1].accessToken
 			}
 		}).create((error, response) => {
 			if (error) { return callback(error); }
-			this.otherTeam = response.team;
-			this.otherRepo = response.repo;
+			const foreignStream = response.repoStreams.find(stream => stream.type === 'file');
+			this.data.streamId = foreignStream.id;
 			callback();
 		});
-	}
-
-	// create another stream to try to put marker locations to
-	createOtherStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.data.streamId = response.stream.id;
-				callback();
-			},
-			{
-				type: 'file',
-				teamId: this.otherTeam.id,	// using the other team
-				repoId: this.otherRepo.id,	// using the other repo
-				token: this.users[1].accessToken	// other user is the creator
-			}
-		);
 	}
 }
 
