@@ -477,15 +477,26 @@ window.CODESTREAM.openEditor = function(ide) {
 		});	
 }
  
-function _openEditor(ide) {
+let clickCounter = 0;
+function _openEditor(ide) { 
 	var onAnyComplete = function() {
-		$("#notification-title").html("Opening link in CodeStream...");		
-		$('#notification-area-jb').toggle(ide.protocol.indexOf("jetbrains") > -1);
-
-		window.CODESTREAM.openEditor(ide);
-
-		// nuke the initial state
-		delete window.CODESTREAM._state;
+		// on first click, just show the help stuff
+		if (String('{{isMru}}') !== 'true' && ide.protocol.indexOf("jetbrains") > -1 && clickCounter === 0) {
+			$('#notification-area-jb').toggle(true);
+			$('[data-ide-name=""]').html(ide.ideName)
+			clickCounter++;
+		}
+		else if (String('{{isMru}}') !== 'true' && ide.protocol.indexOf("codestream-vs") > -1 && clickCounter === 0) {
+			$('#notification-area-vs').toggle(true);
+			$('[data-ide-name=""]').html(ide.ideName)
+			clickCounter++;
+		}
+		else {
+			$("#notification-title").html("Opening link in CodeStream...");	
+			window.CODESTREAM.openEditor(ide);
+			// nuke the initial state
+			delete window.CODESTREAM._state;
+		}
 	};
 
 	try {
@@ -545,64 +556,79 @@ function onIdeSelected(e, moniker) {
 </script> 
  
 <div class="container" style="margin-bottom:35px;">
- <div class="row">
-	 <div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">
-		 <div class="box-content box-content-inverse box-border box-border-sm mt-0">  
-			<div class="row"> 
-				<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 col-fluid box-content-inverse-text">
-					<strong> 
-						<span id="notification-title">
-						{{#if autoOpen}} 
-							Opening link in CodeStream...							
-						{{else}}
-							Choose an IDE to open this link
-						{{/if}}
-						</span>
-					</strong>				
-				</div>
-				<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 col-fluid">
-					<div class="float-lg-right float-xl-right">
-						<div class="btn-group ide-list btn-block-wrap" style="white-space:nowrap;">
-							{{#lastOrigin}}		 
-								<a id="selected-ide" 
-									class="selected-ide btn btn-sm btn-block form-control btn-open-in" 
-									title="Open with {{ideName}}"
-									href="#" 
-									onclick="(function(e){onIdeClick(e);})(event)"
-									data-ide-moniker="{{moniker}}">
-									<img src="https://images.codestream.com/ides/128/{{moniker}}.png" id="selected-ide-icon" class="icon-ide" />
-									<span id="selected-ide-name">Open in {{ideName}}</span>
-								</a>									  
-							{{/lastOrigin}}							
-							<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
-								data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								<span class="sr-only">Toggle Dropdown</span>
-							</a>
-							<div class="dropdown-menu dropdown-menu-right ide-list-items" data-element-ide-list="">
-								{{#ides}}
-									{{#if ideName}}
-										<a class="dropdown-item" onclick="(function(e){onIdeSelected(e,'{{moniker}}');})(event)" href="#">
-											<img src="https://images.codestream.com/ides/128/{{moniker}}.png" class="icon-ide" />{{ideName}}</a>
-									{{/if}}
-									{{^ideName}}
-										<div class="dropdown-divider"></div>
-									{{/ideName}}
-								{{/ides}}
-							</div>
-						</div>						 							 
+	<div class="row">
+		<div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">
+			<div class="box-content box-content-inverse box-border box-border-sm mt-0">  
+				<div class="row"> 
+					<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 col-fluid box-content-inverse-text">
+						<strong> 
+							<span id="notification-title">
+							{{#if autoOpen}} 
+								Opening link in CodeStream...							
+							{{else}}
+								Choose an IDE to open this link
+							{{/if}}
+							</span>
+						</strong>				
 					</div>
-				</div>					
-			</div>   
-			<div class="row" id="notification-area-jb" style="display:{{#if isDefaultJetBrains}}block{{else}}none{{/if}};">
-				<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 col-fluid">
-					<div class="box-content-inverse-text">
-					JetBrains users must also install the <a href="https://www.jetbrains.com/toolbox/app/" target="_blank">JetBrains Toolbox App</a>
-					</div> 
-				</div>	
+					<div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-xs-12 col-fluid">
+						<div class="float-lg-right float-xl-right">
+							<div class="btn-group ide-list btn-block-wrap" style="white-space:nowrap;">
+								{{#lastOrigin}}		 
+									<a id="selected-ide" 
+										class="selected-ide btn btn-sm btn-block form-control btn-open-in" 
+										title="Open with {{ideName}}"
+										href="#" 
+										onclick="(function(e){onIdeClick(e);})(event)"
+										data-ide-moniker="{{moniker}}">
+										<img src="https://images.codestream.com/ides/128/{{moniker}}.png" id="selected-ide-icon" class="icon-ide" />
+										<span id="selected-ide-name">Open in {{ideName}}</span>
+									</a>									  
+								{{/lastOrigin}}							
+								<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
+									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<span class="sr-only">Toggle Dropdown</span>
+								</a>
+								<div class="dropdown-menu dropdown-menu-right ide-list-items" data-element-ide-list="">
+									{{#ides}}
+										{{#if ideName}}
+											<a class="dropdown-item" onclick="(function(e){onIdeSelected(e,'{{moniker}}');})(event)" href="#">
+												<img src="https://images.codestream.com/ides/128/{{moniker}}.png" class="icon-ide" />{{ideName}}</a>
+										{{/if}}
+										{{^ideName}}
+											<div class="dropdown-divider"></div>
+										{{/ideName}}
+									{{/ides}}
+								</div>
+							</div>						 							 
+						</div>
+					</div>					
+				</div> 			 
 			</div>
-		</div>
-	 </div> 
- </div></div>
+		</div> 
+	</div>
+	<div class="row" id="notification-area-jb" style="display:none;">
+		<div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">
+			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 col-fluid">
+				<div class="box-content">				 
+					1. Install the <a href="https://www.jetbrains.com/toolbox/app/" target="_blank">JetBrains Toolbox App</a><br /><br />
+					2. Install the <a href="https://plugins.jetbrains.com/plugin/12206-codestream" target="_blank">New Relic CodeStream extension</a><br /><br />
+					3. Return here and click "Open in <span data-ide-name=""></span>" again.
+				</div> 
+			</div>
+		</div> 
+	</div>
+	<div class="row" id="notification-area-vs" style="display:none;">
+		<div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">
+			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 col-fluid">
+				<div class="box-content">					 
+					1. Install the <a href="https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs" target="_blank">New Relic CodeStream extension</a><br /><br />
+					2. Return here and click "Open in <span data-ide-name=""></span>" again.
+				</div> 
+			</div>
+		</div> 
+	</div>
+ </div>
 <script>
 $(function() {	
 	if (String("{{autoOpen}}") == "true") {
