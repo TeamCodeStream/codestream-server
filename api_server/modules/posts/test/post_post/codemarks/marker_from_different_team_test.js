@@ -20,12 +20,11 @@ class MarkerFromDifferentTeamTest extends CodemarkMarkerTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.createForeignTeam,
-			this.createOtherStream
+			this.createForeignStream
 		], callback);
 	}
 
-	createForeignTeam (callback) {
+	createForeignStream (callback) {
 		new TestTeamCreator({
 			test: this,
 			teamOptions: Object.assign({}, this.teamOptions, {
@@ -40,26 +39,10 @@ class MarkerFromDifferentTeamTest extends CodemarkMarkerTest {
 			}
 		}).create((error, response) => {
 			if (error) { return callback(error); }
-			this.foreignTeam = response.team;
-			this.foreignRepo = response.repo;
+			const foreignStream = response.repoStreams.find(stream => stream.type === 'file');
+			this.data.codemark.markers[0].fileStreamId = foreignStream.id;
 			callback();
 		});
-	}
-
-	createOtherStream (callback) {
-		this.streamFactory.createRandomStream(
-			(error, response) => {
-				if (error) return callback(error);
-				this.data.codemark.markers[0].fileStreamId = response.stream.id;
-				callback();
-			},
-			{
-				teamId: this.foreignTeam.id,
-				repoId: this.foreignRepo.id,
-				type: 'file',
-				token: this.users[1].accessToken
-			}
-		);
 	}
 }
 
