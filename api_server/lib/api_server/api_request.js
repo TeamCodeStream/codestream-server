@@ -60,17 +60,22 @@ class APIRequest {
 			return;
 		}
 
-		await new Promise((resolve, reject) => {
-			try {
-				this.api.services.newrelic.startSegment(phase, true, async () => {
-					await this[phase]();
-					resolve();
-				});
-			} catch (error) {
-				reject(error);
-			}
-		});
 
+		if (this.api.services.newrelic) {
+			await new Promise((resolve, reject) => {
+				try {
+					this.api.services.newrelic.startSegment(phase, true, async () => {
+						await this[phase]();
+						resolve();
+					});
+				} catch (error) {
+					reject(error);
+				}
+			});
+		} else {
+			await this[phase]();
+		}
+		
 		if (phase === this.RESPONSE_PHASE) {
 			this.responseIssued = true;
 		}
