@@ -66,7 +66,8 @@ class InviteEmailTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			inviterId: this.userCreator.id,
 			teamId: this.team.id,
 			teamName: this.team.name,
-			isReinvite: !!this.wantExistingUser
+			isReinvite: !!this.wantExistingUser,
+			traceHeaders: {}
 		};
 
 		// in this case, we've already started the test in makeData, which created the user ...
