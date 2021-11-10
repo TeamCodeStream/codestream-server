@@ -3,7 +3,7 @@
 
 'use strict';
 
-const NewRelic = require('newrelic');
+//const NewRelic = require('newrelic');
 const FS = require('fs');
 const URL = require('url');
 const MailParser = require('mailparser').MailParser;
@@ -520,14 +520,12 @@ class FileHandler {
 			'Content-Type': 'application/json',
 			'Content-Length': Buffer.byteLength(payload)
 		};
-
-		// adds distribute trace headers to the request, so we can monitor a trace
-		// from inbound email to api 
+		/*
 		const transaction = NewRelic.getTransaction();
 		if (transaction) {
 			transaction.insertDistributedTraceHeaders(headers);
 		}
-
+		*/
 		const requestOptions = {
 			hostname: urlObject.hostname,
 			port: urlObject.port,
