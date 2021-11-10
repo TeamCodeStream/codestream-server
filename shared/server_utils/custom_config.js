@@ -297,7 +297,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
 		clubhouse: { appClientId: 'placeholder' },
-		newrelic: { appClientId: 'placeholder' }
+		newrelic: {}
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.

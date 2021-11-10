@@ -171,6 +171,12 @@
 				"disabled": "disable integration"
 			}
 		},
+		"newrelic": {
+			"<appProvider>": {
+				"browserIngestKey": "NR1 ingest browser key [CSSVC_NEWRELIC_BROWSER_KEY]",
+				"licenseIngestKey": "NR1 ingest license key [CSSVC_NEWRELIC_LICENSE_KEY]"
+			}
+		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": "Okta API client Id",

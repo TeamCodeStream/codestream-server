@@ -248,6 +248,16 @@
 				"stg": {}
 			}
 		},
+		"newrelic": {
+			"cloud": {
+				"defaultEnv": {
+					"_loadSecretsFile": "newrelic/nr1-staging.dev.cfg"
+				},
+				"prod": {
+					"_loadSecretsFile": "newrelic/nr1-staging.prod.cfg"
+				}
+			}
+		},
 		"okta": {
 			"localInstallation": {
 				"defaultEnv": {}

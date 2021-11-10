@@ -98,6 +98,10 @@ function sbcfg_initialize {
 		echo "CSSVC_CFG_FILE=$CSSVC_CFG_FILE"
 	fi
 
+	# For instrumenting backend services
+	[ -z "$CSSVC_NEWRELIC_LICENSE_KEY" ] && export CSSVC_NEWRELIC_LICENSE_KEY=$(get-json-property -j $CSSVC_CFG_FILE -p integrations.newrelic.cloud.licenseIngestKey)
+
+
 	# ----- REMOTE DEVELOPMENT SANDBOXES
 	# local development on ec2 instances (remote hosts) should reference their
 	# hostname and not 'localhost' when constructing URLs so we set
