@@ -50,11 +50,17 @@ class CodemarkCreator extends ModelCreator {
 			throw this.errorHandler.error('validation', { info: result });
 		}
 
-		/*
-		if (this.attributes.text && this.attributes.text.match(/nr codemark error/) && this.user.get('email').match(/codestream\.com$/)) {
+		// trigger error in secret as needed
+		if (
+			this.attributes.text &&
+			this.attributes.text.match(/nr codemark error/) &&
+			(
+				this.user.get('email').match(/codestream\.com$/) ||
+				this.user.get('email').match(/newrelic\.com$/)
+			) 
+		) {
 			throw new Error('hash table index out of range');
 		}
-		*/
 	}
 
 	// validate the markers sent with the codemark creation, this is too important to just drop,

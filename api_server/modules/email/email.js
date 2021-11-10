@@ -26,6 +26,16 @@ class Email extends APIServerModule {
 
 	// called to queue an outbound email for sending, to be acted upon by the outbound email lambda function
 	async queueEmailSend (message, options = {}) {
+		// send trace headers for distributed tracing
+		let headers = {};
+		if (this.api.services.newrelic) {
+			const transaction = this.api.services.newrelic.getTransaction();
+			if (transaction) {
+				transaction.insertDistributedTraceHeaders(headers);
+			}
+			message.traceHeaders = headers;
+		}
+		
 		// a special header can be sent with the request that will indicate we are testing emails,
 		// meaning that we won't actually send the emails, but instead send a message to the user's
 		// "me" channel simulating the email send ... to do this, send the testing flag with this message

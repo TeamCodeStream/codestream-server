@@ -10,7 +10,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['api'],
+  app_name: ['mailin'],
   /**
    * Your New Relic license key.
    */
@@ -38,7 +38,7 @@ exports.config = {
      * production applications.
      */
     level: 'info',
-    filepath: `${process.env.CS_API_LOGS}/newrelic_agent.log`
+    filepath: `${process.env.CS_MAILIN_LOGS}/newrelic_agent.log`
   },
   /**
    * When true, all request headers except for those listed in attributes.exclude

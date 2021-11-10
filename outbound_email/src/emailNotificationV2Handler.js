@@ -57,6 +57,9 @@ class EmailNotificationV2Handler {
 			else {
 				message = JSON.stringify(error);
 			}
+			if (this.newrelic) {
+				this.newrelic.noticeError(error);
+			}
 			return this.warn(`Email notification handling failed: ${message}`);
 		}
 		this.log(`Successfully processed an email notification request: ${JSON.stringify(this.message)}`);

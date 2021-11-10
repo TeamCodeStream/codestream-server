@@ -5,7 +5,6 @@
 
 'use strict';
 
-//require('newrelic');
 
 const OutboundEmailServerConfig = require(process.env.CSSVC_BACKEND_ROOT + '/outbound_email/src/config');
 const SimpleFileLogger = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/simple_file_logger');

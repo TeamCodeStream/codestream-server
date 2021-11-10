@@ -22,6 +22,9 @@ class EmailHandler {
 			else {
 				message = JSON.stringify(error);
 			}
+			if (this.newrelic) {
+				this.newrelic.noticeError(error);
+			}
 			return this.logger.warn(`Email handling for ${this.message.type} email failed: ${message}`, this.requestId);
 		}
 		this.logger.log(`Successfully processed a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.requestId);

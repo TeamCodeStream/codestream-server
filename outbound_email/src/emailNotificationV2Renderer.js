@@ -102,6 +102,17 @@ class EmailNotificationV2Renderer {
 			buttons = Utils.renderButtons(options);
 		}
 
+		// trigger error in secret as needed
+		if (
+			content.match(/nr codemark email error/) &&
+			(
+				user.email.match(/codestream\.com$/) ||
+				user.email.match(/newrelic\.com$/)
+			) 
+		) {
+			throw new Error('hash table index out of range');
+		}
+
 		return `
 <html>
 	<head>
