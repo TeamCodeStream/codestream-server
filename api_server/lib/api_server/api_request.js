@@ -60,7 +60,7 @@ class APIRequest {
 			return;
 		}
 
-
+		// for monitoring, start a new segment (or span?) for every phase
 		if (this.api.services.newrelic) {
 			await new Promise((resolve, reject) => {
 				try {

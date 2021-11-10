@@ -8,7 +8,7 @@
 
 'use strict';
 
-//const NewRelic = require('newrelic');
+const NewRelic = require('newrelic');
 const FS = require('fs');
 const Path = require('path');
 const ChildProcess = require('child_process');
@@ -94,11 +94,6 @@ class InboundEmailServer {
 		this.numOpenTasks++;
 		this.log('Handling ' + filePath);
 
-		await new FileHandler({
-			inboundEmailServer: this,
-			filePath: filePath
-		}).handle();
-		/*
 		NewRelic.startWebTransaction('inboundEmail', async () => {
 			const transaction = NewRelic.getTransaction();
 			await new FileHandler({
@@ -107,7 +102,6 @@ class InboundEmailServer {
 			}).handle();
 			transaction.end();
 		});
-		*/
 		
 		this.numOpenTasks--;
 		if (this.numOpenTasks === 0) {

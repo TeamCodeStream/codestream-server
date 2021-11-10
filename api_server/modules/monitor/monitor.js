@@ -1,14 +1,13 @@
 'use strict';
 
 const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module');
-//const NewRelic = require('newrelic');
+const NewRelic = require('newrelic');
 //const FS = require('fs');
 //const ChildProcess = require("child_process");
 
 class NewRelicModule extends APIServerModule {
 
 	services () {
-		return; // disable pending license key availability
 		return async () => {
 			this.newrelic = NewRelic;
 
