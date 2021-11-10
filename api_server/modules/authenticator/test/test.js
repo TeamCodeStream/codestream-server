@@ -17,11 +17,9 @@ describe('authentication', function() {
 	this.timeout(5000);
 
 	new AuthenticationTest().test();
-	/*
 	new AuthenticationMissingAuthorizationTest().test();
 	new AuthenticationInvalidTokenTest().test();
 	new AuthenticationNoUserIDTest().test();
 	new AuthenticationUserNotFoundTest().test();
 	new MinIssuanceTest().test();
-	*/
 });
