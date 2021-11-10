@@ -11,6 +11,9 @@ class JoinRequest extends RestfulRequest {
 
 	// authorize the request for the current user
 	async authorize () {
+		// joining streams is deprecated
+		throw this.errorHandler.error('deprecated');
+		
 		// get the stream
 		this.stream = await this.data.streams.getById(this.request.params.id);
 		if (!this.stream) {

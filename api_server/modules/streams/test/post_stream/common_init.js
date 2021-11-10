@@ -20,6 +20,7 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 3;
 		this.teamOptions.numAdditionalInvites = 3;
+		this.repoOptions.creatorIndex = 1;
 		callback();
 	}
 
@@ -29,6 +30,9 @@ class CommonInit {
 			type: this.type,		// stream type
 			teamId: this.team.id	// ID of the team to own the stream
 		};
+		if (this.type === 'file') {
+			this.postStreamOptions.repoId = this.repo.id;
+		}
 		callback();
 	}
 

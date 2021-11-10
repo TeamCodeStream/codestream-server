@@ -11,12 +11,13 @@ const NoJoinTeamStreamTest = require('./no_join_team_stream_test');
 const ACLTeamTest = require('./acl_team_test');
 const MessageToTeamTest = require('./message_to_team_test');
 //const SubscriptionTest = require('./subscription_test');
+const JoinStreamDeprecatedTest = require('./join_stream_deprecated_test');
 
 class JoinRequestTester {
 
 	joinTest () {
+		new JoinStreamDeprecatedTest().test();
 		/*
-		TODO - this all needs to be revisited in the context on one and only one team stream
 		new JoinTest().test();
 		new JoinFetchTest().test();
 		new StreamNotFoundTest().test();

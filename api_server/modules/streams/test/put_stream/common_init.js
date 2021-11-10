@@ -19,8 +19,8 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 3;
-		this.streamOptions.creatorIndex = 1;
-		this.streamOptions.members = [0, 1];
+		//this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.members = [0, 1];
 		callback();
 	}
 
@@ -34,11 +34,13 @@ class CommonInit {
 
 	// form the data for the stream update
 	makeStreamData (callback) {
+		// NOTE - creationg of streams is now deprecated, so we are only testing being
+		// able to update the team stream here
 		this.data = this.getUpdateData();
 		this.expectedData = {
 			stream: {
-				_id: this.stream.id,	// DEPRECATE ME
-				id: this.stream.id,
+				_id: this.teamStream.id,	// DEPRECATE ME
+				id: this.teamStream.id,
 				$set: Object.assign(DeepClone(this.data), { version: this.expectedVersion }),
 				$version: {
 					before: this.expectedVersion - 1,
@@ -46,7 +48,7 @@ class CommonInit {
 				}
 			}
 		};
-		this.path = '/streams/' + this.stream.id;
+		this.path = '/streams/' + this.teamStream.id;
 		this.modifiedAfter = Date.now();
 		callback();
 	}
@@ -57,14 +59,14 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: `/streams/${this.stream.id}`,
+				path: `/streams/${this.teamStream.id}`,
 				data: this.data,
 				token: this.token
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.expectedData.stream.$set.modifiedAt = response.stream.$set.modifiedAt;
-				this.expectedStream = Object.assign({}, this.stream, this.data, { version: this.expectedVersion });
+				this.expectedStream = Object.assign({}, this.teamStream, this.data, { version: this.expectedVersion });
 				this.requestData = this.data;
 				this.message = response;
 				delete this.data;	// don't need this anymore

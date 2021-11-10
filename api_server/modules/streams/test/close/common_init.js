@@ -17,20 +17,20 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 1;
-		this.streamOptions.creatorIndex = 0;
-		this.streamOptions.type = 'direct';
+		//this.streamOptions.creatorIndex = 0;
+		//this.streamOptions.type = 'direct';
 		callback();
 	}
 
 	setPath (callback) {
-		this.path = `/streams/close/${this.stream.id}`;
+		this.path = `/streams/close/${this.teamStream.id}`;
 		const expectedVersion = this.expectedVersion || 5;
 		this.expectedResponse = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$set: {
-					[`preferences.closedStreams.${this.stream.id}`]: true,
+					[`preferences.closedStreams.${this.teamStream.id}`]: true,
 					version: expectedVersion
 				},
 				$version: {
@@ -39,8 +39,8 @@ class CommonInit {
 				}
 			},
 			stream: {
-				_id: this.stream.id,	// DEPRECATE ME
-				id: this.stream.id,
+				_id: this.teamStream.id,	// DEPRECATE ME
+				id: this.teamStream.id,
 				$set: {
 					isClosed: true
 				}

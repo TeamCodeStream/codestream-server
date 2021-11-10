@@ -10,6 +10,9 @@ class CloseRequest extends RestfulRequest {
 
 	// authorize the current user against the request
 	async authorize () {
+		// closing of streams is deprecated
+		throw this.errorHandler.error('deprecated');
+		
 		// get the stream
 		this.stream = await this.data.streams.getById(this.request.params.id);
 		if (!this.stream) {

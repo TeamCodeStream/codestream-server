@@ -21,7 +21,7 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.repoOptions.creatorIndex = 1;
-		this.streamOptions.creatorIndex = 1;
+		//this.streamOptions.creatorIndex = 1;
 		callback();
 	}
 
