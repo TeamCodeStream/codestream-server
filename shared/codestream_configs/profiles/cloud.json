@@ -55,6 +55,18 @@
 			"phoneHomeUrl": null,
 			"port": 8443,
 			"publicApiUrl": "https://qa-api.codestream.us"
+		},
+		"stg": {
+			"authOrigin": null,
+			"helpIsAvailable": true,
+			"logger": {
+				"consoleOk": false
+			},
+			"marketingSiteUrl": "https://www.codestream.com",
+			"phoneHomeUrl": null,
+			"port": 8443,
+			"publicApiUrl": "https://stg-api.codestream.us",
+			"requireTLS12": true
 		}
 	},
 	"broadcastEngine": {
@@ -76,6 +88,9 @@
 			},
 			"qa": {
 				"_loadSecretsFile": "pubnub/qa.cfg"
+			},
+			"stg": {
+				"_loadSecretsFile": "pubnub/stg.cfg"
 			}
 		}
 	},
@@ -106,6 +121,9 @@
 			},
 			"qa": {
 				"_loadSecretsFile": "sendgrid/qa.cfg"
+			},
+			"stg": {
+				"_loadSecretsFile": "sendgrid/stg.cfg"
 			}
 		}
 	},
@@ -121,6 +139,12 @@
 		},
 		"qa": {
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
+		},
+		"stg": {
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
+			"logger": {
+				"consoleOk": false
+			}
 		}
 	},
 	"integrations": {
@@ -131,7 +155,8 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "asana/prod.cfg"
-				}
+				},
+				"stg": {}
 			}
 		},
 		"bitbucket": {
@@ -141,7 +166,8 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "bitbucket/prod.cfg"
-				}
+				},
+				"stg": {}
 			}
 		},
 		"devops": {
@@ -154,7 +180,8 @@
 				},
 				"qa": {
 					"_loadSecretsFile": "microsoft/devops-qa.cfg"
-				}
+				},
+				"stg": {}
 			}
 		},
 		"github": {
@@ -164,7 +191,8 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "github/prod.cfg"
-				}
+				},
+				"stg": {}
 			}
 		},
 		"gitlab": {
@@ -174,7 +202,8 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "gitlab/prod.cfg"
-				}
+				},
+				"stg": {}
 			}
 		},
 		"jira": {
@@ -184,7 +213,8 @@
 				},
 				"prod": {
 					"_loadSecretsFile": "atlassian/prod.cfg"
-				}
+				},
+				"stg": {}
 			}
 		},
 		"linear": {
@@ -197,7 +227,8 @@
 				},
 				"qa": {
 					"_loadSecretsFile": "linear/qa.cfg"
-				}
+				},
+				"stg": {}
 			}
 		},
 		"msteams": {
@@ -213,7 +244,8 @@
 				},
 				"qa": {
 					"_loadSecretsFile": "microsoft/teams-qa.cfg"
-				}
+				},
+				"stg": {}
 			}
 		},
 		"okta": {
@@ -244,7 +276,8 @@
 				"qa": {
 					"_loadSecretsFile": "slack/qa-combined.cfg",
 					"interactiveComponentsEnabled": true
-				}
+				},
+				"stg": {}
 			}
 		},
 		"trello": {
@@ -284,7 +317,8 @@
 		},
 		"pi": {},
 		"prod": {},
-		"qa": {}
+		"qa": {},
+		"stg": {}
 	},
 	"payments": {
 		"stripe": {
@@ -293,7 +327,8 @@
 			},
 			"prod": {
 				"_loadSecretsFile": "stripe/prod.cfg"
-			}
+			},
+			"stg": {}
 		}
 	},
 	"queuingEngine": {
@@ -316,6 +351,9 @@
 			},
 			"qa": {
 				"outboundEmailQueueName": "qa_outboundEmail"
+			},
+			"stg": {
+				"outboundEmailQueueName": "stg_outboundEmail"
 			}
 		}
 	},
@@ -335,6 +373,9 @@
 		},
 		"qa": {
 			"runTimeEnvironment": "qa"
+		},
+		"stg": {
+			"runTimeEnvironment": "stg"
 		}
 	},
 	"sharedSecrets": {
@@ -352,6 +393,9 @@
 		},
 		"qa": {
 			"_loadSecretsFile": "codestream/qa-secrets.cfg"
+		},
+		"stg": {
+			"_loadSecretsFile": "codestream/stg-secrets.cfg"
 		}
 	},
 	"ssl": {
@@ -381,6 +425,9 @@
 			},
 			"qa": {
 				"_loadSecretsFile": "mongo/qa.cfg"
+			},
+			"stg": {
+				"_loadSecretsFile": "mongo/stg.cfg"
 			}
 		}
 	},
@@ -412,6 +459,12 @@
 				"bucket": "codestream-prod",
 				"keyPrefix": "usercontent",
 				"publicUrl": "https://usercontent.codestream.com",
+				"stripKeyPrefixFromUrl": true
+			},
+			"stg": {
+				"bucket": "codestream-stg-usercontent",
+				"keyPrefix": "usercontent",
+				"publicUrl": "https://stg-usercontent.codestream.us",
 				"stripKeyPrefixFromUrl": true
 			}
 		}
