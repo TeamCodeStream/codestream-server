@@ -7,6 +7,7 @@
 
 describe('modules', () => {
 	require('./authenticator/test/test.js');
+	/*
 	require('./versioner/test/test.js');
 	require('./analytics/test/test.js');
 	require('./broadcaster/test/test.js');
@@ -25,4 +26,5 @@ describe('modules', () => {
 	require('./inbound_emails/test/test.js');
 	require('./marker_locations/test/test.js');
 	require('./newrelic_comments/test/test.js');
+	*/
 });
