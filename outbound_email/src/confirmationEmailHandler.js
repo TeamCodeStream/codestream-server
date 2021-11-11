@@ -7,11 +7,13 @@ class ConfirmationEmailHandler extends EmailHandler {
 	// render the email, with a confirmation code, or a link to the web app
 	// (to be deprecated?)
 	async renderEmail () {
+		this.logger.log('RENDERING...');
 		if (this.message.url) {
 			await this.renderWithLink();
 		}
 		else {
 			await this.renderWithCode();
+			this.logger.log('RENDERED');
 		}
 	}
 

@@ -15,6 +15,7 @@ class EmailHandler {
 			await this.sendEmail();
 		}
 		catch (error) {
+			this.logger.warn('CAUGHT:' + error.message);
 			let message;
 			if (error instanceof Error) {
 				message = `${error.message}\n${error.stack}`; 
@@ -32,6 +33,7 @@ class EmailHandler {
 
 	// get the user associated with the email
 	async getUser () {
+		this.logger.log('GETTING USER ' + this.message.userId);
 		this.user = await this.data.users.getById(this.message.userId);
 		if (!this.user) {
 			throw 'user not found:' + this.message.userId;
@@ -70,6 +72,7 @@ class EmailHandler {
 	async sendEmail () {
 		const options = await this.getSendOptions();
 		try {
+			this.logger.log('SENDING EMAIL:' + JSON.stringify(options));
 			await this.sender.sendEmail(options);
 		}
 		catch (error) {
