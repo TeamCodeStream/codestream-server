@@ -10,8 +10,11 @@ class EmailHandler {
 		this.message = message;
 		this.logger.log(`Processing a ${this.message.type} email request: ${JSON.stringify(this.message)}`, this.requestId);
 		try {
+			this.logger.log('GET USER....');
 			await this.getUser();	
+			this.logger.log('RENDER EMAIL...');
 			await this.renderEmail();
+			this.logger.log('SEND EMAIL...');
 			await this.sendEmail();
 		}
 		catch (error) {
@@ -36,8 +39,10 @@ class EmailHandler {
 		this.logger.log('GETTING USER ' + this.message.userId);
 		this.user = await this.data.users.getById(this.message.userId);
 		if (!this.user) {
+			this.logger.log('USER NOT FOUND');
 			throw 'user not found:' + this.message.userId;
 		}
+		this.logger.log('GOT USER ' + this.user.email);
 	}
 
 	// render the email, this should be overridden
