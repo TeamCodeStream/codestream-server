@@ -50,6 +50,7 @@ class GetPostsRequestTester {
 
 	getPostsTest () {
 		
+		/*
 		new GetPostsTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new GetPostsTest({type: 'channel'}).test();
@@ -68,7 +69,9 @@ class GetPostsRequestTester {
 		new OnlyParentPostIdAclTest().test();
 		new OnlyStreamIdAclTest().test();
 		new GetPostsByIdTest().test();
+		*/
 		new GetPostsLimitTest().test();
+		/*
 		new GetPostsSortTest().test();
 		new GetPostsDefaultSortTest().test();
 		new PaginationTest().test();
@@ -104,6 +107,7 @@ class GetPostsRequestTester {
 		new GetComplexPostsSortTest().test();
 		new GetComplexPostsLimitTest().test();
 		new GetComplexPostsDefaultSortTest().test();
+		*/
 	}
 }
 
