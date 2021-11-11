@@ -6,7 +6,6 @@ class GetRepliesToCodeErrorTest extends GetChildPostsTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.creatorIndex = 0;
 		this.postOptions.claimCodeErrors = true;
 		this.postOptions.postData[this.whichPostToReplyTo] = { wantCodeError: true };
 	}

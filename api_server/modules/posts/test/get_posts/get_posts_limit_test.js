@@ -22,7 +22,7 @@ class GetPostsLimitTest extends GetPostsTest {
 			return a.id.localeCompare(b.id);
 		});
 		this.expectedPosts.splice(0, this.postOptions.numPosts - 3);
-		this.path = `/posts?teamId=${this.team.id}&limit=3`; // &streamId=${this.teamStream.id}
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}&limit=3`;
 		callback();
 	}
 }

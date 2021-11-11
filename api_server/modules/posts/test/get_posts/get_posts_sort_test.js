@@ -15,7 +15,7 @@ class GetPostsSortTest extends GetPostsTest {
 		this.expectedPosts.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
-		this.path = `/posts?teamId=${this.team.id}&sort=asc`; // &streamId=${this.teamStream.id}
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}&sort=asc`;
 		callback();
 	}
 

@@ -18,7 +18,7 @@ class InvalidSeqNumTest extends GetPostsTest {
 	// set the path to use in the fetch request
 	setPath (callback) {
 		// provide some invalid sequence number with before parameter
-		this.path = `/posts?teamId=${this.team.id}&before=x`; // &streamId=${this.teamStream.id}
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}&before=x`;
 		callback();
 	}
 }

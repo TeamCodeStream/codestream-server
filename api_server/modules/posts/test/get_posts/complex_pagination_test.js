@@ -1,15 +1,15 @@
 'use strict';
 
-const GetPostsTest = require('./get_posts_test');
+const ComplexTest = require('./complex_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
 
-class PaginationTest extends GetPostsTest {
+class ComplexPaginationTest extends ComplexTest {
 
 	get description () {
 		let order = this.ascending ? 'ascending' : 'descending';
 		let type = this.defaultPagination ? 'default' : 'custom';
-		let description = `should return the correct posts in correct ${order} order when requesting posts in ${type} pages`;
+		let description = `should return the correct posts, when a complex arrangement of posts is available, in correct ${order} order when requesting posts in ${type} pages`;
 		if (this.tryOverLimit) {
 			description += ', and should limit page size to the maximum allowed posts per page';
 		}
@@ -24,10 +24,11 @@ class PaginationTest extends GetPostsTest {
 
 			// for default pagination, we'll create "2.5 times the page size" posts,
 			// otherwise we'll do 17 posts in pages of 5
-			this.postOptions.numPosts = this.defaultPagination ? Math.floor(this.apiConfig.apiServer.limits.maxPostsPerRequest * 2.5) : 17;
+			this.numPosts = this.defaultPagination ? Math.floor(this.apiConfig.apiServer.limits.maxPostsPerRequest * 3.5) : 67;
 			this.postsPerPage = this.defaultPagination ? this.apiConfig.apiServer.limits.maxPostsPerRequest : 5;
 			this.postOptions.postCreateThrottle = this.mockMode ? 0 : 200;	// slow things down, pubnub gets overwhelmed
 			this.testTimeout = this.postOptions.numPosts * 500 + 20000;
+			this.setTestOptions();
 			callback();
 		});
 	}
@@ -37,7 +38,7 @@ class PaginationTest extends GetPostsTest {
 		// we need them sorted for pagination to make sense, expectedPosts is what we'll
 		// be comparing the results to
 		this.expectedPosts.sort((a, b) => {
-			return a.seqNum - b.seqNum;
+			return a.id.localeCompare(b.id);
 		});
 		// figure out the number of pages we expect
 		this.numPages = Math.floor(this.postOptions.numPosts / this.postsPerPage);
@@ -61,7 +62,7 @@ class PaginationTest extends GetPostsTest {
 
 	// page a single page of posts
 	fetchPage (pageNum, callback) {
-		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}`;
+		this.path = `/posts?teamId=${this.team.id}`;
 		if (this.tryOverLimit) {
 			// we should get limited to maxPostsPerRequest
 			let limit = this.apiConfig.apiServer.limits.maxPostsPerRequest * 2;
@@ -79,7 +80,7 @@ class PaginationTest extends GetPostsTest {
 			// after the first page, we use the last ID fetches and get the next
 			// page in sequence
 			let op = this.ascending ? 'after' : 'before';
-			this.path += `&${op}=${this.lastSeqNum}`;
+			this.path += `&${op}=${this.lastId}`;
 		}
 		// fetch the page and validate the response
 		this.doApiRequest(
@@ -111,8 +112,8 @@ class PaginationTest extends GetPostsTest {
 		this.validateResponse(response);
 		// prepare for the next page fetch by establishing the ID of the last post fetched
 		let lastPost = this.expectedPosts[this.expectedPosts.length - 1];
-		this.lastSeqNum = lastPost.seqNum;
+		this.lastId = lastPost.id;
 	}
 }
 
-module.exports = PaginationTest;
+module.exports = ComplexPaginationTest;

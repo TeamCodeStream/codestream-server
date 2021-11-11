@@ -37,9 +37,8 @@ class GetPostRequestTester {
 		new GetReplyToCodeErrorTest().test();
 		new GetOtherPostWithCodeErrorTest().test();
 		new GetOtherReplyToCodeErrorTest().test();
-		// TODO
-		//new GetCodeErrorPostAclTest().test();
-		//new GetCodeErrorReplyAclTest().test();
+		new GetCodeErrorPostAclTest().test();
+		new GetCodeErrorReplyAclTest().test();
 	}
 }
 

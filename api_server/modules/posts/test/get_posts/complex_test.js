@@ -2,18 +2,26 @@
 
 const GetPostsTest = require('./get_posts_test');
 const Assert = require('assert');
-
 class ComplexTest extends GetPostsTest {
 
-	constructor (options) {
-		super(options);
+	get description () {
+		return 'should return the correct posts when a complex arrangement of posts is available (codemarks, reviews, replies, code errors, etc...)';
+	}
+
+	// before the test runs...
+	before (callback) {
+		this.setTestOptions();
+		super.before(callback);
+	}
+	
+	setTestOptions () {
 		this.repoOptions.creatorIndex = 1;
 		this.postOptions.creatorIndex = 1;
-		this.postOptions.numPosts = 45;
+		this.postOptions.numPosts = this.numPosts || 45;
 		this.postOptions.postData = [];
 		this.postOptions.claimCodeErrors = true;
 		for (let i = 0; i < this.postOptions.numPosts; i++) {
-			const nInterval = this.postOptions.numPosts / 3;
+			const nInterval = 15;
 			const n = i % nInterval;
 			const wantCodemark = n === 1 || n === 9 || n === 12;
 			const wantReview = n === 2;
@@ -39,10 +47,6 @@ class ComplexTest extends GetPostsTest {
 		}
 	}
 
-	get description () {
-		return 'should return the correct posts when a complex arrangement of posts is available (codemarks, reviews, replies, code errors, etc...)';
-	}
-
 	setPath (callback) {
 		super.setPath(() => {
 			this.expectedPosts.push(this.repoPost);
@@ -53,8 +57,8 @@ class ComplexTest extends GetPostsTest {
 
 	// validate the response to the fetch request
 	validateResponse (data) {
-		for (let i = 0; i < this.postData.length; i++) {
-			const post = this.postData[i].post;
+		for (let i = 0; i < this.expectedPosts.length; i++) {
+			const post = this.expectedPosts[i];
 			if (post.codemarkId) {
 				const codemark = data.codemarks.find(c => c.id === post.codemarkId);
 				Assert(codemark, `codemark for post ${post.id} not found`);
