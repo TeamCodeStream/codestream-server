@@ -71,9 +71,9 @@ class GetPostsRequestTester {
 		new GetPostsByIdTest().test();
 		*/
 		new GetPostsLimitTest().test();
-		/*
 		new GetPostsSortTest().test();
 		new GetPostsDefaultSortTest().test();
+		/*
 		new PaginationTest().test();
 		new PaginationTest({ascending: true}).test();
 		new PaginationTest({defaultPagination: true}).test();
