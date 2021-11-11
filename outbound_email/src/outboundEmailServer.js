@@ -3,7 +3,7 @@
 
 'use strict';
 
-const NewRelic = require('newrelic');
+//const NewRelic = require('newrelic');
 const OutboundEmailServerConfig = require('./config');  // structured config object
 const AWS = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/aws');
 const SQSClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aws/sqs_client');
@@ -176,13 +176,14 @@ class OutboundEmailServer {
 			styles: this.styles,
 			pseudoStyles: this.pseudoStyles,
 			outboundEmailServer: this,
-			newrelic: NewRelic,
+			//newrelic: NewRelic,
 			requestId
 		};
 
 		// pass trace headers with the message, for distributed tracing of
 		// api server to outbound email
-		//await new emailHandlerClass(handlerOptions).handleMessage(message);
+		await new emailHandlerClass(handlerOptions).handleMessage(message);
+		/*
 		NewRelic.startWebTransaction(message.type, async () => {
 			const transaction = NewRelic.getTransaction();
 			if (message.traceHeaders) {
@@ -191,6 +192,7 @@ class OutboundEmailServer {
 			await new emailHandlerClass(handlerOptions).handleMessage(message);
 			transaction.end();
 		});	
+		*/
 
 		this.numOpenTasks--;
 		if (this.numOpenTasks === 0 && this.killReceived) {
