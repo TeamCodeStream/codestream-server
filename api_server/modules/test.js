@@ -16,8 +16,8 @@ describe('modules', () => {
 	require('./repos/test/test.js');
 	require('./companies/test/test.js');
 	require('./teams/test/test.js');
-	require('./streams/test/test.js');
 	*/
+	require('./streams/test/test.js');
 	require('./posts/test/test.js');
 	/*
 	require('./codemarks/test/test.js');
