@@ -12,7 +12,7 @@ class OnlyParentPostIdOkTest extends GetChildPostsTest {
 	setPath (callback) {
 		const parentPostId = this.postData[this.whichPostToReplyTo].post.id;
 		super.setPath(() => {
-			this.path += `&parentPostId=${parentPostId}`;
+			this.path = `/posts?parentPostId=${parentPostId}`;
 			callback();
 		});
 	}
