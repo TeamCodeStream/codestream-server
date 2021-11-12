@@ -19,9 +19,6 @@ class CodeErrorReplyToReplyWithCodemarkTest extends CodeErrorReplyToReplyTest {
 	makePostData (callback) {
 		super.makePostData(() => {
 			this.data.codemark = this.codemarkFactory.getRandomCodemarkData({ wantMarkers: 2, fileStreamId: this.repoStreams[0].id });
-			this.data.teamId = this.team.id;
-			this.expectedTeamId = this.team.id;
-			this.noExpectedTeamId = false;
 			this.expectStreamMarkers = 2;
 			this.expectMarkers = 2;
 			this.streamUpdatesOk = true;

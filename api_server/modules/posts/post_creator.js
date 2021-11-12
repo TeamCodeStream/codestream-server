@@ -6,7 +6,6 @@ const Post = require('./post');
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const LastReadsUpdater = require('./last_reads_updater');
 const PostPublisher = require('./post_publisher');
-//const EmailNotificationQueue = require('./email_notification_queue');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const StreamPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
@@ -18,9 +17,7 @@ const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const UserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_inviter');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
-//const ObjectSubscriptionGranter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/object_subscription_granter');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
-const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 class PostCreator extends ModelCreator {
 
@@ -110,7 +107,6 @@ class PostCreator extends ModelCreator {
 		await this.updateLastReads();	// update lastReads attributes for affected users
 		await this.updateParents();		// update the parent post and codemark if applicable
 		await this.updatePostCount();	// update the post count for the author of the post
-		//await this.updateCodeErrorStreamMembers(); // for a code error with new followers, update membership of stream
 		this.updateTeam();				// update info for team, note, no need to "await"
 	}
 
@@ -180,6 +176,10 @@ class PostCreator extends ModelCreator {
 			this.attributes.streamId = this.codeError.get('streamId');
 		} else if (this.creatingCodeError) {
 			// if creating a code error, we'll create a stream
+			// adding users is not allowed when creating a code error
+			if (this.addedUsers && this.addedUsers.length) {
+				throw this.errorHandler.error('validation', { reason: 'cannot add users when creating a code error' });
+			}
 			return;
 		}
 
@@ -340,14 +340,12 @@ class PostCreator extends ModelCreator {
 			this.attributes.codeError.teamId = this.attributes.teamId;
 		}
 		this.attributes.codeError.streamId = this.attributes.streamId;
-		//this.attributes.codeError.nominalTeamId = this.nominalTeamId;
 
 		const codeErrorCreator = new CodeErrorCreator({
 			request: this.request,
 			origin: this.attributes.origin,
 			useId: this.codeErrorId, // if locked down previously
 			replyIsComing: this.replyIsComing,
-			//allowFromUserId: this.allowFromUserId,
 			setCreatedAt: this.setCreatedAt,
 			setModifiedAt: this.setModifiedAt,
 			forCommentEngine: this.forCommentEngine

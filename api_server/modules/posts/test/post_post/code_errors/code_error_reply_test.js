@@ -8,19 +8,11 @@ class CodeErrorReplyTest extends PostReplyTest {
 		return 'should be ok to reply to a code error';
 	}
 
-	getExpectedFields () {
-		const expectedFields = [...(super.getExpectedFields().post)];
-		const idx = expectedFields.findIndex(field => field === 'teamId'); 
-		expectedFields.splice(idx, 1);
-		return { post: expectedFields };
-	}
-
 	setTestOptions (callback) {
-		this.noExpectedTeamId = true;
 		this.expectedStreamVersion = 2;
 		super.setTestOptions(() => {
 			Object.assign(this.postOptions, {
-				creatorIndex: 0,
+				creatorIndex: 1,
 				wantCodeError: true
 			});
 			callback();

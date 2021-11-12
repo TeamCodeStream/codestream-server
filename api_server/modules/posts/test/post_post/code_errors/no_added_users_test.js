@@ -6,7 +6,14 @@ const Assert = require('assert');
 class NoAddedUsersTest extends CodeErrorTest {
 
 	get description () {
-		return 'should ignore added users if a post is sent with a code error and added user info';
+		return 'should return an error if a post is sent with a code error and added user info';
+	}
+
+	getExpectedError () {
+		return {
+			code: 'RAPI-1005',
+			reason: 'cannot add users when creating a code error'
+		};
 	}
 
 	makePostData (callback) {
