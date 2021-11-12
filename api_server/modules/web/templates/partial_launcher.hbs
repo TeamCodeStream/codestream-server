@@ -476,20 +476,19 @@ window.CODESTREAM.openEditor = function(ide) {
 				console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 		});	
 }
- 
-let clickCounter = 0;
+
 function _openEditor(ide) { 
 	var onAnyComplete = function() {
+		$('#notification-area-vs').toggle(false);
+		$('#notification-area-jb').toggle(false);
 		// on first click, just show the help stuff
-		if (String('{{isMru}}') !== 'true' && ide.protocol.indexOf("jetbrains") > -1 && clickCounter === 0) {
+		if (String('{{isMru}}') !== 'true' && ide.protocol.indexOf("jetbrains") > -1) {
 			$('#notification-area-jb').toggle(true);
-			$('[data-ide-name=""]').html(ide.ideName)
-			clickCounter++;
+			$('[data-ide-name=""]').html(ide.ideName);			 
 		}
-		else if (String('{{isMru}}') !== 'true' && ide.protocol.indexOf("codestream-vs") > -1 && clickCounter === 0) {
+		else if (String('{{isMru}}') !== 'true' && ide.protocol.indexOf("codestream-vs") > -1) {
 			$('#notification-area-vs').toggle(true);
-			$('[data-ide-name=""]').html(ide.ideName)
-			clickCounter++;
+			$('[data-ide-name=""]').html(ide.ideName);		 
 		}
 		else {
 			$("#notification-title").html("Opening link in CodeStream...");	
