@@ -148,8 +148,7 @@ class GetStreamsRequest extends GetManyRequest {
 			// allow teamless object streams to be fetched
 			query.$or[1].type = { $in: ['channel', 'object'] };
 		}
-		// allow teamless object streams to be fetched
-		query.teamId = { $in: [ query.teamId, null ] };
+
 		return query;
 	}
 
