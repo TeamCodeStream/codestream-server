@@ -17,7 +17,10 @@ class PostPostRequest extends PostRequest {
 			throw this.errorHandler.error('createAuth');
 		}
 		if (!stream.get('isTeamStream') && stream.get('type') !== 'object') {
-			throw 'stream channels are deprecated';
+			throw this.errorHandler.error('deprecated', { reason: 'posts can only be created in the team stream or an object stream' });
+		}
+		if (this.request.body.teamId && this.request.body.teamId !== stream.get('teamId')) {
+			throw this.errorHandler.error('invalidParameter', { reason: 'teamId does not match the stream' });
 		}
 		this.request.body.teamId = stream.get('teamId');
 	}

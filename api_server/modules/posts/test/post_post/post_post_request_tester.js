@@ -5,12 +5,13 @@
 const PostPostTest = require('./post_post_test');
 //const PostToChannelTest = require('./post_to_channel_test');
 //const PostToDirectTest = require('./post_to_direct_test');
-//const PostToFileStreamTest = require('./post_to_file_stream_test');
+const PostToFileStreamDeprecatedTest = require('./post_to_file_stream_deprecated_test');
 const PostReplyTest = require('./post_reply_test');
 const NoStreamIdTest = require('./no_stream_id_test');
 const InvalidStreamIdTest = require('./invalid_stream_id_test');
 const DuplicateFileStreamTest = require('./codemarks/duplicate_file_stream_test');
-//const ACLTeamTest = require('./acl_team_test');
+const ACLTeamTest = require('./acl_team_test');
+const TeamIdNoMatchStreamTest = require('./team_id_no_match_stream_test');
 //const ACLStreamTest = require('./acl_stream_test');
 const NewPostMessageToTeamStreamTest = require('./new_post_message_to_team_stream_test');
 //const NewPostMessageToChannelTest = require('./new_post_message_to_channel_test');
@@ -276,13 +277,14 @@ class PostPostRequestTester {
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new PostToChannelTest().test();
 		//new PostToDirectTest().test();
-		//new PostToFileStreamTest().test();
+		new PostToFileStreamDeprecatedTest().test();
 		new PostReplyTest().test();
 		new NoStreamIdTest().test();
 		new InvalidStreamIdTest().test();
 		new DuplicateFileStreamTest().test();
 		//new ACLStreamTest().test();
-		//new ACLTeamTest().test();
+		new ACLTeamTest().test();
+		new TeamIdNoMatchStreamTest().test();
 		new NewPostMessageToTeamStreamTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new NewPostMessageToChannelTest().test();
@@ -305,8 +307,10 @@ class PostPostRequestTester {
 		new SeqNumTest().test();
 		new NumRepliesTest().test();
 		new SecondReplyTest().test();
-		new NumRepliesMessageToStreamTest().test();
-		new NumRepliesToCodemarkMessageTest().test();
+		// NOTE - these are deprecated because a separate message is no longer sent
+		// with numReplies increase on a reply
+		//new NumRepliesMessageToStreamTest().test();
+		//new NumRepliesToCodemarkMessageTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new NumRepliesMessageToStreamTest({ type: 'direct' }).test();
 		//new NumRepliesMessageToStreamTest({ type: 'channel' }).test();
@@ -528,11 +532,11 @@ class PostPostRequestTester {
 		new EmptyReviewChangesetTest().test();
 		new EntryPointTest().test();
 
-		/*
 		// concerning code errors...
 		// we do a subset of the tests for codemarks, assuming that marker validation 
 		// between the two API calls is basically the same
 		new CodeErrorTest().test();
+		/*
 		new NoStreamIdOkTest().test();
 		new CodeErrorReplyTest().test();
 		new CodeErrorReplyToReplyTest().test();
@@ -583,6 +587,7 @@ class PostPostRequestTester {
 		new NumRepliesToCodeErrorNRCommentMessageTest().test();
 		new CodeErrorMentionMessageTest().test();
 		*/
+		// WE SHOULD HAVE Last Reads Tests here
 	}
 }
 

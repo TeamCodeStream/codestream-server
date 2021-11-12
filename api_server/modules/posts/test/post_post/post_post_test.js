@@ -74,7 +74,6 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// verify we got the expected stream update in the response
 	validateStreamUpdate (data) {
-		//if (!this.stream) { return; }
 		const streamId = this.expectedStreamId || this.teamStream.id;
 		const streamUpdate = data.streams.find(stream => stream.id === streamId);
 		const expectedStreamUpdate = {

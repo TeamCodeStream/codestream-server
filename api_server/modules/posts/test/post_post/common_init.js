@@ -24,6 +24,7 @@ class CommonInit {
 	// form the data for the post we'll create in the test
 	makePostData (callback) {
 		this.postCreatedAfter = Date.now();
+		const streamId = this.type === 'file' ? this.repoStreams[0].id : this.teamStream.id;
 		this.postFactory.getRandomPostData(
 			(error, data) => {
 				if (error) { return callback(error); }
@@ -31,7 +32,7 @@ class CommonInit {
 				callback();
 			},
 			{
-				streamId: this.teamStream.id
+				streamId
 			}
 		);
 	}

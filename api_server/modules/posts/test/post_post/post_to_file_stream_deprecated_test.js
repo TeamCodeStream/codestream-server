@@ -4,14 +4,11 @@ const PostPostTest = require('./post_post_test');
 
 class PostToFileStreamTest extends PostPostTest {
 
-	constructor (/*options*/) {
-		throw 'this test is deprecated';
-	}
-
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
+			this.type = 'file';
 			this.repoOptions.creatorIndex = 1;
-			this.streamOptions.type = 'file';
+			//this.streamOptions.type = 'file';
 			callback();
 		});
 	}
@@ -22,8 +19,8 @@ class PostToFileStreamTest extends PostPostTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1011',
-			reason: 'can not post to a file stream'
+			code: 'RAPI-1016',
+			reason: 'posts can only be created in the team stream or an object stream'
 		};
 	}
 }
