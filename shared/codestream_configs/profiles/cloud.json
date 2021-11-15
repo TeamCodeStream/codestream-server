@@ -192,7 +192,9 @@
 				"prod": {
 					"_loadSecretsFile": "github/prod.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "github/stg.cfg"
+				}
 			}
 		},
 		"gitlab": {
