@@ -20,8 +20,6 @@ class CodeErrorReplyWithCodemarkTest extends CodeErrorReplyTest {
 		super.makePostData(() => {
 			this.data.codemark = this.codemarkFactory.getRandomCodemarkData({ wantMarkers: 2, fileStreamId: this.repoStreams[0].id});
 			this.data.teamId = this.team.id;
-			this.expectedTeamId = this.team.id;
-			this.noExpectedTeamId = false;
 			this.expectStreamMarkers = 2;
 			this.expectMarkers = 2;
 			this.streamUpdatesOk = true;
@@ -30,6 +28,7 @@ class CodeErrorReplyWithCodemarkTest extends CodeErrorReplyTest {
 	}
 
 	validateResponse (data) {
+		this.expectedFollowerIds = [this.users[1].user.id, this.currentUser.user.id];
 		const inputCodemark = Object.assign(this.data.codemark, {
 			streamId: this.postData[0].codeError.streamId,
 			postId: data.post.id

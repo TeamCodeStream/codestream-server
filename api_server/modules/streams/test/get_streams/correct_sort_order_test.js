@@ -6,18 +6,16 @@ const Assert = require('assert');
 
 class CorrectSortOrderTest extends GetStreamsTest {
 
-	constructor (options) {
-		super(options);
-		this.numStreams = 10;	// create this many streams before the test runs
-		this.dontDoForeign = true;	// don't need a team and streams we aren't a member of for this test
-		this.dontDoDirectStreams = true;	// don't need any direct streams for this test
-		this.dontDoFileStreams = true;		// don't need any file streams for this test
-		delete this.repoOptions.creatorIndex;	// don't need a repo for this test
-		this.waitTime = 1200; // this test requires a wait time to make sure IDs are assigned in sequential order
-	}
-
 	get description () {
 		return 'should return the correct streams in correct order when requesting streams in ascending order by sort ID, when some of the streams have recent posts';
+	}
+
+	setTestOptions (callback) {
+		this.dontDoForeign = true;	// don't need a team and streams we aren't a member of for this test
+		//this.dontDoDirectStreams = true;	// don't need any direct streams for this test
+		this.dontDoFileStreams = true;		// don't need any file streams for this test
+		this.waitTime = 1200; // this test requires a wait time to make sure IDs are assigned in sequential order
+		super.setTestOptions(callback);
 	}
 
 	// before the test runs...
@@ -40,26 +38,16 @@ class CorrectSortOrderTest extends GetStreamsTest {
 	createPosts (callback) {
 		// since we can now only create posts in the team stream, this test really just
 		// becomes about making sure the team stream is first if we post in it
-		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user.id);
-		});
-		//this.expectedStreams.push(this.teamStream);
+		this.expectedStreams = this.getExpectedStreams();
 		this.expectedStreams.sort((a, b) => {	// sort by ID, which is the default sort order when there are no posts 
 			return a.id.localeCompare(b.id);
 		});
 		this.updatedAt = Date.now();
-		this.createPostForStream(this.teamStream, error => {
-			if (error) { return callback(error); }
-			this.expectedStreams.push(this.teamStream);
-			this.expectedStreams.reverse();
-			callback();
-		});
 
-		/*
 		const streamsWithPost = [];
 		// for these streams, and in this order, we'll create a post, which changes its sort order
 		// we expect to get the streams back in the appropriate order
-		[4, 2, 7, 3].forEach(index => {
+		[4, 2, 7, 11, 3].forEach(index => {
 			const stream = this.expectedStreams[index];
 			// push this stream to the back of the line, this should now be first (after we reverse the sort order)
 			this.expectedStreams.splice(index, 1);
@@ -74,23 +62,26 @@ class CorrectSortOrderTest extends GetStreamsTest {
 			this.createPostForStream,
 			callback
 		);
-		*/
 	}
 
 	// create a post in the given stream
 	createPostForStream (stream, callback) {
+		let parentPostId;
+		if (stream.type === 'object') {
+			parentPostId = stream.post.id;
+		}
 		this.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }
 				// we expect the mostRecentPostId field to be updated by this
 				stream.mostRecentPostId = stream.sortId = response.post.id;	
 				stream.mostRecentPostCreatedAt = response.post.createdAt;
-				stream.version = 2;
 				setTimeout(() => { callback(); }, this.waitTime);	// wait for the update to take, since we get the response before it persists
 			},
 			{
 				teamId: this.team.id,
 				streamId: stream.id,
+				parentPostId,
 				token: this.users[1].accessToken	// let the "other" user create the post
 			}
 		);
@@ -107,12 +98,14 @@ class CorrectSortOrderTest extends GetStreamsTest {
 		for (let i = 0; i < data.streams.length; i++) {
 			const stream = data.streams[i];
 			const expectedStream = this.expectedStreams[i];
-			if (stream.isTeamStream /*stream.version === 2*/) {
+			if (stream.version > 1) {
 				Assert(stream.modifiedAt >= this.updatedAt, 'modifiedAt not changed for stream with post');
 				expectedStream.modifiedAt = stream.modifiedAt;
+				expectedStream.version = stream.version;
 			}
 		}
 		// validate that we got the streams back in the correct order, before standard validation
+		this.expectedStreams.forEach(stream => { delete stream.post });
 		this.validateSortedMatchingObjects(data.streams, this.expectedStreams, 'streams');
 		super.validateResponse(data);
 	}

@@ -6,17 +6,18 @@ function usage {
 	echo -e "usage: $0 [-fyv] [-e <env-list>]
 
 use -f to force execution with default settings
-default environment list: local ci pi pd qa prod dev nr
+default environment list: $environmentList
 "
 	exit 1
 }
 
 [ -z "$KM_SECRETS" ] && echo "Set KM_SECRETS to the location of the PKI database (use -y to bypass prompts)" && exit 1
+
+environmentList="local ci pi pd qa prod dev nr stg"
 [ -z "$1" ] && usage
 yes=""
 verbose=""
 force=0
-environmentList="local ci pi pd qa prod dev nr"
 #onpremInstallDir=""
 while getopts "yvfe:" arg
 do

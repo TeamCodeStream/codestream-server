@@ -3,6 +3,7 @@
 
 'use strict';
 
+const NewRelic = require('newrelic');
 const FS = require('fs');
 const URL = require('url');
 const MailParser = require('mailparser').MailParser;
@@ -480,9 +481,22 @@ class FileHandler {
 			// nothing to post, ignore
 			throw 'email rejected because no text and no attachments';
 		}
+
+		// trigger error in secret as needed
+		const from = this.headers.get('from').value[0];
+		if (
+			this.text.match(/nr codemark reply error/) &&
+			(
+				from.address.match(/codestream\.com$/) ||
+				from.address.match(/newrelic\.com$/)
+			) 
+		) {
+			throw new Error('hash table index out of range');
+		}
+
 		const data = {
 			to: this.to,
-			from: this.headers.get('from').value[0],
+			from,
 			text: this.text,
 			mailFile: this.baseName,
 			secret: this.inboundEmailServer.config.sharedSecrets.mail,
@@ -506,6 +520,14 @@ class FileHandler {
 			'Content-Type': 'application/json',
 			'Content-Length': Buffer.byteLength(payload)
 		};
+
+		// adds distribute trace headers to the request, so we can monitor a trace
+		// from inbound email to api 
+		const transaction = NewRelic.getTransaction();
+		if (transaction) {
+			transaction.insertDistributedTraceHeaders(headers);
+		}
+
 		const requestOptions = {
 			hostname: urlObject.hostname,
 			port: urlObject.port,
@@ -513,6 +535,7 @@ class FileHandler {
 			method: 'POST',
 			headers: headers
 		};
+
 		return new Promise((resolve, reject) => {
 			let request = netClient.request(
 				requestOptions,
@@ -559,6 +582,8 @@ class FileHandler {
 				}
 			);
 		}
+		
+		NewRelic.noticeError(error);
 		this.warn(`Processing of ${this.baseName} failed: ${error}`);
 	}
 

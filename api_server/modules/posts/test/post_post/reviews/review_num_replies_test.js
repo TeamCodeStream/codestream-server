@@ -36,6 +36,33 @@ class ReviewNumRepliesTest extends PostReplyTest {
 		], callback);
 	}
 
+	validateResponse (data) {
+		const now = Date.now();
+		const expectedReviews = [{
+			id: this.postData[0].review.id,
+			_id: this.postData[0].review._id, // DEPRECATE ME
+			$set: {
+				numReplies: 1,
+				version: 2
+			},
+			$addToSet: {
+				followerIds: [
+					this.currentUser.user.id
+				]
+			},
+			$version: {
+				before: 1,
+				after: 2
+			}
+		}];
+		['modifiedAt', 'lastActivityAt', 'lastReplyAt'].forEach(attribute => {
+			Assert(data.reviews[0].$set[attribute] >= this.postCreatedAfter, `${attribute} not set to after post was created`);
+			expectedReviews[0].$set[attribute] = data.reviews[0].$set[attribute];
+		});
+		Assert.deepStrictEqual(data.reviews, expectedReviews, 'updated reviews are not correct');
+		super.validateResponse(data);
+	}
+
 	// check the review associated with the parent post
 	checkReview (callback) {
 		// get the review

@@ -12,8 +12,8 @@ class StreamNoMatchTeamTest extends GetPostsTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1003',
-			info: 'stream'
+			code: 'RAPI-1006',
+			reason: 'teamId must match the team of the stream'
 		};
 	}
 

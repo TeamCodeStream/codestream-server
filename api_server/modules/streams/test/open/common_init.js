@@ -11,15 +11,15 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.closeStream,
+			//this.closeStream,
 			this.setPath
 		], callback);
 	}
 
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 1;
-		this.streamOptions.creatorIndex = 0;
-		this.streamOptions.type = 'direct';
+		//this.streamOptions.creatorIndex = 0;
+		//this.streamOptions.type = 'direct';
 		callback();
 	}
 
@@ -30,7 +30,7 @@ class CommonInit {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/streams/close/' + this.stream.id,
+				path: '/streams/close/' + this.teamStream.id,
 				data: {},
 				token: this.currentUser.accessToken
 			},
@@ -39,14 +39,14 @@ class CommonInit {
 	}
 
 	setPath (callback) {
-		this.path = `/streams/open/${this.stream.id}`;
+		this.path = `/streams/open/${this.teamStream.id}`;
 		const version = this.expectedUserVersion || 6;
 		this.expectedResponse = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$unset: {
-					[`preferences.closedStreams.${this.stream.id}`]: true
+					[`preferences.closedStreams.${this.teamStream.id}`]: true
 				},
 				$set: {
 					version
@@ -57,8 +57,8 @@ class CommonInit {
 				}
 			},
 			stream: {
-				_id: this.stream.id,	// DEPRECATE ME
-				id: this.stream.id,
+				_id: this.teamStream.id,	// DEPRECATE ME
+				id: this.teamStream.id,
 				$unset: {
 					isClosed: true
 				}

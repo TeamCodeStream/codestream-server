@@ -45,12 +45,11 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const expectedSeqNum = this.expectedSeqNum || 1;
 		const expectedOrigin = this.expectedOrigin || '';
 		const expectedOriginDetail = this.expectedOriginDetail || '';
-		const expectedTeamId = this.noExpectedTeamId ? undefined : (this.expectedTeamId || this.team.id);
 		const expectedStreamId = this.expectedStreamId || this.data.streamId;
 		const result = (
 			((post.id === post._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((post.text === this.data.text) || errors.push('text does not match')) &&
-			((post.teamId === expectedTeamId) || errors.push('teamId does not match the team')) &&
+			((post.teamId === this.team.id) || errors.push('teamId does not match the team')) &&
 			((post.streamId === expectedStreamId) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
@@ -74,7 +73,6 @@ class PostPostTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// verify we got the expected stream update in the response
 	validateStreamUpdate (data) {
-		//if (!this.stream) { return; }
 		const streamId = this.expectedStreamId || this.teamStream.id;
 		const streamUpdate = data.streams.find(stream => stream.id === streamId);
 		const expectedStreamUpdate = {

@@ -47,14 +47,11 @@ class RandomStreamFactory {
 		};
 		if (type === 'channel') {
 			this.getRandomChannelStreamData(data, callback, options);
-		}
-		else if (type === 'direct') {
+		} else if (type === 'direct') {
 			this.getRandomDirectStreamData(data, callback, options);
-		}
-		else if (type === 'file') {
+		} else if (type === 'file') {
 			this.getRandomFileStreamData(data, callback, options);
-		}
-		else {
+		} else {
 			return callback('invalid type: ' + type);
 		}
 	}

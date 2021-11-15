@@ -63,7 +63,8 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 		// expect to receive this message
 		this.message = {
 			type: 'confirm',
-			userId: this.currentUser.user.id
+			userId: this.currentUser.user.id,
+			traceHeaders: {}
 		};
 		// in this case, we've already started the test in makeData, which created the user ...
 		// but the email was delayed, so we can just start listening for it now...

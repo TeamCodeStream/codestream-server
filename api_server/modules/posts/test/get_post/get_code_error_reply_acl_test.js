@@ -7,11 +7,12 @@ class GetCodeErrorReplyAclTest extends GetReplyToCodeErrorTest {
 	constructor (options) {
 		super(options);
 		this.postOptions.creatorIndex = 1;
+		this.teamOptions.members = [];
 		this.replyFromUser = 1;
 	}
 
 	get description () {
-		return 'should return an error when fetching a reply to a code error when i am not a follower';
+		return 'should return an error when fetching a reply to a code error from a team the user is not a member of';
 	}
 
 	getExpectedError () {

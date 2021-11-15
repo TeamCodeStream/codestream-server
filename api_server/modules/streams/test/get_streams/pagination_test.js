@@ -6,14 +6,6 @@ const Assert = require('assert');
 
 class PaginationTest extends GetStreamsTest {
 
-	constructor (options) {
-		super(options);
-		this.dontDoForeign = true;
-		this.dontDoFileStreams = true;
-		this.dontDoDirectStreams = true;
-		this.streamCreateThrottle = this.mockMode ? 0 : 100;	// slow things down, pubnub gets overwhelmed
-	}
-
 	get description () {
 		const order = this.ascending ? 'ascending' : 'descending';
 		const type = this.defaultPagination ? 'default' : 'custom';
@@ -24,18 +16,14 @@ class PaginationTest extends GetStreamsTest {
 		return description;
 	}
 
-	// override readConfig because immediately after we read the config file, but before we do setup for the test,
-	// we need to set some values that are dependent upon the config
-	readConfig (callback) {
-		super.readConfig(error => {
-			if (error) { return callback(error); }
-
-			// set up additional pagination options
-			this.numStreams = this.defaultPagination ? Math.floor(this.apiConfig.apiServer.limits.maxStreamsPerRequest * 2.5) : 17;
-			this.testLog(`WILL CREATE ${this.numStreams} STREAMS`);
-			this.streamsPerPage = this.defaultPagination ? this.apiConfig.apiServer.limits.maxStreamsPerRequest : 5;
-			callback();
-		});
+	setTestOptions (callback) {
+		this.numStreams = this.defaultPagination ? Math.floor(100 * 2.5) : 17;
+		this.streamsPerPage = this.defaultPagination ? 100 : 5;
+		this.dontDoForeign = true;
+		this.dontDoFileStreams = true;
+		//this.dontDoDirectStreams = true;
+		this.streamCreateThrottle = this.mockMode ? 0 : 100;	// slow things down, pubnub gets overwhelmed
+		super.setTestOptions(callback);
 	}
 
 	// set the path to use when issuing the test request
@@ -45,23 +33,24 @@ class PaginationTest extends GetStreamsTest {
 
 	// run the actual test, overriding the base class 
 	run (callback) {
+		const codeErrorPosts = this.postData.filter(postData => postData.post.codeErrorId);
+		const objectStreams = codeErrorPosts.map(postData => postData.streams[0]);
+		this.allStreams = [
+			this.teamStream,
+			...objectStreams
+		];
+
 		// make sure our expected streams our sorted, since they will come back to us (and are paginated)
 		// in sorted order
-		this.testLog(`TEAM IS: ${this.team.id}`);
-		this.testLog(`CURRENT USER IS: ${this.currentUser.user.id}`);
-		this.expectedStreams = this.streamsByTeam[this.team.id].filter(stream => {
-			return stream.memberIds.includes(this.currentUser.user.id);
-		});
-		this.expectedStreams.push(this.teamStream);
-		this.expectedStreams.sort((a, b) => {
+		this.allStreams.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
+
 		// divide into pages
 		this.numPages = Math.floor(this.numStreams / this.streamsPerPage);
 		if (this.numStreams % this.streamsPerPage !== 0) {
 			this.numPages++;
 		}
-		this.allStreams = this.expectedStreams;
 		if (!this.ascending) {	// reverse order for "asc" sort option
 			this.allStreams.reverse();
 		}
@@ -126,8 +115,6 @@ class PaginationTest extends GetStreamsTest {
 
 		// prepare the expected streams to be the given page, and call the base class validation
 		this.expectedStreams = this.allStreams.slice(begin, end);
-		this.testLog(`EXPECTED STREAMS BY PAGE: ${this.expectedStreams.map(s => s.id)}`);
-		this.testLog(`ACTUAL STREAMS: ${response.streams.map(s => s.id)}`);
 		this.validateResponse(response);
 
 		// record the last ID, we'll fetch the next page using this ID as our page divider

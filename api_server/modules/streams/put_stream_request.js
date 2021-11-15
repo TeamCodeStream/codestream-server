@@ -11,6 +11,9 @@ class PutStreamRequest extends PutRequest {
 
 	// authorize the request for the current user
 	async authorize () {
+		// updating of streams is deprecated
+		throw this.errorHandler.error('deprecated');
+
 		// get the stream
 		const stream = await this.data.streams.getById(this.request.params.id);
 		if (!stream) {

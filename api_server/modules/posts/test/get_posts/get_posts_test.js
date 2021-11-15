@@ -33,10 +33,16 @@ class GetPostsTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
+			this.logPosts,
 			this.setPath			// set the path for our request to retrieve posts
 		], callback);
 	}
 
+	logPosts (callback) {
+		this.testLog(`CREATED: ${this.postData.map(postData => postData.post.id)}`);
+		callback();
+	}
+	
 	// set the path to use for the fetch request
 	setPath (callback) {
 		this.path = `/posts?teamId=${this.team.id}` //&streamId=${this.teamStream.id}`;
@@ -46,6 +52,8 @@ class GetPostsTest extends CodeStreamAPITest {
 
 	// validate the response to the fetch request
 	validateResponse (data) {
+		this.testLog(`EXPECTED: ${this.expectedPosts.map(post => post.id)}`);
+		this.testLog(`GOT: ${data.posts.map(post => post.id)}`);
 		// we expect certain posts, and we expect their attributes are sanitized (devoid
 		// of attributes that should not go to the client)
 		this.validateMatchingObjects(data.posts, this.expectedPosts, 'posts');

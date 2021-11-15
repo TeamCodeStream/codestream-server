@@ -25,6 +25,20 @@ function sbcfg_check_cfg_prop {
 	return 0
 }
 
+function sbcfg_setup_for_newrelic_instrumentation {
+	local repoRoot="$1" sandboxTop="$2"
+	grep -q licenseIngestKey $CSSVC_CFG_FILE || { echo "licenseIngestKey prop not in config file. No instrumenting today."; return; }
+	[ -z "$CSSVC_NEWRELIC_LICENSE_KEY" ] && export CSSVC_NEWRELIC_LICENSE_KEY=$(get-json-property -j $CSSVC_CFG_FILE -p integrations.newrelic.cloud.licenseIngestKey)
+	[ -d "$repoRoot/.git" ] && export NEW_RELIC_METADATA_COMMIT=$(cd "$repoRoot" && git rev-parse HEAD) && return
+	# similar logic to server_utils/get_asset_data.js
+	[ ! -f "$sandboxTop/package.json" ] && echo "cannot determine SHA for instrumentation. package.json not found" && return
+	local assetName=$(get-json-property -j "$sandboxTop/package.json" -p name)
+	local assetFile="$sandboxTop/$assetName.info"
+	[ ! -f "$assetFile" ] && echo "cannot determine SHA for instrumentation. $assetFile not found" && return
+	local primaryRepo=$(get-json-property -j "$sandboxTop/$assetName.info" -p primaryRepo)
+	export NEW_RELIC_METADATA_COMMIT=$(get-json-property -j "$sandboxTop/$assetName.info" -p repoCommitId.$primaryRepo)
+}
+
 function sbcfg_initialize {
 	local sbPrefix=$1
 
@@ -40,6 +54,7 @@ function sbcfg_initialize {
 	local sbData=$(sbcfg_get_var ${sbPrefix}_DATA)
 	local sbPids=$(sbcfg_get_var ${sbPrefix}_PIDS)
 	local sbCfgFile=$(sbcfg_get_var ${sbPrefix}_CFG_FILE)
+	local sbRepoRoot=$(sbcfg_get_var ${sbPrefix}_REPO_ROOT)
 
 	# ----- SANDBOX OPTIONS (for single-service sandboxes only)
 	[ -z "$CSBE_TOP" ] && { sandutil_load_options $sbRoot || { echo "failed to load options for $sbRoot" >&2 && return 1; } }
@@ -97,6 +112,9 @@ function sbcfg_initialize {
 
 		echo "CSSVC_CFG_FILE=$CSSVC_CFG_FILE"
 	fi
+
+	# For instrumenting backend services
+	[ -n "$CSSVC_CFG_FILE" ] && sbcfg_setup_for_newrelic_instrumentation "$sbRepoRoot" "$sbTop"
 
 	# ----- REMOTE DEVELOPMENT SANDBOXES
 	# local development on ec2 instances (remote hosts) should reference their

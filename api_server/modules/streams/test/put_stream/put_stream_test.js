@@ -11,7 +11,7 @@ const StreamTestConstants = require('../stream_test_constants');
 class PutStreamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return 'should return the updated stream when updating a stream';
+		return 'should return the updated stream when updating the team stream';
 	}
 
 	get method () {

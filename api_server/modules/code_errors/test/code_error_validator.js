@@ -23,7 +23,7 @@ class CodeErrorValidator {
 		let errors = [];
 		let result = (
 			((codeError.id === codeError._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
-			((codeError.teamId === undefined) || errors.push('teamId attribute found')) &&
+			((codeError.teamId === this.test.team.id) || errors.push('teamId does not match the team')) &&
 			((codeError.postId === (this.inputCodeError.postId || '')) || errors.push('postId does not match the post')) &&
 			((codeError.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof codeError.createdAt === 'number') || errors.push('createdAt not number')) &&
@@ -69,21 +69,15 @@ class CodeErrorValidator {
 		const match = permalink.match(new RegExp(regex));
 		Assert(match, `returned permalink "${permalink}" does not match /${regex}/`);
 
-		const accountId = this.decodeLinkId(match[1]);
-		Assert.equal(accountId, this.inputCodeError.accountId.toString(), 'permalink does not contain proper account ID');
+		const teamId = this.decodeLinkId(match[1]);
+		Assert.equal(teamId, this.test.team.id, 'permalink does not contain proper team ID');
 	}
 
 	decodeLinkId (linkId) {
 		linkId = linkId
 			.replace(/-/g, '+')
 			.replace(/_/g, '/');
-		const hex = Buffer.from(linkId, 'base64').toString('hex');
-		let accountId = '';
-		for (let i = 0; i < hex.length; i += 2) {
-			const c = hex.substring(i, i+2);
-			accountId = accountId + String.fromCharCode(parseInt(c, 16));
-		}
-		return accountId;
+		return Buffer.from(linkId, 'base64').toString('hex');
 	}
 
 	// validate the stream created for the code error
@@ -102,7 +96,7 @@ class CodeErrorValidator {
 			((stream.objectId === this.inputCodeError.objectId) || errors.push('stream.objectId not set to the objectId of the code error')) && 
 			((stream.objectType === this.inputCodeError.objectType) || errors.push('stream.objectType not set to the objectType of the code error')) && 
 			((stream.creatorId === this.test.currentUser.user.id) || errors.push('stream.creatorId not equal to current user id')) &&
-			((stream.sortId === stream.id) || errors.push('stream.sortId not set to stream.id'))
+			((stream.sortId === data.post.id) || errors.push('stream.sortId not set to post.id'))
 		);
 		Assert(result === true && errors.length === 0, 'stream response not valid: ' + errors.join(', '));
 

@@ -42,7 +42,8 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 			type: 'changeEmail',
 			userId: this.currentUser.user.id,
 			email: this.data.email,
-			fromSupport: true
+			fromSupport: true,
+			traceHeaders: {}
 		};
 		// send the request to initiate chaning email
 		this.doApiRequest(

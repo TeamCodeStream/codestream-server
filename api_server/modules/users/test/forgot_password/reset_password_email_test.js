@@ -54,7 +54,8 @@ class ResetPasswordEmailTest extends CodeStreamMessageTest {
 		// this is the message we expect to see
 		this.message = {
 			type: 'resetPassword',
-			userId: this.currentUser.user.id
+			userId: this.currentUser.user.id,
+			traceHeaders: {}
 		};
 		// in this case, we've already started the test in makeData, which created the user ...
 		// but the email was delayed, so we can just start listening for it now...

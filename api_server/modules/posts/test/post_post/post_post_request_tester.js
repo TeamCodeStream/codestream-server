@@ -5,12 +5,13 @@
 const PostPostTest = require('./post_post_test');
 //const PostToChannelTest = require('./post_to_channel_test');
 //const PostToDirectTest = require('./post_to_direct_test');
-//const PostToFileStreamTest = require('./post_to_file_stream_test');
+const PostToFileStreamDeprecatedTest = require('./post_to_file_stream_deprecated_test');
 const PostReplyTest = require('./post_reply_test');
 const NoStreamIdTest = require('./no_stream_id_test');
 const InvalidStreamIdTest = require('./invalid_stream_id_test');
 const DuplicateFileStreamTest = require('./codemarks/duplicate_file_stream_test');
-//const ACLTeamTest = require('./acl_team_test');
+const ACLTeamTest = require('./acl_team_test');
+const TeamIdNoMatchStreamTest = require('./team_id_no_match_stream_test');
 //const ACLStreamTest = require('./acl_stream_test');
 const NewPostMessageToTeamStreamTest = require('./new_post_message_to_team_stream_test');
 //const NewPostMessageToChannelTest = require('./new_post_message_to_channel_test');
@@ -223,7 +224,6 @@ const EntryPointTest = require('./reviews/entry_point_test');
 
 // concerning code errors...
 const CodeErrorTest = require('./code_errors/code_error_test');
-const NoStreamIdOkTest = require('./code_errors/no_stream_id_ok_test');
 const CodeErrorReplyTest = require('./code_errors/code_error_reply_test');
 const CodeErrorReplyToReplyTest = require('./code_errors/code_error_reply_to_reply_test');
 const CodeErrorReplyWithCodemarkTest = require('./code_errors/code_error_reply_with_codemark_test');
@@ -249,25 +249,12 @@ const AddStackTraceTest = require('./code_errors/add_stack_trace_test');
 const CodeErrorWrongAccountIdTest = require('./code_errors/code_error_wrong_account_id_test');
 const NoReviewAndCodeErrorTest = require('./code_errors/no_review_and_code_error_test');
 const IgnoreStreamIdTest = require('./code_errors/ignore_stream_id_test');
-const IgnoreTeamIdTest = require('./code_errors/ignore_team_id_test');
-const IgnoreTeamIdInReplyTest = require('./code_errors/ignore_team_id_in_reply_test');
 const NoAddedUsersTest = require('./code_errors/no_added_users_test');
+const NoAddedUsersInReplyTest = require('./code_errors/no_added_users_in_reply_test');
 const CodeErrorStreamIdRequiredTest = require('./code_errors/code_error_stream_id_required_test');
-const CodeErrorReplyACLTest = require('./code_errors/code_error_reply_acl_test');
 const StreamIdMismatchTest = require('./code_errors/stream_id_mismatch_test');
-const CodeErrorReplyTeamIdRequiredTest = require('./code_errors/code_error_reply_team_id_required_test');
 const NoRootPostInObjectStreamTest = require('./code_errors/no_root_post_in_object_stream_test');
 const CanReplyToCodeErrorAfterMentionTest = require('./code_errors/can_reply_to_code_error_after_mention_test');
-const NoAddedUsersInReplyTest = require('./code_errors/no_added_users_in_reply_test');
-const CreatorSubscriptionTest = require('./code_errors/creator_subscription_test');
-const MentionSubscriptionTest = require('./code_errors/mention_subscription_test');
-const NoMessageToTeamStreamTest = require('./code_errors/no_message_to_team_stream_test');
-const CodeErrorReplyMessageToObjectStreamTest = require('./code_errors/code_error_reply_message_to_object_stream_test');
-const ReplyNoMessageToTeamStreamTest = require('./code_errors/reply_no_message_to_team_stream_test');
-const ReplyWithCodemarkMessageTest = require('./code_errors/reply_with_codemark_message_test');
-const NumRepliesToCodeErrorMessageTest = require('./code_errors/num_replies_to_code_error_message_test');
-const NumRepliesToCodeErrorNRCommentMessageTest = require('./code_errors/num_replies_to_code_error_nr_comment_message_test');
-const CodeErrorMentionMessageTest = require('./code_errors/code_error_mention_message_test');
 
 class PostPostRequestTester {
 
@@ -276,13 +263,14 @@ class PostPostRequestTester {
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new PostToChannelTest().test();
 		//new PostToDirectTest().test();
-		//new PostToFileStreamTest().test();
+		new PostToFileStreamDeprecatedTest().test();
 		new PostReplyTest().test();
 		new NoStreamIdTest().test();
 		new InvalidStreamIdTest().test();
 		new DuplicateFileStreamTest().test();
 		//new ACLStreamTest().test();
-		//new ACLTeamTest().test();
+		new ACLTeamTest().test();
+		new TeamIdNoMatchStreamTest().test();
 		new NewPostMessageToTeamStreamTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new NewPostMessageToChannelTest().test();
@@ -305,8 +293,10 @@ class PostPostRequestTester {
 		new SeqNumTest().test();
 		new NumRepliesTest().test();
 		new SecondReplyTest().test();
-		new NumRepliesMessageToStreamTest().test();
-		new NumRepliesToCodemarkMessageTest().test();
+		// NOTE - these are deprecated because a separate message is no longer sent
+		// with numReplies increase on a reply
+		//new NumRepliesMessageToStreamTest().test();
+		//new NumRepliesToCodemarkMessageTest().test();
 		// NOTE - posting to streams other than the team stream is no longer supported
 		//new NumRepliesMessageToStreamTest({ type: 'direct' }).test();
 		//new NumRepliesMessageToStreamTest({ type: 'channel' }).test();
@@ -528,12 +518,7 @@ class PostPostRequestTester {
 		new EmptyReviewChangesetTest().test();
 		new EntryPointTest().test();
 
-		/*
 		// concerning code errors...
-		// we do a subset of the tests for codemarks, assuming that marker validation 
-		// between the two API calls is basically the same
-		new CodeErrorTest().test();
-		new NoStreamIdOkTest().test();
 		new CodeErrorReplyTest().test();
 		new CodeErrorReplyToReplyTest().test();
 		new CodeErrorReplyWithCodemarkTest().test();
@@ -563,26 +548,13 @@ class PostPostRequestTester {
 		new CodeErrorWrongAccountIdTest().test();
 		new NoReviewAndCodeErrorTest().test();
 		new IgnoreStreamIdTest().test();
-		new IgnoreTeamIdTest().test();
-		new IgnoreTeamIdInReplyTest().test();
 		new NoAddedUsersTest().test();
+		new NoAddedUsersInReplyTest().test();
 		new CodeErrorStreamIdRequiredTest().test();
-		new CodeErrorReplyACLTest().test();
 		new StreamIdMismatchTest().test();
-		new CodeErrorReplyTeamIdRequiredTest().test();
 		new NoRootPostInObjectStreamTest().test();
 		new CanReplyToCodeErrorAfterMentionTest().test();
-		new NoAddedUsersInReplyTest().test();
-		new CreatorSubscriptionTest().test();
-		new MentionSubscriptionTest().test();
-		new NoMessageToTeamStreamTest().test();
-		new CodeErrorReplyMessageToObjectStreamTest().test();
-		new ReplyNoMessageToTeamStreamTest().test();
-		new ReplyWithCodemarkMessageTest().test();
-		new NumRepliesToCodeErrorMessageTest().test();
-		new NumRepliesToCodeErrorNRCommentMessageTest().test();
-		new CodeErrorMentionMessageTest().test();
-		*/
+		// WE SHOULD HAVE Last Reads Tests here
 	}
 }
 

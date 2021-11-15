@@ -10,12 +10,14 @@ class GetStreamsByTeamIdAndIdsTest extends GetStreamsTest {
 
 	// set the path to use when issuing the test request
 	setPath (callback) {
-		// pick a few streams owned by the team (channel or direct) and fetch those by ID
+		// pick a few streams owned by the team and fetch those by ID
 		const teamId = this.team.id;
+		const codeErrorPosts = this.postData.filter(postData => postData.post.codeErrorId);
+		const objectStreams = codeErrorPosts.map(postData => postData.streams[0]);
 		this.expectedStreams = [
-			this.streamsByTeam[teamId][1],
-			this.streamsByTeam[teamId][5],
-			this.streamsByTeam[teamId][7]
+			objectStreams[3],
+			this.teamStream,
+			objectStreams[1]
 		];
 		const ids = this.expectedStreams.map(stream => stream.id);
 		this.path = `/streams?teamId=${teamId}&ids=${ids}`;

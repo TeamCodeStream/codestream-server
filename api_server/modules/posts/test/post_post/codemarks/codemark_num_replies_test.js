@@ -25,6 +25,33 @@ class CodemarkNumRepliesTest extends PostReplyTest {
 		], callback);
 	}
 
+	validateResponse (data) {
+		const now = Date.now();
+		const expectedCodemarks = [{
+			id: this.postData[0].codemark.id,
+			_id: this.postData[0].codemark._id, // DEPRECATE ME
+			$set: {
+				numReplies: 1,
+				version: 2
+			},
+			$addToSet: {
+				followerIds: [
+					this.currentUser.user.id
+				]
+			},
+			$version: {
+				before: 1,
+				after: 2
+			}
+		}];
+		['modifiedAt', 'lastActivityAt', 'lastReplyAt'].forEach(attribute => {
+			Assert(data.codemarks[0].$set[attribute] >= this.postCreatedAfter, `${attribute} not set to after post was created`);
+			expectedCodemarks[0].$set[attribute] = data.codemarks[0].$set[attribute];
+		});
+		Assert.deepStrictEqual(data.codemarks, expectedCodemarks, 'updated codemarks are not correct');
+		super.validateResponse(data);
+	}
+
 	// check the codemark associated with the parent post
 	checkCodemark (callback) {
 		// get the codemark

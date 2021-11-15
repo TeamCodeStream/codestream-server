@@ -1,10 +1,17 @@
-We currently have a demo subscription
+# Pubnub Broadcast Service Integration
 
-https://admin.pubnub.com
+CodeStream production uses the [Pubnub](https://pubnub.com) service for
+real-time broadcast messaging.
 
-username: colin@codestream.com
-password: CS!R0cks
+Ideally, each CodeStream environment should use its own set of pubnub keys to
+guard against any cross-contamination but this is not absolutely required.
 
-publish key: pub-c-8603fed4-39da-4feb-a82e-cf5311ddb4d6
-subscribe key: sub-c-e830d7da-fb14-11e6-9f57-02ee2ddab7fe
-secret: sec-c-MmU3MmNlOGQtNjNhYS00NTk1LWI3NDItZDZlMjk3NmJkMDVh
+When generating a new keyset, apply the following configuration settings to it.
+
+* Storage & Playback: On
+    - Retention: 30 day
+    - leave all other fields blank
+
+* Access Manager: On
+
+Leave all other configuration sections Off.

@@ -45,6 +45,7 @@ const UsersNotOnTeamTest = require('./users_not_on_team_test');
 //const ArchiveClearUnreadsForTeamStreamMessageTest = require('./archive_clear_unreads_for_team_stream_message_test');
 //const IllegalSlackChannelNameTest = require('./illegal_slack_channel_name_test');
 //const SlackChannelNameTooLongTest = require('./slack_channel_name_too_long_test');
+const PutStreamDeprecatedTest = require('./put_stream_deprecated_test');
 
 const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/<>?|\'".,';
 //const ILLEGAL_SLACK_CHANNEL_NAME_CHARACTERS = 'A@%*Z';
@@ -52,8 +53,8 @@ const ILLEGAL_CHANNEL_NAME_CHARACTERS = '~#%&*{}+/<>?|\'".,';
 class PutStreamRequestTester {
 
 	putStreamTest () {
+		new PutStreamDeprecatedTest().test();
 		/*
-		TODO - this all needs to be revisited in the context on one and only one team stream
 		new PutStreamTest().test();
 		new PutStreamFetchTest().test();
 		new StreamNotFoundTest().test();

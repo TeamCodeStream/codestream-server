@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.22] - 2021-11-15
+
+### Changed
+
+- Improved UX when redirecting New Relic users into IDE from an error
+
 ## [11.0.21] - 2021-11-5
 
 ### Fixed

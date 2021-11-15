@@ -1,8 +1,8 @@
 'use strict';
 
-const GetOtherStreamTest = require('./get_other_stream_test');
+const GetStreamTest = require('./get_stream_test');
 
-class ACLTeamTest extends GetOtherStreamTest {
+class ACLTeamTest extends GetStreamTest {
 
 	constructor (options) {
 		super(options);
@@ -10,11 +10,6 @@ class ACLTeamTest extends GetOtherStreamTest {
 			creatorIndex: 1,
 			members: []
 		});
-		Object.assign(this.streamOptions, {
-			creatorIndex: 1,
-			members: []
-		});
-		this.repoOptions.creatorIndex = 1;
 	}
 
 	get description () {
@@ -25,12 +20,6 @@ class ACLTeamTest extends GetOtherStreamTest {
 		return {
 			code: 'RAPI-1009'
 		};
-	}
-
-	// set the path to use when making the test request
-	setPath (callback) {
-		this.path = '/streams/' + this.stream.id;
-		callback();
 	}
 }
 

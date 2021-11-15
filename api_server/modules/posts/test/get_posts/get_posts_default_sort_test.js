@@ -14,10 +14,10 @@ class GetPostsDefaultSortTest extends GetPostsTest {
 		// when we fetch, they should be in the same order
 		this.expectedPosts = this.postData.map(postData => postData.post);
 		this.expectedPosts.sort((a, b) => {
-			return a.id.localeCompare(b.id);
+			return a.seqNum - b.seqNum;
 		});
 		this.expectedPosts.reverse();
-		this.path = `/posts?teamId=${this.team.id}`; // &streamId=${this.teamStream.id}
+		this.path = `/posts?teamId=${this.team.id}&streamId=${this.teamStream.id}`;
 		callback();
 	}
 

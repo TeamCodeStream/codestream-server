@@ -549,6 +549,18 @@
 				}
 			}
 		},
+		"newrelic": {
+			"<appProvider>": {
+				"browserIngestKey": {
+					"desc": "NR1 ingest browser key",
+					"env": "CSSVC_NEWRELIC_BROWSER_KEY"
+				},
+				"licenseIngestKey": {
+					"desc": "NR1 ingest license key",
+					"env": "CSSVC_NEWRELIC_LICENSE_KEY"
+				}
+			}
+		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": {

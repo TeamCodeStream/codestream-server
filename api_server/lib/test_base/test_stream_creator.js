@@ -28,6 +28,7 @@ class TestStreamCreator {
 		if (typeof this.streamOptions.creatorIndex !== 'number' || !this.streamOptions.type) {
 			return callback();
 		}
+		throw 'creation of streams is deprecated';
 		const streamOptions = {
 			type: this.streamOptions.type,
 			privacy: this.streamOptions.privacy,

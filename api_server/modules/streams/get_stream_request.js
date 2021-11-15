@@ -6,6 +6,7 @@ const GetRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 
 class GetStreamRequest extends GetRequest {
 
+	/*
 	// authorize this request
 	async authorize () {
 		// for public streams, users who are on the team but are not members of the stream
@@ -27,12 +28,13 @@ class GetStreamRequest extends GetRequest {
 		}
 
 		// if the user preferences indicate the stream is closed for them, then add an isClosed flag
-		const closedStreams = (this.user.get('preferences') || {}).closedStreams || {};
-		if (closedStreams[this.model.id]) {
-			this.responseData.stream.isClosed = true;
-		}
+		//const closedStreams = (this.user.get('preferences') || {}).closedStreams || {};
+		//if (closedStreams[this.model.id]) {
+		//	this.responseData.stream.isClosed = true;
+		//}
 		super.handleResponse();
 	}
+	*/
 
 	// describe this route for help
 	static describe (module) {

@@ -7,7 +7,7 @@ class ACLTeamTest extends PostPostTest {
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
 			this.teamOptions.members = [];
-			this.streamOptions.members = [];
+			//this.streamOptions.members = [];
 			callback();
 		});
 	}

@@ -6,14 +6,15 @@
  * description of configuration variables and their potential values.
  */
 exports.config = {
+  host: 'staging-collector.newrelic.com',
   /**
    * Array of application names.
    */
-  app_name: ['CodeStream'],
+  app_name: ['api'],
   /**
    * Your New Relic license key.
    */
-  license_key: '',
+  license_key: `${process.env.CSSVC_NEWRELIC_LICENSE_KEY}`,
   /**
    * This setting controls distributed tracing.
    * Distributed tracing lets you see the path that a request takes through your
@@ -36,7 +37,8 @@ exports.config = {
      * issues with the agent, 'info' and higher will impose the least overhead on
      * production applications.
      */
-    level: 'info'
+    level: 'info',
+    filepath: `${process.env.CS_API_LOGS}/newrelic_agent.log`
   },
   /**
    * When true, all request headers except for those listed in attributes.exclude

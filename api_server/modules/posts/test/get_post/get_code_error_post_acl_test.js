@@ -7,10 +7,11 @@ class GetCodeErrorPostAclTest extends GetPostWithCodeErrorTest {
 	constructor (options) {
 		super(options);
 		this.postOptions.creatorIndex = 1;
+		this.teamOptions.members = [];
 	}
 
 	get description () {
-		return 'should return an error when fetching a post for a code error when i am not a follower';
+		return 'should return an error when fetching a post for a code error from a team the user is not a member of';
 	}
 
 	getExpectedError () {

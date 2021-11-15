@@ -262,22 +262,12 @@ class APIRequestTest extends GenericTest {
 	validateMatchingObjectsSorted (objects1, objects2, name) {
 		let objectIds_1 = objects1.map(object => object.id);
 		let objectIds_2 = objects2.map(object => object.id);
-		if (!DeepEqual(objectIds_1, objectIds_2)) {
-			this.testLog(`objectIds_1: ${JSON.stringify(objectIds_1, 0, 5)}`);
-			this.testLog(`objectIds_2: ${JSON.stringify(objectIds_2, 0, 5)}`);
-			Assert.fail(`${name} returned don't match`);
-		}
-		//Assert.deepStrictEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
+		Assert.deepStrictEqual(objectIds_2, objectIds_1, `${name} returned don't match`);
 	}
 
 	// check that the objects we got back exactly match expectations
 	validateSortedMatchingObjects(objects1, objects2, name) {
-		if (!DeepEqual(objects1, objects2)) {
-			this.testLog(`objects1: ${JSON.stringify(objects1, 0, 5)}`);
-			this.testLog(`objects2: ${JSON.stringify(objects2, 0, 5)}`);
-			Assert.fail(`${name} returned don't match`);
-		}
-		//Assert.deepStrictEqual(objects2, objects1, `${name} returned don't match`);
+		Assert.deepStrictEqual(objects2, objects1, `${name} returned don't match`);
 	}
 }
 

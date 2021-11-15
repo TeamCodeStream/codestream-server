@@ -8,7 +8,6 @@ const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const Indexes = require('./indexes');
 const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
-//const ObjectSubscriptionGranter = require('./object_subscription_granter');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
 
 class CodeErrorCreator extends ModelCreator {
@@ -202,24 +201,6 @@ class CodeErrorCreator extends ModelCreator {
 		return didChange;
 	}
 
-	/*
-	// ensure an existing code error has been created by one of my teammates, otherwise i cannot contribute
-	async ensureAuthorized () {
-		const teamIds = this.user.get('teamIds') || [];
-		let teams;
-		if (teamIds.length > 0) {
-			teams = await this.data.teams.getByIds(teamIds, { fields: [ 'memberIds' ] });
-		} else {
-			teams = [];
-		}
-		if (!teams.find(team => {
-			return (team.get('memberIds') || []).includes(this.existingModel.get('creatorId'));
-		})) {
-			throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this object' });
-		}
-	}
-	*/
-
 	// create a permalink url to the codemark
 	async createPermalink () {
 		if (this.attributes.teamId) {
@@ -229,31 +210,6 @@ class CodeErrorCreator extends ModelCreator {
 			}).createPermalink();
 		}
 	}
-
-	// after the code error has been saved...
-	async postSave () {
-		await super.postSave();
-		//await this.grantFollowerMessagingPermissions();		// grant permission to all followers to subscribe to the object broadcaster channel
-	}
-
-	/*
-	// grant permission to all followers to subscribe to the object broadcaster channel
-	async grantFollowerMessagingPermissions () {
-		const granterOptions = {
-			data: this.data,
-			broadcaster: this.api.services.broadcaster,
-			object: this.model,
-			followers: [this.user],
-			request: this.request
-		};
-		try {
-			await new ObjectSubscriptionGranter(granterOptions).grantToFollowers();
-		}
-		catch (error) {
-			throw this.errorHandler.error('streamMessagingGrant', { reason: error });
-		}
-	}
-	*/
 }
 
 module.exports = CodeErrorCreator;

@@ -46,21 +46,6 @@ class CodemarkHelper {
 		})) {
 			throw this.request.errorHandler.error('validation', { info: `${name} must contain only users on the team` });
 		}
-		/*
-		const users = await this.request.data.users.getByIds(
-			userIds,
-			{
-				fields: ['id', 'teamIds'],
-				noCache: true
-			}
-		);
-		if (
-			users.length !== userIds.length ||
-			users.find(user => !user.hasTeam(teamId))
-		) {
-			throw this.request.errorHandler.error('validation', { info: `${name} must contain only users on the team` });
-		}
-		*/
 	}
 	
 	// if there are tags, each tag must be known to the team
