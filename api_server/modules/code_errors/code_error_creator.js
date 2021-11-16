@@ -144,7 +144,6 @@ class CodeErrorCreator extends ModelCreator {
 			objectId: this.attributes.objectId,
 			objectType: this.attributes.objectType,
 			teamId: this.attributes.teamId
-			//memberIds: [this.user.id]
 		});
 		this.attributes.streamId = this.stream.id;
 	}
@@ -158,22 +157,6 @@ class CodeErrorCreator extends ModelCreator {
 		if (this.attributes.accountId !== this.existingModel.get('accountId')) {
 			throw this.errorHandler.error('createAuth', { reason: 'found existing object but account ID does not match' });
 		}
-
-		// must be a member of the team that owns the code error, if any
-		if (
-			!this.forCommentEngine &&	// TODO: decide whether users automatically become members of the team
-			this.existingModel.get('teamId') &&
-			!this.user.hasTeam(this.existingModel.get('teamId'))
-		) {
-			throw this.errorHandler.error('readAuth', { reason: 'user is not on the team that owns this code error' });
-		}
-	
-		/*
-		// creator of the code error must be a fellow teammate
-		if (!(this.allowFromUserId && this.allowFromUserId === this.user.id)) {
-			await this.ensureAuthorized();
-		}
-		*/
 
 		// check if this is a new stack trace ...
 		// if so, add it to the array of known stack traces

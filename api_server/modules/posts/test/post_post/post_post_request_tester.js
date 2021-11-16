@@ -40,6 +40,7 @@ const AttachmentsTest = require('./attachments_test');
 const SharedToTest = require('./shared_to_test');
 const NoStreamIdReplyMatchTest = require('./no_stream_id_reply_match_test');
 const ParentPostNotFoundTest = require('./parent_post_not_found_test');
+const NoMentionForeginUserTest = require('./no_mention_foreign_user_test');
 
 // concerning codemarks...
 const CodemarkTest = require('./codemarks/codemark_test');
@@ -157,6 +158,7 @@ const NewUserInvteTest = require('./codemarks/new_user_invite_test');
 const NumUsersInvitedTest = require('./codemarks/num_users_invited_test');
 const CodemarkInviteTriggerTest = require('./codemarks/codemark_invite_trigger_test');
 const CodemarkAttributeRequiredTest = require('./codemarks/codemark_attribute_required_test');
+const CodemarkMessageTest = require('./codemarks/codemark_message_test');
 
 // concerning reviews...
 const ReviewTest = require('./reviews/review_test');
@@ -221,6 +223,7 @@ const ReviewInviteTriggerTest = require('./reviews/review_invite_trigger_test');
 const ReviewAttributeRequiredTest = require('./reviews/review_attribute_required_test');
 const EmptyReviewChangesetTest = require('./reviews/empty_review_changeset_test');
 const EntryPointTest = require('./reviews/entry_point_test');
+const ReviewMessageTest = require('./reviews/review_message_test');
 
 // concerning code errors...
 const CodeErrorTest = require('./code_errors/code_error_test');
@@ -255,6 +258,14 @@ const CodeErrorStreamIdRequiredTest = require('./code_errors/code_error_stream_i
 const StreamIdMismatchTest = require('./code_errors/stream_id_mismatch_test');
 const NoRootPostInObjectStreamTest = require('./code_errors/no_root_post_in_object_stream_test');
 const CanReplyToCodeErrorAfterMentionTest = require('./code_errors/can_reply_to_code_error_after_mention_test');
+const OwnedByOtherTeamTest = require('./code_errors/owned_by_other_team_test');
+const CodeErrorMessageTest = require('./code_errors/code_error_message_test');
+const MostRecentPostForObjectStreamTest = require('./code_errors/most_recent_post_for_object_stream_test');
+const LastReadsNoneForObjectStreamTest = require('./code_errors/last_reads_none_for_object_stream_test');
+const NoLastReadsForAuthorForObjectStreamTest = require('./code_errors/no_last_reads_for_author_for_object_stream_test');
+const LastReadsPreviousPostForObjectStreamTest = require('./code_errors/last_reads_previous_post_for_object_stream_test');
+const NoLastReadsUpdateForObjectStreamTest = require('./code_errors/no_last_reads_update_for_object_stream_test');
+const ObjectStreamSeqNumTest = require('./code_errors/object_stream_seqnum_test');
 
 class PostPostRequestTester {
 
@@ -303,6 +314,7 @@ class PostPostRequestTester {
 		//new NumRepliesToCodemarkMessageTest({ type: 'direct' }).test();
 		//new NumRepliesToCodemarkMessageTest({ type: 'channel' }).test();
 		new MentionTest().test();
+		new NoMentionForeginUserTest().test();
 		new UnregisteredMentionTest().test();
 		new MessageToAuthorTest().test();
 		new OriginFromPluginTest().test();
@@ -447,6 +459,7 @@ class PostPostRequestTester {
 		new NumUsersInvitedTest().test();
 		new CodemarkInviteTriggerTest().test();
 		new CodemarkAttributeRequiredTest({ attribute: 'type' }).test();
+		new CodemarkMessageTest().test();
 
 		// concerning reviews...
 		// we do a subset of the tests for codemarks, assuming that marker validation 
@@ -517,8 +530,10 @@ class PostPostRequestTester {
 		new ReviewAttributeRequiredTest({ attribute: 'reviewChangesets' }).test();
 		new EmptyReviewChangesetTest().test();
 		new EntryPointTest().test();
+		new ReviewMessageTest().test();
 
 		// concerning code errors...
+		new CodeErrorTest().test();
 		new CodeErrorReplyTest().test();
 		new CodeErrorReplyToReplyTest().test();
 		new CodeErrorReplyWithCodemarkTest().test();
@@ -554,7 +569,14 @@ class PostPostRequestTester {
 		new StreamIdMismatchTest().test();
 		new NoRootPostInObjectStreamTest().test();
 		new CanReplyToCodeErrorAfterMentionTest().test();
-		// WE SHOULD HAVE Last Reads Tests here
+		new OwnedByOtherTeamTest().test();
+		new CodeErrorMessageTest().test();
+		new MostRecentPostForObjectStreamTest().test();
+		new LastReadsNoneForObjectStreamTest().test();
+		new NoLastReadsForAuthorForObjectStreamTest().test();
+		new LastReadsPreviousPostForObjectStreamTest().test();
+		new NoLastReadsUpdateForObjectStreamTest().test();
+		new ObjectStreamSeqNumTest().test();
 	}
 }
 

@@ -76,7 +76,7 @@ class PostCreator extends ModelCreator {
 			this[parameter] = this.attributes[parameter];
 			delete this.attributes[parameter];
 		});
-		
+
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
 		this.attributes.creatorId = this.user.id;
@@ -88,6 +88,7 @@ class PostCreator extends ModelCreator {
 		await this.getStream();			// get the stream for the post
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
+		await this.validateMentionedUsers(); // validate that mentioned users are on the team
 		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
@@ -176,10 +177,6 @@ class PostCreator extends ModelCreator {
 			this.attributes.streamId = this.codeError.get('streamId');
 		} else if (this.creatingCodeError) {
 			// if creating a code error, we'll create a stream
-			// adding users is not allowed when creating a code error
-			if (this.addedUsers && this.addedUsers.length) {
-				throw this.errorHandler.error('validation', { reason: 'cannot add users when creating a code error' });
-			}
 			return;
 		}
 
@@ -194,10 +191,6 @@ class PostCreator extends ModelCreator {
 			// can't create root posts in an object stream
 			throw this.errorHandler.error('createAuth', { reason: 'cannot create non-reply in object stream' });
 		}
-
-		if (this.addedUsers && this.addedUsers.length && !this.stream.get('isTeamStream')) {
-			throw this.errorHandler.error('validation', { reason: 'cannot add users to a stream that is not a team stream' });
-		}
 	}
 
 	// get the team that owns the stream for which the post is being created
@@ -205,6 +198,7 @@ class PostCreator extends ModelCreator {
 		const teamId = (this.stream && this.stream.get('teamId')) || this.attributes.teamId;
 		if (!teamId) {
 			// we get here if we are creating or replying to a code error that is teamless
+			// (though NR comment engine only)
 			return;
 		}
 
@@ -226,15 +220,32 @@ class PostCreator extends ModelCreator {
 		this.company = await this.data.companies.getById(this.team.get('companyId'));
 	}
 
-	// create any added users being mentioned, these users get invited "on-the-fly"
-	async createAddedUsers () {
-		if (!this.team) {
-			if (this.addedUsers && this.addedUsers.length > 0) {
-				this.request.warn('Cannot invite users on the fly with no team (is this a code error?)');
-			}
+	// validate that any mentioned users are on the team
+	async validateMentionedUsers () {
+		if (!this.team) { return; }
+		
+		const userIds = this.attributes.mentionedUserIds || [];
+		if (this.attributes.review) {
+			userIds.push.apply(userIds, this.attributes.review.reviewers || [])
+		}
+		if (userIds.length === 0) {
 			return;
 		}
 
+		const usersOnTeam = [
+			...(this.team.get('memberIds') || []),
+			...(this.team.get('removedMemberIds') || []),
+			...(this.team.get('foreignMemberIds') || [])
+		];
+
+		const mentionedUsersNotOnTeam = ArrayUtilities.difference(userIds, usersOnTeam);
+		if (mentionedUsersNotOnTeam.length > 0) {
+			throw this.errorHandler.error('validation', { reason: 'one or more mentioned users are not on the team' });
+		}
+	}
+
+	// create any added users being mentioned, these users get invited "on-the-fly"
+	async createAddedUsers () {
 		// trickiness ... we need to include the codemark or review or code error ID in the invited user objects, but we
 		// don't know them yet, and we need to create the users first to make them followers ... so here we
 		// lock down the IDs we will use later in creating the codemark or review
@@ -257,6 +268,13 @@ class PostCreator extends ModelCreator {
 		});
 		if (!this.addedUsers || this.addedUsers.length === 0) {
 			return;
+		}
+
+		// adding users is not allowed when creating a code error
+		if (this.creatingCodeError || !this.stream) {
+			throw this.errorHandler.error('validation', { reason: 'cannot add users when creating a code error' });
+		} else if (!this.stream.get('isTeamStream')) {
+			throw this.errorHandler.error('validation', { reason: 'cannot add users to a stream that is not a team stream' });
 		}
 
 		this.userInviter = new UserInviter({
@@ -336,10 +354,9 @@ class PostCreator extends ModelCreator {
 			return true;
 		}
 		this.attributes.codeError.postId = this.attributes.id;
-		if (this.attributes.teamId ) {
+		if (this.attributes.teamId) {
 			this.attributes.codeError.teamId = this.attributes.teamId;
 		}
-		this.attributes.codeError.streamId = this.attributes.streamId;
 
 		const codeErrorCreator = new CodeErrorCreator({
 			request: this.request,
