@@ -243,7 +243,8 @@ class GetStreamsTest extends CodeStreamAPITest {
 			this.teamStream,
 			...objectStreams
 		];
-		this.testLog(`CREATED: ${streams.map(s => s.id)}`);
+		this.testLog(`CREATED (by id): ${streams.map(s => s.id)}`);
+		this.testLog(`CREATED (by sortId): ${streams.map(s => s.sortId)}`);
 		callback();
 	}
 	
@@ -267,8 +268,10 @@ class GetStreamsTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		this.testLog(`EXPECTED: ${this.expectedStreams.map(stream => stream.id)}`);
-		this.testLog(`GOT: ${data.streams.map(stream => stream.id)}`);
+		this.testLog(`EXPECTED (by id): ${this.expectedStreams.map(stream => stream.id)}`);
+		this.testLog(`EXPECTED (by sortId): ${this.expectedStreams.map(stream => stream.sortId)}`);
+		this.testLog(`GOT (by id): ${data.streams.map(stream => stream.id)}`);
+		this.testLog(`GOT (by sortId): ${data.streams.map(stream => stream.sortId)}`);
 		// validate that we got back the streams we expected, and that they contain no attributes
 		// that clients shouldn't see
 		this.validateMatchingObjects(this.expectedStreams, data.streams, 'streams');
