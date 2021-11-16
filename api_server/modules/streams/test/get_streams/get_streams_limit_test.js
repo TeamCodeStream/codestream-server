@@ -19,7 +19,7 @@ class GetStreamsLimitTest extends GetStreamsTest {
 	setPath (callback) {
 		this.expectedStreams = this.getExpectedStreams();
 		this.expectedStreams.sort((a, b) => {
-			return b.id.localeCompare(a.id);
+			return b.sortId.localeCompare(a.sortId);
 		});
 		this.expectedStreams.splice(3);
 		this.path = `/streams?teamId=${this.team.id}&limit=3`;

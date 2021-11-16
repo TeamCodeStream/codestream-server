@@ -40,7 +40,7 @@ class CorrectSortOrderTest extends GetStreamsTest {
 		// becomes about making sure the team stream is first if we post in it
 		this.expectedStreams = this.getExpectedStreams();
 		this.expectedStreams.sort((a, b) => {	// sort by ID, which is the default sort order when there are no posts 
-			return a.id.localeCompare(b.id);
+			return a.sortId.localeCompare(b.sortId);
 		});
 		this.updatedAt = Date.now();
 

@@ -25,7 +25,7 @@ class GetStreamsDefaultSortTest extends GetStreamsTest {
 
 		// default sort order for streams without posts is by their ID, in descending order
 		this.expectedStreams.sort((a, b) => {
-			return a.id.localeCompare(b.id);
+			return a.sortId.localeCompare(b.sortId);
 		});
 		this.expectedStreams.reverse();
 		this.path = `/streams?teamId=${this.team.id}`;
