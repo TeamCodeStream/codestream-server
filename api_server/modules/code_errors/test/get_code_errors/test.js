@@ -9,6 +9,8 @@ const GetCodeErrorsBeforeInclusiveTest = require('./get_code_errors_before_inclu
 const GetCodeErrorsAfterInclusiveTest = require('./get_code_errors_after_inclusive_test');
 const GetCodeErrorsBeforeAfterTest = require('./get_code_errors_before_after_test');
 const GetCodeErrorsBeforeAfterInclusiveTest = require('./get_code_errors_before_after_inclusive_test');
+const TeamIDRequiredTest = require('./team_id_required_test');
+const ACLTest = require('./acl_test');
 
 class GetCodeErrorsRequestTester {
 
@@ -20,6 +22,8 @@ class GetCodeErrorsRequestTester {
 		new GetCodeErrorsAfterInclusiveTest().test();
 		new GetCodeErrorsBeforeAfterTest().test();
 		new GetCodeErrorsBeforeAfterInclusiveTest().test();
+		new TeamIDRequiredTest().test();
+		new ACLTest().test();
 	}
 }
 

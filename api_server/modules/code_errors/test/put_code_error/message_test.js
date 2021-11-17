@@ -18,7 +18,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		this.channelName = `object-${this.postData[0].codeError.id}`;
+		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 

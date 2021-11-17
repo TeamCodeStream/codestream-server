@@ -13,7 +13,7 @@ class GetCodeErrorsTest extends CodeStreamAPITest {
 		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			numPosts: 10,
-			creatorIndex: 0,
+			creatorIndex: 1,
 			wantCodeError: true
 		});
 	}

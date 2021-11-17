@@ -27,36 +27,10 @@ class GetCodeErrorsRequest extends GetManyRequest {
 		await this.getPosts();	// get associated posts, as needed
 	}
 
-	/*
-	// called before running the fetch query
-	async preQueryHook () {
-		// get code errors followed by this user
-		const codeErrors = await this.data.codeErrors.getByQuery(
-			{
-				followerIds: this.user.id
-			},
-			{
-				hint: Indexes.byFollowerIds,
-				fields: ['streamId'],
-				noCache: true
-			}
-		);
-		this.streamIds = codeErrors.map(codeError => codeError.streamId);
-	}
-	*/
-	
 	// build the database query to use to fetch the code errors
 	buildQuery () {
-		if (this.request.query.streamId && this.request.query.byLastActivityAt) {
-			return 'can not query on streamId and also on lastActivityAt';
-		}
-		const query = {
-			teamId: this.teamId
-		};
-		if (this.request.query.streamId) {
-			query.streamId = this.request.query.streamId.toLowerCase();
-		}
-		const indexAttribute = this.request.query.byLastActivityAt ? 'lastActivityAt' : 'createdAt';
+		const query = { teamId: this.teamId };
+		const indexAttribute = 'lastActivityAt';
 		let { before, after, inclusive } = this.request.query;
 		inclusive = inclusive !== undefined;
 		if (before !== undefined) {
@@ -86,40 +60,6 @@ class GetCodeErrorsRequest extends GetManyRequest {
 			}
 		}
 		return query;
-		/*
-		const query = {
-			streamId: this.data.posts.inQuery(this.streamIds)
-		};
-		let { before, after, inclusive } = this.request.query;
-		inclusive = inclusive !== undefined;
-		if (before !== undefined) {
-			before = parseInt(before, 10);
-			if (!before) {
-				return 'before must be a number';
-			}
-			query.lastActivityAt = query.lastActivityAt || {};
-			if (inclusive) {
-				query.lastActivityAt.$lte = before;
-			}
-			else {
-				query.lastActivityAt.$lt = before;
-			}
-		}
-		if (after !== undefined) {
-			after = parseInt(after, 10);
-			if (!after) {
-				return 'after must be a number';
-			}
-			query.lastActivityAt = query.lastActivityAt || {};
-			if (inclusive) {
-				query.lastActivityAt.$gte = after;
-			}
-			else {
-				query.lastActivityAt.$gt = after;
-			}
-		}
-		return query;
-		*/
 	}
 
 	// get database options to associate with the database fetch request

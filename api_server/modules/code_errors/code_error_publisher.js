@@ -9,7 +9,7 @@ class CodeErrorPublisher {
 	}
 
 	async publishCodeError () {
-		const channel = `object-${this.codeError.id}`;
+		const channel = `team-${this.codeError.get('teamId')}`;
 		const message = Object.assign({}, this.data, {
 			requestId: this.request.request.id
 		});

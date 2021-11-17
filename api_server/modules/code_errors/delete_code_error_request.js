@@ -13,6 +13,7 @@ class DeleteCodeErrorRequest extends DeleteRequest {
 		// get the code error, only the author or the team admin can delete it
 		const codeErrorId = this.request.params.id.toLowerCase();
 		this.codeError = await this.user.authorizeCodeError(codeErrorId, this);
+
 		// only an admin or the code error creator can delete it
 		let isAdmin = false;
 		if (this.codeError && this.codeError.get('teamId')) {

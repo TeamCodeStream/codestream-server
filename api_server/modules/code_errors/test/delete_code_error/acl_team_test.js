@@ -2,10 +2,10 @@
 
 const DeleteCodeErrorTest = require('./delete_code_error_test');
 
-class ACLTest extends DeleteCodeErrorTest {
+class ACLTeamTest extends DeleteCodeErrorTest {
 
 	get description () {
-		return 'should return an error when someone other than the creator tries to delete a code error';
+		return 'should return an error when trying to delete a code error in a team the user is not a member of';
 	}
 
 	getExpectedError () {
@@ -24,4 +24,4 @@ class ACLTest extends DeleteCodeErrorTest {
 	}
 }
 
-module.exports = ACLTest;
+module.exports = ACLTeamTest;

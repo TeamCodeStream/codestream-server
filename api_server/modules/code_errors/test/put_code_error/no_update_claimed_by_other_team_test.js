@@ -1,11 +1,11 @@
 'use strict';
 
-const PutCodeErrorTest = require('./put_code_error_test');
+const UpdateClaimedTest = require('./update_claimed_test');
 
-class ACLTeamTest extends PutCodeErrorTest {
+class NoUpdateClaimedByOtherTeamTest extends UpdateClaimedTest {
 
 	get description () {
-		return 'should return an error when trying to update a code error in a team the user is not a member of';
+		return 'should return an error when trying to update a code error that has been claimed by another team';
 	}
 
 	getExpectedError () {
@@ -23,4 +23,4 @@ class ACLTeamTest extends PutCodeErrorTest {
 	}
 }
 
-module.exports = ACLTeamTest;
+module.exports = NoUpdateClaimedByOtherTeamTest;
