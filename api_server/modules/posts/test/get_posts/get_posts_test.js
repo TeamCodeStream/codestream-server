@@ -13,6 +13,9 @@ class GetPostsTest extends CodeStreamAPITest {
 			creatorIndex: 1,
 			numPosts: 5
 		});
+
+		// this ensures the "repo post", if any, has a timestamp less than any of the other posts created
+		this.repoOptions.waitAfterCreateRepo = 1000;		
 	}
 
 	get description () {
@@ -24,15 +27,9 @@ class GetPostsTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.wait1sec,
 			this.logPosts,
 			this.setPath			// set the path for our request to retrieve posts
 		], callback);
-	}
-
-	wait1sec (callback) {
-		// this ensures the "repo post", if any, has a timestamp less than any of the other posts created
-		setTimeout(callback, 1000);
 	}
 
 	logPosts (callback) {
