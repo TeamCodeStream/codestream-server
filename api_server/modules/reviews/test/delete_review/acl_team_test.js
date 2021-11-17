@@ -11,7 +11,7 @@ class ACLTeamTest extends DeleteReviewTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1013',
-			reason: 'only the author or a team admin can delete the review'
+			reason: 'user must be on the team that owns the review'
 		};
 	}
 

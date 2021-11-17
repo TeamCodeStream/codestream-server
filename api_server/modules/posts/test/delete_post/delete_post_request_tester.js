@@ -32,6 +32,7 @@ const DeleteReplyToReviewTest = require('./delete_reply_to_review_test');
 const DeleteReplyToCodeErrorTest = require('./delete_reply_to_code_error_test');
 const DeleteCodemarkReplyToReviewTest = require('./delete_codemark_reply_to_review_test');
 const DeleteCodemarkReplyToCodeErrorTest = require('./delete_codemark_reply_to_code_error_test');
+const RemovedMemberCantDeleteTest = require('./removed_member_cant_delete_test');
 
 class DeletePostRequestTester {
 
@@ -80,6 +81,7 @@ class DeletePostRequestTester {
 		new DeleteReplyToCodeErrorTest().test();
 		new DeleteCodemarkReplyToReviewTest().test();
 		new DeleteCodemarkReplyToCodeErrorTest().test();
+		new RemovedMemberCantDeleteTest().test();
 	}
 }
 

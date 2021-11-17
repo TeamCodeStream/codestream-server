@@ -11,7 +11,7 @@ class ACLTeamTest extends DeletePostTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1013',
-			reason: 'only the post author or a team admin can delete the post'
+			reason: 'the user does not have access to this post'
 		};
 	}
 
