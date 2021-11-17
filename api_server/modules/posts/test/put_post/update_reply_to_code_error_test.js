@@ -17,7 +17,6 @@ class UpdateReplyToCodeErrorTest extends PutPostTest {
 		super.setTestOptions(() => {
 			Object.assign(this.postOptions, {
 				numPosts: 2,
-				claimCodeErrors: true,
 				postData: [
 					{
 						creatorIndex: 1,

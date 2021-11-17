@@ -16,8 +16,7 @@ class GetStreamTest extends CodeStreamAPITest {
 		} else if (this.type === 'object') {
 			Object.assign(this.postOptions, {
 				creatorIndex,
-				wantCodeError: true,
-				claimCodeErrors: true
+				wantCodeError: true
 			});
 		}
 	}

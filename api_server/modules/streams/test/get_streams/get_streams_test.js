@@ -43,7 +43,6 @@ class GetStreamsTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: this.numStreams || 12,
 			creatorIndex: 1,
-			claimCodeErrors: true,
 			postData: []
 		});
 		for (let i = 0; i < this.postOptions.numPosts; i++) {

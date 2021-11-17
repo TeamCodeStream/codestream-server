@@ -15,8 +15,7 @@ class GetForeignTeamMemberTest extends CodeStreamAPITest {
 		});
 		Object.assign(this.postOptions, {
 			creatorIndex: 2,
-			wantCodeError: true,
-			claimCodeErrors: true
+			wantCodeError: true
 		});
 	}
 

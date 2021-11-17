@@ -10,8 +10,6 @@ class GetCodeErrorTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
-		//this.streamOptions.creatorIndex = 1;
-		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			wantCodeError: true
@@ -49,10 +47,8 @@ class GetCodeErrorTest extends CodeStreamAPITest {
 		this.validateSanitized(data.codeError, CodeErrorTestConstants.UNSANITIZED_ATTRIBUTES);
 
 		// validate we also got the parent post, with only sanitized attributes
-		if (this.postData[0]) {
-			this.validateMatchingObject(this.postData[0].post.id, data.post, 'post');
-			this.validateSanitized(data.post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
-		}
+		this.validateMatchingObject(this.postData[0].post.id, data.post, 'post');
+		this.validateSanitized(data.post, PostTestConstants.UNSANITIZED_ATTRIBUTES);
 	}
 }
 

@@ -11,7 +11,6 @@ class NoLastReadsUpdateForObjectStreamTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
 			numPosts: 4,
-			claimCodeErrors: true,
 			postData: [
 				{
 					wantCodeError: true

@@ -7,8 +7,7 @@ class ReadObjectStreamTest extends ReadTest {
 	constructor (options) {
 		super(options);
 		Object.assign(this.postOptions, {
-			wantCodeError: true,
-			claimCodeErrors: true
+			wantCodeError: true
 		});
 	}
 	

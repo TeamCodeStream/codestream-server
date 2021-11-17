@@ -20,8 +20,7 @@ class OwnedByOtherTeamTest extends CodeErrorTest {
 		BoundAsync.series(this, [
 			super.makePostData,
 			this.makeOtherTeam,
-			this.makeCodeError,
-			this.claimCodeError
+			this.makeCodeError
 		], callback);
 	}
 
@@ -56,21 +55,6 @@ class OwnedByOtherTeamTest extends CodeErrorTest {
 				streamId: this.otherTeamStream.id,
 				wantCodeError: true
 			}
-		);
-	}
-
-	claimCodeError (callback) {
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/code-errors/claim/' + this.otherTeam.id,
-				data: {
-					objectId: this.otherCodeError.objectId,
-					objectType: this.otherCodeError.objectType
-				},
-				token: this.users[1].accessToken
-			},
-			callback
 		);
 	}
 }

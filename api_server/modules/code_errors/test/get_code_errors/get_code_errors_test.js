@@ -10,7 +10,6 @@ class GetCodeErrorsTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
-		//this.streamOptions.creatorIndex = 1;
 		this.repoOptions.creatorIndex = 1;
 		Object.assign(this.postOptions, {
 			numPosts: 10,

@@ -6,7 +6,6 @@ class GetPostsInObjectStreamTest extends GetRepliesToCodeErrorTest {
 
 	constructor (options) {
 		super(options);
-		this.postOptions.claimCodeErrors = true;
 		this.postOptions.postData[this.whichPostToReplyTo] = { wantCodeError: true };
 	}
 

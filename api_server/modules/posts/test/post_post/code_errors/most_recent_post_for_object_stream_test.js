@@ -10,7 +10,6 @@ class MostRecentPostForObjectStreamTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			creatorIndex: 0,
 			numPosts: 4,
-			claimCodeErrors: true,
 			postData: [
 				{
 					wantCodeError: true

@@ -17,7 +17,6 @@ const RemovedMemberCantUpdateTest = require('./removed_member_cant_update_test')
 class PutPostRequestTester {
 
 	putPostTest () {
-		/*
 		new PutPostTest().test();
 		new PutPostFetchTest().test();
 		new ACLTest().test();
@@ -34,7 +33,6 @@ class PutPostRequestTester {
 		new MentionTest().test();
 		new SharedToTest().test();
 		new UpdateReplyToCodeErrorTest().test();
-		*/
 		new RemovedMemberCantUpdateTest().test();
 	}
 }
