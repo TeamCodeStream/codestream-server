@@ -9,15 +9,6 @@ class GetPostsTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.teamOptions.creatorIndex = 1;
-		// posting to channels other than the team stream is no longer supported,
-		// so disable any possibility of posting elsewhere
-		/*
-		this.type = this.type || 'channel';
-		Object.assign(this.streamOptions, {
-			creatorIndex: 1,
-			type: this.type
-		});
-		*/
 		Object.assign(this.postOptions, {
 			creatorIndex: 1,
 			numPosts: 5
@@ -33,9 +24,15 @@ class GetPostsTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
+			this.wait1sec,
 			this.logPosts,
 			this.setPath			// set the path for our request to retrieve posts
 		], callback);
+	}
+
+	wait1sec (callback) {
+		// this ensures the "repo post", if any, has a timestamp less than any of the other posts created
+		setTimeout(callback, 1000);
 	}
 
 	logPosts (callback) {
