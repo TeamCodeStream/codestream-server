@@ -48,6 +48,12 @@ class DeleteMarkersFetchTest extends DeleteMarkersTest {
 	}
 
 	verifyMarkers (callback) {
+		this.fetchedMarkers.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
+		this.expectedMarkers.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
 		const numMarkers = this.postData[0].markers.length;
 		Assert(this.fetchedMarkers.length === numMarkers, `should have fetched ${numMarkers} markers`);
 		for (let i = 0; i < numMarkers; i++) {
