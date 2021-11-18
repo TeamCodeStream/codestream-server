@@ -5,19 +5,18 @@ const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_ser
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 
-class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
+class CodeErrorReplyMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
 		const type = this.isTeamStream ? 'team' : this.type;
-		return `should create and publish a post as a reply to the codemark when an inbound email call is made for a codemark created in a ${type} stream`;
+		return `should create and publish a post as a reply to the code error when an inbound email call is made for a code error created in a ${type} stream`;
 	}
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
 			Object.assign(this.postOptions, {
 				creatorIndex: 0,
-				wantCodemark: true,
-				wantMarkers: true
+				wantCodeError: true
 			});
 			callback();
 		});
@@ -30,6 +29,7 @@ class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, Common
 
 	// make the data to be used in the request that triggers the message
 	makePostData (callback) {
+		this.useStream = this.postData[0].streams[0];
 		super.makePostData(() => {
 			this.data.to[0].address = `${this.postData[0].post.id}.${this.data.to[0].address}`;
 			callback();
@@ -65,4 +65,4 @@ class CodemarkReplyMessageTest extends Aggregation(CodeStreamMessageTest, Common
 	}
 }
 
-module.exports = CodemarkReplyMessageTest;
+module.exports = CodeErrorReplyMessageTest;

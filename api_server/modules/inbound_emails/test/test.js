@@ -22,8 +22,11 @@ const StreamNoMatchTeamTest = require('./stream_no_match_team_test');
 const OriginatorNotInTeamTest = require('./originator_not_in_team_test');
 const TrackingTest = require('./tracking_test');
 const TrackingReplyToReviewTest = require('./tracking_reply_to_review_test');
+const TrackingReplyToCodeErrorTest = require('./tracking_reply_to_code_error_test');
 const TrackingCodemarkReplyToReviewTest = require('./tracking_codemark_reply_to_review_test');
+const TrackingCodemarkReplyToCodeErrorTest = require('./tracking_codemark_reply_to_code_error_test');
 const TrackingReplyToReviewReplyTest = require('./tracking_reply_to_review_reply_test');
+const TrackingReplyToCodeErrorReplyTest = require('./tracking_reply_to_code_error_reply_test');
 const NoTrackingTest = require('./no_tracking_test');
 const CodemarkReplyTest = require('./codemark_reply_test');
 const CodemarkReplyMessageTest = require('./codemark_reply_message_test');
@@ -37,6 +40,11 @@ const InvalidReviewIdTest = require('./invalid_review_id_test');
 const ReviewNotFoundTest = require('./review_not_found_test');
 const ReviewNoMatchTeamTest = require('./review_no_match_team_test');
 const ReviewNoMatchStreamTest = require('./review_no_match_stream_test');
+const CodeErrorReplyTest = require('./code_error_reply_test');
+const CodeErrorReplyMessageTest = require('./code_error_reply_message_test');
+const InvalidCodeErrorIdTest = require('./invalid_code_error_id_test');
+const CodeErrorNotFoundTest = require('./code_error_not_found_test');
+const CodeErrorNoMatchTeamTest = require('./code_error_no_match_team_test');
 
 describe('inbound emails', function() {
 
@@ -62,21 +70,27 @@ describe('inbound emails', function() {
 	new OriginatorNotInTeamTest().test();
 	new TrackingTest().test();
 	new TrackingReplyToReviewTest().test();
+	new TrackingReplyToCodeErrorTest().test();
 	new TrackingCodemarkReplyToReviewTest().test();
+	new TrackingCodemarkReplyToCodeErrorTest().test();
 	new TrackingReplyToReviewReplyTest().test();
+	new TrackingReplyToCodeErrorReplyTest().test();
 	new NoTrackingTest().test(); 
 	new CodemarkReplyTest().test();
-	// TODO: check the team message instead
-	//new CodemarkReplyMessageTest().test();
+	new CodemarkReplyMessageTest().test();
 	new InvalidCodemarkIdTest().test();
 	new CodemarkNotFoundTest().test();
 	new CodemarkNoMatchTeamTest().test();
 	//new CodemarkNoMatchStreamTest().test();
 	new ReviewReplyTest().test();
-	// TODO: check the team message instead
-	//new ReviewReplyMessageTest().test();
+	new ReviewReplyMessageTest().test();
 	new InvalidReviewIdTest().test();
 	new ReviewNotFoundTest().test();
 	new ReviewNoMatchTeamTest().test();
 	//new ReviewNoMatchStreamTest().test();
+	new CodeErrorReplyTest().test();
+	new CodeErrorReplyMessageTest().test();
+	new InvalidCodeErrorIdTest().test();
+	new CodeErrorNotFoundTest().test();
+	new CodeErrorNoMatchTeamTest().test();
 });

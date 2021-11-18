@@ -39,11 +39,12 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		// verify we got back a post with the attributes we specified
 		const post = data.post;
 		const errors = [];
+		const stream = this.useStream || this.teamStream;
 		const result = (
 			((post.id === post._id) || errors.push('id not set to _id')) && 	// DEPCREATE ME
 			((post.text === this.data.text) || errors.push('text does not match')) &&
 			((post.teamId === this.team.id) || errors.push('teamId does not match the team')) &&
-			((post.streamId === this.teamStream.id) || errors.push('streamId does not match')) &&
+			((post.streamId === stream.id) || errors.push('streamId does not match')) &&
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
