@@ -54,7 +54,7 @@ class CommonInit {
 	}
 
 	// set the data expected in the response 
-	async setExpectedData (callback) {
+	setExpectedData (callback) {
 		const { codeError, codeErrorPost } = this.nrCommentResponse.codeStreamResponse;
 		const stream = this.nrCommentResponse.codeStreamResponse.streams[0];
 		this.expectedCodeError = {
