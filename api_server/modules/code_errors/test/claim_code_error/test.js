@@ -21,7 +21,6 @@ class ClaimCodeErrorRequestTester {
 
 	test () {
 		new ClaimCodeErrorTest().test();
-		/*
 		new ACLTeamTest().test();
 		new ParameterRequiredTest({ parameter: 'objectId' }).test();
 		new ParameterRequiredTest({ parameter: 'objectType' }).test();
@@ -35,7 +34,6 @@ class ClaimCodeErrorRequestTester {
 		new FetchCodeErrorTest().test();
 		new FetchStreamTest().test();
 		new MessageTest().test();
-		*/
 	}
 }
 

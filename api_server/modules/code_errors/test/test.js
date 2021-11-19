@@ -18,7 +18,6 @@ describe('code error requests', function() {
 
 	this.timeout(20000);
 
-	/*
 	describe('GET /code-errors/:id', GetCodeErrorRequestTester.test);
 	describe('GET /code-errors', GetCodeErrorsRequestTester.test);
 	describe('PUT /code-errors/:id', PutCodeErrorRequestTester.test);
@@ -26,6 +25,5 @@ describe('code error requests', function() {
 	describe('PUT /code-errors/follow/:id', FollowRequestTester.test);
 	describe('PUT /code-errors/unfollow/:id', UnfollowRequestTester.test);
 	describe('GET /no-auth/unfollow-link/code-error/:id', UnfollowLinkRequestTester.test);
-	*/
 	describe('POST /code-errors/claim/:teamId', ClaimCodeErrorRequestTester.test);
 });
