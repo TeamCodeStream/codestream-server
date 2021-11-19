@@ -16,7 +16,7 @@ class PutCodeErrorFetchTest extends PutCodeErrorTest {
 	}
 
 	getExpectedFields () {
-		return { codeError: CodeErrorTestConstants.EXPECTED_CODEMARK_FIELDS };
+		return { codeError: CodeErrorTestConstants.EXPECTED_CODE_ERROR_WITH_STACK_TRACE_FIELDS };
 	}
 
 	// before the test runs...

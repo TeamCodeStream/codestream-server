@@ -12,6 +12,7 @@ const DeleteCodeErrorRequestTester = require('./delete_code_error/test');
 const FollowRequestTester = require('./follow/test');
 const UnfollowRequestTester = require('./unfollow/test');
 const UnfollowLinkRequestTester = require('./unfollow_link/test');
+const ClaimCodeErrorRequestTester = require('./claim_code_error/test');
 
 describe('code error requests', function() {
 
@@ -24,4 +25,5 @@ describe('code error requests', function() {
 	describe('PUT /code-errors/follow/:id', FollowRequestTester.test);
 	describe('PUT /code-errors/unfollow/:id', UnfollowRequestTester.test);
 	describe('GET /no-auth/unfollow-link/code-error/:id', UnfollowLinkRequestTester.test);
+	describe('POST /code-errors/claim/:teamId', ClaimCodeErrorRequestTester.test);
 });
