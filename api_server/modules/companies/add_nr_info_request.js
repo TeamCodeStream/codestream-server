@@ -7,7 +7,7 @@ const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 
 class AddNRInfoRequest extends RestfulRequest {
 
-	// authorize the request for the current user©29
+	// authorize the request for the current user
 	async authorize () {
 		// get the company
 		this.company = await this.data.companies.getById(this.request.params.id.toLowerCase());
@@ -16,7 +16,8 @@ class AddNRInfoRequest extends RestfulRequest {
 		}
 
 		// user must be a member of the everyone team for the company
-		if (!this.user.authorizeTeam(this.company.get('everyoneTeamId'))) {
+		const teamId = this.company.get('everyoneTeamId') || (this.company.get('teamIds') || [])[0];
+		if (!teamId || !(await this.user.authorizeTeam(teamId))) {
 			throw this.errorHandler.error('updateAuth', { reason: 'user is not a member of this company' });
 		}
 	}
@@ -46,7 +47,7 @@ class AddNRInfoRequest extends RestfulRequest {
 			id: this.company.id
 		}).save(op);
 
-		this.responseData = { company: [this.updateOp] };
+		this.responseData = { company: this.updateOp };
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -64,8 +65,10 @@ class AddNRInfoRequest extends RestfulRequest {
 
 	// after the join is complete and response returned...
 	async postProcess () {
+		const teamId = this.company.get('everyoneTeamId') || (this.company.get('teamIds') || [])[0];
+		if (!teamId) { return; }
 		// publish to the everyone team for the company
-		const channel = 'team-' + this.company.get('everyoneTeamId');
+		const channel = 'team-' + teamId;
 		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
 		try {
 			await this.api.services.broadcaster.publish(
