@@ -34,8 +34,8 @@ const ReplyToWrongCodeErrorTest = require('./reply_to_wrong_code_error_test');
 const ReplyToWrongReplyTest = require('./reply_to_wrong_reply_test');
 const ReplyToNonNRObjectTest = require('./reply_to_non_nr_object_test');
 const ReplyToNonNRObjectReplyTest = require('./reply_to_non_nr_object_reply_test');
-const MessageToObjectChannelTest = require('./message_to_object_channel_test');
-const MessageToObjectChannelFromCodeStreamCodeErrorTest = require('./message_to_object_channel_from_codestream_code_error_test');
+const MessageToTeamChannelTest = require('./message_to_team_channel_test');
+const MessageToTeamChannelFromCodeStreamCodeErrorTest = require('./message_to_team_channel_from_codestream_code_error_test');
 
 class PostNRCommentRequestTester {
 
@@ -79,9 +79,8 @@ class PostNRCommentRequestTester {
 		new ReplyToWrongReplyTest().test();
 		new ReplyToNonNRObjectTest().test();
 		new ReplyToNonNRObjectReplyTest().test();
-		// TODO
-		//new MessageToObjectChannelTest().test();
-		//new MessageToObjectChannelFromCodeStreamCodeErrorTest().test();
+		new MessageToTeamChannelTest().test();
+		new MessageToTeamChannelFromCodeStreamCodeErrorTest().test();
 	}
 }
 
