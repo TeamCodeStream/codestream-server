@@ -1,7 +1,17 @@
 # Integrations
 
 ## 3rd Party Services
+- [Asana](asana.md)
+- [Azure DevOps](azure-devops.md)
+- [Bitbucket](bitbucket.md)
+- [Github](github.md)
+- [Gitlab](gitlab.md)
+- [jira](jira.md)
+- [linear](linear.md)
+- [msteams](msteams.md)
+- [newrelic](newrelic.md)
 - [Slack](slack.md)
+- [Trello](trello.md)
 
 ## OAuth & SSO Handshake
 
