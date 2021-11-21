@@ -295,6 +295,9 @@
 		"trello": {
 			"cloud": {
 				"defaultEnv": {
+					"_loadSecretsFile": "trello/codestreamdevops.cfg"
+				},
+				"prod": {
 					"_loadSecretsFile": "trello/codestreamops.cfg"
 				}
 			}
