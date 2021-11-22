@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.23] - 2021-11-23
+
+### Changed
+
+- Always show IDE-specific instructions on redirect web page
+
 ## [11.0.22] - 2021-11-15
 
 ### Changed
