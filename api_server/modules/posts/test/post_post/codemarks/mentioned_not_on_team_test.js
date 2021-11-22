@@ -11,7 +11,7 @@ class MentionedNotOnTeamTest extends FollowersMentionedTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1005',
-			info: 'followers must contain only users on the team'
+			reason: 'one or more mentioned users are not on the team'
 		};
 	}
 

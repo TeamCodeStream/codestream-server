@@ -2,7 +2,44 @@
 
 const DeepEqual = require('deep-equal');
 const DeepClone = require('../deep_clone');
-const ObjectID = require('mongodb').ObjectID;
+//const ObjectID = require('mongodb').ObjectID;
+
+// instead of using mongo's native ID generator, we'll simulate it
+// this gives us a better random representation of IDs given that in production,
+// cluster works span multiple processes and machines, which are incorporated
+// into the generated ID
+
+const RandomProcessID = () => {
+	return Math.floor(Math.random() * 1099511627776);
+};
+
+var ProcessIDs = [
+	RandomProcessID(),
+	RandomProcessID(),
+	RandomProcessID(),
+	RandomProcessID(),
+	RandomProcessID(),
+	RandomProcessID(),
+	RandomProcessID(),
+	RandomProcessID()
+];
+var Counter = Math.floor(Math.random() * 16777216);
+
+const ToPaddedHex = (n, len) => {
+	let hex = n.toString(16);
+	if (hex.length < len) {
+		hex = '0'.repeat(len - hex.length) + hex;
+	}
+	return hex;
+};
+
+const MockObjectID = () => {
+	const timeStamp = Math.floor(Date.now() / 1000);
+	const processIdIdx = Math.floor(Math.random() * ProcessIDs.length);
+	const processId = ProcessIDs[processIdIdx];
+	const counter = ++Counter;
+	return `${ToPaddedHex(timeStamp, 8)}${ToPaddedHex(processId, 10)}${ToPaddedHex(counter, 6)}`;
+}
 
 const ApplyProjection = function(document, projection) {
 	let isExclude = null;
@@ -64,7 +101,7 @@ class MockMongoCollection {
 	async insertOne (document) {
 		document = DeepClone(document);
 		if (!document._id) {
-			document._id = ObjectID();
+			document._id = MockObjectID();
 		}
 		this.collection.push(document);
 		return document;
@@ -74,7 +111,7 @@ class MockMongoCollection {
 		const createdDocuments = DeepClone(documents);
 		createdDocuments.forEach(document => {
 			if (!document._id) {
-				document._id = ObjectID();
+				document._id = MockObjectID();
 			}
 		});
 		this.collection = [...this.collection, ...createdDocuments];
@@ -171,6 +208,10 @@ class MockMongoCollection {
 			}
 		}
 		return count;
+	}
+
+	mockObjectId () {
+		return MockObjectID();
 	}
 
 	_sanitizeUpdate (update) {

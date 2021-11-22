@@ -11,13 +11,12 @@ class ACLTeamTest extends PutCodeErrorTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1010',
-			reason: 'only the creator of the code error can make this update'
+			reason: 'user is not on the team that owns this code error'
 		};
 	}
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
-			this.postOptions.creatorIndex = 1;
 			this.teamOptions.members = [];
 			callback();
 		});

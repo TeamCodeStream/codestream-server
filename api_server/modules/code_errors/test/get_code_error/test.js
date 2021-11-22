@@ -10,7 +10,7 @@ class GetCodeErrorRequestTester {
 
 	test () {
 		new GetCodeErrorTest().test();
-		//new ACLTest().test();
+		new ACLTest().test();
 		new NotFoundTest().test();
 	}
 }

@@ -16,6 +16,7 @@ const IllegalCharacterTest = require('./illegal_character_test');
 const NonBooleanTest = require('./non_boolean_test');
 const EmptyReactionsTest = require('./empty_reactions_test');
 const MessageTest = require('./message_test');
+const ReactToCodeErrorReplyTest = require('./react_to_code_error_reply_test');
 
 class ReactRequestTester {
 
@@ -40,6 +41,7 @@ class ReactRequestTester {
 		new MessageTest({ streamType: 'channel' }).test();
 		new MessageTest({ streamType: 'direct' }).test();
 		*/
+		new ReactToCodeErrorReplyTest().test();
 	}
 }
 

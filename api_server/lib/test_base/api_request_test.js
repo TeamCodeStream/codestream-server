@@ -251,8 +251,6 @@ class APIRequestTest extends GenericTest {
 		let objectIds_1 = objects1.map(object => object.id).sort();
 		let objectIds_2 = objects2.map(object => object.id).sort();
 		if (!DeepEqual(objectIds_1, objectIds_2)) {
-			this.testLog(`objectIds_1: ${JSON.stringify(objectIds_1, 0, 5)}`);
-			this.testLog(`objectIds_2: ${JSON.stringify(objectIds_2, 0, 5)}`);
 			Assert.fail(`${name} returned don't match`);
 		}
 		//Assert.deepStrictEqual(objectIds_2, objectIds_1, `${name} returned don't match`);

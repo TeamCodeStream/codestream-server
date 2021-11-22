@@ -192,7 +192,9 @@
 				"prod": {
 					"_loadSecretsFile": "github/prod.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "github/stg.cfg"
+				}
 			}
 		},
 		"gitlab": {
@@ -293,6 +295,9 @@
 		"trello": {
 			"cloud": {
 				"defaultEnv": {
+					"_loadSecretsFile": "trello/codestreamdevops.cfg"
+				},
+				"prod": {
 					"_loadSecretsFile": "trello/codestreamops.cfg"
 				}
 			}

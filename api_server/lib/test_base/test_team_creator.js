@@ -227,7 +227,8 @@ class TestTeamCreator {
 					this.repoCodemark = response.codemark;
 					this.repoMarker = response.markers[0];
 				}
-				callback();
+				const waitTime = this.repoOptions.waitAfterCreateRepo || 0;
+				setTimeout(callback, waitTime);
 			},
 			{
 				token,

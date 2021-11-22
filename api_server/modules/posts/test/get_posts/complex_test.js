@@ -19,7 +19,6 @@ class ComplexTest extends GetPostsTest {
 		this.postOptions.creatorIndex = 1;
 		this.postOptions.numPosts = this.numPosts || 45;
 		this.postOptions.postData = [];
-		this.postOptions.claimCodeErrors = true;
 		for (let i = 0; i < this.postOptions.numPosts; i++) {
 			const nInterval = 15;
 			const n = i % nInterval;

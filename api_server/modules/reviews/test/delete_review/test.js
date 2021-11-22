@@ -15,6 +15,7 @@ const MessageTest = require('./message_test');
 const MarkersToTeamMessageTest = require('./markers_to_team_message_test');
 const DeleteRepliesTest = require('./delete_replies_test');
 const DeleteRelationsTest = require('./delete_relations_test');
+const RemovedMemberCantDeleteTest = require('./removed_member_cant_delete_test');
 
 class DeleteReviewRequestTester {
 
@@ -39,6 +40,7 @@ class DeleteReviewRequestTester {
 		//new MarkersToTeamMessageTest({ streamType: 'team stream' }).test();
 		new DeleteRepliesTest().test();
 		new DeleteRelationsTest().test();
+		new RemovedMemberCantDeleteTest().test();
 	}
 }
 

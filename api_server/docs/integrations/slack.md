@@ -65,3 +65,8 @@ them to the CodeStream configuration file.
 - Client ID
 - Client Secret
 - Signing Secret
+
+
+## Permalink to Code Requesting Auth
+
+This is the _source of truth_ where slack access is concerned.

@@ -121,6 +121,7 @@ class PostNRCommentRequest extends NRCommentRequest {
 		// if a reply, the parent post must be a comment for this code error
 		if (!this.request.body.parentPostId) { return; }
 
+		let grandparentPost;
 		const parentPost = await this.data.posts.getById(this.request.body.parentPostId);
 		if (!parentPost) {
 			throw this.errorHandler.error('notFound', { info: 'parent post' });
@@ -130,13 +131,14 @@ class PostNRCommentRequest extends NRCommentRequest {
 				throw this.errorHandler.error('replyToImproperPost', { reason: 'the parent post\'s object ID does not match the object referenced in the submitted reply' });
 			}
 		} else if (parentPost.get('parentPostId')) {
-			const grandparentPost = await this.data.posts.getById(parentPost.get('parentPostId'));
+			grandparentPost = await this.data.posts.getById(parentPost.get('parentPostId'));
 			if (grandparentPost.get('codeErrorId') !== this.codeError.id) {
 				throw this.errorHandler.error('replyToImproperPost', { reason: 'the parent post is a reply to an object that does not match the object referenced in the submitted reply'});
 			}
 		} else {
 			throw this.errorHandler.error('replyToImproperPost', { reason: 'the parent post is not associated with a New Relic object' });
 		}
+		this.codeErrorPost = grandparentPost || parentPost;
 	}
 
 	// create the actual post, as a reply to the post pointing to the code error
@@ -189,6 +191,9 @@ class PostNRCommentRequest extends NRCommentRequest {
 		const secret = this.api.config.sharedSecrets.commentEngine;
 		if (this.request.headers['x-cs-want-cs-response'] === secret) {
 			this.responseData.codeStreamResponse = this.postResponseData;
+			if (this.codeErrorPost) {
+				this.responseData.codeStreamResponse.codeErrorPost = this.codeErrorPost.getSanitizedObject({ request: this });
+			}
 		}
 
 		return super.handleResponse();

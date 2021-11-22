@@ -11,7 +11,7 @@ class ACLTest extends DeleteCodeErrorTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1013',
-			reason: 'only the creator of a code error can delete it'
+			reason: 'only the creator or a team admin can delete a code error'
 		};
 	}
 

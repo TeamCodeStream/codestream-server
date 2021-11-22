@@ -43,18 +43,6 @@ class ReviewReplyMessageTest extends Aggregation(CodeStreamMessageTest, CommonIn
 		// since posting to any stream other than the team stream is no longer allowed,
 		// just listen on the team channel
 		this.channelName = `team-${this.team.id}`;
-
-		/*
-		// team channel for file-type streams, or team-streams, otherwise the stream channel
-		if (this.type === 'file' || this.isTeamStream) {
-			this.channelName = `team-${this.team.id}`;
-		}
-		else {
-			throw 'stream channels are deprecated';
-			//this.channelName = `stream-${this.stream.id}`;
-		}
-		*/
-		
 		callback();
 	}
 
@@ -72,73 +60,10 @@ class ReviewReplyMessageTest extends Aggregation(CodeStreamMessageTest, CommonIn
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.postMessage = response;	// we expect the same info through pubnub
-				this.updateMessage = {
-					post: {
-						id: this.postData[0].post.id,
-						_id: this.postData[0].post.id, // DEPRECATE ME
-						$set: {
-							numReplies: 1,
-							modifiedAt: Date.now(), // placeholder
-							version: 2
-						},
-						$version: {
-							before: 1,
-							after: 2
-						}
-					},
-					reviews: [{
-						id: this.postData[0].review.id,
-						_id: this.postData[0].review.id, // DEPRECATE ME
-						$set: {
-							numReplies: 1,
-							lastReplyAt: Date.now(), // placeholder
-							lastActivityAt: Date.now(), // placeholder
-							modifiedAt: Date.now(), // placeholder
-							version: 2
-						},
-						$version: {
-							before: 1,
-							after: 2
-						}
-					}]
-				};
-				if (this.type !== 'direct') {
-					this.updateMessage.reviews[0].$addToSet = { followerIds: [this.users[1].user.id] };
-				}
+				this.message = response;
 				callback();
 			}
 		);
-	}
-
-	validateMessage (message) {
-		// we expect two messages ... one for the actual post...
-		if (message.message.post && message.message.post.id !== this.postData[0].post.id) {
-			this.message = this.postMessage;
-			if (super.validateMessage(message)) {
-				this.validatedPostMessage = true;
-				return this.validatedUpdateMessage; // don't return test pass condition until we've received both messages
-			}
-		}
-
-		// ...and the other is for the update to the parent post and review
-		const post = message.message.post;
-		const review = message.message.reviews[0];
-		Assert(post.$set.modifiedAt >= this.requestSentAt, 'post modifiedAt should be set to after the request was sent');
-		this.updateMessage.post.$set.modifiedAt = post.$set.modifiedAt;
-		Assert(review.$set.modifiedAt >= this.requestSentAt, 'review modifiedAt should be set to after the request was sent');
-		Assert(review.$set.lastReplyAt >= this.requestSentAt, 'review modifiedAt should be set to after the request was sent');
-		Assert(review.$set.lastActivityAt >= this.requestSentAt, 'review modifiedAt should be set to after the request was sent');
-		Object.assign(this.updateMessage.reviews[0].$set, {
-			modifiedAt: review.$set.modifiedAt,
-			lastReplyAt: review.$set.lastReplyAt,
-			lastActivityAt: review.$set.lastActivityAt
-		});
-		this.message = this.updateMessage;
-		if (super.validateMessage(message)) {
-			this.validatedUpdateMessage = true;
-			return this.validatedPostMessage; // don't return test pass condition until we've received both messages
-		}
 	}
 }
 

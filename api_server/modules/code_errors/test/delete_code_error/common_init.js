@@ -29,7 +29,7 @@ class CommonInit {
 	}
 
 	setExpectedData (callback) {
-		this.codeError = this.postData[this.testPost].codeError;
+		this.codeError = this.codeError || this.postData[this.testPost].codeError;
 		this.expectedData = {
 			codeErrors: [{
 				id: this.codeError.id,
@@ -50,10 +50,10 @@ class CommonInit {
 		this.expectedCodeError = DeepClone(this.codeError);
 		Object.assign(this.expectedCodeError, this.expectedData.codeErrors[0].$set);
 
-		const postData = this.postData[this.testPost];
+		const post = this.post || this.postData[this.testPost].post;
 		this.expectedData.posts = [{
-			_id: postData.post.id,	// DEPRECATE ME
-			id: postData.post.id,
+			_id: post.id,	// DEPRECATE ME
+			id: post.id,
 			$set: {
 				deactivated: true,
 				text: 'this post has been deleted',
@@ -66,7 +66,7 @@ class CommonInit {
 				after: 2
 			}
 		}];
-		this.expectedPost = DeepClone(postData.post);
+		this.expectedPost = DeepClone(post);
 		Object.assign(this.expectedPost, this.expectedData.posts[0].$set);
 
 		this.modifiedAfter = Date.now();

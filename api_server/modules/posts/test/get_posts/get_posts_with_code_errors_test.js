@@ -9,8 +9,7 @@ class GetPostsWithCodeErrorsTest extends GetPostsTest {
 		super(options);
 		Object.assign(this.postOptions, {
 			wantCodeError: true,
-			creatorIndex: 0,
-			claimCodeErrors: true
+			creatorIndex: 0
 		});
 	}
 

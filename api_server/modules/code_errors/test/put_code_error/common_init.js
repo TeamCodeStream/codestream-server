@@ -23,20 +23,8 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 2;
-		/*
-		this.streamOptions.creatorIndex = 1;
-		if (this.streamType === 'team stream') {
-			Object.assign(this.streamOptions, {
-				type: 'channel',
-				isTeamStream: true
-			});
-		}
-		else {
-			this.streamOptions.type = this.streamType || 'channel';
-		}
-		*/
 		Object.assign(this.postOptions, {
-			creatorIndex: 0,
+			creatorIndex: 1,
 			wantCodeError: true
 		});
 		callback();
@@ -46,14 +34,18 @@ class CommonInit {
 	getCodeErrorUpdateData () {
 		const data = {
 			title: RandomString.generate(100),
-			text: RandomString.generate(1000)
+			text: RandomString.generate(1000),
+			stackTraces: [
+				this.codeErrorFactory.getRandomStackTraceInfo(),
+				this.codeErrorFactory.getRandomStackTraceInfo()
+			]
 		};
 		return data;
 	}
 
 	// make the data to use when issuing the test request
 	makeCodeErrorUpdateData (callback) {
-		this.codeError = this.postData[0].codeError;
+		this.codeError = this.codeError || this.postData[0].codeError;
 		this.data = this.getCodeErrorUpdateData();
 		this.expectedData = {
 			codeError: {

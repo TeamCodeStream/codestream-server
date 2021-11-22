@@ -56,6 +56,7 @@ const PostDeactivatedTest = require('./post_deactivated_test');
 const PostFromOtherTeamTest = require('./post_from_other_team_test');
 const IgnoreStreamIdTest = require('./ignore_stream_id_test');
 const LinkPostMessageTest = require('./link_post_message_test');
+const RemovedMemberCantUpdateTest = require('./removed_member_cant_update_test');
 
 class PutCodemarkRequestTester {
 
@@ -133,12 +134,11 @@ class PutCodemarkRequestTester {
 		new PostFromOtherTeamTest().test();
 		new IgnoreStreamIdTest().test();
 		new LinkPostMessageTest().test();
-		/*
 		// NOTE posting to streams other than the team stream is no longer allowed
-		new LinkPostMessageTest({ streamType: 'channel' }).test();
-		new LinkPostMessageTest({ streamType: 'direct' }).test();
-		new LinkPostMessageTest({ streamType: 'team stream' }).test();
-		*/
+		//new LinkPostMessageTest({ streamType: 'channel' }).test();
+		//new LinkPostMessageTest({ streamType: 'direct' }).test();
+		//new LinkPostMessageTest({ streamType: 'team stream' }).test();
+		new RemovedMemberCantUpdateTest().test();
 	}
 }
 

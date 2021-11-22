@@ -292,6 +292,7 @@ var ides = {{{toJSON ides}}};
 window.CODESTREAM = window.CODESTREAM || {};
 window.CODESTREAM._state = {	
 	MRU: String('{{isMru}}') === 'true',
+	lastOrigin: '{{{toJSON lastOrigin}}}',
 	lastOriginDetail: String('{{isLastOriginDetail}}') === 'true',
 	isSpecificIde: String('{{isSpecificIde}}') === 'true'
 };
@@ -476,26 +477,54 @@ window.CODESTREAM.openEditor = function(ide) {
 				console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 		});	
 }
-
+var _openEditorCounter = 0;
 function _openEditor(ide) { 
 	var onAnyComplete = function() {
 		$('#notification-area-vs').toggle(false);
 		$('#notification-area-jb').toggle(false);
+
+		var lastOrigin;
+		try {
+			var rawLastOrigin = window.CODESTREAM && window.CODESTREAM._state && window.CODESTREAM._state.lastOrigin;
+			lastOrigin = JSON.parse(rawLastOrigin);
+ 		}
+		catch(e){ }
 		// on first click, just show the help stuff
-		if (String('{{isMru}}') !== 'true' && ide.protocol.indexOf("jetbrains") > -1) {
+		if (ide.protocol.indexOf("jetbrains") > -1) {
 			$('#notification-area-jb').toggle(true);
-			$('[data-ide-name=""]').html(ide.ideName);			 
+			$('[data-ide-name=""]').html(ide.ideName);
+			if (lastOrigin && lastOrigin.moniker !== ide.moniker) {
+				// if the last ide we know about isn't the one they're selecting and we're here (aka requies an additional message), reset the counter
+				_openEditorCounter = 1;
+				window.CODESTREAM._state.lastOrigin = JSON.stringify(ide);
+			}
+			else {
+				_openEditorCounter++;
+			}			
 		}
-		else if (String('{{isMru}}') !== 'true' && ide.protocol.indexOf("codestream-vs") > -1) {
+		else if (ide.protocol.indexOf("codestream-vs") > -1) {
 			$('#notification-area-vs').toggle(true);
-			$('[data-ide-name=""]').html(ide.ideName);		 
-		}
-		else {
+			$('[data-ide-name=""]').html(ide.ideName); 
+			if (lastOrigin && lastOrigin.moniker !== ide.moniker) {
+				// if the last ide we know about isn't the one they're selecting and we're here (aka requies an additional message), reset the counter
+				_openEditorCounter = 1;
+				window.CODESTREAM._state.lastOrigin = JSON.stringify(ide);
+			}
+			else {
+				_openEditorCounter++;
+			} 
+		} else {
+		   _openEditorCounter = 2;	
+		}		
+		
+		if ((window.CODESTREAM && window.CODESTREAM._state && window.CODESTREAM._state.MRU) || _openEditorCounter > 1) {
 			$("#notification-title").html("Opening link in CodeStream...");	
 			window.CODESTREAM.openEditor(ide);
 			// nuke the initial state
-			delete window.CODESTREAM._state;
-		}
+			delete window.CODESTREAM._state.MRU;
+			delete window.CODESTREAM._state.lastOriginDetail;
+			delete window.CODESTREAM._state.isSpecificIde;
+		}		
 	};
 
 	try {

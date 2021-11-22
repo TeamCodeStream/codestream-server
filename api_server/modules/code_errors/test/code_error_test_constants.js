@@ -4,7 +4,7 @@
 
 const CodeErrorAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/code_error_attributes');
 
-const EXPECTED_BASE_CODE_ERROR_FIELDS = [
+const EXPECTED_CODE_ERROR_FIELDS = [
 	'_id',
 	'deactivated',
 	'createdAt',
@@ -14,15 +14,14 @@ const EXPECTED_BASE_CODE_ERROR_FIELDS = [
 	'postId',
 	'numReplies',
 	'lastActivityAt',
-	'stackTraces',
-	'providerUrl',
 	'accountId',
 	'objectId',
 	'objectType',
 	'permalink'
 ];
 
-const EXPECTED_CODE_ERROR_FIELDS = EXPECTED_BASE_CODE_ERROR_FIELDS.concat([
+const EXPECTED_CODE_ERROR_WITH_STACK_TRACE_FIELDS = EXPECTED_CODE_ERROR_FIELDS.concat([
+	'stackTraces'
 ]);
 
 const UNSANITIZED_ATTRIBUTES = Object.keys(CodeErrorAttributes).filter(attribute => {
@@ -30,7 +29,7 @@ const UNSANITIZED_ATTRIBUTES = Object.keys(CodeErrorAttributes).filter(attribute
 });
 
 module.exports = {
-	EXPECTED_BASE_CODE_ERROR_FIELDS,
 	EXPECTED_CODE_ERROR_FIELDS,
+	EXPECTED_CODE_ERROR_WITH_STACK_TRACE_FIELDS,
 	UNSANITIZED_ATTRIBUTES
 };

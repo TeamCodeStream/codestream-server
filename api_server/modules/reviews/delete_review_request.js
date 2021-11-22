@@ -20,6 +20,13 @@ class DeleteReviewRequest extends DeleteRequest {
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' });	// really shouldn't happen
 		}
+
+		// note, even though we allow the author to update the codemark, the author might still have been
+		// removed from the team, hence this check first
+		if (!this.user.hasTeam(this.review.get('teamId'))) {
+			throw this.errorHandler.error('deleteAuth', { reason: 'user must be on the team that owns the review' });
+		}
+
 		if (
 			this.review.get('creatorId') !== this.user.id &&
 			!(this.team.get('adminIds') || []).includes(this.user.id)

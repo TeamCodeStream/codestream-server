@@ -13,7 +13,7 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 	async authorize () {
 		// user must be a member of the indicated team
 		this.teamId = this.request.params.teamId.toLowerCase();
-		if (!this.user.authorizeTeam(this.teamId)) {
+		if (!(await this.user.authorizeTeam(this.teamId))) {
 			throw this.errorHandler.error('updateAuth', { reason: 'user is not a member of this team' });
 		}
 	}
@@ -89,10 +89,12 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 
 	// claim this previously teamless code error for the indicated team
 	async claimCodeErrorForTeam () {
+		if (!this.codeError.get('permalink')) {
+			await this.createPermalink();
+		}
 		await awaitParallel([
 			this.claimPosts,
 			this.claimStream,
-			this.createPermalink,
 			this.updateCodeError,
 			this.adoptUsers
 		], this);
@@ -141,32 +143,37 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 
 	// set the team for the code error and set its permalink
 	async updateCodeError () {
-		return this.data.codeErrors.updateDirectWhenPersist(
+		const set = {
+			teamId: this.teamId,
+			permalink: this.permalink
+		};
+		await this.data.codeErrors.updateDirectWhenPersist(
 			{ 
 				id: this.data.codeErrors.objectIdSafe(this.codeError.id) 
 			},
 			{ 
-				$set: { 
-					teamId: this.teamId,
-					permalink: this.permalink
-				},
+				$set: set,
 				$addToSet: {
 					followerIds: this.user.id
 				}
 			}
 		);
+		Object.assign(this.codeError.attributes, set);
+		if (!(this.codeError.followerIds || []).includes(this.user.id)) {
+			this.codeError.attributes.followerIds.push(this.user.id);
+		}
 	}
 
 	// "adopt" the users who have been following this code error (i.e., commenting on it in NR),
 	// by making them foreign users of the team that is now going to own the code error
 	async adoptUsers () {
-		const team = await this.data.teams.getById(this.teamId);
+		this.team = await this.data.teams.getById(this.teamId);
 		const followerIds = this.codeError.get('followerIds') || [];
 		const foreignMemberIds = [];
 		for (const userId of followerIds) {
 			if (
-				!team.get('memberIds').includes(userId) ||
-				(team.get('removedMemberIds') || []).includes(userId)
+				!this.team.get('memberIds').includes(userId) ||
+				(this.team.get('removedMemberIds') || []).includes(userId)
 			) {
 				foreignMemberIds.push(userId);
 			}
@@ -197,43 +204,6 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 		}).createPermalink();
 	}
 
-	/*
-	// make the current user a follower of this code error
-	async makeFollower () {
-		if ((this.codeError.get('followerIds') || []).includes(this.user.id)) {
-			return;
-		}
-
-		const now = Date.now();
-		const op = {
-			$addToSet: {
-				followerIds: this.user.id
-			},
-			$set: {
-				modifiedAt: now
-			}
-		};
-
-		this.updateOp = await new ModelSaver({
-			request: this.request,
-			collection: this.data.codeErrors,
-			id: this.codeError.id
-		}).save(op);
-	}
-	*/
-	
-	/*
-	// called after the response is returned
-	async postProcess () {
-		if (!this.updateOp) { return; }
-		new CodeErrorPublisher({
-			codeError: this.codeError,
-			request: this,
-			data: { codeError: this.updateOp }
-		}).publishCodeError();
-	}
-	*/
-
 	// make the response data for a successful claim
 	async makeResponse () {
 		const post = await this.data.posts.getById(this.codeError.get('postId'));
@@ -255,6 +225,23 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 			post: { ...postSanitized, teamId: this.teamId },
 			stream: { ...streamSanitized, teamId: this.teamId }
 		};
+	}
+
+	async postProcess () {
+		// send message to the team channel
+		const channel = 'team-' + this.team.id;
+		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate
+			this.warn(`Unable to publish claimed code error message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

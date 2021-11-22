@@ -573,7 +573,11 @@ class MongoCollection {
 
 	// create a new ID
 	createId () {
-		return ObjectID();
+		if (this.options.mockMode) {
+			return this.dbCollection.mockObjectId();
+		} else {
+			return ObjectID();
+		}
 	}
 
 	// look for IDs or arrays of IDs in an object and stringify them, so the application layer

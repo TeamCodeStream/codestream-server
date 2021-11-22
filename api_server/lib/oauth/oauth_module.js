@@ -449,7 +449,7 @@ class OAuthModule extends APIServerModule {
 
 	// get the standard in-cloud instance of the third-party provider, if configured
 	getStandardInstance (options = {}) {
-		const isOnPrem = { options };
+		const { isOnPrem } = options;
 		const { 
 			host,
 			provider,

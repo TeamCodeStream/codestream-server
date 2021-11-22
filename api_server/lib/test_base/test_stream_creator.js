@@ -173,32 +173,9 @@ class TestStreamCreator {
 				this.inputPostData.push(this.test.postFactory.lastInputData);
 				this.postData.push(response);
 				const wait = this.postOptions.postCreateThrottle || 0;
-				setTimeout((error) => {
-					if (error) { return callback(error); }
-					if (postOptions.wantCodeError && this.postOptions.claimCodeErrors) {
-						this.claimCodeError(response, callback);
-					} else {
-						callback();
-					}
-				}, wait);
+				setTimeout(callback, wait);
 			},
 			postOptions
-		);
-	}
-
-	claimCodeError (postData, callback) {
-		if (!postData.codeError) { return; }
-		this.test.doApiRequest(
-			{
-				method: 'post',
-				path: '/code-errors/claim/' + this.team.id,
-				data: {
-					objectId: postData.codeError.objectId,
-					objectType: postData.codeError.objectType
-				},
-				token: this.users[1].accessToken
-			},
-			callback
 		);
 	}
 

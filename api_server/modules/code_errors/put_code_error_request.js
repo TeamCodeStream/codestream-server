@@ -13,20 +13,8 @@ class PutCodeErrorRequest extends PutRequest {
 		const codeErrorId = this.request.params.id.toLowerCase();
 		this.codeError = await this.user.authorizeCodeError(codeErrorId, this);
 		if (!this.codeError) {
-			this.errorHandler.error('updateAuth', { reason: 'user is not on the team that owns this code error' });
+			throw this.errorHandler.error('updateAuth', { reason: 'user is not on the team that owns this code error' });
 		}
-
-		/*
-		// if only updating stackTraces, anyone on the team can update
-		if (Object.keys(this.request.body).length === 1 && this.request.body.stackTraces) {
-			return;
-		}
-
-		// otherwise only the author can edit a code error
-		if (this.codeError.get('creatorId') !== this.user.id) {
-			throw this.errorHandler.error('updateAuth', { reason: 'only the creator of the code error can make this update' });
-		}
-		*/
 	}
 
 	// after the code error is updated...

@@ -21,27 +21,13 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 2;
 		this.postOptions.creatorIndex = 0;
-		/*
-		this.streamOptions.creatorIndex = 1;
-		if (this.streamType === 'team stream') {
-			Object.assign(this.streamOptions, {
-				type: 'channel',
-				isTeamStream: true
-			});
-		}
-		else {
-			this.streamOptions.type = this.streamType || 'channel';
-		}
-		if (this.streamType === 'file') {
-			this.repoOptions.creatorIndex = 1;
-		}
-		*/
 		callback();
 	}
 
 	// form the data for the post update
 	makePostData (callback) {
-		this.post = this.postData[0].post;
+		const whichPost = this.whichPost || 0;
+		this.post = this.postData[whichPost].post;
 		this.data = {
 			text: this.postFactory.randomText()
 		};

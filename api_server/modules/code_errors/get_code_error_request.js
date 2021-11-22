@@ -6,14 +6,6 @@ const GetRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 
 class GetCodeErrorRequest extends GetRequest {
 
-	async authorize () {
-		const codeErrorId = this.request.params.id.toLowerCase();
-		this.codeError = await this.user.authorizeCodeError(codeErrorId, this);
-		if (!this.codeError) {
-			throw this.errorHandler.error('readAuth', { reason: 'user does not have access to this code error' });
-		}
-	}
-
 	async process () {
 		await super.process();
 		await this.getPost();		// get the post pointing to this code error, if any

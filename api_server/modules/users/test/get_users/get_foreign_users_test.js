@@ -10,8 +10,7 @@ class GetForeignUsersTest extends GetUsersByTeamIdTest {
 		super(options)
 		Object.assign(this.postOptions, {
 			creatorIndex: 2,
-			wantCodeError: true,
-			claimCodeErrors: true
+			wantCodeError: true
 		});
 	}
 

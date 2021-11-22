@@ -8,17 +8,17 @@ class DeletePostRequest extends DeleteRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		// get the post, only the author of the post or the team admin can edit it
-		this.post = await this.data.posts.getById(this.request.params.id);
+		// make sure the user has access to the post, note that even though we also check that they
+		// are they author of the post (below), they still need to be an active member of the team
+		// (they might have been removed, in which case they should no longer be able to edit)
+		this.post = await this.user.authorizePost(this.request.params.id, this);
 		if (!this.post) {
-			throw this.errorHandler.error('notFound', { info: 'post' });
+			throw this.errorHandler.error('deleteAuth', { reason: 'the user does not have access to this post' });
 		}
 
-		if (this.post.get('teamId')) {
-			this.team = await this.data.teams.getById(this.post.get('teamId'));
-			if (!this.team) {
-				throw this.errorHandler.error('notFound', { info: 'team' });	// really shouldn't happen
-			}
+		this.team = await this.data.teams.getById(this.post.get('teamId'));
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });	// really shouldn't happen
 		}
 
 		if (

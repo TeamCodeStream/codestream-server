@@ -33,14 +33,15 @@ class PutCodemarkRequest extends PutRequest {
 		}
 		*/
 
+		// note, even though we allow the author to update the codemark, the author might still have been
+		// removed from the team, hence this check first
+		if (!this.user.hasTeam(this.codemark.get('teamId'))) {
+			throw this.errorHandler.error('updateAuth', { reason: 'user must be on the team that owns the codemark' });
+		}
+		
 		// in the most general case, the author can edit anything they want about a codemark
 		if (this.codemark.get('creatorId') === this.user.id) {
 			return;
-		}
-
-		// the rest can only be done by other members of the team
-		if (!this.user.hasTeam(this.codemark.get('teamId'))) {
-			throw this.errorHandler.error('updateAuth', { reason: 'user must be on the team that owns the codemark' });
 		}
 
 		// team members can only change an issue's status, or the tags array

@@ -92,6 +92,24 @@ class NewUsersMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Commo
 		message.message.team.$pull.removedMemberIds.sort((a, b) => {
 			return a.localeCompare(b);
 		});
+		message.message.team.$pull.foreignMemberIds.sort((a, b) => {
+			return a.localeCompare(b);
+		});
+		message.message.users.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
+		this.message.team.$addToSet.memberIds.sort((a, b) => {
+			return a.localeCompare(b);
+		});
+		this.message.team.$pull.removedMemberIds.sort((a, b) => {
+			return a.localeCompare(b);
+		});
+		this.message.team.$pull.foreignMemberIds.sort((a, b) => {
+			return a.localeCompare(b);
+		});
+		this.message.users.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
 		Assert(message.message.team.$set.modifiedAt >= this.postCreatedAfter, 'modifiedAt not changed');
 		this.message.team.$set.modifiedAt = message.message.team.$set.modifiedAt;
 		return super.validateMessage(message);

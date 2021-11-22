@@ -24,6 +24,7 @@ class GetStreamsTest extends CodeStreamAPITest {
 			this.wait1Sec,
 			//this.createChannelDirectStreams,	// create some channel and direct streams in both teams
 			//this.createFileStreams,		// create some file-type streams in both team
+			this.logStreams,
 			this.setPath				// set the path to use when issuing the test request, this should be overridden by derived test classes
 		], callback);
 	}
@@ -42,7 +43,6 @@ class GetStreamsTest extends CodeStreamAPITest {
 		Object.assign(this.postOptions, {
 			numPosts: this.numStreams || 12,
 			creatorIndex: 1,
-			claimCodeErrors: true,
 			postData: []
 		});
 		for (let i = 0; i < this.postOptions.numPosts; i++) {
@@ -232,6 +232,21 @@ class GetStreamsTest extends CodeStreamAPITest {
 	}
 	*/
 
+	logStreams (callback) {
+		const codeErrorPosts = this.postData.filter(postData => postData.post.codeErrorId);
+		const objectStreams = codeErrorPosts.map(postData => {
+			postData.streams[0].post = postData.post;
+			return postData.streams[0]
+		});
+		const streams = [
+			this.teamStream,
+			...objectStreams
+		];
+		this.testLog(`CREATED (by id): ${streams.map(s => s.id)}`);
+		this.testLog(`CREATED (by sortId): ${streams.map(s => s.sortId)}`);
+		callback();
+	}
+	
 	setPath (callback) {
 		this.path = '/streams?teamId=' + this.team.id;
 		this.expectedStreams = this.getExpectedStreams();
@@ -252,6 +267,10 @@ class GetStreamsTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
+		this.testLog(`EXPECTED (by id): ${this.expectedStreams.map(stream => stream.id)}`);
+		this.testLog(`EXPECTED (by sortId): ${this.expectedStreams.map(stream => stream.sortId)}`);
+		this.testLog(`GOT (by id): ${data.streams.map(stream => stream.id)}`);
+		this.testLog(`GOT (by sortId): ${data.streams.map(stream => stream.sortId)}`);
 		// validate that we got back the streams we expected, and that they contain no attributes
 		// that clients shouldn't see
 		this.validateMatchingObjects(this.expectedStreams, data.streams, 'streams');

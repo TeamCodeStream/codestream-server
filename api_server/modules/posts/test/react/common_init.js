@@ -19,15 +19,14 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.userOptions.numRegistered = 3;
-		//this.streamOptions.creatorIndex = 1;
-		//this.streamOptions.type = this.streamType || 'channel';
-		this.postOptions.creatorIndex = 0;
+		this.postOptions.creatorIndex = 1;
 		callback();
 	}
 
 	// form the data for the reaction
 	makePostData (callback) {
-		this.post = this.postData[0].post;
+		const whichPost = this.whichPost || 0;
+		this.post = this.postData[whichPost].post;
 		this.reaction = RandomString.generate(8);
 		this.data = {
 			[this.reaction]: true

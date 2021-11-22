@@ -10,11 +10,6 @@ class CommonInit {
 
 	init (callback) {
 		this.teamOptions.creatorIndex = 1;
-		/*
-		this.streamOptions.creatorIndex = 1;
-		this.streamOptions.type = this.streamType || 'channel';
-		this.streamOptions.isTeamStream = this.isTeamStream || false;
-		*/
 		Object.assign(this.postOptions, {
 			numPosts: 1,
 			creatorIndex: 1,

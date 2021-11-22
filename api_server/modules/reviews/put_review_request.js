@@ -16,6 +16,12 @@ class PutReviewRequest extends PutRequest {
 			throw this.errorHandler.error('notFound', { info: 'review' });
 		}
 
+		// note, even though we allow the author to update the review, the author might still have been
+		// removed from the team, hence this check first
+		if (!this.user.hasTeam(this.review.get('teamId'))) {
+			throw this.errorHandler.error('updateAuth', { reason: 'user must be on the team that owns the review' });
+		}
+		
 		// in the most general case, the author can edit anything they want about a review
 		if (this.review.get('creatorId') === this.user.id) {
 			return;

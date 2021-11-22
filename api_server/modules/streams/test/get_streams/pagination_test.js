@@ -43,7 +43,7 @@ class PaginationTest extends GetStreamsTest {
 		// make sure our expected streams our sorted, since they will come back to us (and are paginated)
 		// in sorted order
 		this.allStreams.sort((a, b) => {
-			return a.id.localeCompare(b.id);
+			return a.sortId.localeCompare(b.sortId);
 		});
 
 		// divide into pages
@@ -115,6 +115,8 @@ class PaginationTest extends GetStreamsTest {
 
 		// prepare the expected streams to be the given page, and call the base class validation
 		this.expectedStreams = this.allStreams.slice(begin, end);
+		this.testLog(`PAGE #${pageNum}, EXPECT STREAMS (by id) ${begin} - ${end}: ${this.expectedStreams.map(s => s.id)}`);
+		this.testLog(`PAGE #${pageNum}, EXPECT STREAMS (by sortId) ${begin} - ${end}: ${this.expectedStreams.map(s => s.sortId)}`);
 		this.validateResponse(response);
 
 		// record the last ID, we'll fetch the next page using this ID as our page divider

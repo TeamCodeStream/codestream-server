@@ -17,7 +17,6 @@ class DeleteReplyToCodeErrorTest extends DeletePostTest {
 			this.repoOptions.creatorIndex = 1;
 			Object.assign(this.postOptions, {
 				numPosts: 4,
-				claimCodeErrors: true,
 				postData: [{
 					wantCodeError: true
 				}, {
