@@ -6,7 +6,7 @@ const GetNRCommentsTest = require('./get_nr_comments_test');
 const NoSecretTest = require('./no_secret_test');
 const IncorrectSecretTest = require('./incorrect_secret_test');
 const NoAccountIdTest = require('./no_account_id_test');
-const NotFoundTest = require('./not_found_test');
+const UnknownObjectTest = require('./unknown_object_test');
 const AccountIdMismatchTest = require('./account_id_mismatch_test');
 const RepliesTest = require('./replies_test');
 const ClaimedTest = require('./claimed_test');
@@ -20,7 +20,7 @@ class GetNRCommentsRequestTester {
 		new NoSecretTest().test();
 		new IncorrectSecretTest().test();
 		new NoAccountIdTest().test();
-		new NotFoundTest().test();
+		new UnknownObjectTest().test();
 		new AccountIdMismatchTest().test();
 		new RepliesTest().test();
 		new ClaimedTest().test();

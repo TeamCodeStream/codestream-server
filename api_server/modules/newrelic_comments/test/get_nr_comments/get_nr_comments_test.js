@@ -21,8 +21,7 @@ class GetNRCommentsTest extends CodeStreamAPITest {
 		BoundAsync.series(this, [
 			super.before,
 			this.setPath,
-			this.createNRComments,
-			//this.claimCodeErrors
+			this.createNRComments
 		], callback);
 	}
 
