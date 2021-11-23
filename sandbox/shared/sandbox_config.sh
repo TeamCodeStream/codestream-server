@@ -37,6 +37,7 @@ function sbcfg_setup_for_newrelic_instrumentation {
 	[ ! -f "$assetFile" ] && echo "cannot determine SHA for instrumentation. $assetFile not found" && return
 	local primaryRepo=$(get-json-property -j "$sandboxTop/$assetName.info" -p primaryRepo)
 	export NEW_RELIC_METADATA_COMMIT=$(get-json-property -j "$sandboxTop/$assetName.info" -p repoCommitId.$primaryRepo)
+	export NEW_RELIC_METADATA_RELEASE_TAG=$(get-json-property -j "$sandboxTop/$assetName.info" -p version)
 }
 
 function sbcfg_initialize {
