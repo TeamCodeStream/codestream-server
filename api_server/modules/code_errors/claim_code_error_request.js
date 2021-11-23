@@ -115,6 +115,7 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 				hint: PostIndexes.byParentPostId
 			}
 		);
+
 		const grandChildPosts = await this.data.posts.getByQuery(
 			{
 				teamId: null,
@@ -125,7 +126,9 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 				hint: PostIndexes.byParentPostId
 			}
 		);
-		postIds.push.apply(postIds, childPosts.map(post => post.id), grandChildPosts.map(post => post.id));
+
+		postIds.push.apply(postIds, childPosts.map(post => post.id));
+		postIds.push.apply(postIds, grandChildPosts.map(post => post.id));
 
 		return this.data.posts.updateDirectWhenPersist(
 			{ id: this.data.posts.inQuerySafe(postIds) },
