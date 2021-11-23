@@ -65,7 +65,7 @@
 			"marketingSiteUrl": "https://www.codestream.com",
 			"phoneHomeUrl": null,
 			"port": 8443,
-			"publicApiUrl": "https://stg-api.codestream.us",
+			"publicApiUrl": "https://staging-api.codestream.us",
 			"requireTLS12": true
 		}
 	},
