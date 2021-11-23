@@ -28,7 +28,9 @@ Steps to create a Slack App for a non-production CodeStream environment.
         them.
         *   Add the following Redirect URL:
             - `https://<codestream-api-host>/no-auth/provider-token/slack`
-        *   Add the following Scopes and save them (Request reasons included here):
+        *   Add the following Scopes and save them (Request reasons included
+            here). _NOTE: the source of truth for the list of scopes is [here]().
+            You should verify this list accordingly._
             - **channels:read** - We allow users to select a public channel to share
             to.
             - **chat:write** - Users can send a copy of their messages from
@@ -56,7 +58,7 @@ workspaces that wish to connect with the corresponding CodeStream environment.
 ## Update the CodeStream Configuration
 
 Finally, add the secrets and configuration data to the CodeStream API server's
-configuration file. The following data is needed:
+configuration file in the **integrations** section.
 
 From the **Basic Information** page of the Slack App, get these data and add
 them to the CodeStream configuration file.
@@ -66,6 +68,31 @@ them to the CodeStream configuration file.
 - Client Secret
 - Signing Secret
 
+
+```
+{
+    "integrations": {
+		"slack": {
+			"cloud": {
+				"appClientId": null,
+				"appClientSecret": null,
+				"appId": null,
+				"appSharingClientId": "*******************************",
+				"appSharingClientSecret": "********************************",
+				"appSharingId": "***************************",
+				"appSharingSigningSecret": "**************************",
+				"appSigningSecret": null,
+				"appStrictClientId": null,
+				"appStrictClientSecret": null,
+				"appStrictId": null,
+				"appStrictSigningSecret": null,
+				"disabled": false,
+				"interactiveComponentsEnabled": true
+			}
+		}
+    }
+}
+```
 
 ## Permalink to Code Requesting Auth
 

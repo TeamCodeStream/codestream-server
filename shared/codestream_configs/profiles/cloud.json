@@ -216,7 +216,9 @@
 				"prod": {
 					"_loadSecretsFile": "atlassian/prod.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "atlassian/stg.cfg"
+				}
 			}
 		},
 		"linear": {
@@ -289,7 +291,10 @@
 					"_loadSecretsFile": "slack/qa-combined.cfg",
 					"interactiveComponentsEnabled": true
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "slack/stg-combined.cfg",
+					"interactiveComponentsEnabled": true
+				}
 			}
 		},
 		"trello": {
