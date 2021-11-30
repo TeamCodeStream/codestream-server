@@ -25,7 +25,9 @@ class GitlabAuthorizer {
 		if (!userData || !emailData) {
 			throw this.request.errorHandler.error('noIdentityMatch');
 		}
-		if (!emailData.public_email) {
+
+		const email = emailData.public_email || emailData.email;
+		if (!email) {
 			throw this.request.errorHandler.error('gitlabPublicEmail');
 		}
 
@@ -34,7 +36,7 @@ class GitlabAuthorizer {
 			accessToken,
 			username: userData.username,
 			fullName: userData.name,
-			email: emailData.public_email,
+			email,
 			avatarUrl: userData.avatar_url
 		};
 	}
