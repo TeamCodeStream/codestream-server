@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.24] - 2021-11-30
+
+### Fixed
+
+- Fixes an issue with public primary email not always being sent over from GitLab and preventing signup
+
 ## [11.0.23] - 2021-11-23
 
 ### Changed

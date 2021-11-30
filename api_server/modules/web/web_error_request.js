@@ -65,7 +65,7 @@ class WebErrorRequest extends WebRequestBase {
 		case 'PRVD-1010':
 			return {
 				title: 'No primary email found',
-				body: 'Using GitLab for authentication requires that your primary GitLab email address be public. In GitLab, go to Settings and then in the Main Settings section make sure you have an email address selected for “Public email”.'
+				body: 'Using GitLab for authentication requires that your primary GitLab email address be public. In GitLab, go to Preferences > Profile and then in the Main Settings section make sure you have an email address selected for “Public email”.'
 			};
 		}
 	}

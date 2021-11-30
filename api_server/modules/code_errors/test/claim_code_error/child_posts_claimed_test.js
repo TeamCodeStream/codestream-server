@@ -11,7 +11,7 @@ class ChildPostsClaimedTest extends ClaimCodeErrorTest {
 	}
 
 	before (callback) {
-		this.numChildPosts = 5;
+		this.numChildPosts = 7;
 		BoundAsync.series(this, [
 			super.before,
 			this.createChildPosts
@@ -37,9 +37,11 @@ class ChildPostsClaimedTest extends ClaimCodeErrorTest {
 	}
 
 	createChildPost (n, callback) {
-		const { objectId, objectType, accountId, id } = this.nrCommentResponse.post;
+		const { objectId, objectType, accountId } = this.nrCommentResponse.post;
 		const data = this.nrCommentFactory.getRandomNRCommentData();
-		const parentPostId = n % 1 ? this.childPosts[n-1].id : id;
+		const parentPostId = n % 2  === 1 ? 
+			this.childPosts[n - 1].id :
+			this.nrCommentResponse.codeStreamResponse.codeErrorPost.id;
 		Object.assign(data, {
 			accountId,
 			objectId,
@@ -106,15 +108,17 @@ class ChildPostsClaimedTest extends ClaimCodeErrorTest {
 	}
 
 	validateChildPosts (callback) {
-		const ids = this.childPosts.map(post => post.id).join(',');
+		const ids = this.childPosts.map(post => post.id);
+		const ids_param = ids.join(',');
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: `/posts?teamId=${this.team.id}&ids=${ids}`,
+				path: `/posts?teamId=${this.team.id}&ids=${ids_param}`,
 				token: this.token
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
+				Assert.equal(response.posts.length, ids.length, 'did not get back expected number of posts');
 				response.posts.forEach(post => {
 					Assert.strictEqual(post.teamId, this.team.id, 'post found with teamId not set to the ID of the team');
 				});

@@ -40,6 +40,9 @@ exports.config = {
     level: 'info',
     filepath: `${process.env.CS_API_LOGS}/newrelic_agent.log`
   },
+  error_collector: {
+    ignore_status_codes: "403"
+  },
   /**
    * When true, all request headers except for those listed in attributes.exclude
    * will be captured for all traces, unless otherwise specified in a destination's

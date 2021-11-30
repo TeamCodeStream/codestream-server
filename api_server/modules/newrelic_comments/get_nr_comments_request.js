@@ -13,7 +13,12 @@ class GetNRCommentsRequest extends NRCommentRequest {
 
 	// process the request...
 	async process () {
-		await this.getCodeError();	// get the requested code error
+		if (!await this.getCodeError()) {	// get the requested code error
+			// in this case, we don't have a code error associated with this object, so just return
+			// an empty array of comments
+			this.responseData = [];
+			return;
+		}
 		await this.getReplies();	// get the replies to the code error
 		await this.getMarkers();	// get all markers associated with codemarks as replies
 		await this.getUsers();		// get all associated users
@@ -43,11 +48,13 @@ class GetNRCommentsRequest extends NRCommentRequest {
 			}
 		);
 		if (!this.codeError) {
-			throw this.errorHandler.error('notFound', { info: 'codeError' });
+			return false;
+			//throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
 		if (this.headerAccountId !== this.codeError.get('accountId')) {
 			throw this.errorHandler.error('readAuth', { reason: 'accountId given in the header does not match the object' });
 		}
+		return true;
 	}
 
 	// get all the replies to the code error
