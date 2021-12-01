@@ -14,6 +14,7 @@ else
 	export CSSVC_BACKEND_ROOT=$CS_API_REPO_ROOT
 fi
 . $CSSVC_BACKEND_ROOT/sandbox/shared/sandbox_config.sh || return 1
+export CS_API_SHORT_NAME=api
 
 # common sandbox initialization routines
 sbcfg_initialize CS_API

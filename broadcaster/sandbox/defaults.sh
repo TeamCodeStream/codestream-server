@@ -11,10 +11,12 @@ else
 fi
 . $CSSVC_BACKEND_ROOT/sandbox/shared/sandbox_config.sh || return 1
 
+export CS_BROADCASTER_SHORT_NAME=broadcaster
+
 # common sandbox initialization routines
 sbcfg_initialize CS_BROADCASTER
 
-if [ -n "$CSSVC_CFG_URL" ]; then 
+if [ -n "$CSSVC_CFG_URL" ]; then
 	# hope these match the mongo config
 	[ -z "$CS_BROADCASTER_INBOUND_EMAIL_DIRECTORY" ] && export CS_BROADCASTER_INBOUND_EMAIL_DIRECTORY=${CS_BROADCASTER_SANDBOX}/mailq/new
 	[ -z "$CS_BROADCASTER_TEMP_ATTACHMENT_DIRECTORY" ] && export CS_BROADCASTER_TEMP_ATTACHMENT_DIRECTORY=${CS_BROADCASTER_SANDBOX}/mailq/attachments

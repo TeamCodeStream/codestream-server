@@ -5,6 +5,10 @@
 [ -n "$CSBE_NODE_VER" ] && _defaultNodeVersion=$CSBE_NODE_VER || _defaultNodeVersion=12.14.1
 [ -z "$CSBE_API_DEFAULT_PORT" ] && export CSBE_API_DEFAULT_PORT=12079
 
+function sbcfg_is_mono_repo_installation {
+	[ $CSSVC_BACKEND_ROOT = $CSBE_TOP ]
+}
+
 function sbcfg_get_var {
 	local _var=$1
 	# local _var="${1}_${2}"
@@ -26,10 +30,15 @@ function sbcfg_check_cfg_prop {
 }
 
 function sbcfg_setup_for_newrelic_instrumentation {
-	local repoRoot="$1" sandboxTop="$2"
+	local repoRoot="$1" sandboxTop="$2" shortName="$3"
 	grep -q licenseIngestKey $CSSVC_CFG_FILE || { echo "licenseIngestKey prop not in config file. No instrumenting today."; return; }
 	[ -z "$CSSVC_NEWRELIC_LICENSE_KEY" ] && export CSSVC_NEWRELIC_LICENSE_KEY=$(get-json-property -j $CSSVC_CFG_FILE -p integrations.newrelic.cloud.licenseIngestKey)
-	[ -d "$repoRoot/.git" ] && export NEW_RELIC_METADATA_COMMIT=$(cd "$repoRoot" && git rev-parse HEAD) && return
+	if [ -d "$repoRoot/.git" ]; then
+		echo "shortName=$shortName"
+		export NEW_RELIC_METADATA_COMMIT=$(cd "$repoRoot" && git rev-parse HEAD)
+		export NEW_RELIC_METADATA_RELEASE_TAG="$shortName-$(get-json-property -j "$sandboxTop/package.json" -p version)"
+		return
+	fi
 	# similar logic to server_utils/get_asset_data.js
 	[ ! -f "$sandboxTop/package.json" ] && echo "cannot determine SHA for instrumentation. package.json not found" && return
 	local assetName=$(get-json-property -j "$sandboxTop/package.json" -p name)
@@ -37,7 +46,7 @@ function sbcfg_setup_for_newrelic_instrumentation {
 	[ ! -f "$assetFile" ] && echo "cannot determine SHA for instrumentation. $assetFile not found" && return
 	local primaryRepo=$(get-json-property -j "$sandboxTop/$assetName.info" -p primaryRepo)
 	export NEW_RELIC_METADATA_COMMIT=$(get-json-property -j "$sandboxTop/$assetName.info" -p repoCommitId.$primaryRepo)
-	export NEW_RELIC_METADATA_RELEASE_TAG=$(get-json-property -j "$sandboxTop/$assetName.info" -p version)
+	export NEW_RELIC_METADATA_RELEASE_TAG="$shortName-$(get-json-property -j "$sandboxTop/$assetName.info" -p version)"
 }
 
 function sbcfg_initialize {
@@ -56,6 +65,7 @@ function sbcfg_initialize {
 	local sbPids=$(sbcfg_get_var ${sbPrefix}_PIDS)
 	local sbCfgFile=$(sbcfg_get_var ${sbPrefix}_CFG_FILE)
 	local sbRepoRoot=$(sbcfg_get_var ${sbPrefix}_REPO_ROOT)
+	local sbShortName=$(sbcfg_get_var ${sbPrefix}_SHORT_NAME)
 
 	# ----- SANDBOX OPTIONS (for single-service sandboxes only)
 	[ -z "$CSBE_TOP" ] && { sandutil_load_options $sbRoot || { echo "failed to load options for $sbRoot" >&2 && return 1; } }
@@ -115,7 +125,7 @@ function sbcfg_initialize {
 	fi
 
 	# For instrumenting backend services
-	[ -n "$CSSVC_CFG_FILE" ] && sbcfg_setup_for_newrelic_instrumentation "$sbRepoRoot" "$sbTop"
+	[ -n "$CSSVC_CFG_FILE" ] && ! sbcfg_is_mono_repo_installation && sbcfg_setup_for_newrelic_instrumentation "$sbRepoRoot" "$sbTop" "$sbShortName"
 
 	# ----- REMOTE DEVELOPMENT SANDBOXES
 	# local development on ec2 instances (remote hosts) should reference their

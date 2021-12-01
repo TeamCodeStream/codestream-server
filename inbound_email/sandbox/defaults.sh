@@ -11,6 +11,7 @@ else
 fi
 . $CSSVC_BACKEND_ROOT/sandbox/shared/sandbox_config.sh || return 1
 
+export CS_MAILIN_SHORT_NAME=mailin
 # common sandbox initialization routines
 sbcfg_initialize CS_MAILIN
 

@@ -35,7 +35,8 @@ buildOptions = {
 }
 
 # 4. Set this if you want your applied git tags to be something other than 'v' (v1.2.3)
-buildOptions['gitTagPrefix'] = "mailout-"
+shortName = os.environ['CS_OUTBOUND_EMAIL_SHORT_NAME'] if 'CS_OUTBOUND_EMAIL_SHORT_NAME' in os.environ else "mailout"
+buildOptions['gitTagPrefix'] = f"{shortName}-"
 
 if args.verbose:
 	print("buildstep running with", args.action)
