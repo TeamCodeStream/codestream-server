@@ -14,6 +14,7 @@ class CommonInit {
 	init (callback) {
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 3;
+		this.userOptions.numUnregistered = 1;
 		BoundAsync.series(this, [
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.makeTagData	// make the data to be used during the update
@@ -40,11 +41,11 @@ class CommonInit {
 				$set: {
 					[`tags.${id}`]: expectedData,
 					modifiedAt: Date.now(),
-					version: 5
+					version: 6
 				},
 				$version: {
-					before: 4,
-					after: 5
+					before: 5,
+					after: 6
 				}
 			}
 		};
