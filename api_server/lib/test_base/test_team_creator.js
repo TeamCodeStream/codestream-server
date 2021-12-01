@@ -144,7 +144,7 @@ class TestTeamCreator {
 	inviteUser (n, callback) {
 		let userIndex = null;
 		let email;
-		if (n === this.teamOptions.creatorIndex) {
+		if (this.teamOptions.members === 'all' && n === this.teamOptions.creatorIndex) {
 			return callback();
 		}
 		if (this.teamOptions.members === 'all') {
@@ -186,7 +186,9 @@ class TestTeamCreator {
 				else {
 					this.users.push({ user: response.user });
 				}
-				this.team.memberIds.push(response.user.id);
+				if (!this.team.memberIds.includes(response.user.id)) {
+					this.team.memberIds.push(response.user.id);
+				}
 				this.team.companyMemberCount++;
 				callback();
 			}

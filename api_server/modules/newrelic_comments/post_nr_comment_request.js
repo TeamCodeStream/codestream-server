@@ -201,6 +201,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 
 	// after the request has been processed and response returned to the client....
 	async postProcess () {
+		await this.publish();
+		
 		// restore response data for registered CodeStream users, and use that for publishing
 		this.responseData = this.postResponseData;
 		return this.postCreator.postCreate();

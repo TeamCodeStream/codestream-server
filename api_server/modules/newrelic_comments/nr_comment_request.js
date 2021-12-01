@@ -234,6 +234,13 @@ class NRCommentRequest extends RestfulRequest {
 		const teamId = this.codeError && this.codeError.get('teamId');
 		if (!teamId) { return; }
 
+		const team = await this.data.teams.getById(teamId);
+		if (!team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+		const teamMemberIds = team.get('memberIds') || [];
+		const teamForeignMemberIds = team.get('foreignMemberIds') || [];
+
 		const userIds = [];
 		if (this.user) {
 			userIds.push(this.user.id);
@@ -244,16 +251,25 @@ class NRCommentRequest extends RestfulRequest {
 
 		let foreignMemberIds = userIds.filter(userId => {
 			const user = this.users.find(u => u.id === userId);
-			return !user || !user.hasTeam(teamId);
+			return (
+				!user || 
+				(
+					!teamMemberIds.includes(userId) &&
+					!teamForeignMemberIds.includes(userId)
+				)
+			);
 		});
 
-		const op = {
-			$addToSet: {
-				memberIds: userIds,
-				foreignMemberIds
-			}
-		};
-		if (userIds.length > 0 || foreignMemberIds.length > 0) {
+		if (foreignMemberIds.length > 0) {
+			const op = {
+				$addToSet: {
+					memberIds: foreignMemberIds,
+					foreignMemberIds
+				},
+				$set: {
+					modifiedAt: Date.now()
+				}
+			};
 			this.transforms.updateTeamOp = await new ModelSaver({
 				request: this,
 				collection: this.data.teams,

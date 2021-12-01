@@ -62,6 +62,11 @@ class MessageToTeamChannelTest extends Aggregation(CodeStreamMessageTest, Common
 			}
 		);
 	}
+
+	validateMessage (message) {
+		if (!message.message.post) { return false; }
+		return super.validateMessage(message);
+	}
 }
 
 module.exports = MessageToTeamChannelTest;

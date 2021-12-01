@@ -76,11 +76,36 @@ class CommonInit {
 			teamId: this.team.id
 		};
 
+		const authorId = this.nrCommentResponse.codeStreamResponse.post.creatorId;
 		this.message = this.expectedData = {
 			codeError: this.expectedCodeError,
 			post: this.expectedPost,
 			stream: this.expectedStream
 		};
+
+		if (!this.dontExpectTeamUpdate) {
+			this.message.team = this.expectedData.team = {
+				id: this.team.id,
+				_id: this.team.id, // DEPRECATE ME
+				$addToSet: {
+					memberIds: [
+						authorId
+					],
+					foreignMemberIds: [
+						authorId
+					]
+				},
+				$set: {
+					modifiedAt: Date.now(),
+					version: this.expectedTeamVersion
+				},
+				$version: {
+					before: this.expectedTeamVersion - 1,
+					after: this.expectedTeamVersion
+				}
+			};
+		}
+		this.modifiedAfter = Date.now();
 		callback();
 	}
 

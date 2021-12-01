@@ -6,7 +6,6 @@ const NRCommentRequest = require('./nr_comment_request');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const Utils = require('./utils');
 const PostPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_publisher');
-const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 class PutNRCommentRequest extends NRCommentRequest {
 
@@ -89,7 +88,11 @@ class PutNRCommentRequest extends NRCommentRequest {
 	// do the actual update
 	async doUpdate () {
 		const { text, mentionedUsers } = this.request.body;
-		const op = { $set: { } };
+		const op = { 
+			$set: { 
+				modifiedAt: Date.now()
+			}
+		};
 		if (this.deactivate) { // set by sub-classed DeleteNRCommentRequest
 			op.$set.deactivated = true;
 		}
@@ -117,15 +120,13 @@ class PutNRCommentRequest extends NRCommentRequest {
 
 		if (!this.post.get('teamId')) { return; }
 
-		if (teamStream) {
-			// publish the post to the team that owns the code error
-			await new PostPublisher({
-				request: this,
-				data: { post: this.updateOp },
-				broadcaster: this.api.services.broadcaster,
-				teamId: this.post.get('teamId')
-			}).publishPost();
-		}
+		// publish the post to the team that owns the code error
+		await new PostPublisher({
+			request: this,
+			data: { post: this.updateOp },
+			broadcaster: this.api.services.broadcaster,
+			teamId: this.post.get('teamId')
+		}).publishPost();
 	}
 }
 

@@ -7,6 +7,7 @@ const Indexes = require("./indexes");
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class ClaimCodeErrorRequest extends RestfulRequest {
 
@@ -183,19 +184,20 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 		}
 
 		if (foreignMemberIds.length > 0) {
-			await this.data.teams.updateDirectWhenPersist(
-				{ id: this.data.teams.objectIdSafe(this.teamId) },
-				{ 
-					$addToSet: {
-						foreignMemberIds: { 
-							$each: foreignMemberIds
-						},
-						memberIds: {
-							$each: foreignMemberIds
-						}
-					}
+			const op = { 
+				$addToSet: {
+					foreignMemberIds,
+					memberIds: foreignMemberIds
+				},
+				$set: {
+					modifiedAt: Date.now()
 				}
-			);
+			};
+			this.transforms.updateTeamOp = await new ModelSaver({
+				request: this,
+				collection: this.data.teams,
+				id: this.teamId
+			}).save(op);
 		}
 	}
 
@@ -228,11 +230,15 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 			post: { ...postSanitized, teamId: this.teamId },
 			stream: { ...streamSanitized, teamId: this.teamId }
 		};
+
+		if (this.transforms.updateTeamOp) {
+			this.responseData.team = this.transforms.updateTeamOp;
+		}
 	}
 
 	async postProcess () {
 		// send message to the team channel
-		const channel = 'team-' + this.team.id;
+		const channel = 'team-' + this.teamId;
 		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
 		try {
 			await this.api.services.broadcaster.publish(

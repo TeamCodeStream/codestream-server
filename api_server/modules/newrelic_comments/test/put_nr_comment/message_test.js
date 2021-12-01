@@ -9,7 +9,7 @@ const Assert = require('assert');
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'members of the team that owns a code error should receive a message with the deactivation update when a reply to a code error is deleted through the New Relic comment engine';
+		return 'members of the team that owns a code error should receive a message with the update when an update is made to a reply to a code error through the New Relic comment engine';
 	}
 
 	// make the data that triggers the message to be received
@@ -33,11 +33,11 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		this.deleteNRComment(callback);
+		this.updateNRComment(callback);
 	}
 
 	validateMessage (message) {
-		Assert(message.message.post.$set.modifiedAt >= this.deletedAfter, 'modifiedAt not updated in message');
+		Assert(message.message.post.$set.modifiedAt >= this.updatedAfter, 'modifiedAt not updated in message');
 		this.message.post.$set.modifiedAt = message.message.post.$set.modifiedAt;
 		return super.validateMessage(message);
 	}

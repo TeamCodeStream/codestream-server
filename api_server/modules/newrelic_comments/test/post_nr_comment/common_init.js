@@ -21,7 +21,6 @@ class CommonInit {
 	setTestOptions (callback) {
 		this.nrCommentOptions = {};
 		this.teamOptions.creatorIndex = 1;
-		//this.streamOptions.creatorIndex = 1;
 		callback();
 	}
 
@@ -69,14 +68,14 @@ class CommonInit {
 				requestOptions: {
 					headers: {
 						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
-						'X-CS-NewRelic-AccountId': this.data.accountId
+						'X-CS-NewRelic-AccountId': this.data.accountId,
+						'X-CS-Want-CS-Response': this.apiConfig.sharedSecrets.commentEngine
 					}
 				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.nrCommentResponse = response;
-				//this.message = response;
 				this.requestData = this.data;
 				delete this.data;	// don't need this anymore
 				callback();
