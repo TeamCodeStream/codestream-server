@@ -346,7 +346,7 @@ window.CODESTREAM.openEditor = function(ide) {
 			const results = Object.keys(entries).map((key) => { return { key: key, value: entries[key] }; } );
 			if (options.teamId) {
 				results.push({key: 'teamId', value: options.teamId});
-			}			 
+			}
 			route = { controller: 'codeerror', action: 'open', id: options.id, query: results }
 			 
 		}
@@ -370,8 +370,11 @@ window.CODESTREAM.openEditor = function(ide) {
 					console.warn(ex)
 				}
 			}
+			if (window.segmentAnonymousId) {
+				// see https://newrelic.atlassian.net/browse/CDSTRM-1195	
+				results.push({ key: 'anonymousId', value: window.segmentAnonymousId });
+			}
 			route = { controller: 'newrelic', action: type, id: options.id, query: results }
-			 
 		}
 		else if (type ==='review') {			
 			route = { controller: 'review', action: 'open', id: options.id, query: [] }

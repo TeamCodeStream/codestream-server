@@ -58,7 +58,8 @@ class LinkNewRelicRequest extends WebRequestBase {
 			// if we ever get a repoId pass it here		 
 			partial_launcher_model: this.createLauncherModel(""),
 			partial_title_model: { },
-			segmentKey: this.api.config.telemetry.segment.webToken
+			segmentKey: this.api.config.telemetry.segment.webToken,
+			src: decodeURIComponent(this.parsedPayload.src || '')
 		};
 
 		const template = TEMPLATE_BY_TYPE[this.request.params.type.toLowerCase()];
