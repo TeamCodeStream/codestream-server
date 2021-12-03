@@ -31,6 +31,7 @@ function sbcfg_check_cfg_prop {
 
 function sbcfg_setup_for_newrelic_instrumentation {
 	local repoRoot="$1" sandboxTop="$2" shortName="$3"
+	[ -n "$NEW_RELIC_METADATA_COMMIT$CSSVC_NEWRELIC_LICENSE_KEY$NEW_RELIC_METADATA_RELEASE_TAG" ] && echo "newrelic instrumentation variables already set" && return
 	grep -q licenseIngestKey $CSSVC_CFG_FILE || { echo "licenseIngestKey prop not in config file. No instrumenting today."; return; }
 	[ -z "$CSSVC_NEWRELIC_LICENSE_KEY" ] && export CSSVC_NEWRELIC_LICENSE_KEY=$(get-json-property -j $CSSVC_CFG_FILE -p integrations.newrelic.cloud.licenseIngestKey)
 	if [ -d "$repoRoot/.git" ]; then
