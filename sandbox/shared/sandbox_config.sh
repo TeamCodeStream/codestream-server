@@ -45,9 +45,11 @@ function sbcfg_setup_for_newrelic_instrumentation {
 	local assetName=$(get-json-property -j "$sandboxTop/package.json" -p name)
 	local assetFile="$sandboxTop/$assetName.info"
 	[ ! -f "$assetFile" ] && echo "cannot determine SHA for instrumentation. $assetFile not found" && return
+	export NEW_RELIC_METADATA_RELEASE_TAG="$shortName-$(get-json-property -j "$sandboxTop/$assetName.info" -p version)"
 	local primaryRepo=$(get-json-property -j "$sandboxTop/$assetName.info" -p primaryRepo)
 	export NEW_RELIC_METADATA_COMMIT=$(get-json-property -j "$sandboxTop/$assetName.info" -p repoCommitId.$primaryRepo)
-	export NEW_RELIC_METADATA_RELEASE_TAG="$shortName-$(get-json-property -j "$sandboxTop/$assetName.info" -p version)"
+	# accomodate sandbox '-private' repo model for private branch development
+	[ -z "$NEW_RELIC_METADATA_COMMIT" ] && export NEW_RELIC_METADATA_COMMIT=$(get-json-property -j "$sandboxTop/$assetName.info" -p repoCommitId.${primaryRepo}-private)
 }
 
 function sbcfg_initialize {
