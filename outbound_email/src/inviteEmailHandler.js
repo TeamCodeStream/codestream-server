@@ -64,7 +64,7 @@ CodeStream's cloud-based service and IDE plugins help dev teams discuss, review,
 <br/>
 1. Install CodeStream for ${allLinks}.<br/>
 <br/>
-2. Sign up using <b>${this.user.email}</b>.<br/>
+2. Inside your IDE open CodeStream and sign up using <b>${this.user.email}</b>.<br/>
 <br/>
 Team CodeStream<br/>
 </html>
