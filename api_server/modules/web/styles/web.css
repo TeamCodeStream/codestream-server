@@ -21,6 +21,9 @@ p {
 #root {
 	margin-top: 0px;
 }
+.light {
+	background: white !important;
+}
 .container-fluid .row {
 	margin-left: 0;
 	margin-right: 0;
@@ -452,7 +455,7 @@ hr {
 }
 .icon-ide {
 	width: 20px;
-	margin: 0px 7px 2px 0px;
+	margin: 0px 7px 2px 0px
 	border: 0px;
 	border-radius: 2px;
 }
@@ -460,6 +463,22 @@ hr {
 	display: inline-block;
 	line-height: 1.4em;
 	margin-top: 8px;
+}
+
+.interstitial-detail-wrapper {
+	background-color: #efefef;
+	padding: 30px;
+}
+
+.interstitial-title-wrapper {
+	text-align: center;
+	margin: 0 0 20px 0;
+}
+
+#notification-title {
+	color: black !important;
+	font-weight: bold;
+	font-size: 20px;
 }
 
 @media (min-width: 1px) {

@@ -51,6 +51,7 @@
 	</script> -->
 
 <nav class='navbar navbar-expand-lg navbar-dark bg-dark'>
+	
 	<a class='navbar-brand' href='https://newrelic.com'>
 		<svg
 			width='200px'
@@ -153,20 +154,19 @@
 		</li>
 	</ul>
 </nav>
-
-	<div class="container-fluid" id="root">
-		{{> partial_launcher partial_launcher_model}}
-		<!--<div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0 text-center">			 
-			<p style="max-width:643px; text-align: justify">
-				<span>Review errors by stepping through the stack trace, and collaborate with teammates on the resolution. 
-					All from right inside your IDE.</span>
-			</p>
-			<br>
-			<p>
-				<a href="https://placeholder.com"><img class="img-fluid" src="https://via.placeholder.com/639x300/797979/000000?text=Animated+gif+or+short+video+goes+here"></a>						 
-			</p>				 
-		</div>	-->		 	
-	</div>
-	{{> partial_scripts_footer}}
+<div class="container-fluid" id="root" class="light">
+	{{> partial_launcher_detailed partial_launcher_model}}
+	<!--<div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0 text-center">			 
+		<p style="max-width:643px; text-align: justify">
+			<span>Review errors by stepping through the stack trace, and collaborate with teammates on the resolution. 
+				All from right inside your IDE.</span>
+		</p>
+		<br>
+		<p>
+			<a href="https://placeholder.com"><img class="img-fluid" src="https://via.placeholder.com/639x300/797979/000000?text=Animated+gif+or+short+video+goes+here"></a>						 
+		</p>				 
+	</div>	-->		 	
+</div>
+{{> partial_scripts_footer}}
 </body> 
 </html>
