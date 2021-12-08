@@ -53,7 +53,7 @@ class CommonInit {
 	// set the path and other properties to use for the test request
 	setExpectedData (callback) {
 		const starredControlHost = this.controlProviderHostData.host.replace(/\./g, '*');
-		this.expectedTeam = Object.assign({}, this.team);
+		this.expectedTeam = Object.assign({}, this.team, { plan: 'FREEPLAN' });
 		this.expectedTeam.providerHosts[starredControlHost] = {
 			id: starredControlHost,
 			name: this.provider,

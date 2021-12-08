@@ -134,7 +134,7 @@ class CommonInit {
 		if (!this.wantPreExistingUnconnectedTeam) {
 			return callback();
 		}
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.preExistingUnconnectedTeam = response.team;

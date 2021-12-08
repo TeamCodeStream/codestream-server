@@ -5,7 +5,7 @@
 const PutCompanyTest = require('./put_company_test');
 const PutCompanyFetchTest = require('./put_company_fetch_test');
 const CompanyNotFoundTest = require('./company_not_found_test');
-const NoEveryoneTeamTest = require('./no_everyone_team_test');
+//const NoEveryoneTeamTest = require('./no_everyone_team_test');
 const ACLTest = require('./acl_test');
 const ACLTeamTest = require('./acl_team_test');
 const MessageTest = require('./message_test');
@@ -17,7 +17,7 @@ class PutCompanyRequestTester {
 		new PutCompanyTest().test();
 		new PutCompanyFetchTest().test();
 		new CompanyNotFoundTest().test();
-		new NoEveryoneTeamTest().test();
+		//new NoEveryoneTeamTest().test();
 		new ACLTest().test();
 		new ACLTeamTest().test();
 		new MessageTest().test();

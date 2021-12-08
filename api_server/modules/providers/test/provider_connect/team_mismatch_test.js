@@ -43,7 +43,7 @@ class TeamMismatchTest extends ProviderConnectTest {
 	// create a secondary team, we'll use this for the invite instead of the team
 	// the user should be connected to
 	createOtherTeam (callback) {
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.data.teamId = response.team.id;

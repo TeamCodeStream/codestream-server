@@ -48,7 +48,7 @@ class GrantTest extends CodeStreamAPITest {
 	// create a team to use for the test, where the "current" user is not a member of the team (as needed)
 	createForeignTeam (callback) {
 		if (!this.wantForeignTeam) { return callback(); }	// not needed for this test
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.foreignTeam = response.team;
