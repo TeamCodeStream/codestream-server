@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.25] - 2021-12-10
+
+### Changed
+
+- Better telemetry from apiweb to the extension
+
 ## [11.0.24] - 2021-11-30
 
 ### Fixed
