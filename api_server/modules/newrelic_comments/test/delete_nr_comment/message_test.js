@@ -1,13 +1,15 @@
 'use strict';
 
 const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
-const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 const CommonInit = require('./common_init');
+const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const Assert = require('assert');
 
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'members of the team should receive a message on the team channel when a marker is deleted from a codemark';
+		return 'members of the team that owns a code error should receive a message with the deactivation update when a reply to a code error is deleted through the New Relic comment engine';
 	}
 
 	// make the data that triggers the message to be received
@@ -15,15 +17,29 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		this.init(callback);
 	}
 
+	init (callback) {
+		BoundAsync.series(this, [
+			super.init,
+			this.claimCodeError
+		], callback);
+	}
+	
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
+		// when posted to a team stream, it is the team channel
 		this.channelName = `team-${this.team.id}`;
 		callback();
 	}
 
-	// generate the message by issuing a request to relate the codemarks
+	// generate the message by issuing a request
 	generateMessage (callback) {
-		this.deleteMarker(callback);
+		this.deleteNRComment(callback);
+	}
+
+	validateMessage (message) {
+		Assert(message.message.post.$set.modifiedAt >= this.deletedAfter, 'modifiedAt not updated in message');
+		this.message.post.$set.modifiedAt = message.message.post.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 

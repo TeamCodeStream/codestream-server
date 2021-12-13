@@ -48,7 +48,7 @@ class CommonInit {
 		this.data = {
 			name: this.teamFactory.randomName()
 		};
-		this.expectedTeam = Object.assign({}, this.team, this.data);
+		this.expectedTeam = Object.assign({}, this.team, this.data, { plan: 'FREEPLAN' });
 		this.path = '/teams/' + this.team.id;
 		this.modifiedAfter = Date.now();
 		this.expectedData = {

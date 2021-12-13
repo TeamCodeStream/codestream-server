@@ -27,7 +27,7 @@ class UserNotOnTeamTest extends TrackingTest {
 	}
 
 	createOtherTeam (callback) {
-		this.teamFactory.createRandomTeam((error, response) => {
+		this.companyFactory.createRandomCompany((error, response) => {
 			if (error) { return callback(error); }
 			const action = JSON.parse(this.data.actions[0].action_id);
 			action.teamId = response.team.id;

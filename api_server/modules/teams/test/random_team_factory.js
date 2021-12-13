@@ -12,6 +12,7 @@ class RandomTeamFactory {
 
 	// create the team by submitting a request to the server
 	createTeam (data, token, callback) {
+		throw 'direct team creation is deprecated';
 		this.apiRequester.doApiRequest({
 			method: 'post',
 			path: '/teams',

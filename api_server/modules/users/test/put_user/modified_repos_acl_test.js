@@ -27,7 +27,7 @@ class ModifiedReposACLTest extends ModifiedReposTest {
 	}
 
 	makeOtherTeam (callback) {
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';

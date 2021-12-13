@@ -16,7 +16,7 @@ class OriginTeamPropagates extends JoinMethodTest {
 
 	createOriginTeam (teamCreator, callback) {
 		const token = teamCreator.users[this.teamOptions.creatorIndex].accessToken;
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.originTeam = response.team;

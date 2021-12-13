@@ -7,6 +7,9 @@ const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/ut
 class PostTeamRequest extends PostRequest {
 
 	async authorize () {
+		// direct creation of teams is now deprecated
+		throw this.errorHandler.error('deprecated');
+		
 		// anyone can create a team at any time
 	}
 

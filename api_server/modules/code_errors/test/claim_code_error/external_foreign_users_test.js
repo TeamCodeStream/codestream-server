@@ -10,6 +10,7 @@ class ExternalForeignUsersTest extends NotAddedAsForeignUsersTest {
 
 	setTestOptions (callback) {
 		super.setTestOptions(() => {
+			this.expectedTeamVersion = 5;
 			this.teamOptions.members = [0, 1, 2];
 			callback();
 		});

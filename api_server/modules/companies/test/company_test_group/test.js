@@ -8,7 +8,7 @@ const MessageTest = require('./message_test');
 const CompanyNotFoundTest = require('./company_not_found_test');
 const ACLTest = require('./acl_test');
 const TooManyKeysTest = require('./too_many_keys_test');
-const OtherTeamMessageTest = require('./other_team_message_test');
+//const OtherTeamMessageTest = require('./other_team_message_test');
 
 class CompanyTestGroupRequestTester {
 
@@ -19,7 +19,7 @@ class CompanyTestGroupRequestTester {
 		new CompanyNotFoundTest().test();
 		new ACLTest().test();
 		new TooManyKeysTest().test();
-		new OtherTeamMessageTest().test();
+		//new OtherTeamMessageTest().test();
 	}
 }
 

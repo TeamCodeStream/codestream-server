@@ -27,7 +27,7 @@ class ACLRepoTest extends ReviewTest {
 	}
 
 	createOtherTeam (callback) {
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;

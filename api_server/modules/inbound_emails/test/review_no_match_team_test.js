@@ -28,7 +28,7 @@ class ReviewNoMatchTeamTest extends ReviewReplyTest {
 	// create a second repo (and team) ... we'll use this team's ID but the normal
 	// review ID ... this is not allowed!
 	createOtherTeam (callback) {
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;

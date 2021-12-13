@@ -10,6 +10,7 @@ class AlreadyClaimedByTeamTest extends ClaimCodeErrorTest {
 
 	// before the test runs...
 	before (callback) {
+		this.dontExpectTeamUpdate = true;
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.savedData = this.data;

@@ -64,7 +64,7 @@ class CommonInit {
 	// create a random team for the user to be on, this is required for proper use of the signup token
 	createTeam (callback) {
 		if (this.dontCreateTeam) { return callback(); }
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;

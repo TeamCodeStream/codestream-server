@@ -28,7 +28,7 @@ class CodeErrorNoMatchTeamTest extends CodeErrorReplyTest {
 	// create a second repo (and team) ... we'll use this team's ID but the normal
 	// code error ID ... this is not allowed!
 	createOtherTeam (callback) {
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;

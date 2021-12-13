@@ -25,7 +25,7 @@ class MessageToUserTest extends CodeStreamMessageTest {
 		// create a new team, this should trigger a message
 		// to the user that their "joinMethod" attribute has been set
 		this.updatedAt = Date.now();
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				// this is the message we expect to see

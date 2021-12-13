@@ -102,12 +102,7 @@ class TestTeamCreator {
 		}
 		const token = this.teamOptions.creatorToken || this.users[this.teamOptions.creatorIndex].accessToken;
 
-		// TODO: eventually all tests should pass through the company factory
-		const func = this.teamOptions.createCompanyInstead ?
-			this.test.companyFactory.createRandomCompany.bind(this.test.companyFactory) :
-			this.test.teamFactory.createRandomTeam.bind(this.test.teamFactory);
-		
-		func(
+		this.test.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
@@ -144,7 +139,7 @@ class TestTeamCreator {
 	inviteUser (n, callback) {
 		let userIndex = null;
 		let email;
-		if (n === this.teamOptions.creatorIndex) {
+		if (this.teamOptions.members === 'all' && n === this.teamOptions.creatorIndex) {
 			return callback();
 		}
 		if (this.teamOptions.members === 'all') {
@@ -186,7 +181,9 @@ class TestTeamCreator {
 				else {
 					this.users.push({ user: response.user });
 				}
-				this.team.memberIds.push(response.user.id);
+				if (!this.team.memberIds.includes(response.user.id)) {
+					this.team.memberIds.push(response.user.id);
+				}
 				this.team.companyMemberCount++;
 				callback();
 			}

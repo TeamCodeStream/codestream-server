@@ -28,7 +28,7 @@ class ForeignUsersTest extends ChildPostsClaimedTest {
 				if (error) { return callback(error); }
 				const userIds = this.childPosts.map(post => post.creatorId);
 				const expectedForeignUserIds = [];
-				const expectedMemberIds = this.team.memberIds;
+				const expectedMemberIds = [...this.team.memberIds];
 				for (let n = 0; n < this.numChildPosts; n++) {
 					const existingUserIndex = this.childPostByUser && this.childPostByUser[n];
 					const existingUser = existingUserIndex ? this.users[existingUserIndex] : undefined;

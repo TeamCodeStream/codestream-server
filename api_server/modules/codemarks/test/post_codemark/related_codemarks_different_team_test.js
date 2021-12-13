@@ -30,7 +30,7 @@ class RelatedCodemarksDifferentTeamTest extends RelatedCodemarksTest {
 	}
 
 	makeOtherTeam (callback) {
-		this.teamFactory.createRandomTeam((error, response) => {
+		this.companyFactory.createRandomCompany((error, response) => {
 			if (error) { return callback(error); }
 			this.otherTeam = response.team;
 			callback();

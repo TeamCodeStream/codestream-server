@@ -50,11 +50,11 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 						foreignMemberIds: [response.user.id]
 					},
 					$set: {
-						version: 6
+						version: 7
 					},
 					$version: {
-						before: 5,
-						after: 6
+						before: 6,
+						after: 7
 					}
 				};
 				delete this.message.user;

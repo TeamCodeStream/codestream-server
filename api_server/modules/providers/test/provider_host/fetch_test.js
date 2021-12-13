@@ -36,7 +36,7 @@ class FetchTest extends ProviderHostTest {
 	// validate that the response is correct
 	validateResponse (data) {
 		// verify what we fetch is what we got back in the response
-		const expectedTeam = Object.assign({}, this.team);
+		const expectedTeam = Object.assign({}, this.team, { plan: 'FREEPLAN' });
 		expectedTeam.modifiedAt = this.setProviderHostResponse.team.$set.modifiedAt;
 		expectedTeam.version = this.setProviderHostResponse.team.$set.version;
 		const starredHost = this.host.replace(/\./g, '*');

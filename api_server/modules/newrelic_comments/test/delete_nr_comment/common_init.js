@@ -1,9 +1,10 @@
-// base class for many tests of the "DELETE /markers/:id" requests
+// base class for many tests of the "DELETE /nr-comments/:id" requests
 
 'use strict';
 
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 class CommonInit {
 
@@ -11,48 +12,113 @@ class CommonInit {
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.makeTestData		// make the data to be used during the delete request
+			this.createNRComment,
+			this.setExpectedData
 		], callback);
 	}
 
 	setTestOptions (callback) {
-		this.deletedMarkerIndex = 1;
-		this.teamOptions.creatorIndex = this.teamCreatorIndex === undefined ? 1 : this.teamCreatorIndex;
-		//this.streamOptions.creatorIndex = 1;
-		this.repoOptions.creatorIndex = 1;
-		Object.assign(this.postOptions, {
-			creatorIndex: this.teamCreatorCreatesCodemark ? 1 : (this.otherUserCreatesCodemark ? 2 : 0),
-			wantCodemark: true,
-			wantMarker: true,
-			wantMarkers: 3,
-			markerStreamId: 0,	// will use the existing file stream created for the repo
-			commitHash: this.repoFactory.randomCommitHash()
-		});
 		callback();
 	}
 
-	// form the data for the marker deletion
-	makeTestData (callback) {
-		this.modifiedAfter = Date.now();
-		this.marker = this.postData[0].markers[this.deletedMarkerIndex];
-		this.codemark = this.postData[0].codemark;
-		this.path = `/markers/${this.marker.id}`;
-		callback();
-	}
-
-	// do the actual deletion 
-	deleteMarker (callback) {
+	createNRComment (callback) {
+		const data = this.nrCommentFactory.getRandomNRCommentData();
 		this.doApiRequest(
 			{
-				method: 'delete',
-				path: `/markers/${this.marker.id}`,
-				data: this.data,
-				token: this.users[1].accessToken
+				method: 'post',
+				path: `/nr-comments`,
+				data: data,
+				requestOptions: {
+					headers: {
+						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
+						'X-CS-NewRelic-AccountId': data.accountId,
+						'X-CS-Want-CS-Response': this.apiConfig.sharedSecrets.commentEngine
+					}
+				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = response;
-				delete this.data;	// don't need this anymore
+				this.nrCommentResponse = response;
+				this.path = '/nr-comments/' + response.post.id;
+				callback();
+			}
+		);
+	}
+	
+	// form the expected data we get from the delete operation
+	setExpectedData (callback) {
+		this.apiRequestOptions = {
+			headers: {
+				'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
+				'X-CS-NewRelic-AccountId': this.nrCommentResponse.post.accountId
+			}
+		};
+		const now = Date.now();
+		this.expectedResponse = {
+			post: Object.assign(DeepClone(this.nrCommentResponse.post), {
+				version: 2,
+				modifiedAt: now, // placeholder
+				deactivated: true
+			})
+		};
+		this.deletedAfter = now;
+		callback();
+	}
+
+	// claim code error for the current team
+	claimCodeError (callback) {
+		const { objectId, objectType } = this.nrCommentResponse.post;
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/code-errors/claim/' + this.team.id,
+				data: {
+					objectId,
+					objectType
+				},
+				token: this.users[1].accessToken
+			},
+			callback
+		);
+	}
+
+	deleteNRComment (callback) {
+		this.doApiRequest(
+			{
+				method: 'delete',
+				path: `/nr-comments/` + this.nrCommentResponse.post.id,
+				requestOptions: {
+					headers: {
+						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
+						'X-CS-NewRelic-AccountId': this.nrCommentResponse.post.accountId
+					}
+				}
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.nrDeleteResponse = response;
+				const post = this.nrCommentResponse.codeStreamResponse.post;
+				this.expectedPost = { 
+					...post,
+					deactivated: true,
+					teamId: this.team.id,
+					version: post.version + 1
+				};
+				this.message = { 
+					post: {
+						id: post.id,
+						_id: post.id,	// DEPRECATE ME
+						$set: {
+							deactivated: true,
+							modifiedAt: Date.now(),
+							version: post.version + 1
+						},
+						$version: {
+							before: post.version,
+							after: post.version + 1
+						}
+					}
+				};
 				callback();
 			}
 		);

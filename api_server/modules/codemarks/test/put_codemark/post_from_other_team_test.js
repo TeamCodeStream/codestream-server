@@ -32,7 +32,7 @@ class PostFromOtherTeamTest extends PutCodemarkTest {
 
 	// create another team to post to
 	createTeam (callback) {
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeamStream = response.streams[0];

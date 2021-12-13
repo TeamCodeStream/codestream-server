@@ -30,7 +30,7 @@ class PutTeamFetchTest extends PutTeamTest {
 	// validate that the response is correct
 	validateResponse (data) {
 		// verify what we fetch is what we got back in the response
-		const expectedTeam = Object.assign({}, this.team, this.updateTeamResponse.team.$set);
+		const expectedTeam = Object.assign({}, this.team, this.updateTeamResponse.team.$set, { plan: 'FREEPLAN' });
 		data.team.memberIds.sort();
 		expectedTeam.memberIds.sort();
 		expectedTeam.companyMemberCount = expectedTeam.memberIds.length - 1;

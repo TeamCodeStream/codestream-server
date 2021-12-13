@@ -30,7 +30,7 @@ class RelatedCodemarkACLTest extends RelatedCodemarksTest {
 
 	// create another team that the current is not on
 	createOtherTeam (callback) {
-		this.teamFactory.createRandomTeam(
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeamResponse = response;

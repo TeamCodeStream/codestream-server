@@ -15,6 +15,7 @@ else
 fi
 . $CSSVC_BACKEND_ROOT/sandbox/shared/sandbox_config.sh || return 1
 
+export CS_OUTBOUND_EMAIL_SHORT_NAME=mailout
 # common sandbox initialization routines
 sbcfg_initialize CS_OUTBOUND_EMAIL
 

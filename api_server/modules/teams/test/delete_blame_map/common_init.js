@@ -11,6 +11,7 @@ class CommonInit {
 	init (callback) {
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 3;
+		this.userOptions.numUnregistered = 1;
 		BoundAsync.series(this, [
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.createInitialBlameMap,
@@ -66,11 +67,11 @@ class CommonInit {
 				},
 				$set: {
 					modifiedAt: Date.now(),
-					version: 8
+					version: 9
 				},
 				$version: {
-					before: 7,
-					after: 8
+					before: 8,
+					after: 9
 				}
 			}
 		};

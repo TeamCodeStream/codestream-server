@@ -17,7 +17,7 @@ class NoStreamIdReplyMatchTest extends PostReplyTest {
 	// form the data for the post we'll create in the test
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.teamFactory.createRandomTeam((error, response) => {
+			this.companyFactory.createRandomCompany((error, response) => {
 				if (error) { return callback(error); }
 				this.data.streamId = response.streams[0].id;
 				callback();

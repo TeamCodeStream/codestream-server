@@ -95,8 +95,6 @@ class PostUserRequestTester {
 		new NumUsersInvitedTest().test();
 		new TrimEmailTest().test();
 		new ManualInviteTypeTest().test();
-		/*
-		*/
 	}
 }
 

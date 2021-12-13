@@ -53,6 +53,7 @@ export CSBE_TMP=$CSBE_SANDBOX/tmp     # temp directory
 export CSBE_CONFS=$CSBE_SANDBOX/conf  # config files directory
 export CSBE_DATA=$CSBE_SANDBOX/data   # data directory
 export CSBE_PIDS=$CSBE_SANDBOX/pid    # pid files directory
+export CSBE_SHORT_NAME=csbe
 
 # The asset/artifact build environment; usually 'local', 'dev' or 'prod'
 # https://github.com/TeamCodeStream/dev_tools/blob/master/README/README.deployments.md)
@@ -63,6 +64,8 @@ export CSBE_PIDS=$CSBE_SANDBOX/pid    # pid files directory
 [ -z "$CSBE_ENV" ] && export CSBE_ENV=local
 
 export CSSVC_BACKEND_ROOT=$CSBE_TOP
+
+. $CSSVC_BACKEND_ROOT/sandbox/shared/sandbox_config.sh || return 1
 
 # These variables are defined by the sandbox-env-loader.sh script which won't be
 # called for the individual services
@@ -100,3 +103,5 @@ export OPADM_SANDBOX=$CSBE_SANDBOX
 export OPADM_TOP=$CSBE_TOP/onprem_admin
 # OPADM_DEPS=....
 . $OPADM_TOP/sandbox/defaults.sh
+
+sbcfg_setup_for_newrelic_instrumentation $CSSVC_BACKEND_ROOT $CSBE_TOP $CSBE_SHORT_NAME

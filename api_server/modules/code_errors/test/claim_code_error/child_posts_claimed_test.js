@@ -75,6 +75,14 @@ class ChildPostsClaimedTest extends ClaimCodeErrorTest {
 				const post = response.codeStreamResponse.post;
 				this.childPosts.push(post);
 				this.expectedData.codeError.followerIds.push(post.creatorId);
+				if (
+					!this.childPostByUser ||
+					this.childPostByUser[n] === undefined ||
+					!this.team.memberIds.includes(post.creatorId)
+				) {
+					this.expectedData.team.$addToSet.memberIds.push(post.creatorId);
+					this.expectedData.team.$addToSet.foreignMemberIds.push(post.creatorId);
+				} 
 				callback();
 			}
 		);

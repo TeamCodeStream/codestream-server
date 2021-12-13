@@ -37,7 +37,7 @@ class ReviewACLTeamTest extends AttachToReviewTest {
 		this.doApiRequest(
 			{
 				method: 'post',
-				path: '/teams',
+				path: '/companies',
 				data: {
 					name: 'private'
 				},

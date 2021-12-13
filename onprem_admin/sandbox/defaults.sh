@@ -11,6 +11,7 @@ else
 fi
 . $CSSVC_BACKEND_ROOT/sandbox/shared/sandbox_config.sh || return 1
 
+export OPADM_SHORT_NAME=opadm
 # common sandbox initialization routines
 sbcfg_initialize OPADM
 

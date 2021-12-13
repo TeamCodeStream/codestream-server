@@ -222,7 +222,7 @@ class PostCreator extends ModelCreator {
 
 	// validate that any mentioned users are on the team
 	async validateMentionedUsers () {
-		if (!this.team) { return; }
+		if (!this.team || this.forCommentEngine) { return; }
 		
 		const userIds = this.attributes.mentionedUserIds || [];
 		if (this.attributes.review) {

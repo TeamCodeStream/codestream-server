@@ -25,7 +25,7 @@ class UnregisteredOnTwoTeamsTest extends RemoveUsersTest {
 		this.doApiRequest(
 			{
 				method: 'post',
-				path: '/teams',
+				path: '/companies',
 				data: {
 					name: RandomString.generate(10)
 				},
