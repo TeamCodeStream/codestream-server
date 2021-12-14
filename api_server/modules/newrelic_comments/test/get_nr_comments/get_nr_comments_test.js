@@ -125,7 +125,13 @@ class GetNRCommentsTest extends CodeStreamAPITest {
 					objectId: this.objectId,
 					objectType: this.objectType
 				},
-				token: this.users[1].accessToken
+				token: this.users[1].accessToken,
+				requestOptions: {
+					headers: {
+						// allows claiming the code error without an NR account
+						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine
+					}
+				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

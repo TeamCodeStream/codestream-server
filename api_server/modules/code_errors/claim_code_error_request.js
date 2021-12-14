@@ -8,6 +8,7 @@ const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const GraphQLClient = require('graphql-client');
 
 class ClaimCodeErrorRequest extends RestfulRequest {
 
@@ -23,6 +24,7 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 		await this.requireAndAllow();
 
 		await this.getCodeError() &&
+		await this.authorizeNRAccount() &&
 		await this.authorizeCodeError() &&
 		await this.claimCodeError() &&
 		await this.makeResponse()
@@ -48,19 +50,132 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 			{ hint: Indexes.byObjectId }
 		);
 		if (!this.codeError) {
+			this.log(`Code error ${objectType}:${objectId} not found`);
 			this.responseData = { notFound: true };
 			return false;
 		}
 		return true;
 	}
 
+	// authorize the user to even access this code error: they must have access to the NR account
+	// the code error (error group) is associated with
+	async authorizeNRAccount () {
+		let mockAccounts;
+		const secretsList = this.api.config.sharedSecrets.commentEngineSecrets;
+		if (!secretsList.length) {
+			throw this.errorHandler.error('readAuth', { reason: 'server is not configured to support the comment engine' });
+		}
+		if (secretsList.includes(this.request.headers['x-cs-newrelic-secret'])) {
+			if (this.request.headers['x-cs-mock-account-ids']) {
+				this.warn(`Secret provided to use mock NR account data, this had better be a test!`);
+				mockAccounts = this.request.headers['x-cs-mock-account-ids'].split(',').map(accountId => {
+					return { id: accountId }
+				});
+			} else {
+				// secret to override this check, for tests
+				this.warn(`Secret provided to override NR account check, this had better be a test!`);
+				return true;
+			}
+		}
+
+		// get the user's NR access token, non-starter if no access token
+		const token = (
+			this.user.get('providerInfo') &&
+			this.user.get('providerInfo')[this.teamId] &&
+			this.user.get('providerInfo')[this.teamId].newrelic &&
+			this.user.get('providerInfo')[this.teamId].newrelic.accessToken
+		);
+		if (!token) {
+			mockAccounts = { id: this.codeError.get('accountId') };
+			this.log(`User ${this.user.id} has no NR token`);
+			this.responseData = {
+				needNRToken: true
+			};
+			return false;
+		}
+
+		// instantiate graphQL client
+		const baseUrl = this.getGraphQLBaseUrl();
+		const client = GraphQLClient({
+			url: baseUrl,
+			headers: {
+				"Api-Key": token,
+				"Content-Type": "application/json",
+				"NewRelic-Requesting-Services": "CodeStream"
+			}
+		});
+
+		try {
+			let response;
+			if (mockAccounts) {
+				response = { data: { actor: { accounts: mockAccounts } } };
+			} else {
+				response = await client.query(`{
+					actor {
+						accounts {
+							id
+						}
+					}
+				}`);
+			}
+
+			const accountIds = (
+				response.data &&
+				response.data.actor &&
+				response.data.actor.accounts &&
+				response.data.actor.accounts.map(account => parseInt(account.id, 10))
+			);
+const i = accountIds.indexOf(11188139);
+accountIds.splice(i, 1);
+			this.log('NR user has account IDs:' + accountIds);
+			if (accountIds && accountIds.includes(this.codeError.get('accountId'))) {
+				return true;
+			} else {
+				this.responseData = {
+					unauthorized: true,
+					unauthorizedAccount: true
+				};
+				return false;
+			}
+		} catch (error) {
+			this.warn('Error fetching New Relic account info: ' + error.message);
+			this.responseData = {
+				unauthorized: true,
+				tokenError: true
+			};
+			return false;
+		}
+	}
+
+	// get the base URL for New Relic GraphQL client
+	getGraphQLBaseUrl () {
+		let url;
+		const data = (
+			this.user.get('providerInfo') &&
+			this.user.get('providerInfo')[this.teamId] &&
+			this.user.get('providerInfo')[this.teamId].newrelic &&
+			this.user.get('providerInfo')[this.teamId].newrelic.data
+		); 
+		if (!data || (!data.usingEU && !data.apiUrl)) {
+			url = 'https://api.newrelic.com';
+		} else if (data.usingEU) {
+			url = 'https://api.eu.newrelic.com';
+		} else {
+			url = data.apiUrl.replace(/\/$/, '');
+		}
+
+		return `${url}/graphql`;
+	}
+
 	// authorize the code error: if not owned by a team, or if i am on the team that owns it
 	async authorizeCodeError () {
 		const teamId = this.codeError.get('teamId');
 		if (!teamId || teamId === this.teamId) {
+			this.log(`Code error claim for ${this.codeError.get('objectType')}:${this.codeError.get('objectId')} is authorized`);
 			return true;
 		} 
 
+		this.log(`Code error claim for ${this.codeError.get('objectType')}:${this.codeError.get('objectId')} is rejected, object is owned by team ${teamId}`);
 		this.responseData = { 
 			unauthorized: true,
 			accountId: this.codeError.get('accountId')
