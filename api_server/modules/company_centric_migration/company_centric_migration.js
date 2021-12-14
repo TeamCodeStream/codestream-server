@@ -47,6 +47,7 @@ class CompanyCentricMigration extends APIServerModule {
 	}
 	
 	middlewares () {
+		return;
 		// return a middleware function that will look for any companies the user is in that have not yet
 		// been migrated to company-centric, if so, we block the request, return an error code,
 		// and kick off the migration

@@ -15,10 +15,22 @@ const DEPENDENCIES = [
 	'alerts'
 ];
 
+const ROUTES = [
+	{
+		method: 'get',
+		path: '/history-fetch',
+		func: 'announceHistoryFetch'
+	}
+];
+
 class Broadcaster extends APIServerModule {
 
 	getDependencies () {
 		return DEPENDENCIES;
+	}
+
+	getRoutes () {
+		return ROUTES;
 	}
 
 	services () {
@@ -152,6 +164,9 @@ class Broadcaster extends APIServerModule {
 		this.api.services.alerts.clearAlert(code);
 	}
 
+	announceHistoryFetch (request, response) {
+		response.send({});
+	}
 }
 
 module.exports = Broadcaster;
