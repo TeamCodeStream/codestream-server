@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="light-bg">
 <head>
 	<title>CodeStream</title>
 	<link rel="dns-prefetch" href="https://images.codestream.com">
@@ -43,16 +43,15 @@
 		} 
 	</style>
 </head>
-<body>	
+<body class="light-bg">	
 	<!-- 
 	{{{identifyScript}}}
 	<script>
 		window.analytics.track('Page Viewed', { 'Page Name': '{{codemarkType}}' });
 	</script> -->
 
-<nav class='navbar navbar-expand-lg navbar-dark bg-dark'>
-	
-	<a class='navbar-brand' href='https://newrelic.com'>
+<nav class='navbar navbar-light bg-light'>
+	<a class='navbar-brand-light' href='https://newrelic.com'>
 		<svg
 			width='200px'
 			viewBox='0 0 738 132'
@@ -123,38 +122,22 @@
 			</g>
 		</svg>
 	</a>
-	<div class='collapse navbar-collapse' id='navbarNavDropdown'></div>
-	<ul class='navbar-nav' id='menu'>
-		<li class='nav-item dropdown'>
-			<a
-				class='nav-link'
-				href='#'
-				id='navbarDropdownMenuLink'
-				data-toggle='dropdown'
-				aria-haspopup='true'
-				aria-expanded='false'
-			>
-				<span class='navbar-toggler-icon'></span>
-			</a>
-			<div class='dropdown-menu dropdown-menu-right' aria-labelledby='navbarDropdownMenuLink'>
-				{{#if isAuthenticated}}
-					{{#if teamName}}
-						<span class='dropdown-item'>{{teamName}}</span>
-						<div class='dropdown-divider'></div>
-					{{/if}}
-				{{/if}}
-				<a class='dropdown-item' href='mailto:support@codestream.com'>Feedback</a>
-				<a
-					class='dropdown-item'
-					href='https://docs.newrelic.com/docs/codestream'
-					target='_blank'
-				>Help</a>
-			 
-			</div>
-		</li>
-	</ul>
+	<div class="navbar-right">
+		{{#if isAuthenticated}}
+			{{#if teamName}}
+				<div class='navbar-right-item'>{{teamName}}</div>
+			{{/if}}
+		{{/if}}
+		<a
+			class='navbar-right-item'
+			href='https://docs.newrelic.com/docs/codestream'
+			target='_blank'
+		>
+			See our docs
+		</a>
+	</div>
 </nav>
-<div class="container-fluid" id="root" class="light">
+<div class="container-fluid light" id="root"></div>
 	{{> partial_launcher_detailed partial_launcher_model}}
 	<!--<div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0 text-center">			 
 		<p style="max-width:643px; text-align: justify">

@@ -586,6 +586,7 @@ function onIdeSelected(e, moniker) {
 } 
 </script> 
  
+
 <div class="container" style="margin-bottom:35px;">
 	<div class="interstitial-detail-wrapper">
         <div class="interstitial-title-wrapper"> 
@@ -596,35 +597,39 @@ function onIdeSelected(e, moniker) {
                 Choose an IDE to open this link in CodeStream
             {{/if}}
             </span>
-        </div>		
-        <div class="btn-group ide-list btn-block-wrap" style="white-space:nowrap;">
-            {{#lastOrigin}}		 
-                <a id="selected-ide" 
-                    class="selected-ide btn btn-sm btn-block form-control btn-open-in" 
-                    title="Open with {{ideName}}"
-                    href="#" 
-                    onclick="(function(e){onIdeClick(e);})(event)"
-                    data-ide-moniker="{{moniker}}">
-                    <img src="https://images.codestream.com/ides/128/{{moniker}}.png" id="selected-ide-icon" class="icon-ide" />
-                    <span id="selected-ide-name">Open in {{ideName}}</span>
-                </a>									  
-            {{/lastOrigin}}							
-            <a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right ide-list-items" data-element-ide-list="">
-                {{#ides}}
-                    {{#if ideName}}
-                        <a class="dropdown-item" onclick="(function(e){onIdeSelected(e,'{{moniker}}');})(event)" href="#">
-                            <img src="https://images.codestream.com/ides/128/{{moniker}}.png" class="icon-ide" />{{ideName}}</a>
-                    {{/if}}
-                    {{^ideName}}
-                        <div class="dropdown-divider"></div>
-                    {{/ideName}}
-                {{/ides}}
-            </div>
         </div>
+
+		
+		<div class="interstitial-action-wrapper">
+			<div class="btn-group ide-list btn-set-width" style="white-space:nowrap;">
+				{{#lastOrigin}}		 
+					<a id="selected-ide" 
+						class="selected-ide btn btn-sm btn-block form-control btn-open-in" 
+						title="Open with {{ideName}}"
+						href="#" 
+						onclick="(function(e){onIdeClick(e);})(event)"
+						data-ide-moniker="{{moniker}}">
+						<img src="https://images.codestream.com/ides/128/{{moniker}}.png" id="selected-ide-icon" class="icon-ide" />
+						<span id="selected-ide-name">Open in {{ideName}}</span>
+					</a>									  
+				{{/lastOrigin}}							
+				<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
+					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<span class="sr-only">Toggle Dropdown</span>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right ide-list-items" data-element-ide-list="">
+					{{#ides}}
+						{{#if ideName}}
+							<a class="dropdown-item" onclick="(function(e){onIdeSelected(e,'{{moniker}}');})(event)" href="#">
+								<img src="https://images.codestream.com/ides/128/{{moniker}}.png" class="icon-ide" />{{ideName}}</a>
+						{{/if}}
+						{{^ideName}}
+							<div class="dropdown-divider"></div>
+						{{/ideName}}
+					{{/ides}}
+				</div>
+			</div>
+		</div>
         <div class="row" id="notification-area-jb" style="display:none;">
             <div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 col-fluid">

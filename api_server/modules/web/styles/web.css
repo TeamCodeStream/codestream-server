@@ -22,6 +22,9 @@ p {
 	margin-top: 0px;
 }
 .light {
+	background: #efefef !important;
+}
+.light-bg {
 	background: white !important;
 }
 .container-fluid .row {
@@ -274,6 +277,10 @@ h3 {
 	vertical-align: middle
 }
 
+.btn-set-width {
+	width: 200px;
+}
+
 .sm-input {
 	max-width: 100px;
 }
@@ -297,6 +304,27 @@ input.bg-dark:-webkit-autofill,
 input.bg-dark:-internal-autofill-selected {
 	background-color: #1e1e1e !important;
 	color: rgb(220, 223, 228);
+}
+
+input.bg-light:-webkit-autofill {
+	-webkit-box-shadow: 0 0 0 50px rgb(0, 0, 0) inset; /* Change the color to your own background color */
+	-webkit-text-fill-color: rgb(0, 0, 0);
+}
+
+input.bg-light:-webkit-autofill:focus {
+	-webkit-box-shadow: 0 0 0 50px rgb(0, 0, 0) inset; /*your box-shadow*/
+	-webkit-text-fill-color: rgb(0, 0, 0);
+}
+
+.bg-light,
+.bg-light.form-control:focus {
+	background: #efefef !important;
+	color: rgb(0, 0, 0) !important;
+}
+input.bg-light:-webkit-autofill,
+input.bg-light:-internal-autofill-selected {
+	background-color: #efefef !important;
+	color: rgb(0, 0, 0);
 }
 
 .btn-group {
@@ -468,11 +496,15 @@ hr {
 .interstitial-detail-wrapper {
 	background-color: #efefef;
 	padding: 30px;
+	border: 2px solid #9c9c9c
 }
 
-.interstitial-title-wrapper {
+.interstitial-title-wrapper{
 	text-align: center;
 	margin: 0 0 20px 0;
+}
+.interstitial-action-wrapper {
+	text-align: center;
 }
 
 #notification-title {
@@ -555,6 +587,28 @@ span.dropdown-item:hover {
 }
 .navbar-dark.bg-dark {
 	background: #1e1e1e !important;
+}
+.navbar-light.bg-light {
+	background: #efefef !important;
+	margin: 0 0 20px 0;
+}
+.navbar-light {
+	border-bottom: 2px solid #9c9c9c
+}
+.navbar-right-item:hover { 
+	text-decoration: none; 
+}
+.navbar-right-item { 
+	color: #4ec9b0 
+}
+.navbar-right {
+	width: 30%;
+	text-align: center;
+}
+.navbar-brand-light {
+	padding: 5px;
+	width: 30%;
+	text-align: center;
 }
 .form-control {
 	border: 1px solid #383838 !important;
