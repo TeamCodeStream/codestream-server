@@ -598,8 +598,6 @@ function onIdeSelected(e, moniker) {
             {{/if}}
             </span>
         </div>
-
-		
 		<div class="interstitial-action-wrapper">
 			<div class="btn-group ide-list btn-set-width" style="white-space:nowrap;">
 				{{#lastOrigin}}		 
@@ -630,29 +628,40 @@ function onIdeSelected(e, moniker) {
 				</div>
 			</div>
 		</div>
-        <div class="row" id="notification-area-jb" style="display:none;">
-            <div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">
-                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 col-fluid">
-                    <div class="box-content">				 
-                        1. Install the <a href="https://www.jetbrains.com/toolbox/app/" target="_blank">JetBrains Toolbox App</a><br /><br />
-                        2. Install the <a href="https://plugins.jetbrains.com/plugin/12206-codestream" target="_blank">New Relic CodeStream extension</a><br /><br />
-                        3. Return here and click "Open in <span data-ide-name=""></span>" again.
-                    </div> 
-                </div>
-            </div> 
+		<div id="notification-area-jb" style="display:none;" class="notification-content-wrapper">
+			<div class="notification-content-light">				 
+				<div class="notification-text">
+					1. Install the 
+					<a href="https://www.jetbrains.com/toolbox/app/" target="_blank">
+						JetBrains Toolbox App
+					</a>
+				</div>
+				<div class="notification-text">
+					2. Install the 
+					<a href="https://plugins.jetbrains.com/plugin/12206-codestream" target="_blank">
+						New Relic CodeStream extension
+					</a>
+				</div>
+				<div class="notification-text">
+					3. Return here and click "Open in <span data-ide-name=""></span>" again.
+				</div>
+			</div>
+		</div>
+		<div id="notification-area-vs" style="display:none;" class="notification-content-wrapper">
+			<div class="notification-content-light">
+				<div class="notification-text">
+					1. Install the 
+					<a href="https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs" target="_blank">
+						New Relic CodeStream extension
+					</a>
+				</div>
+				<div class="notification-text">
+					2. Return here and click "Open in <span data-ide-name=""></span>" again.
+				</div>
+			</div> 
         </div>
-        <div id="notification-area-vs" style="display:none;">
-            <div class="col-xl-6 offset-xl-3 col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2 col-xs-12 offset-xs-0">
-                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 col-fluid">
-                    <div class="box-content">					 
-                        1. Install the <a href="https://marketplace.visualstudio.com/items?itemName=CodeStream.codestream-vs" target="_blank">New Relic CodeStream extension</a><br /><br />
-                        2. Return here and click "Open in <span data-ide-name=""></span>" again.
-                    </div> 
-                </div>
-            </div> 
-        </div>						 
 	</div>
- </div>
+</div>
 <script>
 $(function() {	
 	if (String("{{autoOpen}}") == "true") {

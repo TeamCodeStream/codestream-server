@@ -167,6 +167,18 @@ h6 {
 .box-content-subscription-upgrade {
 	width: 65%;
 }
+.notification-content-wrapper {
+	margin-top: 20px;
+	text-align: center;
+}
+.notification-content-light {
+	display: inline-block;
+	text-align: left;
+	color: rgb(0, 0, 0);
+}
+.notification-text {
+	margin: 0 0 5px 0
+}
 .box-border {
 	margin-top: 1rem;
 	padding: 1.5rem;
