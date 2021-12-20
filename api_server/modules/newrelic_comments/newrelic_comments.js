@@ -11,6 +11,11 @@ const ROUTES = [
 		requestClass: require('./post_nr_comment_request')
 	},
 	{
+		method: 'post',
+		path: 'nr-comments/assign',
+		requestClass: require('./assign_nr_comment_request')
+	},
+	{
 		method: 'get',
 		path: 'nr-comments/:id',
 		requestClass: require('./get_nr_comment_request')

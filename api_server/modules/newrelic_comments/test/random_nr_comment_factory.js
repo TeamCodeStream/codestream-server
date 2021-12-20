@@ -41,6 +41,19 @@ class RandomNRCommentFactory {
 		}
 		return data;
 	}
+
+	// get some random NR object assignment data
+	getRandomNRAssignmentData (options = {}) {
+		const data = {
+			creator: this.randomUser(options),
+			assignee: this.randomUser(options),
+			accountId: this.codeErrorFactory.randomAccountId(),
+			objectId: this.codeErrorFactory.randomObjectId(),
+			objectType: options.objectType || 'errorGroup'
+		};
+		return data;
+
+	}
 }
 
 module.exports = RandomNRCommentFactory;

@@ -3,13 +3,14 @@
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const RestfulErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/errors');
 const AuthenticatorErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
-const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_creator');
 const UserValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_validator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const PostErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/errors');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
+const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
 
 class NRCommentRequest extends RestfulRequest {
 
@@ -42,6 +43,24 @@ class NRCommentRequest extends RestfulRequest {
 		this.headerAccountId = parseInt(this.headerAccountId, 10);
 	}
 
+	// handle fetching existing code error, as needed
+	async checkForExistingCodeError () {
+		const { objectId, objectType } = this.request.body;
+		this.codeError = await this.data.codeErrors.getOneByQuery(
+			{ objectId, objectType },
+			{ hint: CodeErrorIndexes.byObjectId }
+		);
+		if (this.codeError && this.headerAccountId !== this.codeError.get('accountId')) {
+			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match the object' });
+		}
+		if (this.codeError && this.codeError.get('accountId') !== this.request.body.accountId) {
+			throw this.errorHandler.error('createAuth', { reason: 'accountId for the comment does not match the accountId of the parent object' });
+		}
+		if (!this.codeError && this.request.body.accountId !== this.headerAccountId) {
+			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match that given in the body' });
+		}
+	}
+
 	// handle any mentions in the post
 	async handleMentions (mentionedUsers) {
 		this.mentionedUserIds = [];
@@ -53,15 +72,15 @@ class NRCommentRequest extends RestfulRequest {
 	}
 
 	// find or create a user matching the email passed in
-	async findOrCreateUser(userInfo) {
+	async findOrCreateUser(userInfo, field = 'creator.email') {
 		// must have a valid email
 		const { email, newRelicUserId } = userInfo;
 		if (!email) {
-			throw this.errorHandler.error('parameterRequired', { info: 'creator.email' });
+			throw this.errorHandler.error('parameterRequired', { info: field });
 		}
 		const error = new UserValidator().validateEmail(email);
 		if (error) {
-			throw this.errorHandler.error('validation', { info: `email: ${error}` });
+			throw this.errorHandler.error('validation', { info: `${field}: ${error}` });
 		}
 
 		// see if the user already exists
@@ -83,6 +102,13 @@ class NRCommentRequest extends RestfulRequest {
 				return user;
 			}
 		}
+	}
+
+	// resolve the requesting user, which may involve creating a (faux) user
+	async resolveUser () {
+		// find or create a "faux" user, as needed
+		this.user = this.request.user = await this.findOrCreateUser(this.request.body.creator);
+		this.users.push(this.user);
 	}
 
 	// create a "faux" user (one who can't actually login) to stand in for the commenting user
@@ -142,6 +168,37 @@ class NRCommentRequest extends RestfulRequest {
 		}
 
 		return user;
+	}
+
+	// create a code error linked to the New Relic object to which the comment is attached
+	async createCodeError (options) {
+		const { body, replyIsComing } = options;
+		const { objectId, objectType, accountId, createdAt, modifiedAt } = body;
+
+		// now create a post in the stream, along with the code error,
+		// this will also create a stream for the code error
+		const codeErrorAttributes = { objectId, objectType, accountId };
+		const postAttributes = {
+			dontSendEmail: true,
+			codeError: codeErrorAttributes
+		};
+		postAttributes.codeError._fromNREngine = postAttributes._fromNREngine = true;
+		if (this.request.headers['x-cs-newrelic-migration']) {
+			postAttributes.codeError._forNRMigration = postAttributes._forNRMigration = true;
+		}
+
+		this.codeErrorPost = await new PostCreator({
+			request: this,
+			assumeSeqNum: 1,
+			replyIsComing,
+			users: this.users,
+			setCreatedAt: createdAt,
+			setModifiedAt: modifiedAt,
+			forCommentEngine: true
+		}).createPost(postAttributes);
+		this.codeError = this.transforms.createdCodeError;
+		this.stream = this.transforms.createdStreamForCodeError;
+		this.codeErrorWasCreated = true;
 	}
 
 	// publish any messages not handled by the post creator
