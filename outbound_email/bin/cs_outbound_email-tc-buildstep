@@ -83,7 +83,7 @@ elif args.action == 'publish':
 elif args.action == 'tag':
 	build.tag()                               # update version info and apply tags
 elif args.action == 'release':
-	build.release(releaseToRTE=True)          # release assets to the general public
+	build.release(releaseToRTE=True if runTimeEnvironment in ['pd', 'nr'] else False)
 elif args.action == 'awsLambda':
 	# add a codestream config file to the zip file to create a new zip file
 	print(f"updating asset to include lambda & codestream configs for {runTimeEnvironment} run-time environment")

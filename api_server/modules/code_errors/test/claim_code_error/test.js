@@ -16,6 +16,9 @@ const ExternalForeignUsersTest = require('./external_foreign_users_test');
 const FetchCodeErrorTest = require('./fetch_code_error_test');
 const FetchStreamTest = require('./fetch_stream_test');
 const MessageTest = require('./message_test');
+const NoNRTokenTest = require('./no_nr_token_test');
+const NRAccountAclTest = require('./nr_account_acl_test');
+const NRAccountTest = require('./nr_account_test');
 
 class ClaimCodeErrorRequestTester {
 
@@ -34,6 +37,9 @@ class ClaimCodeErrorRequestTester {
 		new FetchCodeErrorTest().test();
 		new FetchStreamTest().test();
 		new MessageTest().test();
+		new NoNRTokenTest().test();
+		new NRAccountAclTest().test();
+		new NRAccountTest().test();
 	}
 }
 

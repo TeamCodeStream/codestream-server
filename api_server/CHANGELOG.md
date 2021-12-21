@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.26] - 2021-12-21
+
+### Changed
+
+- Security work around access to error groups 
+
 ## [11.0.25] - 2021-12-13
 
 ### Changed
