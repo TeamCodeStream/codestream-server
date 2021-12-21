@@ -23,6 +23,11 @@ class CompanyDeleter extends ModelDeleter {
 			throw this.errorHandler.error('notFound', { info: 'company' });
 		}
 
+		// check if already deleted
+		if (this.companyToDelete.get('deactivated')) {
+			throw this.errorHandler.error('alreadyDeleted');
+		}
+
 		// change the company's name to indicate this is a deactivated company
 		super.setOpForDelete();
 		const name = this.companyToDelete.get('name');
