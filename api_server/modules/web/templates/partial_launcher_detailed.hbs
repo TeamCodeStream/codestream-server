@@ -571,7 +571,7 @@ function onIdeSelected(e, moniker) {
 	var ide = ides.find(_ => _.moniker === moniker);
 	try {
 		$('#selected-ide')
-			.addClass("selected-ide btn btn-sm btn-block form-control btn-open-in")
+			.addClass("selected-ide btn-light btn-block form-control btn-open-in")
 			.attr("data-ide-moniker", ide.moniker)
 			.attr('title', `Open with ${ide.ideName}`);
 
@@ -599,30 +599,32 @@ function onIdeSelected(e, moniker) {
             </span>
         </div>
 		<div class="interstitial-action-wrapper">
-			<div class="btn-group ide-list btn-set-width" style="white-space:nowrap;">
+			<div class="btn-group btn-set-width" style="white-space:nowrap;">
 				{{#lastOrigin}}		 
 					<a id="selected-ide" 
-						class="selected-ide btn btn-sm btn-block form-control btn-open-in" 
+						class="selected-ide btn-light btn-block form-control btn-open-in" 
 						title="Open with {{ideName}}"
 						href="#" 
 						onclick="(function(e){onIdeClick(e);})(event)"
 						data-ide-moniker="{{moniker}}">
 						<img src="https://images.codestream.com/ides/128/{{moniker}}.png" id="selected-ide-icon" class="icon-ide" />
 						<span id="selected-ide-name">Open in {{ideName}}</span>
-					</a>									  
+					</a>
 				{{/lastOrigin}}							
-				<a href="#" class="btn btn-sm dropdown-toggle dropdown-toggle-split form-control"
+				<a href="#" class="btn-light dropdown-toggle-split dropdown-toggle-custom form-control"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<span class="sr-only">Toggle Dropdown</span>
-				</a>
-				<div class="dropdown-menu dropdown-menu-right ide-list-items" data-element-ide-list="">
+					<svg style="width:15px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" focusable="false" role="img"><title>Chevron bottom icon</title><path d="M6.6 1.6L4 4.3 1.4 1.6l-.8.8L4 5.7l3.4-3.3z"></path></svg>
+				</a> 
+				<div class="dropdown-menu dropdown-menu-light dropdown-menu-right ide-list-items" data-element-ide-list="">
 					{{#ides}}
 						{{#if ideName}}
-							<a class="dropdown-item" onclick="(function(e){onIdeSelected(e,'{{moniker}}');})(event)" href="#">
+							<a class="dropdown-item dropdown-item-light" onclick="(function(e){onIdeSelected(e,'{{moniker}}');})(event)" href="#">
 								<img src="https://images.codestream.com/ides/128/{{moniker}}.png" class="icon-ide" />{{ideName}}</a>
 						{{/if}}
 						{{^ideName}}
-							<div class="dropdown-divider"></div>
+							{{#unless @last}}
+								<div class="dropdown-divider dropdown-divider-light"></div>
+							{{/unless}}
 						{{/ideName}}
 					{{/ides}}
 				</div>

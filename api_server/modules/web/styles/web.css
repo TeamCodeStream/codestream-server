@@ -3,8 +3,7 @@ body,
 #root {
 	padding: 0;
 	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI',
-		'Ubuntu', 'Droid Sans', ans-serif;
+	font-family: Open Sans,Segoe UI,Tahoma,sans-serif;
 	font-size: 0.94rem;
 	background-color: #1e1e1e !important;
 	color: rgb(220, 223, 228);
@@ -175,6 +174,7 @@ h6 {
 	display: inline-block;
 	text-align: left;
 	color: rgb(0, 0, 0);
+	min-width: 362px;
 }
 .notification-text {
 	margin: 0 0 5px 0
@@ -242,12 +242,32 @@ h3 {
 	color: white;
 	background: rgb(0, 123, 203);
 }
-
 .btn:active,
 .btn:hover,
 .btn:focus {
 	color: white;
 	background-color: #009aef !important;
+}
+
+.btn-light {
+	cursor: pointer;
+	color: #000 !important;
+	background-color: white !important;
+	width: 100%;
+	/* font: 1rem "Helvetica Neue", arial, sans-serif; */
+	border: 1px solid rgb(227, 228, 228);
+}
+
+.btn-light:visited {
+	/* color: white; */
+	background: rgb(0, 123, 203);
+}
+.btn-light:active,
+.btn-light:hover,
+.btn-light:focus {
+	/* color: white; */
+	/* background-color: #009aef !important; */
+	text-decoration: none;
 }
 
 .btn-group-sm > .btn,
@@ -290,7 +310,7 @@ h3 {
 }
 
 .btn-set-width {
-	width: 200px;
+	min-width: 200px;
 }
 
 .sm-input {
@@ -484,6 +504,9 @@ hr {
 .dropdown-menu a {
 	color: #c7c7c6;
 }
+.dropdown-menu-light a {
+	color: #000 !important;
+}
 .monospace {
 	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 	font-size: 0.85em;
@@ -494,8 +517,8 @@ hr {
 	text-decoration: none;
 }
 .icon-ide {
-	width: 20px;
-	margin: 0px 7px 2px 0px
+	width: 15px;
+	margin: 0px 7px 2px 0px;
 	border: 0px;
 	border-radius: 2px;
 }
@@ -506,9 +529,9 @@ hr {
 }
 
 .interstitial-detail-wrapper {
-	background-color: #efefef;
+	background-color: rgb(250, 251, 251);
 	padding: 30px;
-	border: 2px solid #9c9c9c
+	border: 1px solid rgb(227, 228, 228);
 }
 
 .interstitial-title-wrapper{
@@ -518,11 +541,16 @@ hr {
 .interstitial-action-wrapper {
 	text-align: center;
 }
+.selected-ide {
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+}
 
 #notification-title {
 	color: black !important;
 	font-weight: bold;
 	font-size: 20px;
+	letter-spacing: 1px;
 }
 
 @media (min-width: 1px) {
@@ -553,6 +581,12 @@ hr {
 		width: inherit;
 	}
 }
+.dropdown-toggle-custom {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	border-left: none;
+	width: 40px;
+}
 
 .ide-list .dropdown-toggle-split {
 	padding-top: 0.5rem;
@@ -568,6 +602,10 @@ hr {
 	background: #2c2c2c;
 	border: 1px solid #383838;
 }
+.dropdown-menu-light {
+	background: rgb(250, 251, 251) !important;
+	border: 1px solid rgb(227, 228, 228) !important;
+}
 .alert {
 	border-radius: 0;
 	color: #333;
@@ -580,9 +618,16 @@ hr {
 .dropdown-divider {
 	border-top: 1px solid #383838;
 }
+.dropdown-divider-light {
+	border-top: 1px solid rgb(227, 228, 228) !important;
+}
 a.dropdown-item:hover {
 	color: white;
 	background: #0087d7;
+}
+a.dropdown-item-light:hover {
+	color: #000;
+	background: rgb(224, 224, 224) !important;
 }
 span.dropdown-item {
 	color: #c7c7c6;
@@ -601,11 +646,11 @@ span.dropdown-item:hover {
 	background: #1e1e1e !important;
 }
 .navbar-light.bg-light {
-	background: #efefef !important;
-	margin: 0 0 20px 0;
+	background: #fff !important;
+	margin: 0 0 80px 0;
 }
 .navbar-light {
-	border-bottom: 2px solid #9c9c9c
+	border-bottom: 1px solid rgb(227, 228, 228);
 }
 .navbar-right-item:hover { 
 	text-decoration: none; 
@@ -623,7 +668,7 @@ span.dropdown-item:hover {
 	text-align: center;
 }
 .form-control {
-	border: 1px solid #383838 !important;
+	border: 1px solid rgb(227, 228, 228) !important;
 }
 .lines-added {
 	color: #66aa66;
