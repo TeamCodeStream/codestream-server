@@ -45,6 +45,7 @@ class LinkNewRelicRequest extends WebRequestBase {
 	}
  
 	async render () {
+		const launcherModel = this.createLauncherModel("");
  		const templateProps = {			 
 			launchIde: this.parsedPayload.ide === ''
 					? 'default'
@@ -56,10 +57,12 @@ class LinkNewRelicRequest extends WebRequestBase {
 			},			 
 			icons: {},	
 			// if we ever get a repoId pass it here		 
-			partial_launcher_model: this.createLauncherModel(""),
+			partial_launcher_model: launcherModel,
 			partial_title_model: { },
 			segmentKey: this.api.config.telemetry.segment.webToken,
-			src: decodeURIComponent(this.parsedPayload.src || '')
+			src: decodeURIComponent(this.parsedPayload.src || ''),
+			errorGroupGuid: this.parsedPayload.errorGroupGuid,
+			newToCodeStream: launcherModel.isMru ? "false" : "true"
 		};
 
 		const template = TEMPLATE_BY_TYPE[this.request.params.type.toLowerCase()];
