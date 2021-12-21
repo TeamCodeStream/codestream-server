@@ -11,6 +11,11 @@ class CodeErrorTest extends PostPostTest {
 	}
 
 	makePostData (callback) {
+		// allow to create code error without checking New Relic account access
+		this.apiRequestOptions = this.apiRequestOptions || {};
+		this.apiRequestOptions.headers = this.apiRequestOptions.headers || {};
+		this.apiRequestOptions.headers['X-CS-NewRelic-Secret'] = this.apiConfig.sharedSecrets.commentEngine;
+
 		BoundAsync.series(this, [
 			super.makePostData,
 			this.addCodeErrorData

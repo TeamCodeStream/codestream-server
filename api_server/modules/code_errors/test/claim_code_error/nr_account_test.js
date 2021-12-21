@@ -21,7 +21,7 @@ class NRAccountTest extends ClaimCodeErrorTest {
 
 	// set the mock account IDs to use for the test
 	setMockAccountIds (callback) {
-		const codeErrorId = this.nrCommentResponse.codeStreamResponse.codeError.id;
+		const codeErrorId = this.nrCommentResponse.codeStreamResponse.codeError.accountId;
 		const accountIds = [];
 		while (
 			accountIds.length === 0 || 

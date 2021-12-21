@@ -36,7 +36,8 @@ class NewPostMessageToTeamStreamTest extends Aggregation(CodeStreamMessageTest, 
 				method: 'post',
 				path: '/posts',
 				data: this.data,
-				token: this.token
+				token: this.token,
+				requestOptions: this.apiRequestOptions
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

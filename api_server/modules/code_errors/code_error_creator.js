@@ -9,6 +9,7 @@ const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/m
 const Indexes = require('./indexes');
 const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
+const NewRelicAuthorizer = require('./new_relic_authorizer');
 
 class CodeErrorCreator extends ModelCreator {
 
@@ -122,6 +123,9 @@ class CodeErrorCreator extends ModelCreator {
 			this.attributes.createdAt = this.attributes.lastActivityAt = this.setCreatedAt || Date.now();
 		}
 
+		// make sure the user is authorized to access the New Relic account associated with this code error
+		await this.authorizeObject();
+
 		// proceed with the save...
 		await super.preSave({ setModifiedAt: this.setModifiedAt || this.setCreatedAt });
 
@@ -182,6 +186,24 @@ class CodeErrorCreator extends ModelCreator {
 		delete this.attributes.creatorId; // don't change authors
 
 		return didChange;
+	}
+
+	// make sure the user is authorized to access the account this code error is associated with
+	async authorizeObject () {
+		// does not apply to code errors created through comment engine
+		if (this.forCommentEngine) { return; }
+
+		const objectId = this.existingModel ? this.existingModel.get('objectId') : this.attributes.objectId;
+		const objectType = this.existingModel ? this.existingModel.get('objectType') : this.attributes.objectType;
+		const result = await new NewRelicAuthorizer({
+			request: this.request,
+			teamId: this.attributes.teamId
+		}).authorizeObject(objectId, objectType);
+
+		if (result !== true) {
+			throw this.errorHandler.error('createAuth', { info: result, reason: 'user is not authorized to claim this code error for their team' });
+		} 
+		return true;
 	}
 
 	// create a permalink url to the codemark

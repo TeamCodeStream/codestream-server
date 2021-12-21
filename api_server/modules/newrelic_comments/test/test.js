@@ -15,7 +15,7 @@ const LookupNROrgsRequestTester = require('./lookup_nr_orgs/test');
 
 describe('newrelic comment requests', function() {
 
-	this.timeout(20000);
+this.timeout(20000);
 
 	describe('GET /nr-comments/:id', GetNRCommentRequestTester.test);
 	describe('GET /nr-comments', GetNRCommentsRequestTester.test);

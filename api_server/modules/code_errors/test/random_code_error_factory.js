@@ -15,8 +15,11 @@ class RandomCodeErrorFactory {
 		return Math.floor(Math.random() * 1000000);
 	}
 
-	randomObjectId () {
-		return RandomString.generate(40);
+	randomObjectId (accountId) {
+		accountId = accountId || this.randomAccountId();
+		const nakedGuid = UUID();
+		const guid = `${accountId}|ERT|ERR_GROUP|${nakedGuid}`;
+		return Buffer.from(guid).toString('base64');
 	}
 
 	randomOrgId () {
@@ -25,9 +28,10 @@ class RandomCodeErrorFactory {
 	
 	// get some random codemark data
 	getRandomCodeErrorData (options = {}) {
+		const accountId = this.randomAccountId();
 		const data = {
-			accountId: this.randomAccountId(),
-			objectId: this.randomObjectId(),
+			accountId: accountId,
+			objectId: this.randomObjectId(accountId),
 			objectType: 'errorGroup',
 			stackTraces: [this.getRandomStackTraceInfo(options)],
 			providerUrl: 'https://one.newrelic.com',

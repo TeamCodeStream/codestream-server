@@ -13,7 +13,7 @@ class NotFoundTest extends ClaimCodeErrorTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.objectId = this.codeErrorFactory.randomObjectId();
+			this.data.objectId = this.codeErrorFactory.randomObjectId(this.data.accountId);
 			callback();
 		});
 	}

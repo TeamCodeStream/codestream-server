@@ -27,10 +27,11 @@ class RandomNRCommentFactory {
 	
 	// get some random NR comment data
 	getRandomNRCommentData (options = {}) {
+		const accountId = this.codeErrorFactory.randomAccountId();
 		const data = {
 			creator: this.randomUser(options),
-			accountId: this.codeErrorFactory.randomAccountId(),
-			objectId: this.codeErrorFactory.randomObjectId(),
+			accountId,
+			objectId: this.codeErrorFactory.randomObjectId(accountId),
 			objectType: options.objectType || 'errorGroup',
 			text: RandomString.generate(1000)
 		};
@@ -44,11 +45,12 @@ class RandomNRCommentFactory {
 
 	// get some random NR object assignment data
 	getRandomNRAssignmentData (options = {}) {
+		const accountId = this.codeErrorFactory.randomAccountId();
 		const data = {
 			creator: this.randomUser(options),
 			assignee: this.randomUser(options),
-			accountId: this.codeErrorFactory.randomAccountId(),
-			objectId: this.codeErrorFactory.randomObjectId(),
+			accountId: accountId,
+			objectId: this.codeErrorFactory.randomObjectId(accountId),
 			objectType: options.objectType || 'errorGroup'
 		};
 		return data;

@@ -6,7 +6,7 @@ const Assert = require('assert');
 class NoNRTokenTest extends ClaimCodeErrorTest {
 
 	get description () {
-		return 'should return an unauthorized flag when trying to claim a code error but the user does not have a New Relic access token';
+		return 'should return a needNRToken flag when trying to claim a code error but the user does not have a New Relic access token';
 	}
 
 	// before the test runs...
@@ -19,7 +19,7 @@ class NoNRTokenTest extends ClaimCodeErrorTest {
 	}
 
 	validateResponse (data) {
-		Assert.deepStrictEqual(data, { needNRToken:true }, 'response not correct');
+		Assert.deepStrictEqual(data, { needNRToken: true }, 'response not correct');
 	}
 }
 
