@@ -1,5 +1,11 @@
 # Change Log
 
+## [11.0.27] - 2021-12-22
+
+### Changed
+
+- Telemetry update for the open-in-IDE redirect page 
+
 ## [11.0.26] - 2021-12-21
 
 ### Changed

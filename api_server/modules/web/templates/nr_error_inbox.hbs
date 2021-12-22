@@ -16,7 +16,9 @@
 				window.segmentAnonymousId = Math.random().toString(36).substring(2) + Date.now().toString(36) + Math.random().toString(36).substring(2);
 				analytics.setAnonymousId(window.segmentAnonymousId);
 				analytics.track("NR1 Redirect Page Viewed", {
-					Source: "{{src}}"
+					Source: "{{src}}",
+					"New to CodeStream": "{{newToCodeStream}}",
+					"Error Group ID": "{{errorGroupGuid}}"
 				});
 			}
 		}();

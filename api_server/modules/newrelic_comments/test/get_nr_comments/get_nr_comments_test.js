@@ -28,9 +28,9 @@ class GetNRCommentsTest extends CodeStreamAPITest {
 	// set the path to use for the test request
 	setPath (callback) {
 		this.accountId = this.codeErrorFactory.randomAccountId();
-		this.objectId = this.codeErrorFactory.randomObjectId();
+		this.objectId = this.codeErrorFactory.randomObjectId(this.accountId);
 		this.objectType = 'errorGroup';
-		this.path = `/nr-comments?objectId=${this.objectId}&objectType=${this.objectType}`;
+		this.path = `/nr-comments?objectId=${encodeURIComponent(this.objectId)}&objectType=${this.objectType}`;
 		callback();
 	}
 

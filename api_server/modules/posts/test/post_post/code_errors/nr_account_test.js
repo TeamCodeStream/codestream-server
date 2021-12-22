@@ -1,13 +1,13 @@
 'use strict';
 
-const ClaimCodeErrorTest = require('./claim_code_error_test');
+const CodeErrorTest = require('./code_error_test');
 const RandomString = require('randomstring');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
-class NRAccountTest extends ClaimCodeErrorTest {
+class NRAccountTest extends CodeErrorTest {
 
 	get description () {
-		return 'should allow a user who has access to a NewRelic account (faked) to claim a code error for their team';
+		return 'should allow a user who has access to a NewRelic account (faked) to create a code error and claim it for their team';
 	}
 
 	// before the test runs...
@@ -24,11 +24,10 @@ class NRAccountTest extends ClaimCodeErrorTest {
 		if (this.dontIncludeErrorGroupId) {
 			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = "";	
 		} else {
-			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = this.nrCommentResponse.codeStreamResponse.codeError.objectId;
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = this.data.codeError.objectId;
 		}
-		// Re-enable below for account-based authorizing
 		/*
-		const codeErrorId = this.nrCommentResponse.codeStreamResponse.codeError.accountId;
+		const codeErrorId = this.data.codeError.accountId;
 		const accountIds = [];
 		while (
 			accountIds.length === 0 || 
@@ -39,7 +38,7 @@ class NRAccountTest extends ClaimCodeErrorTest {
 			}
 		}
 		if (!this.dontIncludeCodeErrorAccountId) {
-			accountIds.splice(1, 0, this.nrCommentResponse.post.accountId);
+			accountIds.splice(1, 0, this.data.codeError.accountId);
 		}
 		this.apiRequestOptions.headers['X-CS-Mock-Account-Ids'] = `${accountIds.join(",")}`;
 		*/

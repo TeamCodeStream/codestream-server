@@ -266,6 +266,9 @@ const NoLastReadsForAuthorForObjectStreamTest = require('./code_errors/no_last_r
 const LastReadsPreviousPostForObjectStreamTest = require('./code_errors/last_reads_previous_post_for_object_stream_test');
 const NoLastReadsUpdateForObjectStreamTest = require('./code_errors/no_last_reads_update_for_object_stream_test');
 const ObjectStreamSeqNumTest = require('./code_errors/object_stream_seqnum_test');
+const NoNRTokenTest = require('./code_errors/no_nr_token_test');
+const NRAccountTest = require('./code_errors/nr_account_test');
+const NRAccountAclTest = require('./code_errors/nr_account_acl_test');
 
 class PostPostRequestTester {
 
@@ -577,6 +580,9 @@ class PostPostRequestTester {
 		new LastReadsPreviousPostForObjectStreamTest().test();
 		new NoLastReadsUpdateForObjectStreamTest().test();
 		new ObjectStreamSeqNumTest().test();
+		new NoNRTokenTest().test();
+		new NRAccountTest().test();
+		new NRAccountAclTest().test();
 	}
 }
 
