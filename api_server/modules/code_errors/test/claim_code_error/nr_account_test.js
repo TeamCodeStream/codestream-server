@@ -21,6 +21,13 @@ class NRAccountTest extends ClaimCodeErrorTest {
 
 	// set the mock account IDs to use for the test
 	setMockAccountIds (callback) {
+		if (this.dontIncludeErrorGroupId) {
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = "";	
+		} else {
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = this.nrCommentResponse.codeStreamResponse.codeError.objectId;
+		}
+		// Re-enable below for account-based authorizing
+		/*
 		const codeErrorId = this.nrCommentResponse.codeStreamResponse.codeError.accountId;
 		const accountIds = [];
 		while (
@@ -35,6 +42,7 @@ class NRAccountTest extends ClaimCodeErrorTest {
 			accountIds.splice(1, 0, this.nrCommentResponse.post.accountId);
 		}
 		this.apiRequestOptions.headers['X-CS-Mock-Account-Ids'] = `${accountIds.join(",")}`;
+		*/
 		callback();
 	}
 

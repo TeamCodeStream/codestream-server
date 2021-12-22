@@ -7,6 +7,7 @@ class NRAccountAclTest extends NRAccountTest {
 
 	get description () {
 		this.dontIncludeCodeErrorAccountId = true;
+		this.dontIncludeErrorGroupId = true;
 		return 'should return an unauthorized flag when trying to create and claim a code error but the user does not have access to the account that owns the code error';
 	}
 
@@ -16,7 +17,8 @@ class NRAccountAclTest extends NRAccountTest {
 			reason: 'user is not authorized to claim this code error for their team',
 			info: {
 				unauthorized: true,
-				unauthorizedAccount: true
+				//unauthorizedAccount: true
+				unauthorizedErrorGroup: true
 			}
 		};
 	}

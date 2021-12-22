@@ -9,12 +9,10 @@ class NewRelicAuthorizer {
 
 	constructor (options) {
 		Object.assign(this, options);
+		this.init();
 	}
 
-	// authorize the user to even access this code error: they must have access to the NR account
-	// the code error (error group) is associated with
-	async authorizeAccount (accountId) {
-		let mockAccounts;
+	init () {
 		const secretsList = this.request.api.config.sharedSecrets.commentEngineSecrets;
 		if (!secretsList.length) {
 			throw this.errorHandler.error('readAuth', { reason: 'server is not configured to support the comment engine' });
@@ -24,13 +22,18 @@ class NewRelicAuthorizer {
 		if (secretsList.includes(headers['x-cs-newrelic-secret'])) {
 			if (headers['x-cs-mock-account-ids']) {
 				this.request.warn(`Secret provided to use mock NR account data, this had better be a test!`);
-				mockAccounts = headers['x-cs-mock-account-ids'].split(',').map(accountId => {
-					return { id: accountId }
+				this.mockAccounts = headers['x-cs-mock-account-ids'].split(',').map(accountId => {
+					return { id: accountId };
+				});
+			} else if (headers['x-cs-mock-error-group-ids'] !== undefined) {
+				this.mockErrorGroups = headers['x-cs-mock-error-group-ids'].split(',').map(groupId => {
+					return { id: groupId };
 				});
 			} else {
 				// secret to override this check, for tests
 				this.request.warn(`Secret provided to override NR account check, this had better be a test!`);
-				return true;
+				this.checkResponse = true;
+				return;
 			}
 		}
 
@@ -43,16 +46,15 @@ class NewRelicAuthorizer {
 			user.get('providerInfo')[this.teamId].newrelic.accessToken
 		);
 		if (!token) {
-			mockAccounts = { id: accountId };
 			this.request.log(`User ${user.id} has no NR token`);
-			return {
+			this.checkResponse = {
 				needNRToken: true
 			};
 		}
 
 		// instantiate graphQL client
 		const baseUrl = this.getGraphQLBaseUrl(user);
-		const client = GraphQLClient({
+		this.client = GraphQLClient({
 			url: baseUrl,
 			headers: {
 				"Api-Key": token,
@@ -60,11 +62,19 @@ class NewRelicAuthorizer {
 				"NewRelic-Requesting-Services": "CodeStream"
 			}
 		});
+	}
+
+	// authorize the user to even access this code error: they must have access to the NR account
+	// the code error (error group) is associated with
+	async authorizeAccount (accountId) {
+		if (this.checkResponse) {
+			return this.checkResponse;
+		}
 
 		try {
 			let response;
-			if (mockAccounts) {
-				response = { data: { actor: { accounts: mockAccounts } } };
+			if (this.mockAccounts) {
+				response = { data: { actor: { accounts: this.mockAccounts } } };
 			} else {
 				response = await client.query(`{
 					actor {
@@ -101,6 +111,10 @@ class NewRelicAuthorizer {
 
 	// authorize ths user to access the given New Relic object, according to type
 	async authorizeObject (objectId, objectType) {
+		if (this.checkResponse) {
+			return this.checkResponse;
+		}
+
 		switch (objectType) {
 			case 'errorGroup':
 				return this.authorizeErrorGroup(objectId);
@@ -114,8 +128,74 @@ class NewRelicAuthorizer {
 
 	// authorize the user to access the given New Relic error group, given by GUID
 	async authorizeErrorGroup (errorGroupGuid) {
+		let response;
+		try {
+			// we'll do this by directly fetching the error group entity
+			// previously, we parsed out the account ID and checked the user's accounts against the error group's
+			if (this.mockErrorGroups) {
+				response = { data: { actor: { errorsInbox: { errorGroups: { results: this.mockErrorGroups } } } } };
+			} else {
+				response = await this.client.query(
+`query errorGroupById($ids: [ID!]) {
+	actor {
+		errorsInbox {
+			errorGroups(filter: {ids: $ids}) {
+				results {
+					id
+				}
+			}
+		}
+	}
+}`, 
+					{ ids: [errorGroupGuid] }
+				);
+			}
+
+			if (
+				!response ||
+				!response.data ||
+				!response.data.actor ||
+				!response.data.actor.errorsInbox ||
+				!response.data.actor.errorsInbox.errorGroups ||
+				!response.data.actor.errorsInbox.errorGroups.results ||
+				!response.data.actor.errorsInbox.errorGroups.results
+			) {
+				this.request.warn('Unexpected response fetching error groups: ' + JSON.stringify(response));
+				return {
+					unauthorized: true,
+					unexpectedResponse: true
+				};
+			}
+			if (!response.data.actor.errorsInbox.errorGroups.results.find(result => {
+				return result.id === errorGroupGuid;
+			})) {
+				return { 
+					unauthorized: true,
+					unauthorizedErrorGroup: true
+				};
+			}
+		} catch (error) {
+			this.request.warn('Error fetching error group, falling back to account check: ' + error.message);
+			return await this.authorizeObjectAccount(errorGroupGuid, 'errorGroup');
+		}
+		return true;
+	}
+
+	// authorize ths user to access the given New Relic object, according to type
+	async authorizeObjectAccount (objectId, objectType) {
+		if (this.checkResponse) {
+			return this.checkResponse;
+		}
+
+		if (objectType !== 'errorGroup') {
+			return {
+				unauthorized: true,
+				objectTypeUnknown: true
+			};
+		}
+
 		// parse out the account ID, and authorize the user against the account
-		const accountId = this.accountIdFromErrorGroupGuid(errorGroupGuid);
+		const accountId = this.accountIdFromErrorGroupGuid(objectId);
 		if (!accountId) {
 			return { 
 				unauthorized: true,

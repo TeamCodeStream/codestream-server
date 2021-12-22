@@ -21,6 +21,12 @@ class NRAccountTest extends CodeErrorTest {
 
 	// set the mock account IDs to use for the test
 	setMockAccountIds (callback) {
+		if (this.dontIncludeErrorGroupId) {
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = "";	
+		} else {
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = this.data.codeError.objectId;
+		}
+		/*
 		const codeErrorId = this.data.codeError.accountId;
 		const accountIds = [];
 		while (
@@ -35,6 +41,7 @@ class NRAccountTest extends CodeErrorTest {
 			accountIds.splice(1, 0, this.data.codeError.accountId);
 		}
 		this.apiRequestOptions.headers['X-CS-Mock-Account-Ids'] = `${accountIds.join(",")}`;
+		*/
 		callback();
 	}
 
