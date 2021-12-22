@@ -13,7 +13,7 @@ const ROUTES = [
 	{
 		method: 'post',
 		path: 'nr-comments/assign',
-		requestClass: require('./assign_nr_comment_request')
+		requestClass: require('./assign_nr_object_request')
 	},
 	{
 		method: 'get',

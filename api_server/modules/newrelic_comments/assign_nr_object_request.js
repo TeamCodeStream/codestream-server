@@ -23,7 +23,8 @@ class AssignNRObjectRequest extends NRCommentRequest {
 		// resolve the assignee, which may involve creating a (faux) user
 		// this user will be added as a "foreign" user if the code error is owned by a team
 		this.assignee = await this.findOrCreateUser(this.request.body.assignee, 'assignee.email');
-		this.mentionedUserIds = [this.assignee.id];
+		this.mentionedUserIds = [this.assignee.id]; // by virtue of this, assignee will be added as a "foreign" user to the team
+		this.users.push(this.assignee);
 
 		// create a code error linked to the New Relic object to which the comment is attached
 		// for now, this is a "code error" object only
@@ -76,6 +77,7 @@ class AssignNRObjectRequest extends NRCommentRequest {
 			} else {
 				this.responseData.codeStreamResponse = {};
 			}
+			this.responseData.codeStreamResponse.assigneeId = this.assignee.id;
 		}
 
 		return super.handleResponse();
@@ -89,33 +91,13 @@ class AssignNRObjectRequest extends NRCommentRequest {
 	
 	// trigger email notification to the assignee
 	async triggerEmailNotification () {
-		if (this.requestSaysToBlockEmails()) {
-			// don't do email notifications for unit tests, unless asked
-			this.log('Would have triggered email notification for New Relic error group assignment, code error ' + this.codeError.id);
-			return;
-		}
-
 		const message = {
 			type: 'nr_error_group_assignment',
 			codeErrorId: this.codeError.id,
 			assignee: this.assignee.id
 		};
 		this.log(`Triggering email notification for New Relic error group assignment, code error ${this.codeError.id}...`);
-		this.api.services.email.queueEmailSend(message, { request: this });
-	}
-
-	// determine if special header was sent with the request that says to block emails
-	requestSaysToBlockEmails () {
-		return (
-			(
-				this.api.config.email.suppressEmails &&
-				!this.request.headers['x-cs-test-email-sends']
-			) ||
-			(
-				this.request.headers &&
-				this.request.headers['x-cs-block-email-sends']
-			)
-		);
+		this.api.services.email.queueEmailSend(message, { request: this, user: this.user });
 	}
 }
 
