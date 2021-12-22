@@ -521,7 +521,7 @@ function _openEditor(ide) {
 		}		
 		
 		if ((window.CODESTREAM && window.CODESTREAM._state && window.CODESTREAM._state.MRU) || _openEditorCounter > 1) {
-			$("#notification-title").html("Opening link in CodeStream...");	
+			$("#notification-title").html("Opening link in New Relic CodeStream...");	
 			window.CODESTREAM.openEditor(ide);
 			// nuke the initial state
 			delete window.CODESTREAM._state.MRU;
@@ -592,9 +592,9 @@ function onIdeSelected(e, moniker) {
         <div class="interstitial-title-wrapper"> 
             <span id="notification-title">
             {{#if autoOpen}} 
-                Opening link in CodeStream...
+                Opening link in New Relic CodeStream...
             {{else}}
-                Choose an IDE to open this link in CodeStream
+                Choose an IDE to open this link in New Relic CodeStream
             {{/if}}
             </span>
         </div>
@@ -631,6 +631,9 @@ function onIdeSelected(e, moniker) {
 			</div>
 		</div>
 		<div id="notification-area-jb" style="display:none;" class="notification-content-wrapper">
+			<div class="notification-icons">
+				<img src="https://images.codestream.com/icons/status/stop_sign.png" class="notification-icon" />
+			</div>
 			<div class="notification-content-light">				 
 				<div class="notification-text">
 					1. Install the 
@@ -667,7 +670,7 @@ function onIdeSelected(e, moniker) {
 <div class="video-section-wrapper">
 	<div class="video-section-text">
 		<div class="video-section-header">
-			See New Relic with CodeStream in action.
+			See New Relic CodeStream in action.
 		</div>
 		<div class="video-section-description">
 			Review errors by stepping through the stack trace and collaborate with
