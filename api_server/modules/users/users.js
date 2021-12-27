@@ -49,6 +49,16 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'put',
+		path: 'no-auth/login-by-code',
+		requestClass: require('./login_by_code_request')
+	},
+	{
+		method: 'post',
+		path: 'no-auth/generate-login-code',
+		requestClass: require('./generate_login_code_request')
+	},
+	{
+		method: 'put',
 		path: 'login',
 		requestClass: require('./raw_login_request')
 	},
