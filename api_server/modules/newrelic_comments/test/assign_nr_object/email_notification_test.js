@@ -49,7 +49,7 @@ class EmailNotificationTest extends Aggregation(CodeStreamMessageTest, CommonIni
 			type: 'nr_error_group_assignment',
 			codeErrorId: this.nrAssignmentResponse.codeStreamResponse.codeError.id,
 			assignee: this.nrAssignmentResponse.codeStreamResponse.assigneeId,
-			traceHeaders: {}
+			traceHeaders: message.message.traceHeaders // shameless copy, we don't care about contents
 		};
 		return super.validateMessage(message);
 	}
