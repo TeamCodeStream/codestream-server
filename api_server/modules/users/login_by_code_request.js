@@ -1,4 +1,4 @@
-// handle the "PUT /no-auth-login-by-code" request to log a user in by code,
+// handle the "PUT /no-auth/login-by-code" request to log a user in by code,
 // verifying the code is valid and giving them an access token to use for
 // future requests
 
@@ -23,9 +23,10 @@ class LoginByCodeRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
-		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
-		await this.handleLogin();		// handle the actual login check
-		await this.doLogin();			// proceed with actual login
+		await this.requireAndAllow(); // require certain parameters, and discard unknown parameters
+		await this.handleLogin(); // handle the actual login check
+		await this.doLogin(); // proceed with actual login
+		await this.invalidateCode(); // remove the used login code from the database
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -56,6 +57,18 @@ class LoginByCodeRequest extends RestfulRequest {
 			loginType: this.loginType,
 			trueLogin: true
 		}).login();
+	}
+
+	// remove the used login code from the database
+	async invalidateCode () {
+		const op = {
+			$unset: {
+				loginCode: true,
+				loginCodeExpiresAt: true,
+				loginCodeAttempts: true,
+			},
+		};
+		this.data.users.applyOpById(this.user.id, op);
 	}
 
 	// describe this route for help

@@ -4,7 +4,6 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
-const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ConfirmCode = require('./confirm_code');
 const Indexes = require('./indexes');
 
@@ -21,12 +20,31 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 		await this.updateUser(); // write the model to the user database
 	}
 
+	async handleResponse () {
+		// TODO: use more appropriate secret
+		if (this._loginCheat === this.api.config.sharedSecrets.confirmationCheat) {
+			// this allows for testing without actually receiving the email
+			this.log('Login code cheat detected, hopefully this was called by test code');
+			this.responseData = {
+				loginCode: this.loginCode
+			};
+		}
+		await super.handleResponse();
+	}
+
 	async postProcess () {
 		await this.sendLoginCodeEmail(); // send the email with the login code
 	}
 
 	// require certain parameters, and discard unknown parameters
 	async requireAndAllow () {
+		[
+			'_loginCheat',
+			'expiresIn'
+		].forEach(parameter => {
+			this[parameter] = this.request.body[parameter];
+			delete this.request.body[parameter];
+		});
 		await this.requireAllowParameters('body', {
 			required: {
 				string: ['email'],
@@ -50,7 +68,13 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 
 		this.loginCode = ConfirmCode();
 		// FIXME: this should be configurable
-		this.loginCodeExpiresAt = Date.now() + 15*60*1000;
+		const expiresIn = 15*60*1000;
+		if (this.expiresIn && this.expiresIn < expiresIn) {
+			this.loginCodeExpiresAt = Date.now() + this.expiresIn;
+		}
+		else {
+			this.loginCodeExpiresAt = Date.now() + expiresIn;
+		}
 		this.loginCodeAttempts = 0;
 	}
 
@@ -67,7 +91,7 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 				loginCodeAttempts: this.loginCodeAttempts,
 			},
 		};
-		this.data.users.applyOpById(this.user.id, op)
+		this.data.users.applyOpById(this.user.id, op);
 	}
 
 	// send the email with the login code

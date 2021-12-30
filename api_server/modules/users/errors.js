@@ -155,7 +155,7 @@ module.exports = {
 	},
 	'tooManyLoginCodeAttempts': {
 		code: 'USRC-1029',
-		message: 'Login code doesn\'t match; too many attempts',
+		message: 'Too many attempts',
 		description: 'Too many attempts have been made to login via code; a new login code must be obtained for the user'
 	}
 };

@@ -82,14 +82,14 @@ class LoginCore {
 			throw this.errorHandler.error('loginCodeMismatch');
 		}
 		try {
-			if (!this.user.get('loginCodeAttempts') || this.user.get('loginCodeAttempts') >= MAX_LOGIN_CODE_ATTEMPTS) {
+			if (this.user.get('loginCodeAttempts') === undefined || parseInt(this.user.get('loginCodeAttempts')) >= parseInt(MAX_LOGIN_CODE_ATTEMPTS)) {
 				throw this.request.errorHandler.error('tooManyLoginCodeAttempts');
 			}
 			if (!this.user.get('loginCode') || this.user.get('loginCode') !== this.loginCode) {
-				throw this.errorHandler.error('loginCodeMismatch');
+				throw this.request.errorHandler.error('loginCodeMismatch');
 			}
 			if (!this.user.get('loginCodeExpiresAt') || Date.now() > this.user.get('loginCodeExpiresAt')) {
-				throw this.errorHandler.error('loginCodeExpired');
+				throw this.request.errorHandler.error('loginCodeExpired');
 			}
 		} catch (error) {
 			const op = {
@@ -97,7 +97,10 @@ class LoginCore {
 					loginCodeAttempts: 1,
 				}
 			};
-			this.data.users.applyOpById(this.user.id, op);
+			this.request.data.users.updateDirect(
+				{ id: this.request.data.users.objectIdSafe(this.user.id) },
+				op
+			);
 			throw error;
 		}
 	}
