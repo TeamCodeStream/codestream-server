@@ -142,5 +142,10 @@ module.exports = {
 		code: 'USRC-1026',
 		message: 'Webmail email addresses need to be confirmed',
 		description: 'The user tried to register using a webmail email address, but we need to make sure they really want to do this, rather than using a domain address'
+	},
+	'failedToFetchNRData': {
+		code: 'USRC-1027',
+		message: 'Could not fetch required data from New Relic',
+		description: 'The user tried to register using a New Relic API key, but we were unable to fetch the required data from the server'
 	}
 };
