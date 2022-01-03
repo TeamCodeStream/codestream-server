@@ -10,7 +10,7 @@ class InvalidCodeTest extends LoginByCodeTest {
 
 	getExpectedError () {
 		return {
-			code: 'USRC-1027'
+			code: 'USRC-1030'
 		};
 	}
 
