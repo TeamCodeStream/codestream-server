@@ -49,7 +49,6 @@ class DeleteCompanyRequest extends DeleteRequest {
 	async postProcess () {
 		await awaitParallel([
 			this.revokeUserMessagingPermissions,
-			this.publishTeam,
 			this.publishRemovalToUsers
 		], this);
 	}
@@ -139,24 +138,6 @@ class DeleteCompanyRequest extends DeleteRequest {
 		}
 		catch (error) {
 			throw this.errorHandler.error('teamMessagingGrant', { reason: error });
-		}
-	}
-
-	// publish the team update to the team channel
-	async publishTeam () {
-		const teamId = this.everyoneTeam.id;
-		const channel = 'team-' + teamId;
-		const message = Object.assign({}, this.transforms.deletedTeam, { requestId: this.request.id });
-		try {
-			await this.api.services.broadcaster.publish(
-				message,
-				channel,
-				{ request: this }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish updated team message to team ${teamId}: ${JSON.stringify(error)}`);
 		}
 	}
 

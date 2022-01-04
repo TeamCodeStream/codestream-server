@@ -55,13 +55,7 @@ class CommonInit {
 				data: null,
 				token: this.token
 			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.message = {
-					companies: [response.company]
-				};
-				callback();
-			}
+			callback
 		);
 	}
 }

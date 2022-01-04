@@ -18,6 +18,7 @@ class DeleteCompanyRequestTester {
 	test () {
 		new DeleteCompanyTest().test();
 		new DeleteCompanyFetchTest().test();
+		new MessageTest().test();
 		new ACLTest().test();
 		new TeamDeletedTest().test();
 		new UserDeletedTest().test();
@@ -25,12 +26,6 @@ class DeleteCompanyRequestTester {
 		new NonOrphanedNotDeletedTest().test();
 		new AlreadyDeletedTest().test();
 		new TeamSubscriptionRevokedTest().test();
-
-		// fails, message never arrives
-		// new MessageTest().test();
-
-		// possible missing tests:
-		// - messaging on team channel
 	}
 }
 

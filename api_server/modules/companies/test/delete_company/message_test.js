@@ -15,7 +15,8 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	makeData (callback) {
 		BoundAsync.series(this, [
 			this.init,
-			this.createSecondCompany
+			this.createSecondCompany,
+			this.setExpectedMessage
 		], callback);
 	}
 
@@ -36,6 +37,28 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		);
 	}
 
+	setExpectedMessage (callback) {
+		this.message = {
+			user: {
+				_id: this.currentUser.user.id,	// DEPRECATE ME
+				id: this.currentUser.user.id,
+				$pull: {
+					companyIds: this.company.id,
+					teamIds: this.team.id
+				},
+				$set: {
+					version: 7,
+					modifiedAt: Date.now() // placeholder
+				},
+				$version: {
+					before: 6,
+					after: 7
+				}
+			}
+		};
+		callback();
+	}
+
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// we just check one user channel for simplicity
@@ -48,6 +71,12 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		// do the delete, this should trigger a message to the
 		// user channel with the updated company
 		this.deleteCompany(callback);
+	}
+
+	validateMessage (message) {
+		// we don't get this value any other way
+		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		return super.validateMessage(message);
 	}
 }
 
