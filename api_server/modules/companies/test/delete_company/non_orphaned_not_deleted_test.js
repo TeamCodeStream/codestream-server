@@ -2,11 +2,12 @@
 
 const DeleteCompanyTest = require('./delete_company_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const Assert = require('assert');
 
-class DeleteCompanyFetchTest extends DeleteCompanyTest {
+class NonOrphanedNotDeletedTest extends DeleteCompanyTest {
 
 	get description () {
-		return 'should properly deactivate a company when deleted, checked by fetching the company';
+		return 'should not delete users in multiple teams';
 	}
 
 	get method () {
@@ -17,18 +18,13 @@ class DeleteCompanyFetchTest extends DeleteCompanyTest {
 		return null;
 	}
 
-	getExpectedError () {
-		return {
-			code: 'RAPI-1009'
-		};
-	}
-
 	// before the test runs...
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before, // do the usual test prep
-			this.createSecondCompany, // prevent user from getting deleted
-			this.deleteCompany // perform the actual deletion
+			this.createSecondCompany, // create a second company so users aren't orphaned
+			this.deleteCompany, // perform the actual deletion
+			this.overridePath // we care about the user, not the company
 		], callback);
 	}
 
@@ -48,7 +44,19 @@ class DeleteCompanyFetchTest extends DeleteCompanyTest {
 			}
 		);
 	}
+
+	overridePath (callback) {
+		this.path = '/users/' + this.currentUser.user.id;
+		callback();
+	}
+
+	// validate that the response is correct
+	validateResponse (data) {
+		const user = data.user;
+		Assert(user, 'user does not exist');
+		Assert(!user.teamIds.includes(this.team.id), 'user is still in deleted company');
+	}
 }
 
-module.exports = DeleteCompanyFetchTest;
+module.exports = NonOrphanedNotDeletedTest;
 

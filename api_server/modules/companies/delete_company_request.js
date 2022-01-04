@@ -20,7 +20,7 @@ class DeleteCompanyRequest extends DeleteRequest {
 
 		// get the company to delete
 		this.companyToDelete = await this.data.companies.getById(this.request.params.id.toLowerCase());
-		if (!this.companyToDelete) {
+		if (!this.companyToDelete || this.companyToDelete.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'company' });
 		}
 

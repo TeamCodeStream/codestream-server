@@ -1,6 +1,7 @@
 'use strict';
 
 const DeleteCompanyTest = require('./delete_company_test');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class AlreadyDeletedTest extends DeleteCompanyTest {
 
@@ -10,23 +11,16 @@ class AlreadyDeletedTest extends DeleteCompanyTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1014'
+			code: 'RAPI-1003',
+			info: 'company'
 		};
 	}
 
 	before (callback) {
-		super.before(error => {
-			if (error) { return callback(error); }
-			// delete the company, ahead of time...
-			this.doApiRequest(
-				{
-					method: 'delete',
-					path: '/companies/' + this.company.id,
-					token: this.token
-				},
-				callback
-			);
-		});
+		BoundAsync.series(this, [
+			super.before,
+			this.deleteCompany
+		], callback);
 	}
 }
 
