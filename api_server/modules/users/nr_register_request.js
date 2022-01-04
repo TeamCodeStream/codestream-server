@@ -50,13 +50,13 @@ class NRRegisterRequest extends RestfulRequest {
 	async getNewRelicUser () {
 		try {
 			let response;
+			const baseUrl = this.request.body.apiRegion === 'eu' ? 'https://api.eu.newrelic.com' : 'https://api.newrelic.com';
 			// check if we should use fake data from headers
 			response = await this.checkHeaderSecrets();
 			if (!response) {
 				// TODO: consider a better way to do this
-				const baseUrl = this.request.body.apiRegion === 'eu' ? 'https://api.eu.newrelic.com/graphql' : 'https://api.newrelic.com/graphql';
 				const client = GraphQLClient({
-					url: baseUrl,
+					url: baseUrl + '/graphql',
 					headers: {
 						'Api-Key': this.request.body.apiKey,
 						'Content-Type': 'application/json',
@@ -68,6 +68,7 @@ class NRRegisterRequest extends RestfulRequest {
 					actor {
 						user {
 							email
+							id
 							name
 						}
 					}
@@ -80,6 +81,7 @@ class NRRegisterRequest extends RestfulRequest {
 				throw 'Did not retrieve email address from New Relic';
 			}
 			const email = response.data.actor.user.email;
+			const userId = response.data.actor.user.id;
 			const username = email.split('@')[0].replace(/\+/g, '');
 			const fullName = (
 				response.data &&
@@ -90,7 +92,17 @@ class NRRegisterRequest extends RestfulRequest {
 			this.userData = {
 				email,
 				fullName,
-				username
+				username,
+				providerInfo: {
+					newrelic: {
+						accessToken: this.request.body.apiKey,
+						data: {
+							userId: userId,
+							apiUrl: baseUrl
+						},
+						isApiToken: true
+					}
+				}
 			};
 		} catch (error) {
 			throw this.errorHandler.error('failedToFetchNRData', { reason: error });
@@ -110,6 +122,7 @@ class NRRegisterRequest extends RestfulRequest {
 					actor: {
 						user: {
 							email: headers['x-cs-mock-email'],
+							id: headers['x-cs-mock-id'],
 							name: headers['x-cs-mock-name']
 						}
 					}

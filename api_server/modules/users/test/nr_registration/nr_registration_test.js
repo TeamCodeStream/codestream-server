@@ -18,22 +18,22 @@ class NRRegistrationTest extends CodeStreamAPITest {
 		return '/no-auth/nr-register';
 	}
 
-	/*
-	getExpectedFields () {
-		const expectedResponse = { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
-		if (this.usingSocketCluster) {
-			delete expectedResponse.pubnubKey;
-			delete expectedResponse.pubnubToken;
-		}
-		return expectedResponse;
-	}
-	*/
-
 	// before the test runs...
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.expectedUserData = this.userFactory.randomNamedUser();
+			const userId = Math.floor(Math.random() * 1000000000);
+			this.expectedUserData.providerInfo = {
+				newrelic: {
+					accessToken: 'dummy',
+					data: {
+						userId: userId,
+						apiUrl: 'https://api.newrelic.com'
+					},
+					isApiToken: true
+				}
+			};
 			this.data = {
 				apiKey: 'dummy'
 			};
@@ -42,6 +42,7 @@ class NRRegistrationTest extends CodeStreamAPITest {
 					// TODO: use more appropriate secret
 					'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
 					'X-CS-Mock-Email': this.expectedUserData.email,
+					'X-CS-Mock-Id': userId,
 					'X-CS-Mock-Name': this.expectedUserData.fullName
 				}
 			};
@@ -75,6 +76,7 @@ class NRRegistrationTest extends CodeStreamAPITest {
 			((user.version === this.expectedVersion) || errors.push('version is not correct'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		Assert.deepEqual(user.providerInfo, this.expectedUserData.providerInfo, 'providerInfo is not correct');
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
 		// verify we got no attributes that clients shouldn't see
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
