@@ -685,7 +685,11 @@ function onIdeSelected(e, moniker) {
 <script src="//fast.wistia.com/assets/external/E-v1.js" async></script>
 <script>
 $(function() {	
-	if (String("{{autoOpen}}") == "true") {
+	if (
+		String('{{isMru}}') === 'false' || 
+		String('{{isLastOriginDetail}}') === 'false' || 
+		String("{{autoOpen}}") == "true"
+	) {
 		$('#selected-ide').click();
 	}
 });
