@@ -3,8 +3,7 @@ body,
 #root {
 	padding: 0;
 	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI',
-		'Ubuntu', 'Droid Sans', ans-serif;
+	font-family: Open Sans,Segoe UI,Tahoma,sans-serif;
 	font-size: 0.94rem;
 	background-color: #1e1e1e !important;
 	color: rgb(220, 223, 228);
@@ -20,6 +19,12 @@ p {
 }
 #root {
 	margin-top: 0px;
+}
+.light {
+	background: #efefef !important;
+}
+.light-bg {
+	background: white !important;
 }
 .container-fluid .row {
 	margin-left: 0;
@@ -161,6 +166,24 @@ h6 {
 .box-content-subscription-upgrade {
 	width: 65%;
 }
+.notification-content-wrapper {
+	margin-top: 20px;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+}
+.notification-icon {
+	width: 15px;
+	margin: 0 5px 0 0;
+}
+.notification-content-light {
+	display: inline-block;
+	text-align: left;
+	color: rgb(0, 0, 0);
+}
+.notification-text {
+	margin: 0 0 5px 0
+}
 .box-border {
 	margin-top: 1rem;
 	padding: 1.5rem;
@@ -224,12 +247,29 @@ h3 {
 	color: white;
 	background: rgb(0, 123, 203);
 }
-
 .btn:active,
 .btn:hover,
 .btn:focus {
 	color: white;
 	background-color: #009aef !important;
+}
+
+.btn-light {
+	cursor: pointer;
+	color: #000 !important;
+	background-color: white !important;
+	width: 100%;
+	border: 1px solid rgb(227, 228, 228);
+}
+
+.btn-light:visited {
+	/* color: white; */
+	background: rgb(0, 123, 203);
+}
+.btn-light:active,
+.btn-light:hover,
+.btn-light:focus {
+	text-decoration: none;
 }
 
 .btn-group-sm > .btn,
@@ -271,6 +311,10 @@ h3 {
 	vertical-align: middle
 }
 
+.btn-set-width {
+	min-width: 200px;
+}
+
 .sm-input {
 	max-width: 100px;
 }
@@ -294,6 +338,27 @@ input.bg-dark:-webkit-autofill,
 input.bg-dark:-internal-autofill-selected {
 	background-color: #1e1e1e !important;
 	color: rgb(220, 223, 228);
+}
+
+input.bg-light:-webkit-autofill {
+	-webkit-box-shadow: 0 0 0 50px rgb(0, 0, 0) inset; /* Change the color to your own background color */
+	-webkit-text-fill-color: rgb(0, 0, 0);
+}
+
+input.bg-light:-webkit-autofill:focus {
+	-webkit-box-shadow: 0 0 0 50px rgb(0, 0, 0) inset; /*your box-shadow*/
+	-webkit-text-fill-color: rgb(0, 0, 0);
+}
+
+.bg-light,
+.bg-light.form-control:focus {
+	background: #efefef !important;
+	color: rgb(0, 0, 0) !important;
+}
+input.bg-light:-webkit-autofill,
+input.bg-light:-internal-autofill-selected {
+	background-color: #efefef !important;
+	color: rgb(0, 0, 0);
 }
 
 .btn-group {
@@ -441,6 +506,9 @@ hr {
 .dropdown-menu a {
 	color: #c7c7c6;
 }
+.dropdown-menu-light a {
+	color: #000 !important;
+}
 .monospace {
 	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 	font-size: 0.85em;
@@ -451,7 +519,7 @@ hr {
 	text-decoration: none;
 }
 .icon-ide {
-	width: 20px;
+	width: 15px;
 	margin: 0px 7px 2px 0px;
 	border: 0px;
 	border-radius: 2px;
@@ -462,9 +530,57 @@ hr {
 	margin-top: 8px;
 }
 
+.interstitial-detail-wrapper {
+	background-color: rgb(250, 251, 251);
+	padding: 30px;
+	border: 1px solid rgb(227, 228, 228);
+	margin: 0 0 80px 0;
+}
+
+.interstitial-title-wrapper{
+	text-align: center;
+	margin: 0 0 20px 0;
+}
+.interstitial-action-wrapper {
+	text-align: center;
+}
+.video-section-header {
+	font-size: 20px;
+	margin: 0 0 20px 0;
+}
+.video-section-text {
+	color: #000;
+	margin: 0 14px 20px 0;
+	max-width: 500px;
+}
+
+.selected-ide {
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+}
+
+#notification-title {
+	color: black !important;
+	font-weight: bold;
+	font-size: 20px;
+	letter-spacing: 1px;
+}
+
 @media (min-width: 1px) {
 	.btn-block-wrap {
 		width: 100%;
+	}
+	.video-section-wrapper {
+		margin-right: auto;
+    	margin-left: auto;
+		max-width: 500px;
+	}
+	.video-section-text {
+		color: #000;
+		text-align: center;
+	}
+	.video-section-content {
+		max-width: 100%;
 	}
 }
 
@@ -472,6 +588,23 @@ hr {
 @media (min-width: 768px) {
 	.btn-block-wrap {
 		width: 100%;
+	}
+	.video-section-wrapper {
+		margin-right: auto;
+    	margin-left: auto;
+		max-width: 800px;
+		display: flex;
+		justify-content: space-between;
+	}
+	.video-section-text {
+		color: #000;
+		text-align: left;
+	}
+	.video-section-content {
+		width: 400px;
+	}
+	.notification-content-light {
+		min-width: 362px;
 	}
 }
 
@@ -481,6 +614,13 @@ hr {
 		max-width: inherit;
 		width: inherit;
 	}
+	.video-section-wrapper {
+		margin-right: auto;
+    	margin-left: auto;
+		display: flex;
+		justify-content: space-between;
+		max-width: 980px;
+	}
 }
 
 /* Extra large devices (large desktops, 1200px and up)*/
@@ -489,6 +629,22 @@ hr {
 		max-width: inherit;
 		width: inherit;
 	}
+	.video-section-wrapper {
+		margin-right: auto;
+    	margin-left: auto;
+		display: flex;
+		justify-content: space-between;
+		max-width: 1180px;
+	}
+	.video-section-text {
+		max-width: 600px;
+	}
+}
+.dropdown-toggle-custom {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	border-left: none;
+	width: 40px;
 }
 
 .ide-list .dropdown-toggle-split {
@@ -505,6 +661,10 @@ hr {
 	background: #2c2c2c;
 	border: 1px solid #383838;
 }
+.dropdown-menu-light {
+	background: rgb(250, 251, 251) !important;
+	border: 1px solid rgb(227, 228, 228) !important;
+}
 .alert {
 	border-radius: 0;
 	color: #333;
@@ -517,9 +677,16 @@ hr {
 .dropdown-divider {
 	border-top: 1px solid #383838;
 }
+.dropdown-divider-light {
+	border-top: 1px solid rgb(227, 228, 228) !important;
+}
 a.dropdown-item:hover {
 	color: white;
 	background: #0087d7;
+}
+a.dropdown-item-light:hover {
+	color: #000;
+	background: rgb(224, 224, 224) !important;
 }
 span.dropdown-item {
 	color: #c7c7c6;
@@ -537,8 +704,30 @@ span.dropdown-item:hover {
 .navbar-dark.bg-dark {
 	background: #1e1e1e !important;
 }
+.navbar-light.bg-light {
+	background: #fff !important;
+	margin: 0 0 80px 0;
+}
+.navbar-light {
+	border-bottom: 1px solid rgb(227, 228, 228);
+}
+.navbar-right-item:hover { 
+	text-decoration: none; 
+}
+.navbar-right-item { 
+	color: #4ec9b0 
+}
+.navbar-right {
+	width: 30%;
+	text-align: center;
+}
+.navbar-brand-light {
+	padding: 5px;
+	width: 30%;
+	text-align: center;
+}
 .form-control {
-	border: 1px solid #383838 !important;
+	border: 1px solid rgb(227, 228, 228) !important;
 }
 .lines-added {
 	color: #66aa66;

@@ -46,9 +46,11 @@ class RandomNRCommentFactory {
 	// get some random NR object assignment data
 	getRandomNRAssignmentData (options = {}) {
 		const accountId = this.codeErrorFactory.randomAccountId();
+		const includeNewRelicUserIdForCreator = options.includeNewRelicUserId || options.includeNewRelicUserIdForCreator;
+		const includeNewRelicUserIdForAssignee = options.includeNewRelicUserId || options.includeNewRelicUserIdForAssignee;
 		const data = {
-			creator: this.randomUser(options),
-			assignee: this.randomUser(options),
+			creator: this.randomUser({ ...options, includeNewRelicUserId: includeNewRelicUserIdForCreator }),
+			assignee: this.randomUser({ ...options, includeNewRelicUserId: includeNewRelicUserIdForAssignee }),
 			accountId: accountId,
 			objectId: this.codeErrorFactory.randomObjectId(accountId),
 			objectType: options.objectType || 'errorGroup'

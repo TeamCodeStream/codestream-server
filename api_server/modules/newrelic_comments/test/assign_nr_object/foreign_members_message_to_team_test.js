@@ -9,7 +9,7 @@ const Assert = require('assert');
 class ForeignMembersMessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'members of the team that owns a code error should receive a message with foreign members added when a reply is made to the code error from the New Relic comment engine, with mentions';
+		return 'members of the team that owns a code error should receive a message with foreign members added when a user is assigned to the code error';
 	}
 
 	// make the data that triggers the message to be received
@@ -17,86 +17,32 @@ class ForeignMembersMessageToTeamTest extends Aggregation(CodeStreamMessageTest,
 		this.init(callback);
 	}
 
-	init (callback) {
-		BoundAsync.series(this, [
-			super.init,
-			this.createNRComment,
-			this.makeReplyData,
-			this.claimCodeError
-		], callback);
+	setTestOptions (callback) {
+		// create an existing code error object
+		super.setTestOptions(() => {
+			Object.assign(this.postOptions, {
+				numPosts: 1,
+				creatorIndex: 0,
+				wantCodeError: true
+			});
+			callback();
+		});
+	}
+
+	makeNRRequestData (callback) {
+		// use the existing code error object instead of a new one
+		super.makeNRRequestData(error => {
+			if (error) { return callback(error); }
+			const codeError = this.postData[0].codeError;
+			Object.assign(this.data, {
+				objectId: codeError.objectId,
+				accountId: codeError.accountId
+			});
+			this.apiRequestOptions.headers['X-CS-NewRelic-AccountId'] = codeError.accountId;
+			callback();
+		});
 	}
 	
-	setTestOptions (callback) {
-		super.setTestOptions(() => {
-			this.userOptions.numRegistered = 3;
-			this.userOptions.numUnregistered = 2;
-			this.teamOptions.creatorIndex = 1;
-			this.teamOptions.members = [0, 3];
-			this.mentionedUsersOnTeam = [1, 3];
-			this.mentionedUsersNotOnTeam = [2, 4];
-			callback();
-		});
-	}
-
-	makeReplyData (callback) {
-		const { post } = this.nrAssignmentResponse;
-		this.data = {
-			...this.requestData,
-			accountId: post.accountId,
-			objectId: post.objectId,
-			objectType: post.objectType,
-			parentPostId: post.id
-		};
-		this.mentionedEmails = [
-			this.userFactory.randomEmail()
-		];
-		this.message = {
-			team: {
-				id: this.team.id,
-				_id: this.team.id, // DEPRECATE ME
-				$addToSet: {
-					foreignMemberIds: [],
-					memberIds: []
-				},
-				$set: {
-					modifiedAt: Date.now(), // placeholder
-					version: 6
-				},
-				$version: {
-					before: 5,
-					after: 6
-				}
-			}
-		};
-		this.mentionedUsersOnTeam.forEach(nUser => {
-			this.mentionedEmails.push(this.users[nUser].user.email);
-		});
-		this.mentionedUsersNotOnTeam.forEach(nUser => {
-			this.mentionedEmails.push(this.users[nUser].user.email);
-			this.message.team.$addToSet.foreignMemberIds.push(this.users[nUser].user.id);
-			this.message.team.$addToSet.memberIds.push(this.users[nUser].user.id);
-		});
-		this.data.mentionedUsers = this.mentionedEmails.map(email => { 
-			return { email };
-		});
-		callback();
-	}
-
-	createNRComment (callback) {
-		if (!this.nrAssignmentResponse) {
-			return super.createNRComment(callback);
-		}
-		super.createNRComment(error => {
-			if (error) { return callback(error); }
-			const newUserId = Object.keys(this.nrCommentResponse.post.userMaps).find(userId => {
-				return this.nrCommentResponse.post.userMaps[userId].email === this.mentionedEmails[0];
-			});
-			this.message.team.$addToSet.foreignMemberIds.push(newUserId);
-			this.message.team.$addToSet.memberIds.push(newUserId);
-			callback();
-		});
-	}
-
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
 		// when posted to a team stream, it is the team channel
@@ -106,7 +52,7 @@ class ForeignMembersMessageToTeamTest extends Aggregation(CodeStreamMessageTest,
 
 	// generate the message by issuing a request
 	generateMessage (callback) {
-		this.createNRComment(callback);
+		this.createNRAssignment(callback);
 	}
 
 	validateMessage (message) {
@@ -114,18 +60,56 @@ class ForeignMembersMessageToTeamTest extends Aggregation(CodeStreamMessageTest,
 			return false;
 		}
 
-		const actualTeam = message.message.team;
-		const expectedTeam = this.message.team;
+		// make sure modifiedAt was updated
+		Assert(message.message.team.$set.modifiedAt >= this.createdAfter, 'modifiedAt for team update was not set to after the assignment was made');
 
-		actualTeam.$addToSet.foreignMemberIds.sort();
-		expectedTeam.$addToSet.foreignMemberIds.sort();
-		actualTeam.$addToSet.memberIds.sort();
-		expectedTeam.$addToSet.memberIds.sort();
+		// fetch the users indicated in the foreignMemberIds array, and ensure those users match
+		// the emails passed in with the test request
+		const foreignMemberIds = message.message.team.$addToSet.foreignMemberIds;
+		this.doApiRequest(
+			{
+				method: 'get',
+				path: `/users?teamId=${this.team.id}&ids=${foreignMemberIds.join(',')}`,
+				token: this.token,
+			},
+			(error, response) => {
+				if (error) { return this.messageCallback(error); }
+				Assert.strictEqual(response.users.length, 2, `2 users should have been returned`);
+				['creator', 'assignee'].forEach(userType => {
+					const user = response.users.find(u => {
+						return u.email === this.requestData[userType].email;
+					});
+					Assert(user, `${userType} not found among the returned users`);
+				});
 
-		Assert(actualTeam.$set.modifiedAt >= this.createdAfter, 'modifiedAt for team update was not set to after the comment was created');
-		expectedTeam.$set.modifiedAt = actualTeam.$set.modifiedAt;
+				this.message = {
+					team: {
+						id: this.team.id,
+						_id: this.team.id, // DEPRECATE ME
+						$addToSet: {
+							foreignMemberIds,
+							memberIds: [...foreignMemberIds]
+						},
+						$set: {
+							version: 4,
+							modifiedAt: message.message.team.$set.modifiedAt
+						},
+						$version: {
+							before: 3,
+							after: 4
+						}
+					}
+				};
 
-		return super.validateMessage(message);
+				// final validation is to make sure the message exactly matches
+				if (super.validateMessage(message) && this.messageCallback) {
+					this.messageCallback();
+				}
+			}
+		);
+
+		// by not returning true here, we make the test code wait until we call messageCallback,
+		// through the call to super.validateMessage(), above
 	}
 }
 
