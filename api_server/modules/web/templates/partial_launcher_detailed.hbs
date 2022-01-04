@@ -460,6 +460,8 @@ window.CODESTREAM.openEditor = function(ide) {
 		if (!ideSelection) {
 			ideSelection = "User Selected";
 		}
+
+		console.log(window.CODESTREAM._state, ideSelection);
 		
 		window.protocolCheck(protocol,
 			function () {
@@ -561,6 +563,7 @@ function _openEditor(ide) {
 // clicked the already-selected-button
 function onIdeClick(e) {
 	e.preventDefault();	
+	console.log('eric start', String('{{isMru}}'), String('{{isLastOriginDetail}}'), 'eric end');
 	var moniker = $('#selected-ide').attr("data-ide-moniker");
 	_openEditor(ides.find(_ => _.moniker === moniker))
 }
@@ -685,7 +688,11 @@ function onIdeSelected(e, moniker) {
 <script src="//fast.wistia.com/assets/external/E-v1.js" async></script>
 <script>
 $(function() {	
-	if (String("{{autoOpen}}") == "true") {
+	if (
+		String('{{isMru}}') === 'false' || 
+		String('{{isLastOriginDetail}}') === 'false' || 
+		String("{{autoOpen}}") == "true"
+	) {
 		$('#selected-ide').click();
 	}
 });
