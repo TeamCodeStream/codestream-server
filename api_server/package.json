@@ -1,6 +1,6 @@
 {
   "name": "api-server",
-  "version": "11.0.26",
+  "version": "11.0.29",
   "dependencies": {
     "@microsoft/microsoft-graph-client": "2.0.0",
     "@octokit/rest": "17.1.0",
@@ -28,6 +28,7 @@
     "git-url-parse": "7.0.1",
     "glob": "7.1.6",
     "glob-promise": "3.4.0",
+    "graphql-client": "2.0.1",
     "handlebars": "4.7.7",
     "hjson": "3.2.1",
     "intercom-client": "2.11.0",

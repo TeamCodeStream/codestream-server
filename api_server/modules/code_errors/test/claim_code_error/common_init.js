@@ -55,6 +55,12 @@ class CommonInit {
 
 	// set the data expected in the response 
 	setExpectedData (callback) {
+		this.apiRequestOptions = {
+			headers: {
+				// allows claiming the code error without an NR account
+				'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine
+			}
+		};
 		const { codeError, codeErrorPost } = this.nrCommentResponse.codeStreamResponse;
 		const stream = this.nrCommentResponse.codeStreamResponse.streams[0];
 		this.expectedCodeError = {
@@ -117,7 +123,13 @@ class CommonInit {
 				method: 'post',
 				path: '/code-errors/claim/' + teamId,
 				data: this.data,
-				token: this.claimByToken || this.token
+				token: this.claimByToken || this.token,
+				requestOptions: {
+					headers: {
+						// allows claiming the code error without an NR account
+						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine
+					}
+				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

@@ -1,5 +1,29 @@
 # Change Log
 
+## [11.0.28] - 2022-1-4
+
+### Changed
+
+- Updated UI for web page that redirects users from New Relic into the IDE
+- Prevent access to error groups that the user's api key doesn't have access to 
+- Attempt to automatically redirect user to VS Code when doing an Open-in-IDE
+
+### Fixed
+
+- Fixes an issue creating a PR across forks when there are a larger number of forks
+
+## [11.0.27] - 2021-12-22
+
+### Changed
+
+- Telemetry update for the open-in-IDE redirect page 
+
+## [11.0.26] - 2021-12-21
+
+### Changed
+
+- Security work around access to error groups 
+
 ## [11.0.25] - 2021-12-13
 
 ### Changed

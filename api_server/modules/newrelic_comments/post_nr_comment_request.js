@@ -4,7 +4,6 @@
 
 const NRCommentRequest = require('./nr_comment_request');
 const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
-const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 const Utils = require('./utils');
 
 class PostNRCommentRequest extends NRCommentRequest {
@@ -16,21 +15,8 @@ class PostNRCommentRequest extends NRCommentRequest {
 		// handle which attributes are required and allowed for the request
 		await this.requireAllow();
 
-		// get the existing observablity object for this comment, if any
-		const { objectId, objectType } = this.request.body;
-		this.codeError = await this.data.codeErrors.getOneByQuery(
-			{ objectId, objectType },
-			{ hint: CodeErrorIndexes.byObjectId }
-		);
-		if (this.codeError && this.headerAccountId !== this.codeError.get('accountId')) {
-			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match the object' });
-		}
-		if (this.codeError && this.codeError.get('accountId') !== this.request.body.accountId) {
-			throw this.errorHandler.error('createAuth', { reason: 'accountId for the comment does not match the accountId of the parent object' });
-		}
-		if (!this.codeError && this.request.body.accountId !== this.headerAccountId) {
-			throw this.errorHandler.error('createAuth', { reason: 'accountId given in the header does not match that given in the body' });
-		}
+		// handle fetching existing code error, as needed
+		await this.checkForExistingCodeError();
 		
 		// resolve the requesting user, which may involve creating a (faux) user
 		await this.resolveUser();
@@ -38,7 +24,10 @@ class PostNRCommentRequest extends NRCommentRequest {
 		// create a code error linked to the New Relic object to which the comment is attached
 		// for now, this is a "code error" object only
 		if (!this.codeError) {
-			await this.createCodeError();
+			await this.createCodeError({
+				body: this.request.body,
+				replyIsComing: true
+			});
 		}
 
 		// handle any mentions in the post
@@ -75,45 +64,6 @@ class PostNRCommentRequest extends NRCommentRequest {
 		if (!Utils.CodeErrorObjectTypes.includes(this.request.body.objectType)) {
 			throw this.errorHandler.error('validation', { info: 'objectType is not an accepted code error type' });
 		}
-	}
-
-	// resolve the requesting user, which may involve creating a (faux) user
-	async resolveUser () {
-		// find or create a "faux" user, as needed
-		this.user = this.request.user = await this.findOrCreateUser(this.request.body.creator);
-		this.users.push(this.user);
-	}
-
-	// create a code error linked to the New Relic object to which the comment is attached
-	async createCodeError () {
-		// now create a post in the stream, along with the code error,
-		// this will also create a stream for the code error
-		const codeErrorAttributes = {
-			objectId: this.request.body.objectId,
-			objectType: this.request.body.objectType,
-			accountId: this.request.body.accountId
-		};
-		const postAttributes = {
-			dontSendEmail: true,
-			codeError: codeErrorAttributes
-		};
-		postAttributes.codeError._fromNREngine = postAttributes._fromNREngine = true;
-		if (this.request.headers['x-cs-newrelic-migration']) {
-			postAttributes.codeError._forNRMigration = postAttributes._forNRMigration = true;
-		}
-
-		this.codeErrorPost = await new PostCreator({
-			request: this,
-			assumeSeqNum: 1,
-			replyIsComing: true,
-			users: this.users,
-			setCreatedAt: this.request.body.createdAt,
-			setModifiedAt: this.request.body.modifiedAt,
-			forCommentEngine: true
-		}).createPost(postAttributes);
-		this.codeError = this.transforms.createdCodeError;
-		this.stream = this.transforms.createdStreamForCodeError;
-		this.codeErrorWasCreated = true;
 	}
 
 	// for replies, validate that they are proper replies to a New Relic object

@@ -8,6 +8,7 @@ const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const NewRelicAuthorizer = require('./new_relic_authorizer');
 
 class ClaimCodeErrorRequest extends RestfulRequest {
 
@@ -22,6 +23,7 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 	async process () {
 		await this.requireAndAllow();
 
+		await this.authorizeObject() && 
 		await this.getCodeError() &&
 		await this.authorizeCodeError() &&
 		await this.claimCodeError() &&
@@ -40,6 +42,22 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 		);
 	}
 	
+	// authorize the user to even access this code error: they must have access to the NR account
+	// the code error (error group) is associated with
+	async authorizeObject () {
+		const { objectId, objectType } = this.request.body;
+		const result = await new NewRelicAuthorizer({
+			request: this,
+			teamId: this.teamId
+		}).authorizeObject(objectId, objectType);
+		if (result === true) {
+			return true;
+		} else {
+			this.responseData = result;
+			return false;
+		}
+	}
+
 	// get any code error matching the object ID and object type passed
 	async getCodeError () {
 		const { objectId, objectType } = this.request.body;
@@ -48,6 +66,7 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 			{ hint: Indexes.byObjectId }
 		);
 		if (!this.codeError) {
+			this.log(`Code error ${objectType}:${objectId} not found`);
 			this.responseData = { notFound: true };
 			return false;
 		}
@@ -58,9 +77,11 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 	async authorizeCodeError () {
 		const teamId = this.codeError.get('teamId');
 		if (!teamId || teamId === this.teamId) {
+			this.log(`Code error claim for ${this.codeError.get('objectType')}:${this.codeError.get('objectId')} is authorized`);
 			return true;
 		} 
 
+		this.log(`Code error claim for ${this.codeError.get('objectType')}:${this.codeError.get('objectId')} is rejected, object is owned by team ${teamId}`);
 		this.responseData = { 
 			unauthorized: true,
 			accountId: this.codeError.get('accountId')

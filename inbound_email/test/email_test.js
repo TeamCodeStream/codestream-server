@@ -155,7 +155,7 @@ class EmailTest {
 		this.apiRequest(
 			{
 				method: 'post',
-				path: '/teams',
+				path: '/companies',
 				data: data,
 				token: this.userData[0].accessToken	// first user creates it
 			},

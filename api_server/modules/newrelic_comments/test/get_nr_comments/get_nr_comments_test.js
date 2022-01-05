@@ -28,9 +28,9 @@ class GetNRCommentsTest extends CodeStreamAPITest {
 	// set the path to use for the test request
 	setPath (callback) {
 		this.accountId = this.codeErrorFactory.randomAccountId();
-		this.objectId = this.codeErrorFactory.randomObjectId();
+		this.objectId = this.codeErrorFactory.randomObjectId(this.accountId);
 		this.objectType = 'errorGroup';
-		this.path = `/nr-comments?objectId=${this.objectId}&objectType=${this.objectType}`;
+		this.path = `/nr-comments?objectId=${encodeURIComponent(this.objectId)}&objectType=${this.objectType}`;
 		callback();
 	}
 
@@ -125,7 +125,13 @@ class GetNRCommentsTest extends CodeStreamAPITest {
 					objectId: this.objectId,
 					objectType: this.objectType
 				},
-				token: this.users[1].accessToken
+				token: this.users[1].accessToken,
+				requestOptions: {
+					headers: {
+						// allows claiming the code error without an NR account
+						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine
+					}
+				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

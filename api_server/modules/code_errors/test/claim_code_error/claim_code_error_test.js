@@ -30,6 +30,8 @@ class ClaimCodeErrorTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
+		Assert(data.codeError, 'no code error in response');
+
 		// since the permalink is generated, we need to validate that then we'll copy in
 		// so the deep-equal works
 		new CodeErrorValidator({ test: this }).validatePermalink(data.codeError.permalink);
