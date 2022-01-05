@@ -39,6 +39,11 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'post',
+		path: 'no-auth/nr-register',
+		requestClass: require('./nr_register_request')
+	},
+	{
+		method: 'post',
 		path: 'no-auth/confirm',
 		requestClass: require('./confirm_request')
 	},
