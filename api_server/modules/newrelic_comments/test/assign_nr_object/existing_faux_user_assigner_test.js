@@ -16,10 +16,16 @@ class ExistingFauxUserAssignerTest extends AssignNRObjectTest {
 		// to the same creator (by email)
 		BoundAsync.series(this, [
 			super.before,
-			this.createNRComment,
-			this.claimCodeError,
-			this.inviteAndRegisterFauxUser
+			this.createNRComment
 		], callback);
+	}
+
+	makeNRRequestData (callback) {
+		super.makeNRRequestData(error => {
+			if (error) { return callback(error); }
+			this.apiRequestOptions.headers['X-CS-Want-CS-Response'] = this.apiConfig.sharedSecrets.commentEngine;
+			callback();
+		});
 	}
 
 	// create an NR comment to create an existing faux user
@@ -40,38 +46,19 @@ class ExistingFauxUserAssignerTest extends AssignNRObjectTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.data.creator.email = data.creator.email;
 				this.nrCommentResponse = response;
+				this.data.creator.email = response.post.creator.email;
 				callback();
 			}
 		);
 	}
 
-	// run the base test, but then do other stuff...
-	run (callback) {
-		// run the base test, but then register the creator so we can fetch the posts created,
-		// then fetch them
-		BoundAsync.series(this, [
-			super.run,
-			this.fetchPost
-		], callback);
-	}
-
-	fetchPost (callback) {
-		const postId = this.nrAssignmentResponse.codeStreamResponse.post.id;
-		const nrCommentPost = this.nrCommentResponse.codeStreamResponse.post;
-		this.doApiRequest(
-			{
-				method: 'get',
-				path: '/posts/' + postId,
-				token: this.token
-			}, 
-			(error, response) => {
-				if (error) { return callback(error); }
-				Assert.equal(response.post.creatorId, nrCommentPost.creatorId, 'creator of the code error (by virtue of assigning someone to it) is not the same as the creator of the comment');
-				callback();
-			}
-		);
+	validateResponse (data) {
+		const commentCreatorId = this.nrCommentResponse.post.creatorId;
+		const assignmentCreatorId = data.codeStreamResponse.post.creatorId;
+		Assert.equal(assignmentCreatorId, commentCreatorId, 'creator of the code error (by virtue of assigning someone to it) is not the same as the creator of the earlier comment');
+		delete data.codeStreamResponse;
+		super.validateResponse(data);
 	}
 }
 

@@ -4,8 +4,6 @@
 
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
-const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
-const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const RandomString = require('randomstring');
 
 class CommonInit {
@@ -38,11 +36,13 @@ class CommonInit {
 
 	// do the assignment for real
 	createNRAssignment (callback) {
+		this.createdAfter = Date.now();
 		this.doApiRequest(
 			{
 				method: 'post',
 				path: `/nr-comments/assign`,
 				data: this.data,
+				testEmails: this.testEmailNotification,	// this should get us email data back in the pubnub me-channel
 				requestOptions: {
 					headers: {
 						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
@@ -63,13 +63,14 @@ class CommonInit {
 
 	// claim code error for the team, as requested
 	claimCodeError (callback) {
+		const data = this.requestData || this.data;
 		this.doApiRequest(
 			{
 				method: 'post',
 				path: '/code-errors/claim/' + this.team.id,
 				data: {
-					objectId: this.requestData.objectId,
-					objectType: this.requestData.objectType
+					objectId: data.objectId,
+					objectType: data.objectType
 				},
 				token: this.users[1].accessToken,
 				requestOptions: {

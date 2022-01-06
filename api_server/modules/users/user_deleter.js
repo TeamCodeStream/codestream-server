@@ -18,7 +18,7 @@ class UserDeleter extends ModelDeleter {
 	// set the actual op to execute to delete an op 
 	async setOpForDelete () {
 		// get the user to delete
-		this.userToDelete = await this.data.users.getById(this.request.request.params.id);
+		this.userToDelete = await this.data.users.getById(this.id);
 		if (!this.userToDelete) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
