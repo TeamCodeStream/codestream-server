@@ -162,4 +162,5 @@ module.exports = {
 		code: 'USRC-1030',
 		message: 'Login code doesn\'t match',
 		description: 'The provided login code doesn\'t match the expected login code for the user'
+	}
 };

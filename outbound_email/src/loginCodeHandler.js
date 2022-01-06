@@ -3,7 +3,7 @@
 const EmailHandler = require('./emailHandler');
 
 class LoginCodeHandler extends EmailHandler {
-	
+
 	// render the email with a login code
 	async renderEmail () {
 		this.subject = `Your sign-in code is ${code}`;
