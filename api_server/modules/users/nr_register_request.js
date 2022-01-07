@@ -150,7 +150,7 @@ class NRRegisterRequest extends RestfulRequest {
 			{ hint: Indexes.bySearchableEmail }
 		);
 		if (this.user) {
-			throw this.errorHandler.error('alreadyRegistered');
+			throw this.errorHandler.error('alreadyRegistered', { info: this.userData.email });
 		}
 	}
 
