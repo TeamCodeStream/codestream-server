@@ -50,7 +50,19 @@ class NRRegisterRequest extends RestfulRequest {
 	async getNewRelicUser () {
 		try {
 			let response;
-			const baseUrl = this.request.body.apiRegion === 'eu' ? 'https://api.eu.newrelic.com' : 'https://api.newrelic.com';
+			let baseUrl;
+			switch (this.request.body.apiRegion) {
+			case 'eu':
+				baseUrl = 'https://api.eu.newrelic.com';
+				break;
+			case 'staging':
+				baseUrl = 'https://staging-api.newrelic.com';
+				break;
+			case 'us':
+			default:
+				baseUrl = 'https://api.newrelic.com';
+				break;
+			}
 			// check if we should use fake data from headers
 			response = await this.checkHeaderSecrets();
 			if (!response) {
