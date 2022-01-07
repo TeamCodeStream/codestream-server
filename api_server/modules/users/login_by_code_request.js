@@ -106,8 +106,9 @@ class LoginByCodeRequest extends RestfulRequest {
 			},
 			errors: [
 				'parameterRequired',
-				'passwordMismatch',
-				'noLoginUnregistered'
+				'loginCodeExpired',
+				'tooManyLoginCodeAttempts',
+				'loginCodeMismatch'
 			]
 		};
 	}

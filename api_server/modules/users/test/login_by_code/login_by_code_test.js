@@ -31,7 +31,6 @@ class LoginByCodeTest extends CodeStreamAPITest {
 		// ensure we have a login code generated to test
 		const data = {
 			email: this.currentUser.user.email,
-			// TODO: use more appropriate secret
 			_loginCheat: this.apiConfig.sharedSecrets.confirmationCheat
 		};
 		this.doApiRequest(

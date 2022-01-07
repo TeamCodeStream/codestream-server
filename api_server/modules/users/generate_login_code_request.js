@@ -21,7 +21,6 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 	}
 
 	async handleResponse () {
-		// TODO: use more appropriate secret
 		if (this._loginCheat === this.api.config.sharedSecrets.confirmationCheat) {
 			// this allows for testing without actually receiving the email
 			this.log('Login code cheat detected, hopefully this was called by test code');
@@ -40,6 +39,7 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 	async requireAndAllow () {
 		[
 			'_loginCheat',
+			'_delayEmail',
 			'expiresIn'
 		].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
@@ -99,6 +99,11 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 		if (!this.user) {
 			return;
 		}
+		if (this._delayEmail) {
+			setTimeout(this.sendLoginCodeEmail.bind(this), this._delayEmail);
+			delete this._delayEmail;
+			return;
+		}
 
 		this.log(`Triggering email with login code to ${this.user.get('email')}...`);
 		await this.api.services.email.queueEmailSend(
@@ -125,7 +130,10 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 				looksLike: {
 					'email*': '<User\'s email>'
 				},
-			}
+			},
+			errors: [
+				'parameterRequired'
+			]
 		};
 	}
 }
