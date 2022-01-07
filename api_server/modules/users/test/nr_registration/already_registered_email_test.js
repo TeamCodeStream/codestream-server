@@ -23,7 +23,8 @@ class AlreadyRegisteredEmailTest extends CodeStreamAPITest {
 	getExpectedError () {
 		return {
 			code: 'USRC-1006',
-			message: 'This user is already registered and confirmed'
+			message: 'This user is already registered and confirmed',
+			info: this.currentUser.user.email
 		};
 	}
 
