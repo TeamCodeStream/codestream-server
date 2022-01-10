@@ -4,6 +4,8 @@ const Indexes = require('./indexes');
 const { callbackWrap } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const BCrypt = require('bcrypt');
 
+const MAX_LOGIN_CODE_ATTEMPTS = 3;
+
 class LoginCore {
 
 	constructor (options) {
@@ -15,6 +17,14 @@ class LoginCore {
 		this.password = password;
 		await this.getUser();
 		await this.validatePassword();
+		return this.user;
+	}
+
+	async loginByCode (email, loginCode) {
+		this.email = email;
+		this.loginCode = loginCode;
+		await this.getUser();
+		await this.validateLoginCode();
 		return this.user;
 	}
 
@@ -61,6 +71,37 @@ class LoginCore {
 		}
 		if (!this.user.get('isRegistered')) {
 			throw this.request.errorHandler.error('noLoginUnregistered');
+		}
+	}
+
+	// validate that the given login code matches the one stored for the user,
+	// that it isn't expired, and that the user hasn't tried too many attempts
+	async validateLoginCode () {
+		// avoid email harvesting vulnerability
+		if (!this.user || this.user.get('deactivated')) {
+			throw this.errorHandler.error('loginCodeMismatch');
+		}
+		try {
+			if (this.user.get('loginCodeAttempts') === undefined || parseInt(this.user.get('loginCodeAttempts')) >= parseInt(MAX_LOGIN_CODE_ATTEMPTS)) {
+				throw this.request.errorHandler.error('tooManyLoginCodeAttempts');
+			}
+			if (!this.user.get('loginCode') || this.user.get('loginCode') !== this.loginCode) {
+				throw this.request.errorHandler.error('loginCodeMismatch');
+			}
+			if (!this.user.get('loginCodeExpiresAt') || Date.now() > this.user.get('loginCodeExpiresAt')) {
+				throw this.request.errorHandler.error('loginCodeExpired');
+			}
+		} catch (error) {
+			const op = {
+				$inc: {
+					loginCodeAttempts: 1,
+				}
+			};
+			this.request.data.users.updateDirect(
+				{ id: this.request.data.users.objectIdSafe(this.user.id) },
+				op
+			);
+			throw error;
 		}
 	}
 }

@@ -39,6 +39,7 @@ class LoginHelper {
 		], this);
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		await this.updateLastLogin();
+		await this.resetLoginCode();
 		this.getThirdPartyProviders();
 		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
 		await this.getAccountIsConnected();		// get whether this user's account is connected to a CS company
@@ -177,6 +178,18 @@ class LoginHelper {
 		if (this.countryCode) {
 			op.$set.countryCode = this.countryCode;
 		}
+		await this.request.data.users.applyOpById(this.user.id, op);
+	}
+
+	// delete fields associated with a login code, if applicable
+	async resetLoginCode () {
+		const op = {
+			$unset: {
+				loginCode: true,
+				loginCodeAttempts: true,
+				loginCodeExpiresAt: true,
+			}
+		};
 		await this.request.data.users.applyOpById(this.user.id, op);
 	}
 

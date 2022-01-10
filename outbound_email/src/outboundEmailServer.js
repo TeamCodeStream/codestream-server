@@ -22,6 +22,7 @@ const InviteEmailHandler = require('./inviteEmailHandler');
 const ResetPasswordEmailHandler = require('./resetPasswordEmailHandler');
 const TeamCreatedEmailHandler = require('./teamCreatedEmailHandler');
 const WeeklyEmailHandler = require('./weeklyEmailHandler');
+const LoginCodeHandler = require('./loginCodeHandler');
 const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const FS = require('fs');
@@ -37,7 +38,8 @@ const HANDLERS = {
 	resetPassword: ResetPasswordEmailHandler,
 	teamCreated: TeamCreatedEmailHandler,
 	notification_v2: EmailNotificationV2Handler,
-	weekly: WeeklyEmailHandler
+	weekly: WeeklyEmailHandler,
+	loginCode: LoginCodeHandler
 };
 
 // The OutboundEmailServer is instantiated via the cluster wrapper.
