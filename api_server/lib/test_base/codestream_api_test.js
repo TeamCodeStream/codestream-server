@@ -134,15 +134,19 @@ class CodeStreamAPITest extends APIRequestTest {
 	}
 
 	after (callback) {
-		if (
-			this.mockMode &&
-			!this.testDidNotRun
-		) {
-			this.clearMockCache(() => {
+		if (!this.testDidNotRun) {
+			if (this.mockMode) {
+				this.clearMockCache(() => { 
+					super.after(callback);
+				});
+			} else if (process.env.CS_API_DELETE_TEST_DATA) {
+				this.deleteTestData(() => {
+					super.after(callback);
+				});
+			} else {
 				super.after(callback);
-			});
-		}
-		else {
+			}
+		} else {
 			super.after(callback);
 		}
 	}
@@ -155,6 +159,21 @@ class CodeStreamAPITest extends APIRequestTest {
 			{
 				method: 'delete',
 				path: '/no-auth/--clear-mock-cache'
+			},
+			callback
+		);
+	}
+
+	deleteTestData (callback) {
+		this.doApiRequest(
+			{
+				method: 'delete',
+				path: '/no-auth/--delete-test-data',
+				requestOptions: {
+					headers: {
+						['X-CS-Delete-Cheat']: this.apiConfig.sharedSecrets.subscriptionCheat
+					}
+				}
 			},
 			callback
 		);

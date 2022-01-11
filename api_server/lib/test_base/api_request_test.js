@@ -90,6 +90,8 @@ class APIRequestTest extends GenericTest {
 		requestOptions.rejectUnauthorized = false;	// avoid complaints about security
 		this.makeHeaderOptions(options, requestOptions);
 
+		const host = process.env.CS_API_TEST_SERVER_HOST || this.apiConfig.apiServer.publicApiUrlParsed.host;
+		const port = process.env.CS_API_TEST_SERVER_PORT || (process.env.CS_API_TEST_SERVER_HOST && "443") || this.apiConfig.apiServer.port;
 		const method = options.method || 'get';
 		const path = options.path || '/';
 		const data = options.data || null;
@@ -114,8 +116,8 @@ class APIRequestTest extends GenericTest {
 		}
 		else {
 			HTTPSBot[method](
-				this.apiConfig.apiServer.publicApiUrlParsed.host,
-				this.apiConfig.apiServer.port,
+				host,
+				port,
 				path,
 				data,
 				requestOptions,

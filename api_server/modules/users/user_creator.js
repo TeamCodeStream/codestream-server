@@ -330,7 +330,6 @@ class UserCreator extends ModelCreator {
 		await this.api.services.broadcaster.grant(
 			[this.model.id],
 			`user-${this.model.id}`,
-			() => {},
 			{ request: this.request }
 		);
 	}

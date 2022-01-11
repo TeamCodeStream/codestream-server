@@ -151,13 +151,17 @@ class PubNubClient {
 			tokens = [tokens];
 		}
 		tokens = tokens.filter(token => typeof token === 'string' && token.length > 0);
+		const displayTokens = tokens.map(token => {
+			const len = token.length;
+			return `${token.slice(0, 6)}${'*'.repeat(len-12)}${token.slice(-6)}`;
+		});
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
-			this._log(`Would have granted access for ${tokens} to ${channel}`, options);
+			this._log(`Would have granted access for ${displayTokens} to ${channel}`, options);
 			return;
 		}
 		else {
-			this._log(`Granting access for ${tokens} to ${channel}`, options);
+			this._log(`Granting access for ${displayTokens} to ${channel}`, options);
 		}
 
 		return this._grantMultipleHelper(tokens, [channel], options);
@@ -206,6 +210,10 @@ class PubNubClient {
 		let result;
 		let retries = 0;
 		let lastError;
+		const displayTokens = tokens.map(token => {
+			const len = token.length;
+			return `${token.slice(0, 6)}${'*'.repeat(len-12)}${token.slice(-6)}`;
+		});
 		while (retries < 3) {
 			try {
 				lastError = null;
@@ -220,13 +228,13 @@ class PubNubClient {
 				);
 			}
 			catch (error) {
-				this._warn(`Failed to grant access for ${JSON.stringify(tokens)} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(error)}`, options);
+				this._warn(`Failed to grant access for ${JSON.stringify(displayTokens)} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(error)}`, options);
 				lastError = error;
 				retries++;
 			}
 
 			if (!lastError && result.error) {
-				this._warn(`Unable to grant access for ${JSON.stringify(tokens)} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(result.errorData)}`, options);
+				this._warn(`Unable to grant access for ${JSON.stringify(displayTokens)} to ${JSON.stringify(channels, undefined, 3)}, retry #${retries}: ${JSON.stringify(result.errorData)}`, options);
 				lastError = result.errorData;
 				retries++;
 			}
@@ -237,7 +245,7 @@ class PubNubClient {
 		if (lastError) {
 			throw lastError;
 		}
-		this._log(`Successfully granted access for ${JSON.stringify(tokens)} to ${JSON.stringify(channels, undefined, 3)}`, options);
+		this._log(`Successfully granted access for ${JSON.stringify(displayTokens)} to ${JSON.stringify(channels, undefined, 3)}`, options);
 	}
 
 	// revoke read and/or write permission for the specified channel for the specified
@@ -246,12 +254,16 @@ class PubNubClient {
 		if (!(tokens instanceof Array)) {
 			tokens = [tokens];
 		}
+		const displayTokens = tokens.map(token => {
+			const len = token.length;
+			return `${token.slice(0, 6)}${'*'.repeat(len-12)}${token.slice(-6)}`;
+		});
 		if (this._requestSaysToBlockMessages(options)) {
 			// we are blocking PubNub messages, for testing purposes
-			this._log(`Would have revoked access for ${tokens} to ${channel}`, options);
+			this._log(`Would have revoked access for ${displayTokens} to ${channel}`, options);
 			return;
 		}
-		this._log(`Revoking access for ${tokens} to ${channel}`, options);
+		this._log(`Revoking access for ${displayTokens} to ${channel}`, options);
 		const result = await this.pubnub.grant(
 			{
 				channels: [channel],
@@ -262,10 +274,10 @@ class PubNubClient {
 			}
 		);
 		if (result.error) {
-			this._warn(`Unable to revoke access for ${tokens} to ${channel}: ${JSON.stringify(result.errorData)}`, options);
+			this._warn(`Unable to revoke access for ${displayTokens} to ${channel}: ${JSON.stringify(result.errorData)}`, options);
 			throw result.errorData;
 		}
-		this._log(`Successfully revoked access for ${tokens} to ${channel}`, options);
+		this._log(`Successfully revoked access for ${displayTokens} to ${channel}`, options);
 		/*
 		if (options.includePresence) {
 			// doing presence requires revoking access to this channel as well

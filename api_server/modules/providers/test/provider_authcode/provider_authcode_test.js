@@ -39,7 +39,8 @@ class ProviderAuthCodeTest extends CodeStreamAPITest {
 		Assert.equal(payload.type, 'pauth', 'token payload type should be conf');
 		Assert.equal(payload.userId, this.currentUser.user.id, 'userId in token payload is incorrect');
 		Assert.equal(payload.teamId, this.team.id, 'teamId in token payload is incorrect');
-		Assert(payload.iat <= Math.floor(Date.now() / 1000), 'iat in token payload is not earlier than now');
+		const nowSeconds = Math.floor(Date.now() / 1000);
+		Assert(payload.iat <= nowSeconds, 'iat in token payload is not earlier than now');
 		Assert.equal(payload.exp, payload.iat + expiresIn, 'token payload expiration is not correct');
 	}
 
