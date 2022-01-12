@@ -25,6 +25,9 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	constructor(options = {}) {
 		// the configType MUST match structured_config_base.ConfigTypes.mongo
 		super({ ...options, configType: 'mongo' });
+		this.options.mongoTlsOpts = this.options.mongoTlsCAFile
+			? {	tls: true, tlsCAFile: this.options.mongoTlsCAFile }
+			: {};
 		this.configCollection = options.mongoCfgCollection || 'structuredConfiguration'; // collection containing configs
 		this.selectedCollection = `${this.configCollection}Selected`; // contains one document which points to the selected config
 		this.customSchemaMigrationMatrix = options.customSchemaMigrationMatrix || null;
@@ -179,14 +182,15 @@ class StructuredConfigMongo extends StructuredConfigBase {
 			return;
 		}
 		if (!this.options.quiet) {
-			this.logger.log(`connecting to ${this.options.mongoUrl}`);
+			let supplementalInfo = this.options.mongoTlsOpts.mongoTlsCAFile ? ` using TLS with cert ${this.options.mongoTlsOpts.mongoTlsCAFile}` : '';
+			this.logger.log(`connecting to ${this.options.mongoUrl}${supplementalInfo}`);
 		}
 		try {
-			this.mongoClient = await MongoClient.connect(this.options.mongoUrl, {
+			this.mongoClient = await MongoClient.connect(this.options.mongoUrl, Object.assign({
 				reconnectTries: 0,
 				useNewUrlParser: true,
 				useUnifiedTopology: true,
-			});
+			}, this.options.mongoTlsOpts));
 			this.db = this.mongoClient.db();
 			mongoConnections[collectionCacheKey] = {
 				mongoClient: this.mongoClient,

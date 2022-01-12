@@ -271,6 +271,19 @@ module.exports = function customConfigFunc(nativeCfg) {
 			],
 		},
 	});
+	// FIXME: this should be added to the config schema
+	Cfg.storage.mongo.tlsOptions = {};
+	if (process.env.CSSVC_MONGO_CLIENT_CERT_FILE && Fs.existsSync(process.env.CSSVC_MONGO_CLIENT_CERT_FILE)) {
+		Cfg.storage.mongo.tlsOptions = {
+			tls: true,
+			// tlsCAFile: Fs.readFileSync(process.env.CSSVC_MONGO_CLIENT_CERT_FILE, { encoding: 'utf8' }),
+			tlsCAFile: process.env.CSSVC_MONGO_CLIENT_CERT_FILE
+		};
+		console.log(`connecting to mongo using TLS CA ${process.env.CSSVC_MONGO_CLIENT_CERT_FILE}`);
+	}
+	else if (process.env.CSSVC_MONGO_CLIENT_CERT_FILE) {
+		console.log(`could not load ${process.env.CSSVC_MONGO_CLIENT_CERT_FILE}`);
+	}
 
 	// integrations
 	// Ultimately, we plan to eliminate the repeating blocks so for now, in the custom

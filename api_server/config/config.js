@@ -2,7 +2,7 @@
 
 'use strict';
 
-const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config'); 
+const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config');
 const customConfigFunc = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_config');
 
 // The restartRequired() method is meant to compare two configurations (prior &
@@ -23,6 +23,7 @@ var Config;
 Config = Config || StructuredConfigFactory.create({
 	configFile: process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE,
 	mongoUrl: process.env.CSSVC_CFG_URL,
+	mongoTlsCAFile: process.env.CSSVC_MONGO_CLIENT_CERT_FILE,
 	showConfigProperty: 'apiServer.showConfig',
 	// customRestartFunc,
 	customConfigFunc

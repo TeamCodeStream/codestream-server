@@ -53,7 +53,7 @@ const queryCollection = async function(csDb, collection, query) {
 	// console.log('connecting...');
 	try {
 		await ApiConfig.loadPreferredConfig();
-		db = await MongoClient.connect(ApiConfig.getPreferredConfig().storage.mongo.url);
+		db = await MongoClient.connect(ApiConfig.getPreferredConfig().storage.mongo.url, ApiConfig.getPreferredConfig().storage.mongo.tlsOptions);
 	}
 	catch (error) {
 		console.log('mongo connect error', error);
