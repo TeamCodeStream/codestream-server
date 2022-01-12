@@ -34,7 +34,7 @@
     "intercom-client": "2.11.0",
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.21",
-    "markdown-it": "10.0.0",
+    "markdown-it": "12.3.2",
     "markdown-it-emoji-mart": "0.1.1",
     "markdown-it-slack": "1.2.0",
     "moment": "2.24.0",
