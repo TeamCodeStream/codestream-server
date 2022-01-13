@@ -82,6 +82,7 @@ class LoginTest extends CodeStreamAPITest {
 		Assert.strictEqual(data.runtimeEnvironment, this.apiConfig.sharedGeneral.runTimeEnvironment);
 		Assert.strictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);
 		Assert.strictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud);
+		Assert.strictEqual(data.newRelicLandingServiceUrl, this.apiConfig.sharedGeneral.newRelicLandingServiceUrl);
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

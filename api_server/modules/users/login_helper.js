@@ -214,7 +214,7 @@ class LoginHelper {
 			return;
 		}
 
-		const { isOnPrem, runTimeEnvironment, isProductionCloud } = this.apiConfig.sharedGeneral;
+		const { isOnPrem, runTimeEnvironment, isProductionCloud, newRelicLandingServiceUrl } = this.apiConfig.sharedGeneral;
 
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
@@ -231,7 +231,8 @@ class LoginHelper {
 			runtimeEnvironment: runTimeEnvironment,
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
-			accountIsConnected: this.accountIsConnected
+			accountIsConnected: this.accountIsConnected,
+			newRelicLandingServiceUrl
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub
