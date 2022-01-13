@@ -24,6 +24,7 @@ class CapabilitiesTest extends CodeStreamAPITest {
 		Assert.strictEqual(data.environment, this.apiConfig.sharedGeneral.runTimeEnvironment, 'environment not correct');
 		Assert.strictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem, 'isOnPrem is not correct');
 		Assert.strictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud, 'isProductionCloud is not correct');
+		Assert.strictEqual(data.newRelicLandingServiceUrl, this.apiConfig.sharedGeneral.newRelicLandingServiceUrl, 'newRelicLandingServiceUrl is not correct');
 	}
 }
 
