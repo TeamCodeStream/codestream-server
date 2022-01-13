@@ -4,36 +4,34 @@ import os
 import sys
 import argparse
 import re
-
-sys.path.append(os.environ['DT_TOP'] + "/lib")
-import sysUtils as su
+import devtools.core as dtCore
 
 
 # utility function - takes a json file with comments on top (optional) and sorts the json data
 def sortJsonWithHeaderComments(file, json=None, outFile=None):
 	if not json:
-		json = su.readJsonFileIgnoreComments(file)
+		json = dtCore.io.readJsonFileIgnoreComments(file)
 	if not outFile:
 		outFile = file
-	comments = su.shellExecNoBuffer(f"grep '^//' {file} >/tmp/_comments; echo >>/tmp/_comments")
-	su.dumpDictOpts(json, where="/tmp/_json", tab_indent=True)
+	comments = dtCore.exec.execCommand(f"grep '^//' {file} >/tmp/_comments; echo >>/tmp/_comments")
+	dtCore.io.dumpData(json, where="/tmp/_json", tabIndent=True)
 	# print(f"backing up file to {file}.backup")
-	# su.shellExecNoBuffer(f"cp {file} {file}.backup")
-	su.shellExecNoBuffer(f"cat /tmp/_comments /tmp/_json >{outFile}")
+	# dtCore.exec.execCommand(f"cp {file} {file}.backup")
+	dtCore.exec.execCommand(f"cat /tmp/_comments /tmp/_json >{outFile}")
 	os.remove("/tmp/_comments")
 	os.remove("/tmp/_json")
 
 
 def debugMsg(msg):
 	if args.debug:
-		su.printErr(msg)
+		dtCore.io.printErr(msg)
 
 
 def getSectionDefaultsFromSchema(schema, cfg, spaces):
 	for prop in list(schema.keys()):
 		debugMsg(f"{spaces}getSectionDefaultsFromSchema: prop = {prop}")
 		if 'desc' in schema[prop]:
-			cfg[prop] = su.someValueOrNone(schema[prop], 'default')
+			cfg[prop] = dtCore.util.someValueOrNone(schema[prop], 'default')
 		else:
 			cfg[prop] = {}
 			getSectionDefaultsFromSchema(schema[prop], cfg[prop], f"{spaces}  ")
@@ -55,7 +53,7 @@ def blockKey(schema, spaces):
 def loadSecretsFile(profile, schema, repeatingBlockKey, spaces):
 	secretsFile = profile['_loadSecretsFile']
 	debugMsg(f"{spaces}loading {args.secrets}/{secretsFile}")
-	secretsData = su.readKeyValueFile(f"{args.secrets}/{secretsFile}")
+	secretsData = dtCore.io.readKVFileToDict(f"{args.secrets}/{secretsFile}")
 	block = {}
 	# lowest precedence: schema defaults
 	if repeatingBlockKey:
@@ -120,11 +118,11 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 			cfg[prop] = profile[prop]
 			fillSection = True
 		else:
-			su.printErr("property {} not defined in schema".format(prop))
+			dtCore.io.printErr("property {} not defined in schema".format(prop))
 			exit(1)
 
 		if args.debug:
-			su.dumpDict(cfg[prop], None, f"end of loop for prop: cfg[{prop}]:")
+			dtCore.io.dumpData(cfg[prop], msg=f"end of loop for prop: cfg[{prop}]:")
 
 	# this will complete a section with default properties where the profile only specifies a fraction of them
 	if blockDefaults and fillSection:
@@ -159,10 +157,10 @@ def buildCfgFileProperties(schema, keyPath, task='show-desc'):
 		else:
 			if task == 'show-desc':
 				node[k] = schema[k]['desc']
-				if su.someValueOrNone(schema[k], 'env'):
+				if dtCore.util.someValueOrNone(schema[k], 'env'):
 					node[k] += f" [{schema[k]['env']}]"
 			elif task == 'show-env':
-				node[k] = schema[k]['env'] if su.someValueOrNone(schema[k], 'env') else "undefined"
+				node[k] = schema[k]['env'] if dtCore.util.someValueOrNone(schema[k], 'env') else "undefined"
 
 
 secretsDefault = os.environ['KM_SECRETS'] if 'KM_SECRETS' in os.environ else ""
@@ -186,7 +184,7 @@ args = parser.parse_args()
 # 	printErr("warning: no secrets directory defined")
 
 repoRoot = os.path.dirname(os.path.realpath(__file__)) + "/.."
-schema = su.readJsonFileIgnoreComments(repoRoot + "/parameters.json")
+schema = dtCore.io.readJsonFileIgnoreComments(repoRoot + "/parameters.json")
 
 cfgFile = {}
 if args.show_desc:
@@ -197,7 +195,7 @@ elif args.sort_json:
 	sortJsonWithHeaderComments(args.sort_json)
 	exit(0)
 elif args.profile:
-	profile = su.readJsonFileIgnoreComments(args.profile)
+	profile = dtCore.io.readJsonFileIgnoreComments(args.profile)
 	buildCfgFile(cfgFile, schema, profile)
 	if args.out:
 		sortJsonWithHeaderComments(args.profile, json=cfgFile, outFile=args.out)
@@ -207,8 +205,8 @@ else:
 	exit(1)
 
 if args.out:
-	su.dumpDictOpts(cfgFile, where=args.out, tab_indent=True)
+	dtCore.io.dumpData(cfgFile, where=args.out, tabIndent=True)
 else:
 	debugMsg("-----------  RESULTS  -------------")
-	su.dumpDictOpts(cfgFile)
+	dtCore.io.dumpData(cfgFile)
 exit(0)

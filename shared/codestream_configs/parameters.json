@@ -756,6 +756,11 @@
 			"desc": "unique identifier for the onprem installation",
 			"env": "CSSVC_INSTALLATION_ID"
 		},
+		"newRelicLandingServiceUrl": {
+			"default": "https://landing.staging-service.newrelic.com",
+			"desc": "links codestream env to new relic env",
+			"env": "CSSVC_NEW_RELIC_LANDING_SERVICE_URL"
+		},
 		"runTimeEnvironment": {
 			"default": "${CSSVC_ENV}",
 			"desc": "run-time environment (local, onprem, prod, qa, pd, ...)",
@@ -864,6 +869,10 @@
 	},
 	"storage": {
 		"mongo": {
+			"tlsCAFile": {
+				"desc": "file containing mongo certificate for TLS connections",
+				"env": "CSSVC_MONGO_CLIENT_CERT_FILE"
+			},
 			"url": {
 				"default": "mongodb://localhost/codestream",
 				"desc": "mongo connect string",
