@@ -1,3 +1,6 @@
+// Herein we define the Test Runner, a class that manages running a given test, given test options
+// This basically wraps mocha's non-class oriented functionality
+
 'use strict';
 
 const Assert = require('assert');
@@ -14,9 +17,17 @@ class TestRunner {
 			const { description } = this.testOptions;
 			if (!description) { throw new Error('no description for test'); }
 
+			// tests are run within the context of a suite, which manages data that persists between multiple tests
+			// here we prefix the test description with an ordinal number, to ensure test descriptions are unique,
+			// and help identify particular tests quickly
 			const topSuite = this.topSuite();
 			const testNum = topSuite && topSuite.nextTestNum();
 			const testPrefix = testNum ? `${testNum}: ` : '';
+
+			// run the actual test ... note that we choose NOT to use mocha's before and after functions, as
+			// they are run in parallel before the tests in a given suite are run, and it is harder to identify
+			// particular failures that way ... our test paradigm manages persistent data between tests, making
+			// a before/after less necessary ... instead, the before/after is considered "part of the test run"
 			const { before, test, after } = this.testOptions;
 			const out = it(
 				`${testPrefix}${description}`,
@@ -50,10 +61,12 @@ class TestRunner {
 		}
 	}
 
+	// get the immediate parent test suite for this test runner
 	parentSuite () {
 		return this.suite;
 	}
 
+	// get the top level test suite
 	topSuite () {
 		let suite = this.parentSuite();
 		let nextSuite = suite;
@@ -64,6 +77,8 @@ class TestRunner {
 		return nextSuite;
 	}
 
+	// log a message associated with this test, logs can be written at the end of a test run
+	// to help diagnose problems that occurred during the test run
 	testLog (msg) {
 		const suite = this.topSuite();
 		if (suite) {
@@ -71,6 +86,8 @@ class TestRunner {
 		}
 	}
 
+	// return whether we are in "mock mode", which uses IPC-based communication for tests running locally,
+	// which makes for a faster test run
 	inMockMode () {
 		const suite = this.topSuite();
 		if (suite) {
@@ -78,6 +95,7 @@ class TestRunner {
 		}
 	}
 
+	// get the master cache for this test run, managed by the top-level test suite
 	getTestData () {
 		const suite = this.topSuite();
 		if (suite) {
@@ -87,6 +105,7 @@ class TestRunner {
 		}
 	}
 
+	// get the oridinal number assigned to this test, managed by the top-level test suite
 	getTestNum () {
 		const suite = this.topSuite();
 		if (suite) {

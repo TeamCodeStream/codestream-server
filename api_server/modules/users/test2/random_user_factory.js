@@ -67,11 +67,13 @@ class RandomUserFactory {
 		return data;
 	}
 
+	// return the next PubNub UUID from the rotating pool
 	getNextPubnubUuid () {
 		_NextPubnubUuid = (_NextPubnubUuid + 1) % 100;
 		return `TEST-UUID-${_NextPubnubUuid}`;
 	}
 
+	// create an unregistered user in the database
 	async createUnregisteredUser (data = {}, options = {}) {
 		const response = await this.apiRequester.doApiRequest(
 			{
@@ -82,6 +84,7 @@ class RandomUserFactory {
 		return response.user;
 	}
 	
+	// confirm a user's registration
 	async confirmUser (data = {}, options = {}) {
 		return this.apiRequester.doApiRequest(
 			{
@@ -101,6 +104,8 @@ class RandomUserFactory {
 		}, options);
 	}
 
+	// create a random user in the database, given user data
+	// the user can be registered or unregistered (unconfirmed), governed by a noConfirm flag
 	async createRandomUser (data = {}, options = {}) {
 		const userData = this.getRandomUserData(data, options);
 		if (options.noConfirm) {

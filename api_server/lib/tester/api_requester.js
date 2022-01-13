@@ -1,3 +1,6 @@
+// Herein we define a class that performs API Server requests, assuming connection info passed in
+// during construction or afterwards ... really just a wrapper around node-fetch
+
 'use strict';
 
 const Fetch = require('node-fetch');
@@ -8,10 +11,12 @@ class ApiRequester {
 		Object.assign(this, options);
 	}
 
-	setOptions (options) {
+	// set connection options (host, post, etc.) for contacting the API Server
+	setConnectionOptions (options) {
 		Object.assign(this, options);
 	}
 
+	// execute an API Server request, assuming we want a successful response
 	async doApiRequest (options) {
 		const result = await this.sendApiRequest(options);
 		if (result.status >= 200 && result.status < 300) {
@@ -21,6 +26,7 @@ class ApiRequester {
 		}
 	}
 
+	// 
 	async sendApiRequest (options) {
 		const {
 			protocol = this.protocol || 'http',
