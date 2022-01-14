@@ -5,30 +5,36 @@ const LoginCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/
 const SigninFlowUtils = require('./signin_flow_utils');
 const WebErrors = require('./errors');
 
-class WebSigninRequest extends APIRequest {
+class WebSigninCodeRequest extends APIRequest {
 
 	async authorize () {
 		// no authorization needed
 	}
 
 	async process () {
-		const { email, password } = this.request.body;
-		if (!email || !password) {
+		const { email, code } = this.request.body;
+		if (!email || !code) {
 			return this.loginError();
 		}
 
-		// attempt to login with email and password, and fetch the user
+		// LoginCore expects errorHandler to exist, so we fake it
+		this.errorHandler = {
+			error: error => error
+		};
+
+		// attempt to login with email and code, and fetch the user
 		try {
 			this.user = await new LoginCore({
 				request: this
-			}).login(email, password);
+			}).loginByCode(email, code);
 
 			if (this.request.body.tenantId) {
 				this.interstitial = '/web/assign/team?tenantId=' + this.request.body.tenantId;
 			}
-		}
-		catch (error) {
-			return this.loginError();
+
+			await this.invalidateCode();
+		} catch (error) {
+			return this.loginError(error);
 		}
 
 		// send a cookie in the response
@@ -40,11 +46,11 @@ class WebSigninRequest extends APIRequest {
 		this.finishFlow();
 	}
 
-	loginError () {
-		const error = WebErrors.invalidLogin.code;
+	loginError (sourceError) {
+		const error = WebErrors[sourceError] ? WebErrors[sourceError].code : WebErrors.loginCodeMismatch.code;
 		const email = encodeURIComponent(this.request.body.email || '');
 		const url = encodeURIComponent(this.request.body.finishUrl || '');
-		let redirect = `/web/login?error=${error}&email=${email}&url=${url}&password=true`;
+		let redirect = `/web/confirm-code?error=${error}&email=${email}&url=${url}`;
 		if (this.request.body.tenantId) {
 			redirect += '&tenantId=' + encodeURIComponent(this.request.body.tenantId || '');
 		}
@@ -71,6 +77,17 @@ class WebSigninRequest extends APIRequest {
 		return true;
 	}
 
+	async invalidateCode () {
+		const op = {
+			$unset: {
+				loginCode: true,
+				loginCodeExpiresAt: true,
+				loginCodeAttempts: true,
+			},
+		};
+		this.data.users.applyOpById(this.user.id, op);
+	}
+
 	finishFlow () {
 		if (this.interstitial) {
 			this.response.redirect(this.interstitial);
@@ -84,4 +101,4 @@ class WebSigninRequest extends APIRequest {
 	}
 }
 
-module.exports = WebSigninRequest;
+module.exports = WebSigninCodeRequest;

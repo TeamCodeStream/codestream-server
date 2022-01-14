@@ -83,8 +83,23 @@ const ROUTES = [
 	},
 	{
 		method: 'post',
+		path: 'web/login-code',
+		requestClass: require('./web_login_code_request')
+	},
+	{
+		method: 'get',
+		path: 'web/confirm-code',
+		requestClass: require('./web_confirm_code_request')
+	},
+	{
+		method: 'post',
 		path: 'web/signin',
 		requestClass: require('./web_signin_request')
+	},
+	{
+		method: 'post',
+		path: 'web/signin-code',
+		requestClass: require('./web_signin_code_request')
 	},
 	{
 		method: 'get',
