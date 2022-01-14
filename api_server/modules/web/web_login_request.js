@@ -13,6 +13,7 @@ class WebLoginRequest extends APIRequest {
 
 	async process () {
 		const csrf = this.request.csrfToken();
+		const usePassword = this.request.query.password === 'true' ? true : false;
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
 		const error = this.request.query.error ? this.handleError() : '';
@@ -37,10 +38,20 @@ class WebLoginRequest extends APIRequest {
 		});
 		const oktaLink = `/web/configure-okta?url=${finishUrl}`;
 		const oktaEnabled = !!this.api.config.integrations.okta.appClientId;
+		const passwordSwitchLinkQueryObj = {
+			...this.request.query,
+			password: !usePassword
+		};
+		const passwordSwitchLinkQuery = Object.keys(passwordSwitchLinkQueryObj)
+			.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(passwordSwitchLinkQueryObj[key]))
+			.join('&');
+		const passwordSwitchLink = `/web/login?${passwordSwitchLinkQuery}`;
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,
 			teamId,
+			usePassword,
+			passwordSwitchLink,
 			finishUrl: finishUrl,
 			tenantId:  tenantId,
 			version: this.module.versionInfo(),

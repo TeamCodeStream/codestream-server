@@ -4,8 +4,7 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
-const ConfirmCode = require('./confirm_code');
-const Indexes = require('./indexes');
+const LoginCodeHelper = require('./login_code_helper');
 
 class GenerateLoginCodeRequest extends RestfulRequest {
 
@@ -15,9 +14,7 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 
 	async process () {
 		await this.requireAndAllow(); // require certain parameters, and discard unknown parameters
-		await this.getUser(); // fetch the user object for the requested email address
-		await this.generateLoginCode(); // generate a login code and expiry date
-		await this.updateUser(); // write the model to the user database
+		await this.updateUserCode(); // generate and save a login code for the requested email address
 	}
 
 	async handleResponse () {
@@ -25,7 +22,7 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 			// this allows for testing without actually receiving the email
 			this.log('Login code cheat detected, hopefully this was called by test code');
 			this.responseData = {
-				loginCode: this.loginCode
+				loginCode: this.codeData.loginCode
 			};
 		}
 		await super.handleResponse();
@@ -52,70 +49,20 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 		});
 	}
 
-	// fetch the user object for the requested email address
-	async getUser () {
-		this.user = await this.data.users.getOneByQuery(
-			{ searchableEmail: this.request.body.email.toLowerCase() },
-			{ hint: Indexes.bySearchableEmail }
-		);
-	}
-
-	// generate a login code and expiry date
-	async generateLoginCode () {
-		if (!this.user) {
-			return;
-		}
-
-		this.loginCode = ConfirmCode();
-		// FIXME: this should be configurable
-		const expiresIn = 15*60*1000;
-		if (this.expiresIn && this.expiresIn < expiresIn) {
-			this.loginCodeExpiresAt = Date.now() + this.expiresIn;
-		}
-		else {
-			this.loginCodeExpiresAt = Date.now() + expiresIn;
-		}
-		this.loginCodeAttempts = 0;
-	}
-
-	// write the model to the user database
-	async updateUser () {
-		if (!this.user) {
-			return;
-		}
-
-		const op = {
-			$set: {
-				loginCode: this.loginCode,
-				loginCodeExpiresAt: this.loginCodeExpiresAt,
-				loginCodeAttempts: this.loginCodeAttempts,
-			},
-		};
-		this.data.users.applyOpById(this.user.id, op);
+	// generate and save a login code for the requested email address
+	async updateUserCode () {
+		this.loginCodeHelper = new LoginCodeHelper({
+			request: this,
+			email: this.request.body.email,
+			_delayEmail: this._delayEmail,
+			expiresIn: this.expiresIn
+		});
+		this.codeData = await this.loginCodeHelper.updateUserCode();
 	}
 
 	// send the email with the login code
 	async sendLoginCodeEmail () {
-		if (!this.user) {
-			return;
-		}
-		if (this._delayEmail) {
-			setTimeout(this.sendLoginCodeEmail.bind(this), this._delayEmail);
-			delete this._delayEmail;
-			return;
-		}
-
-		this.log(`Triggering email with login code to ${this.user.get('email')}...`);
-		await this.api.services.email.queueEmailSend(
-			{
-				type: 'loginCode',
-				userId: this.user.id,
-			},
-			{
-				request: this,
-				user: this.user,
-			}
-		);
+		await this.loginCodeHelper.sendEmail();
 	}
 
 	// describe this route for help

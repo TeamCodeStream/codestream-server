@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>CodeStream</title>
+	{{> partial_html_head partial_html_head_model}}
+		 <script type="text/javascript">
+		!function () {
+			var analytics = window.analytics = window.analytics || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
+				analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "once", "off", "on"]; analytics.factory = function (t) { return function () { var e = Array.prototype.slice.call(arguments); e.unshift(t); analytics.push(e); return analytics } }; for (var t = 0; t < analytics.methods.length; t++) { var e = analytics.methods[t]; analytics[e] = analytics.factory(e) } analytics.load = function (t, e) { var n = document.createElement("script"); n.type = "text/javascript"; n.async = !0; n.src = "https://cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js"; var a = document.getElementsByTagName("script")[0]; a.parentNode.insertBefore(n, a); analytics._loadOptions = e }; analytics.SNIPPET_VERSION = "4.1.0";
+				analytics.load("{{segmentKey}}");
+				analytics.page();
+			}
+		}();
+	</script>
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="https://codestream.com">
+			<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+		</a>
+	</nav>
+	<div class="container mt-5">
+		<div class="row">
+			<!--<div class="col-sm-6 offset-sm-3">-->
+			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+				<h1 class="text-center">Check Your Email</h1>
+				<p>Please check your email. We've sent you a 6-digit code to confirm your email address.</p>
+				<p><strong>{{email}}</strong> not correct? <a href="{{changeItLink}}">Change it</a></p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+				<div class="box-content box-border">
+					<form action="/web/signin-code" method="post">
+						<div class="form-group">
+							<div class="error text-center" style="width:100%">
+								{{error}}
+							</div>
+							<input type="hidden" name="finishUrl" value="{{finishUrl}}">
+							<input type="hidden" name="src" value="{{src}}">
+							<input type="hidden" name="teamId" value="{{teamId}}" />
+							<input type="hidden" name="_csrf" value="{{csrf}}" />
+							<input type="hidden" name="tenantId" value="{{tenantId}}" />
+							<input type="hidden" name="email" value="{{email}}" />
+							<div class="form-group">
+								<label for="code">Code</label>
+								<input autocomplete="off" class="form-control bg-dark" type="text" name="code" id="code" />
+							</div>
+							<div class="form-group">
+								<button type="submit" class="btn">
+									<span class="copy">Submit</span>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
