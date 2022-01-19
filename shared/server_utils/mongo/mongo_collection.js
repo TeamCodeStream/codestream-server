@@ -74,7 +74,8 @@ class MongoCollection {
 			hint: options.hint,
 			sort: options.sort,
 			limit: options.limit,
-			projection: options.projection
+			projection: options.projection,
+			upsert: options.upsert
 		};
 		const startTime = Date.now();
 		const requestId = options.requestId;
