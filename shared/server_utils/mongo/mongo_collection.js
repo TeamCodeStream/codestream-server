@@ -70,11 +70,17 @@ class MongoCollection {
 	// run a generic query, processing arguments as needed, and logging the query
 	// for performance analysis
 	async _runQuery (mongoFunc, query, options, ...args) {
+		const mongoOptions = {
+			hint: options.hint,
+			sort: options.sort,
+			limit: options.limit,
+			projection: options.projection
+		};
 		options = Object.assign({}, options || {});
 		const startTime = Date.now();
 		const requestId = options.requestId;
 		delete options.requestId;
-		const mongoArgs = [query, ...args, options];
+		const mongoArgs = [query, ...args, mongoOptions];
 		let results, error;
 		const logQuery = () => {
 			const time = Date.now() - startTime;
