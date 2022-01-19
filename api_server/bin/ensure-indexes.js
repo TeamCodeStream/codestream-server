@@ -73,7 +73,7 @@ const BuildIndexes = async function(db, collection) {
 		AllFinished.indexes++;
 		console.log('ensuring index on collection', collection, index);
 		try {
-			await collectionObj.ensureIndex(index);
+			await collectionObj.createIndex(index);
 		}
 		catch (error) {
 			return console.log('error', error);
