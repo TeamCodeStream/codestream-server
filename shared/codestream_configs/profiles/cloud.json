@@ -450,7 +450,8 @@
 				"tlsCAFile": "/etc/pki/mongo-qaxv4211/mongo-qaxv4211-crt"
 			},
 			"stg": {
-				"_loadSecretsFile": "mongo/stg.cfg"
+				"_loadSecretsFile": "mongo/stg.cfg",
+				"tlsCAFile": "/etc/pki/mongo-staging/mongo-staging-crt"
 			}
 		}
 	},
