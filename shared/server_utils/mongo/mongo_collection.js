@@ -76,10 +76,8 @@ class MongoCollection {
 			limit: options.limit,
 			projection: options.projection
 		};
-		options = Object.assign({}, options || {});
 		const startTime = Date.now();
 		const requestId = options.requestId;
-		delete options.requestId;
 		const mongoArgs = [query, ...args, mongoOptions];
 		let results, error;
 		const logQuery = () => {
@@ -90,7 +88,7 @@ class MongoCollection {
 				}
 			}
 			const logOptions = { query, mongoFunc, time, requestId, error };
-			logOptions.queryOptions = options;
+			logOptions.queryOptions = mongoOptions;
 			this._logMongoQuery(logOptions, args);
 		};
 		try {
