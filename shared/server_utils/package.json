@@ -29,7 +29,7 @@
 		"commander": "5.1.0",
 		"deep-equal": "2.0.3",
 		"jsonwebtoken": "8.5.1",
-		"markdown-it": "11.0.0",
+		"markdown-it": "12.3.2",
 		"markdown-it-emoji-mart": "0.1.1",
 		"markdown-it-slack": "1.2.0",
 		"mongodb": "3.5.9",
