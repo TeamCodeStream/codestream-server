@@ -5,12 +5,23 @@
 
 const ApiConfig = require('../../config/config');
 const RandomUserFactory = require('../../modules/users/test2/random_user_factory');
+const RandomCompanyFactory = require('../../modules/companies/test/random_company_factory');
+const Assert = require('assert');
+const ObjectID = require('mongodb').ObjectID;
+const { testData } = require('../../modules/authenticator/test2/suite');
+
+const DEFAULT_TEST_TIME_TOLERANCE = 3000;
+const COMMAND_REGEX_STR = '{{{\\s*(.*?)\\s*(?:\\((.*?)\\))?\\s*}}}';
+const COMMAND_REGEX_MATCH = new RegExp(COMMAND_REGEX_STR);
+const COMMAND_REGEX_GLOBAL = new RegExp(COMMAND_REGEX_STR, 'g');
 
 class CodeStreamApiTester {
 
 	constructor (options) {
 		Object.assign(this, options);
 		this.testOptions = this.testRunner.testOptions;
+		this.testOptions.testTimeTolerance = DEFAULT_TEST_TIME_TOLERANCE;
+		this.localCache = {};
 	}
 
 	// before the test is run, do setup for the test
@@ -23,10 +34,13 @@ class CodeStreamApiTester {
 		const testData = this.testRunner.getTestData();
 		const apiRequester = testData.getCacheItem('apiRequester');
 
-		// instantiate a "random user factory", responsible for creating any users needed for the test
+		// instantiate factories, responsible for creating objects needed for the test
 		this.userFactory = new RandomUserFactory({ 
 			apiRequester: apiRequester,
 			confirmationCheat: config.sharedSecrets.confirmationCheat
+		});
+		this.companyFactory = new RandomCompanyFactory({
+			apiRequester: apiRequester
 		});
 
 		// set connection options for the API Requester, based on environment and configuration
@@ -40,7 +54,13 @@ class CodeStreamApiTester {
 		this.setCodeStreamRequestHeaderOptions();
 
 		// do the test setup, creating needed items in the database for running the test
-		return this.setup();
+		await this.setup();
+
+		// cache any data we need for the test locally
+		await this.cacheLocalData();
+
+		// fill in test options based on setup data created
+		return this.evalTestOptions();		
 	} 
 
 	// get the current CodeStream config, loading it and saving it as needed
@@ -99,16 +119,58 @@ class CodeStreamApiTester {
 		requestOptions.headers['X-CS-Test-Num'] = `API-${this.testRunner.getTestNum()}`;	// makes it easy to log requests associated with particular tests
 	}
 
-	// do test setup for the test ... tests say what the need (registered users, standard teams, etc.)
+	// do test setup for the test ... tests say what the need (registered users, standard companies, etc.)
 	// and the setup creates what is needed on demand ... the data created then becomes available
 	// for all subsequent tests
 	async setup () {
-		const { needRegisteredUsers } = this.testOptions;
+		const {
+			needRegisteredUsers,
+			needUnregisteredUsers,
+			needStandardCompanies
+		} = this.testOptions;
 		
+
+		// setup unregistered users, as needed
+		if (needUnregisteredUsers) {
+			await this.setupUnregisteredUsers();
+		}
+
 		// setup registered users, as needed
 		if (needRegisteredUsers) {
 			await this.setupRegisteredUsers();
 		}
+
+		// setup standard companies, as needed
+		if (needStandardCompanies) {
+			await this.setupStandardCompanies();
+		}
+	}
+
+	// cache any data we need for the test locally, so we don't have to go find it in the master cache
+	// every time we need to refer to it
+	async cacheLocalData () {
+		const { cacheLocal } = this.testOptions;
+		if (typeof cacheLocal !== 'object') { return; }
+
+		Object.keys(cacheLocal).forEach(key => {
+			this.cacheLocalItem(key, cacheLocal[key]);
+		});
+	}
+
+	// cache an item we need for the test locally, so we don't have to go find it in the master cache
+	// every time we need to refer to it
+	async cacheLocalItem (name, info) {
+		const [ collection, tag, field ] = info;
+		if (!collection || !tag) {
+			throw new Error(`cacheLocal must have at least 2 arguments: collection, tag`);
+		}
+		const item = this.testRunner.getTestData().findOneByTag(collection, tag);
+		if (!item) {
+			throw new Error(`cacheLocal could not fetch an item from collection ${collection} for tag ${tag}`);
+		}
+
+		const value = this.extractValue(item, field);
+		this.localCache[name] = value;
 	}
 
 	// return the access token to supply with the test request, as determined by test options
@@ -122,9 +184,9 @@ class CodeStreamApiTester {
 		// registered users are stored in the master data cache, and one will be defined as
 		// the "current" one ... use that user's access token 
 		const testData = this.testRunner.getTestData();
-		const userData = testData.findOneByTag('users', 'currentUser');
-		if (userData) {
-			let token = userData.accessToken;
+		const user = testData.findOneByTag('users', 'currentUser');
+		if (user) {
+			let token = user.__response.accessToken;
 
 			// tests can define a "token hook", which might munge the token for particular tests
 			if (this.testOptions.tokenHook) {
@@ -135,6 +197,24 @@ class CodeStreamApiTester {
 			}
 			return token;
 		}
+	}
+
+	// setup any unregistered users needed for the test
+	async setupUnregisteredUsers () {
+		const { needUnregisteredUsers } = this.testOptions;
+		const testData = this.testRunner.getTestData();
+
+		// if we already have all the unregistered users we need, don't do anything
+		const existingUsers = testData.findAllByTag('users', 'unregistered');
+		const needUsers = needUnregisteredUsers - existingUsers.length;
+		if (needUsers.length <= 0) {
+			return;
+		}
+
+		// create as many "random" unregistered users as we need to coomplete the test, in parallel
+		await this.promiseN(needUsers, async () => {
+			await this.createUnregisteredUser();
+		});
 	}
 
 	// setup any registered users needed for the test
@@ -149,17 +229,148 @@ class CodeStreamApiTester {
 			return;
 		}
 
-		// create as many "random" registered users as we need to coomplete the test, in parallel
+		// create as many "random" registered users as we need to complete the test, in parallel
 		await this.promiseN(needUsers, async () => {
-			const userResponse = await this.userFactory.createRandomUser();
-			testData.addToCollection(
-				'users',
-				userResponse,
-				{
-					tagIfFirst: 'currentUser',
-					tag: 'registered'
-				}
-			);
+			await this.createRegisteredUser(true)
+		});
+	}
+
+	// create a user, storing in the master cache
+	async createUser (options = {}) {
+		const testData = this.testRunner.getTestData();
+
+		// users can be created as registered or unregistered, or via an invite to a team 
+		// (in which case the created user is unregistered until registering) 
+		let userResponse;
+		let data = {};
+		if (options.useEmail) {
+			data.email = options.useEmail;
+		}
+		if (options.inviteToTeamId) {
+			userResponse = await this.userFactory.inviteRandomUser({ ...data, teamId: options.inviteToTeamId });
+		} else {
+			userResponse = await this.userFactory.createRandomUser(data, { noConfirm: !options.registered });
+		}
+
+		// hide the response in the user object
+		const extra = { ...userResponse };
+		delete extra.user;
+		const user = { ...userResponse.user, __response: extra };
+
+		// add any tags needed (always add "registered" tag for registered users, and delete their "unregistered" tag
+		// if they already exist)
+		const addTags = [...(options.additionalTags || [])];
+		const deleteTags = [];
+		if (options.registered) {
+			addTags.push('registered');
+			deleteTags.push('unregistered');
+		}
+
+		// merge this user into the users collection in the master cache
+		// make the first user the "current user" (the user who will perform the test request) as needed
+		testData.mergeToCollection(
+			'users',
+			user,
+			{
+				addTagIfFirst: options.tagAsCurrentIfFirst && 'currentUser',
+				addTags,
+				deleteTags
+			}
+		);
+
+		return userResponse;
+	}
+
+	// create a registered user, storing in the master cache
+	async createRegisteredUser (options = {}) {
+		return this.createUser({
+			registered: true,
+			tagAsCurrentIfFirst: true,
+			additionalTags: options.additionalTags
+		});
+	}
+
+	// create an unregistered user, storing in the master cache
+	async createUnregisteredUser (options = {}) {
+		return this.createUser(options);
+	}
+
+	// invite a user, storing in the master cache
+	async inviteUser (options = {}) {
+		return this.createUser({
+			inviteToTeamId: options.teamId,
+			additionalTags: options.additionalTags
+		});
+	}
+
+	// create a company, storing in the master cache
+	async createCompany (tags = []) {
+		const companyResponse = await this.companyFactory.createRandomCompany();
+		testData.mergeToCollection(
+			'companies',
+			companyResponse.company,
+			{
+				addTags: tags
+			}
+		);
+		testData.mergeToCollection(
+			'teams',
+			companyResponse.team,
+			{
+				addTags: tags
+			}
+		);
+		testData.mergeArrayToCollection(
+			'streams',
+			companyResponse.streams,
+			{
+				addTags: tags
+			}
+		);
+		return companyResponse;
+	}
+
+	// setup standard companies, giving us a sampling of user types, as needed
+	async setupStandardCompanies () {
+		const { needStandardCompanies} = this.testOptions;
+		const testData = this.testRunner.getTestData();
+
+		// if we already have all the standard companies we need, don't do anything
+		const existingCompanies = testData.findAllByTag('standard');
+		const needCompanies = needStandardCompanies - existingCompanies.length;
+		if (needCompanies.length <= 0) {
+			return;
+		}
+
+		// create as many "random" standard companies as we need to complete the test, in parallel
+		await this.promiseN(needCompanies, async n => {
+			await this.createStandardCompany();
+		});
+	}
+
+	// create a "standard" company:
+	//  - three registered user, one of whom will be tagged as the current user, and one as the company creator
+	//  - two unregistered (invited) users
+	async createStandardCompany (options = {}) {
+		const testData = this.testRunner.getTestData();
+		testData.untagAll('users', 'currentUser'); // we'll create a new current user
+
+		// create a user to create a company...
+		const companyCreator = await this.createRegisteredUser({ additionalTags: ['companyCreator'] });
+		const companyResponse = await this.createCompany(['standard']);
+
+		// invite 4 more users, and register two of them, making the first one the "current" user
+		await this.promiseN(4, async n => {
+			await this.inviteUser({
+				teamId: companyResponse.team.id,
+				token: companyCreator.user.accessToken
+			});
+
+			if (n < 2) {
+				await this.createRegisteredUser({
+					tagIfFirst: 'currentUser'
+				});
+			}
 		});
 	}
 
@@ -168,11 +379,375 @@ class CodeStreamApiTester {
 		// not at all elegant, but i couldn't find a better way to do it
 		const a = [];
 		for (let i = 0; i < n; i++) { 
-			a.push(1); 
+			a.push(i); 
 		}
-		return Promise.all(a.map(async _ => {
-			await fn();
+		return Promise.all(a.map(async n => {
+			await fn(n);
 		}))
+	}
+
+	// evaluate test options and substitute hard data as needed
+	async evalTestOptions () {
+		await this.evalRequestData();
+	}
+
+	// evaluate input data for the test request and substitute hard data as needed
+	async evalRequestData () {
+		const { data } = this.testOptions.request;
+		if (!data) { return; }
+
+		this.testOptions.request.data = this.evalRequestDataPart(data);
+	}
+
+	// evaluate a piece of request data for the test request and substitute hard data as needed
+	evalRequestDataPart (data) {
+		if (data instanceof Array) {
+			const len = data.length;
+			for (let i = 0; i < len; i++) {
+				data[i] = this.evalRequestDataPart(data[i]);
+			}
+		} else if (typeof data === 'object') {
+			for (let key in data) {
+				data[key] = this.evalRequestDataPart(data[key]);
+			}
+		} else if (typeof data === 'string') {
+			return this.evalRequestDataString(data);
+		}
+		return data;
+	}
+
+	// evaluate a string in the request data for the test request and substitute hard data as needed
+	// this is the "meat" of the evaluation, for the strings will contain various instructions to dynamically
+	// fill the data
+	evalRequestDataString (str) {
+		// extract embedded instructions
+		return str.replace(COMMAND_REGEX_GLOBAL, (match, command, args) => {
+			if (args) {
+				args = args.split(',').map(arg => arg.trim());
+			}
+			return this.evalRequestDataCommand(command, args);
+		});
+	}
+
+	// evaluate a substitution command within the request data for the test request, 
+	// and substitute hard data from test setup data
+	evalRequestDataCommand (command, args) {
+		switch (command) {
+			case 'randomEmail':
+				return this.userFactory.randomEmail();
+			case 'randomUsername':
+				return this.userFactory.randomUsername();
+			case 'randomPassword':
+				return this.userFactory.randomPassword();
+			case 'testOptions':
+				return this.evalRequestDataTestOptions(args);
+			case 'fromCache':
+				return this.evalRequestDataFromCache(args);
+			case 'fromLocalCache':
+				return this.retrieveFromLocalCache(args);
+			default:
+				throw new Error(`unknown command in request data substitution: ${command}`);
+		}
+	}
+
+	// evaluate a substitition command calling for information from the test options
+	evalRequestDataTestOptions (args) {
+		if (!args) {
+			throw new Error(`testOptions command must have arguments`);
+		}
+		const [field] = args;
+		return this.testOptions[field];
+	}
+
+	// evaluate a substitution command calling for data from the data cache, by tag
+	evalRequestDataFromCache (args) {
+		const [ collection, tag, field ] = args;
+		if (!collection || !tag || !field) {
+			throw new Error(`fromCache command requires 3 arguments`);
+		}
+
+		const item = this.testRunner.getTestData().findOneByTag(collection, tag);
+		if (!item) {
+			throw new Error(`fromCache command of ${tag} from ${collection} returned no item`);
+		}
+
+		return this.extractValue(item, field, `item retrieved from cache (${tag} from ${collection})`);
+	}
+
+	// retrieve a value from our local cache, given a field specifier
+	retrieveFromLocalCache (args) {
+		const [ field ] = args;
+		if (!field) {
+			throw new Error(`field must be specified to retrieve from local cache`);
+		}
+		return this.extractValue(this.localCache, field);
+	}
+
+	// retrieve a value from our local cache, and increment it, given a field specifier and optional increment
+	incrementFromLocalCache (args) {
+		const [ field, add = 1 ] = args;
+		const value = this.retrieveFromLocalCache(args);
+		if (typeof value !== 'number') {
+			throw new Error(`field ${field} must be a number to increment`);
+		}
+		if (typeof add !== 'number') {
+			throw new Error(`increment value ${add} must be a number`);
+		}
+		return value + add;
+	}
+
+	// extract a value from an item, given a field specifier
+	extractValue (item, field, desc) {
+		const fields = field.split('.');
+		const traveledFields = [];
+		let subItem = item;
+		while (fields[0]) {
+			traveledFields.push(fields[0]);
+			if (fields.length === 1) {
+				return subItem[fields[0]];
+			} else if (typeof subItem[fields[0]] !== 'object') {
+				throw new Error(`${desc} does not contain a sub-item ${traveledFields})`)
+			} else {
+				subItem = subItem[fields[0]];
+				fields.shift();
+			}
+		}
+		throw new Error(`cannot extract value, field specifier is malformed: ${field}`);
+	}
+
+	// evlauate a substitution command calling for data from the data cache, by tag, and 
+	// incrementing it
+	evalRequestDataIncrementFromCache (args) {
+		const [ collection, tag, field ] = args;
+		const value = this.evalRequestDataFromCache(args);
+		if (typeof value !== 'number') {
+			throw new Error(`value retrieved from cache (${tag}:${field} from ${collection}) must be a number to be incremented`);
+		}
+
+		const add = args[3] || 1;
+		return value + add;
+	}
+
+	// validate response data to a test request, performing hard data substitution as needed,
+	// based on test setup data
+	async validateResponseData (actualResponse, expectedResponse) {
+		const errors = [];
+		expectedResponse = this.validateResponseDataPart(actualResponse, expectedResponse, errors, '__response__', actualResponse);
+
+		if (errors.length > 0) {
+			Assert.fail(`response data not correct:\n${errors.join('\n')}`);
+		} else {
+			Assert.deepStrictEqual(actualResponse, expectedResponse, `
+response data not correct:\n\n
+ACTUAL:\n${JSON.stringify(actualResponse), 0, 10}\n\n
+EXPECTED:\n${JSON.stringify(expectedResponse, 0, 10)}
+`);
+		}
+	}
+
+	// validate error response data to a test request, performing hard data substitution as needed.
+	// based on test setup data
+	async validateErrorResponseData (actualResponse, expectedResponse) {
+		const errors = [];
+		expectedResponse = this.validateResponseDataPart(actualResponse, expectedResponse, errors, '__response__', actualResponse);
+
+		if (errors.length > 0) {
+			Assert.fail(`error response data not correct:\n${errors.join('\n')}`);
+		} else {
+			Assert.deepStrictEqual(actualResponse, expectedResponse, `
+error response data not correct:\n\n
+ACTUAL:\n${JSON.stringify(actualResponse), 0, 10}\n\n
+EXPECTED:\n${JSON.stringify(expectedResponse, 0, 10)}
+`);
+		}
+	}
+
+	// validate a part of the response data to a test request, performing hard data substitution as needed,
+	// based on test setup data
+	validateResponseDataPart (actualData, expectedData, errors, name, siblingObject) {
+		if (expectedData instanceof Array) {
+			if (!(actualData instanceof Array)) {
+				errors.push(`${name} is not an array`);
+			} else if (actualData.length !== expectedData.length) {
+				errors.push(`${name} has ${actualData.length} elements, expected ${expectedData.length}`);
+			}
+			const len = actualData.length;
+			for (let i = 0; i < len; i++) {
+				actualData[i] = this.validateResponseDataPart(actualData[i], expectedData[i], errors, `${name}[${i}]`, actualData);
+			}
+			return actualData;
+		} else if (typeof expectedData === 'object') {
+			if (typeof actualData !== 'object') {
+				errors.push(`${name} is not an object`);
+			} else {
+				for (let key in expectedData) {
+					actualData[key] = this.validateResponseDataPart(actualData[key], expectedData[key], errors, `${name}.${key}`, actualData);
+				}
+			}
+			return actualData;
+		} else if (typeof expectedData === 'string') {
+			return this.validateResponseDataString(actualData, expectedData, errors, name, siblingObject);
+		} else if (actualData !== expectedData) {
+			errors.push(`${name} expected to be ${expectedData} but was ${actualData}`);
+		}
+	}
+
+	// validate a string in the expected response data against the actual response, performing hard data
+	// substitution as needed before the comparison
+	validateResponseDataString (actual, expected, errors, name, siblingObject) {
+		let asNumber, asBoolean;
+		expected = expected.replace(COMMAND_REGEX_GLOBAL, (match, command, args) => {
+			if (args) {
+				args = args.split(',');
+			}
+			const substitute = this.validateResponseDataCommand(command, args, actual, errors, name, siblingObject);
+			if (typeof substitute === 'number') {
+				asNumber = true;
+			} else if (typeof substitute === 'boolean') {
+				asBoolean = true;
+			}
+			return substitute;
+		});
+		if (asNumber) {
+			expected = parseInt(expected, 10);
+		} else if (asBoolean) {
+			expected = expected === 'true' ? true : false;
+		} else if (expected === 'undefined') {
+			expected = undefined;
+		}
+
+		if (expected && actual !== expected) {
+			errors.push(`${name} expected to be "${expected}" but was "${actual}"`);
+		} else {
+			return expected;
+		}
+	}
+
+	// evaluate a substitution command within the response data for the test request, 
+	// and substitute hard data from test setup data
+	validateResponseDataCommand (command, args, actual, errors, name, siblingObject) {
+		switch (command) {
+			case 'newId':
+				return this.validateNewId(actual, errors, name);
+			case 'currentTimestamp':
+				return this.validateCurrentTimestamp(actual, errors, name);
+			case 'sameAs':
+				return this.validateSameAs(actual, args, errors, name, siblingObject);
+			case 'closeTo':
+				return this.validateCloseTo(actual, args, errors, name, siblingObject);
+			case 'requestData':
+				return this.validateRequestData(actual, args, errors, name);
+			case 'testOptions':
+				return this.evalRequestDataTestOptions(args);
+			case 'fromLocalCache':
+				return this.retrieveFromLocalCache(args);
+			case 'incrementFromLocalCache':
+				return this.incrementFromLocalCache(args);
+			default: 
+				throw new Error(`unknown command in response data substitution: ${command}`);
+		}
+	}
+
+	// validate a new ID in the response to the test request
+	validateNewId (value, errors, name) {
+		if (typeof value !== 'string') {
+			errors.push(`${name} is not a string, so is not a valid mongo ID`);
+			return;
+		}
+		try {
+			ObjectID(value);
+		}
+		catch (error) {
+			errors.push(`${name} ("${value}") is not a valid mongo ID`);
+		}
+		return value;
+	}
+
+	// validate a "current" timestamp within the response data for the test request,
+	// the timestamp should be set to some value shortly after the test was initiated
+	validateCurrentTimestamp (value, errors, name) {
+		const { testStartedAt, testTimeTolerance } = this.testRunner.testOptions;
+
+		if (typeof value !== 'number') {
+			errors.push(`${name} is not a number, so is not a valid timestamp`);
+			return;
+		}
+		if (value < testStartedAt) {
+			errors.push(`${name} (${value}) was not set to a timestamp greater than or equal to the time the test was run (${testStartedAt})`);
+			return;
+		}
+		if (value > testStartedAt + testTimeTolerance) {
+			errors.push(`${name} (${value}) was set to a timestamp too far ahead of the time the test was run (${testStartedAt})`);
+			return;
+		}
+		return value;
+	}
+
+	// validate a value in the response data for the test request, that should be the same
+	// as another value from its sibling object
+	validateSameAs (actual, args, errors, name, siblingObject) {
+		if (!args) {
+			throw new Error(`sameAs command for ${name} in expectedResponse must have arguments`);
+		}
+		const [sameAsValue] = args;
+		if (!sameAsValue) {
+			throw new Error(`sameAs command for ${name} in expectedResponse must have at least one argument`);
+		}
+
+		const expectedValue = siblingObject[sameAsValue];
+		if (actual !== expectedValue) {
+			errors.push(`${name} was expected to be the same as ${sameAsValue} (${JSON.stringify(expectedValue)}) but was ${JSON.stringify(actual)}`);
+		}
+		return actual;
+	}
+
+	// validate a value in the response data for the test request, that should be nearly 
+	// the same as another value from its sibling object, within a specific tolerance (numbers only)
+	validateCloseTo (actual, args, errors, name, siblingObject) {
+		if (!args) {
+			throw new Error(`closeTo command for ${name} in expectedResponse must have arguments`);
+		}
+		let [closeToValue, tolerance] = args;
+		if (!closeToValue) {
+			throw new Error(`closeTo command for ${name} in expectedResponse must have at least one argument`);
+		}
+		tolerance = parseInt(tolerance || '0', 10);
+		if (isNaN(tolerance)) {
+			throw new Error(`non-numeric tolerance applied to closeTo command for ${name}`);
+
+		}
+		const expectedValue = siblingObject[closeToValue];
+		if (typeof actual !== 'number') {
+			errors.push(`${name} was expected to be a number`);
+			return;
+		}
+		if (typeof expectedValue !== 'number') {
+			errors.push(`${name} should be close to ${expectedValue} but ${expectedValue} is not a number`);
+			return;
+		}
+		if (actual < expectedValue - tolerance || actual > expectedValue + tolerance) {
+			errors.push(`${name} was expected to be the close to as ${closeToValue} (${JSON.stringify(expectedValue)}) but was ${JSON.stringify(actual)}`);
+		} 
+
+		return actual;
+	}
+
+	// validate a value in the response data for the test request, that should be the same
+	// as a value in the request data
+	validateRequestData (actual, args, errors, name) {
+		if (!args) {
+			throw new Error(`requestData command for ${name} in expectedResponse must have arguments`);
+		}
+		const [requestDataValue] = args;
+		if (!requestDataValue) {
+			throw new Error(`requestData command for ${name} in expectedResponse must have at least one argument`);
+		}
+
+		const expectedValue = this.testRunner.testOptions.request.data[requestDataValue];
+		if (actual !== expectedValue) {
+			errors.push(`${name} was expected to be the same as ${requestDataValue} in the test request (${JSON.stringify(expectedValue)}) but was ${JSON.stringify(actual)}`);
+		}
+		return actual;
 	}
 }
 

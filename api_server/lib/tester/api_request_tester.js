@@ -14,10 +14,26 @@ class ApiRequestTester {
 		this.testOptions = this.testRunner.testOptions;
 	}
 
+	// set a "response validator" ... a callback which will validate the actual response of the test request,
+	// against an expected response
+	setResponseValidator (fn, errorFn = null) {
+		this.responseValidator = fn;
+		this.errorResponseValidator = errorFn;
+	}
+
 	// test the current test as defined by the testOptions passed in in the constructor
 	async testApiRequest () {
-		const { request, token } = this.testOptions;
-		const { method, path, data, headers } = request;
+		const { request, token, requestDataHook } = this.testOptions;
+		const { method, path, headers } = request;
+		let { data } = request;
+		if (data) {
+			data = this.deepClone(data);
+		}
+
+		// if a request data hook function is supplied in test options, call it now to munge the request data
+		if (requestDataHook) {
+			await requestDataHook(this.testRunner, data);
+		}
 
 		// send the API request, and get the result
 		const result = await this.apiRequester.sendApiRequest({
@@ -55,7 +71,11 @@ class ApiRequestTester {
 		const { responseData } = result;
 		const { expectedError } = this.testOptions;
 		if (expectedError) {
-			Assert.deepStrictEqual(responseData, expectedError, 'error data not correct');
+			if (this.errorResponseValidator) {
+				await this.errorResponseValidator(responseData, expectedError);
+			} else {
+				Assert.deepStrictEqual(responseData, expectedError, 'error data not correct');
+			}
 		}
 	}
 
@@ -67,13 +87,19 @@ class ApiRequestTester {
 
 	// validate that the response to the test request matches the expected response
 	async validateResponseData (responseData) {
-		let expectedResponse;
 		if (this.testOptions.expectedResponse) {
-			expectedResponse = this.evalExpectedResponse(this.testOptions.expectedResponse);
+			let expectedResponse = this.testOptions.expectedResponse;
+			if (this.responseValidator) {
+				await this.responseValidator(responseData, expectedResponse);
+			} else {
+				Assert.deepStrictEqual(responseData, expectedResponse, 'response data not correct');
+			}
 		}
-		if (expectedResponse) {
-			Assert.deepStrictEqual(responseData, expectedResponse, 'response data not correct');
-		}
+	}
+	
+	// deep clone utility
+	deepClone (data) {
+		return JSON.parse(JSON.stringify(data));
 	}
 }
 

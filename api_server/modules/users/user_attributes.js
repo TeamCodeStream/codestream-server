@@ -189,13 +189,11 @@ module.exports = {
 	phoneNumber: {
 		type: 'string',
 		maxLength: 100,
-		default: '',
 		description: 'User\'s phone number'
 	},
 	iWorkOn: {
 		type: 'string',
 		maxLength: 200,
-		default: '',
 		description: 'Whatever the user works on'
 	},
 	lastActivityAt: {

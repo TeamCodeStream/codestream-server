@@ -39,6 +39,11 @@ class RandomUserFactory {
 		return RandomString.generate(12);
 	}
 
+	// generate a random password
+	randomPassword () {
+		return RandomString.generate(12);
+	}
+
 	// generate a random full name
 	randomFullName () {
 		return `${RandomString.generate(8)} ${RandomString.generate(10)}`;
@@ -58,7 +63,7 @@ class RandomUserFactory {
 			timeZone: 'Americe/New_York'
 		});
 		if (!options.noPassword) {
-			data.password = RandomString.generate(12);
+			data.password = this.randomPassword();
 		}
 		if (options.noUsername) {
 			delete data.username;
@@ -81,7 +86,7 @@ class RandomUserFactory {
 				data
 			}
 		);
-		return response.user;
+		return response;
 	}
 	
 	// confirm a user's registration
@@ -95,12 +100,23 @@ class RandomUserFactory {
 		);
 	}
 
+	// invite a user to a team
+	async inviteUser (data = {}, options = {}) {
+		return this.doApiRequester.doApiRequest(
+			{
+				...UserRequests.invite,
+				data,
+				headers: options.headers
+			}
+		);
+	}
+
 	// create a registered and confirmed user, given user data
 	async createRegisteredUser (data = {}, options = {}) {
-		const user = await this.createUnregisteredUser(data, options);
+		const userData = await this.createUnregisteredUser(data, options);
 		return this.confirmUser({ 
-			email: user.email,
-			confirmationCode: user.confirmationCode
+			email: userData.user.email,
+			confirmationCode: userData.user.confirmationCode
 		}, options);
 	}
 
@@ -113,6 +129,15 @@ class RandomUserFactory {
 		} else {
 			return this.createRegisteredUser(userData, options);
 		}
+	}
+
+	// invite a random user to a team
+	async inviteRandomUser (data, options = {}) {
+		if (!data.teamId) {
+			throw new Error('invite data must include a teamId');
+		}
+		data.email = data.email || this.randomEmail();
+		return this.inviteUser(data, options);
 	}
 }
 

@@ -107,14 +107,6 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			delete expectedCapabilities.emailSupport;
 		}
 		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
-		if (this.preExistingUnconnectedUser) {
-			Assert(!user.phoneNumber, 'phone number is set');
-			Assert(!user.iWorkOn, 'iWorkOn is set');
-		}
-		else {
-			Assert(user.phoneNumber, 'phone number is not set');
-			Assert(user.iWorkOn, 'iWorkOn is not set');
-		}
 		// verify we got no attributes that clients shouldn't see
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}

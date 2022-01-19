@@ -6,46 +6,48 @@ const ApiRequestTest = require('./api_request_test');
 const CodeStreamApiTester = require('./codestream_api_tester');
 
 // before the test is run, set up our CodeStream API Tester
-const CodeStreamApiRequestBefore = async testRunner => {
+const CodeStreamApiTestBefore = async testRunner => {
 	const testData = testRunner.getTestData();
 
 	// inherit from the generic API Request Test
 	await ApiRequestTest.before(testRunner);
 
-	// if we don't have a a CodeStream API Tester already, instantiate one and cache it,
-	// so all tests from here on in have access to it
-	// the CodeStream API Tester manages running API Server Requests against a CodeStream
-	// API Server, along with appropriate test setup and tear down as needed
-	let codeStreamApiTester = testData.getCacheItem('codeStreamApiTester');
-	if (!codeStreamApiTester) {
-		codeStreamApiTester = new CodeStreamApiTester({
-			testRunner
-		});
-		testData.setCacheItem('codeStreamApiTester', codeStreamApiTester);
-	}
+	// instantiate a CodeStream API Tester and cache it for "anywhere" access
+	// the CodeStream API Tester manages running a single API Server Request 
+	// against a CodeStream API Server, along with appropriate test setup and tear down as needed
+	const codeStreamApiTester = new CodeStreamApiTester({
+		testRunner
+	});
+	testData.setCacheItem('codeStreamApiTester', codeStreamApiTester);
 
-	// now run test setup 
-	return codeStreamApiTester.before();
+	// set the "response validator" for the API Request Tester ... this will be used to
+	// validate the response to the test request
+	let apiRequestTester = testData.getCacheItem('apiRequestTester');
+	apiRequestTester.setResponseValidator(
+		codeStreamApiTester.validateResponseData.bind(codeStreamApiTester),
+		codeStreamApiTester.validateErrorResponseData.bind(codeStreamApiTester)
+	);
+
+	// run test setup 
+	await codeStreamApiTester.before();
+
+	// determine what access token we should pass in the request
+	testRunner.testOptions.token = codeStreamApiTester.getRequestToken();
+	testRunner.testOptions.testStartedAt = Date.now();
 };
 
 // run the current API Request test
 const RunCodeStreamApiTest = async testRunner => {
-	const testData = testRunner.getTestData();
-
-	// get our CodeStream API Tester, and determine what access token we should pass in the request,
-	// then actually run the test
-	const codeStreamTester = testData.getCacheItem('codeStreamApiTester');
-	testRunner.testOptions.token = codeStreamTester.getRequestToken();
 	return ApiRequestTest.test(testRunner);
 };
 
 // after the test is run, do any cleanup or tear-down
-const CodeStreamApiRequestAfter = async testRunner => {
+const CodeStreamApiTestAfter = async testRunner => {
 	return ApiRequestTest.after(testRunner);
 };
 
 module.exports = {
-	before: CodeStreamApiRequestBefore,
+	before: CodeStreamApiTestBefore,
 	test: RunCodeStreamApiTest,
-	after: CodeStreamApiRequestAfter
+	after: CodeStreamApiTestAfter
 };

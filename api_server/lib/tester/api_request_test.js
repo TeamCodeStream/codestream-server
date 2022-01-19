@@ -18,17 +18,13 @@ const ApiRequestTestBefore = async testRunner => {
 		testData.setCacheItem('apiRequester', apiRequester);
 	}
 
-	// if we don't have an API Request Tester already, instantiate one and cache it,
-	// so all tests from here on in have access to it
-	// the API Request Tester manages running API Server Requests and validating the results
-	let apiRequestTester = testData.getCacheItem('apiRequestTester');
-	if (!apiRequestTester) {
-		apiRequestTester = new ApiRequestTester({
-			testRunner,
-			apiRequester
-		});
-		testData.setCacheItem('apiRequestTester', apiRequestTester);
-	}
+	// instantiate an API Request Tester and cache it for "anywhere" access
+	// the API Request Tester manages running a single API Server Request and validating the results
+	const apiRequestTester = new ApiRequestTester({
+		testRunner,
+		apiRequester
+	});
+	testData.setCacheItem('apiRequestTester', apiRequestTester);
 };
 
 // run the current API Request test

@@ -12,5 +12,9 @@ module.exports = {
 	getMe: {
 		method: 'get',
 		path: '/users/me'
+	},
+	invite: {
+		method: 'post',
+		path: '/users'
 	}
 }

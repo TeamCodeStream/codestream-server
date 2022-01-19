@@ -62,9 +62,7 @@ class RegistrationTest extends CodeStreamAPITest {
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((user.creatorId === (this.expectedCreatorId || user.id).toString()) || errors.push('creatorId not equal to id')) &&
 			((typeof user.confirmationCode === 'string') || errors.push('confirmationCode is not a string')) &&
-			((user.phoneNumber === '') || errors.push('phoneNumber not set to default of empty string')) &&
-			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string')) &&
-			((user.version === this.expectedVersion) || errors.push('version is not correct'))
+			((user.phoneNumber === '') || errors.push('phoneNumber not set to default of empty string'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');

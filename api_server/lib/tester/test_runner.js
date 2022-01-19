@@ -14,8 +14,14 @@ class TestRunner {
 
 	run () {
 		try {
-			const { description } = this.testOptions;
+			const { before, test, after, descriptionHook } = this.testOptions;
+			let { description } = this.testOptions;
 			if (!description) { throw new Error('no description for test'); }
+
+			// allow for description to be munged by the test
+			if (descriptionHook) {
+				description = descriptionHook(this, description);
+			}
 
 			// tests are run within the context of a suite, which manages data that persists between multiple tests
 			// here we prefix the test description with an ordinal number, to ensure test descriptions are unique,
@@ -28,7 +34,6 @@ class TestRunner {
 			// they are run in parallel before the tests in a given suite are run, and it is harder to identify
 			// particular failures that way ... our test paradigm manages persistent data between tests, making
 			// a before/after less necessary ... instead, the before/after is considered "part of the test run"
-			const { before, test, after } = this.testOptions;
 			const out = it(
 				`${testPrefix}${description}`,
 				async () => {

@@ -69,9 +69,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((user.creatorId === expectedCreatorId) || errors.push('creatorId not correct')) &&
 			((JSON.stringify(user.teamIds) === JSON.stringify(teamIds)) || errors.push('incorrect teamIds')) &&
-			((JSON.stringify(user.companyIds) === JSON.stringify(companyIds)) || errors.push('incorrect companyIds')) &&
-			((user.phoneNumber === '') || errors.push('incorrect phoneNumber')) &&
-			((user.iWorkOn === '') || errors.push('incorrect iWorkOn'))
+			((JSON.stringify(user.companyIds) === JSON.stringify(companyIds)) || errors.push('incorrect companyIds'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');

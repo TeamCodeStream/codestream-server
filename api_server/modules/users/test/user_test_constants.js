@@ -12,8 +12,6 @@ const EXPECTED_UNREGISTERED_USER_FIELDS = [
 	'createdAt',
 	'modifiedAt',
 	'creatorId',
-	'phoneNumber',
-	'iWorkOn',
 	'providerIdentities',
 	'version',
 	'_pubnubUuid'
