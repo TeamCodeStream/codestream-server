@@ -8,7 +8,7 @@
     "@slack/web-api": "6.5.1",
     "amqplib": "0.8.0",
     "analytics-node": "6.0.0",
-    "async": "3.2.3",
+    "async": "2.6.3",
     "aws-sdk": "2.1059.0",
     "base-64": "1.0.0",
     "bcrypt": "5.0.1",
