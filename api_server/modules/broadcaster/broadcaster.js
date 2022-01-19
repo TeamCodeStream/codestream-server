@@ -9,7 +9,7 @@ const MockPubnub = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 const SocketClusterClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/socketcluster/socketcluster_client');
 const OS = require('os');
 const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 const DEPENDENCIES = [
 	'alerts'

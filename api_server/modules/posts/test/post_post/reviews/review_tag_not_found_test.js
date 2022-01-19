@@ -1,7 +1,7 @@
 'use strict';
 
 const ReviewTagsTest = require('./review_tags_test');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class ReviewTagNotFoundTest extends ReviewTagsTest {
 

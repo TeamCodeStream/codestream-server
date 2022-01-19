@@ -12,7 +12,7 @@ const PubNub = require('pubnub');
 const PubNubClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/pubnub_client_async');
 const Commander = require('commander');
 const OS = require('os');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 // need these collections from mongo
 const COLLECTIONS = ['teams', 'users'];

@@ -1,5 +1,5 @@
 const SignupTokens = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/signup_tokens');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const URL = require('url');
 
 class SigninFlowUtils {

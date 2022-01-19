@@ -1,7 +1,7 @@
 'use strict';
 
 const UpdateTagTest = require('./update_tag_test');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class TagNotFoundTest extends UpdateTagTest {
 

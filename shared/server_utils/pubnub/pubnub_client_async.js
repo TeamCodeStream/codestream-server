@@ -2,7 +2,7 @@
 
 'use strict';
 
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
  // PubNub claims a 32KB limit on payload, but experimentation indicates it is a good deal lower than this,
  // not sure what accounts for the difference, but setting a very safe limit here just in case

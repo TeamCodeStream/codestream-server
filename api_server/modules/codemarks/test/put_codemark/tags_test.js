@@ -4,7 +4,7 @@ const PutCodemarkTest = require('./put_codemark_test');
 const DefaultTags = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/default_tags');
 const RandomString = require('randomstring');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class TagsTest extends PutCodemarkTest {
 

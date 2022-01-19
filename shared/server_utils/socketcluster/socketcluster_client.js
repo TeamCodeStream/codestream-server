@@ -3,7 +3,7 @@
 'use strict';
 
 const SocketCluster = require('socketcluster-client');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const EventEmitter = require('events');
 
 // enable if we expect the broadcaster to acknowledge reception of messages from the API server

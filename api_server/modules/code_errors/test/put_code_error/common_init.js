@@ -6,7 +6,7 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const RandomString = require('randomstring');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class CommonInit {
 

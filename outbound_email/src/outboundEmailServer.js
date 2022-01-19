@@ -26,7 +26,7 @@ const LoginCodeHandler = require('./loginCodeHandler');
 const TryIndefinitely = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/try_indefinitely');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const FS = require('fs');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 const MONGO_COLLECTIONS = ['users', 'teams', 'companies', 'repos', 'streams', 'posts', 'codemarks', 'reviews', 'codeErrors', 'markers'];
 

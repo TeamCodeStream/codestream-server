@@ -2,7 +2,7 @@
 
 const ReviewTest = require('./review_test');
 const RandomString = require('randomstring');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const DefaultTags = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/default_tags');
 const Assert = require('assert');

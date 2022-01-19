@@ -7,7 +7,7 @@ const HTTPSBot = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const Assert = require('assert');
 const IPC = require('node-ipc');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const DeepEqual = require('deep-equal');
 
 var CodeStreamApiConfig;
