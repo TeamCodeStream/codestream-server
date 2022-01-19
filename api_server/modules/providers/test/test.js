@@ -21,12 +21,9 @@ describe('provider requests', function() {
 
 	this.timeout(20000);
 
-	/*
 	describe('GET /provider-auth-code', ProviderAuthCodeRequestTester.test);
 	describe('GET /no-auth/provider-auth/:provider', ProviderAuthRequestTester.test);
-	*/
 	describe('GET /no-auth/provider-token/:provider', ProviderTokenRequestTester.test);
-	/*
 	describe('PUT /provider-deauth/:provider', ProviderDeauthRequestTester.test);
 	describe('GET /provider-refresh/:provider', ProviderRefreshRequestTester.test);
 	describe('PUT /provider-set-token/:provider', ProviderSetTokenRequestTester.test);
@@ -35,5 +32,4 @@ describe('provider requests', function() {
 	describe('DELETE /provider-host/:provider/:teamId/:providerId', DeleteProviderHostRequestTester.test);
 	// describe('POST /no-auth/provider-action/:provider', ProviderActionRequestTester.test);
 	describe('POST /no-auth/provider-token/:provider', PostProviderTokenRequestTester.test);
-	*/
 });
