@@ -7,7 +7,7 @@ CodeStream On-Prem installation.
 
 ### Technology Components
 
-*	Node.js >= 12.14.1
+*	Node.js >= 16.13.2
 *	Bootstrap 4
 *	React / Redux
 *	Javascript ES6 (babel)

@@ -37,7 +37,7 @@ sandutil_load_options $CSBE_SANDBOX || { echo "failed to load options" >&2 && re
 # Uncomment and setup if node is required. Available versions can be seen
 # with the command:
 #   ssh $DT_CLOUD_SERVER ls /home/web/SandboxRepos/software/node-$DT_OS_TYPE-*
-export CSBE_NODE_VER=12.14.1
+export CSBE_NODE_VER=16.13.2
 export PATH=$CSBE_SANDBOX/node/bin:$CSBE_TOP/node_modules/.bin:./node_modules/.bin:$PATH
 
 # Add $MY_SANDBOX/bin to the search path

@@ -20,7 +20,7 @@ For everyone else, read on...
 
 1. Mac or Linux computer using zsh or bash.
 
-1. Official CodeStream builds (CI) use Nodejs 12.14.1 with npm 6.13.4
+1. Official CodeStream builds (CI) use Nodejs 16.13.2 with npm 6.13.4
 
 1. [Docker Desktop](https://www.docker.com/products/docker-desktop) which we'll
    use to provide MongoDB and a pre-configured RabbitMQ.
