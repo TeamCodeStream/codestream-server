@@ -23,7 +23,6 @@ const ExistingRegisteredUserTest = require('./existing_registered_user_test');
 
 const PROVIDERS = [
 	'trello',
-	/*
 	'github',
 	'asana',
 	'jira',
@@ -33,7 +32,6 @@ const PROVIDERS = [
 	'azuredevops',
 	'slack',
 	'msteams'
-	*/
 ];
 
 const ENTERPRISE_PROVIDERS = {
@@ -55,11 +53,8 @@ class ProviderTokenRequestTester {
 	test () {
 		PROVIDERS.forEach(provider => {
 			new ProviderTokenTest({ provider }).test();
-/*
 			new MessageTest({ provider }).test();
-			*/
 		});
-		/*
 		Object.keys(ENTERPRISE_PROVIDERS).forEach(provider => {
 			const testHost = ENTERPRISE_PROVIDERS[provider];
 			new ProviderTokenTest({ provider, testHost }).test();
@@ -82,7 +77,6 @@ class ProviderTokenRequestTester {
 		new WrongTokenTypeTest({ provider: 'gitlab' }).test();
 		new UserNotFoundTest({ provider: 'bitbucket' }).test();
 		new UserNotOnTeamTest({ provider: 'trello' }).test();
-		*/
 	}
 }
 
