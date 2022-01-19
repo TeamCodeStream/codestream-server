@@ -40,6 +40,10 @@ class AccessLogger extends APIServerModule {
 	}
 
 	logRequest (request, response, status, startTimer) {
+		if (this.disableLogRequest(request)) {
+			return;
+		}
+
 		const elapsedTime = Date.now() - startTimer;
 		const userId = (request.user && request.user.id) || '???';
 		const ide = request.headers['x-cs-plugin-ide'] || '???';
@@ -93,6 +97,17 @@ class AccessLogger extends APIServerModule {
 			testNum;				
 
 		this.api.log(text, request.id, 'info', {}/*, json*/);
+	}
+
+	disableLogRequest (request) {
+		if (
+			this.api.config.apiServer.dontLogHealthChecks &&
+			request.method.toLowerCase() === 'get' &&
+			request.url === '/no-auth/status'
+		) {
+			return true;
+		}
+		return false;
 	}
 }
 

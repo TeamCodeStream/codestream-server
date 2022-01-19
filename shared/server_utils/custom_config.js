@@ -427,7 +427,9 @@ module.exports = function customConfigFunc(nativeCfg) {
 		maxStreamsPerRequest: 100, // never serve more than this many streams in a page
 		maxMarkersPerRequest: 100, // never serve more than this many markers in a page (not currently used)
 	};
-
+	// disable excessive logging of health checks
+	Cfg.apiServer.dontLogHealthChecks = process.env.CS_API_DONT_LOG_HEALTH_CHECKS ? true : false;
+	
 	// broadcaster
 	if (Cfg.broadcastEngine.selected === 'codestreamBroadcaster') {
 		Cfg.broadcastEngine.codestreamBroadcaster.logger.basename = 'broadcaster';
