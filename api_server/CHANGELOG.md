@@ -1,5 +1,12 @@
 # Change Log
 
+## [12.0.0] - 2022-1-20
+
+### Added
+
+- Adds backend support for being able to sign into CodeStream with a code sent via email
+- Adds backend support for being able to sign up for CodeStream with a New Relic One user api key
+
 ## [11.0.28] - 2022-1-4
 
 ### Changed
