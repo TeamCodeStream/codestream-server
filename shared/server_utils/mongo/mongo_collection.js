@@ -299,7 +299,6 @@ class MongoCollection {
 			options
 		);
 		// can't return the documents, can only return their IDs, per driver 4.x
-		console.warn('RESULT:', result);
 		return Object.values(result.insertedIds).map(id => id.toString());
 	}
 
