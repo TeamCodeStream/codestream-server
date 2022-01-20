@@ -116,7 +116,7 @@ class MockMongoCollection {
 		});
 		this.collection = [...this.collection, ...createdDocuments];
 		return {
-			ops: createdDocuments
+			insertedIds: createdDocuments.map(document => document._id)
 		};
 	}
 
