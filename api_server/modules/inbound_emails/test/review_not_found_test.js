@@ -1,7 +1,7 @@
 'use strict';
 
 const ReviewReplyTest = require('./review_reply_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class ReviewNotFoundTest extends ReviewReplyTest {
 
@@ -20,7 +20,7 @@ class ReviewNotFoundTest extends ReviewReplyTest {
 		super.makePostData(() => {
 			// inject a valid but non-existent review ID
 			const index = this.data.to[0].address.indexOf('.');
-			const fakeReviewId = ObjectID();
+			const fakeReviewId = ObjectId();
 			this.data.to[0].address = fakeReviewId + this.data.to[0].address.slice(index);
 			this.data.to.splice(1);
 			callback();

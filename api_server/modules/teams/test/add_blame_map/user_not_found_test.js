@@ -1,7 +1,7 @@
 'use strict';
 
 const AddBlameMapTest = require('./add_blame_map_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class UserNotFoundTest extends AddBlameMapTest {
 
@@ -19,7 +19,7 @@ class UserNotFoundTest extends AddBlameMapTest {
 	before(callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.userId = ObjectID(); // substitute an ID for a non-existent user
+			this.data.userId = ObjectId(); // substitute an ID for a non-existent user
 			callback();
 		});
 	}

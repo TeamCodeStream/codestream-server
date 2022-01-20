@@ -1,7 +1,7 @@
 'use strict';
 
 const DeleteProviderHostTest = require('./delete_provider_host_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends DeleteProviderHostTest {
 
@@ -21,7 +21,7 @@ class TeamNotFoundTest extends DeleteProviderHostTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			const starredHost = encodeURIComponent(this.host.replace(/\./g, '*'));
-			this.path = `/provider-host/${this.provider}/${ObjectID()}/${starredHost}`; // substitute an ID for a non-existent team
+			this.path = `/provider-host/${this.provider}/${ObjectId()}/${starredHost}`; // substitute an ID for a non-existent team
 			callback();
 		});
 	}

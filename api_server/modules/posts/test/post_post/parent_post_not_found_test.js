@@ -1,7 +1,7 @@
 'use strict';
 
 const PostReplyTest = require('./post_reply_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class ParentPostNotFoundTest extends PostReplyTest {
 
@@ -18,7 +18,7 @@ class ParentPostNotFoundTest extends PostReplyTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.parentPostId = ObjectID();
+			this.data.parentPostId = ObjectId();
 			callback();
 		});
 	}

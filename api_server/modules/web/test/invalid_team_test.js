@@ -2,7 +2,7 @@
 
 const PermalinkTest = require('./permalink_test');
 const Assert = require('assert');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidTeamTest extends PermalinkTest {
 
@@ -19,7 +19,7 @@ class InvalidTeamTest extends PermalinkTest {
 		super.createPermalink(error => {
 			if (error) { return callback(error); }
 			const pathParts = this.path.split('/');
-			pathParts[3] = this.encodeLinkId(ObjectID().toString());
+			pathParts[3] = this.encodeLinkId(ObjectId().toString());
 			this.path = pathParts.join('/');
 			callback();
 		});

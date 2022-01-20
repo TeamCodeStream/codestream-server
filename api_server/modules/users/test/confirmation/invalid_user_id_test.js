@@ -1,7 +1,7 @@
 'use strict';
 
 var ConfirmationTest = require('./confirmation_test');
-var ObjectID = require('mongodb').ObjectID;
+var ObjectId = require('mongodb').ObjectId;
 
 class InvalidUserIdTest extends ConfirmationTest {
 
@@ -23,7 +23,7 @@ class InvalidUserIdTest extends ConfirmationTest {
 	before (callback) {
 		// run the standard setup for a confirmation test, but change the user ID
 		super.before(() => {
-			this.data.userId = ObjectID();
+			this.data.userId = ObjectId();
 			callback();
 		});
 	}

@@ -2,7 +2,7 @@
 
 const TrackingTest = require('./tracking_test');
 const Assert = require('assert');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends TrackingTest {
 
@@ -15,7 +15,7 @@ class TeamNotFoundTest extends TrackingTest {
 		super.setData(error => {
 			if (error) { return callback(error); }
 			const action = JSON.parse(this.data.actions[0].action_id);
-			action.teamId = ObjectID();
+			action.teamId = ObjectId();
 			this.data.actions[0].action_id = JSON.stringify(action);
 			callback();
 		});

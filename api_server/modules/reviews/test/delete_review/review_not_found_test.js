@@ -1,7 +1,7 @@
 'use strict';
 
 const DeleteReviewTest = require('./delete_review_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class ReviewNotFoundTest extends DeleteReviewTest {
 
@@ -20,7 +20,7 @@ class ReviewNotFoundTest extends DeleteReviewTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/reviews/' + ObjectID(); // substitute an ID for a non-existent review
+			this.path = '/reviews/' + ObjectId(); // substitute an ID for a non-existent review
 			callback();
 		});
 	}

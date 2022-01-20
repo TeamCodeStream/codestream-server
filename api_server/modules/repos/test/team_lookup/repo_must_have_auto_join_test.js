@@ -1,7 +1,7 @@
 'use strict';
 
 const TeamLookupTest = require('./team_lookup_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class RepoMustHaveAutoJoinTest extends TeamLookupTest {
 
@@ -18,7 +18,7 @@ class RepoMustHaveAutoJoinTest extends TeamLookupTest {
 				path: `/team-settings/${this.team.id}`,
 				token: this.users[1].accessToken,
 				data: {
-					autoJoinRepos: [ObjectID()]
+					autoJoinRepos: [ObjectId()]
 				}
 			},
 			callback

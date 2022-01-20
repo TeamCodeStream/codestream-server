@@ -1,7 +1,7 @@
 'use strict';
 
 const SetCodeStreamPostIdTest = require('./set_codestream_post_id_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class PostNotFoundTest extends SetCodeStreamPostIdTest {
 
@@ -20,7 +20,7 @@ class PostNotFoundTest extends SetCodeStreamPostIdTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.postId = ObjectID(); // substitute an ID for a non-existent post
+			this.data.postId = ObjectId(); // substitute an ID for a non-existent post
 			callback();
 		});
 	}

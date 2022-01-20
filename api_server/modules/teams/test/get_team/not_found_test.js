@@ -1,7 +1,7 @@
 'use strict';
 
 const GetTeamTest = require('./get_team_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class NotFoundTest extends GetTeamTest {
 
@@ -18,7 +18,7 @@ class NotFoundTest extends GetTeamTest {
 	// set the path to use when making the test request
 	setPath (callback) {
 		// try to get some random team that doesn't exist
-		this.path = '/teams/' + ObjectID();
+		this.path = '/teams/' + ObjectId();
 		callback();
 	}
 }

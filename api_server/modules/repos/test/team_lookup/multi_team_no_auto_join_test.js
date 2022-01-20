@@ -1,7 +1,7 @@
 'use strict';
 
 const MultiTeamTest = require('./multi_team_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 const Assert = require('assert');
 
 class MultiTeamNoAutoJoinTest extends MultiTeamTest {
@@ -18,7 +18,7 @@ class MultiTeamNoAutoJoinTest extends MultiTeamTest {
 				path: `/team-settings/${this.secondTeam.id}`,
 				token: this.users[1].accessToken,
 				data: {
-					autoJoinRepos: [ObjectID()]
+					autoJoinRepos: [ObjectId()]
 				}
 			},
 			callback

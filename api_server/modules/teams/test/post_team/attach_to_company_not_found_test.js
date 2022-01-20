@@ -1,7 +1,7 @@
 'use strict';
 
 const AttachToCompanyTest = require('./attach_to_company_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class AttachToCompanyNotFoundTest extends AttachToCompanyTest {
 
@@ -20,7 +20,7 @@ class AttachToCompanyNotFoundTest extends AttachToCompanyTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.companyId = ObjectID();
+			this.data.companyId = ObjectId();
 			callback();
 		});
 	}

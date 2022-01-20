@@ -1,7 +1,7 @@
 'use strict';
 
 const FollowersMentionedTest = require('./followers_mentioned_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidMentionTest extends FollowersMentionedTest {
 
@@ -18,7 +18,7 @@ class InvalidMentionTest extends FollowersMentionedTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.mentionedUserIds.push(ObjectID());
+			this.data.mentionedUserIds.push(ObjectId());
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const UnfollowTest = require('./unfollow_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class ReviewNotFoundTest extends UnfollowTest {
 
@@ -21,7 +21,7 @@ class ReviewNotFoundTest extends UnfollowTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// substitute an ID for a non-existent review
-			this.path = `/reviews/unfollow/${ObjectID()}`;
+			this.path = `/reviews/unfollow/${ObjectId()}`;
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const ProviderInfoTest = require('./provider_info_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends ProviderInfoTest {
 
@@ -19,7 +19,7 @@ class TeamNotFoundTest extends ProviderInfoTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.teamId = ObjectID(); // substitute an ID for a non-existent team
+			this.data.teamId = ObjectId(); // substitute an ID for a non-existent team
 			callback();
 		});
 	}

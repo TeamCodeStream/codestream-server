@@ -1,7 +1,7 @@
 'use strict';
 
 const PutTeamSettingsTest = require('./put_team_settings_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends PutTeamSettingsTest {
 
@@ -19,7 +19,7 @@ class TeamNotFoundTest extends PutTeamSettingsTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/team-settings/' + ObjectID(); // substitute an ID for a non-existent team
+			this.path = '/team-settings/' + ObjectId(); // substitute an ID for a non-existent team
 			callback();
 		});
 	}

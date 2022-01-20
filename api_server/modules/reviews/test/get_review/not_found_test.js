@@ -1,7 +1,7 @@
 'use strict';
 
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class NotFoundTest extends CodeStreamAPITest {
 
@@ -20,7 +20,7 @@ class NotFoundTest extends CodeStreamAPITest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// try to get a bogus review, with an ID that doesn't exist
-			this.path = '/reviews/' + ObjectID();
+			this.path = '/reviews/' + ObjectId();
 			callback();
 		});
 	}

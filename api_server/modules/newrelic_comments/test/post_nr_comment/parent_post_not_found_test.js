@@ -1,7 +1,7 @@
 'use strict';
 
 const NestedCommentTest = require('./nested_comment_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class ParentPostNotFoundTest extends NestedCommentTest {
 
@@ -19,7 +19,7 @@ class ParentPostNotFoundTest extends NestedCommentTest {
 	setParentPost (callback) {
 		super.setParentPost(error => {
 			if (error) { return callback(error); }
-			this.data.parentPostId = ObjectID();
+			this.data.parentPostId = ObjectId();
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const ReviewersTest = require('./reviewers_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidReviewerTest extends ReviewersTest {
 
@@ -18,7 +18,7 @@ class InvalidReviewerTest extends ReviewersTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.review.reviewers.push(ObjectID());
+			this.data.review.reviewers.push(ObjectId());
 			callback();
 		});
 	}

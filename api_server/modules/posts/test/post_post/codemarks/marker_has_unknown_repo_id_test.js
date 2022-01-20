@@ -1,7 +1,7 @@
 'use strict';
 
 const CodemarkMarkerTest = require('./codemark_marker_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class MarkerHasUnknownRepoIdTest extends CodemarkMarkerTest {
 
@@ -22,7 +22,7 @@ class MarkerHasUnknownRepoIdTest extends CodemarkMarkerTest {
 		super.makePostData(() => {
 			const marker = this.data.codemark.markers[0];
 			delete marker.fileStreamId;
-			marker.repoId = ObjectID();
+			marker.repoId = ObjectId();
 			callback();
 		});
 	}

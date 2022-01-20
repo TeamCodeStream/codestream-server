@@ -6,7 +6,7 @@ const path = require('path');
 const util = require('util');
 const Fs = require('fs');
 const MongoClient = require('mongodb').MongoClient;
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 const StructuredConfigBase = require('./structured_config_base');
 
 const mongoConnections = {};  // mongo connection cache by 'mongoUrl:collectionName'
@@ -225,7 +225,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 				);
 				configDoc = await this.db
 					.collection(this.configCollection)
-					.findOne({ _id: new ObjectID(activeConfig.serialNumber) });
+					.findOne({ _id: new ObjectId(activeConfig.serialNumber) });
 				if (!configDoc) {
 					this.logger.error(`active config ${activeConfig.serialNumber} not found`);
 					activeConfig = null;
@@ -248,22 +248,22 @@ class StructuredConfigMongo extends StructuredConfigBase {
 				}
 			}
 			this.logger.log(
-				`config serial ${ObjectID(configDoc._id).toString()} (${new Date(
+				`config serial ${ObjectId(configDoc._id).toString()} (${new Date(
 					configDoc.timeStamp
 				).toUTCString()}) loaded`
 			);
 			this.mongoConfigDoc = {
 				...configDoc,
-				serialNumber: ObjectID(configDoc._id).toString(),
+				serialNumber: ObjectId(configDoc._id).toString(),
 			};
 			if (!activeConfig) {
 				// activate config since no prior activation was found
 				this.logger.warn(
-					`activating config just loaded ${ObjectID(
+					`activating config just loaded ${ObjectId(
 						configDoc._id
 					).toString()} to preserve integrtiry`
 				);
-				await this.activateMongoConfig(ObjectID(configDoc._id).toString());
+				await this.activateMongoConfig(ObjectId(configDoc._id).toString());
 			}
 			return configDoc.configData;
 		} catch (error) {
@@ -316,7 +316,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	 * @param {string} serialNumber    - serial number of config to fetch
 	 */
 	async getConfigBySerial(serialNumber, options = {}) {
-		const docId = { _id: new ObjectID(serialNumber) };
+		const docId = { _id: new ObjectId(serialNumber) };
 		try {
 			const result = await this.db.collection(this.configCollection).findOne(docId);
 			if (!result) {
@@ -413,7 +413,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	 * @returns {boolean}  true for success
 	 */
 	async deleteConfigFromMongo(serialNumber) {
-		const docId = { _id: new ObjectID(serialNumber) };
+		const docId = { _id: new ObjectId(serialNumber) };
 		try {
 			await this.db.collection(this.configCollection).deleteOne(docId);
 			return true;
@@ -431,12 +431,12 @@ class StructuredConfigMongo extends StructuredConfigBase {
 	async activateMongoConfig(serialNumber) {
 		const newConfig = await this.db
 			.collection(this.configCollection)
-			.findOne({ _id: new ObjectID(serialNumber) });
+			.findOne({ _id: new ObjectId(serialNumber) });
 		if (!newConfig) {
 			this.logger.error(`activation of config ${serialNumber} failed. That config does not exist.`);
 			return false;
 		}
-		const replacementDoc = { serialNumber: new ObjectID(serialNumber) };
+		const replacementDoc = { serialNumber: new ObjectId(serialNumber) };
 		try {
 			const activeConfig = await this.db.collection(this.selectedCollection).findOne();
 			const filterDoc = activeConfig ? { serialNumber: activeConfig.serialNumber } : {};
@@ -477,7 +477,7 @@ class StructuredConfigMongo extends StructuredConfigBase {
 				.sort({ schemaVersion: -1, revision: -1 })
 				.toArray();
 			results.forEach((doc) => {
-				doc.serialNumber = ObjectID(doc._id).toString();
+				doc.serialNumber = ObjectId(doc._id).toString();
 			});
 			// console.log('getConfigSummary(): results', results);
 			return results;

@@ -1,7 +1,7 @@
 'use strict';
 
 const PostPostTest = require('./post_post_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidStreamIdTest extends PostPostTest {
 
@@ -21,7 +21,7 @@ class InvalidStreamIdTest extends PostPostTest {
 		// substitute an ID for a non-existent stream when trying to create the post
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.streamId = ObjectID();
+			this.data.streamId = ObjectId();
 			callback();
 		});
 	}

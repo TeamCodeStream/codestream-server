@@ -1,7 +1,7 @@
 'use strict';
 
 const SetAssigneesTest = require('./set_assignees_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidAssigneeTest extends SetAssigneesTest {
 
@@ -18,7 +18,7 @@ class InvalidAssigneeTest extends SetAssigneesTest {
 
 	getCodemarkUpdateData () {
 		const data = super.getCodemarkUpdateData();
-		data.assignees.push(ObjectID());
+		data.assignees.push(ObjectId());
 		return data;
 	}
 }

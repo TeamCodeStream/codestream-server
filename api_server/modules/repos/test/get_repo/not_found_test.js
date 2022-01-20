@@ -1,7 +1,7 @@
 'use strict';
 
 const GetRepoTest = require('./get_repo_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class NotFoundTest extends GetRepoTest {
 
@@ -20,7 +20,7 @@ class NotFoundTest extends GetRepoTest {
 		super.before (error => {
 			// substitute a non-existent repo ID
 			if (error) { return callback(error); }
-			this.path = '/repos/' + ObjectID();
+			this.path = '/repos/' + ObjectId();
 			callback();
 		});
 	}

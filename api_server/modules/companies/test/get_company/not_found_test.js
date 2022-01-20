@@ -1,7 +1,7 @@
 'use strict';
 
 const GetCompanyTest = require('./get_company_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class NotFoundTest extends GetCompanyTest {
 
@@ -18,7 +18,7 @@ class NotFoundTest extends GetCompanyTest {
 	// set the path for the request to test
 	setPath (callback) {
 		// try to fetch some company that doesn't exist
-		this.path = '/companies/' + ObjectID();
+		this.path = '/companies/' + ObjectId();
 		callback();
 
 	}

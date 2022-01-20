@@ -1,7 +1,7 @@
 'use strict';
 
 const UnrelateCodemarkTest = require('./unrelate_codemark_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodemarkNotFoundTest extends UnrelateCodemarkTest {
 
@@ -23,10 +23,10 @@ class CodemarkNotFoundTest extends UnrelateCodemarkTest {
 			if (error) { return callback(error); }
 			// substitute an ID for a non-existent codemark, for one of the codemarks to be related
 			if (this.whichCodemark === 0) {
-				this.path = `/unrelate-codemark/${ObjectID()}/${this.testCodemarks[1].id}`;
+				this.path = `/unrelate-codemark/${ObjectId()}/${this.testCodemarks[1].id}`;
 			}
 			else {
-				this.path = `/unrelate-codemark/${this.testCodemarks[0].id}/${ObjectID()}`;
+				this.path = `/unrelate-codemark/${this.testCodemarks[0].id}/${ObjectId()}`;
 			}
 			callback();
 		});

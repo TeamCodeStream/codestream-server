@@ -1,7 +1,7 @@
 'use strict';
 
 const UnpinPostTest = require('./unpin_post_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodemarkNotFoundTest extends UnpinPostTest {
 
@@ -18,7 +18,7 @@ class CodemarkNotFoundTest extends UnpinPostTest {
 
 	makeRequestData (callback) {
 		super.makeRequestData(() => {
-			this.data.codemarkId = ObjectID();
+			this.data.codemarkId = ObjectId();
 			callback();
 		});
 	}

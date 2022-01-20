@@ -1,7 +1,7 @@
 'use strict';
 
 const MoveTest = require('./move_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class MarkerNotFoundTest extends MoveTest {
 
@@ -20,7 +20,7 @@ class MarkerNotFoundTest extends MoveTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = `/markers/${ObjectID()}/move`; // substitute an ID for a non-existent marker
+			this.path = `/markers/${ObjectId()}/move`; // substitute an ID for a non-existent marker
 			callback();
 		});
 	}

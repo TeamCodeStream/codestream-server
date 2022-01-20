@@ -1,7 +1,7 @@
 'use strict';
 
 const ModifiedReposTest = require('./modified_repos_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class ModifiedReposInvalidTeamTest extends ModifiedReposTest {
 
@@ -23,7 +23,7 @@ class ModifiedReposInvalidTeamTest extends ModifiedReposTest {
 		super.makeUserData(() => {
 			const which = this.setCompactModifiedRepos ? 'compactModifiedRepos' : 'modifiedRepos';
 			this.data[which] = { 
-				[ObjectID()]: this.data[which][this.team.id]
+				[ObjectId()]: this.data[which][this.team.id]
 			};
 			callback();
 		});

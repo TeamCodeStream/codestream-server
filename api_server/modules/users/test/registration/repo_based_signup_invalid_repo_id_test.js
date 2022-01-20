@@ -1,7 +1,7 @@
 'use strict';
 
 const RepoBasedSignupTest = require('./repo_based_signup_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class RepoBasedSignupInvalidRepoIdTest extends RepoBasedSignupTest {
 
@@ -21,7 +21,7 @@ class RepoBasedSignupInvalidRepoIdTest extends RepoBasedSignupTest {
 		// delete the attribute in question
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.repoId = ObjectID();
+			this.data.repoId = ObjectId();
 			callback();
 		});
 	}

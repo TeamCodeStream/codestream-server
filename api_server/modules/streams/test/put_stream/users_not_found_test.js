@@ -1,7 +1,7 @@
 'use strict';
 
 const AddUsersTest = require('./add_users_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class UsersNotFound extends AddUsersTest {
 
@@ -19,7 +19,7 @@ class UsersNotFound extends AddUsersTest {
 	makeStreamData (callback) {
 		// substitute bogus memberIds value
 		super.makeStreamData(() => {
-			this.data.$addToSet.memberIds.push(ObjectID());
+			this.data.$addToSet.memberIds.push(ObjectId());
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const PutPostTest = require('./put_post_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class PostNotFoundTest extends PutPostTest {
 
@@ -20,7 +20,7 @@ class PostNotFoundTest extends PutPostTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/posts/' + ObjectID(); // substitute an ID for a non-existent post
+			this.path = '/posts/' + ObjectId(); // substitute an ID for a non-existent post
 			callback();
 		});
 	}

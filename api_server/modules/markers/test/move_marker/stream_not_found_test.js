@@ -1,7 +1,7 @@
 'use strict';
 
 const MoveTest = require('./move_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class StreamNotFoundTest extends MoveTest {
 
@@ -20,7 +20,7 @@ class StreamNotFoundTest extends MoveTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.file;
-			this.data.fileStreamId = ObjectID();
+			this.data.fileStreamId = ObjectId();
 			callback();
 		});
 	}

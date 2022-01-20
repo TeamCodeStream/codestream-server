@@ -1,7 +1,7 @@
 'use strict';
 
 const ProviderHostTest = require('./provider_host_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends ProviderHostTest {
 
@@ -20,7 +20,7 @@ class TeamNotFoundTest extends ProviderHostTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = `/provider-host/${this.provider}/${ObjectID()}`; // substitute an ID for a non-existent team
+			this.path = `/provider-host/${this.provider}/${ObjectId()}`; // substitute an ID for a non-existent team
 			callback();
 		});
 	}

@@ -2,7 +2,7 @@
 
 const DeepEqual = require('deep-equal');
 const DeepClone = require('../deep_clone');
-//const ObjectID = require('mongodb').ObjectID;
+//const ObjectId = require('mongodb').ObjectId;
 
 // instead of using mongo's native ID generator, we'll simulate it
 // this gives us a better random representation of IDs given that in production,
@@ -33,7 +33,7 @@ const ToPaddedHex = (n, len) => {
 	return hex;
 };
 
-const MockObjectID = () => {
+const MockObjectId = () => {
 	const timeStamp = Math.floor(Date.now() / 1000);
 	const processIdIdx = Math.floor(Math.random() * ProcessIDs.length);
 	const processId = ProcessIDs[processIdIdx];
@@ -101,7 +101,7 @@ class MockMongoCollection {
 	async insertOne (document) {
 		document = DeepClone(document);
 		if (!document._id) {
-			document._id = MockObjectID();
+			document._id = MockObjectId();
 		}
 		this.collection.push(document);
 		return document;
@@ -111,7 +111,7 @@ class MockMongoCollection {
 		const createdDocuments = DeepClone(documents);
 		createdDocuments.forEach(document => {
 			if (!document._id) {
-				document._id = MockObjectID();
+				document._id = MockObjectId();
 			}
 		});
 		this.collection = [...this.collection, ...createdDocuments];
@@ -211,7 +211,7 @@ class MockMongoCollection {
 	}
 
 	mockObjectId () {
-		return MockObjectID();
+		return MockObjectId();
 	}
 
 	_sanitizeUpdate (update) {

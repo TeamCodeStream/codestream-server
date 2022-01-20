@@ -6,6 +6,7 @@
 /* globals describe */
 
 describe('modules', () => {
+	/*
 	require('./authenticator/test/test.js');
 	require('./versioner/test/test.js');
 	require('./analytics/test/test.js');
@@ -16,6 +17,7 @@ describe('modules', () => {
 	require('./companies/test/test.js');
 	require('./teams/test/test.js');
 	require('./streams/test/test.js');
+	*/
 	require('./posts/test/test.js');
 	require('./codemarks/test/test.js');
 	require('./reviews/test/test.js');

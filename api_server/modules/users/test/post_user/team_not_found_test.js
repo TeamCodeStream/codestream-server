@@ -1,7 +1,7 @@
 'use strict';
 
 const PostUserTest = require('./post_user_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends PostUserTest {
 
@@ -18,7 +18,7 @@ class TeamNotFoundTest extends PostUserTest {
 	// form the data for the user update
 	makeUserData (callback) {
 		super.makeUserData(() => {
-			this.data.teamId = ObjectID();	// substitute bogus team
+			this.data.teamId = ObjectId();	// substitute bogus team
 			callback();
 		});
 	}

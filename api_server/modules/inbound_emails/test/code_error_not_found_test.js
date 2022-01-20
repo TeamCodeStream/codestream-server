@@ -1,7 +1,7 @@
 'use strict';
 
 const CodeErrorReplyTest = require('./code_error_reply_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodeErrorNotFoundTest extends CodeErrorReplyTest {
 
@@ -20,7 +20,7 @@ class CodeErrorNotFoundTest extends CodeErrorReplyTest {
 		super.makePostData(() => {
 			// inject a valid but non-existent code error ID
 			const index = this.data.to[0].address.indexOf('.');
-			const fakeCodeErrorId = ObjectID();
+			const fakeCodeErrorId = ObjectId();
 			this.data.to[0].address = fakeCodeErrorId + this.data.to[0].address.slice(index);
 			this.data.to.splice(1);
 			callback();

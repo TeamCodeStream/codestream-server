@@ -1,7 +1,7 @@
 'use strict';
 
 var GetStreamsTest = require('./get_streams_test');
-var ObjectID = require('mongodb').ObjectID;
+var ObjectId = require('mongodb').ObjectId;
 
 class GetStreamsGreaterThanTest extends GetStreamsTest {
 
@@ -20,7 +20,7 @@ class GetStreamsGreaterThanTest extends GetStreamsTest {
 	setPath (callback) {
 		this.expectedStreams = this.getExpectedStreams();
 		const pivot = this.expectedStreams[2].id;
-		this.expectedStreams = this.expectedStreams.filter(stream => ObjectID(stream.sortId) > ObjectID(pivot));
+		this.expectedStreams = this.expectedStreams.filter(stream => ObjectId(stream.sortId) > ObjectId(pivot));
 		this.path = `/streams?teamId=${this.team.id}&gt=${pivot}`;
 		callback();
 	}

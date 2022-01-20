@@ -2,7 +2,7 @@
 
 const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
 const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class UserNotFound extends ConfirmationWithLinkTest {
 
@@ -24,7 +24,7 @@ class UserNotFound extends ConfirmationWithLinkTest {
 			if (error) { return callback(error); }
 			const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
-			payload.uid = ObjectID();
+			payload.uid = ObjectId();
 			this.data.token = tokenHandler.generate(payload, 'conf');
 			callback();
 		});

@@ -1,7 +1,7 @@
 'use strict';
 
 const GetAuthSettingsTest = require('./get_auth_settings_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends GetAuthSettingsTest {
 
@@ -20,7 +20,7 @@ class TeamNotFoundTest extends GetAuthSettingsTest {
 	before(callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = `/no-auth/teams/${ObjectID()}/auth-settings`; // substitute an ID for a non-existent team
+			this.path = `/no-auth/teams/${ObjectId()}/auth-settings`; // substitute an ID for a non-existent team
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const GetReviewsTest = require('./get_reviews_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends GetReviewsTest {
 
@@ -18,7 +18,7 @@ class TeamNotFoundTest extends GetReviewsTest {
 
 	setPath (callback) {
 		// set teamId to team that doesn't exist
-		this.path = '/reviews?teamId=' + ObjectID();
+		this.path = '/reviews?teamId=' + ObjectId();
 		callback();
 	}
 }

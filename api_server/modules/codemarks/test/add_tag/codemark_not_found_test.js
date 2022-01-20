@@ -1,7 +1,7 @@
 'use strict';
 
 const AddTagTest = require('./add_tag_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodemarkNotFoundTest extends AddTagTest {
 
@@ -21,7 +21,7 @@ class CodemarkNotFoundTest extends AddTagTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// substitute an ID for a non-existent codemark
-			this.path = `/codemarks/${ObjectID()}/add-tag`;
+			this.path = `/codemarks/${ObjectId()}/add-tag`;
 			callback();
 		});
 	}

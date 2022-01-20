@@ -1,7 +1,7 @@
 'use strict';
 
 const AddBlameMapTest = require('./add_blame_map_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends AddBlameMapTest {
 
@@ -19,7 +19,7 @@ class TeamNotFoundTest extends AddBlameMapTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/add-blame-map/' + ObjectID(); // substitute an ID for a non-existent team
+			this.path = '/add-blame-map/' + ObjectId(); // substitute an ID for a non-existent team
 			callback();
 		});
 	}

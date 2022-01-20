@@ -1,7 +1,7 @@
 'use strict';
 
 const UnfollowTest = require('./unfollow_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 const Assert = require('assert');
 
 class CodemarkNotFoundTest extends UnfollowTest {
@@ -15,7 +15,7 @@ class CodemarkNotFoundTest extends UnfollowTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// substitute an ID for a non-existent codemark
-			this.path = `/no-auth/unfollow-link/${ObjectID()}?t=${this.token}`;
+			this.path = `/no-auth/unfollow-link/${ObjectId()}?t=${this.token}`;
 			callback();
 		});
 	}

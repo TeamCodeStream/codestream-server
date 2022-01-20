@@ -1,7 +1,7 @@
 'use strict';
 
 const AddAdminsTest = require('./add_admins_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class UsersNotFound extends AddAdminsTest {
 
@@ -19,7 +19,7 @@ class UsersNotFound extends AddAdminsTest {
 	makeTeamData (callback) {
 		// substitute bogus memberIds value
 		super.makeTeamData(() => {
-			this.data.$addToSet.adminIds.push(ObjectID());
+			this.data.$addToSet.adminIds.push(ObjectId());
 			callback();
 		});
 	}

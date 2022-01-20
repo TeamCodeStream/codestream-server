@@ -1,7 +1,7 @@
 'use strict';
 
 const DeleteCompanyTest = require('./delete_company_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CompanyNotFoundTest extends DeleteCompanyTest {
 
@@ -19,7 +19,7 @@ class CompanyNotFoundTest extends DeleteCompanyTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/companies/' + ObjectID(); // substitute a non-existent company ID
+			this.path = '/companies/' + ObjectId(); // substitute a non-existent company ID
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const GrantTest = require('./grant_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class NonUserChannelACLTest extends GrantTest {
 
@@ -18,7 +18,7 @@ class NonUserChannelACLTest extends GrantTest {
 	// set the path to use when issuing the test request
 	setPath (callback) {
 		// set to grant access to the channel for a non-existent user
-		this.path = '/grant/user-' + ObjectID();
+		this.path = '/grant/user-' + ObjectId();
 		callback();
 	}
 }

@@ -1,7 +1,7 @@
 'use strict';
 
 const GrantTest = require('./grant_test');
-//const ObjectID = require('mongodb').ObjectID;
+//const ObjectId = require('mongodb').ObjectId;
 
 class NonStreamChannelACLTest extends GrantTest {
 
@@ -20,7 +20,7 @@ class NonStreamChannelACLTest extends GrantTest {
 		throw 'stream channels are deprecated';
 		/*
 		// set to grant access to the channel for a non-existent stream
-		this.path = '/grant/stream-' + ObjectID();
+		this.path = '/grant/stream-' + ObjectId();
 		callback();
 		*/
 	}

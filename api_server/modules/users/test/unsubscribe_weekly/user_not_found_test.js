@@ -2,13 +2,13 @@
 
 const UnsubscribeTest = require('./unsubscribe_test');
 const Assert = require('assert');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class UserNotFoundTest extends UnsubscribeTest {
 
 	constructor (options) {
 		super(options);
-		this.tokenUserId = ObjectID();
+		this.tokenUserId = ObjectId();
 	}
 
 	get description () {

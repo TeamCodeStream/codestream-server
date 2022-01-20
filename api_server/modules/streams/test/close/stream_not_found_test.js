@@ -1,7 +1,7 @@
 'use strict';
 
 const CloseTest = require('./close_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class StreamNotFoundTest extends CloseTest {
 
@@ -20,7 +20,7 @@ class StreamNotFoundTest extends CloseTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/streams/close/' + ObjectID(); // substitute an ID for a non-existent stream
+			this.path = '/streams/close/' + ObjectId(); // substitute an ID for a non-existent stream
 			callback();
 		});
 	}
