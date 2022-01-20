@@ -299,7 +299,7 @@ class MongoCollection {
 			options
 		);
 		// can't return the documents, can only return their IDs, per driver 4.x
-		//const ids = await this._idStringify(Object.values(result.insertedIds));
+		console.warn('RESULT:', result);
 		return Object.values(result.insertedIds).map(id => id.toString());
 	}
 

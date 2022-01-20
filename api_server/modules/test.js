@@ -17,10 +17,10 @@ describe('modules', () => {
 	require('./companies/test/test.js');
 	require('./teams/test/test.js');
 	require('./streams/test/test.js');
-	*/
 	require('./posts/test/test.js');
 	require('./codemarks/test/test.js');
 	require('./reviews/test/test.js');
+	*/
 	require('./code_errors/test/test.js');
 	require('./markers/test/test.js');
 	require('./web/test/test.js');
