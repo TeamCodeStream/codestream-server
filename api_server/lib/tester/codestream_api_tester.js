@@ -8,7 +8,7 @@ const RandomUserFactory = require('../../modules/users/test2/random_user_factory
 const RandomCompanyFactory = require('../../modules/companies/test/random_company_factory');
 const Assert = require('assert');
 const ObjectID = require('mongodb').ObjectID;
-const { testData } = require('../../modules/authenticator/test2/suite');
+const DeepEqual = require('deep-equal');
 
 const DEFAULT_TEST_TIME_TOLERANCE = 3000;
 const COMMAND_REGEX_STR = '{{{\\s*(.*?)\\s*(?:\\((.*?)\\))?\\s*}}}';
@@ -349,7 +349,7 @@ class CodeStreamApiTester {
 	}
 
 	// create a "standard" company:
-	//  - three registered user, one of whom will be tagged as the current user, and one as the company creator
+	//  - three registered users, one of whom will be tagged as the current user, and one as the company creator
 	//  - two unregistered (invited) users
 	async createStandardCompany (options = {}) {
 		const testData = this.testRunner.getTestData();
@@ -533,7 +533,6 @@ class CodeStreamApiTester {
 	async validateResponseData (actualResponse, expectedResponse) {
 		const errors = [];
 		expectedResponse = this.validateResponseDataPart(actualResponse, expectedResponse, errors, '__response__', actualResponse);
-
 		if (errors.length > 0) {
 			Assert.fail(`response data not correct:\n${errors.join('\n')}`);
 		} else {
@@ -573,23 +572,30 @@ EXPECTED:\n${JSON.stringify(expectedResponse, 0, 10)}
 			}
 			const len = actualData.length;
 			for (let i = 0; i < len; i++) {
-				actualData[i] = this.validateResponseDataPart(actualData[i], expectedData[i], errors, `${name}[${i}]`, actualData);
+				expectedData[i] = this.validateResponseDataPart(actualData[i], expectedData[i], errors, `${name}[${i}]`, actualData);
 			}
-			return actualData;
 		} else if (typeof expectedData === 'object') {
 			if (typeof actualData !== 'object') {
 				errors.push(`${name} is not an object`);
 			} else {
 				for (let key in expectedData) {
-					actualData[key] = this.validateResponseDataPart(actualData[key], expectedData[key], errors, `${name}.${key}`, actualData);
+					expectedData[key] = this.validateResponseDataPart(actualData[key], expectedData[key], errors, `${name}.${key}`, actualData);
+					if (expectedData[key] === undefined) {
+						delete expectedData[key];
+					}
 				}
 			}
-			return actualData;
 		} else if (typeof expectedData === 'string') {
-			return this.validateResponseDataString(actualData, expectedData, errors, name, siblingObject);
-		} else if (actualData !== expectedData) {
-			errors.push(`${name} expected to be ${expectedData} but was ${actualData}`);
+			expectedData = this.validateResponseDataString(actualData, expectedData, errors, name, siblingObject);
 		}
+
+		if (!DeepEqual(actualData, expectedData)) {
+			errors.push (`\x1b[36m${name}\x1b[31m is incorrect (\x1b[32mactual\x1b[31m, expected):\n
+\x1b[32m${JSON.stringify(actualData, 0, 10)}\n
+\x1b[31m${JSON.stringify(expectedData, 0, 10)}
+`);
+		}
+		return actualData;
 	}
 
 	// validate a string in the expected response data against the actual response, performing hard data
@@ -726,7 +732,7 @@ EXPECTED:\n${JSON.stringify(expectedResponse, 0, 10)}
 			return;
 		}
 		if (actual < expectedValue - tolerance || actual > expectedValue + tolerance) {
-			errors.push(`${name} was expected to be the close to as ${closeToValue} (${JSON.stringify(expectedValue)}) but was ${JSON.stringify(actual)}`);
+			errors.push(`${name} was expected to be close to ${closeToValue} (${JSON.stringify(expectedValue)}) but was ${JSON.stringify(actual)}`);
 		} 
 
 		return actual;

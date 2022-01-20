@@ -44,7 +44,7 @@ class TestSuite {
 				// then run individual tests
 				await Promise.all(this.tests.map(async test => {
 					await new TestRunner({
-						testOptions: test,
+						testOptions: this.deepClone(test),
 						suite: this
 					}).run();
 				}));
@@ -89,6 +89,11 @@ class TestSuite {
 	// get the master cache associated with this test run
 	getTestData () {
 		return this.testData;
+	}
+
+	// deep clone utility
+	deepClone (data) {
+		return JSON.parse(JSON.stringify(data));
 	}
 }
 

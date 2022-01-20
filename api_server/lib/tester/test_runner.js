@@ -30,6 +30,7 @@ class TestRunner {
 			const testNum = topSuite && topSuite.nextTestNum();
 			const testPrefix = testNum ? `${testNum}: ` : '';
 
+
 			// run the actual test ... note that we choose NOT to use mocha's before and after functions, as
 			// they are run in parallel before the tests in a given suite are run, and it is harder to identify
 			// particular failures that way ... our test paradigm manages persistent data between tests, making

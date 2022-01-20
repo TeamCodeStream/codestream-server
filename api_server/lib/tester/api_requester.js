@@ -26,7 +26,7 @@ class ApiRequester {
 		}
 	}
 
-	// 
+	// send an API Server request, and return results (not checking for successfull response)
 	async sendApiRequest (options) {
 		const {
 			protocol = this.protocol || 'http',
@@ -52,7 +52,7 @@ class ApiRequester {
 			headers['Content-Type'] = 'application/json';
 		}
 
-		let error, response;
+		let response;
 		if (this.inMockMode) {
 			response = await this.sendIpcRequest({
 				method,
