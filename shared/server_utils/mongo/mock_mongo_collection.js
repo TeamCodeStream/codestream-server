@@ -224,7 +224,7 @@ class MockMongoCollection {
 		}
 		if (setKeys.find(key => unsetKeys.includes(key))) {
 			throw {
-				name: 'MongoError'
+				name: 'MongoServerError'
 			};
 		}
 	}
