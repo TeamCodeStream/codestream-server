@@ -484,5 +484,18 @@ module.exports = function customConfigFunc(nativeCfg) {
 	if (Cfg.sharedSecrets.commentEngineAlt)
 		Cfg.sharedSecrets.commentEngineSecrets.push(Cfg.sharedSecrets.commentEngineAlt);
 
+
+
+	Cfg.sharedGeneral.regionHosts = {
+		'us': {
+			name: 'US',
+			host: 'https://localhost.codestream.us:12079'
+		},
+		'eu': {
+			name: 'EU',
+			host: 'https://localhost.codestream.us.12080'
+		}
+	};
+
 	return Cfg;
 }
