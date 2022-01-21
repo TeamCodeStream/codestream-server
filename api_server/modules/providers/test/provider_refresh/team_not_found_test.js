@@ -1,7 +1,7 @@
 'use strict';
 
 const ProviderRefreshTest = require('./provider_refresh_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends ProviderRefreshTest {
 
@@ -22,7 +22,7 @@ class TeamNotFoundTest extends ProviderRefreshTest {
 
 	getQueryParameters () {
 		const parameters = super.getQueryParameters();
-		parameters.teamId = ObjectID();
+		parameters.teamId = ObjectId();
 		return parameters;
 	}
 }

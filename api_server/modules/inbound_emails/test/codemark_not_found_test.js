@@ -1,7 +1,7 @@
 'use strict';
 
 const CodemarkReplyTest = require('./codemark_reply_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodemarkNotFoundTest extends CodemarkReplyTest {
 
@@ -20,7 +20,7 @@ class CodemarkNotFoundTest extends CodemarkReplyTest {
 		super.makePostData(() => {
 			// inject a valid but non-existent codemark ID
 			const index = this.data.to[0].address.indexOf('.');
-			const fakeCodemarkId = ObjectID();
+			const fakeCodemarkId = ObjectId();
 			this.data.to[0].address = fakeCodemarkId + this.data.to[0].address.slice(index);
 			this.data.to.splice(1);
 			callback();

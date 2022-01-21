@@ -1,7 +1,7 @@
 'use strict';
 
 const UpdateNRCommentTest = require('./update_nr_comment_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class NotFoundTest extends UpdateNRCommentTest {
 
@@ -20,7 +20,7 @@ class NotFoundTest extends UpdateNRCommentTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// try to get a bogus marker, with an ID that doesn't exist
-			this.path = '/nr-comments/' + ObjectID();
+			this.path = '/nr-comments/' + ObjectId();
 			callback();
 		});
 	}

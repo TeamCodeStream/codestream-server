@@ -254,6 +254,7 @@
 	},
 	"sharedGeneral": {
 		"installationId": "unique identifier for the onprem installation [CSSVC_INSTALLATION_ID]",
+		"newRelicLandingServiceUrl": "links codestream env to new relic env [CSSVC_NEW_RELIC_LANDING_SERVICE_URL]",
 		"runTimeEnvironment": "run-time environment (local, onprem, prod, qa, pd, ...) [CSSVC_ENV]"
 	},
 	"sharedSecrets": {
@@ -287,6 +288,7 @@
 	},
 	"storage": {
 		"mongo": {
+			"tlsCAFile": "file containing mongo certificate for TLS connections [CSSVC_MONGO_CLIENT_CERT_FILE]",
 			"url": "mongo connect string [CSSVC_MONGO_URL]"
 		}
 	},

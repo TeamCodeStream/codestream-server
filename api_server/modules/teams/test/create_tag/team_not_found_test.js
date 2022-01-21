@@ -1,7 +1,7 @@
 'use strict';
 
 const CreateTagTest = require('./create_tag_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends CreateTagTest {
 
@@ -19,7 +19,7 @@ class TeamNotFoundTest extends CreateTagTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/team-tags/' + ObjectID(); // substitute an ID for a non-existent team
+			this.path = '/team-tags/' + ObjectId(); // substitute an ID for a non-existent team
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const AddReviewersTest = require('./add_reviewers_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class ReviewersNotFound extends AddReviewersTest {
 
@@ -19,7 +19,7 @@ class ReviewersNotFound extends AddReviewersTest {
 	makeReviewUpdateData (callback) {
 		// substitute bogus reviewers value
 		super.makeReviewUpdateData(() => {
-			this.data.$addToSet.reviewers.push(ObjectID());
+			this.data.$addToSet.reviewers.push(ObjectId());
 			callback();
 		});
 	}

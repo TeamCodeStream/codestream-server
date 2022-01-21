@@ -1,7 +1,7 @@
 'use strict';
 
 const RemoveTagTest = require('./remove_tag_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodemarkNotFoundTest extends RemoveTagTest {
 
@@ -21,7 +21,7 @@ class CodemarkNotFoundTest extends RemoveTagTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// substitute an ID for a non-existent codemark
-			this.path = `/codemarks/${ObjectID()}/remove-tag`;
+			this.path = `/codemarks/${ObjectId()}/remove-tag`;
 			callback();
 		});
 	}

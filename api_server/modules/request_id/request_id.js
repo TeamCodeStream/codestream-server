@@ -4,7 +4,7 @@
 
 const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module.js');
 const ExpressRequest_ID = require('express-request-id');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class RequestID extends APIServerModule {
 

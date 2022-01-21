@@ -1,7 +1,7 @@
 'use strict';
 
 const DeleteUserTest = require('./delete_user_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class UserNotFoundTest extends DeleteUserTest {
 
@@ -20,7 +20,7 @@ class UserNotFoundTest extends DeleteUserTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/users/' + ObjectID(); // substitute an ID for a non-existent user
+			this.path = '/users/' + ObjectId(); // substitute an ID for a non-existent user
 			callback();
 		});
 	}

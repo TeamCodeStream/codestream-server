@@ -3,7 +3,7 @@
 'use strict';
 
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const RandomString = require('randomstring');
 
 class CommonInit {

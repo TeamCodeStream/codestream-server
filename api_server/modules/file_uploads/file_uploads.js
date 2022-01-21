@@ -5,7 +5,7 @@
 const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module.js');
 const Multer = require('multer');
 const MulterS3 = require('multer-s3');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 const ROUTES = [
 	{

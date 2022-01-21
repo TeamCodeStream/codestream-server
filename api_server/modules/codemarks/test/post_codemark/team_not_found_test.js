@@ -1,7 +1,7 @@
 'use strict';
 
 const PostCodemarkTest = require('./post_codemark_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends PostCodemarkTest {
 
@@ -20,7 +20,7 @@ class TeamNotFoundTest extends PostCodemarkTest {
 		// substitute an ID for a non-existent team when trying to create the codemark
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.teamId = ObjectID();
+			this.data.teamId = ObjectId();
 			callback();
 		});
 	}

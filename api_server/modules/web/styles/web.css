@@ -727,6 +727,9 @@ span.dropdown-item:hover {
 	text-align: center;
 }
 .form-control {
+	border: 1px solid #383838 !important;
+}
+.btn-light.form-control {
 	border: 1px solid rgb(227, 228, 228) !important;
 }
 .lines-added {

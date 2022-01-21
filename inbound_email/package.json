@@ -1,23 +1,23 @@
 {
 	"name": "inbound-email",
-	"version": "11.0.23",
+	"version": "11.0.24",
 	"dependencies": {
-		"async": "2.6.2",
-		"commander": "4.1.0",
-		"hjson": "3.2.1",
-		"html-entities": "1.2.1",
-		"mailparser": "2.7.7",
-		"mongodb": "3.5.2",
-		"newrelic": "8.5.1",
-		"pubnub": "4.30.1",
-		"randomstring": "1.1.5",
-		"strftime": "0.10.0",
-		"uuid": "3.4.0"
+		"async": "2.6.3",
+		"commander": "8.3.0",
+		"hjson": "3.2.2",
+		"html-entities": "1.4.0",
+		"mailparser": "3.4.0",
+		"mongodb": "4.3.1",
+		"newrelic": "8.7.1",
+		"pubnub": "5.0.0",
+		"randomstring": "1.2.1",
+		"strftime": "0.10.1",
+		"uuid": "8.3.2"
 	},
 	"devDependencies": {
-		"eslint": "6.8.0",
-		"mocha": "8.2.1",
-		"mocha-teamcity-reporter": "3.0.0",
+		"eslint": "8.7.0",
+		"mocha": "9.1.4",
+		"mocha-teamcity-reporter": "4.2.0",
 		"pre-commit": "1.2.2"
 	},
 	"scripts": {

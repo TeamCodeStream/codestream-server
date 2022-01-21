@@ -271,6 +271,18 @@ module.exports = function customConfigFunc(nativeCfg) {
 			],
 		},
 	});
+	// FIXME: this should be added to the config schema
+	Cfg.storage.mongo.tlsOptions = {};
+	if (Cfg.storage.mongo.tlsCAFile && Fs.existsSync(Cfg.storage.mongo.tlsCAFile)) {
+		Cfg.storage.mongo.tlsOptions = {
+			tls: true,
+			tlsCAFile: Cfg.storage.mongo.tlsCAFile
+		};
+		console.log(`connecting to mongo using TLS CA ${Cfg.storage.mongo.tlsCAFile}`);
+	}
+	else if (Cfg.storage.mongo.tlsCAFile) {
+		console.log(`could not load ${Cfg.storage.mongo.tlsCAFile}`);
+	}
 
 	// integrations
 	// Ultimately, we plan to eliminate the repeating blocks so for now, in the custom
@@ -415,7 +427,9 @@ module.exports = function customConfigFunc(nativeCfg) {
 		maxStreamsPerRequest: 100, // never serve more than this many streams in a page
 		maxMarkersPerRequest: 100, // never serve more than this many markers in a page (not currently used)
 	};
-
+	// disable excessive logging of health checks
+	Cfg.apiServer.dontLogHealthChecks = process.env.CS_API_DONT_LOG_HEALTH_CHECKS ? true : false;
+	
 	// broadcaster
 	if (Cfg.broadcastEngine.selected === 'codestreamBroadcaster') {
 		Cfg.broadcastEngine.codestreamBroadcaster.logger.basename = 'broadcaster';

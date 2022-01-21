@@ -1,7 +1,7 @@
 'use strict';
 
 const EditingTest = require('./editing_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 const Assert = require('assert');
 
 class StreamNotFoundTest extends EditingTest {
@@ -14,7 +14,7 @@ class StreamNotFoundTest extends EditingTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.streamId = ObjectID(); // substitute an ID for a non-existent stream
+			this.data.streamId = ObjectId(); // substitute an ID for a non-existent stream
 			callback();
 		});
 	}

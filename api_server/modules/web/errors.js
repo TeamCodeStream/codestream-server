@@ -42,5 +42,17 @@ module.exports = {
 	'noUser': {
 		code: 'SWEB-1009',
 		message: 'No user can be associated with this authorization flow'
+	},
+	'loginCodeMismatch': {
+		code: 'SWEB-1010',
+		message: 'Sorry, you entered an incorrect login code.'
+	},
+	'loginCodeExpired': {
+		code: 'SWEB-1011',
+		message: 'Sorry, that login code has expired.'
+	},
+	'tooManyLoginCodeAttempts': {
+		code: 'SWEB-1012',
+		message: 'Sorry, you have made too many attempts to log in via code. You must obtain a new login code.'
 	}
 };

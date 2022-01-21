@@ -1,7 +1,7 @@
 'use strict';
 
 const DeletePostTest = require('./delete_post_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class PostNotFoundTest extends DeletePostTest {
 
@@ -20,7 +20,7 @@ class PostNotFoundTest extends DeletePostTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/posts/' + ObjectID(); // substitute an ID for a non-existent post
+			this.path = '/posts/' + ObjectId(); // substitute an ID for a non-existent post
 			callback();
 		});
 	}

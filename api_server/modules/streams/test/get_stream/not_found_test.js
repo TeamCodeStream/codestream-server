@@ -1,7 +1,7 @@
 'use strict';
 
 const GetStreamTest = require('./get_stream_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class NotFoundTest extends GetStreamTest {
 
@@ -17,7 +17,7 @@ class NotFoundTest extends GetStreamTest {
 
 	// before the test runs...
 	setPath (callback) {
-		this.path = '/streams/' + ObjectID();
+		this.path = '/streams/' + ObjectId();
 		callback();
 	}
 }

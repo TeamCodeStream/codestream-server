@@ -1,7 +1,7 @@
 'use strict';
 
 const GetPostTest = require('./get_post_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class NotFoundTest extends GetPostTest {
 
@@ -20,7 +20,7 @@ class NotFoundTest extends GetPostTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// set the path to fetch some random post that doesn't exist
-			this.path = '/posts/' + ObjectID();
+			this.path = '/posts/' + ObjectId();
 			callback();
 		});
 	}

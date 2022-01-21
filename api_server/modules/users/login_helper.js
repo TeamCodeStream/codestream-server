@@ -4,7 +4,7 @@
 
 const InitialDataFetcher = require('./initial_data_fetcher');
 const UserSubscriptionGranter = require('./user_subscription_granter');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const ProviderFetcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_fetcher');
 const APICapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/capabilities');
 const VersionErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/errors');
@@ -39,6 +39,7 @@ class LoginHelper {
 		], this);
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		await this.updateLastLogin();
+		await this.resetLoginCode();
 		this.getThirdPartyProviders();
 		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
 		await this.getAccountIsConnected();		// get whether this user's account is connected to a CS company
@@ -180,6 +181,18 @@ class LoginHelper {
 		await this.request.data.users.applyOpById(this.user.id, op);
 	}
 
+	// delete fields associated with a login code, if applicable
+	async resetLoginCode () {
+		const op = {
+			$unset: {
+				loginCode: true,
+				loginCodeAttempts: true,
+				loginCodeExpiresAt: true,
+			}
+		};
+		await this.request.data.users.applyOpById(this.user.id, op);
+	}
+
 	// get the third-party issue providers that are available for issue codemark integration
 	// this fetches the "standard" in-cloud providers, we'll add to this for providers for each individual team
 	getThirdPartyProviders () {
@@ -201,7 +214,7 @@ class LoginHelper {
 			return;
 		}
 
-		const { isOnPrem, runTimeEnvironment, isProductionCloud } = this.apiConfig.sharedGeneral;
+		const { isOnPrem, runTimeEnvironment, isProductionCloud, newRelicLandingServiceUrl } = this.apiConfig.sharedGeneral;
 
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
@@ -218,7 +231,8 @@ class LoginHelper {
 			runtimeEnvironment: runTimeEnvironment,
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
-			accountIsConnected: this.accountIsConnected
+			accountIsConnected: this.accountIsConnected,
+			newRelicLandingServiceUrl
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub

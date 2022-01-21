@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# desc# update cs config files using current schema (key_mgmt sandbox must be loaded)
+
+$CSBE_TOP/shared/codestream_configs/bin/update-all-configs "$@"

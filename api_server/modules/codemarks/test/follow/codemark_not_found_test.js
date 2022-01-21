@@ -1,7 +1,7 @@
 'use strict';
 
 const FollowTest = require('./follow_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodemarkNotFoundTest extends FollowTest {
 
@@ -21,7 +21,7 @@ class CodemarkNotFoundTest extends FollowTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// substitute an ID for a non-existent codemark
-			this.path = `/codemarks/follow/${ObjectID()}`;
+			this.path = `/codemarks/follow/${ObjectId()}`;
 			callback();
 		});
 	}

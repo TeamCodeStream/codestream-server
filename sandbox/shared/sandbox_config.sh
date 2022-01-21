@@ -2,7 +2,7 @@
 # Common routines for codestream-server sandboxes
 
 # Defaults values
-[ -n "$CSBE_NODE_VER" ] && _defaultNodeVersion=$CSBE_NODE_VER || _defaultNodeVersion=12.14.1
+[ -n "$CSBE_NODE_VER" ] && _defaultNodeVersion=$CSBE_NODE_VER || _defaultNodeVersion=16.13.2
 [ -z "$CSBE_API_DEFAULT_PORT" ] && export CSBE_API_DEFAULT_PORT=12079
 
 function sbcfg_is_mono_repo_installation {

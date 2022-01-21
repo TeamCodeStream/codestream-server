@@ -389,6 +389,7 @@
 			"runTimeEnvironment": "pi"
 		},
 		"prod": {
+			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
 			"runTimeEnvironment": "prod"
 		},
 		"qa": {
@@ -438,16 +439,19 @@
 				"_loadSecretsFile": "mongo/nr.cfg"
 			},
 			"pd": {
-				"_loadSecretsFile": "mongo/pd.cfg"
+				"_loadSecretsFile": "mongo/pd.cfg",
+				"tlsCAFile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt+ca"
 			},
 			"prod": {
 				"_loadSecretsFile": "mongo/prod.cfg"
 			},
 			"qa": {
-				"_loadSecretsFile": "mongo/qa.cfg"
+				"_loadSecretsFile": "mongo/qa.cfg",
+				"tlsCAFile": "/etc/pki/mongo-qaxv4211/mongo-qaxv4211-crt"
 			},
 			"stg": {
-				"_loadSecretsFile": "mongo/stg.cfg"
+				"_loadSecretsFile": "mongo/stg.cfg",
+				"tlsCAFile": "/etc/pki/mongo-staging/mongo-staging-crt"
 			}
 		}
 	},

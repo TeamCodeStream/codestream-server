@@ -1,7 +1,7 @@
 'use strict';
 
 const IssueWithAssigneesTest = require('./issue_with_assignees_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidAssigneeTest extends IssueWithAssigneesTest {
 
@@ -18,7 +18,7 @@ class InvalidAssigneeTest extends IssueWithAssigneesTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.codemark.assignees.push(ObjectID());
+			this.data.codemark.assignees.push(ObjectId());
 			callback();
 		});
 	}

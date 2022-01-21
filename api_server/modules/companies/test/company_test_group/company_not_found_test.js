@@ -1,7 +1,7 @@
 'use strict';
 
 const CompanyTestGroupTest = require('./company_test_group_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CompanyNotFoundTest extends CompanyTestGroupTest {
 
@@ -19,7 +19,7 @@ class CompanyNotFoundTest extends CompanyTestGroupTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/company-test-group/' + ObjectID(); // substitute an ID for a non-existent company
+			this.path = '/company-test-group/' + ObjectId(); // substitute an ID for a non-existent company
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const AddFollowersTest = require('./add_followers_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidFollowerTest extends AddFollowersTest {
 
@@ -18,7 +18,7 @@ class InvalidFollowerTest extends AddFollowersTest {
 
 	makeCodemarkData (callback) {
 		super.makeCodemarkData(() => {
-			this.data.followerIds.push(ObjectID());
+			this.data.followerIds.push(ObjectId());
 			callback();
 		});
 	}

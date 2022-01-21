@@ -1,7 +1,7 @@
 'use strict';
 
 const ReviewTest = require('./review_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidRepoIdInChangeSetTest extends ReviewTest {
 
@@ -18,7 +18,7 @@ class InvalidRepoIdInChangeSetTest extends ReviewTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.review.reviewChangesets[0].repoId = ObjectID();
+			this.data.review.reviewChangesets[0].repoId = ObjectId();
 			callback();
 		});
 	}

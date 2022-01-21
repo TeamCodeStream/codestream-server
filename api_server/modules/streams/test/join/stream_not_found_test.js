@@ -1,7 +1,7 @@
 'use strict';
 
 const JoinTest = require('./join_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class StreamNotFoundTest extends JoinTest {
 
@@ -20,7 +20,7 @@ class StreamNotFoundTest extends JoinTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/join/' + ObjectID(); // substitute an ID for a non-existent stream
+			this.path = '/join/' + ObjectId(); // substitute an ID for a non-existent stream
 			callback();
 		});
 	}

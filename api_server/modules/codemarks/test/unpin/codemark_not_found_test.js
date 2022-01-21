@@ -1,7 +1,7 @@
 'use strict';
 
 const UnpinTest = require('./unpin_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodemarkNotFoundTest extends UnpinTest {
 
@@ -20,7 +20,7 @@ class CodemarkNotFoundTest extends UnpinTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/unpin/' + ObjectID(); // substitute an ID for a non-existent codemark
+			this.path = '/unpin/' + ObjectId(); // substitute an ID for a non-existent codemark
 			callback();
 		});
 	}

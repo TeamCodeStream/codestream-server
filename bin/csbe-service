@@ -7,28 +7,39 @@ function usage {
     exit 1
 }
 
-echo "This is just a template - this script needs to be edited"; exit 1
+function up {
+	local ec=0
+	cs_api-service "$@" || ec=1
+	cs_outbound_email-service "$@" || ec=1
+	cs_mailin-service "$@" || ec=1
+	return $ec
+}
 
-service_name=XXXXX
+function down {
+	local ec=0
+	cs_mailin-service "$@" || ec=1
+	cs_outbound_email-service "$@" || ec=1
+	cs_api-service "$@" || ec=1
+	return $ec
+}
+
+[ -z "$CSBE_SANDBOX" ] && echo "codestream-server sandbox not loaded" >&2 && exit 1
 [ -z "$1" ] && usage
-[ -z "$CSBE_SANDBOX" ] && echo "sandbox not loaded">&2 && exit 1
-. $DT_TOP/lib/init_funcs.sh
 
 ec=0
 case "$1" in
 	start)
-		# start the service here
-		service_status $service_name
-		ec=$?
+		up "$@" || ec=1
+		sleep 1
+		up status
 		;;
 	stop)
-		service_stop $service_name
-		ec=$?
+		down "$@" || ec=1
 		sleep 2
-		service_status $service_name
+		up status
 		;;
 	status)
-		service_status $service_name
+		up "$@"
 		;;
 	*)
 		usage

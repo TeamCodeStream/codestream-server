@@ -1,7 +1,7 @@
 'use strict';
 
 const CodemarkLinkTest = require('./codemark_link_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidCodemarkIdTest extends CodemarkLinkTest {
 
@@ -20,7 +20,7 @@ class InvalidCodemarkIdTest extends CodemarkLinkTest {
 		// substitute an invalid codemark ID after creating the codemark
 		super.createCodemark(error => {
 			if (error) { return callback(error); }
-			this.path = `/codemarks/${ObjectID()}/permalink`;
+			this.path = `/codemarks/${ObjectId()}/permalink`;
 			callback();
 		});
 	}

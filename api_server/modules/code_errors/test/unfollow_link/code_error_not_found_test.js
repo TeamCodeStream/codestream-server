@@ -1,7 +1,7 @@
 'use strict';
 
 const UnfollowTest = require('./unfollow_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 const Assert = require('assert');
 
 class CodeErrorNotFoundTest extends UnfollowTest {
@@ -15,7 +15,7 @@ class CodeErrorNotFoundTest extends UnfollowTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// substitute an ID for a non-existent code error
-			this.path = `/no-auth/unfollow-link/code-error/${ObjectID()}?t=${this.token}`;
+			this.path = `/no-auth/unfollow-link/code-error/${ObjectId()}?t=${this.token}`;
 			callback();
 		});
 	}

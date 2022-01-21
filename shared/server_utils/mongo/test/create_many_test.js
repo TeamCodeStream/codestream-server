@@ -37,7 +37,8 @@ class CreateManyTest extends MongoTest {
 
 	// create our prepared documents in the database
 	async createDocuments () {
-		this.testDocuments = await this.data.test.createMany(this.documents);
+		const ids = await this.data.test.createMany(this.documents);
+		this.testDocuments = await this.data.test.getByIds(ids);
 	}
 
 	// run the test...

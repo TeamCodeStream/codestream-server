@@ -1,7 +1,7 @@
 'use strict';
 
 const AddNRInfoTest = require('./add_nr_info_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CompanyNotFoundTest extends AddNRInfoTest {
 
@@ -19,7 +19,7 @@ class CompanyNotFoundTest extends AddNRInfoTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/companies/add-nr-info/' + ObjectID(); // substitute an ID for a non-existent company
+			this.path = '/companies/add-nr-info/' + ObjectId(); // substitute an ID for a non-existent company
 			callback();
 		});
 	}

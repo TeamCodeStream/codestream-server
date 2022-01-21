@@ -1,7 +1,7 @@
 'use strict';
 
 const GetChildPostsTest = require('./get_child_posts_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class ParentNotFoundTest extends GetChildPostsTest {
 
@@ -19,7 +19,7 @@ class ParentNotFoundTest extends GetChildPostsTest {
 	// set the path to use in the fetch request
 	setPath (callback) {
 		// provide some random non-existent ID
-		const parentPostId = ObjectID();
+		const parentPostId = ObjectId();
 		this.path = `/posts?teamId=${this.team.id}&parentPostId=${parentPostId}`;
 		callback();
 	}

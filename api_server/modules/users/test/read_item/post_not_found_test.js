@@ -1,7 +1,7 @@
 'use strict';
 
 const ReadItemTest = require('./read_item_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class PostNotFoundTest extends ReadItemTest {
 
@@ -21,7 +21,7 @@ class PostNotFoundTest extends ReadItemTest {
 		// run usual setup, but substitute a bogus post ID
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/read-item/' + ObjectID();
+			this.path = '/read-item/' + ObjectId();
 			callback();
 		});
 	}

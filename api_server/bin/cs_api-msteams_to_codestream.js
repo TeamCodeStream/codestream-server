@@ -12,7 +12,7 @@ const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 const PubNub = require('pubnub');
 const PubNubClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/pubnub_client_async');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const OS = require('os');
 
 Commander

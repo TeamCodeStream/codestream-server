@@ -39,6 +39,11 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'post',
+		path: 'no-auth/nr-register',
+		requestClass: require('./nr_register_request')
+	},
+	{
+		method: 'post',
 		path: 'no-auth/confirm',
 		requestClass: require('./confirm_request')
 	},
@@ -46,6 +51,16 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'no-auth/login',
 		requestClass: require('./login_request')
+	},
+	{
+		method: 'put',
+		path: 'no-auth/login-by-code',
+		requestClass: require('./login_by_code_request')
+	},
+	{
+		method: 'post',
+		path: 'no-auth/generate-login-code',
+		requestClass: require('./generate_login_code_request')
 	},
 	{
 		method: 'put',

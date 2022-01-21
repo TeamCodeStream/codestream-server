@@ -1,7 +1,7 @@
 'use strict';
 
 const GetChildPostsTest = require('./get_child_posts_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class StreamIdNoMatchParentTest extends GetChildPostsTest {
 
@@ -19,7 +19,7 @@ class StreamIdNoMatchParentTest extends GetChildPostsTest {
 	// set the path to use in the fetch request
 	setPath (callback) {
 		super.setPath(() => {
-			this.path += `&streamId=${ObjectID()}`;
+			this.path += `&streamId=${ObjectId()}`;
 			callback();
 		});
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
 const ReactTest = require('./react_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class PostNotFoundTest extends ReactTest {
 
@@ -21,7 +21,7 @@ class PostNotFoundTest extends ReactTest {
 		// substitute a non-existent post ID
 		super.makePostData(error => {
 			if (error) { return callback(error); }
-			this.path = '/react/' + ObjectID();
+			this.path = '/react/' + ObjectId();
 			callback();
 		});
 	}

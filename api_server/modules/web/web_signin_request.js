@@ -44,7 +44,7 @@ class WebSigninRequest extends APIRequest {
 		const error = WebErrors.invalidLogin.code;
 		const email = encodeURIComponent(this.request.body.email || '');
 		const url = encodeURIComponent(this.request.body.finishUrl || '');
-		let redirect = `/web/login?error=${error}&email=${email}&url=${url}`;
+		let redirect = `/web/login?error=${error}&email=${email}&url=${url}&password=true`;
 		if (this.request.body.tenantId) {
 			redirect += '&tenantId=' + encodeURIComponent(this.request.body.tenantId || '');
 		}

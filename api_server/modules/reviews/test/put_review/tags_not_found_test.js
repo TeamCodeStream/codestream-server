@@ -1,7 +1,7 @@
 'use strict';
 
 const AddTagsTest = require('./add_tags_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TagsNotFoundTest extends AddTagsTest {
 
@@ -19,7 +19,7 @@ class TagsNotFoundTest extends AddTagsTest {
 	makeReviewUpdateData (callback) {
 		// substitute bogus tags value
 		super.makeReviewUpdateData(() => {
-			this.data.$addToSet.tags.push(ObjectID());
+			this.data.$addToSet.tags.push(ObjectId());
 			callback();
 		});
 	}

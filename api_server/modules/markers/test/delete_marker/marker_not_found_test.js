@@ -1,7 +1,7 @@
 'use strict';
 
 const DeleteMarkerTest = require('./delete_marker_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class MarkerNotFoundTest extends DeleteMarkerTest {
 
@@ -20,7 +20,7 @@ class MarkerNotFoundTest extends DeleteMarkerTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = `/markers/${ObjectID()}`; // substitute an ID for a non-existent marker
+			this.path = `/markers/${ObjectId()}`; // substitute an ID for a non-existent marker
 			callback();
 		});
 	}

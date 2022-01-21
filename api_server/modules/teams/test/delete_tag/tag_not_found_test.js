@@ -1,7 +1,7 @@
 'use strict';
 
 const DeleteTagTest = require('./delete_tag_test');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class TagNotFoundTest extends DeleteTagTest {
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class StreamNotFoundTest extends CodeStreamAPITest {
 
@@ -14,7 +14,7 @@ class StreamNotFoundTest extends CodeStreamAPITest {
 	}
 
 	get path () {
-		return '/read/' + ObjectID();
+		return '/read/' + ObjectId();
 	}
 
 	getExpectedError () {

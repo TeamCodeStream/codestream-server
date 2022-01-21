@@ -1,7 +1,7 @@
 'use strict';
 
 const MarkerStreamOnTheFlyTest = require('./marker_stream_on_the_fly_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class OnTheFlyMarkerStreamRepoNotFoundTest extends MarkerStreamOnTheFlyTest {
 
@@ -21,7 +21,7 @@ class OnTheFlyMarkerStreamRepoNotFoundTest extends MarkerStreamOnTheFlyTest {
 		// for the stream we want to create on-the-fly, substitute an ID for a non-existent repo
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.codemark.markers[0].repoId = ObjectID();
+			this.data.codemark.markers[0].repoId = ObjectId();
 			callback();
 		});
 	}

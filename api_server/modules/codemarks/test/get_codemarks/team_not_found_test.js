@@ -1,7 +1,7 @@
 'use strict';
 
 const GetCodemarksTest = require('./get_codemarks_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends GetCodemarksTest {
 
@@ -18,7 +18,7 @@ class TeamNotFoundTest extends GetCodemarksTest {
 
 	setPath (callback) {
 		// set teamId to team that doesn't exist
-		this.path = '/codemarks?teamId=' + ObjectID();
+		this.path = '/codemarks?teamId=' + ObjectId();
 		callback();
 	}
 }

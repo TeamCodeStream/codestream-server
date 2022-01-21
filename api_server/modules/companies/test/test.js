@@ -11,6 +11,7 @@ const CompanyTestGroupRequestTester = require('./company_test_group/test');
 const PutCompanyRequestTester = require('./put_company/test');
 const JoinCompanyRequestTester = require('./join_company/test');
 const AddNRInfoRequestTester = require('./add_nr_info/test');
+const DeleteCompanyRequestTester = require('./delete_company/test');
 
 const companiesRequestTester = new CompaniesRequestTester();
 
@@ -25,4 +26,5 @@ describe('company requests', function() {
 	describe('PUT /companies/:id', PutCompanyRequestTester.test);
 	describe('PUT /companies/join/:id', JoinCompanyRequestTester.test);
 	describe('POST /companies/add-nr-info/:id', AddNRInfoRequestTester.test);
+	describe('DELETE /companies/:id', DeleteCompanyRequestTester.test);
 });

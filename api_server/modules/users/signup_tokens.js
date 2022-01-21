@@ -74,7 +74,7 @@ class SignupTokens {
 
 	// remove a signup token, presumably because it has been used and is no longer valid
 	async remove (token, options) {
-		options = Object.assign({}, options, { hint: Indexes.byToken });
+		options = Object.assign({}, options, /*{ hint: Indexes.byToken }*/ { overrideHintRequired: true });
 		await this.collection.deleteByQuery(
 			{ token },
 			options
@@ -85,7 +85,7 @@ class SignupTokens {
 	// are now invalid anyway, and we should keep the signupTokens collection small
 	async removeOldTokens (options) {
 		const cutoff = Date.now() - this.expirationTime;
-		options = Object.assign({}, options, { hint: Indexes.byExpiresAt });
+		options = Object.assign({}, options, /*{ hint: Indexes.byExpiresAt }*/ { overrideHintRequired: true });
 		await this.collection.deleteByQuery(
 			{
 				expiresAt: { $lt: cutoff }

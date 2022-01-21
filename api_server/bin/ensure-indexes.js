@@ -73,7 +73,7 @@ const BuildIndexes = async function(db, collection) {
 		AllFinished.indexes++;
 		console.log('ensuring index on collection', collection, index);
 		try {
-			await collectionObj.ensureIndex(index);
+			await collectionObj.createIndex(index);
 		}
 		catch (error) {
 			return console.log('error', error);
@@ -103,7 +103,10 @@ function WaitUntilFinished() {
 		const mongoUrl = ApiConfig.configIsMongo()
 			? ApiConfig.options.mongoUrl
 			: (await ApiConfig.loadPreferredConfig()).storage.mongo.url;
-		mongoClient = await MongoClient.connect(mongoUrl, { useNewUrlParser: true });
+		const mongoTlsOpts = ApiConfig.configIsMongo()
+			? ApiConfig.options.mongoTlsOpts
+			: (await ApiConfig.loadPreferredConfig()).storage.mongo.tlsOptions;
+		mongoClient = await MongoClient.connect(mongoUrl, Object.assign({ useNewUrlParser: true }, mongoTlsOpts));
 		db = mongoClient.db();
 	}
 	catch (error) {

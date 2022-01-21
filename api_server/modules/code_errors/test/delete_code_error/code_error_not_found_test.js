@@ -1,7 +1,7 @@
 'use strict';
 
 const DeleteCodeErrorTest = require('./delete_code_error_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodeErrorNotFoundTest extends DeleteCodeErrorTest {
 
@@ -20,7 +20,7 @@ class CodeErrorNotFoundTest extends DeleteCodeErrorTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/code-errors/' + ObjectID(); // substitute an ID for a non-existent code error
+			this.path = '/code-errors/' + ObjectId(); // substitute an ID for a non-existent code error
 			callback();
 		});
 	}

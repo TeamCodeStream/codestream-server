@@ -2,7 +2,7 @@
 
 const PermalinkTest = require('./permalink_test');
 const Assert = require('assert');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class CodemarkLinkNotFoundTest extends PermalinkTest {
 

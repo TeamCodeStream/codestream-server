@@ -12,7 +12,7 @@ const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const UsernameValidator = require('./username_validator');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const Base64 = require('base-64');
 
 // how long an invite code remains valid
@@ -330,7 +330,6 @@ class UserCreator extends ModelCreator {
 		await this.api.services.broadcaster.grant(
 			[this.model.id],
 			`user-${this.model.id}`,
-			() => {},
 			{ request: this.request }
 		);
 	}

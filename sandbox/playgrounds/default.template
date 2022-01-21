@@ -9,9 +9,9 @@
 dt_load {{SBNAME_mongo}} --quiet
 dt_load {{SBNAME_cs_server}}
 if [ "$1" = start ]; then
-	cs_api-cloud-services start
+	csbe-service start
 elif [ "$1" = stop ]; then
-	cs_api-cloud-services stop
+	csbe-service stop
 fi
 cd $CSBE_TOP
 

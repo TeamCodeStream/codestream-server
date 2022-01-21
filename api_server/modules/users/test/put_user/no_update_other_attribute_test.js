@@ -2,7 +2,7 @@
 
 const PutUserTest = require('./put_user_test');
 const Assert = require('assert');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 const RandomString = require('randomstring');
 
 class NoUpdateOtherAttributeTest extends PutUserTest {
@@ -23,13 +23,13 @@ class NoUpdateOtherAttributeTest extends PutUserTest {
 				otherAttributeValue = RandomString.generate(10); 
 				break;
 			case 'id':
-				otherAttributeValue = ObjectID();
+				otherAttributeValue = ObjectId();
 				break;
 			case 'object': 
 				otherAttributeValue = { x: 1, y: 'two' }; 
 				break;
 			case 'arrayOfIds':
-				otherAttributeValue = [ObjectID(), ObjectID()];
+				otherAttributeValue = [ObjectId(), ObjectId()];
 				break;
 			case 'arrayOfEmails':
 			case 'arrayOfStrings':

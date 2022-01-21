@@ -2,7 +2,7 @@
 
 const PresenceTest = require('./presence_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const Assert = require('assert');
 
 class StalePresenceRemovalTest extends PresenceTest {

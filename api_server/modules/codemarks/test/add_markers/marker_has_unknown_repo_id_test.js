@@ -1,7 +1,7 @@
 'use strict';
 
 const AddMarkersTest = require('./add_markers_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class MarkerHasUnknownRepoIdTest extends AddMarkersTest {
 
@@ -22,7 +22,7 @@ class MarkerHasUnknownRepoIdTest extends AddMarkersTest {
 		super.makeTestData(() => {
 			const marker = this.data.markers[0];
 			delete marker.fileStreamId;
-			marker.repoId = ObjectID();
+			marker.repoId = ObjectId();
 			callback();
 		});
 	}

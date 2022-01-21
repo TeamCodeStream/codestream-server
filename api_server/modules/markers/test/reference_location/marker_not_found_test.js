@@ -1,7 +1,7 @@
 'use strict';
 
 const ReferenceLocationTest = require('./reference_location_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class MarkerNotFoundTest extends ReferenceLocationTest {
 
@@ -20,7 +20,7 @@ class MarkerNotFoundTest extends ReferenceLocationTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = `/markers/${ObjectID()}/reference-location`; // substitute an ID for a non-existent marker
+			this.path = `/markers/${ObjectId()}/reference-location`; // substitute an ID for a non-existent marker
 			callback();
 		});
 	}

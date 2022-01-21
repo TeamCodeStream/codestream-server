@@ -1,7 +1,7 @@
 'use strict';
 
 const RelatedCodemarksTest = require('./related_codemarks_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class RelatedCodemarkNotFoundTest extends RelatedCodemarksTest {
 
@@ -20,7 +20,7 @@ class RelatedCodemarkNotFoundTest extends RelatedCodemarksTest {
 	makePostData (callback) {
 		// add a non-existent codemark to the related codemarks
 		super.makePostData(() => {
-			this.data.codemark.relatedCodemarkIds.push(ObjectID());
+			this.data.codemark.relatedCodemarkIds.push(ObjectId());
 			callback();
 		});
 	}

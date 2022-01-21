@@ -3,7 +3,7 @@
 'use strict';
 
 const RandomString = require('randomstring');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class RandomCodeErrorFactory {
 

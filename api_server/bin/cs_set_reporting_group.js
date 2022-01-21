@@ -53,7 +53,7 @@ const queryCollection = async function(csDb, collection, query) {
 	// console.log('connecting...');
 	try {
 		await ApiConfig.loadPreferredConfig();
-		db = await MongoClient.connect(ApiConfig.getPreferredConfig().storage.mongo.url);
+		db = await MongoClient.connect(ApiConfig.getPreferredConfig().storage.mongo.url, ApiConfig.getPreferredConfig().storage.mongo.tlsOptions);
 	}
 	catch (error) {
 		console.log('mongo connect error', error);
@@ -63,7 +63,7 @@ const queryCollection = async function(csDb, collection, query) {
 
 	// find matching companies
 	let query = Commander.companyId ?
-		{ _id : new Mongodb.ObjectID(Commander.companyId) } :
+		{ _id : new Mongodb.ObjectId(Commander.companyId) } :
 		{ name : Commander.company };
 	let companies = await queryCollection(csDb, 'companies', query);
 
@@ -80,7 +80,7 @@ const queryCollection = async function(csDb, collection, query) {
 		for (let companyIdx in companies) {
 			let thisCompany = companies[companyIdx];
 
-			let memberOIDs = thisCompany.memberIds.map(function(id) { return Mongodb.ObjectID(id);});
+			let memberOIDs = thisCompany.memberIds.map(function(id) { return Mongodb.ObjectId(id);});
 			let members = await queryCollection(csDb, 'users', {_id: {$in: memberOIDs}});
 
 			let membersToDisplay = [];
@@ -111,7 +111,7 @@ const queryCollection = async function(csDb, collection, query) {
 	}
 	try {
 		await csDb.collection('companies').updateOne(
-			{_id: Mongodb.ObjectID(companies[0]._id)},
+			{_id: Mongodb.ObjectId(companies[0]._id)},
 			operation);
 	}
 	catch(error) {

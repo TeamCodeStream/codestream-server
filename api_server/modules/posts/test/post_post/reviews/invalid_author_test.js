@@ -1,7 +1,7 @@
 'use strict';
 
 const AuthorsTest = require('./authors_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class InvalidAuthorTest extends AuthorsTest {
 
@@ -18,7 +18,7 @@ class InvalidAuthorTest extends AuthorsTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			const bogusAuthorId = ObjectID();
+			const bogusAuthorId = ObjectId();
 			this.data.review.authorsById[bogusAuthorId] = {
 				stomped: Math.floor(Math.random() * 10),
 				commits: Math.floor(Math.random() * 10)

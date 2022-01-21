@@ -1,7 +1,7 @@
 'use strict';
 
 const AddMarkersTest = require('./add_markers_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class MarkerHasUnknownStreamIdTest extends AddMarkersTest {
 
@@ -20,7 +20,7 @@ class MarkerHasUnknownStreamIdTest extends AddMarkersTest {
 	makeTestData (callback) {
 		// we'll add a marker from a non-existent stream 
 		super.makeTestData(() => {
-			this.data.markers[0].fileStreamId = ObjectID();
+			this.data.markers[0].fileStreamId = ObjectId();
 			callback();
 		});
 	}

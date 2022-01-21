@@ -4,7 +4,7 @@
 
 const DataModel = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/data_model');
 const CodeStreamModelValidator = require('./codestream_model_validator');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class CodeStreamModel extends DataModel {
 
@@ -48,7 +48,7 @@ class CodeStreamModel extends DataModel {
 		if (typeof this.attributes[attribute] === 'string') {
 			try {
 				// this will harmlessly throw if it's not a valid mongo ID
-				ObjectID(this.attributes[attribute]);
+				ObjectId(this.attributes[attribute]);
 				this.toLowerCase(attribute);
 			}
 			catch (error) { error; }

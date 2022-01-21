@@ -1,7 +1,7 @@
 'use strict';
 
 const GetByIdTest = require('./get_by_id_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class UpsertTest extends GetByIdTest {
 
@@ -26,7 +26,7 @@ class UpsertTest extends GetByIdTest {
 	async updateDocument () {
 		// do an update operation with the upsert option, this should create the document even though
 		// it did not exist before
-		const id = ObjectID();	// generate a new ID for it
+		const id = ObjectId();	// generate a new ID for it
 		const update = {
 			id: id,
 			text: 'upserted!',

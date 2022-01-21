@@ -1,7 +1,7 @@
 'use strict';
 
 const CheckSignupTest = require('./check_signup_test');
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 
 class InvalidTokenTest extends CheckSignupTest {
 

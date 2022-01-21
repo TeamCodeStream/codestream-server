@@ -18,7 +18,7 @@ class TeamDeleter extends ModelDeleter {
 	// set the actual op to execute to delete an op 
 	async setOpForDelete () {
 		// get the team to delete
-		this.teamToDelete = await this.data.teams.getById(this.request.request.params.id);
+		this.teamToDelete = await this.data.teams.getById(this.id);
 		if (!this.teamToDelete) {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}

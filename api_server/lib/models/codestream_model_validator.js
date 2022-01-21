@@ -4,7 +4,7 @@
 
 const DataModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/data_collection/data_model_validator');
 const URL = require('url');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 const CodeStreamModelAttributes = require('./codestream_model_attributes');
 
 class CodeStreamModelValidator extends DataModelValidator {
@@ -27,7 +27,7 @@ class CodeStreamModelValidator extends DataModelValidator {
 
 	validateId (value/*, definition, options*/) {
 		try {
-			ObjectID(value);
+			ObjectId(value);
 		}
 		catch(error) {
 			return `invalid ID: ${error}`;

@@ -2,7 +2,7 @@
 
 const ChangeEmailConfirmTest = require('./change_email_confirm_test');
 const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class UserNotFoundTest extends ChangeEmailConfirmTest {
 
@@ -22,7 +22,7 @@ class UserNotFoundTest extends ChangeEmailConfirmTest {
 		super.setData(() => {
 			const tokenHandler = new TokenHandler(this.apiConfig.sharedSecrets.auth);
 			const payload = tokenHandler.decode(this.data.token);
-			payload.uid = ObjectID();
+			payload.uid = ObjectId();
 			this.data.token = tokenHandler.generate(payload, 'email');
 			callback();
 		});

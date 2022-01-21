@@ -1,7 +1,7 @@
 'use strict';
 
 const ProviderSetTokenTest = require('./provider_set_token_test');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamNotFoundTest extends ProviderSetTokenTest {
 
@@ -19,7 +19,7 @@ class TeamNotFoundTest extends ProviderSetTokenTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.teamId = ObjectID(); // substitute an ID for a non-existent team
+			this.data.teamId = ObjectId(); // substitute an ID for a non-existent team
 			callback();
 		});
 	}

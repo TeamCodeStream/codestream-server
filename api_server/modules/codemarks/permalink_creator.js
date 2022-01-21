@@ -2,7 +2,7 @@
 
 'use strict';
 
-const UUID = require('uuid/v4');
+const UUID = require('uuid').v4;
 const Crypto = require('crypto');
 const CodemarkLinkIndexes = require('./codemark_link_indexes');
 
