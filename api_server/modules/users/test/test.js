@@ -22,6 +22,7 @@ const UnsubscribeWeeklyRequestTester = require('./unsubscribe_weekly/test');
 const GetSignupJWTRequestTester = require('./get_signup_jwt/test');
 const NRRegistrationRequestTester = require('./nr_registration/test');
 const LoginByCodeTester = require('./login_by_code/test');
+const FetchUserTester = require('./fetch_user/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -58,4 +59,5 @@ describe('user requests', function() {
 	describe('GET /signup-jwt', GetSignupJWTRequestTester.test);
 	describe('POST /no-auth/nr-register', NRRegistrationRequestTester.test);
 	describe('PUT /no-auth/login-by-code', LoginByCodeTester.test);
+	describe('GET /no-auth/__fetch-user__', FetchUserTester.test);
 });

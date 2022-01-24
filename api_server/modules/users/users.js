@@ -156,6 +156,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'signup-jwt',
 		requestClass: require('./get_signup_jwt_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/__fetch-user__',
+		requestClass: require('./fetch_user_request')
 	}
 ];
 
