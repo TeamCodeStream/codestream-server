@@ -47,6 +47,7 @@ class WeeklyEmailRenderer {
 
 		let content =  this.renderTeamContent(options);
 		let latestNewsSection = '';
+		/*
 		if (latestNews) {
 			latestNewsSection = `
 <div class="heading ensure-white">
@@ -57,6 +58,7 @@ class WeeklyEmailRenderer {
 </div>
 `;
 		}
+		*/
 
 		let unsubscribeDiv = this.renderUnsubscribe(options);
 
