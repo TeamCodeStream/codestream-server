@@ -20,7 +20,7 @@ class GithubAuthorizer {
 		this.providerInfo = this.providerInfo || providerInfo;
 		this.octokit = new Octokit({ auth: accessToken });
 		const userData = await this.githubApiRequest('users', 'getAuthenticated');
-		let emailData = await this.githubApiRequest('users', 'listEmails');
+		let emailData = await this.githubApiRequest('users', 'listEmailsForAuthenticatedUser');
 		this.request.log('user data: ' + JSON.stringify(userData, undefined, 5));
 		this.request.log('email data: ' + JSON.stringify(emailData, undefined, 5));
 		emailData = emailData instanceof Array ? emailData : null;
@@ -53,7 +53,7 @@ class GithubAuthorizer {
 			if (method === 'getAuthenticated') {
 				return this._mockIdentity(mockCode[1]);
 			}
-			else if (method === 'listEmails') {
+			else if (method === 'listEmailsForAuthenticatedUser') {
 				return this._mockEmails();
 			}
 		}
