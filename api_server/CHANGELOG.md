@@ -2,6 +2,12 @@
 
 ## [12.0.0] - 2022-1-24
 
+### Fixed
+
+- Fixes an issue preventing authentication via GitHub
+
+## [11.0.29] - 2022-1-24
+
 ### Added
 
 - Adds backend support for being able to sign into CodeStream with a code sent via email
