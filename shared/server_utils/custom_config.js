@@ -486,7 +486,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 
 
 
-	Cfg.sharedGeneral.regionHosts = {
+	Cfg.sharedGeneral.environmentHosts = {
 		'us': {
 			name: 'US',
 			host: 'https://localhost.codestream.us:12079'
@@ -496,6 +496,6 @@ module.exports = function customConfigFunc(nativeCfg) {
 			host: 'https://localhost.codestream.us.12080'
 		}
 	};
-
+	
 	return Cfg;
 }

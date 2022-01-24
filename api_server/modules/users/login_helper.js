@@ -214,7 +214,13 @@ class LoginHelper {
 			return;
 		}
 
-		const { isOnPrem, runTimeEnvironment, isProductionCloud, newRelicLandingServiceUrl } = this.apiConfig.sharedGeneral;
+		const { 
+			isOnPrem,
+			runTimeEnvironment,
+			environmentHosts,
+			isProductionCloud,
+			newRelicLandingServiceUrl
+		} = this.apiConfig.sharedGeneral;
 
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
@@ -229,6 +235,7 @@ class LoginHelper {
 			isOnPrem,
 			isProductionCloud,
 			runtimeEnvironment: runTimeEnvironment,
+			environmentHosts: environmentHosts,
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
