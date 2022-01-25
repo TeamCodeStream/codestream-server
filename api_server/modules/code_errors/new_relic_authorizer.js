@@ -40,10 +40,17 @@ class NewRelicAuthorizer {
 		// get the user's NR access token, non-starter if no access token
 		const { user } = this.request;
 		const token = (
-			user.get('providerInfo') &&
-			user.get('providerInfo')[this.teamId] &&
-			user.get('providerInfo')[this.teamId].newrelic &&
-			user.get('providerInfo')[this.teamId].newrelic.accessToken
+			(
+				user.get('providerInfo') &&
+				user.get('providerInfo')[this.teamId] &&
+				user.get('providerInfo')[this.teamId].newrelic &&
+				user.get('providerInfo')[this.teamId].newrelic.accessToken
+			) ||
+			(
+				user.get('providerInfo') &&
+				user.get('providerInfo').newrelic &&
+				user.get('providerInfo').newrelic.accessToken
+			)
 		);
 		if (!token) {
 			this.request.log(`User ${user.id} has no NR token`);
