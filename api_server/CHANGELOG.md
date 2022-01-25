@@ -1,5 +1,11 @@
 # Change Log
 
+## [12.0.1] - 2022-1-25
+
+### Fixed
+
+- Fixes an issue connecting to New Relic after signing up with a New Relic api key
+
 ## [12.0.0] - 2022-1-24
 
 ### Fixed
