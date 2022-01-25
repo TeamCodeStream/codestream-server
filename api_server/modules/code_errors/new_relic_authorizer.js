@@ -226,11 +226,18 @@ class NewRelicAuthorizer {
 	getGraphQLBaseUrl (user) {
 		let url;
 		const data = (
-			user.get('providerInfo') &&
-			user.get('providerInfo')[this.teamId] &&
-			user.get('providerInfo')[this.teamId].newrelic &&
-			user.get('providerInfo')[this.teamId].newrelic.data
-		); 
+			(
+				user.get('providerInfo') &&
+				user.get('providerInfo').newrelic &&
+				user.get('providerInfo').newrelic.data
+			) ||
+			(
+				user.get('providerInfo') &&
+				user.get('providerInfo')[this.teamId] &&
+				user.get('providerInfo')[this.teamId].newrelic &&
+				user.get('providerInfo')[this.teamId].newrelic.data
+			)  
+		);
 		if (!data || (!data.usingEU && !data.apiUrl)) {
 			url = 'https://api.newrelic.com';
 		} else if (data.usingEU) {
