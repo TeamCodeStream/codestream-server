@@ -59,7 +59,6 @@ class ConfirmUserTest extends CodeStreamAPITest {
 			((user.isRegistered) || errors.push('isRegistered not set')) &&
 			((user.preferences && user.preferences.acceptedTOS) || errors.push('acceptedTOS not set in preferences')) &&
 			((typeof user.registeredAt === 'number' && user.registeredAt > this.beforeConfirmTime) || errors.push('registeredAt not properly set')) &&
-			((typeof user.lastLogin === 'number' && user.lastLogin > this.beforeConfirmTime) || errors.push('lastLogin not properly set')) &&
 			((user.firstSessionStartedAt === undefined) || errors.push('firstSesssionStartedAt should not have been set'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

@@ -55,7 +55,8 @@ class ConfirmUserRequest extends XEnvRequest {
 		// call out to a confirmation helper, to finish the confirmation
 		const responseData = await new ConfirmHelper({
 			request: this,
-			user: this.user
+			user: this.user,
+			dontUpdateLastLogin: true
 		}).confirm(this.request.body);
 
 		// ignore everything in the response except the actual user object

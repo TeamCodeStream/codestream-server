@@ -10,6 +10,8 @@ const NoSecretTest = require('./no_secret_test');
 const IncorrectSecretTest = require('./incorrect_secret_test');
 const UsernameTest = require('./username_test');
 const PasswordTest = require('./password_test');
+const AlreadyRegisteredTest = require('./already_registered_test');
+const MessageToTeamTest = require('./message_to_team_test');
 
 class ConfirmUserRequestTester {
 
@@ -21,6 +23,8 @@ class ConfirmUserRequestTester {
 		new IncorrectSecretTest().test();
 		new UsernameTest().test();
 		new PasswordTest().test();
+		new AlreadyRegisteredTest().test();
+		new MessageToTeamTest().test();
 	}
 }
 

@@ -156,6 +156,9 @@ class LoginHelper {
 	
 	// update the time the user last logged in, except if logging in via the web app
 	async updateLastLogin () {
+		if (this.dontUpdateLastLogin) {
+			return;
+		}
 		const origin = this.request.request.headers['x-cs-plugin-ide'];
 		if (origin === 'webclient') {
 			return;
