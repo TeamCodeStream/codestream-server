@@ -1,12 +1,12 @@
 'use strict';
 
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
-const UserTestConstants = require('../user_test_constants');
+const UserTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/test/user_test_constants');
 
 class FetchUserTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should fetch a user when requested';
+		return 'should fetch a user across environments when requested';
 	}
 
 	getExpectedFields () {
@@ -18,7 +18,7 @@ class FetchUserTest extends CodeStreamAPITest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// we'll fetch "ourselves", either by literal ID, or by "me" in the path
-			this.path = '/no-auth/__fetch-user__?email=' + encodeURIComponent(this.currentUser.user.email);
+			this.path = '/xenv/fetch-user?email=' + encodeURIComponent(this.currentUser.user.email);
 			this.apiRequestOptions = {
 				headers: {
 					'X-CS-Auth-Secret': this.apiConfig.sharedSecrets.auth

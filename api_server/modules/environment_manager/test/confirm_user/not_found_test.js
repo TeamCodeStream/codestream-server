@@ -1,12 +1,12 @@
 'use strict';
 
-const FetchUserTest = require('./fetch_user_test');
+const ConfirmUserTest = require('./confirm_user_test');
 const Assert = require('assert');
 
-class NotFoundTest extends FetchUserTest {
+class NotFoundTest extends ConfirmUserTest {
 
 	get description () {
-		return 'should return an empty result when trying to fetch a user that doesn\'t exist';
+		return 'should return an empty result when trying to confirm a user that doesn\'t exist';
 	}
 
 	getExpectedFields () {
@@ -15,11 +15,10 @@ class NotFoundTest extends FetchUserTest {
 
 	// before the test runs...
 	before (callback) {
-		// we'll try to fetch a user with a random (non-existent) email
+		// we'll try to confirm a user with a random (non-existent) email
 		super.before(error => {
 			if (error) { return callback(error); }
-			const randomEmail = this.userFactory.randomEmail();
-			this.path = '/no-auth/__fetch-user__?email=' + encodeURIComponent(randomEmail);
+			this.data.email = this.userFactory.randomEmail();
 			callback();
 		});
 	}

@@ -37,7 +37,7 @@ class EnvironmentManagerService {
 
 	// fetch the user matching the given email (if any) from the given environment host
 	async fetchUserFromEnvironmentHost (host, email) {
-		const url = `${host.host}/no-auth/__fetch-user__?email=${encodeURIComponent(email)}`;
+		const url = `${host.host}/xenv/fetch-user?email=${encodeURIComponent(email)}`;
 		return this._fetchFromUrl(url);
 	}
 

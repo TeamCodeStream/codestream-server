@@ -1,11 +1,11 @@
 'use strict';
 
-const FetchUserTest = require('./fetch_user_test');
+const ConfirmUserTest = require('./confirm_user_test');
 
-class EmailRequiredTest extends FetchUserTest {
+class EmailRequiredTest extends ConfirmUserTest {
 
 	get description () {
-		return 'should return an error when submitting a request to fetch a user without providing an email';
+		return 'should return an error when submitting a request to confirm a user without providing an email';
 	}
 
 	getExpectedError () {
@@ -17,10 +17,10 @@ class EmailRequiredTest extends FetchUserTest {
 
 	// before the test runs...
 	before (callback) {
-		// delete the email from the url
+		// delete the email from the request body
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.path = '/no-auth/__fetch-user__';
+			delete this.data.email;
 			callback();
 		});
 	}
