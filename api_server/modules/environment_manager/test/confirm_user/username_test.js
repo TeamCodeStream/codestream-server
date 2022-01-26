@@ -12,7 +12,7 @@ class UsernameTest extends ConfirmUserTest {
 
 	// before the test runs...
 	before (callback) {
-		// delete the email from the request body
+		// set a new username in the request body
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.data.username = RandomString.generate(12);

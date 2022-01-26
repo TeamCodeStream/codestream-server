@@ -29,7 +29,13 @@ class ConfirmHelper {
 
 	// hash the given password, as needed
 	async hashPassword () {
-		if (!this.data.password) { return; }
+		if (this.data.passwordHash) {
+			this.passwordHash = this.data.passwordHash;
+			return;
+		} else if (!this.data.password) { 
+			return; 
+		}
+
 		this.passwordHash = await new PasswordHasher({
 			errorHandler: this.request.errorHandler,
 			password: this.data.password
@@ -173,7 +179,7 @@ class ConfirmHelper {
 	async confirmInOtherEnvironments () {
 		const { environmentManager } = this.request.api.services;
 		if (!environmentManager) { return; }
-		const usersConfirmed = await environmentManager.confirmInAllEnvironments(this.user.get('email'));
+		const usersConfirmed = await environmentManager.confirmInAllEnvironments(this.user);
 
 		// if the user was confirmed in any other environment, and was not invited in this one
 		// (which means they are not yet on any teams), then deactivate the account created here

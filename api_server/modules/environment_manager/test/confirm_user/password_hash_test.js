@@ -3,20 +3,24 @@
 const ConfirmUserTest = require('./confirm_user_test');
 const Assert = require('assert');
 const RandomString = require('randomstring');
+const PasswordHasher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/password_hasher');
 
-class PasswordTest extends ConfirmUserTest {
+class PasswordHashTest extends ConfirmUserTest {
 
 	get description () {
-		return 'should be able to set a password when submitting a request to confirm a user, checked by using the password to login';
+		return 'should be able to set the password hash directly when submitting a request to confirm a user, checked by using the original password to login';
 	}
 
 	// before the test runs...
 	before (callback) {
-		// set a new password in the request body
+		// delete the email from the request body
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.data.password = RandomString.generate(12);
-			callback();
+			this.password = RandomString.generate(12);
+			(async function(data, password) {
+				data.passwordHash = await new PasswordHasher({ password }).hashPassword();
+				callback();
+			})(this.data, this.password);
 		});
 	}
 
@@ -29,7 +33,7 @@ class PasswordTest extends ConfirmUserTest {
 					path: '/no-auth/login',
 					data: {
 						email: this.data.email,
-						password: this.data.password
+						password: this.password
 					}
 				},
 				loginError => {
@@ -43,4 +47,4 @@ class PasswordTest extends ConfirmUserTest {
 	}
 }
 
-module.exports = PasswordTest;
+module.exports = PasswordHashTest;

@@ -44,10 +44,10 @@ class EnvironmentManagerService {
 	// confirm a user who has been invited across environments
 	// returns the user records for all confirmed users, along with the environment they
 	// were confirmed in
-	async confirmInAllEnvironments (email) {
+	async confirmInAllEnvironments (user) {
 		const hosts = this.getForeignEnvironmentHosts();
 		let result = await Promise.all(hosts.map(async host => {
-			return await this.confirmUserInEnvironment(host, email);
+			return await this.confirmUserInEnvironment(host, user);
 		}));
 		result = result.filter(_ => _);
 		return result;
@@ -56,15 +56,20 @@ class EnvironmentManagerService {
 	// confirm a user who has been invited in the passed environment
 	// returns the user record if the user existed in that environment,
 	// along with the environment they were confirmed in
-	async confirmUserInEnvironment (host, email) {
+	async confirmUserInEnvironment (host, user) {
 		const url = `${host.host}/xenv/confirm-user`;
-		this.api.log(`Cross-confirming user ${email} in environment ${host.name}:${host.host}...`);
-		const response = await this._fetchFromUrl(url, { method: 'post', body: { email } });
+		this.api.log(`Cross-confirming user ${user.get('email')} in environment ${host.name}:${host.host}...`);
+		const body = {
+			email: user.get('email'),
+			username: user.get('username'),
+			passwordHash: user.get('passwordHash')
+		};
+		const response = await this._fetchFromUrl(url, { method: 'post', body });
 		if (response && response.user) {
 			this.api.log(`Did cross-confirm user ${response.user.id}:${response.user.email} in environment ${host.name}:${host.host}`);
 			return { user: response.user, host };
 		} else {
-			this.api.log(`User ${email} not found in environment ${host.name}:${host.host}`);
+			this.api.log(`User ${user.get('email')} not found in environment ${host.name}:${host.host}`);
 		}
 	}
 

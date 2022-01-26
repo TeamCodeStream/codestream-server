@@ -22,8 +22,12 @@ class PasswordHasher  {
 			this.salt = await callbackWrap(BCrypt.genSalt, 10);
 		}
 		catch (error) {
-			const message = typeof error === 'object' ? error.message : JSON.stringify(error);
-			throw this.errorHandler.error('token', { reason: message });
+			if (this.errorHandler) {
+				const message = typeof error === 'object' ? error.message : JSON.stringify(error);
+				throw this.errorHandler.error('token', { reason: message });
+			} else {
+				throw error;
+			}
 		}
 	}
 
@@ -36,8 +40,12 @@ class PasswordHasher  {
 			);
 		}
 		catch (error) {
-			const message = typeof error === 'object' ? error.message : JSON.stringify(error);
-			throw this.errorHandler.error('token', { reason: message });
+			if (this.errorHandler) {
+				const message = typeof error === 'object' ? error.message : JSON.stringify(error);
+				throw this.errorHandler.error('token', { reason: message });
+			} else {
+				throw error;
+			}
 		}
 	}
 }

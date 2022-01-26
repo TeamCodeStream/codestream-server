@@ -26,7 +26,7 @@ class ConfirmUserRequest extends XEnvRequest {
 				string: ['email'],
 			},
 			optional: {
-				string: ['username', 'password']
+				string: ['username', 'password', 'passwordHash']
 			}
 		});
 	}

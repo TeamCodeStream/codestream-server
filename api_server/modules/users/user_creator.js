@@ -56,7 +56,8 @@ class UserCreator extends ModelCreator {
 					'phoneNumber',
 					'iWorkOn',
 					'inviteTrigger',
-					'source'
+					'source',
+					'passwordHash'
 				],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
 				boolean: ['isRegistered'],
@@ -236,6 +237,10 @@ class UserCreator extends ModelCreator {
 
 	// hash the given password, as needed
 	async hashPassword () {
+		if (this.attributes.passwordHash) {
+			delete this.attributes.password;
+			return;
+		}
 		if (!this.attributes.password || this.notSaving) { return; }
 		this.attributes.passwordHash = await new PasswordHasher({
 			errorHandler: this.errorHandler,
