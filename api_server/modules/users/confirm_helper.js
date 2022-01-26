@@ -21,6 +21,9 @@ class ConfirmHelper {
 		//await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
+		if (!this.dontConfirmInOtherEnvironments) {
+			await this.confirmInOtherEnvironments();	// confirm the user in other "environments" 
+		}
 		return this.responseData;
 	}
 
@@ -163,6 +166,39 @@ class ConfirmHelper {
 			collection: this.request.data.users,
 			id: this.user.id
 		}).save(op);
+	}
+
+	// users who have been invited in other "environments" (i.e. regions), get confirmed
+	// in those environments as well
+	async confirmInOtherEnvironments () {
+		const { environmentManager } = this.request.api.services;
+		if (!environmentManager) { return; }
+		const usersConfirmed = await environmentManager.confirmInAllEnvironments(this.user.get('email'));
+
+		// if the user was confirmed in any other environment, and was not invited in this one
+		// (which means they are not yet on any teams), then deactivate the account created here
+		// and send information back to the client indicating they must start interacting with
+		// the server in that environment
+		if (usersConfirmed.length > 0 && (this.user.get('teamIds') || []).length === 0) {
+			const hostInfo = usersConfirmed.map(userConfirmed => { 
+				const { user, host } = userConfirmed;
+				return `ID=${user.id}@${host.name}:${host.host}`;
+			}).join(',');
+			const environments = usersConfirmed.map(userConfirmed => {
+				return userConfirmed.host;
+			});
+
+			this.request.log(`Deactivating confirmed user ${this.user.id}:${this.user.get('email')} because that user was invited to other hosts: ${hostInfo}`);
+			const now = Date.now();
+			const emailParts = this.user.get('email').split('@');
+			const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
+			await this.request.data.users.updateDirect(
+				{ id: this.request.data.users.objectIdSafe(this.user.id) },
+				{ $set: { deactivated: true, email: newEmail, searchableEmail: newEmail.toLowerCase() } }
+			);
+			throw this.request.errorHandler.error('invitedToOtherEnvironments', { info: { environments } });
+		}
+
 	}
 }
 

@@ -490,7 +490,13 @@ module.exports = function customConfigFunc(nativeCfg) {
 		Cfg.sharedSecrets.commentEngineSecrets.push(Cfg.sharedSecrets.commentEngineAlt);
 
 
-
+	if (process.env.CS_API_AM_EU) {
+		Cfg.apiServer.port = '12080';
+		Cfg.sharedGeneral.runTimeEnvironment = 'eu';
+		Cfg.storage.mongo.url = "mongodb://localhost/codestream-eu";
+	} else {
+		Cfg.sharedGeneral.runTimeEnvironment = 'us';
+	}
 	Cfg.sharedGeneral.environmentHosts = {
 		'us': {
 			name: 'US',
@@ -498,9 +504,9 @@ module.exports = function customConfigFunc(nativeCfg) {
 		},
 		'eu': {
 			name: 'EU',
-			host: 'https://localhost.codestream.us.12080'
+			host: 'https://localhost.codestream.us:12080'
 		}
 	};
-	
+
 	return Cfg;
 }
