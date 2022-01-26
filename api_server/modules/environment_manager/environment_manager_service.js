@@ -73,6 +73,33 @@ class EnvironmentManagerService {
 		}
 	}
 
+	// fetch all companies across all foreign environments that have domain joining on for the given domain
+	async fetchEligibleJoinCompaniesFromAllEnvironments (domain) {
+		const hosts = this.getForeignEnvironmentHosts();
+		const companies = [];
+		await Promise.all(hosts.map(async host => {
+			const companiesFromEnvironment = await this.fetchEligibleJoinCompaniesFromEnvironment(host, domain);
+			companies.push.apply(companies, companiesFromEnvironment);
+		}));
+		return companies;
+	}
+
+	// fetch all companies from the given environment host that have domain joining on for the given domain
+	async fetchEligibleJoinCompaniesFromEnvironment (host, domain) {
+		const url = `${host.host}/xenv/eligible-join-companies?domain=${encodeURIComponent(domain)}`;
+		this.api.log(`Fetching eligible join companies matching domain ${domain} from environment ${host.name}:${host.host}...`);
+		const response = await this._fetchFromUrl(url);
+		if (response && response.companies) {
+			this.api.log(`Did fetch ${response.companies.length} eligible join companies matching domain ${domain} from environment ${host.name}:${host.host}`);
+			return response.companies.map(company => {
+				return { company, host };
+			});
+		} else {
+			this.api.log(`Did not fetch any eligible join companies matching domain ${domain} from environment ${host.name}:${host.host}`);
+			return [];
+		}
+	}
+	
 	// fetch from the environment host, given a url
 	async _fetchFromUrl (url, options = {}) {
 		let response;

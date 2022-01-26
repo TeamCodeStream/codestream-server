@@ -15,6 +15,11 @@ const ROUTES = [
 		method: 'post',
 		path: 'xenv/confirm-user',
 		requestClass: require('./confirm_user_request')
+	},
+	{
+		method: 'get',
+		path: 'xenv/eligible-join-companies',
+		requestClass: require('./eligible_join_companies_request')
 	}
 ];
 

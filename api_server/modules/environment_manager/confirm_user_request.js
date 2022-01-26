@@ -1,4 +1,4 @@
-// handle the "POST /no-auth/confirm-user" request, to confirm a given user via email, for internal use
+// handle the "POST /xenv/confirm-user" request, to confirm a given user via email, for internal use
 // between environments
 
 'use strict';

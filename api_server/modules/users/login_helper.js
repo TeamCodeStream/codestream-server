@@ -14,6 +14,7 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
 const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
 const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
+const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
 
 class LoginHelper {
 
@@ -299,32 +300,8 @@ class LoginHelper {
 		}
 
 		if (this.notTrueLogin) { return; }
-		this.eligibleJoinCompanies = [];
 
-		// look for any companies with domain-based joining that match the domain of the user's email
-		const companies = await this.request.data.companies.getByQuery(
-			{
-				domainJoining: domain,
-				deactivated: false
-			},
-			{
-				hint: CompanyIndexes.byDomainJoining 
-			}
-		);
-
-		// return information about those companies (but not full company objects, 
-		// since the user is not actually a member (yet))
-		for (const company of companies) {
-			const memberCount = await company.getCompanyMemberCount(this.request.data);
-			this.eligibleJoinCompanies.push({
-				id: company.id,
-				name: company.get('name'),
-				byDomain: domain.toLowerCase(),
-				domainJoining: company.get('domainJoining') || [],
-				codeHostJoining: company.get('codeHostJoining') || [],
-				memberCount
-			});
-		}
+		this.eligibleJoinCompanies = await GetEligibleJoinCompanies(domain, this.request);
 	}
 
 	// set flag indicating whether this user's New Relic account is connected to a CodeStream company
