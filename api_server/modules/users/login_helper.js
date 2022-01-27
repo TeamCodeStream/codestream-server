@@ -36,6 +36,7 @@ class LoginHelper {
 
 		await awaitParallel([
 			this.getInitialData,
+			this.getForeignCompanies,
 			this.generateAccessToken
 		], this);
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
@@ -93,6 +94,22 @@ class LoginHelper {
 			user: this.user
 		});
 		this.initialData = await this.initialDataFetcher.fetchInitialData();
+	}
+
+	// get any companies the user is a member of (by email) in foreign environments,
+	// to display in the organization switcher
+	async getForeignCompanies () {
+		if (this.request.request.headers['x-cs-block-xenv']) {
+			this.request.log('Not fetching foreign companies, blocked by header');
+			return [];
+		}
+
+		const companies = await this.request.api.services.environmentManager
+			.fetchUserCompaniesFromAllEnvironments(this.user.get('email'));
+		this.foreignCompanies = companies.map(company => {
+			company.company.host = company.host;
+			return company.company;
+		});
 	}
 
 	// generate an access token for this login if needed
@@ -272,6 +289,9 @@ class LoginHelper {
 			this.responseData.socketCluster = { host, port, ignoreHttps };
 		}
 		Object.assign(this.responseData, this.initialData);
+
+		// add any foreign (cross-environment) companies
+		this.responseData.companies = [...this.responseData.companies, ...this.foreignCompanies];
 	}
 
 	// grant the user permission to subscribe to various broadcaster channels

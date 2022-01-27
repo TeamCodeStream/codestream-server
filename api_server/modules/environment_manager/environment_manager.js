@@ -20,6 +20,11 @@ const ROUTES = [
 		method: 'get',
 		path: 'xenv/eligible-join-companies',
 		requestClass: require('./eligible_join_companies_request')
+	},
+	{
+		method: 'get',
+		path: '/xenv/user-companies',
+		requestClass: require('./user_companies_request')
 	}
 ];
 

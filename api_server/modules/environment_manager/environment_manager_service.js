@@ -108,6 +108,33 @@ class EnvironmentManagerService {
 		}
 	}
 	
+	// fetch all companies across all foreign environments that a given user (by email) is a member of
+	async fetchUserCompaniesFromAllEnvironments (email) {
+		const hosts = this.getForeignEnvironmentHosts();
+		const companies = [];
+		await Promise.all(hosts.map(async host => {
+			const companiesFromEnvironment = await this.fetchUserCompaniesFromEnvironment(host, email);
+			companies.push.apply(companies, companiesFromEnvironment);
+		}));
+		return companies;
+	}
+
+	// fetch all companies from the given environment host that a given user (by email) is a member of
+	async fetchUserCompaniesFromEnvironment (host, email) {
+		const url = `${host.host}/xenv/user-companies?email=${encodeURIComponent(email)}`;
+		this.api.log(`Fetching companies user ${email} is a member of from environment ${host.name}:${host.host}...`);
+		const response = await this._fetchFromUrl(url);
+		if (response && response.companies) {
+			this.api.log(`Did fetch ${response.companies.length} companies user ${email} is a member of from environment ${host.name}:${host.host}`);
+			return response.companies.map(company => {
+				return { company, host };
+			});
+		} else {
+			this.api.log(`Did not fetch any companies user ${email} is a member of from environment ${host.name}:${host.host}`);
+			return [];
+		}
+	}
+	
 	// fetch from the environment host, given a url
 	async _fetchFromUrl (url, options = {}) {
 		let response;
