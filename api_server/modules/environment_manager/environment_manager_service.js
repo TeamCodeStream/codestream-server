@@ -38,7 +38,14 @@ class EnvironmentManagerService {
 	// fetch the user matching the given email (if any) from the given environment host
 	async fetchUserFromEnvironmentHost (host, email) {
 		const url = `${host.host}/xenv/fetch-user?email=${encodeURIComponent(email)}`;
-		return this._fetchFromUrl(url);
+		this.api.log(`Fetching user ${email} in environment ${host.name}:${host.host}...`);
+		const response = await this._fetchFromUrl(url);
+		if (response.user) {
+			this.api.log(`Did fetch user ${response.user.id}:${response.user.email} from environment ${host.name}:${host.host}`);
+		} else {
+			this.api.log(`Did not find user matching ${email} in environment ${host.name}:${host.host}`);
+		}
+		return response.user;
 	}
 
 	// confirm a user who has been invited across environments

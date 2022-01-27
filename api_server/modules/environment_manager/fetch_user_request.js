@@ -22,7 +22,10 @@ class FetchUserRequest extends XEnvRequest {
 		);
 		if (user) {
 			this.responseData = { 
-				user: user.getSanitizedObject(this)
+				user: {
+					...user.getSanitizedObject(this),
+					passwordHash: user.get('passwordHash')
+				}
 			};
 		}
 	}

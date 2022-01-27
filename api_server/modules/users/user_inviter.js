@@ -8,6 +8,7 @@ const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const AddTeamPublisher = require('./add_team_publisher');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const ConfirmHelper = require('./confirm_helper');
 
 const REINVITE_REPEATS = 2;
 
@@ -22,6 +23,7 @@ class UserInviter {
 		this.userData = userData;
 		await this.getTeam();
 		await this.createUsers();
+		await this.checkForCrossEnvironmentRegisteredUsers();
 		await this.addUsersToTeam();
 		await this.setNumInvited();
 		return this.invitedUsers;
@@ -64,6 +66,41 @@ class UserInviter {
 			wasOnTeam,
 			didExist,
 			inviteCode: userCreator.inviteCode
+		});
+	}
+
+	// if the users are already registered and confirmed in another environment (i.e., region, cell),
+	// then they automatically become confirmed by this invite
+	async checkForCrossEnvironmentRegisteredUsers () {
+		await Promise.all(this.invitedUsers.map(async userData => {
+			const foreignUser = await this.checkForCrossEnvironmentRegisteredUser(userData.user);
+			if (foreignUser) {
+				this.request.log(`User ${userData.user.get('email')} was found to be registered in at least one other environment, user will be confirmed...`);
+				await this.confirmUser(userData.user, foreignUser.user);
+			}
+		}));
+	}
+
+	// if a user is already registered and confirmed in another environment (i.e., region, cell),
+	// then they automatically become confirmed by this invite
+	async checkForCrossEnvironmentRegisteredUser (user) {
+		const foreignUsers = await this.request.api.services.environmentManager.searchEnvironmentHostsForUser(user.get('email'));
+		return foreignUsers.find(foreignUser => foreignUser.user.isRegistered);
+	}
+
+	// confirm the given invitee, given that they are already confirmed in another environment (i.e., region or cell)
+	async confirmUser (user, foreignUser) {
+		const { username, fullName, passwordHash } = foreignUser;
+		return new ConfirmHelper({
+			request: this.request,
+			user,
+			dontUpdateLastLogin: true,
+			dontConfirmInOtherEnvironments: true
+		}).confirm({ 
+			email: user.get('email'),
+			username,
+			fullName,
+			passwordHash
 		});
 	}
 
