@@ -31,11 +31,15 @@ module.exports = async function GetEligibleJoinCompanies (domain, request, optio
 
 	// add on any eligible join companies from across all environments
 	if (!options.dontFetchCrossEnvironment) {
-		const crossEnvironmentCompanies = await request.api.services.environmentManager.fetchEligibleJoinCompaniesFromAllEnvironments(domain);
-		crossEnvironmentCompanies.forEach(company => {
-			company.company.host = company.host;
-			eligibleJoinCompanies.push(company.company);
-		});
+		if (request.request.headers['x-cs-block-xenv']) {
+			request.log('Not doing cross-environment fetching of eligible join companies, blocked by header');
+		} else {
+			const crossEnvironmentCompanies = await request.api.services.environmentManager.fetchEligibleJoinCompaniesFromAllEnvironments(domain);
+			crossEnvironmentCompanies.forEach(company => {
+				company.company.host = company.host;
+				eligibleJoinCompanies.push(company.company);
+			});
+		}
 	}
 
 	return eligibleJoinCompanies;

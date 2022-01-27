@@ -179,6 +179,10 @@ class ConfirmHelper {
 	async confirmInOtherEnvironments () {
 		const { environmentManager } = this.request.api.services;
 		if (!environmentManager) { return; }
+		if (this.request.request.headers['x-cs-block-xenv']) {
+			this.request.log('Not confirming user cross-environment, blocked by header');
+			return;
+		}
 		const usersConfirmed = await environmentManager.confirmInAllEnvironments(this.user);
 
 		// if the user was confirmed in any other environment, and was not invited in this one

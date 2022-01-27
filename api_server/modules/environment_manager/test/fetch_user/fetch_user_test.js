@@ -2,6 +2,7 @@
 
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const UserTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/test/user_test_constants');
+const Assert = require('assert');
 
 class FetchUserTest extends CodeStreamAPITest {
 
@@ -32,6 +33,8 @@ class FetchUserTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		// validate that we got back the correct user, and that there are no attributes a client shouldn't see
 		this.validateMatchingObject(this.currentUser.user.id, data.user, 'user');
+		Assert(data.user.passwordHash, 'no passwordHash in returned user');
+		delete data.user.passwordHash; // otherwise the validateSanitized check will fail
 		const attributes = UserTestConstants.UNSANITIZED_ATTRIBUTES;
 		this.validateSanitized(data.user, attributes);
 	}

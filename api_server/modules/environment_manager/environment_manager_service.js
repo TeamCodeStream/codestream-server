@@ -29,10 +29,11 @@ class EnvironmentManagerService {
 	// check each environment host (except this one) for a user matching the given email
 	async searchEnvironmentHostsForUser (email) {
 		const hosts = this.getForeignEnvironmentHosts();
-		return await Promise.all(hosts.map(async host => {
+		const result = await Promise.all(hosts.map(async host => {
 			const user = await this.fetchUserFromEnvironmentHost(host, email);
 			return user && { host, user };
 		}));
+		return result.filter(_ => _);
 	}
 
 	// fetch the user matching the given email (if any) from the given environment host

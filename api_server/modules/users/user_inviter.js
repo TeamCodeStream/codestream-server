@@ -72,6 +72,10 @@ class UserInviter {
 	// if the users are already registered and confirmed in another environment (i.e., region, cell),
 	// then they automatically become confirmed by this invite
 	async checkForCrossEnvironmentRegisteredUsers () {
+		if (this.request.request.headers['x-cs-block-xenv']) {
+			this.request.log('Not checking for cross-environment registered users, blocked by header');
+			return;
+		}
 		await Promise.all(this.invitedUsers.map(async userData => {
 			const foreignUser = await this.checkForCrossEnvironmentRegisteredUser(userData.user);
 			if (foreignUser) {
@@ -85,7 +89,9 @@ class UserInviter {
 	// then they automatically become confirmed by this invite
 	async checkForCrossEnvironmentRegisteredUser (user) {
 		const foreignUsers = await this.request.api.services.environmentManager.searchEnvironmentHostsForUser(user.get('email'));
-		return foreignUsers.find(foreignUser => foreignUser.user.isRegistered);
+		if (foreignUsers) {
+			return foreignUsers.find(foreignUser => foreignUser.user.isRegistered);
+		}
 	}
 
 	// confirm the given invitee, given that they are already confirmed in another environment (i.e., region or cell)
