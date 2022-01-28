@@ -1,4 +1,4 @@
-// handle the "GET /no-auth/fetch-user" request, to fetch a given user via email, for internal use
+// handle the "GET /xenv/fetch-user" request, to fetch a given user via email, for internal use
 // between environments
 
 'use strict';

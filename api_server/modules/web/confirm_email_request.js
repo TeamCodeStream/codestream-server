@@ -105,6 +105,7 @@ class ConfirmEmailRequest extends WebRequestBase {
 
 	// update the user in the database with new email
 	async updateUser () {
+		this.originalEmail = this.user.get('email');
 		const op = {
 			$set: {
 				email: this.payload.email,
@@ -135,6 +136,9 @@ class ConfirmEmailRequest extends WebRequestBase {
 	async postProcess () {
 		// publish the updated user directive to all the team members
 		await this.publishUserToTeams();
+
+		// change the user's email in all foreign environments
+		this.changeEmailAcrossEnvironments();
 	}
 
 	// publish the updated user directive to all the team members,
@@ -148,6 +152,17 @@ class ConfirmEmailRequest extends WebRequestBase {
 			broadcaster: this.api.services.broadcaster
 		}).publishUserToTeams();
 	}
+
+	// change the user's email in all foreign environments
+	async changeEmailAcrossEnvironments () {
+		if (this.request.headers['x-cs-block-xenv']) {
+			this.log('Not changing email across environments, blocked by header');
+			return;
+		}
+		this.log(`Changing email ${this.originalEmail} to ${this.payload.email} in all environments`);
+		return this.api.services.environmentManager.changeEmailInAllEnvironments(this.originalEmail, this.payload.email);
+	}
+
 }
 
 module.exports = ConfirmEmailRequest;

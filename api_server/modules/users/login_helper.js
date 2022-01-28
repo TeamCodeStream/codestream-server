@@ -291,7 +291,7 @@ class LoginHelper {
 		Object.assign(this.responseData, this.initialData);
 
 		// add any foreign (cross-environment) companies
-		this.responseData.companies = [...this.responseData.companies, ...this.foreignCompanies];
+		this.responseData.companies = [...this.responseData.companies, ...(this.foreignCompanies || [])];
 	}
 
 	// grant the user permission to subscribe to various broadcaster channels

@@ -81,6 +81,22 @@ class EnvironmentManagerService {
 		}
 	}
 
+	// change a user's email in all environments
+	async changeEmailInAllEnvironments (email, toEmail) {
+		const hosts = this.getForeignEnvironmentHosts();
+		return Promise.all(hosts.map(async host => {
+			return await this.changeEmailInEnvironment(host, email, toEmail);
+		}));
+	}
+	
+	// change a user's email in the passed environment
+	async changeEmailInEnvironment (host, email, toEmail) {
+		const url = `${host.host}/xenv/change-email`;
+		this.api.log(`Changing email for user ${email} to ${toEmail} in environment ${host.name}:${host.host}...`);
+		const body = { email, toEmail };
+		return this._fetchFromUrl(url, { method: 'put', body });
+	}
+
 	// fetch all companies across all foreign environments that have domain joining on for the given domain
 	async fetchEligibleJoinCompaniesFromAllEnvironments (domain) {
 		const hosts = this.getForeignEnvironmentHosts();

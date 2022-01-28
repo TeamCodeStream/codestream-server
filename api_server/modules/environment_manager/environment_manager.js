@@ -25,6 +25,11 @@ const ROUTES = [
 		method: 'get',
 		path: '/xenv/user-companies',
 		requestClass: require('./user_companies_request')
+	},
+	{
+		method: 'put',
+		path: '/xenv/change-email',
+		requestClass: require('./change_email_request')
 	}
 ];
 

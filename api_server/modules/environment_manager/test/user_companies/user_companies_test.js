@@ -99,7 +99,6 @@ class UserCompaniesTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-console.warn('DATA:', JSON.stringify(data, 0, 5));
 		// validate that we got the eligible companies in the response
 		data.companies.sort((a, b) => {
 			return a.id.localeCompare(b.id);
