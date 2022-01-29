@@ -99,7 +99,7 @@ diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 # 	diff_notify $codestream_server/api_server/etc/configs/$csEnv.json "$yes"
 # done
 
-# cloud configuration files, all environments (consumed by developers via dt-update-secrets)
+# cloud configuration files, all environments (consumed by developers via dt-dev-update-secrets)
 for csEnv in $environmentList
 do
 	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x

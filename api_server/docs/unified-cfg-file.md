@@ -1,15 +1,23 @@
 # Unified Config File
 
 All CodeStream services share a single unified configuration file which obeys a
-schema ([defined here](https://github.com/TeamCodeStream/codestream_configs)).
+schema ([defined here](../../shared/codestream_configs/)).
 Because it changes over time, the schema and config files are versioned.
 
 ## CodeStream Configurations
 
 CodeStream's server-side services can be configured in different arrangements,
-referred to as _codestream configurations_. The `dt-update-secrets` command
-installs pre-canned configurations and/or configuration templates for local
+referred to as _codestream configurations_. For dev\_tools framework developer
+sandboxes, the `dt-dev-update-secrets` command installs ready-to-go
+configurations and configuration templates for getting started with _local_
 development.
+
+_Take note that **local** is the value for your sandbox's run-time environment
+(config file property: **sharedGeneral.runTimeEnvironment**, env var:
+**CSSVC_ENV**)._ This is one of those properties used by the dev\_tools
+framework software for all kinds of things.
+
+### Ready-To-Go Configurations and Templates
 
 | File | Desc |
 | --- | --- |
@@ -18,33 +26,38 @@ development.
 
 Templates are similar to the **ready-to-go** configurations except you _must_
 add custom properties to them via an update hook before they can be used.
-Templates will have the word **template** in the configuration name.
+Templates will have the extension **.template**.
 
 You can create as many configurations as you want, derived from these or wholly
 from scratch. Primarily important is that you know what configurations are
 available for your development.
 
 
-### The configuration file directory (~/.codestream/config)
+### Configuration File Directory (~/.codestream/config/)
 
 Config files, templates and control files all reside in _~/.codestream/config/_.
 The config files and templates are versioned with a schema number so you'll see
 the number of files increase over time. You can delete the old ones but remember
-that if you checkout an old version of a sandbox, it may want a configuration
-file from days past.
+that if you checkout an old version of your sandbox's repo, it may want a
+configuration file from days past.
 
-Configuration file names match the pattern
+**Configuration file names** match the pattern
 `<configuration-name>_<env>_<version>_.json`. Templates have the word
 **template** in their configuration name and cannot be used verbatim with a
 sandbox, however they are processed by the update hook exactly the same way
 ready-to-go configurations are.
 
-There are two special files in this directory that you will create and maintain.
-`codestream-cfg-default.local` will contain the name of the default
-configuration you want to use when your sandboxes are loaded (eg.
-**codestream-cloud**, **my-custom-config**, **onprem-development**, etc...).
-`codestream-cfg-update-hook` is a list of mappings that the `dt-update-secrets`
-command will use to maintain versions of your custom configurations over time.
+**There are two special files in this directory** that you will create and
+maintain. Good default examples (extension **.example-N**) are distributed with
+the config files so you you can copy them into place if you so desire.
+
+1. `codestream-cfg-default.local` contains the name of the default configuration
+you want to use when your sandboxes are configured with **CSSVC_ENV=local** (eg.
+**codestream-cloud**, **my-custom-config-1**, **onprem-development**, etc...).
+
+1. `codestream-cfg-update-hook` is a list of mappings that the
+`dt-dev-update-secrets` command will use to maintain versions of your custom
+configurations over time.
 
 
 ### Select a default configuration
@@ -60,7 +73,7 @@ your sandboxes when you make a change as the config file is only read when the
 processes are started.
 
 
-### Customizing ready-to-go configurations
+### Customizing the ready-to-go configurations
 
 If you are using the ready-to-go configurations as is, you do not need to set
 up the hook file.  However if you want to customize one or more of them or if
@@ -75,7 +88,7 @@ Lines beginning with a `#` will be ignored.
 Each record (line) in the file is a list of colon (`:`) delimeted fields.
 
 1. The first field is the name of the source configuration (usually one of the
-   configurations downloaded with the `dt-update-secrets` command).
+   configurations downloaded with the `dt-dev-update-secrets` command).
 
 2. The second field is the name of your custom configuration.
 
@@ -122,7 +135,7 @@ working with the **codestream-cloud** configuration.
    echo my-cloud-config > ~/.codestream/config/codestream-cfg-default.local
    ```
 
-Now, every time you update your secrets & configs with `dt-update-secrets`, the
+Now, every time you update your secrets & configs with `dt-dev-update-secrets`, the
 hook will carry your custom properties forward into the latest version of the
 config.
 
@@ -144,10 +157,10 @@ or more generally,
 <configuration-name>_<env>_<schema-version>.json
 ```
 where `local` represents the environment and `2` represents the schema version
-number [stored
-here](https://github.com/TeamCodeStream/codestream_configs/blob/develop/parameters.preview).
-This value will change over time and you will end up with numerious
-`codestream-cloud_local_*_json` (eg) files. That's normal.
+number [stored here]( ../../shared/codestream_configs/parameters.version). This
+value will change over time so you will end up with numerious
+`codestream-cloud_local_*_json` (eg) files, each matched to a particular schema
+version of the code base.
 
 When a codestream sandbox is loaded it will locate the best matching version of
 the config file that corressponds to the schema version in the git repo. If no

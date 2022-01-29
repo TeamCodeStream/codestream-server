@@ -5,7 +5,7 @@ have an On-Prem Development configuration file in your ~/.codestream/config/
 directory.
 
 1. Make sure you have the **onprem-development** codestream configuration file.
-   If this command doesn't indicate any files, try running `dt-update-secrets`.
+   If this command doesn't indicate any files, try running `dt-dev-update-secrets`.
 	```
 	$ ls ~/.codestream/config/onprem-development_local_*_.json
 	```
