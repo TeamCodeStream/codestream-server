@@ -136,5 +136,6 @@ function sbcfg_initialize {
 	if [ "$CSSVC_ENV" = "local"  -a  $(sandutil_is_network_instance) -eq 1 ]; then
 		export CS_API_PUBLIC_URL="https://`hostname`:$CSBE_API_DEFAULT_PORT"
 		echo "CS_API_PUBLIC_URL=$CS_API_PUBLIC_URL [this is a remote development host]"
+		[ -n "$DT_USER" ] && export CS_API_CALLBACK_ENV="dev-$DT_USER"
 	fi
 }

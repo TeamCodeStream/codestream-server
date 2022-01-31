@@ -1,12 +1,87 @@
 # CodeStream Backend Services
 
-**This covers codestream-server development as a mono-repo (all services running
-in one sandbox) using the devtools framework.** There are other ways to do this,
-such as the open development instructions in the main README, however you won't
-have access to the features and conveniences applicable to the CodeStream
-network. It's worth noting that our CI/CD pipelines do not use the mono-repo
-configuration; they install component sandboxes (api, broadcaster, ...) from the
-mono-repo.
+**This covers codestream-server development configured as a mono-repo (all
+services running in one sandbox) using the devtools framework.** There are other
+ways to do this, such as the open development instructions in the main README,
+however you won't have access to the features and conveniences applicable to the
+CodeStream network. It's worth noting that our CI/CD pipelines do not use the
+mono-repo configuration; they install component sandboxes (api, broadcaster,
+...) from the mono-repo.
+
+* [Quick Start (TL;DIR)](#quick-start)
+* [Configurations](#configurations-primer)
+* [Installation](#installation)
+* [Load the Playground](#loading-the-playground)
+
+
+## Quick Start
+
+Assuming you have a mono-repo playground installation ready to go, this should
+work.
+
+1. Login to your development host and load your codestream-server backend
+   playground (`dt-load-playground csbe` or `dlp csbe`). Now your shell
+   (terminal) environment has been setup to run these services.
+
+1. This playground consists of two sandboxes; a mongo server, called _mongo_,
+   and the codestream-server component services (api, mailin, mailout, ...)
+   aggregated into a single sandbox, called _csbe_. It's worth mentioning this
+   is differnt from how they're managed and installed in our CI/CD pipelines,
+   where each component is installed, packaged and deployed on its own.
+
+   `dt-env` will report the sandboxes that have been loaded into your shell.
+
+1. Each sandbox has a _prefix_ associated with it. As the **csbe** sandbox is an
+   aggregate of the component services (a mono-repo sandbox), loading it sets up
+   the shell environment for all of the component services as well (even though
+   `dt-env` reports only the aggregate, mono-repo, sandbox is loaded).
+
+   | service | command prefix |
+   | --- | --- |
+   | mongo | mdb |
+   | codestream-server mono-repo | csbe |
+   | codestream api | cs_api |
+   | codestream broadcaster | cs_broadcaster |
+   | codestream inbound email | cs_mailin |
+   | codestream outbound emailer | cs_outbound_email |
+
+   For each service, you can run `{cmd-prefix}-help` to see all the commands in
+   that sandbox.
+
+   Environment variables use the prefix as a kind of namespace as well, with
+   mongo sandbox variables all beginning with `MDB_`. You can see a sandbox's
+   environment variables with `{cmd-prefix}-vars`.
+
+1. For each sandbox, there's a service init script, `{cmd-prefix}-service`. They
+   take an initial argument of _start_ | _stop_ | _status_. So if you wanted to
+   start the API, you need to start two services; mongo and the api.
+   ```
+   mdb-service start
+   cs_api-service start
+   ```
+
+1. Once you get going, it won't be long before you want to customize your
+   codestream server configuration. [Read as part of your quick start
+   lesson.](#cusomizing-you-codestream-configurations)
+
+1. Some integrations require callbacks from 3rd party vendor sites (eg. Slack).
+   We have a public-facing proxy service which has a mechanism for proxying
+   pre-determined requests from these 3rd party services to your _primary
+   development VM_. You will need this, for example, if you're doing development
+   work on the Slack integration using their interactive components feature. The
+   mechanism uses DNS so each developer can designate one of their development
+   VMs at a time to be a _primary_, which would receive these proxy requets.
+
+   Use the `dt-dev-set-primary` script to set your primary. You can change it at
+   any time.
+
+
+## Configurations Primer
+
+The _sandbox configuration_ dictates how the shell environment is set each time
+you load your codestream-server sandbox. The _CodeStream configuration_ is
+loaded by CodeStream services upon launch and controls how the services behave.
+### Sandbox Configurations
 
 codestream-services incorporates a number of services to provide all the
 functionality needed for the clients. Which services to run and their
@@ -28,9 +103,38 @@ with the codestream-server sandbox in a playground. AWS SQS requires an AWS IAM
 access key or the codestream-server sandbox to run on a managed EC2 development
 instance.
 
+### CodeStream Configurations
+
+The CodeStream services (api, outbound email, inbound email, etc...) share a
+common configuration file. The config file uses a versioned schema to adapt to
+changes over time in the code base.
+
+A detailed explanation of the CodeStream server configuration file management
+(not its content) is [here](../api_server/docs/unified-cfg-file.md) but the next
+section covers how to customize it to your liking.
+
+#### Cusomizing You CodeStream Configurations
+
+Your codestream configuration files are located in **~/.codestream/config/**.
+
+* The `dt-dev-setup` installation script will set you up with a configuration
+  called **codestream-cloud-custom-1** that's got an overrides file,
+  **custom-overides-for-custom-1.json**, which contains an empty json object.
+
+* Each time you fetch updated secrets using the `dt-dev-update-secrets` command, a
+  _hook_ will create your custom config (**codestream-cloud-custom-1**) by taking
+  the distributed config **codestream-cloud** and updating it with your
+  **custom-overides-for-custom-1.json** data (python obj.update() or JS
+  obj.assign()).
+
+* Add any overrides data you want in your config to
+  **custom-overrides-for-custom-1.json** file. There's an example file for
+  reference in that directory as well (\*.example).
+
+
 ## Installation
 
-Probably the fastest way to get started would be by launching your own private
+The fastest way to get started would be by launching your own private
 development VM and running a setup script that will prepare your entire
 environment for server development. [This is documented
 here](https://dtops-docs.codestream.us/netuser/resources/dev-vms/).
@@ -76,7 +180,7 @@ dt-dev-setup --codestream
 This is _mostly_ what the **dt-dev-setup** script will do, but reduced to the
 sandboxes applicable solely to the CodeStream Back-End services.
 
-1. Update your secrets (`dt-update-secrets -y`).
+1. Update your secrets (`dt-dev-update-secrets -y`).
 1. Select a codestream configuration to use (details documented
    [here](../api_server/docs/unified-cfg-file.md)). To get up and running quickly, this
    command will select out-of-the-box 'codestream-cloud' as your configuration.

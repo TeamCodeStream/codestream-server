@@ -205,7 +205,9 @@
 				"prod": {
 					"_loadSecretsFile": "gitlab/prod.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "gitlab/stg.cfg"
+				}
 			}
 		},
 		"jira": {

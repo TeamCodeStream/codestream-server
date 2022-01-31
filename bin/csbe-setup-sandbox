@@ -16,7 +16,7 @@ function usage {
 
     --unified-cfg-file
         Remove any sandbox options which will setup for use with the config files deployed
-        via 'dt-update-secrets'. The config will be loaded from a file. It will not be
+        via 'dt-dev-update-secrets'. The config will be loaded from a file. It will not be
         stored in mongo.
 
         This will set the CSSVC_CFG_FILE variable according to the unified config process:

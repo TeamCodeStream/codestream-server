@@ -79,7 +79,7 @@ class LoginCore {
 	async validateLoginCode () {
 		// avoid email harvesting vulnerability
 		if (!this.user || this.user.get('deactivated')) {
-			throw this.errorHandler.error('loginCodeMismatch');
+			throw this.request.errorHandler.error('loginCodeMismatch');
 		}
 		try {
 			if (this.user.get('loginCodeAttempts') === undefined || parseInt(this.user.get('loginCodeAttempts')) >= parseInt(MAX_LOGIN_CODE_ATTEMPTS)) {

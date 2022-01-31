@@ -40,7 +40,7 @@ sandbox. This is how installations are performed for our CI/CD pipelines.
 1. If you're using dev_tools on your own computer, bring it up to date
    (`dt-selfupdate -y`). You don't need to do this if you're using a managed EC2
    instance.
-1. Update your secrets (`dt-update-secrets -y`).
+1. Update your secrets (`dt-dev-update-secrets -y`).
 1. Select a codestream configuration to use. To get up and running quickly, this
    command will select out-of-the-box 'codestream-cloud' as your configuration.
 	```

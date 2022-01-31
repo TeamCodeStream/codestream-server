@@ -1,5 +1,11 @@
 # Change Log
 
+## [12.0.2] - 2022-1-31
+
+### Changed
+
+- Stop trying to auto-redirect users into VS Code when opening an error from New Relic
+
 ## [12.0.1] - 2022-1-25
 
 ### Fixed
