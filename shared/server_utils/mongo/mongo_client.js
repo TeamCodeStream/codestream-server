@@ -91,13 +91,16 @@ class MongoClient {
 				useNewUrlParser: true,
 				useUnifiedTopology: true
 			});
-			// FIXME: this variable won't be set when we're getting our mongo connect data from the config file
 			if (process.env.CSSVC_MONGO_CLIENT_CERT_FILE) {
 				settings.tls = true;
 				settings.tlsCAFile = process.env.CSSVC_MONGO_CLIENT_CERT_FILE
+			}
+			else {
+				Object.assign(settings, this.config.tlsOptions);
 			};
 			if (this.options.tryIndefinitely) {
 				await TryIndefinitely(async () => {
+					console.log("settings = ", settings)
 					this.mongoClient = await MongoDbClient.connect(
 						this.config.url,
 						settings
