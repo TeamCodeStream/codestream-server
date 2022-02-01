@@ -15,7 +15,7 @@ class WebConfirmCodeRequest extends APIRequest {
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
 		const error = this.request.query.error ? this.handleError() : '';
-		const finishUrl = decodeURIComponent(this.request.query.url || '');
+		const finishUrl = decodeURIComponent(this.request.query.finishUrl || '');
 		const tenantId = decodeURIComponent(this.request.query.tenantId || '');
 		const src = decodeURIComponent(this.request.query.src || '');
 		const changeItQueryKeys = [ 'email', 'teamId', 'finishUrl', 'tenantId', 'src' ];
