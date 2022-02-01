@@ -100,7 +100,6 @@ class MongoClient {
 			};
 			if (this.options.tryIndefinitely) {
 				await TryIndefinitely(async () => {
-					console.log("settings = ", settings)
 					this.mongoClient = await MongoDbClient.connect(
 						this.config.url,
 						settings
