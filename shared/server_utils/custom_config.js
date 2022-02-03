@@ -450,11 +450,12 @@ module.exports = function customConfigFunc(nativeCfg) {
 	// and always use those values for the outbound email service.
 	if (!Cfg.outboundEmailServer.storage.mongo.url) {
 		Cfg.outboundEmailServer.storage.mongo.url = Cfg.storage.mongo.url;
-		Cfg.outboundEmailServer.storage.mongo.tlsOptions = Cfg.storage.mongo.tlsOptions;
 	}
 	Cfg.outboundEmailServer.storage.mongo.database = MongoUrlParser(
 		Cfg.outboundEmailServer.storage.mongo.url
 	).database;
+	Cfg.outboundEmailServer.storage.mongo.tlsOptions = Cfg.storage.mongo.tlsOptions;
+
 	// TODO: consider creating a pubnubUuid prop associated with each service as opposed to overriding the entire structure.
 	// override pubnub settings from config file for outbound email
 	if (Cfg.broadcastEngine.selected === 'pubnub') {
