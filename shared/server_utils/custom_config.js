@@ -450,6 +450,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 	// and always use those values for the outbound email service.
 	if (!Cfg.outboundEmailServer.storage.mongo.url) {
 		Cfg.outboundEmailServer.storage.mongo.url = Cfg.storage.mongo.url;
+		Cfg.outboundEmailServer.storage.mongo.tlsOptions = Cfg.storage.mongo.tlsOptions;
 	}
 	Cfg.outboundEmailServer.storage.mongo.database = MongoUrlParser(
 		Cfg.outboundEmailServer.storage.mongo.url
