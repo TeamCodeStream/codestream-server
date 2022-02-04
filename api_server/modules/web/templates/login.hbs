@@ -57,6 +57,9 @@
 									<label for="password">Password</label>
 									<input autocomplete="off" class="form-control bg-dark" type="password" name="password"
 										id="password" />
+									{{#if usePassword}}
+										<div class="form-input-subtext-container"><a href="{{passwordSwitchLink}}">Forgot password?</a></div>
+									{{/if}}
 								</div>
 								{{/if}}
 								<div class="form-group">
