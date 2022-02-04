@@ -361,6 +361,11 @@ input.bg-light:-internal-autofill-selected {
 	color: rgb(0, 0, 0);
 }
 
+.form-input-subtext-container {
+	display: flex;
+	justify-content: end;
+}
+
 .btn-group {
 	padding-top: 10px;
 	box-sizing: border-box;
@@ -534,7 +539,7 @@ hr {
 	background-color: rgb(250, 251, 251);
 	padding: 30px;
 	border: 1px solid rgb(227, 228, 228);
-	margin: 0 0 80px 0;
+	margin: 0 0 40px 0;
 }
 
 .interstitial-title-wrapper{
@@ -546,14 +551,28 @@ hr {
 }
 .video-section-header {
 	font-size: 20px;
-	margin: 0 0 20px 0;
+	margin: 0 0 10px 0;
 }
 .video-section-text {
 	color: #000;
-	margin: 0 14px 20px 0;
+	margin: 0 0px 20px 0;
 	max-width: 500px;
 }
-
+.video-section-wrapper {
+	color: #000;
+}
+.video-section-description {
+	margin: 0 0 20px 0;
+}
+.video-section-text-wrapper {
+	margin: auto;
+}
+.video-wrapper {
+	text-align: center;
+}
+/* .observability-gif {
+	width: 80%
+} */
 .selected-ide {
 	border-bottom-right-radius: 0;
 	border-top-right-radius: 0;
@@ -571,16 +590,16 @@ hr {
 		width: 100%;
 	}
 	.video-section-wrapper {
-		margin-right: auto;
-    	margin-left: auto;
 		max-width: 500px;
 	}
 	.video-section-text {
 		color: #000;
-		text-align: center;
 	}
-	.video-section-content {
-		max-width: 100%;
+	.observability-gif {
+		width: 100%
+	}
+	.video-section-text-wrapper {
+		width: 100%
 	}
 }
 
@@ -590,21 +609,20 @@ hr {
 		width: 100%;
 	}
 	.video-section-wrapper {
-		margin-right: auto;
-    	margin-left: auto;
 		max-width: 800px;
-		display: flex;
-		justify-content: space-between;
 	}
 	.video-section-text {
 		color: #000;
 		text-align: left;
 	}
-	.video-section-content {
-		width: 400px;
-	}
 	.notification-content-light {
 		min-width: 362px;
+	}
+	.observability-gif {
+		width: 80%
+	}
+	.video-section-text-wrapper {
+		width: 80%
 	}
 }
 
@@ -615,10 +633,6 @@ hr {
 		width: inherit;
 	}
 	.video-section-wrapper {
-		margin-right: auto;
-    	margin-left: auto;
-		display: flex;
-		justify-content: space-between;
 		max-width: 980px;
 	}
 }
@@ -630,10 +644,6 @@ hr {
 		width: inherit;
 	}
 	.video-section-wrapper {
-		margin-right: auto;
-    	margin-left: auto;
-		display: flex;
-		justify-content: space-between;
 		max-width: 1180px;
 	}
 	.video-section-text {
