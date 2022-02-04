@@ -361,6 +361,11 @@ input.bg-light:-internal-autofill-selected {
 	color: rgb(0, 0, 0);
 }
 
+.form-input-subtext-container {
+	display: flex;
+	justify-content: end;
+}
+
 .btn-group {
 	padding-top: 10px;
 	box-sizing: border-box;

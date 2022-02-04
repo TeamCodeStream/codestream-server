@@ -66,6 +66,16 @@ const ROUTES = [
 		path: 'web/user/password',
 		requestClass: require('./set_password_request')
 	},
+
+
+	{
+		method: 'post',
+		path: 'web/user/forgot-password',
+		requestClass: require('./forgot_password_request')
+	},
+
+
+	
 	{
 		method: 'get',
 		path: 'web/assign/team',
