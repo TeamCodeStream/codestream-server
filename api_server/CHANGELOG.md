@@ -1,5 +1,11 @@
 # Change Log
 
+## [12.0.3] - 2022-2-5
+
+### Changed
+
+- Replace video on open-in-IDE redirect page from New Relic with animated gif
+
 ## [12.0.2] - 2022-1-31
 
 ### Changed

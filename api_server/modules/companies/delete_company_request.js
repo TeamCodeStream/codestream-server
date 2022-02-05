@@ -68,6 +68,7 @@ class DeleteCompanyRequest extends DeleteRequest {
 		const usersToDelete = teamUsers
 			.filter(user => {
 				return (
+					!user.get('deactivated') &&
 					(user.get('teamIds') || []).length === 1 &&
 					user.get('teamIds')[0] === this.everyoneTeam.id
 				);
