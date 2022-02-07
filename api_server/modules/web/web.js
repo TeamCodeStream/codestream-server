@@ -74,8 +74,6 @@ const ROUTES = [
 		requestClass: require('./forgot_password_request')
 	},
 
-
-	
 	{
 		method: 'get',
 		path: 'web/assign/team',

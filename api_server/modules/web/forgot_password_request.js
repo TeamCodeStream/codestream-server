@@ -20,6 +20,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 		await this.generateToken();	    // generate the token to send out in the email
 		await this.saveTokenInfo();		// save token info with the user 
 		await this.sendEmail();         // send the email to the user
+		await this.redirectToLogin();	// redirect user back to login screen
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -44,8 +45,10 @@ class ForgotPasswordRequest extends RestfulRequest {
 	// validate the passed email
 	async validateEmail () {
 		const error = new UserValidator().validateEmail(this.request.body.email);
+		const requestEmail = this.request.body.email;
 		if (error) {
-			throw this.errorHandler.error('validation', { info: `email ${error}` });
+			this.response.redirect(`/web/login?invalidEmail=true&forgot=true&error=Invalid%20Email&email=${requestEmail}`);
+			// throw this.errorHandler.error('validation', { info: `email ${error}` });
 		}
 	}
 
@@ -133,6 +136,11 @@ class ForgotPasswordRequest extends RestfulRequest {
 			this.log('Confirmation cheat detected for forgot-password, hopefully this was called by test code');
 			this.responseData.token = this.token;
 		}
+	}
+
+	async redirectToLogin () {
+		const requestEmail = this.request.body.email;
+		this.response.redirect(`/web/login/?hasBeenReset=true&forgot=true&email=${requestEmail}`);
 	}
 
 	// describe this route for help
