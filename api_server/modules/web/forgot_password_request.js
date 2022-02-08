@@ -14,6 +14,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
+		console.warn('HERE HERE HERE HERE HERE HERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HERE');
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
 		await this.validateEmail();     // make sure the email is valid
 		await this.getUser();			// get the user associated with this email
@@ -48,7 +49,6 @@ class ForgotPasswordRequest extends RestfulRequest {
 		const requestEmail = this.request.body.email;
 		if (error) {
 			this.response.redirect(`/web/login?invalidEmail=true&forgot=true&error=Invalid%20Email&email=${requestEmail}`);
-			// throw this.errorHandler.error('validation', { info: `email ${error}` });
 		}
 	}
 

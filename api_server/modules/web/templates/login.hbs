@@ -58,7 +58,7 @@
 							</button>
 						</form>
 					{{else if forgotPassword}}
-						<form action="user/forgot-password" method="post">
+						<form action="/web/user/forgot-password" method="post">
 							<div class="form-group">
 								{{#if error}}
 									<div class="error text-center" style="width:100%;">
@@ -68,11 +68,7 @@
 								<label for="email">Email</label>
 								<input class="form-control bg-dark" type="text" name="email" id="email"
 									value="{{email}}" />
-								<input type="hidden" name="finishUrl" value="{{finishUrl}}">
-								<input type="hidden" name="src" value="{{src}}">
-								<input type="hidden" name="teamId" value="{{teamId}}" />
 								<input type="hidden" name="_csrf" value="{{csrf}}" />
-								<input type="hidden" name="tenantId" value="{{tenantId}}" />
 							</div>
 							<button type="submit" class="btn btn-with-icon">
 								<span class="icon float-left">
