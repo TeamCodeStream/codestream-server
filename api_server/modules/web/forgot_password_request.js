@@ -14,7 +14,6 @@ class ForgotPasswordRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
-		console.warn('HERE HERE HERE HERE HERE HERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HEREHERE HERE HERE HERE HERE');
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters
 		await this.validateEmail();     // make sure the email is valid
 		await this.getUser();			// get the user associated with this email
