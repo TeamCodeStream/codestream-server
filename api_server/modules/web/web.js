@@ -69,7 +69,7 @@ const ROUTES = [
 	{
 		method: 'post',
 		path: 'web/user/forgot-password',
-		requestClass: require('./forgot_password_request')
+		requestClass: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/forgot_password_request')
 	},
 	{
 		method: 'get',

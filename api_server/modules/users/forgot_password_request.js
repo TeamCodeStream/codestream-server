@@ -20,6 +20,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 		await this.generateToken();	    // generate the token to send out in the email
 		await this.saveTokenInfo();		// save token info with the user 
 		await this.sendEmail();         // send the email to the user
+		await this.redirectToLogin();	// redirect user back to login screen
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -35,7 +36,8 @@ class ForgotPasswordRequest extends RestfulRequest {
 					string: ['email']
 				},
 				optional: {
-					number: ['expiresIn']
+					number: ['expiresIn'],
+					string: ['fromWeb']
 				}
 			}
 		);
@@ -132,6 +134,15 @@ class ForgotPasswordRequest extends RestfulRequest {
 			// this allows for testing without actually receiving the email
 			this.log('Confirmation cheat detected for forgot-password, hopefully this was called by test code');
 			this.responseData.token = this.token;
+		}
+	}
+
+	// if we are hitting this from the web (web/login, login.hbs), send user to password has been reset screen
+	async redirectToLogin () {
+		const requestEmail = this.request.body.email;
+		const fromWeb = this.request.body.fromWeb;
+		if (fromWeb) {
+			this.response.redirect(`/web/login/?hasBeenReset=true&forgot=true&email=${requestEmail}`);
 		}
 	}
 
