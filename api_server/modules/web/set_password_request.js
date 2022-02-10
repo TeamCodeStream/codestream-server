@@ -26,6 +26,9 @@ class SetPasswordRequest extends WebRequestBase {
 			{
 				required: {
 					string: ['token', 'password']
+				},
+				optional: {
+					string: ['fromWeb']
 				}
 			}
 		);
@@ -91,9 +94,11 @@ class SetPasswordRequest extends WebRequestBase {
 	}
 
 	async render(viewModel) {
+		const { fromWeb } = this.request.body;
 
 		return super.render('password_set', Object.assign({}, viewModel, {
-			csrf: this.request.csrfToken()
+			csrf: this.request.csrfToken(),
+			fromWeb: fromWeb
 		}));
 	}
 

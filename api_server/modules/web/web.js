@@ -67,6 +67,11 @@ const ROUTES = [
 		requestClass: require('./set_password_request')
 	},
 	{
+		method: 'post',
+		path: 'web/user/forgot-password',
+		requestClass: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/forgot_password_request')
+	},
+	{
 		method: 'get',
 		path: 'web/assign/team',
 		requestClass: require('./web_assign_team_request')

@@ -24,122 +24,182 @@
 	<div class="container mt-5">
 		<div class="row">
 			<div class="col-sm-6 offset-sm-3">
-				<h1 class="text-center">Sign into CodeStream</h1>
-				<p class="text-center">Don't have an account? Get invited to an organization first.</p>
+				{{#if hasBeenReset}}
+					<h1 class="text-center">Password Reset</h1>
+					<p class="text-center">Check your email for a link to reset your password. If you don't receive it within a few minutes, check your spam folder.</p>
+				{{else if forgotPassword}}
+					<h1 class="text-center">Password Reset</h1>
+					<p class="text-center">Enter your email address and we will send you a link to reset your password.</p>
+				{{else}}
+					<h1 class="text-center">Sign into CodeStream</h1>
+					<p class="text-center">Don't have an account? Get invited to an organization first.</p>
+				{{/if}}
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
 				<div class="box-content box-border">
-					{{#if usePassword}}
-					<form action="/web/signin" method="post">
-					{{else}}
-					<form action="/web/login-code" method="post">
-					{{/if}}
-						<div class="form-group">
-								{{#if error}}
-								<div class="error text-center" style="width:100%;">
-									{{error}}
-								</div>
-								{{/if}}
-								<input type="hidden" name="finishUrl" value="{{finishUrl}}">
-								<input type="hidden" name="src" value="{{src}}">
-								<input type="hidden" name="teamId" value="{{teamId}}" />
-								<input type="hidden" name="_csrf" value="{{csrf}}" />
-								<input type="hidden" name="tenantId" value="{{tenantId}}" />
-								<div class="form-group">
-									<label for="email">Email</label>
-									<input class="form-control bg-dark" type="text" name="email" id="email"
-										value="{{email}}" />
-								</div>
-								{{#if usePassword}}
-								<div class="form-group">
-									<label for="password">Password</label>
-									<input autocomplete="off" class="form-control bg-dark" type="password" name="password"
-										id="password" />
-								</div>
-								{{/if}}
-								<div class="form-group">
-									<button type="submit" class="btn btn-with-icon">
-										<span class="icon float-left">
-										{{#with codeStreamIcon}}
-											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
-											{{{path}}}
-											</svg>
-										{{/with}}
-										</span>	
-										<span class="copy">Sign in with Email</span>
-										<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16" class="octicon octicon-chevron-right" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path></svg></span>
-									</button>
-								</div>
+					{{#if hasBeenReset}}
+						<form action="" method="get">
+							<div class="form-group">
+							<input type="hidden" name="email" value="{{email}}">
+							<input type="hidden" name="password" value="true" />
 							</div>
-					</form>
-					{{#if usePassword}}
-					<p>No password? <a href="{{passwordSwitchLink}}">Sign in with a code instead.</a></p>
-					{{else}}
-					<p>We'll email you a code so you can sign in without a password. Or, <a href="{{passwordSwitchLink}}">you can sign in manually.</a></p>
+							<button type="submit" class="btn btn-with-icon">
+								<span class="icon float-left">
+								{{#with codeStreamIcon}}
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
+									{{{path}}}
+									</svg>
+								{{/with}}
+								</span>	
+								<span class="copy">Return to sign in</span>
+								<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16" class="octicon octicon-chevron-right" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path></svg></span>
+							</button>
+						</form>
+					{{else if forgotPassword}}
+						<form action="/web/user/forgot-password" method="post">
+							<div class="form-group">
+								{{#if error}}
+									<div class="error text-center" style="width:100%;">
+										{{error}}
+									</div>
+								{{/if}}
+								<label for="email">Email</label>
+								<input class="form-control bg-dark" type="text" name="email" id="email"
+									value="{{email}}" />
+								<input type="hidden" name="_csrf" value="{{csrf}}" />
+								<input type="hidden" name="fromWeb" value="true" />
+							</div>
+							<button type="submit" class="btn btn-with-icon">
+								<span class="icon float-left">
+								{{#with codeStreamIcon}}
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
+									{{{path}}}
+									</svg>
+								{{/with}}
+								</span>	
+								<span class="copy">Reset password</span>
+								<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16" class="octicon octicon-chevron-right" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path></svg></span>
+							</button>
+						</form>
 					{{/if}}
+					{{#unless forgotPassword}}
+						{{#if usePassword}}
+							<form action="/web/signin" method="post">
+						{{else}}
+							<form action="/web/login-code" method="post">
+						{{/if}}
+							<div class="form-group">
+									{{#if error}}
+									<div class="error text-center" style="width:100%;">
+										{{error}}
+									</div>
+									{{/if}}
+									<input type="hidden" name="finishUrl" value="{{finishUrl}}">
+									<input type="hidden" name="src" value="{{src}}">
+									<input type="hidden" name="teamId" value="{{teamId}}" />
+									<input type="hidden" name="_csrf" value="{{csrf}}" />
+									<input type="hidden" name="tenantId" value="{{tenantId}}" />
+									<div class="form-group">
+										<label for="email">Email</label>
+										<input class="form-control bg-dark" type="text" name="email" id="email"
+											value="{{email}}" />
+									</div>
+									{{#if usePassword}}
+									<div class="form-group">
+										<label for="password">Password</label>
+										<input autocomplete="off" class="form-control bg-dark" type="password" name="password"
+											id="password" />
+										{{#if usePassword}}
+											<div class="form-input-subtext-container"><a href="{{forgotLink}}">Forgot password?</a></div>
+										{{/if}}
+									</div>
+									{{/if}}
+									<div class="form-group">
+										<button type="submit" class="btn btn-with-icon">
+											<span class="icon float-left">
+											{{#with codeStreamIcon}}
+												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
+												{{{path}}}
+												</svg>
+											{{/with}}
+											</span>	
+											<span class="copy">Sign in with Email</span>
+											<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16" class="octicon octicon-chevron-right" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path></svg></span>
+										</button>
+									</div>
+								</div>
+						</form>
+						{{#if usePassword}}
+						<p>No password? <a href="{{passwordSwitchLink}}">Sign in with a code instead.</a></p>
+						{{else}}
+						<p>We'll email you a code so you can sign in without a password. Or, <a href="{{passwordSwitchLink}}">you can sign in manually.</a></p>
+						{{/if}}
+					{{/unless}}
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-				<div class="box-content box-border">
-					<button class="btn btn-with-icon" onclick="window.location.href='{{gitHubLink}}'" style="margin-bottom:2px">
-						<span class="icon float-left">
-						{{#with gitHubIcon}}
-							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
-							{{{path}}}
-							</svg>
-						{{/with}}
-						</span>	
-						<span class="copy">Sign in with GitHub</span>
-						<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16" class="octicon octicon-chevron-right" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path></svg></span>
-					</button>
-					<button class="btn btn-with-icon" onclick="window.location.href='{{gitLabLink}}'" style="margin-bottom:2px">
-						<span class="icon float-left">
-							{{#with gitLabIcon}}
-							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
-								{{{path}}}
-							</svg>
-							{{/with}}
-						</span>
-						<span class="copy">Sign in with GitLab</span>
-						<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16"
-								class="octicon octicon-chevron-right" aria-hidden="true">
-								<path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path>
-							</svg></span>
-					</button>
-					<button class="btn btn-with-icon" onclick="window.location.href='{{bitbucketLink}}'" style="margin-bottom:2px">
-						<span class="icon float-left">
-							{{#with bitbucketIcon}}
-							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
-								{{{path}}}
-							</svg>
-							{{/with}}
-						</span>
-						<span class="copy">Sign in with Bitbucket</span>
-						<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16"
-								class="octicon octicon-chevron-right" aria-hidden="true">
-								<path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path>
-							</svg></span>
-					</button>
-					{{#if oktaEnabled}}
-						<button class="btn btn-with-icon" style="margin-top:15px" onclick="window.location.href='{{oktaLink}}'">
+		{{#unless forgotPassword}}
+			<div class="row">
+				<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+					<div class="box-content box-border">
+						<button class="btn btn-with-icon" onclick="window.location.href='{{gitHubLink}}'" style="margin-bottom:2px">
 							<span class="icon float-left">
-							{{#with oktaIcon}}
+							{{#with gitHubIcon}}
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
 								{{{path}}}
 								</svg>
 							{{/with}}
 							</span>	
-							<span class="copy">Sign in with Okta</span>
+							<span class="copy">Sign in with GitHub</span>
 							<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16" class="octicon octicon-chevron-right" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path></svg></span>
 						</button>
-					{{/if}}
+						<button class="btn btn-with-icon" onclick="window.location.href='{{gitLabLink}}'" style="margin-bottom:2px">
+							<span class="icon float-left">
+								{{#with gitLabIcon}}
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
+									{{{path}}}
+								</svg>
+								{{/with}}
+							</span>
+							<span class="copy">Sign in with GitLab</span>
+							<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16"
+									class="octicon octicon-chevron-right" aria-hidden="true">
+									<path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path>
+								</svg></span>
+						</button>
+						<button class="btn btn-with-icon" onclick="window.location.href='{{bitbucketLink}}'" style="margin-bottom:2px">
+							<span class="icon float-left">
+								{{#with bitbucketIcon}}
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
+									{{{path}}}
+								</svg>
+								{{/with}}
+							</span>
+							<span class="copy">Sign in with Bitbucket</span>
+							<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16"
+									class="octicon octicon-chevron-right" aria-hidden="true">
+									<path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path>
+								</svg></span>
+						</button>
+						{{#if oktaEnabled}}
+							<button class="btn btn-with-icon" style="margin-top:15px" onclick="window.location.href='{{oktaLink}}'">
+								<span class="icon float-left">
+								{{#with oktaIcon}}
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="octicon" viewBox="{{viewBox}}">
+									{{{path}}}
+									</svg>
+								{{/with}}
+								</span>	
+								<span class="copy">Sign in with Okta</span>
+								<span class="icon float-right"><svg version="1.1" width="8" height="16" viewBox="0 0 8 16" class="octicon octicon-chevron-right" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 8l-5 5L1 11.5 4.75 8 1 4.5 2.5 3l5 5z"></path></svg></span>
+							</button>
+						{{/if}}
+					</div>
 				</div>
 			</div>
-		</div>
+		{{/unless}}
 	</div>
 	<script>
 		$(function() {
