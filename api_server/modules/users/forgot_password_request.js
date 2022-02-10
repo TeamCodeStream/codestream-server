@@ -113,7 +113,11 @@ class ForgotPasswordRequest extends RestfulRequest {
 		}
 
 		// generate the url		
-		const url = `${this.api.config.apiServer.publicApiUrl}/web/user/password?token=${encodeURIComponent(this.token)}`;
+		const fromWeb = this.request.body.fromWeb;
+		let url = `${this.api.config.apiServer.publicApiUrl}/web/user/password?token=${encodeURIComponent(this.token)}`;
+		if (fromWeb) {
+			url = url + `&fromWeb=${encodeURIComponent(fromWeb)}`;
+		}
 
 		// queue the email for sending
 		this.log(`Triggering forgot-password email for user ${this.user.id} ("${this.user.get('email')}")...`);
