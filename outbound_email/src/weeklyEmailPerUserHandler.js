@@ -10,7 +10,7 @@ const ONE_HOUR = 60 * 60 * 1000;
 const ONE_DAY = 24 * ONE_HOUR;
 const ONE_WEEK = 7 * ONE_DAY;
 // suppress certain results when team size gets too big
-const SUPPRESS_TEAM_SIZE = 5;
+const SUPPRESS_TEAM_SIZE = 25;
 
 class WeeklyEmailPerUserHandler {
 
