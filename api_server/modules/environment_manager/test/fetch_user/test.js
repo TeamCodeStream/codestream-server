@@ -8,6 +8,8 @@ const NotFoundTest = require('./not_found_test');
 const EmailRequiredTest = require('./email_required_test');
 const NoSecretTest = require('./no_secret_test');
 const IncorrectSecretTest = require('./incorrect_secret_test');
+const FetchByIdTest = require('./fetch_by_id_test');
+const NotFoundByIdTest = require('./not_found_by_id_test');
 
 class FetchUserRequestTester {
 
@@ -17,6 +19,8 @@ class FetchUserRequestTester {
 		new EmailRequiredTest().test();
 		new NoSecretTest().test();
 		new IncorrectSecretTest().test();
+		new FetchByIdTest().test();
+		new NotFoundByIdTest().test();
 	}
 }
 

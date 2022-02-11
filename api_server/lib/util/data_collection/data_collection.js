@@ -108,6 +108,14 @@ class DataCollection {
 		return model;
 	}
 
+	// create a model directly, no caching or transaction 
+	async createDirect (data, options = {}) {
+		return this.databaseCollection.create(
+			data,
+			Object.assign({}, options, { requestId: this.requestId })
+		);
+	}
+	
 	// create many models using the data passed in
 	async createMany (documents, options = {}) {
 		await Promise.all(documents.map(async document => {

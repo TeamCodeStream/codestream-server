@@ -12,30 +12,38 @@ class FetchUserRequest extends XEnvRequest {
 	async process () {
 		await this.requireAndAllow();
 
-		const user = await this.data.users.getOneByQuery(
-			{
-				searchableEmail: decodeURIComponent(this.request.query.email).toLowerCase()
-			},
-			{
-				hint: UserIndexes.bySearchableEmail
-			}
-		);
-		if (user) {
-			this.responseData = { 
-				user: {
-					...user.getSanitizedObject(this),
-					passwordHash: user.get('passwordHash')
+		const { email, id } = this.request.query;
+		if (!email && !id) {
+			throw this.errorHandler.error('parameterRequired', { info: 'email or id' });
+		}
+
+		let user;
+		if (id) {
+			user = await this.data.users.getById(id);
+		} else {
+			user = await this.data.users.getOneByQuery(
+				{
+					searchableEmail: decodeURIComponent(email).toLowerCase()
+				},
+				{
+					hint: UserIndexes.bySearchableEmail
 				}
-			};
+			);
+		}
+		if (user) {
+			this.responseData = { user: user.attributes };
+		} else if (id) {
+			// when providing ID, this provokes an error
+			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
 	}
 
 	// require certain parameters, and discard unknown parameters
 	async requireAndAllow () {
 		await this.requireAllowParameters('query', {
-			required: {
-				string: ['email'],
-			},
+			optional: {
+				string: ['email', 'id']
+			}
 		});
 	}
 }
