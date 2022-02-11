@@ -35,6 +35,11 @@ const ROUTES = [
 		method: 'put',
 		path: '/xenv/join-company/:id',
 		requestClass: require('./join_company_request')
+	},
+	{
+		method: 'delete',
+		path: '/xenv/delete-user/:id',
+		requestClass: require('./delete_user_request')
 	}
 ];
 
