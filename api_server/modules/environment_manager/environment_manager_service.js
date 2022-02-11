@@ -75,7 +75,7 @@ class EnvironmentManagerService {
 		const response = await this._fetchFromUrl(url, { method: 'post', body });
 		if (response && response.user) {
 			this.api.log(`Did cross-confirm user ${response.user.id}:${response.user.email} in environment ${host.name}:${host.host}`);
-			return { user: response.user, host };
+			return { response, host };
 		} else {
 			this.api.log(`User ${user.get('email')} not found in environment ${host.name}:${host.host}`);
 		}
@@ -171,6 +171,7 @@ class EnvironmentManagerService {
 			let errorBody;
 			try {
 				errorBody = await response.json();
+				
 			} catch (error) { }
 			this.api.warn(`Request to foreign environment host (${url}) failed, status code ${response.status}: ${JSON.stringify(errorBody)}`);
 			return;

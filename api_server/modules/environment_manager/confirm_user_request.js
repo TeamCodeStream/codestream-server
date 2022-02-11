@@ -53,15 +53,12 @@ class ConfirmUserRequest extends XEnvRequest {
 	// confirm the referenced user
 	async confirmUser () {
 		// call out to a confirmation helper, to finish the confirmation
-		const responseData = await new ConfirmHelper({
+		this.responseData = await new ConfirmHelper({
 			request: this,
 			user: this.user,
 			dontUpdateLastLogin: true,
 			dontConfirmInOtherEnvironments: true
 		}).confirm(this.request.body);
-
-		// ignore everything in the response except the actual user object
-		this.responseData = { user: responseData.user }
 	}
 
 	// remove any old signup tokens associated with this user

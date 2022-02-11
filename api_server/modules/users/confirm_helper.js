@@ -187,17 +187,23 @@ class ConfirmHelper {
 
 		// if the user was confirmed in any other environment, and was not invited in this one
 		// (which means they are not yet on any teams), then deactivate the account created here
-		// and send information back to the client indicating they must start interacting with
-		// the server in that environment
+		// and send the first confirmed user response we got back to the client, along with 
+		// information indicating they must switch environments
 		if (usersConfirmed.length > 0 && (this.user.get('teamIds') || []).length === 0) {
 			const hostInfo = usersConfirmed.map(userConfirmed => { 
-				const { user, host } = userConfirmed;
-				return `ID=${user.id}@${host.name}:${host.host}`;
+				const { response, host } = userConfirmed;
+				return `ID=${response.user.id}@${host.name}:${host.host}`;
 			}).join(',');
-			const environments = usersConfirmed.map(userConfirmed => {
-				return userConfirmed.host;
-			});
 
+			const firstUserConfirmed = usersConfirmed[0];
+			const { response, host } = firstUserConfirmed;
+			this.responseData = response;
+			this.responseData.setEnvironment = {
+				environment: host.key,
+				host: host.host
+			};
+
+			// deactivate the confirmed user in this environment
 			this.request.log(`Deactivating confirmed user ${this.user.id}:${this.user.get('email')} because that user was invited to other hosts: ${hostInfo}`);
 			const now = Date.now();
 			const emailParts = this.user.get('email').split('@');
@@ -206,7 +212,6 @@ class ConfirmHelper {
 				{ id: this.request.data.users.objectIdSafe(this.user.id) },
 				{ $set: { deactivated: true, email: newEmail, searchableEmail: newEmail.toLowerCase() } }
 			);
-			throw this.request.errorHandler.error('invitedToOtherEnvironments', { info: { environments } });
 		}
 
 	}

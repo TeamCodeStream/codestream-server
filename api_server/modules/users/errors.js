@@ -162,10 +162,5 @@ module.exports = {
 		code: 'USRC-1030',
 		message: 'Login code doesn\'t match',
 		description: 'The provided login code doesn\'t match the expected login code for the user'
-	},
-	'invitedToOtherEnvironments': {
-		code: 'USRC-1031',
-		message: 'User was invited to other environments',
-		description: 'The confirmed user was found to have been invited to at least one environment other than the one the user registered and confirmed in, client should use the url associated with that environment instead (see returned info structure)'
 	}
 };

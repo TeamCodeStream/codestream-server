@@ -62,7 +62,7 @@ class ConfirmUserTest extends CodeStreamAPITest {
 			((user.firstSessionStartedAt === undefined) || errors.push('firstSesssionStartedAt should not have been set'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
-
+		Assert(data.accessToken, 'no access token in response');
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
