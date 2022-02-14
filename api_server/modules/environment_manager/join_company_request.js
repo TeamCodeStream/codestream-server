@@ -14,6 +14,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		// environment, wherein the request can proceed normally
 		await this.fetchUser();
 		await this.copyUser();
+		await this.deleteUser(); // also delete the original user
 
 		return super.authorize();
 	}
@@ -36,10 +37,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		}
 
 		// the access token passed must match the user's stored access token
-	console.warn('PASSED ACCESS TOKEN:', accessToken);
-	console.warn('USER ACCESS TOKENS:', this.user.accessTokens);
 		const token = this.user.accessTokens && this.user.accessTokens.web && this.user.accessTokens.web.token;
-		console.warn('USER ACCESS TOKEN:', token);
 		if (token !== accessToken) {
 			throw this.errorHandler.error('updateAuth', { reason: 'token mismatch' });
 		}
@@ -62,6 +60,12 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 			throw this.errorHandler.error('internal', { info: `cross-environment user ${userId} was not created locally` });
 		}
 		this.request.user = this.user; // make this user the submitter of the request
+	}
+
+	// delete the original user, since they joined a company in this environment
+	async deleteUser () {
+		const { serverUrl, userId } = this.request.body;
+		return this.api.services.environmentManager.deleteUserFromHostById(serverUrl, userId);
 	}
 }
 

@@ -63,6 +63,18 @@ class EnvironmentManagerService {
 		}
 	}
 
+	// delete the user matching an ID from a specific environment host
+	async deleteUserFromHostById (host, id) {
+		const url = `${host}/xenv/delete-user/${id}`;
+		this.api.log(`Deleting user ${id} from server ${host}...`);
+		const response = await this._fetchFromUrl(url, { method: 'delete' });
+		if (response) {
+			this.api.log(`Did delete user ${id} from server ${host}`);
+		} else {
+			this.api.log(`Did not delete user with ID ${id} in fetch from server ${host}`);
+		}
+	}
+
 	// confirm a user who has been invited across environments
 	// returns the user records for all confirmed users, along with the environment they
 	// were confirmed in
