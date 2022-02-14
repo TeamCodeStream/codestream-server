@@ -92,7 +92,7 @@
 			"env": "CS_API_CONFIRMATION_EXPIRATION"
 		},
 		"confirmationNotRequired": {
-			"default": false,
+			"default": true,
 			"desc": "set to true to disable email confirmation",
 			"env": "CS_API_CONFIRMATION_NOT_REQUIRED"
 		},
