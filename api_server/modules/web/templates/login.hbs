@@ -203,9 +203,27 @@
 	</div>
 	<script>
 		function updateEmailOnclick(value){
+			//bob2@gmail.com
 			var emailInputValue = document.getElementById("email").value;
+
+			//.href value = https://pd-api.codestream.us/web/login?password=false&email=bob@gmail.com
 			var passwordSwitchLink = document.getElementById("password-switch-link");
-			var newPasswordSwitchLinkHref = passwordSwitchLink.href + emailInputValue;
+
+			//password=false&email=bob@gmail.com
+			var params = new URLSearchParams(passwordSwitchLink);
+
+			//password=false
+			params.delete('email');
+
+			//password=false&email=bob2@gmail.com
+			params.append('email', emailInputValue);
+
+			//https://pd-api.codestream.us/web/login
+			var passwordSwithLinkWithoutParams = passwordSwitchLink.href.split('?')[0];
+
+ 			//https://pd-api.codestream.us/web/login?password=false&email=bob2@gmail.com
+			var newPasswordSwitchLinkHref = passwordSwithLinkWithoutParams + '?' + params;
+
 			passwordSwitchLink.setAttribute('href', newPasswordSwitchLinkHref);
 		}
 		$(function() {
