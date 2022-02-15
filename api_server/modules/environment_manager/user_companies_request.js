@@ -36,8 +36,12 @@ class UserCompaniesRequest extends XEnvRequest {
 			companies = await this.data.companies.getByIds(companyIds);
 		}
 
+		const accessToken = ((user.get('accessTokens') || {}).web || {}).token;
 		this.responseData.companies = companies.map(company => {
-			return company.getSanitizedObject({ request: this });
+			return {
+				...(company.getSanitizedObject({ request: this })),
+				accessToken
+			};
 		});
 	}
 }

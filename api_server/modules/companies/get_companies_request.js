@@ -30,6 +30,40 @@ class GetCompaniesRequest extends GetManyRequest {
 			this.ids = this.user.get('companyIds') || [];
 		}
 		await super.process();
+
+		// get any companies the user is a member of (by email) in foreign environments,
+		// to display in the organization switcher
+		await this.getForeignCompanies();
+	}
+
+	// get any companies the user is a member of (by email) in foreign environments,
+	// to display in the organization switcher
+	async getForeignCompanies () {
+		if (this.request.headers['x-cs-block-xenv']) {
+			this.log('Not fetching foreign companies, blocked by header');
+			return [];
+		} else if (this.request.query.ids) {
+			return [];
+		}
+
+		const companies = await this.api.services.environmentManager
+			.fetchUserCompaniesFromAllEnvironments(this.user.get('email'));
+		this.foreignCompanies = companies.map(company => {
+			company.company.host = company.host;
+			company.company.host.accessToken = company.company.accessToken;
+			delete company.company.accessToken;
+			return company.company;
+		});
+	}
+
+	async handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
+
+		// add any foreign (cross-environment) companies
+		this.responseData.companies = [...this.responseData.companies, ...(this.foreignCompanies || [])];
+		return super.handleResponse();
 	}
 
 	// describe this route for help
