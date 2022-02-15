@@ -1,5 +1,12 @@
 # Change Log
 
+## [12.0.4] - 2022-2-16
+
+### Changed
+
+- Remove Team section of weekly activity emails when org has more than 25 members
+- After signing in on the web, user is now brought to the given codemark/feedback request/permalink when appropriate
+
 ## [12.0.3] - 2022-2-5
 
 ### Changed
