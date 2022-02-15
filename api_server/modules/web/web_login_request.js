@@ -43,7 +43,8 @@ class WebLoginRequest extends APIRequest {
 		const oktaEnabled = !!this.api.config.integrations.okta.appClientId;
 		const passwordSwitchLinkQueryObj = {
 			...this.request.query,
-			password: !usePassword
+			password: !usePassword,
+			email: this.request.query.email ? this.request.query.email : ''
 		};
 		const passwordSwitchLinkQuery = Object.keys(passwordSwitchLinkQueryObj)
 			.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(passwordSwitchLinkQueryObj[key]))

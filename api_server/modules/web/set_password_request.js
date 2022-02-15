@@ -72,7 +72,8 @@ class SetPasswordRequest extends WebRequestBase {
 				errorHandler: this.errorHandler
 			}).setPassword(user, password);
 
-			this.response.redirect('/web/user/password/updated');
+			const requestEmail = encodeURIComponent(user.get('email'));
+			this.response.redirect(`/web/user/password/updated?email=${requestEmail}`);
 			this.responseHandled = true;
 		}
 		catch (error) {
