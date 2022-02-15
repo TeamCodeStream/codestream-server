@@ -143,7 +143,7 @@ class ForgotPasswordRequest extends RestfulRequest {
 
 	// if we are hitting this from the web (web/login, login.hbs), send user to password has been reset screen
 	async redirectToLogin () {
-		const requestEmail = this.request.body.email;
+		const requestEmail = this.request.body.email ? encodeURIComponent(this.request.body.email) : '';
 		const fromWeb = this.request.body.fromWeb;
 		if (fromWeb) {
 			this.response.redirect(`/web/login/?hasBeenReset=true&forgot=true&email=${requestEmail}`);

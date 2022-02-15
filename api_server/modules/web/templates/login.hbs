@@ -66,7 +66,7 @@
 									</div>
 								{{/if}}
 								<label for="email">Email</label>
-								<input class="form-control bg-dark" type="text" name="email" id="email"
+								<input class="form-control bg-dark" type="text" name="email" id="email" onchange="updateEmailOnclick(this.value)"
 									value="{{email}}" />
 								<input type="hidden" name="_csrf" value="{{csrf}}" />
 								<input type="hidden" name="fromWeb" value="true" />
@@ -103,7 +103,7 @@
 									<input type="hidden" name="tenantId" value="{{tenantId}}" />
 									<div class="form-group">
 										<label for="email">Email</label>
-										<input class="form-control bg-dark" type="text" name="email" id="email"
+										<input class="form-control bg-dark" type="text" name="email" id="email" onchange="updateEmailOnclick(this.value)"
 											value="{{email}}" />
 									</div>
 									{{#if usePassword}}
@@ -132,9 +132,9 @@
 								</div>
 						</form>
 						{{#if usePassword}}
-						<p>No password? <a href="{{passwordSwitchLink}}">Sign in with a code instead.</a></p>
+						<p>No password? <a href="{{passwordSwitchLink}}" id="password-switch-link">Sign in with a code instead.</a></p>
 						{{else}}
-						<p>We'll email you a code so you can sign in without a password. Or, <a href="{{passwordSwitchLink}}">you can sign in manually.</a></p>
+						<p>We'll email you a code so you can sign in without a password. Or, <a href="{{passwordSwitchLink}}" id="password-switch-link">you can sign in manually.</a></p>
 						{{/if}}
 					{{/unless}}
 				</div>
@@ -202,6 +202,30 @@
 		{{/unless}}
 	</div>
 	<script>
+		function updateEmailOnclick(value){
+			//bob2@gmail.com
+			var emailInputValue = document.getElementById("email").value;
+
+			//.href value = https://pd-api.codestream.us/web/login?password=false&email=bob@gmail.com
+			var passwordSwitchLink = document.getElementById("password-switch-link");
+
+			//password=false&email=bob@gmail.com
+			var params = new URLSearchParams(passwordSwitchLink);
+
+			//password=false
+			params.delete('email');
+
+			//password=false&email=bob2@gmail.com
+			params.append('email', emailInputValue);
+
+			//https://pd-api.codestream.us/web/login
+			var passwordSwithLinkWithoutParams = passwordSwitchLink.href.split('?')[0];
+
+ 			//https://pd-api.codestream.us/web/login?password=false&email=bob2@gmail.com
+			var newPasswordSwitchLinkHref = passwordSwithLinkWithoutParams + '?' + params;
+
+			passwordSwitchLink.setAttribute('href', newPasswordSwitchLinkHref);
+		}
 		$(function() {
 			window.analytics.track("WebAuth Displayed", { 
 				Source: "{{src}}"

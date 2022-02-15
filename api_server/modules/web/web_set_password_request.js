@@ -33,7 +33,7 @@ class WebSetPasswordRequest extends WebRequestBase {
 			return;
 		}
 
-
+		// Renders Set Password (single password textfield with submit "update password" button)
 		return super.render('password_set', {
 			email: user.get('email'),
 			token: token,
