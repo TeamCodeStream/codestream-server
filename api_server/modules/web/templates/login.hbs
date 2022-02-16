@@ -212,6 +212,11 @@
 			//password=false&email=bob@gmail.com
 			var params = new URLSearchParams(passwordSwitchLink);
 
+			//initial state setting
+			if (!params.get('password')) {
+				params.append('password', true);
+			}
+
 			//password=false
 			params.delete('email');
 
