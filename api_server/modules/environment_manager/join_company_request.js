@@ -3,8 +3,14 @@
 'use strict';
 
 const JoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/join_company_request');
+const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 
 class XEnvJoinCompanyRequest extends JoinCompanyRequest {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(AuthErrors);
+	}
 
 	async authorize () {
 		await this.xenvRequireAndAllow();
@@ -23,14 +29,24 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 	async xenvRequireAndAllow () {
 		await this.requireAllowParameters('body', {
 			required: {
-				string: ['serverUrl', 'userId', 'accessToken']
+				string: ['serverUrl', 'userId']
 			}
 		});
 	}
 
 	// fetch the user across environments
 	async fetchUser () {
-		const { serverUrl, userId, accessToken } = this.request.body;
+		const { serverUrl, userId } = this.request.body;
+		if (!this.request.headers.authorization) {
+			this.response.status(401);
+			throw this.errorHandler.error('missingAuthorization');
+		}
+		const accessToken = this.request.headers.authorization.split('Bearer ')[1];
+		if (!accessToken) {
+			this.response.status(401);
+			throw this.errorHandler.error('missingAuthorization');
+		}
+
 		this.user = await this.api.services.environmentManager.fetchUserFromHostById(serverUrl, userId);
 		if (!this.user) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
