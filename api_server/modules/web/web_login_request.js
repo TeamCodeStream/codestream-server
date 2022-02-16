@@ -14,6 +14,9 @@ class WebLoginRequest extends APIRequest {
 	async process () {
 		const csrf = this.request.csrfToken();
 		const usePassword = this.request.query.password === 'true' ? true : false;
+		const forgotPassword = this.request.query.forgot === 'true' ? true : false;
+		const hasBeenReset = this.request.query.hasBeenReset === 'true' ? true : false;
+		const invalidEmail = this.request.query.invalidEmail === 'true' ? true : false;
 		const email = this.request.query.email ? decodeURIComponent(this.request.query.email) : '';
 		const teamId = this.request.query.teamId ? this.request.query.teamId.toLowerCase() : '';
 		const error = this.request.query.error ? this.handleError() : '';
@@ -40,17 +43,31 @@ class WebLoginRequest extends APIRequest {
 		const oktaEnabled = !!this.api.config.integrations.okta.appClientId;
 		const passwordSwitchLinkQueryObj = {
 			...this.request.query,
-			password: !usePassword
+			password: !usePassword,
+			email: this.request.query.email ? this.request.query.email : ''
 		};
 		const passwordSwitchLinkQuery = Object.keys(passwordSwitchLinkQueryObj)
 			.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(passwordSwitchLinkQueryObj[key]))
 			.join('&');
 		const passwordSwitchLink = `/web/login?${passwordSwitchLinkQuery}`;
+		const forgotLinkQueryObj = {
+			...this.request.query,
+			forgot: true
+		}
+		const forgotLinkQuery = Object.keys(forgotLinkQueryObj)
+			.map(key => encodeURIComponent(key) + '=' + encodeURIComponent(forgotLinkQueryObj[key]))
+			.join('&');
+		const forgotLink = `/web/login?${forgotLinkQuery}`;
+
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,
 			teamId,
 			usePassword,
+			forgotPassword,
+			forgotLink,
+			hasBeenReset,
+			invalidEmail,
 			passwordSwitchLink,
 			finishUrl: finishUrl,
 			tenantId:  tenantId,

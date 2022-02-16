@@ -12,6 +12,8 @@ class WebSetPasswordRequest extends WebRequestBase {
 
 	async process() {
 		const token = this.request.query.token;
+		const fromWeb = this.request.query.fromWeb;
+
 		if (!token) {
 			this.warn('No token found in request');
 			this.redirectError();
@@ -31,11 +33,12 @@ class WebSetPasswordRequest extends WebRequestBase {
 			return;
 		}
 
-
+		// Renders Set Password (single password textfield with submit "update password" button)
 		return super.render('password_set', {
 			email: user.get('email'),
 			token: token,
-			csrf: this.request.csrfToken()
+			csrf: this.request.csrfToken(),
+			fromWeb
 		});
 
 	}

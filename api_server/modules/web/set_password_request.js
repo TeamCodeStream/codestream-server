@@ -26,6 +26,9 @@ class SetPasswordRequest extends WebRequestBase {
 			{
 				required: {
 					string: ['token', 'password']
+				},
+				optional: {
+					string: ['fromWeb']
 				}
 			}
 		);
@@ -69,7 +72,8 @@ class SetPasswordRequest extends WebRequestBase {
 				errorHandler: this.errorHandler
 			}).setPassword(user, password);
 
-			this.response.redirect('/web/user/password/updated');
+			const requestEmail = encodeURIComponent(user.get('email'));
+			this.response.redirect(`/web/user/password/updated?email=${requestEmail}`);
 			this.responseHandled = true;
 		}
 		catch (error) {
@@ -91,9 +95,11 @@ class SetPasswordRequest extends WebRequestBase {
 	}
 
 	async render(viewModel) {
+		const { fromWeb } = this.request.body;
 
 		return super.render('password_set', Object.assign({}, viewModel, {
-			csrf: this.request.csrfToken()
+			csrf: this.request.csrfToken(),
+			fromWeb: fromWeb
 		}));
 	}
 
