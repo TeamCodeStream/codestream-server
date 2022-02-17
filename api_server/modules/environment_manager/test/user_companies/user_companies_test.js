@@ -54,6 +54,7 @@ class UserCompaniesTest extends CodeStreamAPITest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.expectedCompanies.push(response.company);
+				response.company.accessToken = this.users[0].accessToken;
 				callback();
 			}
 		);

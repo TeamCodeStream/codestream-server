@@ -11,6 +11,7 @@ const EligibleJoinCompaniesTester = require('./eligible_join_companies/test');
 const UserCompaniesTester = require('./user_companies/test');
 const ChangeEmailTester = require('./change_email/test');
 const DeleteUserTester = require('./delete_user/test');
+const EnsureUserTester = require('./ensure_user/test');
 
 describe('environment manager requests', function() {
 
@@ -22,4 +23,5 @@ describe('environment manager requests', function() {
 	describe('GET /xenv/user-companies', UserCompaniesTester.test);
 	describe('PUT /xenv/change-email', ChangeEmailTester.test);
 	describe('DELETE /xenv/delete-user/:id', DeleteUserTester.test);
+	describe('POST /xenv/ensure-user', EnsureUserTester.test);
 });

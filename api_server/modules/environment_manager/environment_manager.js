@@ -13,6 +13,11 @@ const ROUTES = [
 	},
 	{
 		method: 'post',
+		path: 'xenv/ensure-user',
+		requestClass: require('./ensure_user_request')
+	},
+	{
+		method: 'post',
 		path: 'xenv/confirm-user',
 		requestClass: require('./confirm_user_request')
 	},
@@ -35,6 +40,11 @@ const ROUTES = [
 		method: 'put',
 		path: '/xenv/join-company/:id',
 		requestClass: require('./join_company_request')
+	},
+	{
+		method: 'post',
+		path: '/create-xenv-company',
+		requestClass: require('./create_company_request')
 	},
 	{
 		method: 'delete',

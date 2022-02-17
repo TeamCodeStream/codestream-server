@@ -40,7 +40,7 @@ class EnvironmentManagerService {
 	async fetchUserFromEnvironmentHost (host, email) {
 		const url = `${host.host}/xenv/fetch-user?email=${encodeURIComponent(email)}`;
 		this.api.log(`Fetching user ${email} in environment ${host.name}:${host.host}...`);
-		const response = await this._fetchFromUrl(url);
+		const response = await this.fetchFromUrl(url);
 		if (response.user) {
 			this.api.log(`Did fetch user ${response.user.id}:${response.user.email} from environment ${host.name}:${host.host}`);
 		} else {
@@ -53,7 +53,7 @@ class EnvironmentManagerService {
 	async fetchUserFromHostById (host, id) {
 		const url = `${host}/xenv/fetch-user?id=${id}`;
 		this.api.log(`Fetching user ${id} from server ${host}...`);
-		const response = await this._fetchFromUrl(url);
+		const response = await this.fetchFromUrl(url);
 		if (response && response.user) {
 			this.api.log(`Did fetch user ${response.user.id}:${response.user.email} from server ${host}`);
 			return response.user;
@@ -63,11 +63,26 @@ class EnvironmentManagerService {
 		}
 	}
 
+	// ensure the user matching the given user data (matched by email) exists on the given environment host,
+	// fetching it if it exists, or creating it if it doesn't
+	async ensureUserOnEnvironmentHost (host, user) {
+		const url = `${host}/xenv/ensure-user`;
+		const body = { user };
+		this.api.log(`Ensuring user ${user.email} exists on environment ${host}...`);
+		const response = await this.fetchFromUrl(url, { method: 'post', body });
+		if (response.user) {
+			this.api.log(`Did ensure and fetch user ${response.user.id}:${response.user.email} from environment ${host}`);
+		} else {
+			this.api.log(`Did not ensure user matching ${user.email} in environment ${host}`);
+		}
+		return response;
+	}
+
 	// delete the user matching an ID from a specific environment host
 	async deleteUserFromHostById (host, id) {
 		const url = `${host}/xenv/delete-user/${id}`;
 		this.api.log(`Deleting user ${id} from server ${host}...`);
-		const response = await this._fetchFromUrl(url, { method: 'delete' });
+		const response = await this.fetchFromUrl(url, { method: 'delete' });
 		if (response) {
 			this.api.log(`Did delete user ${id} from server ${host}`);
 		} else {
@@ -98,7 +113,7 @@ class EnvironmentManagerService {
 			username: user.get('username'),
 			passwordHash: user.get('passwordHash')
 		};
-		const response = await this._fetchFromUrl(url, { method: 'post', body });
+		const response = await this.fetchFromUrl(url, { method: 'post', body });
 		if (response && response.user) {
 			this.api.log(`Did cross-confirm user ${response.user.id}:${response.user.email} in environment ${host.name}:${host.host}`);
 			return { response, host };
@@ -120,7 +135,7 @@ class EnvironmentManagerService {
 		const url = `${host.host}/xenv/change-email`;
 		this.api.log(`Changing email for user ${email} to ${toEmail} in environment ${host.name}:${host.host}...`);
 		const body = { email, toEmail };
-		return this._fetchFromUrl(url, { method: 'put', body });
+		return this.fetchFromUrl(url, { method: 'put', body });
 	}
 
 	// fetch all companies across all foreign environments that have domain joining on for the given domain
@@ -138,7 +153,7 @@ class EnvironmentManagerService {
 	async fetchEligibleJoinCompaniesFromEnvironment (host, domain) {
 		const url = `${host.host}/xenv/eligible-join-companies?domain=${encodeURIComponent(domain)}`;
 		this.api.log(`Fetching eligible join companies matching domain ${domain} from environment ${host.name}:${host.host}...`);
-		const response = await this._fetchFromUrl(url);
+		const response = await this.fetchFromUrl(url);
 		if (response && response.companies) {
 			this.api.log(`Did fetch ${response.companies.length} eligible join companies matching domain ${domain} from environment ${host.name}:${host.host}`);
 			return response.companies.map(company => {
@@ -165,7 +180,7 @@ class EnvironmentManagerService {
 	async fetchUserCompaniesFromEnvironment (host, email) {
 		const url = `${host.host}/xenv/user-companies?email=${encodeURIComponent(email)}`;
 		this.api.log(`Fetching companies user ${email} is a member of from environment ${host.name}:${host.host}...`);
-		const response = await this._fetchFromUrl(url);
+		const response = await this.fetchFromUrl(url);
 		if (response && response.companies) {
 			this.api.log(`Did fetch ${response.companies.length} companies user ${email} is a member of from environment ${host.name}:${host.host}`);
 			return response.companies.map(company => {
@@ -178,7 +193,7 @@ class EnvironmentManagerService {
 	}
 	
 	// fetch from the environment host, given a url
-	async _fetchFromUrl (url, options = {}) {
+	async fetchFromUrl (url, options = {}) {
 		let response;
 		options.headers = options.headers || {};
 		options.headers['x-cs-auth-secret'] = this.api.config.sharedSecrets.auth;
