@@ -460,6 +460,7 @@ class SlackInteractiveComponentsHandler {
 		const blocks = await this.createReviewModalBlocks(review, userThatClicked);
 		let caughtSlackError = undefined;
 		const users = [userThatCreated, userThatClicked];
+		const modalErrors = [];
 		for (let i = 0; i < users.length; i++) {
 			caughtSlackError = false;
 			const user = users[i];
@@ -486,6 +487,8 @@ class SlackInteractiveComponentsHandler {
 					);
 
 					break;
+				} else if (modalResponse && modalResponse.error) {
+					modalErrors.push(modalResponse.error);
 				}
 			} catch (ex) {
 				this.log(ex);
@@ -513,23 +516,29 @@ class SlackInteractiveComponentsHandler {
 				this.log(`Took too long to respond (${secondsBetween} seconds)`);
 				errorReason = 'OpenReviewResponseTooSlow';
 			}
-			else {
-				if (caughtSlackError) {
-					await this.postEphemeralMessage(
-						this.payload.response_url,
-						SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
-					);
-					this.log(`Oops, something happened. ${caughtSlackError}`);
-					errorReason = 'OpenReviewGenericInternalError';
-				}
-				else {
-					await this.postEphemeralMessage(
-						this.payload.response_url,
-						SlackInteractiveComponentBlocks.createRequiresAccess()
-					);
-					this.log('Was not able to show a modal (generic)');
-					errorReason = 'OpenReviewGenericError';
-				}
+			else if (caughtSlackError) {
+				await this.postEphemeralMessage(
+					this.payload.response_url,
+					SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
+				);
+				this.log(`Oops, something happened. ${caughtSlackError}`);
+				errorReason = 'OpenReviewGenericInternalError';
+			}
+			else if (modalErrors.length) {
+				await this.postEphemeralMessage(
+					this.payload.response_url,
+					SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
+				);
+				const errorString = modalErrors.join(', ');
+				this.log(`Oops, something happened. ${errorString}`);
+				errorReason = 'OpenReviewGenericResponseError';
+			} else {
+				await this.postEphemeralMessage(
+					this.payload.response_url,
+					SlackInteractiveComponentBlocks.createRequiresAccess()
+				);
+				this.log('Was not able to show a modal (generic)');
+				errorReason = 'OpenReviewGenericError';
 			}
 
 			return {
