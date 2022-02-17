@@ -492,6 +492,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 
 	if (process.env.CS_API_AM_EU) {
 		Cfg.apiServer.port = '12080';
+		Cfg.apiServer.publicApiUrl = 'https://localhost.codestream.us:12080';
 		Cfg.sharedGeneral.runTimeEnvironment = 'eu';
 		Cfg.storage.mongo.url = "mongodb://localhost/codestream-eu";
 	} else {

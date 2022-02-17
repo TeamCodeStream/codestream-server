@@ -32,6 +32,7 @@ class ConfirmEmailRequest extends WebRequestBase {
 		await this.validateToken();		// verify the token is not expired, per the most recently issued token
 		await this.ensureUnique();		// ensure the email isn't already taken
 		await this.updateUser();		// update the user object with the new email
+		await this.updateUserInOtherEnvironments();	// if the user exists in other environments (regions, cells, etc.), update there as well
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -118,6 +119,11 @@ class ConfirmEmailRequest extends WebRequestBase {
 			collection: this.data.users,
 			id: this.user.id
 		}).save(op);
+	}
+
+	// if the user exists in other environments (regions, cells, etc.), update there as well
+	async updateUserInOtherEnvironments () {
+		return this.api.services.environmentManager.changeEmailInAllEnvironments(this.originalEmail, this.payload.email);
 	}
 
 	// handle the response to the request, overriding the base response to do a redirect
