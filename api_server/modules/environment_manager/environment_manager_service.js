@@ -18,9 +18,9 @@ class EnvironmentManagerService {
 		const { environmentHosts, runTimeEnvironment } = this.api.config.sharedGeneral;
 		let keys = Object.keys(environmentHosts || {}) || [];
 		return keys.reduce((hosts, key) => {
-			const { name, host } = environmentHosts[key];
 			if (key !== runTimeEnvironment) {
-				hosts.push({ key, name, host });
+				const { host, name, shortName } = environmentHosts[key];
+				hosts.push({ host, name, shortName });
 			}
 			return hosts;
 		}, []);

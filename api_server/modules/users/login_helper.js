@@ -237,11 +237,16 @@ class LoginHelper {
 
 		const { 
 			isOnPrem,
-			runTimeEnvironment,
 			environmentHosts,
 			isProductionCloud,
 			newRelicLandingServiceUrl
 		} = this.apiConfig.sharedGeneral;
+
+		// substitute the "short name" of this environment host, if found
+		let runTimeEnvironment = this.apiConfig.sharedGeneral.runTimeEnvironment;
+		if (environmentHosts && environmentHosts[runTimeEnvironment]) {
+			runTimeEnvironment = environmentHosts[runTimeEnvironment].shortName;
+		}
 
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
@@ -256,7 +261,7 @@ class LoginHelper {
 			isOnPrem,
 			isProductionCloud,
 			runtimeEnvironment: runTimeEnvironment,
-			environmentHosts: environmentHosts,
+			environmentHosts: Object.values(environmentHosts),
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
