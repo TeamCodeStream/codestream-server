@@ -199,7 +199,7 @@ class ConfirmHelper {
 			const { response, host } = firstUserConfirmed;
 			this.responseData = response;
 			this.responseData.setEnvironment = {
-				environment: host.key,
+				environment: host.shortName,
 				host: host.host
 			};
 
@@ -208,10 +208,12 @@ class ConfirmHelper {
 			const now = Date.now();
 			const emailParts = this.user.get('email').split('@');
 			const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
-			await this.request.data.users.updateDirect(
-				{ id: this.request.data.users.objectIdSafe(this.user.id) },
-				{ $set: { deactivated: true, email: newEmail, searchableEmail: newEmail.toLowerCase() } }
-			);
+			await this.request.data.users.update({
+				id: this.user.id,
+				deactivated: true,
+				email: newEmail,
+				searchableEmail: newEmail.toLowerCase()
+			});
 		}
 
 	}
