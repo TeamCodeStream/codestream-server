@@ -75,7 +75,8 @@ def loadSecretsFile(profile, schema, repeatingBlockKey, spaces):
 def buildCfgFile(cfg, schema, profile, spaces=''):
 	debugMsg(f"{spaces}buildCfgFile profile keys: {list(profile.keys())}")
 
-	if type(profile) is dict:
+	# if type(profile) is dict:
+	if isinstance(profile, dict):
 		if 'defaultEnv' in profile:
 			env = args.env if args.env in profile else 'defaultEnv'
 			debugMsg(f"{spaces}processing environment block for env = {env}, {profile[env]}")
@@ -102,11 +103,13 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 		repeatingBlockKey = f"<{repeatingBlockKeyVar}>" if repeatingBlockKeyVar else None  # <appProvider>
 		debugMsg(f"\n{spaces}=== checking prop = {prop}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
 
-		if type(profile[prop]) is dict and not profile[prop]:
+		# if type(profile[prop]) is dict and not profile[prop]:
+		if isinstance(profile[prop], dict) and not profile[prop]:
 			debugMsg(f"{spaces}1 empty dict in profile - using schema defaults")
 			cfg[prop] = {}
 			getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
-		elif type(profile[prop]) is dict:
+		# elif type(profile[prop]) is dict:
+		elif isinstance(profile[prop], dict):
 			debugMsg(f"{spaces}3 diving deeper on {prop}, profile[{prop}] = {profile[prop]}")
 			cfg[prop] = {}
 			if repeatingBlockKey:
