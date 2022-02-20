@@ -27,10 +27,20 @@
 		},
 		"nr": {
 			"authOrigin": null,
+			"confirmationNotRequired": false,
 			"helpIsAvailable": true,
 			"phoneHomeUrl": null,
 			"port": 8443,
 			"publicApiUrl": "https://nr-preview.codestream.us",
+			"requireTLS12": true
+		},
+		"pd": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"confirmationNotRequired": false,
+			"helpIsAvailable": true,
+			"phoneHomeUrl": null,
+			"port": 8443,
+			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
 			"requireTLS12": true
 		},
 		"pi": {
@@ -38,6 +48,7 @@
 			"phoneHomeUrl": null
 		},
 		"prod": {
+			"confirmationNotRequired": false,
 			"logger": {
 				"consoleOk": false
 			},
@@ -48,6 +59,7 @@
 		},
 		"qa": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
+			"confirmationNotRequired": false,
 			"logger": {
 				"consoleOk": false
 			},
@@ -58,6 +70,7 @@
 		},
 		"stg": {
 			"authOrigin": null,
+			"confirmationNotRequired": false,
 			"helpIsAvailable": true,
 			"logger": {
 				"consoleOk": false
