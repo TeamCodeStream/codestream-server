@@ -458,7 +458,8 @@
 				"tlsCAFile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt+ca"
 			},
 			"prod": {
-				"_loadSecretsFile": "mongo/prod.cfg"
+				"_loadSecretsFile": "mongo/prod.cfg",
+				"tlsCAFile": "/etc/pki/mongo-prod4211/mongo-prod4211-crt"
 			},
 			"qa": {
 				"_loadSecretsFile": "mongo/qa.cfg",
