@@ -11,7 +11,8 @@
 {
 	"apiServer": {
 		"ci": {
-			"authOrigin": "https://auth.codestream.us/no-auth"
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"confirmationNotRequired": false
 		},
 		"defaultEnv": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
@@ -45,6 +46,7 @@
 		},
 		"pi": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
+			"confirmationNotRequired": false,
 			"phoneHomeUrl": null
 		},
 		"prod": {
