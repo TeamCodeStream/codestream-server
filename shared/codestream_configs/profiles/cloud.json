@@ -24,7 +24,22 @@
 		},
 		"local": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
-			"helpIsAvailable": true
+			"helpIsAvailable": true,
+			"showConfig": true
+		},
+		"local1": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"helpIsAvailable": true,
+			"port": null,
+			"publicApiUrl": null,
+			"showConfig": true
+		},
+		"local2": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"helpIsAvailable": true,
+			"port": null,
+			"publicApiUrl": null,
+			"showConfig": true
 		},
 		"nr": {
 			"authOrigin": null,
@@ -95,6 +110,12 @@
 			"local": {
 				"_loadSecretsFile": "pubnub/local.cfg"
 			},
+			"local1": {
+				"_loadSecretsFile": "pubnub/local.cfg"
+			},
+			"local2": {
+				"_loadSecretsFile": "pubnub/local.cfg"
+			},
 			"pi": {
 				"_loadSecretsFile": "pubnub/ci.cfg"
 			},
@@ -112,12 +133,11 @@
 	"email": {
 		"defaultEnv": {
 			"emailTo": null,
-			"replyToDomain": "${CSSVC_ENV}.codestream.us",
-			"senderEmail": "${CSSVC_ENV}_alerts@codestream.us",
-			"supportEmail": "${CSSVC_ENV}_support@codestream.us",
 			"suppressEmails": false
 		},
 		"local": {},
+		"local1": {},
+		"local2": {},
 		"prod": {
 			"emailTo": null,
 			"replyToDomain": "prod.codestream.com",
@@ -142,12 +162,33 @@
 			}
 		}
 	},
+	"environmentGroup": {
+		"_loadBlockPropertiesFrom": {
+			"defaultEnv": null,
+			"local1": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.localDevelopment"
+			},
+			"local2": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.localDevelopment"
+			}
+		}
+	},
 	"inboundEmailServer": {
 		"ci": {},
 		"defaultEnv": {
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		},
-		"local": {},
+		"local": {
+			"showConfig": true
+		},
+		"local1": {
+			"showConfig": true
+		},
+		"local2": {
+			"showConfig": true
+		},
 		"pi": {},
 		"prod": {
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
@@ -260,6 +301,12 @@
 				"local": {
 					"_loadSecretsFile": "microsoft/teams-local.cfg"
 				},
+				"local1": {
+					"_loadSecretsFile": "microsoft/teams-local.cfg"
+				},
+				"local2": {
+					"_loadSecretsFile": "microsoft/teams-local.cfg"
+				},
 				"prod": {
 					"_loadSecretsFile": "microsoft/teams-prod.cfg"
 				},
@@ -290,6 +337,12 @@
 					"_loadSecretsFile": "slack/dev-combined.cfg"
 				},
 				"local": {
+					"_loadSecretsFile": "slack/local-combined.cfg"
+				},
+				"local1": {
+					"_loadSecretsFile": "slack/local-combined.cfg"
+				},
+				"local2": {
 					"_loadSecretsFile": "slack/local-combined.cfg"
 				},
 				"nr": {
@@ -335,7 +388,15 @@
 				}
 			}
 		},
-		"local": {},
+		"local": {
+			"showConfig": true
+		},
+		"local1": {
+			"showConfig": true
+		},
+		"local2": {
+			"showConfig": true
+		},
 		"nr": {
 			"showConfig": true,
 			"storage": {
@@ -377,6 +438,12 @@
 				"outboundEmailQueueName": "dev_${CSSVC_ENV}_outboundEmail"
 			},
 			"local": {},
+			"local1": {
+				"outboundEmailQueueName": "local1_${DT_USER}_outboundEmail"
+			},
+			"local2": {
+				"outboundEmailQueueName": "local2_${DT_USER}_outboundEmail"
+			},
 			"pd": {
 				"outboundEmailQueueName": "pd_outboundEmail"
 			},
@@ -402,10 +469,17 @@
 		"local": {
 			"runTimeEnvironment": "local"
 		},
+		"local1": {
+			"runTimeEnvironment": "local1"
+		},
+		"local2": {
+			"runTimeEnvironment": "local2"
+		},
 		"pi": {
 			"runTimeEnvironment": "pi"
 		},
 		"prod": {
+			"isProductionCloud": true,
 			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
 			"runTimeEnvironment": "prod"
 		},
@@ -443,6 +517,8 @@
 			"keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-key"
 		},
 		"local": {},
+		"local1": {},
+		"local2": {},
 		"prod": {
 			"cafile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-ca",
 			"certfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-crt",
@@ -452,6 +528,12 @@
 	"storage": {
 		"mongo": {
 			"defaultEnv": {},
+			"local1": {
+				"url": "mongodb://localhost/codestream-local1"
+			},
+			"local2": {
+				"url": "mongodb://localhost/codestream-local2"
+			},
 			"nr": {
 				"_loadSecretsFile": "mongo/nr.cfg"
 			},
@@ -497,6 +579,8 @@
 				"stripKeyPrefixFromUrl": false
 			},
 			"local": {},
+			"local1": {},
+			"local2": {},
 			"prod": {
 				"bucket": "codestream-prod",
 				"keyPrefix": "usercontent",

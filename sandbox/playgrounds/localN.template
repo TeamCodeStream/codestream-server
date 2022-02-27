@@ -1,7 +1,7 @@
 
 #desc# All services for codestream backend development
 
-#playgroundName# csbe
+#playgroundName# csbe-{{ CSSVC_ENV }}
 #sandboxTypes# mongo,cs_server
 #sandboxes# {{ SBNAME_mongo }},{{ SBNAME_cs_server }}
 #environment# {{ CSSVC_ENV }}

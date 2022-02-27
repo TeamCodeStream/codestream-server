@@ -17,7 +17,7 @@ export CS_OUTBOUND_EMAIL_CFG_FILE=./codestream-services-config.json
 
 # For local development, reset the mongo connection string
 # to reference mongo at the vpn ip address
-if [ "$CS_OUTBOUND_EMAIL_ENV" == "local" ]; then
+if sandutil_is_local_environment $CS_OUTBOUND_EMAIL_ENV ; then
 	TUNNEL_IP=$(sandutil_get_tunnel_ip fallbackLocalIp)
 	[ -n "$TUNNEL_IP" ] && export CS_OUTBOUND_EMAIL_MONGO_URL=mongodb://$TUNNEL_IP/codestream
 	[ -n "$OUTBOUND_EMAIL_MONGO_URL" ] && echo "overriding mongo connection string: $CS_OUTBOUND_EMAIL_MONGO_URL"

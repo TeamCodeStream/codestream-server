@@ -92,6 +92,13 @@
 			"url": "sendgrid api uri"
 		}
 	},
+	"environmentGroup": {
+		"<envId>": {
+			"name": "user-facing environment name",
+			"publicApiUrl": "public url of api",
+			"shortName": "user-facing environment short identifier"
+		}
+	},
 	"inboundEmailServer": {
 		"inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent [CS_MAILIN_INBOUND_EMAIL_DIR]",
 		"inboundEmailDisabled": "true will disable inbound email processing [CS_MAILIN_INBOUND_EMAIL_DISABLED]",
@@ -254,6 +261,7 @@
 	},
 	"sharedGeneral": {
 		"installationId": "unique identifier for the onprem installation [CSSVC_INSTALLATION_ID]",
+		"isProductionCloud": "identifies customer-facing environments [CSSVC_IS_PRODUCTION_CLOUD]",
 		"newRelicLandingServiceUrl": "links codestream env to new relic env [CSSVC_NEW_RELIC_LANDING_SERVICE_URL]",
 		"runTimeEnvironment": "run-time environment (local, onprem, prod, qa, pd, ...) [CSSVC_ENV]"
 	},

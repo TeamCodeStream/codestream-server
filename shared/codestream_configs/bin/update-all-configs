@@ -13,7 +13,7 @@ default environment list: $environmentList
 
 [ -z "$KM_SECRETS" ] && echo "Set KM_SECRETS to the location of the PKI database (use -y to bypass prompts)" && exit 1
 
-environmentList="local ci pi pd qa prod dev nr stg"
+environmentList="local local1 local2 ci pi pd qa prod dev nr stg"
 [ -z "$1" ] && usage
 yes=""
 verbose=""

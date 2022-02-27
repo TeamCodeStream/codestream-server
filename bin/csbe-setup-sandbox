@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source $DT_TOP/lib/sandbox_utils.sh || exit 1
+
 # desc# reset local sandbox in one of several configs
 
 function usage {
@@ -42,7 +44,7 @@ function store_cfg_in_mongo {
 	cat $CSBE_SANDBOX/sb.options
 }
 
-[ "$CSBE_ENV" != "local" ] && echo "This script only works for mono-repo local development" && exit 1
+sandutil_is_local_environment && echo "This script only works for mono-repo local development" && exit 1
 [ -z "$1" ] && usage
 
 while [ "$#" -gt 0 ]; do

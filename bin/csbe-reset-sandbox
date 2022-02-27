@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source $DT_TOP/lib/sandbox_utils.sh || exit 1
+
 # desc#  wipe the sandbox db and run the api
 
 function usage {
@@ -13,7 +15,7 @@ function usage {
 }
 
 [ -z "$1" ] && usage
-[ "$CSSVC_ENV" != "local" ] && echo "not a local sandbox" && exit 1
+sandutil_is_local_environment && echo "not a local sandbox" && exit 1
 [ "$CSSVC_CFG_URL" != "mongodb://localhost/codestream" ] && echo "Paranoid!! CSSVC_CFG_URL doesn't point to localhost" && exit 1
 
 reset=0

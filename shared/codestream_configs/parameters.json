@@ -302,15 +302,15 @@
 			"desc": "Frequency email is generated (in millisecs, default = 30 secs)"
 		},
 		"replyToDomain": {
-			"default": "local.codestream.com",
+			"default": "${CSSVC_ENV}.codestream.us",
 			"desc": "email domain for routing replies back to codestream"
 		},
 		"senderEmail": {
-			"default": "local_alerts@codestream.com",
+			"default": "${CSSVC_ENV}_alerts@codestream.us",
 			"desc": "all generated emails will be sent as this user"
 		},
 		"supportEmail": {
-			"default": "local_support@codestream.com",
+			"default": "${CSSVC_ENV}_support@codestream.us",
 			"desc": "support email address to include on email and forms"
 		},
 		"suppressEmails": {
@@ -359,6 +359,19 @@
 			"url": {
 				"default": "/v3/mail/send",
 				"desc": "sendgrid api uri"
+			}
+		}
+	},
+	"environmentGroup": {
+		"<envId>": {
+			"name": {
+				"desc": "user-facing environment name"
+			},
+			"publicApiUrl": {
+				"desc": "public url of api"
+			},
+			"shortName": {
+				"desc": "user-facing environment short identifier"
 			}
 		}
 	},
@@ -755,6 +768,11 @@
 		"installationId": {
 			"desc": "unique identifier for the onprem installation",
 			"env": "CSSVC_INSTALLATION_ID"
+		},
+		"isProductionCloud": {
+			"default": false,
+			"desc": "identifies customer-facing environments",
+			"env": "CSSVC_IS_PRODUCTION_CLOUD"
 		},
 		"newRelicLandingServiceUrl": {
 			"default": "https://landing.staging-service.newrelic.com",

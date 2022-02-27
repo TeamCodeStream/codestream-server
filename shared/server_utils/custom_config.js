@@ -354,7 +354,22 @@ module.exports = function customConfigFunc(nativeCfg) {
 	}
 
 	// api
+	if (Cfg.apiServer.environmentGroup) {
+		if (!Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment]) {
+			console.log(`this server's environment (${Cfg.sharedGeneral.runTimeEnvironment}) does not appear in the environmentGroup`);
+			process.exit(1);
+		}
+		if (Cfg.apiServer.publicApiUrl && Cfg.apiServer.publicApiUrl != Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl) {
+			console.log(`apiServer.publicApiUrl(${Cfg.apiServer.publicApiUrl}) does not match environmentGroup (${Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl})`)
+			console.log(`set it to null or the same value in the environmentGroup`);
+			process.exit(1);
+		}
+		Cfg.apiServer.publicApiUrl = Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl;
+	}
 	Cfg.apiServer.publicApiUrlParsed = parseUrl(Cfg.apiServer.publicApiUrl);
+	if (Cfg.apiServer.environmentGroup) {
+		Cfg.apiServer.port = Cfg.apiServer.publicApiUrlParsed.port;
+	}
 	Cfg.apiServer.assetEnvironment = process.env.CS_API_ASSET_ENV;
 	if (!Cfg.apiServer.authOrigin) {
 		Cfg.apiServer.authOrigin = `${Cfg.apiServer.publicApiUrl}/no-auth`;
@@ -434,7 +449,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 	};
 	// disable excessive logging of health checks
 	Cfg.apiServer.dontLogHealthChecks = process.env.CS_API_DONT_LOG_HEALTH_CHECKS ? true : false;
-	
+
 	// broadcaster
 	if (Cfg.broadcastEngine.selected === 'codestreamBroadcaster') {
 		Cfg.broadcastEngine.codestreamBroadcaster.logger.basename = 'broadcaster';
@@ -476,7 +491,6 @@ module.exports = function customConfigFunc(nativeCfg) {
 
 	// Environment-specific logic
 	Cfg.apiServer.autoMigrations = !Cfg.sharedGeneral.runTimeEnvironment.match(/^(prod|qa)$/i);
-	Cfg.sharedGeneral.isProductionCloud = Cfg.sharedGeneral.runTimeEnvironment === 'prod';
 	// we need a better way to determine if the client is running against an on-prem installation but this will do for now
 	Cfg.sharedGeneral.isOnPrem = !Cfg.adminServer.adminServerDisabled || Cfg.sharedGeneral.runTimeEnvironment === 'onprem';
 
