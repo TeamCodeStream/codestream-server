@@ -70,7 +70,10 @@ class PutTeamSettingsRequest extends RestfulRequest {
 			this.gotError &&
 			this.gotError.code === 'MDTA-1000' &&
 			typeof this.gotError.reason === 'object' &&
-			this.gotError.reason.name === 'MongoServerError'
+			(
+				this.gotError.reason.name === 'MongoServerError' ||
+				this.gotError.reason.name === 'MongoError'
+			)
 		) {
 			this.warn(JSON.stringify(this.gotError));
 			this.gotError = this.errorHandler.error('invalidParameter');
