@@ -354,7 +354,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 	}
 
 	// api
-	if (Cfg.apiServer.environmentGroup) {
+	if (Cfg.environmentGroup) {
 		if (!Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment]) {
 			console.log(`this server's environment (${Cfg.sharedGeneral.runTimeEnvironment}) does not appear in the environmentGroup`);
 			process.exit(1);
@@ -367,7 +367,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		Cfg.apiServer.publicApiUrl = Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl;
 	}
 	Cfg.apiServer.publicApiUrlParsed = parseUrl(Cfg.apiServer.publicApiUrl);
-	if (Cfg.apiServer.environmentGroup) {
+	if (Cfg.environmentGroup) {
 		Cfg.apiServer.port = Cfg.apiServer.publicApiUrlParsed.port;
 	}
 	Cfg.apiServer.assetEnvironment = process.env.CS_API_ASSET_ENV;
