@@ -77,17 +77,18 @@ class LoginTest extends CodeStreamAPITest {
 			delete expectedCapabilities.emailSupport;
 		}
 
-		const { runTimeEnvironment, environmentHosts } = this.apiConfig.sharedGeneral;
+		const { runTimeEnvironment } = this.apiConfig.sharedGeneral;
+		const { environmentGroup = {} } = this.apiConfig;
 		const expectedEnvironment = (
-			environmentHosts &&
-			environmentHosts[runTimeEnvironment] &&
-			environmentHosts[runTimeEnvironment].shortName
+			environmentGroup &&
+			environmentGroup[runTimeEnvironment] &&
+			environmentGroup[runTimeEnvironment].shortName
 		) || runTimeEnvironment;
 		Assert.deepStrictEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 		const providerHosts = GetStandardProviderHosts(this.apiConfig);
 		Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		Assert.deepStrictEqual(data.runtimeEnvironment, expectedEnvironment);
-		Assert.deepStrictEqual(data.environmentHosts, Object.values(this.apiConfig.sharedGeneral.environmentHosts));
+		Assert.deepStrictEqual(data.environmentHosts, Object.values(environmentGroup));
 		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);
 		Assert.deepStrictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud);
 		Assert.deepStrictEqual(data.newRelicLandingServiceUrl, this.apiConfig.sharedGeneral.newRelicLandingServiceUrl);

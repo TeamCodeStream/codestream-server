@@ -27,7 +27,8 @@ class SQSClient {
 		return new Promise((resolve, reject) => {
 			this.sqs.createQueue(params, (error, data) => {
 				if (error) {
-					return reject(`unable to create queue ${options.name}: ${error}`);
+					return resolve();
+					//return reject(`unable to create queue ${options.name}: ${error}`);
 				}
 				this.queues[options.name] = {
 					name: options.name,

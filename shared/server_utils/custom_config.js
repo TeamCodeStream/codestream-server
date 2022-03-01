@@ -13,25 +13,24 @@ function parseUrl(url) {
 	return {
 		host: parsed[2],
 		port: parseInt(parsed[4] || protocolPort, 10),
-		secure
+		secure,
 	};
 }
 
 // Read the structured config to determine which broadcast engine we'll use, then
 // set the data needed for it.
 function selectBroadcastEngine(cfg) {
-	if (!cfg.broadcastEngine.selected) {	// FIXME - add to config schema
+	if (!cfg.broadcastEngine.selected) {
+		// FIXME - add to config schema
 		if (cfg.broadcastEngine.pubnub) {
 			cfg.broadcastEngine.selected = 'pubnub';
 		} else if (Object.keys(cfg.broadcastEngine.codestreamBroadcaster).length != 0) {
 			cfg.broadcastEngine.selected = 'codestreamBroadcaster';
-		}
-		else {
+		} else {
 			console.error('FATAL: cannot determine which broadcast engine to use');
 			process.exit(1);
 		}
-	}
-	else if (!cfg.broadcastEngine[cfg.broadcastEngine.selected]) {
+	} else if (!cfg.broadcastEngine[cfg.broadcastEngine.selected]) {
 		console.error(`FATAL: no config data for broadcast engine ${cfg.broadcastEngine.selected}`);
 		process.exit(1);
 	}
@@ -40,7 +39,8 @@ function selectBroadcastEngine(cfg) {
 // Read the structured config to determine which queuing engine we'll use and
 // then set the data needed for it
 function selectQueuingEngine(cfg) {
-	if (!cfg.queuingEngine.selected) {	// FIXME - add to config schema
+	if (!cfg.queuingEngine.selected) {
+		// FIXME - add to config schema
 		cfg.queuingEngine.selected = cfg.queuingEngine.rabbitmq ? 'rabbitmq' : 'awsSQS';
 	}
 	if (!cfg.queuingEngine[cfg.queuingEngine.selected].outboundEmailQueueName) {
@@ -51,33 +51,31 @@ function selectQueuingEngine(cfg) {
 // Read the structured config to determine which email delivery service we'll
 // use (if any) and then set the data needed for it
 function selectEmailDeliveryService(cfg) {
-	if (!cfg.emailDeliveryService.selected) {	// FIXME - add to config schema
-		if(cfg.emailDeliveryService.sendgrid) {
+	if (!cfg.emailDeliveryService.selected) {
+		// FIXME - add to config schema
+		if (cfg.emailDeliveryService.sendgrid) {
 			cfg.emailDeliveryService.selected = 'sendgrid';
-		}
-		else if (cfg.emailDeliveryService.NodeMailer) {
+		} else if (cfg.emailDeliveryService.NodeMailer) {
 			cfg.emailDeliveryService.selected = 'NodeMailer';
 		}
 	}
 	if (!cfg.emailDeliveryService.selected) {
-		console.log("Outbound email is disabled (no service has been configured)");
-		cfg.apiServer.confirmationNotRequired = true;	// if we cannot send email, we cannot require confirmation
+		console.log('Outbound email is disabled (no service has been configured)');
+		cfg.apiServer.confirmationNotRequired = true; // if we cannot send email, we cannot require confirmation
 		cfg.email.suppressEmails = true;
-		cfg.emailDeliveryService.selected = null;  // this property should always exist
+		cfg.emailDeliveryService.selected = null; // this property should always exist
 	}
 }
 
 function selectUploadEngine(cfg) {
 	if (cfg.uploadEngine && !cfg.uploadEngine.selected) {
-		if(cfg.uploadEngine.s3) {
+		if (cfg.uploadEngine.s3) {
 			cfg.uploadEngine.selected = 's3';
 		}
-	}
-	else if (cfg.uploadEngine && !cfg.uploadEngine[cfg.uploadEngine.selected]) {
+	} else if (cfg.uploadEngine && !cfg.uploadEngine[cfg.uploadEngine.selected]) {
 		console.log(`uploadEngine ${cfg.uploadEngine.selected} parameters are missing. Disabling it.`);
 		cfg.uploadEngine.selected = null;
-	}
-	else {
+	} else {
 		cfg.uploadEngine = { selected: null };
 	}
 }
@@ -184,14 +182,17 @@ function setupSslCertificates(Cfg) {
 		} else if (Cfg.adminServer.sslCertId) {
 			Cfg.adminServer.sslCert = Cfg.sslCertificates[Cfg.adminServer.sslCertId];
 		} else if (!Cfg.adminServer.ignoreHttps) {
-			if (typeof(Cfg.adminServer.ignoreHttps) === 'boolean')
+			if (typeof Cfg.adminServer.ignoreHttps === 'boolean')
 				console.warn(`setting ignoreHttps to to true (no https) for admin as there is not cert Id`);
 			Cfg.adminServer.ignoreHttps = true;
 		}
 	}
 	if (Cfg.broadcastEngine.selected == 'codestreamBroadcaster') {
 		if (!Cfg.broadcastEngine.codestreamBroadcaster.ignoreHttps) {
-			if (Cfg.broadcastEngine.codestreamBroadcaster.sslCertId && !(Cfg.broadcastEngine.codestreamBroadcaster.sslCertId in Cfg.sslCertificates)) {
+			if (
+				Cfg.broadcastEngine.codestreamBroadcaster.sslCertId &&
+				!(Cfg.broadcastEngine.codestreamBroadcaster.sslCertId in Cfg.sslCertificates)
+			) {
 				Cfg.broadcastEngine.codestreamBroadcaster.ignoreHttps = true;
 				Cfg.broadcastEngine.codestreamBroadcaster.sslCert = {};
 				console.warn(
@@ -202,7 +203,9 @@ function setupSslCertificates(Cfg) {
 					Cfg.sslCertificates[Cfg.broadcastEngine.codestreamBroadcaster.sslCertId];
 			} else if (!Cfg.broadcastEngine.codestreamBroadcaster.ignoreHttps) {
 				Cfg.broadcastEngine.codestreamBroadcaster.ignoreHttps = true;
-				console.warn(`setting ignoreHttps to to true (no https) for broadcaster as there is not cert Id`);
+				console.warn(
+					`setting ignoreHttps to to true (no https) for broadcaster as there is not cert Id`
+				);
 			}
 		}
 	}
@@ -276,11 +279,10 @@ module.exports = function customConfigFunc(nativeCfg) {
 	if (Cfg.storage.mongo.tlsCAFile && Fs.existsSync(Cfg.storage.mongo.tlsCAFile)) {
 		Cfg.storage.mongo.tlsOptions = {
 			tls: true,
-			tlsCAFile: Cfg.storage.mongo.tlsCAFile
+			tlsCAFile: Cfg.storage.mongo.tlsCAFile,
 		};
 		console.log(`connecting to mongo using TLS CA ${Cfg.storage.mongo.tlsCAFile}`);
-	}
-	else if (Cfg.storage.mongo.tlsCAFile) {
+	} else if (Cfg.storage.mongo.tlsCAFile) {
 		console.log(`could not load ${Cfg.storage.mongo.tlsCAFile}`);
 	}
 
@@ -309,7 +311,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
 		clubhouse: { appClientId: 'placeholder' },
-		newrelic: { appClientId: 'placeholder'}
+		newrelic: { appClientId: 'placeholder' },
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
@@ -356,16 +358,28 @@ module.exports = function customConfigFunc(nativeCfg) {
 	// api
 	if (Cfg.environmentGroup) {
 		if (!Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment]) {
-			console.log(`this server's environment (${Cfg.sharedGeneral.runTimeEnvironment}) does not appear in the environmentGroup`);
+			console.log(
+				`this server's environment (${Cfg.sharedGeneral.runTimeEnvironment}) does not appear in the environmentGroup`
+			);
 			process.exit(1);
 		}
-		if (Cfg.apiServer.publicApiUrl && Cfg.apiServer.publicApiUrl != Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl) {
-			console.log(`apiServer.publicApiUrl(${Cfg.apiServer.publicApiUrl}) does not match environmentGroup (${Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl})`)
+		if (
+			Cfg.apiServer.publicApiUrl &&
+			Cfg.apiServer.publicApiUrl !=
+				Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl
+		) {
+			console.log(
+				`apiServer.publicApiUrl(${Cfg.apiServer.publicApiUrl}) does not match environmentGroup (${
+					Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl
+				})`
+			);
 			console.log(`set it to null or the same value in the environmentGroup`);
 			process.exit(1);
 		}
-		Cfg.apiServer.publicApiUrl = Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl;
+		Cfg.apiServer.publicApiUrl =
+			Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl;
 	}
+
 	Cfg.apiServer.publicApiUrlParsed = parseUrl(Cfg.apiServer.publicApiUrl);
 	if (Cfg.environmentGroup) {
 		Cfg.apiServer.port = Cfg.apiServer.publicApiUrlParsed.port;
@@ -403,14 +417,14 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'okta',
 		'clubhouse',
 		'linear',
-		'newrelic'
+		'newrelic',
 	];
 	// matching these paths means Authorization header is not required
 	Cfg.apiServer.unauthenticatedPaths = [
 		'^\\/no-auth\\/',
 		'^\\/nr-comments',
 		'^\\/xenv\\/',
-		'^\\/robots\\.txt$'
+		'^\\/robots\\.txt$',
 	];
 	// matching these paths means Authorization header is optional, behavior may vary
 	Cfg.apiServer.optionalAuthenticatedPaths = [
@@ -437,9 +451,9 @@ module.exports = function customConfigFunc(nativeCfg) {
 	Cfg.apiServer.identityCookie = 'tcs';
 	// for testing in mock mode
 	Cfg.apiServer.ipc = {
-		serverId: 'codestream_api_ipc_server',
-		clientId: 'codestream_ipc_client',
-		broadcastServerId: 'codestream_broadcaster_ipc_client',
+		serverId: `codestream_api_ipc_server:${Cfg.sharedGeneral.runTimeEnvironment}`,
+		clientId: `codestream_ipc_client:${Cfg.sharedGeneral.runTimeEnvironment}`,
+		broadcastServerId: `codestream_broadcaster_ipc_client:${Cfg.sharedGeneral.runTimeEnvironment}`,
 	};
 	// serving limits
 	Cfg.apiServer.limits = {
@@ -492,7 +506,8 @@ module.exports = function customConfigFunc(nativeCfg) {
 	// Environment-specific logic
 	Cfg.apiServer.autoMigrations = !Cfg.sharedGeneral.runTimeEnvironment.match(/^(prod|qa)$/i);
 	// we need a better way to determine if the client is running against an on-prem installation but this will do for now
-	Cfg.sharedGeneral.isOnPrem = !Cfg.adminServer.adminServerDisabled || Cfg.sharedGeneral.runTimeEnvironment === 'onprem';
+	Cfg.sharedGeneral.isOnPrem =
+		!Cfg.adminServer.adminServerDisabled || Cfg.sharedGeneral.runTimeEnvironment === 'onprem';
 
 	// shared secrets
 	// For now there are only two commentEngine secrets in order to support
@@ -503,27 +518,5 @@ module.exports = function customConfigFunc(nativeCfg) {
 	if (Cfg.sharedSecrets.commentEngineAlt)
 		Cfg.sharedSecrets.commentEngineSecrets.push(Cfg.sharedSecrets.commentEngineAlt);
 
-
-	if (process.env.CS_API_AM_EU) {
-		Cfg.apiServer.port = '12080';
-		Cfg.apiServer.publicApiUrl = 'https://localhost.codestream.us:12080';
-		Cfg.sharedGeneral.runTimeEnvironment = 'eu';
-		Cfg.storage.mongo.url = "mongodb://localhost/codestream-eu";
-	} else {
-		Cfg.sharedGeneral.runTimeEnvironment = 'us';
-	}
-	Cfg.sharedGeneral.environmentHosts = {
-		'us': {
-			shortName: 'us',
-			name: 'United States',
-			host: 'https://localhost.codestream.us:12079'
-		},
-		'eu': {
-			shortName: 'eu',
-			name: 'Europe',
-			host: 'https://localhost.codestream.us:12080'
-		}
-	};
-
 	return Cfg;
-}
+};

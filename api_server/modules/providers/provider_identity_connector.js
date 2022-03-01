@@ -241,7 +241,7 @@ class ProviderIdentityConnector {
 		});
 
 		await new ConfirmHelper({
-			request: this,
+			request: this.request,
 			user: this.user,
 			dontCheckUsername: true,
 			notTrueLogin: true

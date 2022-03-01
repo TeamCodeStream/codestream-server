@@ -15,11 +15,12 @@ class EnvironmentManagerService {
 
 	// get all environment hosts except the current one
 	getForeignEnvironmentHosts () {
-		const { environmentHosts, runTimeEnvironment } = this.api.config.sharedGeneral;
-		let keys = Object.keys(environmentHosts || {}) || [];
+		const { runTimeEnvironment } = this.api.config.sharedGeneral;
+		const { environmentGroup } = this.api.config;
+		let keys = Object.keys(environmentGroup || {}) || [];
 		return keys.reduce((hosts, key) => {
 			if (key !== runTimeEnvironment) {
-				const { host, name, shortName } = environmentHosts[key];
+				const { host, name, shortName } = environmentGroup[key];
 				hosts.push({ host, name, shortName });
 			}
 			return hosts;

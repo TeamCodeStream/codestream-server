@@ -20,15 +20,16 @@ class CapabilitiesTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		const { runTimeEnvironment, environmentHosts } = this.apiConfig.sharedGeneral;
+		const { runTimeEnvironment } = this.apiConfig.sharedGeneral;
+		const { environmentGroup = {} } = this.apiConfig;
 		const expectedEnvironment = (
-			environmentHosts &&
-			environmentHosts[runTimeEnvironment] &&
-			environmentHosts[runTimeEnvironment].shortName
+			environmentGroup &&
+			environmentGroup[runTimeEnvironment] &&
+			environmentGroup[runTimeEnvironment].shortName
 		) || runTimeEnvironment;
 		Assert.deepStrictEqual(data.capabilities, APICapabilities, 'returned capabilities are not correct');
 		Assert.deepStrictEqual(data.environment, expectedEnvironment, 'environment not correct');
-		Assert.deepStrictEqual(data.environmentHosts, Object.values(this.apiConfig.sharedGeneral.environmentHosts), 'environmentHosts not correct');
+		Assert.deepStrictEqual(data.environmentHosts, Object.values(environmentGroup), 'environmentHosts not correct');
 		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem, 'isOnPrem is not correct');
 		Assert.deepStrictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud, 'isProductionCloud is not correct');
 		Assert.deepStrictEqual(data.newRelicLandingServiceUrl, this.apiConfig.sharedGeneral.newRelicLandingServiceUrl, 'newRelicLandingServiceUrl is not correct');

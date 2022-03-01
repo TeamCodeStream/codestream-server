@@ -237,15 +237,15 @@ class LoginHelper {
 
 		const { 
 			isOnPrem,
-			environmentHosts,
 			isProductionCloud,
 			newRelicLandingServiceUrl
 		} = this.apiConfig.sharedGeneral;
-
+		const { environmentGroup } = this.apiConfig;
+		
 		// substitute the "short name" of this environment host, if found
 		let runTimeEnvironment = this.apiConfig.sharedGeneral.runTimeEnvironment;
-		if (environmentHosts && environmentHosts[runTimeEnvironment]) {
-			runTimeEnvironment = environmentHosts[runTimeEnvironment].shortName;
+		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
+			runTimeEnvironment = environmentGroup[runTimeEnvironment].shortName;
 		}
 
 		this.responseData = {
@@ -261,7 +261,7 @@ class LoginHelper {
 			isOnPrem,
 			isProductionCloud,
 			runtimeEnvironment: runTimeEnvironment,
-			environmentHosts: Object.values(environmentHosts),
+			environmentHosts: Object.values(environmentGroup),
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
