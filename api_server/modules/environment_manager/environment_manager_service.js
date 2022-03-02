@@ -20,8 +20,7 @@ class EnvironmentManagerService {
 		let keys = Object.keys(environmentGroup || {}) || [];
 		return keys.reduce((hosts, key) => {
 			if (key !== runTimeEnvironment) {
-				const { host, name, shortName } = environmentGroup[key];
-				hosts.push({ host, name, shortName });
+				hosts.push({ ...environmentGroup[key] });
 			}
 			return hosts;
 		}, []);
@@ -39,13 +38,13 @@ class EnvironmentManagerService {
 
 	// fetch the user matching the given email (if any) from the given environment host
 	async fetchUserFromEnvironmentHost (host, email) {
-		const url = `${host.host}/xenv/fetch-user?email=${encodeURIComponent(email)}`;
-		this.api.log(`Fetching user ${email} in environment ${host.name}:${host.host}...`);
+		const url = `${host.publicApiUrl}/xenv/fetch-user?email=${encodeURIComponent(email)}`;
+		this.api.log(`Fetching user ${email} in environment ${host.name}:${host.publicApiUrl}...`);
 		const response = await this.fetchFromUrl(url);
 		if (response.user) {
-			this.api.log(`Did fetch user ${response.user.id}:${response.user.email} from environment ${host.name}:${host.host}`);
+			this.api.log(`Did fetch user ${response.user.id}:${response.user.email} from environment ${host.name}:${host.publicApiUrl}`);
 		} else {
-			this.api.log(`Did not find user matching ${email} in environment ${host.name}:${host.host}`);
+			this.api.log(`Did not find user matching ${email} in environment ${host.name}:${host.publicApiUrl}`);
 		}
 		return response.user;
 	}
@@ -107,8 +106,8 @@ class EnvironmentManagerService {
 	// returns the user record if the user existed in that environment,
 	// along with the environment they were confirmed in
 	async confirmUserInEnvironment (host, user) {
-		const url = `${host.host}/xenv/confirm-user`;
-		this.api.log(`Cross-confirming user ${user.get('email')} in environment ${host.name}:${host.host}...`);
+		const url = `${host.publicApiUrl}/xenv/confirm-user`;
+		this.api.log(`Cross-confirming user ${user.get('email')} in environment ${host.name}:${host.publicApiUrl}...`);
 		const body = {
 			email: user.get('email'),
 			username: user.get('username'),
@@ -116,10 +115,10 @@ class EnvironmentManagerService {
 		};
 		const response = await this.fetchFromUrl(url, { method: 'post', body });
 		if (response && response.user) {
-			this.api.log(`Did cross-confirm user ${response.user.id}:${response.user.email} in environment ${host.name}:${host.host}`);
+			this.api.log(`Did cross-confirm user ${response.user.id}:${response.user.email} in environment ${host.name}:${host.publicApiUrl}`);
 			return { response, host };
 		} else {
-			this.api.log(`User ${user.get('email')} not found in environment ${host.name}:${host.host}`);
+			this.api.log(`User ${user.get('email')} not found in environment ${host.name}:${host.publicApiUrl}`);
 		}
 	}
 
@@ -133,8 +132,8 @@ class EnvironmentManagerService {
 	
 	// change a user's email in the passed environment
 	async changeEmailInEnvironment (host, email, toEmail) {
-		const url = `${host.host}/xenv/change-email`;
-		this.api.log(`Changing email for user ${email} to ${toEmail} in environment ${host.name}:${host.host}...`);
+		const url = `${host.publicApiUrl}/xenv/change-email`;
+		this.api.log(`Changing email for user ${email} to ${toEmail} in environment ${host.name}:${host.publicApiUrl}...`);
 		const body = { email, toEmail };
 		return this.fetchFromUrl(url, { method: 'put', body });
 	}
@@ -152,16 +151,16 @@ class EnvironmentManagerService {
 
 	// fetch all companies from the given environment host that have domain joining on for the given domain
 	async fetchEligibleJoinCompaniesFromEnvironment (host, domain) {
-		const url = `${host.host}/xenv/eligible-join-companies?domain=${encodeURIComponent(domain)}`;
-		this.api.log(`Fetching eligible join companies matching domain ${domain} from environment ${host.name}:${host.host}...`);
+		const url = `${host.publicApiUrl}/xenv/eligible-join-companies?domain=${encodeURIComponent(domain)}`;
+		this.api.log(`Fetching eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}...`);
 		const response = await this.fetchFromUrl(url);
 		if (response && response.companies) {
-			this.api.log(`Did fetch ${response.companies.length} eligible join companies matching domain ${domain} from environment ${host.name}:${host.host}`);
+			this.api.log(`Did fetch ${response.companies.length} eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}`);
 			return response.companies.map(company => {
 				return { company, host };
 			});
 		} else {
-			this.api.log(`Did not fetch any eligible join companies matching domain ${domain} from environment ${host.name}:${host.host}`);
+			this.api.log(`Did not fetch any eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}`);
 			return [];
 		}
 	}
@@ -179,16 +178,16 @@ class EnvironmentManagerService {
 
 	// fetch all companies from the given environment host that a given user (by email) is a member of
 	async fetchUserCompaniesFromEnvironment (host, email) {
-		const url = `${host.host}/xenv/user-companies?email=${encodeURIComponent(email)}`;
-		this.api.log(`Fetching companies user ${email} is a member of from environment ${host.name}:${host.host}...`);
+		const url = `${host.publicApiUrl}/xenv/user-companies?email=${encodeURIComponent(email)}`;
+		this.api.log(`Fetching companies user ${email} is a member of from environment ${host.name}:${host.publicApiUrl}...`);
 		const response = await this.fetchFromUrl(url);
 		if (response && response.companies) {
-			this.api.log(`Did fetch ${response.companies.length} companies user ${email} is a member of from environment ${host.name}:${host.host}`);
+			this.api.log(`Did fetch ${response.companies.length} companies user ${email} is a member of from environment ${host.name}:${host.publicApiUrl}`);
 			return response.companies.map(company => {
 				return { company, host };
 			});
 		} else {
-			this.api.log(`Did not fetch any companies user ${email} is a member of from environment ${host.name}:${host.host}`);
+			this.api.log(`Did not fetch any companies user ${email} is a member of from environment ${host.name}:${host.publicApiUrl}`);
 			return [];
 		}
 	}
