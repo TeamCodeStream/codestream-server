@@ -16,6 +16,21 @@ const MomentTimezone = require('moment-timezone');
 const SLACK_TIMEOUT_SECONDS = 3;
 const REPLY_SUBMISSION_TOO_SLOW = 'ReplySubmissionTooSlow';
 
+const SAFE_VIEW_KEYS = ['type', 'callback_id', 'title', 'submit', 'close', 'block_id', 'label', 'url', 'action_id', 'multiline'];
+
+const redactView = (key, value) => {
+	if (SAFE_VIEW_KEYS.includes(key)) {
+		return value;
+	}
+	if (Array.isArray(value)) {
+		return value.map(_ => JSON.stringify(_, redactView, 2));
+	}
+	if (typeof value === 'object') {
+		return JSON.stringify(value, redactView, 2);
+	}
+	return 'REDACTED';
+};
+
 class SlackInteractiveComponentsHandler {
 	constructor (request, payloadData) {
 		Object.assign(this, request);
@@ -329,6 +344,7 @@ class SlackInteractiveComponentsHandler {
 		const blocks = await this.createModalBlocks(codemark, userThatClicked);
 		let caughtSlackError = undefined;
 		const users = [userThatCreated, userThatClicked];
+		const modalErrors = [];
 		for (let i = 0; i < users.length; i++) {
 			caughtSlackError = false;
 			const user = users[i];
@@ -355,6 +371,8 @@ class SlackInteractiveComponentsHandler {
 					);
 
 					break;
+				} else if (modalResponse && modalResponse.error) {
+					modalErrors.push(modalResponse.error);
 				}
 			} catch (ex) {
 				this.log(ex);
@@ -373,33 +391,8 @@ class SlackInteractiveComponentsHandler {
 			const timeEnd = new Date();
 			const timeDiff = timeStart.getTime() - timeEnd.getTime();
 			const secondsBetween = Math.abs(timeDiff / 1000);
-			let errorReason;
-			if (secondsBetween >= SLACK_TIMEOUT_SECONDS) {
-				await this.postEphemeralMessage(
-					this.payload.response_url,
-					SlackInteractiveComponentBlocks.createMarkdownBlocks('We took too long to respond, please try again. ')
-				);
-				this.log(`Took too long to respond (${secondsBetween} seconds)`);
-				errorReason = 'OpenCodemarkResponseTooSlow';
-			}
-			else {
-				if (caughtSlackError) {
-					await this.postEphemeralMessage(
-						this.payload.response_url,
-						SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
-					);
-					this.log(`Oops, something happened. ${caughtSlackError}`);
-					errorReason = 'OpenCodemarkGenericInternalError';
-				}
-				else {
-					await this.postEphemeralMessage(
-						this.payload.response_url,
-						SlackInteractiveComponentBlocks.createRequiresAccess()
-					);
-					this.log('Was not able to show a modal (generic)');
-					errorReason = 'OpenCodemarkGenericError';
-				}
-			}
+			const payloadString = JSON.stringify(this.actionPayload, redactView, 2);
+			const errorReason = this.handleBlockActionReplyFail(secondsBetween, caughtSlackError, payloadString, modalErrors);
 
 			return {
 				actionUser: payloadActionUser,
@@ -460,6 +453,7 @@ class SlackInteractiveComponentsHandler {
 		const blocks = await this.createReviewModalBlocks(review, userThatClicked);
 		let caughtSlackError = undefined;
 		const users = [userThatCreated, userThatClicked];
+		const modalErrors = [];
 		for (let i = 0; i < users.length; i++) {
 			caughtSlackError = false;
 			const user = users[i];
@@ -486,6 +480,8 @@ class SlackInteractiveComponentsHandler {
 					);
 
 					break;
+				} else if (modalResponse && modalResponse.error) {
+					modalErrors.push(modalResponse.error);
 				}
 			} catch (ex) {
 				this.log(ex);
@@ -504,33 +500,8 @@ class SlackInteractiveComponentsHandler {
 			const timeEnd = new Date();
 			const timeDiff = timeStart.getTime() - timeEnd.getTime();
 			const secondsBetween = Math.abs(timeDiff / 1000);
-			let errorReason;
-			if (secondsBetween >= SLACK_TIMEOUT_SECONDS) {
-				await this.postEphemeralMessage(
-					this.payload.response_url,
-					SlackInteractiveComponentBlocks.createMarkdownBlocks('We took too long to respond, please try again. ')
-				);
-				this.log(`Took too long to respond (${secondsBetween} seconds)`);
-				errorReason = 'OpenReviewResponseTooSlow';
-			}
-			else {
-				if (caughtSlackError) {
-					await this.postEphemeralMessage(
-						this.payload.response_url,
-						SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
-					);
-					this.log(`Oops, something happened. ${caughtSlackError}`);
-					errorReason = 'OpenReviewGenericInternalError';
-				}
-				else {
-					await this.postEphemeralMessage(
-						this.payload.response_url,
-						SlackInteractiveComponentBlocks.createRequiresAccess()
-					);
-					this.log('Was not able to show a modal (generic)');
-					errorReason = 'OpenReviewGenericError';
-				}
-			}
+			const payloadString = JSON.stringify(this.actionPayload, redactView, 2);
+			const errorReason = this.handleBlockActionReplyFail(secondsBetween, caughtSlackError, payloadString, modalErrors);
 
 			return {
 				actionUser: payloadActionUser,
@@ -548,6 +519,40 @@ class SlackInteractiveComponentsHandler {
 			actionTeam: team,
 			payloadUserId: this.payload.user.id
 		};
+	}
+
+	async handleBlockActionReplyFail (secondsBetween, caughtSlackError, payloadString, modalErrors) {
+		if (secondsBetween >= SLACK_TIMEOUT_SECONDS) {
+			await this.postEphemeralMessage(
+				this.payload.response_url,
+				SlackInteractiveComponentBlocks.createMarkdownBlocks('We took too long to respond, please try again. ')
+			);
+			this.log(`Took too long to respond (${secondsBetween} seconds)`);
+			return 'OpenCodemarkResponseTooSlow';
+		}
+		if (caughtSlackError) {
+			await this.postEphemeralMessage(
+				this.payload.response_url,
+				SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
+			);
+			this.log(`Oops, something happened - Exception: ${caughtSlackError}\nView payload: ${payloadString}`);
+			return 'OpenReviewGenericInternalError';
+		}
+		if (modalErrors.length) {
+			await this.postEphemeralMessage(
+				this.payload.response_url,
+				SlackInteractiveComponentBlocks.createMarkdownBlocks('Oops, something happened. Please try again. ')
+			);
+			const errorString = modalErrors.join(', ');
+			this.log(`Oops, something happened. Error: ${errorString}\nView payload: ${payloadString}`);
+			return 'OpenReviewGenericResponseError';
+		}
+		await this.postEphemeralMessage(
+			this.payload.response_url,
+			SlackInteractiveComponentBlocks.createRequiresAccess()
+		);
+		this.log(`Was not able to show a modal (generic)\nView payload: ${payloadString}`);
+		return 'OpenReviewGenericError';
 	}
 
 	async getUserWithoutTeam (slackUserId) {

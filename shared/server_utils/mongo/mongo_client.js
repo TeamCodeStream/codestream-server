@@ -85,7 +85,7 @@ class MongoClient {
 
 		try {
 			if (this.options.logger) {
-				this.options.logger.log(`Connecting to mongo: ${this.config.url}`);
+				this.options.logger.log(`Connecting to mongo`);
 			}
 			const settings = Object.assign({}, this.config.settings, {
 				useNewUrlParser: true,

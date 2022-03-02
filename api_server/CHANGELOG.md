@@ -1,5 +1,11 @@
 # Change Log
 
+## [12.0.5] - 2022-3-3
+
+### Added
+
+- Adds password-reset functionality to the web login form
+
 ## [12.0.4] - 2022-2-16
 
 ### Changed

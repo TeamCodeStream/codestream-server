@@ -3,7 +3,7 @@
 # re-generate codestream config files and config templates for distribution
 
 function usage {
-	echo -e "usage: $0 [-fyv] [-e <env-list>]
+	echo -e "usage: $0 [-fyvd] [-e <env-list>]
 
 use -f to force execution with default settings
 default environment list: $environmentList
@@ -18,11 +18,13 @@ environmentList="local ci pi pd qa prod dev nr stg"
 yes=""
 verbose=""
 force=0
+debug=""
 #onpremInstallDir=""
-while getopts "yvfe:" arg
+while getopts "dyvfe:" arg
 do
 	case $arg in
 	y) yes=y;;
+	d) debug="--debug"; verbose=1;;
 	v) verbose=1;;
 	f) force=1;;
 	e) environmentList="$OPTARG";;
@@ -58,8 +60,8 @@ schemaVersion=`cat $codestream_configs/parameters.version`
 for p in `/bin/ls $codestream_configs/profiles/*.json $codestream_configs/parameters.json`
 do
 	# echo "sorting $p"
-	[ -n "$verbose" ] && echo $binDir/process-profile --sort-json $p
-	$binDir/process-profile --sort-json $p
+	[ -n "$verbose" ] && echo $binDir/process-profile $debug --sort-json $p
+	$binDir/process-profile $debug --sort-json $p
 done
 
 echo "Current schema version is: $schemaVersion"
@@ -71,8 +73,8 @@ echo "Current schema version is: $schemaVersion"
 # fi
 
 # create the README.parameter-definitions file for documentation
-[ -n "$verbose" ] && echo === $binDir/process-profile --show-desc --out $codestream_configs/README.parameter-definitions.json.x
-$binDir/process-profile --show-desc --out $codestream_configs/README.parameter-definitions.json.x
+[ -n "$verbose" ] && echo === $binDir/process-profile $debug --show-desc --out $codestream_configs/README.parameter-definitions.json.x
+$binDir/process-profile $debug --show-desc --out $codestream_configs/README.parameter-definitions.json.x
 diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 
 # create the config templates for on-prem single host preview and quickstart (beta release only)
@@ -102,8 +104,8 @@ diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 # cloud configuration files, all environments (consumed by developers via dt-dev-update-secrets)
 for csEnv in $environmentList
 do
-	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
-	$binDir/process-profile --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1
+	[ -n "$verbose" ] && echo === $binDir/process-profile $debug --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
+	$binDir/process-profile $debug --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1
 	diff_notify $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json "$yes"
 done
 
