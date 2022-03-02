@@ -261,7 +261,7 @@ class LoginHelper {
 			isOnPrem,
 			isProductionCloud,
 			runtimeEnvironment: runTimeEnvironment,
-			environmentHosts: Object.values(environmentGroup),
+			environmentHosts: Object.values(environmentGroup || []),
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
