@@ -3,7 +3,6 @@
 // for signup by virtue of access to a repo, confirm this is allowed
 const ConfirmRepoSignup = async options => {
 	const { teamId, repoId, commitHash, request } = options;
-	
 	if (!teamId) return;
 
 	// if a team ID is given, this is a repo-based signup, and we must also have a repoID and a known commit hash

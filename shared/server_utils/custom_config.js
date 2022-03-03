@@ -356,7 +356,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 	}
 
 	// api
-	if (Cfg.environmentGroup) {
+	if (Object.keys(Cfg.environmentGroup || {}).length > 0) {
 		if (!Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment]) {
 			console.log(
 				`this server's environment (${Cfg.sharedGeneral.runTimeEnvironment}) does not appear in the environmentGroup`

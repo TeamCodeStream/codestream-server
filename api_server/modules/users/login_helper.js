@@ -237,7 +237,7 @@ class LoginHelper {
 
 		const { 
 			isOnPrem,
-			isProductionCloud,
+			isProductionCloud = false,
 			newRelicLandingServiceUrl
 		} = this.apiConfig.sharedGeneral;
 		const { environmentGroup } = this.apiConfig;
