@@ -21,7 +21,7 @@ class CapabilitiesTest extends CodeStreamAPITest {
 	// validate the response to the test request
 	validateResponse (data) {
 		const { runTimeEnvironment } = this.apiConfig.sharedGeneral;
-		const { environmentGroup = {} } = this.apiConfig;
+		const environmentGroup = this.apiConfig.environmentGroup || {};
 		const expectedEnvironment = (
 			environmentGroup &&
 			environmentGroup[runTimeEnvironment] &&

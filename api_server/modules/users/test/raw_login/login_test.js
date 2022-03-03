@@ -70,7 +70,7 @@ class LoginTest extends CodeStreamAPITest {
 			delete expectedCapabilities.emailSupport;
 		}
 		const { runTimeEnvironment } = this.apiConfig.sharedGeneral;
-		const { environmentGroup = {} } = this.apiConfig;
+		const environmentGroup = this.apiConfig.environmentGroup || {};
 		const expectedEnvironment = (
 			environmentGroup &&
 			environmentGroup[runTimeEnvironment] &&

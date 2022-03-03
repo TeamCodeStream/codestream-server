@@ -78,7 +78,7 @@ class LoginTest extends CodeStreamAPITest {
 		}
 
 		const { runTimeEnvironment } = this.apiConfig.sharedGeneral;
-		const { environmentGroup = {} } = this.apiConfig;
+		const environmentGroup = this.apiConfig.environmentGroup || {};
 		const expectedEnvironment = (
 			environmentGroup &&
 			environmentGroup[runTimeEnvironment] &&

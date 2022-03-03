@@ -5,7 +5,7 @@ const Handlebars = require('handlebars');
 /* eslint complexity: 0 */
 module.exports = function(options) {
 
-	const { user, team, company, module } = options;
+	const { user, team, company, module, request } = options;
 	const userId = user && user.id;
 	const email = user && user.get('email');
 	const joinMethod = user && user.get('joinMethod');
@@ -61,6 +61,13 @@ module.exports = function(options) {
 		}
 	}
 
+	let region = undefined;
+	const { environmentGroup } = request.api.config;
+	const { runTimeEnvironment } = request.api.config.sharedGeneral;
+	if (environmentGroup && environmentGroup[runTimeEnvironment]) {
+		region = environmentGroup[runTimeEnvironment].name;
+	}
+
 	const props = {
 		userId,
 		email,
@@ -84,7 +91,8 @@ module.exports = function(options) {
 		abTest,
 		nrConnected,
 		nrUserId,
-		nrOrgId
+		nrOrgId,
+		region
 	};
 	return module.evalTemplateNoSend('identify_script', props);
 };
