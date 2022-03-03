@@ -13,7 +13,7 @@
 				analytics.load("{{segmentKey}}");
 				analytics.page();
 				// if anonymousId is null, creates one, otherwise keeps current one.
-				//  - fix for persistant anonymousId accross sessions
+				//  - fix for persistent anonymousId across sessions
 				//  - see: https://newrelic.atlassian.net/browse/CDSTRM-1450 
 				//  - segment docs: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/identity/#retrieve-the-anonymous-id
 				analytics.user().anonymousId();
