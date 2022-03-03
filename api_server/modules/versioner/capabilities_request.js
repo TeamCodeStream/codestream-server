@@ -19,7 +19,8 @@ class CapabilitiesRequest extends RestfulRequest {
 			isProductionCloud,
 			newRelicLandingServiceUrl
 		} = this.api.config.sharedGeneral;
-		const { environmentGroup = {} } = this.api.config;
+		const environmentGroup = this.api.config.environmentGroup || {};
+
 
 		// substitute the "short name" of this environment host, if found
 		let runTimeEnvironment = this.api.config.sharedGeneral.runTimeEnvironment;
