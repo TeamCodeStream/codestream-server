@@ -46,16 +46,6 @@ class LinkNewRelicRequest extends WebRequestBase {
  
 	async render () {
 		const launcherModel = this.createLauncherModel("");
-
-		/*
-		let environment;
-		const { environmentGroup } = this.api.config;
-		const { runTimeEnvironment } = this.api.config.sharedGeneral;
-		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
-			environment = environmentGroup[runTimeEnvironment].shortName;
-		}
-		*/
-
 		const templateProps = {
 			launchIde: this.parsedPayload.ide === ''
 					? 'default'
@@ -72,8 +62,7 @@ class LinkNewRelicRequest extends WebRequestBase {
 			segmentKey: this.api.config.telemetry.segment.webToken,
 			src: decodeURIComponent(this.parsedPayload.src || ''),
 			errorGroupGuid: this.parsedPayload.errorGroupGuid,
-			newToCodeStream: launcherModel.isMru ? "false" : "true",
-			//environment
+			newToCodeStream: launcherModel.isMru ? "false" : "true"
 		};
 
 		const template = TEMPLATE_BY_TYPE[this.request.params.type.toLowerCase()];
