@@ -374,6 +374,9 @@ window.CODESTREAM.openEditor = function(ide) {
 				// see https://newrelic.atlassian.net/browse/CDSTRM-1195	
 				results.push({ key: 'anonymousId', value: window.segmentAnonymousId });
 			}
+			if ('{{environment}}'.length > 0) {
+				results.push({ key: 'env', value: '{{environment}}' });
+			}
 			route = { controller: 'newrelic', action: type, id: options.id, query: results }
 		}
 		else if (type ==='review') {			

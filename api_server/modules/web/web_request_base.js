@@ -32,7 +32,15 @@ class WebRequestBase extends RestfulRequest {
 	 * @memberof WebRequestBase
 	 */
 	createLauncherModel (repoId) {
+		let environment;
+		const { environmentGroup } = this.api.config;
+		const { runTimeEnvironment } = this.api.config.sharedGeneral;
+		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
+			environment = environmentGroup[runTimeEnvironment].shortName;
+		}
+	
 		let result = {
+			environment,
 			csrf: this.request.csrfToken(),
 			ides: ides,
 			src: decodeURIComponent(this.request.query.src || ''),

@@ -46,7 +46,17 @@ class LinkNewRelicRequest extends WebRequestBase {
  
 	async render () {
 		const launcherModel = this.createLauncherModel("");
- 		const templateProps = {			 
+
+		/*
+		let environment;
+		const { environmentGroup } = this.api.config;
+		const { runTimeEnvironment } = this.api.config.sharedGeneral;
+		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
+			environment = environmentGroup[runTimeEnvironment].shortName;
+		}
+		*/
+
+		const templateProps = {
 			launchIde: this.parsedPayload.ide === ''
 					? 'default'
 					: this.parsedPayload.ide,
@@ -62,7 +72,8 @@ class LinkNewRelicRequest extends WebRequestBase {
 			segmentKey: this.api.config.telemetry.segment.webToken,
 			src: decodeURIComponent(this.parsedPayload.src || ''),
 			errorGroupGuid: this.parsedPayload.errorGroupGuid,
-			newToCodeStream: launcherModel.isMru ? "false" : "true"
+			newToCodeStream: launcherModel.isMru ? "false" : "true",
+			//environment
 		};
 
 		const template = TEMPLATE_BY_TYPE[this.request.params.type.toLowerCase()];
@@ -76,6 +87,12 @@ class LinkNewRelicRequest extends WebRequestBase {
 
 	createLauncherModel (repoId) {
 		// overwriting the base since the base deals with mongo data
+		let environment;
+		const { environmentGroup } = this.api.config;
+		const { runTimeEnvironment } = this.api.config.sharedGeneral;
+		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
+			environment = environmentGroup[runTimeEnvironment].shortName;
+		}
 
 		const cookieNames = [];
 		if (repoId) {
@@ -108,7 +125,8 @@ class LinkNewRelicRequest extends WebRequestBase {
 				isMru: false
 			}
 		}).bind(this))();
-		const result = {		 
+		const result = {
+			environment,
 			ides: ides,
 			csrf: this.request.csrfToken(),
 			src: decodeURIComponent(this.parsedPayload.src || ''),		
