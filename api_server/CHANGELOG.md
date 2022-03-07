@@ -1,5 +1,11 @@
 # Change Log
 
+## [12.0.6] - 2022-3-7
+
+### Fixed
+
+- Fixes an issue with telemetry for anonymous users
+
 ## [12.0.5] - 2022-3-3
 
 ### Added
