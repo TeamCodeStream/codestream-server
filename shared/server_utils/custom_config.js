@@ -356,9 +356,6 @@ module.exports = function customConfigFunc(nativeCfg) {
 	}
 
 	// api
-	if (!Object.keys(Cfg.environmentGroup).length) {
-		Cfg.environmentGroup = null;
-	}
 	if (Cfg.environmentGroup) {
 		if (!Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment]) {
 			console.log(

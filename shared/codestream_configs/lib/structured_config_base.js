@@ -323,9 +323,12 @@ class StructuredConfigBase {
 					sectionData[prop] = this._interpolate(sectionData[prop], process.env);
 				}
 			}
-			else {
+			else if (data[prop] !== null) {
 				sectionData[prop] = {};
 				this._buildSection(sectionData[prop], schema[schemaProp], data[prop]);
+			}
+			else {
+				sectionData[prop] = null;
 			}
 		}
 	}
