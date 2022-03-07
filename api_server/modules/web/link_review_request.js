@@ -358,7 +358,8 @@ class LinkReviewRequest extends WebRequestBase {
 			user: this.user,
 			team: this.team,
 			company: this.company,
-			module: this.module
+			module: this.module,
+			request: this
 		};
 		props.identifyScript = Identify(identifyOptions);
 	}

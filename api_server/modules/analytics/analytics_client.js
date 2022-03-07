@@ -135,6 +135,13 @@ class AnalyticsClient {
 			trackObject['NR Connected Org'] = !!company.get('isNRConnected');
 		}
 
+		// translate the runtime environment into a region, if possible
+		const { environmentGroup } = request.api.config;
+		const { runTimeEnvironment } = request.api.config.sharedGeneral;
+		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
+			trackObject.Region = environmentGroup[runTimeEnvironment].name;
+		}
+
 		Object.assign(trackObject, data);
 		this.track(
 			event,

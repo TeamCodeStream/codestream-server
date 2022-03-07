@@ -52,7 +52,7 @@ def blockKey(schema, spaces):
 # load the secrets file and set defaults from schema
 def loadSecretsFile(profile, schema, repeatingBlockKey, spaces):
 	secretsFile = profile['_loadSecretsFile']
-	debugMsg(f"{spaces}loading {args.secrets}/{secretsFile}")
+	debugMsg(f"{spaces}loading secrets from {args.secrets}/{secretsFile}")
 	secretsData = dtCore.io.readKVFileToDict(f"{args.secrets}/{secretsFile}")
 	block = {}
 	# lowest precedence: schema defaults
@@ -75,7 +75,6 @@ def loadSecretsFile(profile, schema, repeatingBlockKey, spaces):
 def buildCfgFile(cfg, schema, profile, spaces=''):
 	debugMsg(f"{spaces}buildCfgFile profile keys: {list(profile.keys())}")
 
-	# if type(profile) is dict:
 	if isinstance(profile, dict):
 		if 'defaultEnv' in profile:
 			env = args.env if args.env in profile else 'defaultEnv'
@@ -89,6 +88,9 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 			buildCfgFile(cfg, schema, profile, f"{spaces}  ")
 			return
 
+		if '_loadBlockPropertiesFrom' in profile:
+			return
+
 		if not profile:
 			debugMsg(f"{spaces}profile is empty dict - setting to defaults")
 			getSectionDefaultsFromSchema(schema, cfg, spaces)
@@ -98,21 +100,22 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 	getSectionDefaultsFromSchema(schema, blockDefaults, spaces)
 	fillSection = False
 	for prop in list(profile.keys()):
-		# env = args.env if profile[prop] is dict and args.env in profile[prop] else 'defaultEnv'
+		# env = args.env if isinstance(profile[prop], dict) and args.env in profile[prop] else 'defaultEnv'
 		repeatingBlockKeyVar = blockKey(schema, spaces)  # appProvider
 		repeatingBlockKey = f"<{repeatingBlockKeyVar}>" if repeatingBlockKeyVar else None  # <appProvider>
 		debugMsg(f"\n{spaces}=== checking prop = {prop}, repeatingBlockKeyVar = {repeatingBlockKeyVar}")
 
-		# if type(profile[prop]) is dict and not profile[prop]:
 		if isinstance(profile[prop], dict) and not profile[prop]:
 			debugMsg(f"{spaces}1 empty dict in profile - using schema defaults")
 			cfg[prop] = {}
 			getSectionDefaultsFromSchema(schema[prop], cfg[prop], spaces)
-		# elif type(profile[prop]) is dict:
 		elif isinstance(profile[prop], dict):
 			debugMsg(f"{spaces}3 diving deeper on {prop}, profile[{prop}] = {profile[prop]}")
 			cfg[prop] = {}
-			if repeatingBlockKey:
+			if "_loadBlockPropertiesFrom" in profile[prop]:
+				# setup for post processing
+				cfg[prop] = profile[prop]
+			elif repeatingBlockKey:
 				buildCfgFile(cfg[prop], schema[repeatingBlockKey], profile[prop], f"{spaces}  ")
 			else:
 				buildCfgFile(cfg[prop], schema[prop], profile[prop], f"{spaces}  ")
@@ -200,6 +203,17 @@ elif args.sort_json:
 elif args.profile:
 	profile = dtCore.io.readJsonFileIgnoreComments(args.profile)
 	buildCfgFile(cfgFile, schema, profile)
+	for k in list(cfgFile.keys()):
+		if '_loadBlockPropertiesFrom' in cfgFile[k]:
+			blockPropDict = cfgFile[k]['_loadBlockPropertiesFrom']
+			env = args.env if args.env in blockPropDict else 'defaultEnv'
+			if not blockPropDict[env]:
+				cfgFile[k] = None
+			else:
+				propertiesFile = blockPropDict[env]['_file'].format(**os.environ)
+				propertiesData = dtCore.io.readJsonFileIgnoreComments(propertiesFile)
+				propertiesData = dtCore.util.getByDottedNotation(propertiesData, blockPropDict[env]['_rootProp'])
+				cfgFile[k] = propertiesData
 	if args.out:
 		sortJsonWithHeaderComments(args.profile, json=cfgFile, outFile=args.out)
 		exit(0)

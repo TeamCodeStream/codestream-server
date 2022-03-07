@@ -69,13 +69,21 @@ class LoginTest extends CodeStreamAPITest {
 		if (this.apiConfig.email.suppressEmails) {
 			delete expectedCapabilities.emailSupport;
 		}
+		const { runTimeEnvironment } = this.apiConfig.sharedGeneral;
+		const environmentGroup = this.apiConfig.environmentGroup || {};
+		const expectedEnvironment = (
+			environmentGroup &&
+			environmentGroup[runTimeEnvironment] &&
+			environmentGroup[runTimeEnvironment].shortName
+		) || runTimeEnvironment;
 		Assert.deepStrictEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
 		const providerHosts = GetStandardProviderHosts(this.apiConfig);
 		Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
-		Assert.strictEqual(data.runtimeEnvironment, this.apiConfig.sharedGeneral.runTimeEnvironment);
-		Assert.strictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);
-		Assert.strictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud);
-		Assert.strictEqual(data.newRelicLandingServiceUrl, this.apiConfig.sharedGeneral.newRelicLandingServiceUrl);
+		Assert.strictEqual(data.runtimeEnvironment, expectedEnvironment);
+		Assert.deepStrictEqual(data.environmentHosts, Object.values(environmentGroup));
+		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);
+		Assert.deepStrictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud || false);
+		Assert.deepStrictEqual(data.newRelicLandingServiceUrl, this.apiConfig.sharedGeneral.newRelicLandingServiceUrl);
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

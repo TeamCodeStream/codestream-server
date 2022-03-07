@@ -44,7 +44,21 @@ class UserCreator extends ModelCreator {
 	getRequiredAndOptionalAttributes () {
 		return {
 			optional: {
-				string: ['email', 'password', 'username', 'fullName', 'companyName', 'timeZone', 'confirmationCode', '_pubnubUuid', 'phoneNumber', 'iWorkOn', 'inviteTrigger', 'source'],
+				string: [
+					'email',
+					'password',
+					'username',
+					'fullName',
+					'companyName',
+					'timeZone',
+					'confirmationCode',
+					'_pubnubUuid',
+					'phoneNumber',
+					'iWorkOn',
+					'inviteTrigger',
+					'source',
+					'passwordHash'
+				],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
 				boolean: ['isRegistered'],
 				'array(string)': ['secondaryEmails', 'providerIdentities'],
@@ -223,6 +237,10 @@ class UserCreator extends ModelCreator {
 
 	// hash the given password, as needed
 	async hashPassword () {
+		if (this.attributes.passwordHash) {
+			delete this.attributes.password;
+			return;
+		}
 		if (!this.attributes.password || this.notSaving) { return; }
 		this.attributes.passwordHash = await new PasswordHasher({
 			errorHandler: this.errorHandler,

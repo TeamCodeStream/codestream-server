@@ -3,11 +3,11 @@
 
 #playgroundName# csbe
 #sandboxTypes# mongo,cs_server
-#sandboxes# {{SBNAME_mongo}},{{SBNAME_cs_server}}
-#environment# local
+#sandboxes# {{ SBNAME_mongo }},{{ SBNAME_cs_server }}
+#environment# {{ CSSVC_ENV }}
 
-dt_load {{SBNAME_mongo}} --quiet
-dt_load {{SBNAME_cs_server}}
+dt_load {{ SBNAME_mongo }} --quiet
+dt_load {{ SBNAME_cs_server }}
 if [ "$1" = start ]; then
 	csbe-service start
 elif [ "$1" = stop ]; then

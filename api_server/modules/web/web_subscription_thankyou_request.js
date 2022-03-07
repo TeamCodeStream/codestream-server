@@ -45,7 +45,8 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 		const identifyOptions = {
 			user: this.user,
 			company: this.company,
-			module: this.module
+			module: this.module,
+			request: this
 		};
 		props.identifyScript = Identify(identifyOptions);
 	}

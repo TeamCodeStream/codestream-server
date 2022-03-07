@@ -85,6 +85,9 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				'NR Connected Org': false
 			}
 		};
+		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
+			expectedMessage.properties.Region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
+		}
 		if (trial) {
 			Object.assign(expectedMessage.properties.company, {
 				trialStart_at: new Date(this.company.trialStartDate).toISOString(),

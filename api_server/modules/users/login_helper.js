@@ -14,6 +14,7 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
 const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
 const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
+const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
 
 class LoginHelper {
 
@@ -35,6 +36,7 @@ class LoginHelper {
 
 		await awaitParallel([
 			this.getInitialData,
+			this.getForeignCompanies,
 			this.generateAccessToken
 		], this);
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
@@ -92,6 +94,22 @@ class LoginHelper {
 			user: this.user
 		});
 		this.initialData = await this.initialDataFetcher.fetchInitialData();
+	}
+
+	// get any companies the user is a member of (by email) in foreign environments,
+	// to display in the organization switcher
+	async getForeignCompanies () {
+		if (this.request.request.headers['x-cs-block-xenv']) {
+			this.request.log('Not fetching foreign companies, blocked by header');
+			return [];
+		}
+
+		const companies = await this.request.api.services.environmentManager
+			.fetchUserCompaniesFromAllEnvironments(this.user.get('email'));
+		this.foreignCompanies = companies.map(company => {
+			company.company.host = company.host;
+			return company.company;
+		});
 	}
 
 	// generate an access token for this login if needed
@@ -156,6 +174,9 @@ class LoginHelper {
 	
 	// update the time the user last logged in, except if logging in via the web app
 	async updateLastLogin () {
+		if (this.dontUpdateLastLogin) {
+			return;
+		}
 		const origin = this.request.request.headers['x-cs-plugin-ide'];
 		if (origin === 'webclient') {
 			return;
@@ -214,7 +235,18 @@ class LoginHelper {
 			return;
 		}
 
-		const { isOnPrem, runTimeEnvironment, isProductionCloud, newRelicLandingServiceUrl } = this.apiConfig.sharedGeneral;
+		const { 
+			isOnPrem,
+			isProductionCloud = false,
+			newRelicLandingServiceUrl
+		} = this.apiConfig.sharedGeneral;
+		const { environmentGroup } = this.apiConfig;
+		
+		// substitute the "short name" of this environment host, if found
+		let runTimeEnvironment = this.apiConfig.sharedGeneral.runTimeEnvironment;
+		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
+			runTimeEnvironment = environmentGroup[runTimeEnvironment].shortName;
+		}
 
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
@@ -229,6 +261,7 @@ class LoginHelper {
 			isOnPrem,
 			isProductionCloud,
 			runtimeEnvironment: runTimeEnvironment,
+			environmentHosts: Object.values(environmentGroup || []),
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
@@ -261,6 +294,9 @@ class LoginHelper {
 			this.responseData.socketCluster = { host, port, ignoreHttps };
 		}
 		Object.assign(this.responseData, this.initialData);
+
+		// add any foreign (cross-environment) companies
+		this.responseData.companies = [...this.responseData.companies, ...(this.foreignCompanies || [])];
 	}
 
 	// grant the user permission to subscribe to various broadcaster channels
@@ -289,32 +325,8 @@ class LoginHelper {
 		}
 
 		if (this.notTrueLogin) { return; }
-		this.eligibleJoinCompanies = [];
 
-		// look for any companies with domain-based joining that match the domain of the user's email
-		const companies = await this.request.data.companies.getByQuery(
-			{
-				domainJoining: domain,
-				deactivated: false
-			},
-			{
-				hint: CompanyIndexes.byDomainJoining 
-			}
-		);
-
-		// return information about those companies (but not full company objects, 
-		// since the user is not actually a member (yet))
-		for (const company of companies) {
-			const memberCount = await company.getCompanyMemberCount(this.request.data);
-			this.eligibleJoinCompanies.push({
-				id: company.id,
-				name: company.get('name'),
-				byDomain: domain.toLowerCase(),
-				domainJoining: company.get('domainJoining') || [],
-				codeHostJoining: company.get('codeHostJoining') || [],
-				memberCount
-			});
-		}
+		this.eligibleJoinCompanies = await GetEligibleJoinCompanies(domain, this.request);
 	}
 
 	// set flag indicating whether this user's New Relic account is connected to a CodeStream company

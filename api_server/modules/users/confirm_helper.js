@@ -21,12 +21,21 @@ class ConfirmHelper {
 		//await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
+		if (!this.dontConfirmInOtherEnvironments) {
+			await this.confirmInOtherEnvironments();	// confirm the user in other "environments" 
+		}
 		return this.responseData;
 	}
 
 	// hash the given password, as needed
 	async hashPassword () {
-		if (!this.data.password) { return; }
+		if (this.data.passwordHash) {
+			this.passwordHash = this.data.passwordHash;
+			return;
+		} else if (!this.data.password) { 
+			return; 
+		}
+
 		this.passwordHash = await new PasswordHasher({
 			errorHandler: this.request.errorHandler,
 			password: this.data.password
@@ -68,7 +77,8 @@ class ConfirmHelper {
 			request: this.request,
 			user: this.user,
 			loginType: this.loginType,
-			nrAccountId: this.nrAccountId
+			nrAccountId: this.nrAccountId,
+			dontUpdateLastLogin: this.dontUpdateLastLogin
 		});
 		if (this.notTrueLogin) {
 			await loginHelper.allowLogin();
@@ -162,6 +172,50 @@ class ConfirmHelper {
 			collection: this.request.data.users,
 			id: this.user.id
 		}).save(op);
+	}
+
+	// users who have been invited in other "environments" (i.e. regions), get confirmed
+	// in those environments as well
+	async confirmInOtherEnvironments () {
+		const { environmentManager } = this.request.api.services;
+		if (!environmentManager) { return; }
+		if (this.request.request.headers['x-cs-block-xenv']) {
+			this.request.log('Not confirming user cross-environment, blocked by header');
+			return;
+		}
+		const usersConfirmed = await environmentManager.confirmInAllEnvironments(this.user);
+
+		// if the user was confirmed in any other environment, and was not invited in this one
+		// (which means they are not yet on any teams), then deactivate the account created here
+		// and send the first confirmed user response we got back to the client, along with 
+		// information indicating they must switch environments
+		if (usersConfirmed.length > 0 && (this.user.get('teamIds') || []).length === 0) {
+			const hostInfo = usersConfirmed.map(userConfirmed => { 
+				const { response, host } = userConfirmed;
+				return `ID=${response.user.id}@${host.name}:${host.host}`;
+			}).join(',');
+
+			const firstUserConfirmed = usersConfirmed[0];
+			const { response, host } = firstUserConfirmed;
+			this.responseData = response;
+			this.responseData.setEnvironment = {
+				environment: host.shortName,
+				host: host.host
+			};
+
+			// deactivate the confirmed user in this environment
+			this.request.log(`Deactivating confirmed user ${this.user.id}:${this.user.get('email')} because that user was invited to other hosts: ${hostInfo}`);
+			const now = Date.now();
+			const emailParts = this.user.get('email').split('@');
+			const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
+			await this.request.data.users.update({
+				id: this.user.id,
+				deactivated: true,
+				email: newEmail,
+				searchableEmail: newEmail.toLowerCase()
+			});
+		}
+
 	}
 }
 

@@ -198,6 +198,10 @@ class APIRequestTest extends GenericTest {
 			// since we're just doing testing, block sending bot messages
 			requestOptions.headers['X-CS-Block-Bot-Out'] = true;
 		}
+		if (!options.reallyDoCrossEnvironment) {
+			// since we're just doing testing, block doing cross-environment stuff
+			requestOptions.headers['X-CS-Block-XEnv'] = true;
+		}
 		if (options.testEmails) {
 			// we're doing email testing, block them from being sent but divert contents
 			// to a pubnub channel that we'll listen on

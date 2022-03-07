@@ -14,10 +14,24 @@ class CapabilitiesRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		// return the capabilities
-		const { runTimeEnvironment, isOnPrem, isProductionCloud, newRelicLandingServiceUrl } = this.api.config.sharedGeneral;
+		const {
+			isOnPrem,
+			isProductionCloud,
+			newRelicLandingServiceUrl
+		} = this.api.config.sharedGeneral;
+		const environmentGroup = this.api.config.environmentGroup || {};
+
+
+		// substitute the "short name" of this environment host, if found
+		let runTimeEnvironment = this.api.config.sharedGeneral.runTimeEnvironment;
+		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
+			runTimeEnvironment = environmentGroup[runTimeEnvironment].shortName;
+		}
+
 		this.responseData = {
 			capabilities: { ...APICapabilities },
 			environment: runTimeEnvironment,
+			environmentHosts: Object.values(environmentGroup),
 			isOnPrem: isOnPrem,
 			isProductionCloud: isProductionCloud,
 			newRelicLandingServiceUrl: newRelicLandingServiceUrl

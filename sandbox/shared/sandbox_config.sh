@@ -106,7 +106,7 @@ function sbcfg_initialize {
 	if [ -n "$CSSVC_CFG_URL" ]; then 
 		# ---- config stored in mongo
 		# for local development only, CSSVC_CONFIGURATION indicates config file to use for initialization
-		if [ "$CSSVC_ENV" = "local"  -a  -n "$CSSVC_CONFIGURATION"  -a  -n "$CS_API_SANDBOX" ]; then
+		if sandutil_is_local_environment && [ -n "$CSSVC_CONFIGURATION"  -a  -n "$CS_API_SANDBOX" ]; then
 			sandutil_get_codestream_cfg_file "$CS_API_SANDBOX" "$CSSVC_CONFIGURATION" "$CSSVC_ENV" "" noReport
 			export CS_API_DEFAULT_CFG_FILE=$CSSVC_CFG_FILE
 			unset CSSVC_CFG_FILE
@@ -133,7 +133,7 @@ function sbcfg_initialize {
 	# ----- REMOTE DEVELOPMENT SANDBOXES
 	# local development on ec2 instances (remote hosts) should reference their
 	# hostname and not 'localhost' when constructing URLs so we set
-	if [ "$CSSVC_ENV" = "local"  -a  $(sandutil_is_network_instance) -eq 1 ]; then
+	if sandutil_is_local_environment && sandutil_is_network_instance ; then
 		export CS_API_PUBLIC_URL="https://`hostname`:$CSBE_API_DEFAULT_PORT"
 		echo "CS_API_PUBLIC_URL=$CS_API_PUBLIC_URL [this is a remote development host]"
 		[ -n "$DT_USER" ] && export CS_API_CALLBACK_ENV="dev-$DT_USER"
