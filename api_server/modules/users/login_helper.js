@@ -238,7 +238,8 @@ class LoginHelper {
 		const { 
 			isOnPrem,
 			isProductionCloud = false,
-			newRelicLandingServiceUrl
+			newRelicLandingServiceUrl,
+			newRelicApiUrl
 		} = this.apiConfig.sharedGeneral;
 		const { environmentGroup } = this.apiConfig;
 		
@@ -265,7 +266,8 @@ class LoginHelper {
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
-			newRelicLandingServiceUrl
+			newRelicLandingServiceUrl,
+			newRelicApiUrl
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub

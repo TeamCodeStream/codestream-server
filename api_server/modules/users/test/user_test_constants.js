@@ -59,7 +59,8 @@ const EXPECTED_LOGIN_RESPONSE = {
 	isOnPrem: true,
 	isProductionCloud: true,
 	runtimeEnvironment: true,
-	newRelicLandingServiceUrl: true
+	newRelicLandingServiceUrl: true,
+	newRelicApiUrl: true
 };
 
 // these attributes should not be seen by the client
