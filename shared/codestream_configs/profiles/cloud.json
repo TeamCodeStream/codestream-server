@@ -419,6 +419,7 @@
 			"showConfig": true
 		},
 		"nr": {
+			"showConfig": false,
 			"storage": {
 				"mongo": {
 					"_loadSecretsFile": "mongo/nr.cfg"
@@ -426,6 +427,7 @@
 			}
 		},
 		"pd": {
+			"showConfig": false,
 			"storage": {
 				"mongo": {
 					"_loadSecretsFile": "mongo/pd.cfg"
@@ -433,6 +435,7 @@
 			}
 		},
 		"pd2": {
+			"showConfig": false,
 			"storage": {
 				"mongo": {
 					"_loadSecretsFile": "mongo/pd2.cfg"
