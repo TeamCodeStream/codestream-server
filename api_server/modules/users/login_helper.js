@@ -15,6 +15,7 @@ const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
 const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
 const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
+const AccessTokenCreator = require('./access_token_creator');
 
 class LoginHelper {
 
@@ -147,15 +148,11 @@ class LoginHelper {
 				!minIssuance ||
 				minIssuance > (tokenPayload.iat * 1000)
 			) {
-				this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
-				const minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
+				const { accessToken, minIssuance } = AccessTokenCreator(this.request, this.user.id);
+				this.accessToken = accessToken;
 				set = set || {};
-				set[`accessTokens.${this.loginType}`] = {
-					token: this.accessToken,
-					minIssuance: minIssuance
-				};
+				set[`accessTokens.${this.loginType}`] = { accessToken, minIssuance };
 			}
-
 			if (set) {
 				await this.request.data.users.applyOpById(this.user.id, { $set: set });
 			}

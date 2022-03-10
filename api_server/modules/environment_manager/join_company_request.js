@@ -4,6 +4,7 @@
 
 const JoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/join_company_request');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const AccessTokenCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/access_token_creator');
 
 class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 
@@ -67,6 +68,13 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		if (collidingUser) {
 			throw this.errorHandler.error('internal', { info: `found a colliding user matching ID ${this.user.id}` });
 		}
+
+		// create an access token for the copy of the user, access tokens don't translate across environments
+		const { accessToken, minIssuance } = AccessTokenCreator(this, this.user.id);
+		this.user.attributes.accessTokens = this.user.attributes.accessTokens || {};
+		this.user.attributes.accessTokens.web = { accessToken, minIssuance };
+
+		// save the user
 		await this.data.users.createDirect(this.user);
 
 		// fetch again, and proceed with processing the request
