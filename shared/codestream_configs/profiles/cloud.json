@@ -461,7 +461,7 @@
 	"queuingEngine": {
 		"awsSQS": {
 			"ci": {
-				"outboundEmailQueueName": "ci_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"defaultEnv": {
 				"outboundEmailQueueName": "dev_${CSSVC_ENV}_outboundEmail"
@@ -474,19 +474,19 @@
 				"outboundEmailQueueName": "local2_${DT_USER}_outboundEmail"
 			},
 			"pd": {
-				"outboundEmailQueueName": "pd_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"pd2": {
-				"outboundEmailQueueName": "pd_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"pi": {
-				"outboundEmailQueueName": "ci_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"prod": {
 				"outboundEmailQueueName": "prod_outboundEmail"
 			},
 			"qa": {
-				"outboundEmailQueueName": "qa_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"stg": {
 				"outboundEmailQueueName": "stg_outboundEmail"
