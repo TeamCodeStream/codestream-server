@@ -67,8 +67,8 @@ class ChangePasswordCore {
 
 	// generate a new access token for the user, all other access tokens will be invalidated by this
 	async generateToken () {
-		const { accessToken, minIssuance } = AccessTokenCreator(this.request, this.user.id);
-		this.accessToken = accessToken;
+		const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
+		this.accessToken = token;
 		this.minIssuance = minIssuance;
 	}
 

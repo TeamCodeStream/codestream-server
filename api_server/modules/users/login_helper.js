@@ -148,10 +148,10 @@ class LoginHelper {
 				!minIssuance ||
 				minIssuance > (tokenPayload.iat * 1000)
 			) {
-				const { accessToken, minIssuance } = AccessTokenCreator(this.request, this.user.id);
-				this.accessToken = accessToken;
+				const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
+				this.accessToken = token;
 				set = set || {};
-				set[`accessTokens.${this.loginType}`] = { accessToken, minIssuance };
+				set[`accessTokens.${this.loginType}`] = { token, minIssuance };
 			}
 			if (set) {
 				await this.request.data.users.applyOpById(this.user.id, { $set: set });

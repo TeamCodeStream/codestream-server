@@ -70,9 +70,9 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		}
 
 		// create an access token for the copy of the user, access tokens don't translate across environments
-		const { accessToken, minIssuance } = AccessTokenCreator(this, this.user.id);
+		const { token, minIssuance } = AccessTokenCreator(this, this.user.id);
 		this.user.attributes.accessTokens = this.user.attributes.accessTokens || {};
-		this.user.attributes.accessTokens.web = { accessToken, minIssuance };
+		this.user.attributes.accessTokens.web = { token, minIssuance };
 
 		// save the user
 		await this.data.users.createDirect(this.user);
