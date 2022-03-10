@@ -56,7 +56,16 @@
 			"helpIsAvailable": true,
 			"phoneHomeUrl": null,
 			"port": 8443,
-			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
+			"publicApiUrl": null,
+			"requireTLS12": true
+		},
+		"pd2": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"confirmationNotRequired": false,
+			"helpIsAvailable": true,
+			"phoneHomeUrl": null,
+			"port": 8443,
+			"publicApiUrl": null,
 			"requireTLS12": true
 		},
 		"pi": {
@@ -172,6 +181,14 @@
 			"local2": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
 				"_rootProp": "codestreamEnvironmentGroups.localDevelopment"
+			},
+			"pd": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment"
+			},
+			"pd2": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment"
 			}
 		}
 	},
@@ -353,6 +370,10 @@
 					"_loadSecretsFile": "slack/dev-combined.cfg",
 					"interactiveComponentsEnabled": true
 				},
+				"pd2": {
+					"_loadSecretsFile": "slack/dev-combined.cfg",
+					"interactiveComponentsEnabled": true
+				},
 				"prod": {
 					"_loadSecretsFile": "slack/prod-combined.cfg",
 					"interactiveComponentsEnabled": true
@@ -398,7 +419,6 @@
 			"showConfig": true
 		},
 		"nr": {
-			"showConfig": true,
 			"storage": {
 				"mongo": {
 					"_loadSecretsFile": "mongo/nr.cfg"
@@ -406,10 +426,16 @@
 			}
 		},
 		"pd": {
-			"showConfig": true,
 			"storage": {
 				"mongo": {
 					"_loadSecretsFile": "mongo/pd.cfg"
+				}
+			}
+		},
+		"pd2": {
+			"storage": {
+				"mongo": {
+					"_loadSecretsFile": "mongo/pd2.cfg"
 				}
 			}
 		},
@@ -445,6 +471,9 @@
 				"outboundEmailQueueName": "local2_${DT_USER}_outboundEmail"
 			},
 			"pd": {
+				"outboundEmailQueueName": "pd_outboundEmail"
+			},
+			"pd2": {
 				"outboundEmailQueueName": "pd_outboundEmail"
 			},
 			"pi": {
@@ -497,6 +526,9 @@
 		"defaultEnv": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
 		},
+		"pd2": {
+			"_loadSecretsFile": "codestream/pd2-secrets.cfg"
+		},
 		"pi": {
 			"_loadSecretsFile": "codestream/ci-secrets.cfg"
 		},
@@ -539,6 +571,10 @@
 			},
 			"pd": {
 				"_loadSecretsFile": "mongo/pd.cfg",
+				"tlsCAFile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt+ca"
+			},
+			"pd2": {
+				"_loadSecretsFile": "mongo/pd2.cfg",
 				"tlsCAFile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt+ca"
 			},
 			"prod": {
