@@ -774,9 +774,14 @@
 			"desc": "identifies customer-facing environments",
 			"env": "CSSVC_IS_PRODUCTION_CLOUD"
 		},
+		"newRelicApiUrl": {
+			"default": "https://staging-api.newrelic.com",
+			"desc": "NR1 user-facing api",
+			"env": "CSSVC_NEW_RELIC_API_URL"
+		},
 		"newRelicLandingServiceUrl": {
 			"default": "https://landing.staging-service.newrelic.com",
-			"desc": "links codestream env to new relic env",
+			"desc": "service to decide if user has an account in NR1",
 			"env": "CSSVC_NEW_RELIC_LANDING_SERVICE_URL"
 		},
 		"runTimeEnvironment": {

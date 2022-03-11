@@ -466,6 +466,10 @@
 			"defaultEnv": {
 				"outboundEmailQueueName": "dev_${CSSVC_ENV}_outboundEmail"
 			},
+			"eu0": {
+				"outboundEmailQueueName": "local1_${DT_USER}_outboundEmail",
+				"region": "eu-central-1"
+			},
 			"local": {},
 			"local1": {
 				"outboundEmailQueueName": "local1_${DT_USER}_outboundEmail"
@@ -498,6 +502,12 @@
 			"runTimeEnvironment": "ci"
 		},
 		"defaultEnv": {},
+		"eu0": {
+			"isProductionCloud": true,
+			"newRelicApiUrl": "https://api.eu.newrelic.com",
+			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
+			"runTimeEnvironment": "eu0"
+		},
 		"local": {
 			"runTimeEnvironment": "local"
 		},
@@ -512,6 +522,7 @@
 		},
 		"prod": {
 			"isProductionCloud": true,
+			"newRelicApiUrl": "https://api.newrelic.com",
 			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
 			"runTimeEnvironment": "prod"
 		},
