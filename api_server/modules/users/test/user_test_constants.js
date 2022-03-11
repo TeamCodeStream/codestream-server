@@ -54,13 +54,14 @@ const EXPECTED_LOGIN_RESPONSE = {
 	pubnubToken: true,
 	broadcasterToken: true,
 	pubnubKey: true,
+
 	teams: true,
 	repos: true,
 	isOnPrem: true,
 	isProductionCloud: true,
 	runtimeEnvironment: true,
 	newRelicLandingServiceUrl: true,
-//	newRelicApiUrl: true
+	newRelicApiUrl: true
 };
 
 // these attributes should not be seen by the client
