@@ -192,7 +192,7 @@ class ConfirmHelper {
 		if (usersConfirmed.length > 0 && (this.user.get('teamIds') || []).length === 0) {
 			const hostInfo = usersConfirmed.map(userConfirmed => { 
 				const { response, host } = userConfirmed;
-				return `ID=${response.user.id}@${host.name}:${host.host}`;
+				return `ID=${response.user.id}@${host.name}:${host.publicApiUrl}`;
 			}).join(',');
 
 			const firstUserConfirmed = usersConfirmed[0];
@@ -200,7 +200,7 @@ class ConfirmHelper {
 			this.responseData = response;
 			this.responseData.setEnvironment = {
 				environment: host.shortName,
-				host: host.host
+				publicApiUrl: host.publicApiUrl
 			};
 
 			// deactivate the confirmed user in this environment
