@@ -22,23 +22,19 @@ class SigninFlowUtils {
 		return result;
 	}
 
-	finish (finishUrl, additionalParameters, options = { request: { log: () => {}}}) {
-		options.request.log('IN finish: ' + finishUrl);
+	finish (finishUrl, additionalParameters) {
 		if (finishUrl) {
 			try {
 				// if this is a full url, aka https://example.com/foo/bar
 				// this will return just the /foo/bar portion
 				finishUrl = URL.parse(finishUrl).pathname;
-				options.request.log('AFTER PARSE: ' + finishUrl);
 				// we will get '/' if a fully qualified url is passed in...
 				// change it to empty to get the default value below
 				if (finishUrl === '/') {
-					options.request.log('REPLACE WITH ""');
 					finishUrl = '';
 				}
 			}
 			catch (error) {
-				options.request.log('CAUGHT:', error.message);
 				error;
 				finishUrl = '';
 			}
@@ -55,7 +51,6 @@ class SigninFlowUtils {
 			return encodeURIComponent(key) + '=' + encodeURIComponent(additionalParameters[key]);
 		}).join('&');
 
-		options.request.log('FINAL REDIRECT:', redirect);
 		this.response.redirect(redirect);
 		return true;
 	}

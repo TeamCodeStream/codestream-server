@@ -12,7 +12,7 @@ class WebSigninRequest extends APIRequest {
 	}
 
 	async process () {
-		this.log('************* WEB SIGNIN REQUEST: ' + JSON.stringify(this.request.body, 0, 5));
+		this.log('************* WEB SIGNIN REQUEST:', JSON.stringify(this.request.body, 0, 5));
 		const { email, password } = this.request.body;
 		if (!email || !password) {
 			return this.loginError();
@@ -80,7 +80,7 @@ class WebSigninRequest extends APIRequest {
 		else {
 			this.responseHandled = new SigninFlowUtils(this).finish(this.request.body.finishUrl, {
 				src: this.request.body.src
-			}, { request: this });
+			});
 		}
 	}
 }
