@@ -459,6 +459,7 @@ class OAuthModule extends APIServerModule {
 			forEnterprise,
 			needsConfigure,
 			needsConfigureForOnPrem,
+			supportsOAuthOrPAT,
 			disabled,
 			hasSharing,
 			scopes
@@ -474,17 +475,21 @@ class OAuthModule extends APIServerModule {
 				forEnterprise,
 				needsConfigure,
 				needsConfigureForOnPrem,
+				supportsOAuthOrPAT,
 				host: host.toLowerCase(),
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
 				hasIssues,
 				hasCodeHosting,
 				hasSharing
 			};
-			if (scopes) {
+
+			const parseScopes = scopes => {
+				if (!scopes) return undefined;
 				const scopes_comma = scopes.split(',');
 				const scopes_space = scopes.split(' ');
-				info.scopes = scopes_comma.length > scopes_space.length ? scopes_comma : scopes_space;
+				return scopes_comma.length > scopes_space.length ? scopes_comma : scopes_space;
 			}
+			info.scopes = parseScopes(scopes);
 			return info;
 		}
 	}

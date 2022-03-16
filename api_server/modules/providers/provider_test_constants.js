@@ -19,7 +19,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.bitbucket.org/2.0',
 		hasIssues: true,
 		hasCodeHosting: true,
-		scopes: ['account', 'team', 'repository', 'issue:write', 'pullrequest:write']
+		scopes: ['account', 'team', 'repository', 'issue:write', 'pullrequest:write'],
+		supportsOAuthOrPAT: true
 	},
 	'bitbucket/server': {
 		id: 'bitbucket/server',
@@ -66,7 +67,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.github.com',
 		hasIssues: true,
 		hasCodeHosting: true,
-		scopes: ['repo', 'read:user', 'user:email', 'notifications']
+		scopes: ['repo', 'read:user', 'user:email', 'notifications'],
+		supportsOAuthOrPAT: true
 	},
 	'github/enterprise': {
 		id: 'github/enterprise',
@@ -85,7 +87,9 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'gitlab.com',
 		apiHost: 'gitlab.com/api/v4',
 		hasIssues: true,
-		hasCodeHosting: true
+		hasCodeHosting: true,
+		supportsOAuthOrPAT: true,
+		scopes: ['api']
 	},
 	'gitlab/enterprise': {
 		id: 'gitlab/enterprise',

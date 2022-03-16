@@ -16,7 +16,9 @@ const OAUTH_CONFIG = {
 	supportsRefresh: true,
 	supportsSignup: true,
 	hasIssues: true,
-	hasCodeHosting: true
+	hasCodeHosting: true,
+	supportsOAuthOrPAT: true,
+	scopes: 'api'
 };
 
 class GitlabAuth extends OAuthModule {
