@@ -24,7 +24,7 @@ class CodeErrorRenderer extends RendererBase {
 
 	// renders a smaller (collapsed) version of the code erorr
 	renderCollapsed (options) {
-		const codeErrorAuthorDiv = this.renderAuthorDiv(options);
+		const codeErrorAuthorDiv = this.renderParentAuthorDiv(options);
 		const titleDiv = this.renderTitleDiv(options);
 		const activityDiv = this.renderActivityDiv(options);
 		return `
