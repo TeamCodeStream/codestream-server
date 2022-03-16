@@ -59,7 +59,6 @@ class WebLoginRequest extends APIRequest {
 			.join('&');
 		const forgotLink = `/web/login?${forgotLinkQuery}`;
 
-		console.warn('********* LOGIN FORM, finishUrl=' + finishUrl);
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,

@@ -12,7 +12,6 @@ class WebSigninRequest extends APIRequest {
 	}
 
 	async process () {
-		console.warn('************* WEB SIGNIN REQUEST:', JSON.stringify(this.request.body, 0, 5));
 		const { email, password } = this.request.body;
 		if (!email || !password) {
 			return this.loginError();
