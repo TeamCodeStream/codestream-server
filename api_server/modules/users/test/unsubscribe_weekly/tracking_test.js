@@ -62,6 +62,9 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				'Email Type': 'Weekly Activity'
 			}
 		};
+		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
+			expectedMessage.properties.Region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
+		}
 		Assert.deepStrictEqual(data, expectedMessage, 'tracking data not correct');
 		return true;
 	}
