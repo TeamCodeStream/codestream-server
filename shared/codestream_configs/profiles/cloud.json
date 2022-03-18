@@ -176,35 +176,52 @@
 			"defaultEnv": null,
 			"local1": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
-				"_rootProp": "codestreamEnvironmentGroups.localDevelopment"
+				"_rootProp": "codestreamEnvironmentGroups.localDevelopment.environments"
 			},
 			"local2": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
-				"_rootProp": "codestreamEnvironmentGroups.localDevelopment"
+				"_rootProp": "codestreamEnvironmentGroups.localDevelopment.environments"
 			},
 			"pd": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
-				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment"
+				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment.environments"
 			},
 			"pd2": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
-				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment"
+				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment.environments"
 			}
 		}
 	},
 	"environmentGroupSecrets": {
-		"defaultEnv": null,
+		"ci": {
+			"_loadSecretsFile": "codestream/ci-group-secrets.cfg"
+		},
+		"defaultEnv": {
+			"_loadSecretsFile": "codestream/dev-group-secrets.cfg"
+		},
 		"local1": {
 			"_loadSecretsFile": "codestream/local-group-secrets.cfg"
 		},
 		"local2": {
 			"_loadSecretsFile": "codestream/local-group-secrets.cfg"
 		},
+		"nr": {
+			"_loadSecretsFile": "codestream/nr-group-secrets.cfg"
+		},
 		"pd": {
 			"_loadSecretsFile": "codestream/pd-group-secrets.cfg"
 		},
 		"pd2": {
 			"_loadSecretsFile": "codestream/pd-group-secrets.cfg"
+		},
+		"prod": {
+			"_loadSecretsFile": "codestream/prod-group-secrets.cfg"
+		},
+		"qa": {
+			"_loadSecretsFile": "codestream/qa-group-secrets.cfg"
+		},
+		"stg": {
+			"_loadSecretsFile": "codestream/stg-group-secrets.cfg"
 		}
 	},
 	"inboundEmailServer": {
