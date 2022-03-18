@@ -4,6 +4,7 @@ const RegistrationTest = require('./registration_test');
 const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 
 class InviteCodeTest extends RegistrationTest {
 
@@ -30,7 +31,8 @@ class InviteCodeTest extends RegistrationTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.inviteUser
+			this.inviteUser,
+			this.determineExpectedCapabilities
 		], callback);
 	}
 
@@ -59,6 +61,13 @@ class InviteCodeTest extends RegistrationTest {
 		);
 	}
 
+	determineExpectedCapabilities (callback) {
+		(async () => {
+			this.expectedCapabilities = await DetermineCapabilities({ config: this.apiConfig });
+			callback();
+		})();
+	}
+
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
@@ -68,11 +77,7 @@ class InviteCodeTest extends RegistrationTest {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
-		if (this.apiConfig.email.suppressEmails) {
-			delete expectedCapabilities.emailSupport;
-		}
-		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
+		Assert.deepEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}

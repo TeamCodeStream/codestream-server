@@ -6,7 +6,7 @@ const InitialDataFetcher = require('./initial_data_fetcher');
 const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid').v4;
 const ProviderFetcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_fetcher');
-const APICapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/capabilities');
+const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 const VersionErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/errors');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const Fetch = require('node-fetch');
@@ -246,11 +246,14 @@ class LoginHelper {
 			runTimeEnvironment = environmentGroup[runTimeEnvironment].shortName;
 		}
 
+		// get this API server's capabilities
+		const capabilities = await DetermineCapabilities({ request: this });
+
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
 			broadcasterToken: this.broadcasterToken, // more generic "broadcaster" token, for broadcaster solutions other than PubNub
-			capabilities: { ...APICapabilities }, // capabilities served by this API server
+			capabilities, // capabilities served by this API server
 			features: {
 				slack: {
 					interactiveComponentsEnabled: this.api.config.integrations.slack.interactiveComponentsEnabled
@@ -269,22 +272,6 @@ class LoginHelper {
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub
 			this.responseData.pubnubToken = this.pubnubToken;	// token used to subscribe to PubNub channels
-		}
-
-		// handle capabilities
-		if (this.apiConfig.email.suppressEmails) {
-			// remove capability for outbound email support if suppressEmails is set in configuration
-			delete this.responseData.capabilities.emailSupport;
-		}
-		
-		// if on-prem, remove any capabilities marked as cloud only
-		if (isOnPrem) {
-			Object.keys(this.responseData.capabilities).forEach(key => {
-				const capability = this.responseData.capabilities[key];
-				if (capability.cloudOnly) {
-					delete this.responseData.capabilities[key];
-				}
-			});
 		}
 
 		// if using socketcluster for messaging (for on-prem installations), return host info
