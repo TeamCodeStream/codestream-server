@@ -99,6 +99,9 @@
 			"shortName": "user-facing environment short identifier"
 		}
 	},
+	"environmentGroupSecrets": {
+		"requestAuth": "secret shared by all environments in one environment group used to authenticate inter-environment requests [CS_API_ENVGRP_SECRETS_REQUESET_AUTH]"
+	},
 	"inboundEmailServer": {
 		"inboundEmailDirectory": "new email files will be delivered to this directory by the mail agent [CS_MAILIN_INBOUND_EMAIL_DIR]",
 		"inboundEmailDisabled": "true will disable inbound email processing [CS_MAILIN_INBOUND_EMAIL_DISABLED]",
@@ -274,8 +277,7 @@
 		"cookie": "secret used for permalinks [CSSVC_COOKIE_SECRET]",
 		"mail": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails [CSSVC_INBOUND_EMAIL_SECRET]",
 		"signupFlowJWT": "to enable data exchange with NR1 during signup flow [CSSVC_SIGNUP_FLOW_JWT_SECRET]",
-		"subscriptionCheat": "allows unregistered users to subscribe to their me-channel, for testing emails [CSSVC_SUBSCRIPTION_CHEAT_CODE]",
-		"telemetry": "for accessing the api prior to authentication (pre-auth secret) [CSSVC_PRE_AUTH_SECRET]"
+		"subscriptionCheat": "allows unregistered users to subscribe to their me-channel, for testing emails [CSSVC_SUBSCRIPTION_CHEAT_CODE]"
 	},
 	"ssl": {
 		"cafile": "SSL certificate authority bundle (chain) file [CSSVC_SSL_CAFILE]",
@@ -313,6 +315,9 @@
 			"token": "segment token for clients",
 			"webToken": "segment web token for the web app"
 		}
+	},
+	"universalSecrets": {
+		"telemetry": "for accessing the api prior to authentication (pre-auth secret) [CSSVC_PRE_AUTH_SECRET]"
 	},
 	"uploadEngine": {
 		"s3": {

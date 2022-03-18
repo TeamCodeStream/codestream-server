@@ -375,6 +375,13 @@
 			}
 		}
 	},
+	"environmentGroupSecrets": {
+		"requestAuth": {
+			"default": "localMutliEnvRequestAuthSecret",
+			"desc": "secret shared by all environments in one environment group used to authenticate inter-environment requests",
+			"env": "CS_API_ENVGRP_SECRETS_REQUESET_AUTH"
+		}
+	},
 	"inboundEmailServer": {
 		"inboundEmailDirectory": {
 			"default": "${CS_MAILIN_SANDBOX}/mailq/new",
@@ -831,11 +838,6 @@
 			"default": "SubscriptionCheatCode",
 			"desc": "allows unregistered users to subscribe to their me-channel, for testing emails",
 			"env": "CSSVC_SUBSCRIPTION_CHEAT_CODE"
-		},
-		"telemetry": {
-			"default": "PreAuthSecret",
-			"desc": "for accessing the api prior to authentication (pre-auth secret)",
-			"env": "CSSVC_PRE_AUTH_SECRET"
 		}
 	},
 	"ssl": {
@@ -926,6 +928,13 @@
 			"webToken": {
 				"desc": "segment web token for the web app"
 			}
+		}
+	},
+	"universalSecrets": {
+		"telemetry": {
+			"default": "PreAuthSecret",
+			"desc": "for accessing the api prior to authentication (pre-auth secret)",
+			"env": "CSSVC_PRE_AUTH_SECRET"
 		}
 	},
 	"uploadEngine": {

@@ -192,6 +192,21 @@
 			}
 		}
 	},
+	"environmentGroupSecrets": {
+		"defaultEnv": null,
+		"local1": {
+			"_loadSecretsFile": "codestream/local-group-secrets.cfg"
+		},
+		"local2": {
+			"_loadSecretsFile": "codestream/local-group-secrets.cfg"
+		},
+		"pd": {
+			"_loadSecretsFile": "codestream/pd-group-secrets.cfg"
+		},
+		"pd2": {
+			"_loadSecretsFile": "codestream/pd-group-secrets.cfg"
+		}
+	},
 	"inboundEmailServer": {
 		"ci": {},
 		"defaultEnv": {
@@ -540,6 +555,18 @@
 		"defaultEnv": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
 		},
+		"local1": {
+			"_loadSecretsFile": "codestream/local1-secrets.cfg"
+		},
+		"local2": {
+			"_loadSecretsFile": "codestream/local2-secrets.cfg"
+		},
+		"nr": {
+			"_loadSecretsFile": "codestream/nr-secrets.cfg"
+		},
+		"pd": {
+			"_loadSecretsFile": "codestream/pd-secrets.cfg"
+		},
 		"pd2": {
 			"_loadSecretsFile": "codestream/pd2-secrets.cfg"
 		},
@@ -619,6 +646,9 @@
 				"_loadSecretsFile": "segment/prod-api.cfg"
 			}
 		}
+	},
+	"universalSecrets": {
+		"_loadSecretsFile": "codestream/universal-secrets.cfg"
 	},
 	"uploadEngine": {
 		"s3": {
