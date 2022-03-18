@@ -55,7 +55,7 @@ class MessageToTeamTest extends CodeStreamMessageTest {
 				},
 				requestOptions: {
 					headers: {
-						'X-CS-Auth-Secret': this.apiConfig.sharedSecrets.auth
+						'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth
 					}
 				}
 			},

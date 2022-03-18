@@ -196,7 +196,7 @@ class EnvironmentManagerService {
 	async fetchFromUrl (url, options = {}) {
 		let response;
 		options.headers = options.headers || {};
-		options.headers['x-cs-auth-secret'] = this.api.config.sharedSecrets.auth;
+		options.headers['x-cs-auth-secret'] = this.api.config.environmentGroupSecrets.requestAuth;
 		if (options.body) {
 			options.headers['content-type'] = 'application/json';
 			options.body = JSON.stringify(options.body);

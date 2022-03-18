@@ -92,7 +92,7 @@ class UserCompaniesTest extends CodeStreamAPITest {
 		this.path = '/xenv/user-companies?email=' + encodeURIComponent(this.currentUser.user.email);
 		this.apiRequestOptions = {
 			headers: {
-				'X-CS-Auth-Secret': this.apiConfig.sharedSecrets.auth
+				'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth
 			}
 		};
 		callback();

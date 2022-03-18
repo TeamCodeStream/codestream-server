@@ -74,7 +74,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 				this.path = '/xenv/eligible-join-companies?domain=' + encodeURIComponent(domain);
 				this.apiRequestOptions = {
 					headers: {
-						'X-CS-Auth-Secret': this.apiConfig.sharedSecrets.auth
+						'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth
 					}
 				};
 				callback();

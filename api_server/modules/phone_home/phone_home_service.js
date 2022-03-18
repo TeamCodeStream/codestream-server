@@ -137,7 +137,7 @@ class PhoneHomeService {
 		this.api.log(`Transmitting ${phoneHomeData.length} phone home records: ${phoneHomeData.map(phd => phd.date)}`);
 		const statsData = phoneHomeData.map(phd => phd.stats);
 		const url = `${this.api.config.apiServer.phoneHomeUrl}/phone-home`;
-		const phoneHomeKey = this.api.config.sharedSecrets.telemetry;
+		const phoneHomeKey = this.api.config.universalSecrets.telemetry;
 		try {
 			const response = await Fetch(url, {
 				method: 'post',

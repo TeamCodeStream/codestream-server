@@ -36,7 +36,7 @@ class EnsureExistingUserTest extends CodeStreamAPITest {
 			this.data = { user: this.currentUser.user };
 			this.apiRequestOptions = {
 				headers: {
-					'X-CS-Auth-Secret': this.apiConfig.sharedSecrets.auth
+					'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth
 				}
 			};
 			callback();
