@@ -635,6 +635,8 @@ class EmailNotificationV2Handler {
 		const isReview = !!(this.parentReview || review);
 		const isCodeError = !!(this.parentCodeError || codeError);
 		const unfollowLink = isCodeError ? null : this.getUnfollowLink(user, thingToUnfollow, isReview);
+		const unsubscribeType = this.message.isReminder ? 'reminder' : 'notification';
+		const unsubscribeLink = isCodeError ? null : this.getUnsubscribeLink(user, unsubscribeType);
 		const userBeingAddedToTeam = (this.message.usersBeingAddedToTeam || []).includes(user.id);
 		if (isCodeError && userBeingAddedToTeam) {
 			throw new Error('cannot add a user to a team while creating or replying to a code error');
@@ -644,6 +646,8 @@ class EmailNotificationV2Handler {
 			user: user,
 			content: this.renderedPostPerUser[user.id],
 			unfollowLink,
+			unsubscribeLink,
+			unsubscribeType,
 			inboundEmailDisabled: this.outboundEmailServer.config.inboundEmailServer.inboundEmailDisabled,
 			styles: this.pseudoStyles,	// only pseudo-styles go in the <head>
 			needButtons: !!this.parentPost || review || codeError || (codemark.markerIds || []).length === 1,
@@ -680,6 +684,17 @@ class EmailNotificationV2Handler {
 		);
 		const reviewPathPart = isReview ? 'review/' : '';
 		return `${this.outboundEmailServer.config.apiServer.publicApiUrl}/no-auth/unfollow-link/${reviewPathPart}${thingToUnfollow.id}?t=${token}`;
+	}
+
+	// get the appropriate "unsubscribe" link for a given user
+	getUnsubscribeLink (user, unsubscribeType) {
+		const token = new TokenHandler(this.outboundEmailServer.config.sharedSecrets.auth).generate(
+			{
+				uid: user.id
+			},
+			'unsscr'
+		);
+		return `${this.outboundEmailServer.config.apiServer.publicApiUrl}/no-auth/unsubscribe-${unsubscribeType}?t=${token}`;
 	}
 
 	// send all the email notifications 
