@@ -1,5 +1,15 @@
 # Change Log
 
+## [12.0.7] - 2022-3-23
+
+### Added
+
+- Adds backend support for multi-region capabilities
+
+### Changed
+
+- Bumps minimum required extension version to 12.13.0
+
 ## [12.0.6] - 2022-3-7
 
 ### Fixed
