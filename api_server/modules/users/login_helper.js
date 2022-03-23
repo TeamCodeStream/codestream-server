@@ -6,7 +6,7 @@ const InitialDataFetcher = require('./initial_data_fetcher');
 const UserSubscriptionGranter = require('./user_subscription_granter');
 const UUID = require('uuid').v4;
 const ProviderFetcher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_fetcher');
-const APICapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/capabilities');
+const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 const VersionErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/errors');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const Fetch = require('node-fetch');
@@ -15,6 +15,7 @@ const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
 const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
 const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
+const AccessTokenCreator = require('./access_token_creator');
 
 class LoginHelper {
 
@@ -147,15 +148,11 @@ class LoginHelper {
 				!minIssuance ||
 				minIssuance > (tokenPayload.iat * 1000)
 			) {
-				this.accessToken = this.api.services.tokenHandler.generate({ uid: this.user.id });
-				const minIssuance = this.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
+				const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
+				this.accessToken = token;
 				set = set || {};
-				set[`accessTokens.${this.loginType}`] = {
-					token: this.accessToken,
-					minIssuance: minIssuance
-				};
+				set[`accessTokens.${this.loginType}`] = { token, minIssuance };
 			}
-
 			if (set) {
 				await this.request.data.users.applyOpById(this.user.id, { $set: set });
 			}
@@ -238,7 +235,8 @@ class LoginHelper {
 		const { 
 			isOnPrem,
 			isProductionCloud = false,
-			newRelicLandingServiceUrl
+			newRelicLandingServiceUrl,
+			newRelicApiUrl
 		} = this.apiConfig.sharedGeneral;
 		const { environmentGroup } = this.apiConfig;
 		
@@ -248,11 +246,14 @@ class LoginHelper {
 			runTimeEnvironment = environmentGroup[runTimeEnvironment].shortName;
 		}
 
+		// get this API server's capabilities
+		const capabilities = await DetermineCapabilities({ request: this });
+
 		this.responseData = {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
 			broadcasterToken: this.broadcasterToken, // more generic "broadcaster" token, for broadcaster solutions other than PubNub
-			capabilities: { ...APICapabilities }, // capabilities served by this API server
+			capabilities, // capabilities served by this API server
 			features: {
 				slack: {
 					interactiveComponentsEnabled: this.api.config.integrations.slack.interactiveComponentsEnabled
@@ -265,27 +266,12 @@ class LoginHelper {
 			isWebmail: this.isWebmail,
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
-			newRelicLandingServiceUrl
+			newRelicLandingServiceUrl,
+			newRelicApiUrl
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub
 			this.responseData.pubnubToken = this.pubnubToken;	// token used to subscribe to PubNub channels
-		}
-
-		// handle capabilities
-		if (this.apiConfig.email.suppressEmails) {
-			// remove capability for outbound email support if suppressEmails is set in configuration
-			delete this.responseData.capabilities.emailSupport;
-		}
-		
-		// if on-prem, remove any capabilities marked as cloud only
-		if (isOnPrem) {
-			Object.keys(this.responseData.capabilities).forEach(key => {
-				const capability = this.responseData.capabilities[key];
-				if (capability.cloudOnly) {
-					delete this.responseData.capabilities[key];
-				}
-			});
 		}
 
 		// if using socketcluster for messaging (for on-prem installations), return host info

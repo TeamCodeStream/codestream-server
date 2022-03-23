@@ -5,7 +5,7 @@ class RendererBase {
 	
 	constructor() { }
 	
-	renderAuthorDiv (options) {
+	renderParentAuthorDiv (options) {
 		const { parentObjectCreator, timeZone } = options;
 		const thing = options.codeError || options.review || options.codemark;
 		return Utils.renderAuthorDiv({

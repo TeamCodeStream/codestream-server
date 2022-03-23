@@ -7,6 +7,8 @@ const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
 const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 
 class LoginTest extends CodeStreamAPITest {
 
@@ -47,15 +49,27 @@ class LoginTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		super.before(error => {
-			if (error) { return callback(error); }
-			this.data = {
-				email: this.currentUser.user.email,
-				password: this.currentUser.password
-			};
-			this.beforeLogin = Date.now();
+		BoundAsync.series(this, [
+			super.before,
+			this.setData,
+			this.determineExpectedCapabilities
+		], callback);
+	}
+
+	setData (callback) {
+		this.data = {
+			email: this.currentUser.user.email,
+			password: this.currentUser.password
+		};
+		this.beforeLogin = Date.now();
+		callback();
+	}
+
+	determineExpectedCapabilities (callback) {
+		(async () => {
+			this.expectedCapabilities = await DetermineCapabilities({ config: this.apiConfig });
 			callback();
-		});
+		})();
 	}
 
 	// validate the response to the test request
@@ -72,10 +86,6 @@ class LoginTest extends CodeStreamAPITest {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
-		if (this.apiConfig.email.suppressEmails) {
-			delete expectedCapabilities.emailSupport;
-		}
 
 		const { runTimeEnvironment } = this.apiConfig.sharedGeneral;
 		const environmentGroup = this.apiConfig.environmentGroup || {};
@@ -84,7 +94,7 @@ class LoginTest extends CodeStreamAPITest {
 			environmentGroup[runTimeEnvironment] &&
 			environmentGroup[runTimeEnvironment].shortName
 		) || runTimeEnvironment;
-		Assert.deepStrictEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
+		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 		const providerHosts = GetStandardProviderHosts(this.apiConfig);
 		Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		Assert.deepStrictEqual(data.runtimeEnvironment, expectedEnvironment, 'runtimeEnvironment not correct');
@@ -92,6 +102,7 @@ class LoginTest extends CodeStreamAPITest {
 		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem, 'isOnPrem not correct');
 		Assert.deepStrictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud || false, 'isProductionCloud not correct');
 		Assert.deepStrictEqual(data.newRelicLandingServiceUrl, this.apiConfig.sharedGeneral.newRelicLandingServiceUrl, 'newRelicLandingServiceUrl not correct');
+		Assert.deepStrictEqual(data.newRelicApiUrl, this.apiConfig.sharedGeneral.newRelicApiUrl, 'newRelicApiUrl not correct');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 

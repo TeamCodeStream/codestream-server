@@ -82,6 +82,7 @@ class Posts extends Restful {
 		// timer for email notifications
 		if (!this.api.services.queueService) { return; }
 		if (!this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName) { return; }
+		this.api.log(`Creating queue ${this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName}...`);
 		await TryIndefinitely(async () => {
 			await this.api.services.queueService.createQueue({
 				name: this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName,

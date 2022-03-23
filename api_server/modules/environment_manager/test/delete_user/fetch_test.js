@@ -23,7 +23,7 @@ class FetchTest extends DeleteUserTest {
 				path: '/xenv/fetch-user?id=' + this.currentUser.user.id,
 				requestOptions: {
 					headers: {
-						'X-CS-Auth-Secret': this.apiConfig.sharedSecrets.auth
+						'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth
 					}
 				}
 			},

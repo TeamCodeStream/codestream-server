@@ -55,7 +55,7 @@ class Analytics extends APIServerModule {
 	// to read anything)
 	handleTelemetryKey (request, response) {
 		const inSecret = decodeURIComponent(request.query.secret || '');
-		if (!inSecret || inSecret !== this.api.config.sharedSecrets.telemetry) {
+		if (!inSecret || inSecret !== this.api.config.universalSecrets.telemetry) {
 			const error = 'incorrect telemetry secret';
 			this.api.warn(error);
 			return response.status(403).send({ error });

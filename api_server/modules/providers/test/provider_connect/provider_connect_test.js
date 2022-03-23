@@ -5,6 +5,8 @@ const CommonInit = require('./common_init');
 const Assert = require('assert');
 const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const UserTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/test/user_test_constants');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 
 class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -35,15 +37,28 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
-		super.before(error => {
-			if (error) { return callback(error); }
-			this.apiRequestOptions = {
-				headers: {
-					'X-CS-Plugin-IDE': 'webclient'
-				}
-			};
-			this.init(callback);
-		});
+		BoundAsync.series(this, [
+			super.before,
+			this.setApiRequestOptions,
+			this.init,
+			this.determineExpectedCapabilities
+		], callback);
+	}
+
+	setApiRequestOptions (callback) {
+		this.apiRequestOptions = {
+			headers: {
+				'X-CS-Plugin-IDE': 'webclient'
+			}
+		};
+		callback();
+	}
+
+	determineExpectedCapabilities (callback) {
+		(async () => {
+			this.expectedCapabilities = await DetermineCapabilities({ config: this.apiConfig });
+			callback();
+		})();
 	}
 
 	/* eslint complexity: 0 */
@@ -102,11 +117,7 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
-		if (this.apiConfig.email.suppressEmails) {
-			delete expectedCapabilities.emailSupport;
-		}
-		Assert.deepEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
+		Assert.deepEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 		if (this.preExistingUnconnectedUser) {
 			Assert(!user.phoneNumber, 'phone number is set');
 			Assert(!user.iWorkOn, 'iWorkOn is set');

@@ -381,7 +381,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 	}
 
 	Cfg.apiServer.publicApiUrlParsed = parseUrl(Cfg.apiServer.publicApiUrl);
-	if (Cfg.environmentGroup) {
+	if (Cfg.environmentGroup && !Cfg.apiServer.port) {
 		Cfg.apiServer.port = Cfg.apiServer.publicApiUrlParsed.port;
 	}
 	Cfg.apiServer.assetEnvironment = process.env.CS_API_ASSET_ENV;

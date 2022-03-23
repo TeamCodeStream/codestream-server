@@ -4,6 +4,7 @@ const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
+const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 
 class LoginByCodeTest extends CodeStreamAPITest {
 
@@ -22,7 +23,8 @@ class LoginByCodeTest extends CodeStreamAPITest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
-			this.generateLoginCode
+			this.generateLoginCode,
+			this.determineExpectedCapabilities
 		], callback);
 	}
 
@@ -50,6 +52,13 @@ class LoginByCodeTest extends CodeStreamAPITest {
 		);
 	}
 
+	determineExpectedCapabilities (callback) {
+		(async () => {
+			this.expectedCapabilities = await DetermineCapabilities({ config: this.apiConfig });
+			callback();
+		})();
+	}
+
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate we get back the expected user, an access token, and a pubnub subscription key
@@ -64,17 +73,14 @@ class LoginByCodeTest extends CodeStreamAPITest {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
-		if (this.apiConfig.email.suppressEmails) {
-			delete expectedCapabilities.emailSupport;
-		}
-		Assert.deepStrictEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
+		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 		//const providerHosts = GetStandardProviderHosts(this.apiConfig);
 		//Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		Assert.deepStrictEqual(data.environmentHosts, Object.values(this.apiConfig.environmentGroup || {}));
 		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);
 		Assert.deepStrictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud || false);
 		Assert.deepStrictEqual(data.newRelicLandingServiceUrl, this.apiConfig.sharedGeneral.newRelicLandingServiceUrl);
+		Assert.deepStrictEqual(data.newRelicApiUrl, this.apiConfig.sharedGeneral.newRelicApiUrl, 'newRelicApiUrl not correct');
 		this.validateSanitized(data.user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }

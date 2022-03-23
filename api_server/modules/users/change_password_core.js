@@ -4,6 +4,7 @@ const BCrypt = require('bcrypt');
 const { callbackWrap } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const PasswordHasher = require('./password_hasher');
 const UserValidator = require('./user_validator');
+const AccessTokenCreator = require('./access_token_creator');
 
 class ChangePasswordCore {
 
@@ -66,8 +67,9 @@ class ChangePasswordCore {
 
 	// generate a new access token for the user, all other access tokens will be invalidated by this
 	async generateToken () {
-		this.accessToken = this.request.api.services.tokenHandler.generate({ uid: this.user.id });
-		this.minIssuance = this.request.api.services.tokenHandler.decode(this.accessToken).iat * 1000;
+		const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
+		this.accessToken = token;
+		this.minIssuance = minIssuance;
 	}
 
 	// update the user in the database, with their new password hash and access tokens

@@ -22,7 +22,7 @@ class FetchUserTest extends CodeStreamAPITest {
 			this.path = '/xenv/fetch-user?email=' + encodeURIComponent(this.currentUser.user.email);
 			this.apiRequestOptions = {
 				headers: {
-					'X-CS-Auth-Secret': this.apiConfig.sharedSecrets.auth
+					'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth
 				}
 			};
 			callback();

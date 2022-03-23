@@ -56,7 +56,16 @@
 			"helpIsAvailable": true,
 			"phoneHomeUrl": null,
 			"port": 8443,
-			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
+			"publicApiUrl": null,
+			"requireTLS12": true
+		},
+		"pd2": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"confirmationNotRequired": false,
+			"helpIsAvailable": true,
+			"phoneHomeUrl": null,
+			"port": 8443,
+			"publicApiUrl": null,
 			"requireTLS12": true
 		},
 		"pi": {
@@ -167,12 +176,52 @@
 			"defaultEnv": null,
 			"local1": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
-				"_rootProp": "codestreamEnvironmentGroups.localDevelopment"
+				"_rootProp": "codestreamEnvironmentGroups.localDevelopment.environments"
 			},
 			"local2": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
-				"_rootProp": "codestreamEnvironmentGroups.localDevelopment"
+				"_rootProp": "codestreamEnvironmentGroups.localDevelopment.environments"
+			},
+			"pd": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment.environments"
+			},
+			"pd2": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment.environments"
 			}
+		}
+	},
+	"environmentGroupSecrets": {
+		"ci": {
+			"_loadSecretsFile": "codestream/ci-group-secrets.cfg"
+		},
+		"defaultEnv": {
+			"_loadSecretsFile": "codestream/dev-group-secrets.cfg"
+		},
+		"local1": {
+			"_loadSecretsFile": "codestream/local-group-secrets.cfg"
+		},
+		"local2": {
+			"_loadSecretsFile": "codestream/local-group-secrets.cfg"
+		},
+		"nr": {
+			"_loadSecretsFile": "codestream/nr-group-secrets.cfg"
+		},
+		"pd": {
+			"_loadSecretsFile": "codestream/pd-group-secrets.cfg"
+		},
+		"pd2": {
+			"_loadSecretsFile": "codestream/pd-group-secrets.cfg"
+		},
+		"prod": {
+			"_loadSecretsFile": "codestream/prod-group-secrets.cfg"
+		},
+		"qa": {
+			"_loadSecretsFile": "codestream/qa-group-secrets.cfg"
+		},
+		"stg": {
+			"_loadSecretsFile": "codestream/stg-group-secrets.cfg"
 		}
 	},
 	"inboundEmailServer": {
@@ -353,6 +402,10 @@
 					"_loadSecretsFile": "slack/dev-combined.cfg",
 					"interactiveComponentsEnabled": true
 				},
+				"pd2": {
+					"_loadSecretsFile": "slack/dev-combined.cfg",
+					"interactiveComponentsEnabled": true
+				},
 				"prod": {
 					"_loadSecretsFile": "slack/prod-combined.cfg",
 					"interactiveComponentsEnabled": true
@@ -398,7 +451,7 @@
 			"showConfig": true
 		},
 		"nr": {
-			"showConfig": true,
+			"showConfig": false,
 			"storage": {
 				"mongo": {
 					"_loadSecretsFile": "mongo/nr.cfg"
@@ -406,10 +459,18 @@
 			}
 		},
 		"pd": {
-			"showConfig": true,
+			"showConfig": false,
 			"storage": {
 				"mongo": {
 					"_loadSecretsFile": "mongo/pd.cfg"
+				}
+			}
+		},
+		"pd2": {
+			"showConfig": false,
+			"storage": {
+				"mongo": {
+					"_loadSecretsFile": "mongo/pd2.cfg"
 				}
 			}
 		},
@@ -432,10 +493,14 @@
 	"queuingEngine": {
 		"awsSQS": {
 			"ci": {
-				"outboundEmailQueueName": "ci_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"defaultEnv": {
 				"outboundEmailQueueName": "dev_${CSSVC_ENV}_outboundEmail"
+			},
+			"eu0": {
+				"outboundEmailQueueName": "local1_${DT_USER}_outboundEmail",
+				"region": "eu-central-1"
 			},
 			"local": {},
 			"local1": {
@@ -445,16 +510,19 @@
 				"outboundEmailQueueName": "local2_${DT_USER}_outboundEmail"
 			},
 			"pd": {
-				"outboundEmailQueueName": "pd_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
+			},
+			"pd2": {
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"pi": {
-				"outboundEmailQueueName": "ci_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"prod": {
 				"outboundEmailQueueName": "prod_outboundEmail"
 			},
 			"qa": {
-				"outboundEmailQueueName": "qa_outboundEmail"
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
 			},
 			"stg": {
 				"outboundEmailQueueName": "stg_outboundEmail"
@@ -466,6 +534,12 @@
 			"runTimeEnvironment": "ci"
 		},
 		"defaultEnv": {},
+		"eu0": {
+			"isProductionCloud": true,
+			"newRelicApiUrl": "https://api.eu.newrelic.com",
+			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
+			"runTimeEnvironment": "eu0"
+		},
 		"local": {
 			"runTimeEnvironment": "local"
 		},
@@ -480,6 +554,7 @@
 		},
 		"prod": {
 			"isProductionCloud": true,
+			"newRelicApiUrl": "https://api.newrelic.com",
 			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
 			"runTimeEnvironment": "prod"
 		},
@@ -496,6 +571,21 @@
 		},
 		"defaultEnv": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
+		},
+		"local1": {
+			"_loadSecretsFile": "codestream/local1-secrets.cfg"
+		},
+		"local2": {
+			"_loadSecretsFile": "codestream/local2-secrets.cfg"
+		},
+		"nr": {
+			"_loadSecretsFile": "codestream/nr-secrets.cfg"
+		},
+		"pd": {
+			"_loadSecretsFile": "codestream/pd-secrets.cfg"
+		},
+		"pd2": {
+			"_loadSecretsFile": "codestream/pd2-secrets.cfg"
 		},
 		"pi": {
 			"_loadSecretsFile": "codestream/ci-secrets.cfg"
@@ -541,6 +631,10 @@
 				"_loadSecretsFile": "mongo/pd.cfg",
 				"tlsCAFile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt+ca"
 			},
+			"pd2": {
+				"_loadSecretsFile": "mongo/pd2.cfg",
+				"tlsCAFile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt+ca"
+			},
 			"prod": {
 				"_loadSecretsFile": "mongo/prod.cfg",
 				"tlsCAFile": "/etc/pki/mongo-prod4211/mongo-prod4211-crt"
@@ -569,6 +663,9 @@
 				"_loadSecretsFile": "segment/prod-api.cfg"
 			}
 		}
+	},
+	"universalSecrets": {
+		"_loadSecretsFile": "codestream/universal-secrets.cfg"
 	},
 	"uploadEngine": {
 		"s3": {

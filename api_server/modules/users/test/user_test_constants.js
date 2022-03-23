@@ -54,12 +54,14 @@ const EXPECTED_LOGIN_RESPONSE = {
 	pubnubToken: true,
 	broadcasterToken: true,
 	pubnubKey: true,
+
 	teams: true,
 	repos: true,
 	isOnPrem: true,
 	isProductionCloud: true,
 	runtimeEnvironment: true,
-	newRelicLandingServiceUrl: true
+	newRelicLandingServiceUrl: true,
+	newRelicApiUrl: true
 };
 
 // these attributes should not be seen by the client
@@ -71,11 +73,6 @@ const UNSANITIZED_ATTRIBUTES_FOR_ME = Object.keys(UserAttributes).filter(attribu
 	return UserAttributes[attribute].serverOnly && !UserAttributes[attribute].forMe;
 });
 
-// capabilities served by the API server
-const API_CAPABILITIES = {
-	...APICapabilities
-};
-
 module.exports = {
 	EXPECTED_USER_RESPONSE,
 	EXPECTED_REGISTRATION_RESPONSE,
@@ -83,6 +80,5 @@ module.exports = {
 	EXPECTED_USER_FIELDS,
 	EXPECTED_ME_FIELDS,
 	UNSANITIZED_ATTRIBUTES,
-	UNSANITIZED_ATTRIBUTES_FOR_ME,
-	API_CAPABILITIES
+	UNSANITIZED_ATTRIBUTES_FOR_ME
 };

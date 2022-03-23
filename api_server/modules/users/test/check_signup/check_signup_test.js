@@ -7,6 +7,7 @@ const CommonInit = require('./common_init');
 const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
+const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 
 class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -47,8 +48,16 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	before (callback) {
 		BoundAsync.series(this, [
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.init
+			this.init,
+			this.determineExpectedCapabilities
 		], callback);
+	}
+
+	determineExpectedCapabilities (callback) {
+		(async () => {
+			this.expectedCapabilities = await DetermineCapabilities({ config: this.apiConfig });
+			callback();
+		})();
 	}
 
 	// validate the response to the test request
@@ -62,11 +71,7 @@ class CheckSignupTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		const expectedCapabilities = { ...UserTestConstants.API_CAPABILITIES };
-		if (this.apiConfig.email.suppressEmails) {
-			delete expectedCapabilities.emailSupport;
-		}
-		Assert.deepStrictEqual(data.capabilities, expectedCapabilities, 'capabilities are incorrect');
+		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 		if (!this.dontCreateTeam) {
 			Assert(data.teams.length === 1, 'no team in response');
 			const providerHosts = GetStandardProviderHosts(this.apiConfig);

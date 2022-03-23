@@ -78,8 +78,9 @@ def buildCfgFile(cfg, schema, profile, spaces=''):
 	if isinstance(profile, dict):
 		if 'defaultEnv' in profile:
 			env = args.env if args.env in profile else 'defaultEnv'
-			debugMsg(f"{spaces}processing environment block for env = {env}, {profile[env]}")
-			buildCfgFile(cfg, schema, profile[env], f"{spaces}  ")
+			if isinstance(profile[env], dict):
+				debugMsg(f"{spaces}processing environment block for env = {env}, {profile[env]}")
+				buildCfgFile(cfg, schema, profile[env], f"{spaces}  ")
 			return
 
 		if '_loadSecretsFile' in profile:
@@ -203,6 +204,7 @@ elif args.sort_json:
 elif args.profile:
 	profile = dtCore.io.readJsonFileIgnoreComments(args.profile)
 	buildCfgFile(cfgFile, schema, profile)
+	# MAJOR HORRIBLE HACK - post process section headers
 	for k in list(cfgFile.keys()):
 		if '_loadBlockPropertiesFrom' in cfgFile[k]:
 			blockPropDict = cfgFile[k]['_loadBlockPropertiesFrom']
@@ -214,6 +216,8 @@ elif args.profile:
 				propertiesData = dtCore.io.readJsonFileIgnoreComments(propertiesFile)
 				propertiesData = dtCore.util.getByDottedNotation(propertiesData, blockPropDict[env]['_rootProp'])
 				cfgFile[k] = propertiesData
+		elif isinstance(cfgFile[k], dict) and not len(list(cfgFile[k].keys())):
+			cfgFile[k] = None
 	if args.out:
 		sortJsonWithHeaderComments(args.profile, json=cfgFile, outFile=args.out)
 		exit(0)

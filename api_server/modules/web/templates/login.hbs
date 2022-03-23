@@ -210,7 +210,8 @@
 			var passwordSwitchLink = document.getElementById("password-switch-link");
 
 			//password=false&email=bob@gmail.com
-			var params = new URLSearchParams(passwordSwitchLink);
+			var paramString = new URL(passwordSwitchLink.href).search;
+			var params = new URLSearchParams(paramString);
 
 			//initial state setting
 			if (!params.get('password')) {

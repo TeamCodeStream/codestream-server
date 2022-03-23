@@ -15,7 +15,7 @@ class XEnvRequest extends RestfulRequest {
 	// authorize the client to make this request
 	async authorize () {
 		// we rely on a secret, known only to our servers
-		if (this.request.headers['x-cs-auth-secret'] !== this.api.config.sharedSecrets.auth) {
+		if (this.request.headers['x-cs-auth-secret'] !== this.api.config.environmentGroupSecrets.requestAuth) {
 			this.response.status(401);
 			throw this.errorHandler.error('missingAuthorization');
 		}
