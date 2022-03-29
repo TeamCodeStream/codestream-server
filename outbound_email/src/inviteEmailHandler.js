@@ -62,7 +62,7 @@ this.content = `
 <html>
 CodeStream's cloud-based service and IDE plugins help dev teams discuss, review, and understand code. Discussing code is now as simple as commenting on a Google Doc — select the code and type your question.<br/>
 <br/>
-1. Install CodeStream for ${allLinks}.<br/>
+1. Install New Relic CodeStream for ${allLinks}.<br/>
 <br/>
 2. Sign up using <b>${this.user.email}</b>.<br/>
 <br/>

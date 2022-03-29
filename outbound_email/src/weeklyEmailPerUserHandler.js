@@ -491,7 +491,7 @@ class WeeklyEmailPerUserHandler {
 		const { senderEmail } = this.outboundEmailServer.config.email;
 		const options = {
 			type: 'weekly',
-			from: { email: senderEmail, name: 'CodeStream' },
+			from: { email: senderEmail, name: 'New Relic CodeStream' },
 			user: this.user,
 			subject: this.getSubject(),
 			content: this.content,
