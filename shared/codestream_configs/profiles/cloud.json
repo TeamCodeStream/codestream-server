@@ -22,6 +22,16 @@
 			"publicApiUrl": "https://${CSSVC_ENV}-api.codestream.us",
 			"requireTLS12": true
 		},
+		"eu0": {
+			"confirmationNotRequired": false,
+			"logger": {
+				"consoleOk": false
+			},
+			"marketingSiteUrl": "https://www.codestream.com",
+			"phoneHomeUrl": null,
+			"port": 8443,
+			"publicApiUrl": null
+		},
 		"local": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
 			"helpIsAvailable": true,
@@ -81,7 +91,7 @@
 			"marketingSiteUrl": "https://www.codestream.com",
 			"phoneHomeUrl": null,
 			"port": 8443,
-			"publicApiUrl": "https://api.codestream.com"
+			"publicApiUrl": null
 		},
 		"qa": {
 			"authOrigin": "https://auth.codestream.us/no-auth",
@@ -92,7 +102,18 @@
 			"marketingSiteUrl": "https://www.codestream.com",
 			"phoneHomeUrl": null,
 			"port": 8443,
-			"publicApiUrl": "https://qa-api.codestream.us"
+			"publicApiUrl": null
+		},
+		"qa2": {
+			"authOrigin": "https://auth.codestream.us/no-auth",
+			"confirmationNotRequired": false,
+			"logger": {
+				"consoleOk": false
+			},
+			"marketingSiteUrl": "https://www.codestream.com",
+			"phoneHomeUrl": null,
+			"port": 8443,
+			"publicApiUrl": null
 		},
 		"stg": {
 			"authOrigin": null,
@@ -116,6 +137,9 @@
 			"defaultEnv": {
 				"_loadSecretsFile": "pubnub/dev.cfg"
 			},
+			"eu0": {
+				"_loadSecretsFile": "pubnub/prod.cfg"
+			},
 			"local": {
 				"_loadSecretsFile": "pubnub/local.cfg"
 			},
@@ -134,6 +158,9 @@
 			"qa": {
 				"_loadSecretsFile": "pubnub/qa.cfg"
 			},
+			"qa2": {
+				"_loadSecretsFile": "pubnub/qa.cfg"
+			},
 			"stg": {
 				"_loadSecretsFile": "pubnub/stg.cfg"
 			}
@@ -142,6 +169,13 @@
 	"email": {
 		"defaultEnv": {
 			"emailTo": null,
+			"suppressEmails": false
+		},
+		"eu0": {
+			"emailTo": null,
+			"replyToDomain": "eu0.codestream.com",
+			"senderEmail": "alerts@codestream.com",
+			"supportEmail": "support@codestream.com",
 			"suppressEmails": false
 		},
 		"local": {},
@@ -160,10 +194,16 @@
 			"defaultEnv": {
 				"_loadSecretsFile": "sendgrid/dev.cfg"
 			},
+			"eu0": {
+				"_loadSecretsFile": "sendgrid/prod.cfg"
+			},
 			"prod": {
 				"_loadSecretsFile": "sendgrid/prod.cfg"
 			},
 			"qa": {
+				"_loadSecretsFile": "sendgrid/qa.cfg"
+			},
+			"qa2": {
 				"_loadSecretsFile": "sendgrid/qa.cfg"
 			},
 			"stg": {
@@ -174,6 +214,10 @@
 	"environmentGroup": {
 		"_loadBlockPropertiesFrom": {
 			"defaultEnv": null,
+			"eu0": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.production.environments"
+			},
 			"local1": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
 				"_rootProp": "codestreamEnvironmentGroups.localDevelopment.environments"
@@ -189,6 +233,18 @@
 			"pd2": {
 				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
 				"_rootProp": "codestreamEnvironmentGroups.sharedDevelopment.environments"
+			},
+			"prod": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.production.environments"
+			},
+			"qa": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.preProduction.environments"
+			},
+			"qa2": {
+				"_file": "{DT_RESOURCES}/cs-environment-groups.json",
+				"_rootProp": "codestreamEnvironmentGroups.preProduction.environments"
 			}
 		}
 	},
@@ -198,6 +254,9 @@
 		},
 		"defaultEnv": {
 			"_loadSecretsFile": "codestream/dev-group-secrets.cfg"
+		},
+		"eu0": {
+			"_loadSecretsFile": "codestream/prod-group-secrets.cfg"
 		},
 		"local1": {
 			"_loadSecretsFile": "codestream/local-group-secrets.cfg"
@@ -220,6 +279,9 @@
 		"qa": {
 			"_loadSecretsFile": "codestream/qa-group-secrets.cfg"
 		},
+		"qa2": {
+			"_loadSecretsFile": "codestream/qa-group-secrets.cfg"
+		},
 		"stg": {
 			"_loadSecretsFile": "codestream/stg-group-secrets.cfg"
 		}
@@ -227,6 +289,9 @@
 	"inboundEmailServer": {
 		"ci": {},
 		"defaultEnv": {
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
+		},
+		"eu0": {
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		},
 		"local": {
@@ -245,6 +310,9 @@
 		"qa": {
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
 		},
+		"qa2": {
+			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new"
+		},
 		"stg": {
 			"inboundEmailDirectory": "${HOME}/codestream-mail/inbound/web/new",
 			"logger": {
@@ -258,6 +326,9 @@
 				"defaultEnv": {
 					"_loadSecretsFile": "asana/dev.cfg"
 				},
+				"eu0": {
+					"_loadSecretsFile": "asana/prod.cfg"
+				},
 				"prod": {
 					"_loadSecretsFile": "asana/prod.cfg"
 				},
@@ -268,6 +339,9 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "bitbucket/dev.cfg"
+				},
+				"eu0": {
+					"_loadSecretsFile": "bitbucket/prod.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "bitbucket/prod.cfg"
@@ -280,10 +354,16 @@
 				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/devops-dev.cfg"
 				},
+				"eu0": {
+					"_loadSecretsFile": "microsoft/devops-prod.cfg"
+				},
 				"prod": {
 					"_loadSecretsFile": "microsoft/devops-prod.cfg"
 				},
 				"qa": {
+					"_loadSecretsFile": "microsoft/devops-qa.cfg"
+				},
+				"qa2": {
 					"_loadSecretsFile": "microsoft/devops-qa.cfg"
 				},
 				"stg": {}
@@ -293,6 +373,9 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "github/dev.cfg"
+				},
+				"eu0": {
+					"_loadSecretsFile": "github/prod.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "github/prod.cfg"
@@ -307,6 +390,9 @@
 				"defaultEnv": {
 					"_loadSecretsFile": "gitlab/dev.cfg"
 				},
+				"eu0": {
+					"_loadSecretsFile": "gitlab/prod.cfg"
+				},
 				"prod": {
 					"_loadSecretsFile": "gitlab/prod.cfg"
 				},
@@ -319,6 +405,9 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "atlassian/dev.cfg"
+				},
+				"eu0": {
+					"_loadSecretsFile": "atlassian/prod.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "atlassian/prod.cfg"
@@ -333,10 +422,16 @@
 				"defaultEnv": {
 					"_loadSecretsFile": "linear/dev.cfg"
 				},
+				"eu0": {
+					"_loadSecretsFile": "linear/prod.cfg"
+				},
 				"prod": {
 					"_loadSecretsFile": "linear/prod.cfg"
 				},
 				"qa": {
+					"_loadSecretsFile": "linear/qa.cfg"
+				},
+				"qa2": {
 					"_loadSecretsFile": "linear/qa.cfg"
 				},
 				"stg": {}
@@ -346,6 +441,9 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "microsoft/teams-dev.cfg"
+				},
+				"eu0": {
+					"_loadSecretsFile": "microsoft/teams-prod.cfg"
 				},
 				"local": {
 					"_loadSecretsFile": "microsoft/teams-local.cfg"
@@ -362,6 +460,9 @@
 				"qa": {
 					"_loadSecretsFile": "microsoft/teams-qa.cfg"
 				},
+				"qa2": {
+					"_loadSecretsFile": "microsoft/teams-qa.cfg"
+				},
 				"stg": {}
 			}
 		},
@@ -369,6 +470,9 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "newrelic/nr1-staging.dev.cfg"
+				},
+				"eu0": {
+					"_loadSecretsFile": "newrelic/nr1-staging.prod.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "newrelic/nr1-staging.prod.cfg"
@@ -384,6 +488,10 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "slack/dev-combined.cfg"
+				},
+				"eu0": {
+					"_loadSecretsFile": "slack/eu0-combined.cfg",
+					"interactiveComponentsEnabled": false
 				},
 				"local": {
 					"_loadSecretsFile": "slack/local-combined.cfg"
@@ -414,6 +522,10 @@
 					"_loadSecretsFile": "slack/qa-combined.cfg",
 					"interactiveComponentsEnabled": true
 				},
+				"qa2": {
+					"_loadSecretsFile": "slack/qa-combined.cfg",
+					"interactiveComponentsEnabled": true
+				},
 				"stg": {
 					"_loadSecretsFile": "slack/stg-combined.cfg",
 					"interactiveComponentsEnabled": true
@@ -424,6 +536,9 @@
 			"cloud": {
 				"defaultEnv": {
 					"_loadSecretsFile": "trello/codestreamdevops.cfg"
+				},
+				"eu0": {
+					"_loadSecretsFile": "trello/codestreamops.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "trello/codestreamops.cfg"
@@ -441,6 +556,7 @@
 				}
 			}
 		},
+		"eu0": {},
 		"local": {
 			"showConfig": true
 		},
@@ -477,6 +593,7 @@
 		"pi": {},
 		"prod": {},
 		"qa": {},
+		"qa2": {},
 		"stg": {}
 	},
 	"payments": {
@@ -499,7 +616,7 @@
 				"outboundEmailQueueName": "dev_${CSSVC_ENV}_outboundEmail"
 			},
 			"eu0": {
-				"outboundEmailQueueName": "local1_${DT_USER}_outboundEmail",
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail",
 				"region": "eu-central-1"
 			},
 			"local": {},
@@ -523,6 +640,10 @@
 			},
 			"qa": {
 				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail"
+			},
+			"qa2": {
+				"outboundEmailQueueName": "${CSSVC_ENV}_outboundEmail",
+				"region": "eu-central-1"
 			},
 			"stg": {
 				"outboundEmailQueueName": "stg_outboundEmail"
@@ -561,6 +682,9 @@
 		"qa": {
 			"runTimeEnvironment": "qa"
 		},
+		"qa2": {
+			"runTimeEnvironment": "qa2"
+		},
 		"stg": {
 			"runTimeEnvironment": "stg"
 		}
@@ -571,6 +695,9 @@
 		},
 		"defaultEnv": {
 			"_loadSecretsFile": "codestream/dev-secrets.cfg"
+		},
+		"eu0": {
+			"_loadSecretsFile": "codestream/eu0-secrets.cfg"
 		},
 		"local1": {
 			"_loadSecretsFile": "codestream/local1-secrets.cfg"
@@ -596,6 +723,9 @@
 		"qa": {
 			"_loadSecretsFile": "codestream/qa-secrets.cfg"
 		},
+		"qa2": {
+			"_loadSecretsFile": "codestream/qa2-secrets.cfg"
+		},
 		"stg": {
 			"_loadSecretsFile": "codestream/stg-secrets.cfg"
 		}
@@ -605,6 +735,11 @@
 			"cafile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-ca",
 			"certfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt",
 			"keyfile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-key"
+		},
+		"eu0": {
+			"cafile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-ca",
+			"certfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-crt",
+			"keyfile": "/etc/pki/wildcard.codestream.com/wildcard.codestream.com-key"
 		},
 		"local": {},
 		"local1": {},
@@ -618,6 +753,10 @@
 	"storage": {
 		"mongo": {
 			"defaultEnv": {},
+			"eu0": {
+				"_loadSecretsFile": "mongo/eu0.cfg",
+				"tlsCAFile": "/etc/pki/mongo-eu0v4211/mongo-eu0v4211-crt"
+			},
 			"local1": {
 				"url": "mongodb://localhost/codestream-local1"
 			},
@@ -643,6 +782,10 @@
 				"_loadSecretsFile": "mongo/qa.cfg",
 				"tlsCAFile": "/etc/pki/mongo-qaxv4211/mongo-qaxv4211-crt"
 			},
+			"qa2": {
+				"_loadSecretsFile": "mongo/qa2.cfg",
+				"tlsCAFile": "/etc/pki/wildcard.codestream.us/wildcard.codestream.us-crt+ca"
+			},
 			"stg": {
 				"_loadSecretsFile": "mongo/stg.cfg",
 				"tlsCAFile": "/etc/pki/mongo-staging/mongo-staging-crt"
@@ -658,6 +801,9 @@
 		"segment": {
 			"defaultEnv": {
 				"_loadSecretsFile": "segment/dev-api.cfg"
+			},
+			"eu0": {
+				"_loadSecretsFile": "segment/prod-api.cfg"
 			},
 			"prod": {
 				"_loadSecretsFile": "segment/prod-api.cfg"
@@ -675,6 +821,12 @@
 				"publicUrl": "http://codestream-dev.s3.us-east-1.amazonaws.com",
 				"stripKeyPrefixFromUrl": false
 			},
+			"eu0": {
+				"bucket": "codestream-${CSSVC_ENV}-usercontent",
+				"keyPrefix": "usercontent",
+				"publicUrl": "https://${CSSVC_ENV}-usercontent.codestream.com",
+				"stripKeyPrefixFromUrl": true
+			},
 			"local": {},
 			"local1": {},
 			"local2": {},
@@ -683,6 +835,12 @@
 				"keyPrefix": "usercontent",
 				"publicUrl": "https://usercontent.codestream.com",
 				"stripKeyPrefixFromUrl": true
+			},
+			"qa2": {
+				"bucket": "codestream-${CSSVC_ENV}-usercontent",
+				"keyPrefix": "usercontent/${CSSVC_ENV}",
+				"publicUrl": "https://${CSSVC_ENV}-usercontent.codestream.us",
+				"stripKeyPrefixFromUrl": false
 			},
 			"stg": {
 				"bucket": "codestream-stg-usercontent",
