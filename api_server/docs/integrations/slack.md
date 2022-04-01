@@ -24,31 +24,31 @@ Steps to create a Slack App for a non-production CodeStream environment.
 	*	Go to https://api.slack.com/apps, make sure you're logged in to your
 		workspace with administrative privileges, and press **Create New App**. We
 		recommend naming it **CodeStream \<environment\>**.
-    *   Select the **OAuth & Permissions** feature, make these settings and save
-        them.
-        *   Add the following Redirect URL:
-            - `https://<codestream-api-host>/no-auth/provider-token/slack`
-        *   Add the following Scopes and save them (Request reasons included
-            here). _NOTE: the source of truth for the list of scopes is [here]().
-            You should verify this list accordingly._
-            - **channels:read** - We allow users to select a public channel to share
-            to.
-            - **chat:write** - Users can send a copy of their messages from
-            CodeStream to slack.
-            - **groups:read** - We allow users to select a private channel to share
-            to.
-            - **im:read** - We allow users to select a direct message to share to.
-            - **mpim:read** - We allow users to select a group DM to share to.
-            - **users.profile:write** - We can update your slack status to reflect
-            your current work.
-            - **users:read** - We show the list of users.
-            - **users:read.email** - We try to correlate CodeStream accounts with
-            slack accounts via e-mail.
-    *   Select the **Interactivity & Shortcuts** section, make these settings
-        and save them.
-        *   Turn on Interactivity (the switch on the upper right)
-        *   Add the following Request URL:
-            - `https://<codestream-api-host>/no-auth/provider-action/slack`
+	*   Select the **OAuth & Permissions** feature, make these settings and save
+		them.
+		*   Add the following Redirect URL:
+			- `https://<codestream-api-host>/no-auth/provider-token/slack`
+		*   Add the following **User Token Scopes** and save them (Request reasons included
+			here). _NOTE: the source of truth for the list of scopes is [here](../../modules/slack_auth/slack_auth.js).
+			You should verify this list accordingly._
+			- **channels:read** - We allow users to select a public channel to share
+			to.
+			- **chat:write** - Users can send a copy of their messages from
+			CodeStream to slack.
+			- **groups:read** - We allow users to select a private channel to share
+			to.
+			- **im:read** - We allow users to select a direct message to share to.
+			- **mpim:read** - We allow users to select a group DM to share to.
+			- **users.profile:write** - We can update your slack status to reflect
+			your current work.
+			- **users:read** - We show the list of users.
+			- **users:read.email** - We try to correlate CodeStream accounts with
+			slack accounts via e-mail.
+	*   Select the **Interactivity & Shortcuts** section, make these settings
+		and save them.
+		*   Turn on Interactivity (the switch on the upper right)
+		*   Add the following Request URL:
+			- `https://<codestream-api-host>/no-auth/provider-action/slack`
 
 ## Add and/or Distribute Slack App
 
@@ -71,7 +71,7 @@ them to the CodeStream configuration file.
 
 ```
 {
-    "integrations": {
+	"integrations": {
 		"slack": {
 			"cloud": {
 				"appClientId": null,
@@ -90,7 +90,7 @@ them to the CodeStream configuration file.
 				"interactiveComponentsEnabled": true
 			}
 		}
-    }
+	}
 }
 ```
 
