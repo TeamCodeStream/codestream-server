@@ -50,7 +50,8 @@ class ProviderInfoRequest extends RestfulRequest {
 					object: ['data']
 				},
 				optional: {
-					string: ['host']
+					string: ['host'],
+					boolean: ['pendingVerification']
 				}
 			}
 		);
@@ -91,6 +92,7 @@ class ProviderInfoRequest extends RestfulRequest {
 		};
 
 		op.$set[`${key}.isApiToken`] = true;
+		op.$set[`${key}.pendingVerification`] = this.request.body.pendingVerification;
 		Object.keys(this.request.body.data).forEach(dataKey => {
 			op.$set[`${key}.${dataKey}`] = this.request.body.data[dataKey];
 			if (dataKey === 'accessToken') {
