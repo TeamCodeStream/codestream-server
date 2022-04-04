@@ -332,7 +332,9 @@
 				"prod": {
 					"_loadSecretsFile": "asana/prod.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "asana/dev.cfg"
+				}
 			}
 		},
 		"bitbucket": {
@@ -341,12 +343,14 @@
 					"_loadSecretsFile": "bitbucket/dev.cfg"
 				},
 				"eu0": {
-					"_loadSecretsFile": "bitbucket/prod.cfg"
+					"_loadSecretsFile": "bitbucket/eu.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "bitbucket/prod.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "bitbucket/staging.cfg"
+				}
 			}
 		},
 		"devops": {
@@ -355,7 +359,7 @@
 					"_loadSecretsFile": "microsoft/devops-dev.cfg"
 				},
 				"eu0": {
-					"_loadSecretsFile": "microsoft/devops-prod.cfg"
+					"_loadSecretsFile": "microsoft/devops-eu.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "microsoft/devops-prod.cfg"
@@ -375,7 +379,7 @@
 					"_loadSecretsFile": "github/dev.cfg"
 				},
 				"eu0": {
-					"_loadSecretsFile": "github/prod.cfg"
+					"_loadSecretsFile": "github/eu.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "github/prod.cfg"
@@ -407,7 +411,7 @@
 					"_loadSecretsFile": "atlassian/dev.cfg"
 				},
 				"eu0": {
-					"_loadSecretsFile": "atlassian/prod.cfg"
+					"_loadSecretsFile": "atlassian/eu.cfg"
 				},
 				"prod": {
 					"_loadSecretsFile": "atlassian/prod.cfg"
@@ -491,7 +495,7 @@
 				},
 				"eu0": {
 					"_loadSecretsFile": "slack/eu0-combined.cfg",
-					"interactiveComponentsEnabled": false
+					"interactiveComponentsEnabled": true
 				},
 				"local": {
 					"_loadSecretsFile": "slack/local-combined.cfg"

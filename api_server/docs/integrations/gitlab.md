@@ -10,7 +10,7 @@ appropriate settings.
 
 1. Login to Gitlab.com
 
-1. `Settings > Applications`
+1. `Edit Profile (User Settings) > Applications`
     1. Set the **Redirect URL (callback URL)** to for your API's URL (similar to
        `https://api.codestream.us/no-auth/provider-token/gitlab`)
 
