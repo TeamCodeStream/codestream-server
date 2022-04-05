@@ -140,21 +140,19 @@ class NewRelicAuthorizer {
 			// we'll do this by directly fetching the error group entity
 			// previously, we parsed out the account ID and checked the user's accounts against the error group's
 			if (this.mockErrorGroups) {
-				response = { data: { actor: { errorsInbox: { errorGroups: { results: this.mockErrorGroups } } } } };
+				response = { data: { actor: { errorsInbox: { errorGroup: { id: this.mockErrorGroups[0].id } } } } };
 			} else {
 				response = await this.client.query(
-`query errorGroupById($ids: [ID!]) {
+`query errorGroupById($id: ID!) {
 	actor {
 		errorsInbox {
-			errorGroups(filter: {ids: $ids}) {
-				results {
-					id
-				}
+			errorGroup(id: $id) {
+				id
 			}
 		}
 	}
 }`, 
-					{ ids: [errorGroupGuid] }
+					{ id: errorGroupGuid }
 				);
 			}
 
@@ -163,9 +161,8 @@ class NewRelicAuthorizer {
 				!response.data ||
 				!response.data.actor ||
 				!response.data.actor.errorsInbox ||
-				!response.data.actor.errorsInbox.errorGroups ||
-				!response.data.actor.errorsInbox.errorGroups.results ||
-				!response.data.actor.errorsInbox.errorGroups.results
+				!response.data.actor.errorsInbox.errorGroup ||
+				!response.data.actor.errorsInbox.errorGroup.id
 			) {
 				this.request.warn('Unexpected response fetching error groups: ' + JSON.stringify(response));
 				return {
@@ -173,9 +170,7 @@ class NewRelicAuthorizer {
 					unexpectedResponse: true
 				};
 			}
-			if (!response.data.actor.errorsInbox.errorGroups.results.find(result => {
-				return result.id === errorGroupGuid;
-			})) {
+			if (response.data.actor.errorsInbox.errorGroup.id !== errorGroupGuid) {
 				return { 
 					unauthorized: true,
 					unauthorizedErrorGroup: true
