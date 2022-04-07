@@ -38,9 +38,6 @@ class NRRegisterRequest extends RestfulRequest {
 			{
 				required: {
 					string: ['apiKey']
-				},
-				optional: {
-					string: ['apiRegion']
 				}
 			}
 		);
@@ -50,19 +47,8 @@ class NRRegisterRequest extends RestfulRequest {
 	async getNewRelicUser () {
 		try {
 			let response;
-			let baseUrl;
-			switch (this.request.body.apiRegion) {
-			case 'eu':
-				baseUrl = 'https://api.eu.newrelic.com';
-				break;
-			case 'staging':
-				baseUrl = 'https://staging-api.newrelic.com';
-				break;
-			case 'us':
-			default:
-				baseUrl = 'https://api.newrelic.com';
-				break;
-			}
+			const baseUrl = this.api.config.sharedGeneral.newRelicApiUrl || 'https://api.newrelic.com';
+
 			// check if we should use fake data from headers
 			response = await this.checkHeaderSecrets();
 			if (!response) {
@@ -111,8 +97,7 @@ class NRRegisterRequest extends RestfulRequest {
 					newrelic: {
 						accessToken: this.request.body.apiKey,
 						data: {
-							userId: this.nrUserId,
-							apiUrl: baseUrl
+							userId: this.nrUserId
 						},
 						isApiToken: true
 					}
@@ -184,7 +169,6 @@ class NRRegisterRequest extends RestfulRequest {
 				summary: 'Specify attributes in the body',
 				looksLike: {
 					'apiKey*': '<New Relic API key used to retrieve user information>',
-					'apiRegion': '<New Relic region to query against>',
 				}
 			},
 			returns: {
