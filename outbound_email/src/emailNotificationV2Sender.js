@@ -9,7 +9,7 @@ class EmailNotificationV2Sender {
 		const { user, creator, team, stream, replyToPostId, content, sender, codeError, category, requestId } = options;
 		const inboundEmailDisabled = outboundEmailServerConfig.inboundEmailServer.inboundEmailDisabled;
 		const { replyToDomain, senderEmail } = outboundEmailServerConfig.email;
-		const fromName = creator ? `${sender.getUserDisplayName(creator)} (via CodeStream)` : 'New Relic CodeStream';
+		const fromName = creator ? `${sender.getUserDisplayName(creator)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
 		const teamId = codeError ? codeError.accountId : team.id;
 		const replyTo = inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${teamId}@${replyToDomain}`;

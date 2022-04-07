@@ -61,7 +61,7 @@ class EmailHandler {
 			options.testCallback = this.testCallback.bind(this);
 		}
 		if (this.message.fromSupport) {
-			options.from = { email: this.outboundEmailServer.config.email.supportEmail, name: 'New Relic CodeStream' };
+			options.from = { email: this.outboundEmailServer.config.email.supportEmail, name: 'CodeStream' };
 		}
 		return options;
 	}

@@ -47,7 +47,7 @@ class EmailSender {
 			// senderEmail: from ? from.email : 
 			// 	(sender ? sender.email : this.outboundEmailServer.config.email.supportEmail),
 			senderName: from ? from.name :
-				(sender ? this.getUserDisplayName(sender) : 'New Relic CodeStream'),
+				(sender ? this.getUserDisplayName(sender) : 'CodeStream'),
 			subject,
 			content,
 			category,
@@ -65,7 +65,7 @@ class EmailSender {
 		mailOptions.from = { email: mailOptions.senderEmail, name: mailOptions.senderName };
 		mailOptions.to = { email: mailOptions.email, name: mailOptions.name };
 		if (replyTo) {
-			mailOptions.replyTo = { email: replyTo, name: 'New Relic CodeStream' };
+			mailOptions.replyTo = { email: replyTo, name: 'CodeStream' };
 		}
 		this.logger.log(`Sending ${type} email through SendGrid to ${mailOptions.email}`, options.requestId);
 		await this.sendgridEmail.sendEmail(mailOptions);
@@ -77,7 +77,7 @@ class EmailSender {
 		mailOptions.from = `"${mailOptions.senderName}" <${mailOptions.senderEmail}>`;
 		mailOptions.to = `"${mailOptions.name}" <${mailOptions.email}>`;
 		if (replyTo) {
-			mailOptions.replyTo = `"New Relic CodeStream" <${replyTo}>`;
+			mailOptions.replyTo = `"CodeStream" <${replyTo}>`;
 		}
 		this.logger.log(`Sending ${type} email through SMTP to ${mailOptions.email}`, options.requestId);
 		await this.smtpMailer.sendEmail(mailOptions);
