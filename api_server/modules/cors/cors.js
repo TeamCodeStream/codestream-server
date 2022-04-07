@@ -10,7 +10,8 @@ const _WHITELISTED_DOMAINS = [
 	'undefined',    // 'undefined' and 'null' can come from our plugins, not sure why (and yes, they are strings)
 	'null',
 	'codestream.com',
-	'codestream.us'
+	'codestream.us',
+	'portal.azure.com'
 ];
 
 // parse domain out of url
