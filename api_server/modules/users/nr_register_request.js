@@ -87,9 +87,11 @@ class NRRegisterRequest extends RestfulRequest {
 				}`);
 			}
 			if (response.errors) {
+				this.warn('Response from NR: ' + JSON.stringify(response, undefined, 5));
 				throw response.errors.map(error => error.message).join(', ');
 			}
 			if (!response.data || !response.data.actor || !response.data.actor.user || !response.data.actor.user.email) {
+				this.warn('Response from NR: ' + JSON.stringify(response, undefined, 5));
 				throw 'Did not retrieve email address from New Relic';
 			}
 			const email = response.data.actor.user.email;
