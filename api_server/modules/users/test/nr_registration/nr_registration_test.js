@@ -60,6 +60,7 @@ class NRRegistrationTest extends CodeStreamAPITest {
 		(this.data.secondaryEmails || []).sort();
 		const email = this.expectedUserData.email.trim();
 		const username = email.split('@')[0].replace(/\+/g, '');
+		const userId = this.expectedUserData.providerInfo.newrelic.data.userId;
 		let result = (
 			((user.id === user._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((user.email === email) || errors.push('incorrect email')) &&
@@ -73,7 +74,8 @@ class NRRegistrationTest extends CodeStreamAPITest {
 			((user.creatorId === (this.expectedCreatorId || user.id).toString()) || errors.push('creatorId not equal to id')) &&
 			((user.phoneNumber === '') || errors.push('phoneNumber not set to default of empty string')) &&
 			((user.iWorkOn === '') || errors.push('iWorkOn not set to default value of empty string')) &&
-			((user.version === this.expectedVersion) || errors.push('version is not correct'))
+			((user.version === this.expectedVersion) || errors.push('version is not correct')) &&
+			((user.nrUserId === userId) || errors.push('nrUserId not correct'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.providerInfo, this.expectedUserData.providerInfo, 'providerInfo is not correct');

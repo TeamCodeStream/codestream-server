@@ -13,7 +13,7 @@ OAuth handshake and grant access to the system.
 
 1. Distribution > Enable sharing; Also, complete the rest of the page
 
-1. Permissions > Add Jira Platform REST API
+1. Permissions > Add Jira API
 
 1. Confiure Jira Platform Rest API
 	- Add **View Jira Issue Data**
@@ -24,7 +24,8 @@ OAuth handshake and grant access to the system.
 
 1. Set callback URL like `https://stg-api.codestream.us/no-auth/provider-token/jira`
 
-1. Add the client ID, secret, etc.. to the CodeStream server config.
+1. On the Settings page, get the client ID, secret, etc.. and add them to the
+   CodeStream server config.
     ```
     {
         "integrations": {
