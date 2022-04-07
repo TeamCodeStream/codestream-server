@@ -28,8 +28,7 @@ class NRRegistrationTest extends CodeStreamAPITest {
 				newrelic: {
 					accessToken: 'dummy',
 					data: {
-						userId: userId,
-						apiUrl: 'https://api.newrelic.com'
+						userId: userId
 					},
 					isApiToken: true
 				}
