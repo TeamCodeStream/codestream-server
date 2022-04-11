@@ -224,28 +224,7 @@ class NewRelicAuthorizer {
 
 	// get the base URL for New Relic GraphQL client
 	getGraphQLBaseUrl (user) {
-		let url;
-		const data = (
-			(
-				user.get('providerInfo') &&
-				user.get('providerInfo')[this.teamId] &&
-				user.get('providerInfo')[this.teamId].newrelic &&
-				user.get('providerInfo')[this.teamId].newrelic.data
-			) ||
-			(
-				user.get('providerInfo') &&
-				user.get('providerInfo').newrelic &&
-				user.get('providerInfo').newrelic.data
-			)
-		);
-		if (!data || (!data.usingEU && !data.apiUrl)) {
-			url = 'https://api.newrelic.com';
-		} else if (data.usingEU) {
-			url = 'https://api.eu.newrelic.com';
-		} else {
-			url = data.apiUrl.replace(/\/$/, '');
-		}
-
+		const url = this.request.api.config.sharedGeneral.newRelicApiUrl || 'https://api.newrelic.com';
 		return `${url}/graphql`;
 	}
 }
