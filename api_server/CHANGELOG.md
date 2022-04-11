@@ -1,5 +1,11 @@
 # Change Log
 
+## [12.0.10] - 2022-4-11
+
+### Fixed
+
+- Fixes an issue where customers in the EU trying to open errors would get a message about the error being owned by a different CodeStream organization
+
 ## [12.0.9] - 2022-4-7
 
 ### Added
