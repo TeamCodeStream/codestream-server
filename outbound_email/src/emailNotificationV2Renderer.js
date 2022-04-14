@@ -12,6 +12,8 @@ class EmailNotificationV2Renderer {
 			user,
 			content,
 			unfollowLink,
+			unsubscribeLink,
+			unsubscribeType,
 			inboundEmailDisabled,
 			needButtons,
 			review,
@@ -30,14 +32,16 @@ class EmailNotificationV2Renderer {
 1. Install the extension for ${ideLinks}.<br/>
 2. Sign up using <b>${user.email}</b>.<br/>
 `;
-		const unfollowText = unfollowLink ? `&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>.` : '';
+		const unfollowTextPart = userIsRegistered && !userBeingAddedToTeam ? ` this ${what}` : '';
+		const unfollowText = unfollowLink ? `&nbsp;</span><span class="hover-underline"><a clicktracking="off" href="${unfollowLink}">Unfollow</a></span>${unfollowTextPart}.` : '';
+		const unsubscribeText = unsubscribeLink ? `&nbsp;<span class="hover-underline"><a clicktracking="off" href="${unsubscribeLink}">Unsubscribe</a></span> from ${unsubscribeType} emails.` : '';
 
 		let firstFooterDiv = '', secondFooterDiv = '', inviteDiv = '';
 		if (userIsRegistered) {
 			if (userBeingAddedToTeam) {
 				firstFooterDiv = `
 <div class="following ensure-white">
-	<span>You received this email because you’ve been added to the ${company.name} organiziation.${unfollowText}		
+	<span>You received this email because you’ve been added to the ${company.name} organization.${unfollowText}
 </div>
 `;
 				const replyPart = inboundEmailDisabled ? 'G' : 'Reply to this email, or g';
@@ -50,7 +54,7 @@ class EmailNotificationV2Renderer {
 			} else {
 				firstFooterDiv = `
 <div class="following ensure-white">
-	<span>You received this email because you are following this ${what}.${unfollowText}
+	<span>You received this email because you are following this ${what}.${unfollowText}${unsubscribeText}
 </div>
 `;
 				if (!inboundEmailDisabled) {

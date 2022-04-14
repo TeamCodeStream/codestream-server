@@ -154,6 +154,16 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'no-auth/unsubscribe-notification',
+		requestClass: require('./unsubscribe_notification_email_request')
+	},
+	{
+		method: 'get',
+		path: 'no-auth/unsubscribe-reminder',
+		requestClass: require('./unsubscribe_reminder_email_request')
+	},
+	{
+		method: 'get',
 		path: 'signup-jwt',
 		requestClass: require('./get_signup_jwt_request')
 	}

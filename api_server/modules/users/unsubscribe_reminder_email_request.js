@@ -1,4 +1,4 @@
-// handle the GET /no-auth/unsubscribe-weekly request to unsubscribe from weekly emails 
+// handle the GET /no-auth/unsubscribe-notification request to unsubscribe from notification emails 
 
 'use strict';
 
@@ -7,30 +7,30 @@ const UnsubscribeEmailRequest = require('./unsubscribe_email_request');
 class UnsubscribeWeeklyEmailRequest extends UnsubscribeEmailRequest {
 
 	getPreferenceKey () {
-		return 'preferences.weeklyEmailDelivery';
+		return 'preferences.reviewReminderDelivery';
 	}
 
 	getErrorCallbackUrl () {
-		return '/web/unsubscribe-weekly-error';
+		return '/web/unsubscribe-reminder-error';
 	}
 
 	getSuccessCallbackUrl () {
-		return '/web/unsubscribe-weekly-complete';
+		return '/web/unsubscribe-reminder-complete';
 	}
 
 	getEmailType () {
-		return 'Weekly Activity';
+		return 'Reminder';
 	}
 
 	// describe this route for help
 	static describe () {
 		return {
-			tag: 'unsubscribe-weekly-link',
-			summary: 'Respond to email link to unsubscribe from weekly emails',
+			tag: 'unsubscribe-reminder-link',
+			summary: 'Respond to email link to unsubscribe from reminder emails',
 			access: 'User is authenticated through the token provided.',
-			description: 'Response to email link to unsubscribe from weekly emails.',
+			description: 'Response to email link to unsubscribe from reminder emails.',
 			input: 'A "t" parameter must be present in the query parameters, interpreted as a JSONWebToken which identifies the user',
-			returns: 'Redirects to /web/unsubscribe-weekly-complete',
+			returns: 'Redirects to /web/unsubscribe-reminder-complete',
 			publishes: 'The response data will be published on the user channel'
 		};
 	}

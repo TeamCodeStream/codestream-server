@@ -32,6 +32,14 @@ const STANDARD_PAGES = [
 	{
 		route: 'web/unsubscribe-weekly-complete',
 		template: 'unsubscribe_weekly_complete'
+	},
+	{
+		route: 'web/unsubscribe-notification-complete',
+		template: 'unsubscribe_notification_complete'
+	},
+	{
+		route: 'web/unsubscribe-reminder-complete',
+		template: 'unsubscribe_reminder_complete'
 	}
 ];
 
