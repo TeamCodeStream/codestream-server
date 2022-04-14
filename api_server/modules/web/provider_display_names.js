@@ -13,6 +13,7 @@ module.exports = {
 	'vsts': 'Visual Studio Team Services',
 	'linear': 'Linear',
 	'clubhouse': 'Clubhouse',
+	'shortcut': 'Shortcut',
 	'newrelic': 'New Relic'
 };
 

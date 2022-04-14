@@ -40,6 +40,15 @@ const STANDARD_PROVIDER_HOSTS = {
 		needsConfigure: true,
 		hasIssues: true
 	},
+	'api*app*shortcut*com/api/v3': {
+		id: 'api*app*shortcut*com/api/v3',
+		name: 'shortcut',
+		isEnterprise: false,
+		host: 'api.app.shortcut.com/api/v3',
+		apiHost: 'api.app.shortcut.com/api/v3',
+		needsConfigure: true,
+		hasIssues: true
+	},
 	'linear*app': {
 		apiHost: 'api.linear.app',
 		hasIssues: true,
