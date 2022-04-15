@@ -3,7 +3,7 @@
 
 'use strict';
 
-const GraphQLClient = require('graphql-client');
+const { GraphQLClient, gql } = require('graphql-request');
 
 class NewRelicAuthorizer {
 
@@ -61,14 +61,16 @@ class NewRelicAuthorizer {
 
 		// instantiate graphQL client
 		const baseUrl = this.getGraphQLBaseUrl(user);
-		this.client = GraphQLClient({
-			url: baseUrl,
-			headers: {
-				"Api-Key": token,
-				"Content-Type": "application/json",
-				"NewRelic-Requesting-Services": "CodeStream"
+		this.client = new GraphQLClient(
+			baseUrl,
+			{
+				headers: {
+					"Api-Key": token,
+					"Content-Type": "application/json",
+					"NewRelic-Requesting-Services": "CodeStream"
+				}
 			}
-		});
+		);
 	}
 
 	// authorize the user to even access this code error: they must have access to the NR account
@@ -81,7 +83,7 @@ class NewRelicAuthorizer {
 		try {
 			let response;
 			if (this.mockAccounts) {
-				response = { data: { actor: { accounts: this.mockAccounts } } };
+				response = { actor: { accounts: this.mockAccounts } };
 			} else {
 				response = await client.query(`{
 					actor {
@@ -93,10 +95,10 @@ class NewRelicAuthorizer {
 			}
 
 			const accountIds = (
-				response.data &&
-				response.data.actor &&
-				response.data.actor.accounts &&
-				response.data.actor.accounts.map(account => parseInt(account.id, 10))
+				response &&
+				response.actor &&
+				response.actor.accounts &&
+				response.actor.accounts.map(account => parseInt(account.id, 10))
 			);
 			this.request.log('NR user has account IDs:' + accountIds);
 			if (accountIds && accountIds.includes(accountId)) {
@@ -140,32 +142,34 @@ class NewRelicAuthorizer {
 			// we'll do this by directly fetching the error group entity
 			// previously, we parsed out the account ID and checked the user's accounts against the error group's
 			if (this.mockErrorGroups) {
-				response = { data: { actor: { errorsInbox: { errorGroups: { results: this.mockErrorGroups } } } } };
+				response = { actor: { errorsInbox: { errorGroups: { results: this.mockErrorGroups } } } };
 			} else {
-				response = await this.client.query(
-`query errorGroupById($ids: [ID!]) {
-	actor {
-		errorsInbox {
-			errorGroups(filter: {ids: $ids}) {
-				results {
-					id
-				}
-			}
-		}
-	}
-}`, 
-					{ ids: [errorGroupGuid] }
-				);
+				const query = gql`
+					query errorGroupById($ids: [ID!]) {
+						actor {
+							errorsInbox {
+								errorGroups(filter: {ids: $ids}) {
+									results {
+										id
+									}
+								}
+							}
+						}
+					}`;
+				const vars = {
+					ids: [errorGroupGuid]
+				};
+				response = await this.client.request(query, vars);
 			}
 
 			if (
 				!response ||
-				!response.data ||
-				!response.data.actor ||
-				!response.data.actor.errorsInbox ||
-				!response.data.actor.errorsInbox.errorGroups ||
-				!response.data.actor.errorsInbox.errorGroups.results ||
-				!response.data.actor.errorsInbox.errorGroups.results
+				!response ||
+				!response.actor ||
+				!response.actor.errorsInbox ||
+				!response.actor.errorsInbox.errorGroups ||
+				!response.actor.errorsInbox.errorGroups.results ||
+				!response.actor.errorsInbox.errorGroups.results
 			) {
 				this.request.warn('Unexpected response fetching error groups: ' + JSON.stringify(response));
 				return {
@@ -173,7 +177,7 @@ class NewRelicAuthorizer {
 					unexpectedResponse: true
 				};
 			}
-			if (!response.data.actor.errorsInbox.errorGroups.results.find(result => {
+			if (!response.actor.errorsInbox.errorGroups.results.find(result => {
 				return result.id === errorGroupGuid;
 			})) {
 				return { 
