@@ -229,7 +229,8 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
-			state: this.state
+			state: this.state,
+			scope: 'api'
 		};
 		if (this.testHost) {
 			parameters.scope = 'api';
