@@ -13,6 +13,7 @@ const OAUTH_CONFIG = {
 	accessTokenPath: 'plugins/servlet/oauth/access-token',
 	hasIssues: true,
 	forEnterprise: true,
+	needsConfigure: true,
 	authCompletePage: 'jira',
 	noClientIdOk: true
 };
