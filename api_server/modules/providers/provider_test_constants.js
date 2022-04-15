@@ -19,8 +19,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.bitbucket.org/2.0',
 		hasIssues: true,
 		hasCodeHosting: true,
-		scopes: ['account', 'team', 'repository', 'issue:write', 'pullrequest:write'],
-		supportsOAuthOrPAT: true
+		scopes: ['account', 'team', 'repository', 'issue:write', 'pullrequest:write']
 	},
 	'bitbucket/server': {
 		id: 'bitbucket/server',
