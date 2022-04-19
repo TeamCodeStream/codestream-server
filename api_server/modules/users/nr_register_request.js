@@ -114,7 +114,7 @@ class NRRegisterRequest extends RestfulRequest {
 				actor: {
 					user: {
 						email: headers['x-cs-mock-email'],
-						id: headers['x-cs-mock-id'],
+						id: parseInt(headers['x-cs-mock-id'], 10),
 						name: headers['x-cs-mock-name']
 					}
 				}
