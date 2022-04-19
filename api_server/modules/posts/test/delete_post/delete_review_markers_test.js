@@ -56,7 +56,7 @@ class DeleteReviewMarkersTest extends DeleteReviewTest {
 
 	validateResponse (data) {
 		const postData = this.postData[this.testPost];
-		postData.markers.sort((a, b) => {
+		data.markers.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
 		for (let i = 0; i < postData.markers.length; i++) {
