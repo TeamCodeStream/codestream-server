@@ -99,12 +99,24 @@ class DeleteCodemarkReplyToCodeErrorTest extends DeletePostTest {
 					after: 5,
 					before: 4
 				}
-			})
+			});
+			this.expectedData.markers.sort((a, b) => {
+				return a.id.localeCompare(b.id);
+			});
+			this.expectedData.posts.sort((a, b) => {
+				return a.id.localeCompare(b.id);
+			});
 			callback();
 		});
 	}
 
 	validateResponse (data) {
+		data.posts.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
+		data.markers.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
 		const codeError = data.codeErrors[0];
 		Assert(codeError.$set.modifiedAt >= this.modifiedAfter, 'codeError modifiedAt is not greater than before the post was deleted');
 		this.expectedData.codeErrors[0].$set.modifiedAt = codeError.$set.modifiedAt;

@@ -302,7 +302,6 @@ module.exports = function customConfigFunc(nativeCfg) {
 		okta: {},
 		slack: {},
 		trello: {},
-		linear: {},
 		// These providers need appClientId to be defined so the api knows those providers can be configured.
 		// Their respective APIs do not require a client ID so they're not actually used.
 		youtrack: { appClientId: 'placeholder' },
@@ -311,6 +310,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
 		clubhouse: { appClientId: 'placeholder' },
+		shortcut: { appClientId: 'placeholder' },
 		newrelic: { appClientId: 'placeholder' },
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
@@ -416,6 +416,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'youtrack',
 		'okta',
 		'clubhouse',
+		'shortcut',
 		'linear',
 		'newrelic',
 	];

@@ -39,10 +39,16 @@ class DeleteReviewMarkersTest extends DeleteReviewTest {
 						before: 1,
 						after: 2
 					}
-				});		
+				});
 				const expectedMarker = DeepClone(postData.markers[i]);
 				Object.assign(expectedMarker, this.expectedData.markers[i].$set);
 				this.expectedMarkers.push(expectedMarker);	
+				this.expectedData.markers.sort((a, b) => {
+					return a.id.localeCompare(b.id);
+				});
+				this.expectedMarkers.sort((a, b) => {
+					return a.id.localeCompare(b.id);
+				});
 			}
 			callback();
 		});
@@ -50,6 +56,9 @@ class DeleteReviewMarkersTest extends DeleteReviewTest {
 
 	validateResponse (data) {
 		const postData = this.postData[this.testPost];
+		data.markers.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
 		for (let i = 0; i < postData.markers.length; i++) {
 			const marker = data.markers[i];
 			Assert(marker.$set.modifiedAt >= this.modifiedAfter, 'review modifiedAt is not greater than before the post was deleted');

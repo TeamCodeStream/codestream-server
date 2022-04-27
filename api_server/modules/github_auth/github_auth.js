@@ -16,7 +16,8 @@ const OAUTH_CONFIG = {
 	noGrantType: true,
 	hasIssues: true,
 	hasCodeHosting: true,
-	supportsSignup: true
+	supportsSignup: true,
+	supportsOAuthOrPAT: true
 };
 
 class GithubAuth extends OAuthModule {

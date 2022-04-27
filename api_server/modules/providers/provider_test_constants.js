@@ -40,6 +40,15 @@ const STANDARD_PROVIDER_HOSTS = {
 		needsConfigure: true,
 		hasIssues: true
 	},
+	'api*app*shortcut*com/api/v3': {
+		id: 'api*app*shortcut*com/api/v3',
+		name: 'shortcut',
+		isEnterprise: false,
+		host: 'api.app.shortcut.com/api/v3',
+		apiHost: 'api.app.shortcut.com/api/v3',
+		needsConfigure: true,
+		hasIssues: true
+	},
 	'linear*app': {
 		apiHost: 'api.linear.app',
 		hasIssues: true,
@@ -57,7 +66,8 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.github.com',
 		hasIssues: true,
 		hasCodeHosting: true,
-		scopes: ['repo', 'read:user', 'user:email', 'notifications']
+		scopes: ['repo', 'read:user', 'user:email', 'notifications'],
+		supportsOAuthOrPAT: true
 	},
 	'github/enterprise': {
 		id: 'github/enterprise',
@@ -76,7 +86,9 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'gitlab.com',
 		apiHost: 'gitlab.com/api/v4',
 		hasIssues: true,
-		hasCodeHosting: true
+		hasCodeHosting: true,
+		supportsOAuthOrPAT: true,
+		scopes: ['api']
 	},
 	'gitlab/enterprise': {
 		id: 'gitlab/enterprise',

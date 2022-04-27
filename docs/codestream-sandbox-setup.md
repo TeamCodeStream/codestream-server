@@ -172,7 +172,7 @@ work on the Slack integration using their interactive components feature. The
 mechanism uses DNS so each developer can designate one of their development VMs
 at a time to be a _primary_, which would receive these proxy requets.
 
-Use the `dt-dev-set-primary` script to set your primary. You can change it at
+Use the `dt-dev-set-primary-vm` script to set your primary. You can change it at
 any time. _This does not work for development on your local computer; only on
 network VMs._
 

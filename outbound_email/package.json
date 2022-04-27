@@ -1,12 +1,12 @@
 {
 	"name": "outbound-email",
-	"version": "12.0.10",
+	"version": "12.0.11",
 	"dependencies": {
 		"amqplib": "0.8.0",
-		"async": "2.6.3",
-		"aws-sdk": "2.1059.0",
+		"async": "2.6.4",
+		"aws-sdk": "2.1115.0",
 		"deep-equal": "2.0.5",
-		"highlight.js": "11.4.0",
+		"highlight.js": "11.5.1",
 		"hjson": "3.2.2",
 		"jsonwebtoken": "8.5.1",
 		"juice": "8.0.0",
@@ -14,11 +14,11 @@
 		"markdown-it-emoji-mart": "0.1.1",
 		"markdown-it-slack": "1.2.0",
 		"moment-timezone": "0.5.34",
-		"mongodb": "4.3.1",
-		"newrelic": "8.7.1",
+		"mongodb": "4.5.0",
+		"newrelic": "8.9.1",
 		"node-fetch": "2.6.7",
-		"nodemailer": "6.7.2",
-		"pubnub": "5.0.0",
+		"nodemailer": "6.7.3",
+		"pubnub": "5.0.1",
 		"sendgrid": "5.2.3",
 		"socketcluster-client": "16.0.4",
 		"strftime": "0.10.1",
@@ -48,8 +48,8 @@
 		"eslint"
 	],
 	"devDependencies": {
-		"eslint": "8.7.0",
-		"lambda-local": "2.0.1",
+		"eslint": "8.13.0",
+		"lambda-local": "2.0.2",
 		"nodemon": "2.0.15",
 		"pre-commit": "1.2.2"
 	}

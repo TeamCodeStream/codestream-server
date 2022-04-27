@@ -100,12 +100,24 @@ class DeleteCodemarkReplyToReviewTest extends DeletePostTest {
 					after: 5,
 					before: 4
 				}
-			})
+			});
+			this.expectedData.markers.sort((a, b) => {
+				return a.id.localeCompare(b.id);
+			});
+			this.expectedData.posts.sort((a, b) => {
+				return a.id.localeCompare(b.id);
+			});
 			callback();
 		});
 	}
 
 	validateResponse (data) {
+		data.posts.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
+		data.markers.sort((a, b) => {
+			return a.id.localeCompare(b.id);
+		});
 		const review = data.reviews[0];
 		Assert(review.$set.modifiedAt >= this.modifiedAfter, 'review modifiedAt is not greater than before the post was deleted');
 		this.expectedData.reviews[0].$set.modifiedAt = review.$set.modifiedAt;

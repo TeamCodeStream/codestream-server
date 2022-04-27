@@ -9,7 +9,7 @@ const Indexes = require('./indexes');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
-const GraphQLClient = require('graphql-client');
+const { request, gql } = require('graphql-request');
 
 class NRRegisterRequest extends RestfulRequest {
 
@@ -52,17 +52,8 @@ class NRRegisterRequest extends RestfulRequest {
 			// check if we should use fake data from headers
 			response = await this.checkHeaderSecrets();
 			if (!response) {
-				// TODO: consider a better way to do this
-				const client = GraphQLClient({
-					url: baseUrl + '/graphql',
-					headers: {
-						'Api-Key': this.request.body.apiKey,
-						'Content-Type': 'application/json',
-						'NewRelic-Requesting-Services': 'CodeStream'
-					}
-				});
-
-				response = await client.query(`{
+				const url = baseUrl + '/graphql';
+				const query = gql`{
 					actor {
 						user {
 							email
@@ -70,24 +61,25 @@ class NRRegisterRequest extends RestfulRequest {
 							name
 						}
 					}
-				}`);
+				}`;
+				const headers = {
+					'Api-Key': this.request.body.apiKey,
+					'Content-Type': 'application/json',
+					'NewRelic-Requesting-Services': 'CodeStream'
+				}
+				response = await request(url, query, {}, headers);
 			}
-			if (response.errors) {
-				this.warn('Response from NR: ' + JSON.stringify(response, undefined, 5));
-				throw response.errors.map(error => error.message).join(', ');
-			}
-			if (!response.data || !response.data.actor || !response.data.actor.user || !response.data.actor.user.email) {
+			if (!response.actor || !response.actor.user || !response.actor.user.email) {
 				this.warn('Response from NR: ' + JSON.stringify(response, undefined, 5));
 				throw 'Did not retrieve email address from New Relic';
 			}
-			const email = response.data.actor.user.email;
-			this.nrUserId = response.data.actor.user.id;
+			const email = response.actor.user.email;
+			this.nrUserId = response.actor.user.id;
 			const username = email.split('@')[0].replace(/\+/g, '');
 			const fullName = (
-				response.data &&
-				response.data.actor &&
-				response.data.actor.user &&
-				response.data.actor.user.name
+				response.actor &&
+				response.actor.user &&
+				response.actor.user.name
 			);
 			this.userData = {
 				email,
@@ -104,7 +96,9 @@ class NRRegisterRequest extends RestfulRequest {
 				}
 			};
 		} catch (error) {
-			throw this.errorHandler.error('failedToFetchNRData', { reason: error });
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.warn('Caught error running GraphQL query: ' + message);
+			throw this.errorHandler.error('failedToFetchNRData', { reason: message });
 		}
 	}
 
@@ -117,13 +111,11 @@ class NRRegisterRequest extends RestfulRequest {
 		if (secretsList.includes(headers['x-cs-newrelic-secret']) && headers['x-cs-mock-email']) {
 			this.warn('Secret provided to use mock NR user data, this had better be a test!');
 			return {
-				data: {
-					actor: {
-						user: {
-							email: headers['x-cs-mock-email'],
-							id: headers['x-cs-mock-id'],
-							name: headers['x-cs-mock-name']
-						}
+				actor: {
+					user: {
+						email: headers['x-cs-mock-email'],
+						id: parseInt(headers['x-cs-mock-id'], 10),
+						name: headers['x-cs-mock-name']
 					}
 				}
 			};

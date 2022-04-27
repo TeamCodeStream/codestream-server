@@ -2,28 +2,51 @@
 
 # desc# create the app packages for integrating codestream to msteams
 
+"""Create MS Team connector app packages for CS <-> MS Teams integration
+
+SYNOPSIS
+
+	Builds a zip file from a manifest.
+
+"""
+
+optionsDoc = """ACTIONS
+
+OPTIONS
+
+"""
+
+epilogDoc = """EXAMPLES
+
+    Examples are needed.
+"""
+
 import os
-import sys
-import argparse
+from posixpath import dirname
 import shutil
 import glob
 import re
 import json
+import devtools.core as dtCore
+import devtools.resources.resources as dtResources
+import devtools.templates.template as dtTemplate
 
-sys.path.append(os.environ['DT_TOP'] + "/lib")
-import sysUtils as su
-import awsCS
+# sys.path.append(os.environ['DT_TOP'] + "/lib")
+# import sysUtils as su
+# import awsCS
 
 
 # create the app package (zip file) for the specified env & botId
 # and optionally distribute it
-def makeAppPackage(globalData, env, botId, manifestTemplate):
-	outDir = f"{globalData['distRoot']}/{env}"
+def makeAppPackage(globalData, args, manifestTemplate):
+	outDir = f"{globalData['distRoot']}/{args.env}"
 	if not os.path.exists(outDir):
 		os.mkdir(outDir)
 	# create the manifest
-	envString = "" if env == "prod" else f"-{env}"
-	manifest = su.expandTemplate(manifestTemplate, {'env': envString, 'botId': botId})
+	envString = "" if args.env == "prod" else f"-{args.env}"
+	# manifest = su.expandTemplate(manifestTemplate, {'env': envString, 'botId': args.botId})
+	tmpl = dtTemplate.template(template=manifestTemplate)
+	manifest = tmpl.expand({'env': envString, 'botId': args.botId})
 	manifestData = json.loads(manifest)
 	outFile = open(f"{outDir}/manifest.json", "w")
 	outFile.write(manifest)
@@ -33,11 +56,15 @@ def makeAppPackage(globalData, env, botId, manifestTemplate):
 		shutil.copyfile(f"{globalData['templateDir']}/{f}", f"{outDir}/{f}")
 	# create the zip file named based on env and version
 	zipName = f"codestream-msteamsbot{envString}-{manifestData['version']}.zip"
-	su.shellExecNoBuffer(f"zip -q ../{zipName} *", workingDir=outDir, abortOnFail=True, printCmd=True)
+	dirStack = dtCore.util.pushDir(outDir)
+	dtCore.exec.execCommand(f"zip -q {outDir}/../{zipName} *", abortOnFail=True, verbose=args.verbose)
+	dtCore.util.popDir(dirStack)
+	dtCore.exec.execCommand(f"find {outDir} -type f")
+	dtCore.exec.execCommand(f"ls -l {dirname(outDir)}/{zipName}")
 	# distribute the zip file via S3
-	if globalData['args'].distribute:
+	if args.distribute:
 		cmd = f"aws s3 cp {globalData['distRoot']}/{zipName} {globalData['distributionKeyPrefix']}/{zipName} --sse"
-		su.shellExecNoBuffer(cmd, abortOnFail=True, printCmd=True)
+		dtCore.exec.execCommand(cmd, abortOnFail=True, verbose=args.verbose)
 
 
 # create the package contents from a key management database config file
@@ -46,53 +73,72 @@ def makeAppPackageFromEnvFile(globalData, manifestTemplate, envFile):
 	match = re.search(r'.*\/teams-(.+).cfg$', envFile)
 	if match:
 		env = "pd" if match.group(1) == "dev" else match.group(1)
-		envData = su.readKeyValueFile(envFile)
+		# envData = su.readKeyValueFile(envFile)
+		envData = dtCore.io.readKVFileToDict(envFile)
 		# su.dumpDict(envData)
 		if 'botAppId' in envData:
 			makeAppPackage(globalData, env, envData['botAppId'], manifestTemplate)
 		else:
 			print(f"botAppId not defined for {env} environment")
 	else:
-		su.printErr(f"could not determine env from {envFile}")
+		dtCore.io.printErr(f"could not determine env from {envFile}")
 		rc = 1
 	return rc
 
 
 globalData = {
-	'distributionKeyPrefix': f"{awsCS.awsCS().getCloudFrontProperty('assets', 's3BucketPrefix')}/mstbot",
+	# 'distributionKeyPrefix': f"{awsCS.awsCS().getCloudFrontProperty('assets', 's3BucketPrefix')}/mstbot",
+	# 'distributionKeyPrefix': f"{rm.cloudFrontDistribution('assets', 's3BucketPrefix')}/mstbot",
 	'botDir': f"{os.environ['CS_API_TOP']}/etc/msteamsbot",
 	'templateDir': f"{os.environ['CS_API_TOP']}/etc/msteamsbot/template",
 	'distRoot': f"{os.environ['CS_API_TOP']}/etc/msteamsbot/dist",
 }
+defaultManifestTemplate = f"{globalData['templateDir']}/manifest.json"
 
-parser = argparse.ArgumentParser(description="msteams bot app package creator")
-parser.add_argument('--debug', action='store_true', default=False, help='show debugging output')
-parser.add_argument('--verbose', action='store_true', default=False, help='show verbose output')
-parser.add_argument('-e', '--env', type=str, help="environment")
-parser.add_argument('-b', '--botId', type=str, help="bot registration app ID")
-parser.add_argument('--use-keydb', action='store_true', default=False, help="get app IDs from key management DB")
-parser.add_argument('--distribute', action='store_true', default=False, help="copy zips to S3 using the AWS CLI")
-args = parser.parse_args()
+arguments = dtCore.options.arguments(__doc__, epilogDoc, optionsDoc, modules=[
+	dtCore.logger.moduleOptions,
+	dtCore.io.moduleOptions,
+	dtResources.moduleOptions,
+	])
+
+# arguments.parser.add_argument('--debug', action='store_true', default=False, help='show debugging output')
+# arguments.parser.add_argument('--verbose', action='store_true', default=False, help='show verbose output')
+arguments.parser.add_argument('-e', '--env', type=str, help="environment")
+arguments.parser.add_argument('-b', '--botId', type=str, help="bot registration app ID")
+arguments.parser.add_argument('--use-keydb', action='store_true', default=False, help="get app IDs from key management DB")
+arguments.parser.add_argument('--distribute', action='store_true', default=False, help="copy zips to S3 using the AWS CLI")
+arguments.parser.add_argument('--manifest-template', type=str, default=defaultManifestTemplate, help=f"for manifest creation (def = {defaultManifestTemplate})")
+
+args = arguments.parseArgs()
+options = arguments.options
+
+# logger = dtCore.logger.logger(options=options)
+# options.pack('logger', logger)
+rm = dtResources.manager(options=options)
+options.pack('rm', rm)
+globalData['distributionKeyPrefix'] = f"{rm.cloudFrontDistribution('assets', 's3BucketPrefix')}/mstbot"
 
 if args.env == "pd" and args.use_keydb:
 	args.env = "dev"
 	print("key-db secrets for 'pd' are stored as 'dev'. Resetting environment to 'dev'")
 
 ec = 0
-globalData['args'] = args
 if args.debug:
-	su.dumpDict(globalData, None, "globalData:")
-manifestTemplate = su.readFileIgnoreComments(f"{globalData['templateDir']}/manifest.json")
+	dtCore.io.dumpData(globalData, msg="globalData:")
+if args.verbose:
+	print(f"making app package using {args.manifest_template}")
+
+manifestTemplate = dtCore.io.readFileIgnoreComments(args.manifest_template)
 
 if not os.path.exists(globalData['distRoot']):
 	print(f"creating {globalData['distRoot']}")
 	os.mkdir(globalData['distRoot'])
 
 if args.env and args.botId:
-	makeAppPackage(globalData, args.env, args.botId, manifestTemplate)
+	makeAppPackage(globalData, args, manifestTemplate)
 elif args.use_keydb:
 	if not os.environ['KM_PKI']:
-		su.printErr("where is the key management database (KM_PKI is not defined)?")
+		dtCore.io.printErr("where is the key management database (KM_PKI is not defined)?")
 		exit(1)
 	# read environments & botIds from the secrets database
 	globString = f"teams-{args.env}.cfg" if args.env else "teams-*.cfg"
@@ -101,6 +147,6 @@ elif args.use_keydb:
 	for envFile in glob.glob(f"{os.environ['KM_PKI']}/secrets/microsoft/{globString}"):
 		ec += makeAppPackageFromEnvFile(globalData, manifestTemplate, envFile)
 else:
-	parser.print_help()
+	arguments.parser.print_help()
 	exit(1)
 exit(ec)

@@ -12,8 +12,8 @@ const OAUTH_CONFIG = {
 	authorizePath: 'plugins/servlet/oauth/authorize',
 	accessTokenPath: 'plugins/servlet/oauth/access-token',
 	hasIssues: true,
-	needsConfigure: true,
 	forEnterprise: true,
+	needsConfigure: true,
 	authCompletePage: 'jira',
 	noClientIdOk: true
 };

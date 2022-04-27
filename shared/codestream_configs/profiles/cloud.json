@@ -370,7 +370,9 @@
 				"qa2": {
 					"_loadSecretsFile": "microsoft/devops-qa.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "microsoft/devops-stg.cfg"
+				}
 			}
 		},
 		"github": {
@@ -438,7 +440,9 @@
 				"qa2": {
 					"_loadSecretsFile": "linear/qa.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "linear/stg.cfg"
+				}
 			}
 		},
 		"msteams": {
@@ -447,7 +451,7 @@
 					"_loadSecretsFile": "microsoft/teams-dev.cfg"
 				},
 				"eu0": {
-					"_loadSecretsFile": "microsoft/teams-prod.cfg"
+					"_loadSecretsFile": "microsoft/teams-eu.cfg"
 				},
 				"local": {
 					"_loadSecretsFile": "microsoft/teams-local.cfg"
@@ -467,7 +471,9 @@
 				"qa2": {
 					"_loadSecretsFile": "microsoft/teams-qa.cfg"
 				},
-				"stg": {}
+				"stg": {
+					"_loadSecretsFile": "microsoft/teams-stg.cfg"
+				}
 			}
 		},
 		"newrelic": {
