@@ -1,5 +1,15 @@
 # Change Log
 
+## [12.0.11] - 2022-4-27
+
+### Added
+
+- Adds unsubscribe links to notification an feedback request reminder emails
+
+### Changed
+
+- Changed name of Clubhouse integration to Shortcut
+
 ## [12.0.10] - 2022-4-11
 
 ### Fixed
