@@ -1,5 +1,11 @@
 # Change Log
 
+## [12.0.12] - 2022-4-28
+
+### Fixed
+
+- Fixes a broken animated gif on the redirect page when opening an error from New Relic
+
 ## [12.0.11] - 2022-4-27
 
 ### Added
