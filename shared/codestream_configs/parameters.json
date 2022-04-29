@@ -578,6 +578,11 @@
 				"licenseIngestKey": {
 					"desc": "NR1 ingest license key",
 					"env": "CSSVC_NEWRELIC_LICENSE_KEY"
+				},
+				"telemetryEndpoint": {
+					"default": "staging-collector.newrelic.com",
+					"desc": "Host endpoint passed to APM tracing library",
+					"env": "CSSVC_NEWRELIC_TELEMETRY_ENDPOINT"
 				}
 			}
 		},

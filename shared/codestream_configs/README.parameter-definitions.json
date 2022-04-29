@@ -184,7 +184,8 @@
 		"newrelic": {
 			"<appProvider>": {
 				"browserIngestKey": "NR1 ingest browser key [CSSVC_NEWRELIC_BROWSER_KEY]",
-				"licenseIngestKey": "NR1 ingest license key [CSSVC_NEWRELIC_LICENSE_KEY]"
+				"licenseIngestKey": "NR1 ingest license key [CSSVC_NEWRELIC_LICENSE_KEY]",
+				"telemetryEndpoint": "Host endpoint passed to APM tracing library [CSSVC_NEWRELIC_TELEMETRY_ENDPOINT]"
 			}
 		},
 		"okta": {
