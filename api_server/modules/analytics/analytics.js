@@ -86,7 +86,6 @@ class Analytics extends APIServerModule {
 			}
 		};
 	}
-
 }
 
 module.exports = Analytics;
