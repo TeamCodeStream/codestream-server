@@ -57,6 +57,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			}
 			else {
 				await this.saveToken();				// save the provided token
+				await this.saveServerToken();		// save the provided server token to the team
 			}
 			await this.sendResponse();			// send the response html
 		}
@@ -289,7 +290,13 @@ class ProviderTokenRequest extends RestfulRequest {
 			hostUrl: this.hostUrl
 		};
 		try {
-			this.tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
+			const tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
+			if (!tokenData.accessToken && tokenData.userToken) {
+				this.tokenData = tokenData.userToken;
+				this.serverTokenData = tokenData.serverToken;
+			} else {
+				this.tokenData = tokenData;
+			}
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -408,6 +415,28 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this,
 			collection: this.data.users,
 			id: this.user.id
+		}).save(op);
+	}
+
+	// save server token for team
+	async saveServerToken () {
+		if (!this.serverTokenData || !this.serverTokenData.data || !this.serverTokenData.data.team_id) {
+			return;
+		}
+		const multiAuthKey = await this.serviceAuth.getServerTokenMultiAuthKey(this.serverTokenData);
+		if (!multiAuthKey) {
+			return;
+		}
+		const setKey = `serverProviderInfo.${this.provider}.multiple.${multiAuthKey}`;
+		const op = {
+			$set: {
+				[setKey]: this.serverTokenData
+			}
+		};
+		await new ModelSaver({
+			request: this,
+			collection: this.data.teams,
+			id: this.team.id
 		}).save(op);
 	}
 

@@ -6,15 +6,30 @@ const Fetch = require('node-fetch');
 const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/oauth/oauth_module.js');
 const SlackAuthorizer = require('./slack_authorizer');
 
-const SHARING_SCOPES = [
+const USER_SCOPES = [
 	'channels:read',
+	'channels:write',
 	'chat:write',
 	'groups:read',
+	'groups:write',
 	'im:read',
+	'mpim:read',
+	'mpim:write',
 	'users.profile:write',
 	'users:read',
-	'users:read.email',
-	'mpim:read'
+	'users:read.email'
+];
+
+const BOT_SCOPES = [
+	'channels:history',
+	'channels:read',
+	'chat:write',
+	'groups:history',
+	'groups:read',
+	'mpim:history',
+	'mpim:read',
+	'users:read',
+	'users:read.email'
 ];
 
 const OAUTH_CONFIG = {
@@ -24,9 +39,12 @@ const OAUTH_CONFIG = {
 	authPath: 'oauth/v2/authorize',
 	tokenPath: 'api/oauth.v2.access',
 	exchangeFormat: 'form',
-	scopes: SHARING_SCOPES.join(' '),
+	scopes: USER_SCOPES.join(' '),
 	hasSharing: true,
-	scopeParameter: 'user_scope'
+	scopeParameter: 'user_scope',
+	hasServerToken: true,
+	botScopeParameter: 'scope',
+	botScopes: BOT_SCOPES.join(' ')
 };
 
 
@@ -43,6 +61,15 @@ class SlackAuth extends OAuthModule {
 		}).exchangeAndAuthorize();
 	}
 
+	getRedirectData (options) {
+		const { url, parameters } = super.getRedirectData(options);
+		if (options.requestServerToken) {
+			const { botScopes, botScopeParameter } = this.oauthConfig;
+			parameters[botScopeParameter] = botScopes;
+		}
+		return { url, parameters };
+	}
+
 	// overrides OAuthModule.getClientInfo to use "sharing model" app
 	getClientInfo(options) {
 		const info = super.getClientInfo(options);
@@ -55,11 +82,31 @@ class SlackAuth extends OAuthModule {
 	// since Slack updated their OAuth API to v2, we're trying to make this look like the data we got back from V1,
 	// so we don't have to do a client update ... see https://api.slack.com/authentication/migration
 	normalizeTokenDataResponse (responseData) {
+		let serverToken;
+		if (responseData.access_token) {
+			serverToken = {
+				access_token: responseData.access_token,
+				scope: responseData.scope
+			};
+		}
 		responseData.access_token = (responseData.authed_user || {}).access_token;
 		responseData.user_id = (responseData.authed_user || {}).id;
 		responseData.team_id = (responseData.team || {}).id;
 		responseData.team_name = (responseData.team || {}).name;
 		responseData.scope = (responseData.authed_user || {}).scope;
+		if (serverToken) {
+			serverToken = {
+				...responseData,
+				...serverToken
+			};
+			delete serverToken.user_id;
+			delete serverToken.authed_user;
+			delete responseData.bot_user_id;
+			delete responseData.token_type;
+			const userToken = super.normalizeTokenDataResponse(responseData);
+			serverToken = super.normalizeTokenDataResponse(serverToken);
+			return { userToken, serverToken };
+		}
 		return super.normalizeTokenDataResponse(responseData);
 	}
 
@@ -79,6 +126,10 @@ class SlackAuth extends OAuthModule {
 			options.accessToken,
 			options.providerInfo
 		);
+	}
+
+	async getServerTokenMultiAuthKey (info) {
+		return info.data.team_id;
 	}
 
 	// an access token can be maintained for each slack workspace
