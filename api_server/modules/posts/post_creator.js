@@ -212,7 +212,7 @@ class PostCreator extends ModelCreator {
 	// get the company that owns the team for which the post is being created
 	// only needed for analytics so we only do this for inbound emails 
 	async getCompany () {
-		if ((!this.forInboundEmail && !this.forCommentEngine) || !this.team) {
+		if ((!this.forInboundEmail && !this.forCommentEngine && !this.forSlack) || !this.team) {
 			// only needed for inbound email, for tracking
 			// or if no team, which can happen for replies to teamless code errors
 			return;
@@ -1046,7 +1046,7 @@ class PostCreator extends ModelCreator {
 	async trackPost () {
 		// only track for email replies and NR comment engine comments,
 		// client-originating posts are tracked by the client
-		if ((!this.forInboundEmail && !this.forCommentEngine) || !this.parentPost) {
+		if ((!this.forInboundEmail && !this.forCommentEngine && !this.forSlack) || !this.parentPost) {
 			return;
 		}
 		const { request, user, team, company } = this;
