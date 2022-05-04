@@ -15,9 +15,7 @@ class SlackUserHelper {
 	}
 
 	async get (method, args) {
-		const argString = Object.keys(args).reduce((result, key) => {
-			return `${result}&${key}=${args[key]}`;
-		});
+		const argString = Object.keys(args).map(key => `${key}=${args[key]}`).join('&');
 		const request = await Fetch(`https://slack.com/api/${method}?${argString}`,
 			{
 				method: 'get',
@@ -36,7 +34,7 @@ class SlackUserHelper {
 	}
 
 	async createFauxUser (teamId, slackWorkspaceId, slackUserId) {
-		const team = this.request.data.teams.getById(teamId);
+		const team = await this.request.data.teams.getById(teamId);
 		if (!team) {
 			return undefined;
 		}
@@ -76,7 +74,7 @@ class SlackUserHelper {
 			});
 			let user = await this.userCreator.createUser(userData);
 			await new AddTeamMembers({
-				request: this,
+				request: this.request,
 				addUsers: [user],
 				team: team
 			}).addTeamMembers();
@@ -85,7 +83,7 @@ class SlackUserHelper {
 			return user;
 		}
 		catch (ex) {
-			this.log(ex);
+			this.request.log(ex);
 		}
 		return undefined;
 	}
@@ -103,7 +101,7 @@ class SlackUserHelper {
 
 		if (users.length > 1) {
 			// this shouldn't really happen
-			this.log(`Multiple CodeStream users found matching identity ${slackUserId}`);
+			this.request.log(`Multiple CodeStream users found matching identity ${slackUserId}`);
 			return undefined;
 		}
 		if (users.length === 1) {
@@ -126,7 +124,7 @@ class SlackUserHelper {
 		if (!codestreamTeamId || !slackWorkspaceId || !slackUserId) return undefined;
 
 		const query = { externalUserId: `slack::${codestreamTeamId}::${slackWorkspaceId}::${slackUserId}` };
-		const users = await this.data.users.getByQuery(query,
+		const users = await this.request.data.users.getByQuery(query,
 			{ hint: UserIndexes.byExternalUserId }
 		);
 
@@ -153,7 +151,7 @@ class SlackUserHelper {
 	async getUserByEmail (emailAddress, codestreamTeamId) {
 		if (!emailAddress) return undefined;
 
-		const users = await this.data.users.getByQuery(
+		const users = await this.request.data.users.getByQuery(
 			{ searchableEmail: emailAddress.toLowerCase() },
 			{ hint: UserIndexes.bySearchableEmail }
 		);

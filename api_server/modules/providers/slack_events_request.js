@@ -168,11 +168,10 @@ class SlackEventsRequest extends RestfulRequest {
 		if (!parentPost) {
 			return;
 		}
-		const botToken = await this.getBotToken(this.slackEvent.team);
-		// TODO: enable bot token check
-		/*if (!botToken) {
+		const botToken = await this.getBotToken(parentPost.get('teamId'), this.slackEvent.team);
+		if (!botToken) {
 			return;
-		}*/
+		}
 		const userHelper = new SlackUserHelper({
 			request: this,
 			accessToken: botToken
@@ -232,11 +231,23 @@ class SlackEventsRequest extends RestfulRequest {
 		return message.thread_ts && message.thread_ts !== message.ts;
 	}
 
-	async getBotToken (teamId) {
-		return null; // TODO: figure out token storage
+	async getBotToken (teamId, slackTeamId) {
+		const team = await this.data.teams.getById(teamId);
+		if (!team) {
+			return undefined;
+		}
+		const providerInfo = team.get('serverProviderInfo');
+		return (
+			providerInfo &&
+			providerInfo.slack &&
+			providerInfo.slack.multiple &&
+			providerInfo.slack.multiple[slackTeamId] &&
+			providerInfo.slack.multiple[slackTeamId].accessToken
+		);
 	}
 
 	async getPost (teamId, channel, ts) {
+		// TODO: set up indexes and posts field for querying this more efficiently
 		const posts = await this.data.posts.getByQuery(
 			{
 				'sharedTo.0.providerId': 'slack*com',
