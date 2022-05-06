@@ -44,8 +44,3 @@ context.
   The inbound email service verifies the messages and injects into CodeStream by
   way of making API calls. Supplemental inbound email docs can be found
   [here](../inbound_email/docs/README.md).
-
-* [On-Prem Admin](../onprem_admin/README.md) - An admin server and browser
-  Single Page App for editing the configuration, monitoring the services and
-  performing other maintenance functions for On-Prem installations. Supplemental
-  onprem admin docs can be found [here](../onprem_admin/docs/README.md).

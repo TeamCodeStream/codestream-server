@@ -97,11 +97,11 @@ export CS_OUTBOUND_EMAIL_TOP=$CSBE_TOP/outbound_email
 # CS_OUTBOUND_EMAIL_DEPS=....
 . $CS_OUTBOUND_EMAIL_TOP/sandbox/defaults.sh
 
-echo "Loading onprem-admin environment..."
-export OPADM_NAME=$CSBE_NAME
-export OPADM_SANDBOX=$CSBE_SANDBOX
-export OPADM_TOP=$CSBE_TOP/onprem_admin
-# OPADM_DEPS=....
-. $OPADM_TOP/sandbox/defaults.sh
+# echo "Loading onprem-admin environment..."
+# export OPADM_NAME=$CSBE_NAME
+# export OPADM_SANDBOX=$CSBE_SANDBOX
+# export OPADM_TOP=$CSBE_TOP/onprem_admin
+# # OPADM_DEPS=....
+# . $OPADM_TOP/sandbox/defaults.sh
 
 sbcfg_setup_for_newrelic_instrumentation $CSSVC_BACKEND_ROOT $CSBE_TOP $CSBE_SHORT_NAME
