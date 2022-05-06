@@ -588,6 +588,10 @@
 					"desc": "Host endpoint passed to APM tracing library",
 					"env": "CSSVC_NEWRELIC_TELEMETRY_ENDPOINT"
 				},
+				"webviewAgentId": {
+					"desc": "NR1 Agent ID for webview telemetry",
+					"env": "CSSVC_NEWRELIC_WEBVIEW_AGENT_ID"
+				},
 				"webviewAppId": {
 					"desc": "NR1 App ID for webview telemetry",
 					"env": "CSSVC_NEWRELIC_WEBVIEW_APP_ID"
