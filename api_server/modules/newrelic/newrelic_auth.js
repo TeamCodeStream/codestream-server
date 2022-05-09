@@ -100,11 +100,21 @@ class NewRelicAuth extends OAuthModule {
 			return response.status(403).send({ error });
 		}
 
-		const { browserIngestKey, licenseIngestKey, telemetryEndpoint } = this.api.config.integrations.newrelic;
+		const { 
+			browserIngestKey,
+			licenseIngestKey,
+			telemetryEndpoint,
+			webviewAgentId,
+			webviewAppId,
+			accountNumber
+		} = this.api.config.integrations.newrelic;
 		response.send({
 			browserIngestKey,
 			licenseIngestKey,
-			telemetryEndpoint
+			telemetryEndpoint,
+			webviewAgentId,
+			webviewAppId,
+			accountId: accountNumber
 		});
 	}
 
