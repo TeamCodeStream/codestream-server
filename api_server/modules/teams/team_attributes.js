@@ -56,6 +56,10 @@ module.exports = {
 		type: 'arrayOfStrings',
 		serverOnly: true
 	},
+	serverProviderInfo: {
+		type: 'object',
+		description: 'Object containing server-only credentials for third-party providers'
+	},
 	reportingGroup: { // deprecated, now in company object
 		type: 'string',
 		maxLength: 20
