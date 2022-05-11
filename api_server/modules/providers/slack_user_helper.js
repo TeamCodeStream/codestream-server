@@ -33,6 +33,20 @@ class SlackUserHelper {
 		return response;
 	}
 
+	async post (method, body) {
+		const request = await Fetch(`https://slack.com/api/${method}`,
+			{
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${this.accessToken}`
+				},
+				body: JSON.stringify(body)
+			}
+		);
+		return await request.json();
+	}
+
 	async createFauxUser (teamId, slackWorkspaceId, slackUserId) {
 		const team = await this.request.data.teams.getById(teamId);
 		if (!team) {
@@ -148,6 +162,12 @@ class SlackUserHelper {
 		});
 	}
 
+	async getSlackUserByEmail (email) {
+		return this.get('users.lookupByEmail', {
+			email
+		});
+	}
+
 	async getUserByEmail (emailAddress, codestreamTeamId) {
 		if (!emailAddress) return undefined;
 
@@ -164,7 +184,7 @@ class SlackUserHelper {
 		return undefined;
 	}
 
-	async getPermalink(channel, message_ts) {
+	async getPermalink (channel, message_ts) {
 		return this.get('chat.getPermalink', {
 			channel,
 			message_ts
@@ -200,6 +220,10 @@ class SlackUserHelper {
 			mentionedUserIds: [...mentionedUserIds],
 			text: newText
 		};
+	}
+
+	async postMessage (body) {
+		return this.post('chat.postMessage', body);
 	}
 }
 
