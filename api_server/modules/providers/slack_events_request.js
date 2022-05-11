@@ -36,6 +36,10 @@ class SlackEventsRequest extends RestfulRequest {
 		if (!this.slackEvent || this.slackEvent.type !== 'message') {
 			return;
 		}
+		// don't repost messages that originated from codestream
+		if (this.slackEvent.app_id && this.slackEvent.app_id === this.api.config.integrations.slack.appSharingId) {
+			return;
+		}
 		if (this.slackEvent.subtype === 'message_deleted') {
 			await this.processMessageDeleted();
 		}
@@ -107,10 +111,13 @@ class SlackEventsRequest extends RestfulRequest {
 			request: this
 		});
 		try {
-			await this.postDeleter.deleteModel(post.id);
+			const deleteOp = await this.postDeleter.deleteModel(post.id);
+			const responseData = {
+				post: deleteOp
+			};
+			await this.postDeleter.handleResponse(responseData);
 			this.log('Deleted post via Slack event');
-			// TODO: send broadcast messages properly for delete events
-			this.cleanupTask = async () => { await this.postCreator.postProcess(); };
+			this.cleanupTask = async () => { await this.postDeleter.postProcess(responseData); };
 		} catch (ex) {
 			this.log(`Error deleting post via Slack event: ${ex.message}`);
 		}

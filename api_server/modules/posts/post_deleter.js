@@ -332,10 +332,10 @@ class PostDeleter extends ModelDeleter {
 	}
 
 	// after the post is deleted...
-	async postProcess () {
+	async postProcess (responseData) {
 		// need the stream for publishing
 		this.stream = await this.data.streams.getById(this.post.get('streamId'));
-		this.responseData = this.request.responseData;
+		this.responseData = responseData || this.request.responseData;
 		await this.publishPost();
 		await this.publishMarkers();
 		await this.publishUnrelatedCodemarks();
