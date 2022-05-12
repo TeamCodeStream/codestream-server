@@ -1,5 +1,11 @@
 # Change Log
 
+## [12.0.13] - 2022-5-12
+
+### Added
+
+- Backend support for New Relic instrumentation
+
 ## [12.0.12] - 2022-4-28
 
 ### Fixed

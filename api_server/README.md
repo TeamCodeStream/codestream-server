@@ -61,7 +61,7 @@ sandbox. This is how installations are performed for our CI/CD pipelines.
    have not loaded a dev_tools mongo sandbox). A default api sandbox name of
    `api` is assumed in some tools so we'll use it here (though you can change
    it).
-   
+
    For private repo workflows:
    ```
    dt-sb-install --name api --type cs_server_nr --info-file sb.info.nr.api --yes [--no-deps]
@@ -80,8 +80,8 @@ sandbox. This is how installations are performed for our CI/CD pipelines.
 	dt-sb-create-playground -t $CS_API_TOP/sandbox/playgrounds/default.template
 	```
 1. Install the [inbound email](../inbound_email/README.md), [outbound
-   email](../outbound_email/README.md), [broadcaster](../broadcaster/README.md)
-   & [onprem admin](../onprem_admin/README.md) sandboxes.
+   email](../outbound_email/README.md) & [broadcaster](../broadcaster/README.md)
+   sandboxes.
 1. Load all of your sandboxes into one shell and create a `cs` playground for
    your codestream-cloud configuration.
 	```
