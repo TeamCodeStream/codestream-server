@@ -57,6 +57,11 @@ class TokenAuthenticator {
 			token = (this.request.signedCookies && this.request.signedCookies[cookie]);
 		}
 
+		// possibly look for a New Relic Service Gateway header
+		else if (await this.checkForSGHeaders(this.request)) {
+			return false;
+		}
+
 		// otherwise look for a Bearer token
 		else {
 			token =	this.tokenFromHeader(this.request);
@@ -164,6 +169,40 @@ class TokenAuthenticator {
 			let match = request.headers.authorization.match(/^Bearer (.+)$/);
 			return match && match[1];
 		}
+	}
+
+	// check for Service Gateway headers in the request, and accept user identity if provided
+	async checkForSGHeaders (request) {
+		// REMOVE THE CODE BELOW WHEN READY TO GO INTO PRODUCTION
+		// for now, absolutely do not let this functionality get into production-cloud
+		if (this.api.config.sharedGeneral.isProductionCloud) {
+			return false;
+		}
+
+		// read in global mongo "variable" indicating to accept Service Gateway headers
+		// for now, this is how we prevent spoofing
+		if (this.acceptSGHeaders === undefined) {
+			const acceptSGHeaders = await this.api.data.globals.getOneByQuery(
+				{ tag: 'acceptSGHeaders' }, 
+				{ overrideHintRequired: true }
+			);
+			if (acceptSGHeaders && acceptSGHeaders.enabled) {
+				this.acceptSGHeaders = true;
+			} else {
+				this.acceptSGHeaders = false;
+			}
+		}
+		if (!this.acceptSGHeaders) {
+			return false;
+		}
+
+		const userId = request.headers['service-gateway-cs-user-id'];
+		if (!userId) {
+			return false;
+		}
+
+		this.payload = { userId };
+		return true;
 	}
 }
 

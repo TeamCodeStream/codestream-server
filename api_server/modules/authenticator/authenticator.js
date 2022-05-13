@@ -13,6 +13,14 @@ const DEPENDENCIES = [
 	'cookie_parser'	// we accept authentication in the form of a cookie
 ];
 
+const ROUTES = [
+	{
+		method: 'post',
+		path: 'no-auth/enable-sg',
+		requestClass: require('./enable_sg_request')
+	}
+];
+
 class Authenticator extends APIServerModule {
 
 	constructor (config) {
@@ -22,6 +30,10 @@ class Authenticator extends APIServerModule {
 
 	getDependencies () {
 		return DEPENDENCIES;
+	}
+
+	getRoutes () {
+		return ROUTES;
 	}
 
 	middlewares () {

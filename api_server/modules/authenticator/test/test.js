@@ -11,6 +11,13 @@ const AuthenticationInvalidTokenTest = require('./authentication_invalid_token_t
 const AuthenticationNoUserIDTest = require('./authentication_no_user_id_test');
 const AuthenticationUserNotFoundTest = require('./authentication_user_not_found_test');
 const MinIssuanceTest = require('./min_issuance_test');
+const ServiceGatewayCSUserIdTest = require('./service_gateway/service_gateway_cs_userid_test');
+const ServiceGatewayFailsIfDisabledTest = require('./service_gateway/service_gateway_fails_if_disabled_test');
+const ServiceGatewayUserNotFoundTest = require('./service_gateway/service_gateway_user_not_found_test');
+const EnableServiceGatewayAuthTest = require('./service_gateway/enable_service_gateway_auth_test');
+const EnableServiceGatewayBadAuthTest = require('./service_gateway/enable_service_gateway_bad_auth_test');
+
+const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 describe('authentication', function() {
 
@@ -22,4 +29,12 @@ describe('authentication', function() {
 	new AuthenticationNoUserIDTest().test();
 	new AuthenticationUserNotFoundTest().test();
 	new MinIssuanceTest().test();
+	// since these tests enable and disable a global, they must be run sequentially so as not to interfere with each other
+	SerializeTests([
+		ServiceGatewayCSUserIdTest,
+		ServiceGatewayFailsIfDisabledTest,
+		ServiceGatewayUserNotFoundTest,
+		EnableServiceGatewayAuthTest,
+		EnableServiceGatewayBadAuthTest
+	])
 });
