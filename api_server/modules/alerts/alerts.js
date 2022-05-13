@@ -67,6 +67,7 @@ class Alerts extends APIServerModule {
 				next();
 			})();
 			*/
+			next();
 		};
 	}
 
