@@ -51,6 +51,7 @@ class Alerts extends APIServerModule {
 			})();
 			*/
 
+			/*
 			// add "announce history fetch" to capabilities as set by global variable
 			(async () => {
 				if (request.method.toLowerCase() === 'get' && request.url === '/no-auth/status') {
@@ -65,6 +66,7 @@ class Alerts extends APIServerModule {
 				}
 				next();
 			})();
+			*/
 		};
 	}
 
