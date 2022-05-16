@@ -89,6 +89,7 @@ class PostCreator extends ModelCreator {
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
 		await this.validateMentionedUsers(); // validate that mentioned users are on the team
+		await this.setShareIdentifiers(); // set shareIdentifiers based on sharedTo values
 		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
@@ -242,6 +243,13 @@ class PostCreator extends ModelCreator {
 		if (mentionedUsersNotOnTeam.length > 0) {
 			throw this.errorHandler.error('validation', { reason: 'one or more mentioned users are not on the team' });
 		}
+	}
+
+	async setShareIdentifiers () {
+		if (!this.attributes.sharedTo || this.attributes.sharedTo.length === 0) {
+			return;
+		}
+		this.attributes.shareIdentifiers = Post.getShareIdentifiers(this.attributes.sharedTo);
 	}
 
 	// create any added users being mentioned, these users get invited "on-the-fly"

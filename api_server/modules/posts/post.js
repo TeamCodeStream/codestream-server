@@ -42,6 +42,19 @@ class Post extends CodeStreamModel {
 		const match = text.match(/^\/me\s+(.*)/);
 		return match && match.length > 1 && match[1];
 	}
+
+	static getShareIdentifiers (sharedTo) {
+		const providerMap = {
+			'slack*com': 'slack',
+			'login*microsoft*com': 'msteams'
+		};
+		return sharedTo.map(dest => [
+			providerMap[dest.providerId],
+			dest.teamId,
+			dest.channelId,
+			dest.postId
+		].join('::'));
+	}
 }
 
 module.exports = Post;

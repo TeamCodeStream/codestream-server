@@ -255,15 +255,19 @@ class SlackEventsRequest extends RestfulRequest {
 
 	async getPost (teamId, channel, ts) {
 		// TODO: set up indexes and posts field for querying this more efficiently
+		const shareIdentifier = [
+			'slack',
+			teamId,
+			channel,
+			ts
+		].join('::');
 		const posts = await this.data.posts.getByQuery(
 			{
-				'sharedTo.0.providerId': 'slack*com',
-				'sharedTo.0.teamId': teamId,
-				'sharedTo.0.channelId': channel,
-				'sharedTo.0.postId': ts
+				shareIdentifiers: shareIdentifier,
+				deactivated: false
 			},
 			{
-				hint: PostIndexes.byTeamId
+				hint: PostIndexes.byShareIdentifiers
 			}
 		);
 		if (posts.length > 0) {

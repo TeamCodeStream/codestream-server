@@ -155,15 +155,19 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'slack.com',
 		apiHost: 'slack.com/api',
 		hasSharing: true,
+		hasServerToken: true,
 		scopes: [
 			'channels:read',
+			'channels:write',
 			'chat:write',
 			'groups:read',
+			'groups:write',
 			'im:read',
+			'mpim:read',
+			'mpim:write',
 			'users.profile:write',
 			'users:read',
 			'users:read.email',
-			'mpim:read'
 		]
 	},
 	'login*microsoftonline*com': {
