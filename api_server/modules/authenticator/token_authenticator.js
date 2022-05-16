@@ -6,6 +6,7 @@
 
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Errors = require('./errors');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 class TokenAuthenticator {
 
@@ -197,11 +198,28 @@ class TokenAuthenticator {
 		}
 
 		const userId = request.headers['service-gateway-cs-user-id'];
-		if (!userId) {
+		const nrUserId = request.headers['service-gateway-user-id'];
+		if (!userId && !nrUserId) {
 			return false;
 		}
 
-		this.payload = { userId };
+		if (nrUserId) {
+			const csUser = await this.api.data.users.getOneByQuery(
+				{
+					nrUserId
+				},
+				{
+					hint: UserIndexes.byNrUserId
+				}
+			);
+			if (!csUser) {
+				this.api.warn(`Service Gateway send NR User ID of ${nrUserId} but no matching user found`);
+				return false;
+			}
+			this.payload = { userId: csUser.id };
+		} else {
+			this.payload = { userId };
+		}
 		return true;
 	}
 }

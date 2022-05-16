@@ -25,7 +25,7 @@ class EnableSGRequest extends RestfulRequest {
 			throw this.errorHandler.error('updateAuth', { reason: 'SG enable not authorized'});
 		}
 
-		this.warn('NOTE: Accepting Service Gateway enable, this had better be a test!');
+		this.warn(`NOTE: Accepting Service Gateway enable (enable=${this.request.body.enable}), this had better be a test!`);
 		await this.api.data.globals.updateDirect(
 			{ tag: 'acceptSGHeaders' },
 			{ $set: { tag: 'acceptSGHeaders', enabled: !!this.request.body.enable } },

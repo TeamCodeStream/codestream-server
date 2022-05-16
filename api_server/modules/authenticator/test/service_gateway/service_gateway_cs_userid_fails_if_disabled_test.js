@@ -2,7 +2,7 @@
 
 const ServiceGatewayCSUserIdTest = require('./service_gateway_cs_userid_test');
 
-class ServiceGatewayFailsIfDisabledTest extends ServiceGatewayCSUserIdTest {
+class ServiceGatewayCSUserIdFailsIfDisabledTest extends ServiceGatewayCSUserIdTest {
 
 	get description () {
 		return 'should not accept Service Gateway header identifying CodeStream user if acceptance of Service Gateway headers is disabled';
@@ -33,4 +33,4 @@ class ServiceGatewayFailsIfDisabledTest extends ServiceGatewayCSUserIdTest {
 	}
 }
 
-module.exports = ServiceGatewayFailsIfDisabledTest;
+module.exports = ServiceGatewayCSUserIdFailsIfDisabledTest;

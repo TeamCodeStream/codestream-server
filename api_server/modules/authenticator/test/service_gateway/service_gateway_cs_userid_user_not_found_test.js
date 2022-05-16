@@ -2,10 +2,10 @@
 
 const ServiceGatewayCSUserIdTest = require('./service_gateway_cs_userid_test');
 
-class ServiceGatewayUserNotFoundTest extends ServiceGatewayCSUserIdTest {
+class ServiceGatewayCSUserIdUserNotFoundTest extends ServiceGatewayCSUserIdTest {
 
 	get description () {
-		return 'should prevent access to resources when the user found in a Service Gateway header does not exist';
+		return 'should return an error when the user found in a CodeStream Service Gateway header does not exist';
 	}
 
 	getExpectedError () {
@@ -24,4 +24,4 @@ class ServiceGatewayUserNotFoundTest extends ServiceGatewayCSUserIdTest {
 	}
 }
 
-module.exports = ServiceGatewayUserNotFoundTest;
+module.exports = ServiceGatewayCSUserIdUserNotFoundTest;

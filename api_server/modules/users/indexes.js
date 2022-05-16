@@ -21,5 +21,8 @@ module.exports = {
 	},
 	byNeedsAutoReinvites: {
 		needsAutoReinvites: 1
+	},
+	byNrUserId: {
+		nrUserId: 1
 	}
 };

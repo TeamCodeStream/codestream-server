@@ -1,6 +1,7 @@
 'use strict';
 
 const AuthenticationTest = require('../authentication_test');
+const Assert = require('assert');
 
 class ServiceGatewayCSUserIdTest extends AuthenticationTest {
 
@@ -57,7 +58,10 @@ class ServiceGatewayCSUserIdTest extends AuthenticationTest {
 				super.after(callback);
 			}
 		);
+	}
 
+	validateResponse (data) {
+		Assert.strictEqual(data.user.id, this.users[1].user.id, '/users/me did not fetch the correct user');
 	}
 }
 
