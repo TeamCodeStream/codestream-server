@@ -197,12 +197,18 @@ class SlackEventsRequest extends RestfulRequest {
 			setCreatedAt: Math.floor(this.slackEvent.ts * 1000),
 			forSlack: true
 		});
+		const parentSharedTo = parentPost.get('sharedTo').find(_ => (
+			_.providerId === 'slack*com' &&
+			_.teamId === this.slackEvent.team &&
+			_.channelId === this.slackEvent.channel &&
+			_.postId === this.slackEvent.thread_ts
+		))
 		const sharedTo = [{
 			providerId: 'slack*com',
-			teamId: parentPost.get('sharedTo')[0].teamId,
-			teamName: parentPost.get('sharedTo')[0].teamName,
-			channelId: parentPost.get('sharedTo')[0].channelId,
-			channelName: parentPost.get('sharedTo')[0].channelName,
+			teamId: parentSharedTo.teamId,
+			teamName: parentSharedTo.teamName,
+			channelId: parentSharedTo.channelId,
+			channelName: parentSharedTo.channelName,
 			postId: this.slackEvent.ts,
 			url: permalink || ''
 		}];
