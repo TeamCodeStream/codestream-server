@@ -58,6 +58,7 @@ class CommonInit {
 		}
 		if (this.wantSharedTo) {
 			this.expectedData.post.$set.sharedTo = DeepClone(this.data.sharedTo);
+			this.expectedData.post.$set.shareIdentifiers = this.getShareIdentifiers(this.data.sharedTo);
 		}
 		this.expectedPost = DeepClone(this.post);
 		Object.assign(this.expectedPost, this.expectedData.post.$set);
@@ -71,7 +72,7 @@ class CommonInit {
 		return [
 			{
 				createdAt: Date.now(),
-				providerId: 'slack',
+				providerId: 'slack*com',
 				teamId: RandomString.generate(10),
 				teamName: RandomString.generate(10),
 				channelId: RandomString.generate(10),
@@ -80,7 +81,7 @@ class CommonInit {
 			},
 			{
 				createdAt: Date.now(),
-				providerId: 'msteams',
+				providerId: 'login*microsoft*com',
 				teamId: RandomString.generate(10),
 				teamName: RandomString.generate(10),
 				channelId: RandomString.generate(10),
@@ -88,6 +89,19 @@ class CommonInit {
 				postId: RandomString.generate(10)
 			}
 		];
+	}
+
+	getShareIdentifiers (sharedTo) {
+		const providerMap = {
+			'slack*com': 'slack',
+			'login*microsoft*com': 'msteams'
+		};
+		return sharedTo.map(dest => [
+			providerMap[dest.providerId],
+			dest.teamId,
+			dest.channelId,
+			dest.postId
+		].join('::'));
 	}
 
 	// perform the actual post update 
