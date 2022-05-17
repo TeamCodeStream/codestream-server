@@ -1069,7 +1069,7 @@ class PostCreator extends ModelCreator {
 		);
 		const trackData = {
 			'Parent ID': parentId,
-			Endpoint: this.forCommentEngine ? 'NR1' : 'Email',
+			Endpoint: this.forCommentEngine ? 'NR1' : (this.forSlack ? 'Slack' : 'Email'),
 			'Date of Last Post': dateOfLastPost
 		};
 		if (user.get('totalPosts') === 1) {

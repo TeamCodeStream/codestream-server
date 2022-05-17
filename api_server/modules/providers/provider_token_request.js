@@ -427,12 +427,12 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (!multiAuthKey) {
 			return;
 		}
-		const setKey = `serverProviderInfo.${this.provider}.multiple.${multiAuthKey}`;
+		const subKey = `${this.provider}.multiple.${multiAuthKey}`;
 		const op = {
-			$set: {
-				[setKey]: this.serverTokenData
-			}
+			$set: {}
 		};
+		op.$set[`serverProviderData.${subKey}`] = this.serverTokenData.data;
+		op.$set[`serverProviderToken.${subKey}`] = this.serverTokenData.accessToken;
 		await new ModelSaver({
 			request: this,
 			collection: this.data.teams,

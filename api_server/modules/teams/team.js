@@ -39,34 +39,7 @@ class Team extends CodeStreamModel {
 		if (info) {
 			object.providerHosts = info.providerHosts[this.id];
 		}
-		// we don't want to send secrets to the client, but the client needs the metadata
-		if (object.serverProviderInfo) {
-			object.serverProviderInfo = this.sanitizeServerProviderInfo(object.serverProviderInfo);
-		}
 		return object;
-	}
-
-	// get a sanitized form of serverProviderInfo stripped of the accessToken
-	sanitizeServerProviderInfo (serverProviderInfo) {
-		if (!serverProviderInfo) {
-			return undefined;
-		}
-		const ret = {};
-		for (const x in serverProviderInfo) {
-			if (serverProviderInfo[x].multiple) {
-				ret[x] = { multiple: {} };
-				for (const y in serverProviderInfo[x].multiple) {
-					const data = serverProviderInfo[x].multiple[y];
-					delete data.accessToken;
-					ret[x].multiple[y] = data;
-				}
-			} else {
-				const data = { ...serverProviderInfo[x] };
-				delete data.accessToken;
-				ret[x] = data;
-			}
-		}
-		return ret;
 	}
 
 	// get the members of the team, accounting for members who may have been removed

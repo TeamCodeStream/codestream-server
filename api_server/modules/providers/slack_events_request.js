@@ -13,8 +13,8 @@ class SlackEventsRequest extends RestfulRequest {
 
 	async authorize () {
 		if (!this.verifySlackRequest(this.request)) {
-			this.log('Slack verification failed');
-			throw this.errorHandler.error('notFound');
+			this.warn('Slack verification failed');
+			throw this.errorHandler.error('invalidParameter');
 		}
 	}
 	
@@ -61,7 +61,6 @@ class SlackEventsRequest extends RestfulRequest {
 	}
 
 	verifySlackRequest (request) {
-		// mainly snagged from https://medium.com/@rajat_sriv/verifying-requests-from-slack-using-node-js-69a8b771b704
 		try {
 			// see BodyParserModule.slackVerify() for where this comes from
 			const rawBody = request.slackRawBody;
@@ -116,7 +115,7 @@ class SlackEventsRequest extends RestfulRequest {
 				post: deleteOp
 			};
 			await this.postDeleter.handleResponse(responseData);
-			this.log('Deleted post via Slack event');
+			this.log(`Deleted post ${post.id} via Slack event`);
 			this.cleanupTask = async () => { await this.postDeleter.postProcess(responseData); };
 		} catch (ex) {
 			this.log(`Error deleting post via Slack event: ${ex.message}`);
@@ -140,7 +139,7 @@ class SlackEventsRequest extends RestfulRequest {
 			const updateOp = await updater.updateModel(post.id, {
 				text: message.text
 			});
-			this.log('Updated post via Slack event');
+			this.log(`Updated post ${post.id} via Slack event`);
 			this.cleanupTask = async () => {
 				await new PostPublisher({
 					data: {
@@ -188,7 +187,7 @@ class SlackEventsRequest extends RestfulRequest {
 			|| await userHelper.getFauxUser(parentPost.get('teamId'), this.slackEvent.team, this.slackEvent.user)
 			|| await userHelper.createFauxUser(parentPost.get('teamId'), this.slackEvent.team, this.slackEvent.user);
 		if (!this.user) {
-			this.log('Could not find or create user based on Slack user');
+			this.warn('Could not find or create user based on Slack user');
 			return;
 		}
 		const permalink = await userHelper.getPermalink(this.slackEvent.channel, this.slackEvent.ts);
@@ -209,7 +208,6 @@ class SlackEventsRequest extends RestfulRequest {
 		}];
 		const textAndMentions = await userHelper.processText(this.slackEvent.text);
 		try {
-			// TODO: set post creation date to time of slack post
 			const postOp = await this.postCreator.createPost({
 				text: textAndMentions.text,
 				parentPostId: parentPost.id,
@@ -221,7 +219,7 @@ class SlackEventsRequest extends RestfulRequest {
 				transforms: this.postCreator.transforms,
 				initialResponseData: postOp.getSanitizedObject({ request: this })
 			});
-			this.log('Created post via Slack event');
+			this.log(`Created post ${responseData.id} via Slack event`);
 			this.cleanupTask = async () => {
 				await this.postCreator.postCreate({
 					postPublishData: {
@@ -243,25 +241,23 @@ class SlackEventsRequest extends RestfulRequest {
 		if (!team) {
 			return undefined;
 		}
-		const providerInfo = team.get('serverProviderInfo');
+		const providerInfo = team.get('serverProviderToken');
 		return (
 			providerInfo &&
 			providerInfo.slack &&
 			providerInfo.slack.multiple &&
-			providerInfo.slack.multiple[slackTeamId] &&
-			providerInfo.slack.multiple[slackTeamId].accessToken
+			providerInfo.slack.multiple[slackTeamId]
 		);
 	}
 
 	async getPost (teamId, channel, ts) {
-		// TODO: set up indexes and posts field for querying this more efficiently
 		const shareIdentifier = [
 			'slack',
 			teamId,
 			channel,
 			ts
 		].join('::');
-		const posts = await this.data.posts.getByQuery(
+		return await this.data.posts.getOneByQuery(
 			{
 				shareIdentifiers: shareIdentifier,
 				deactivated: false
@@ -270,9 +266,6 @@ class SlackEventsRequest extends RestfulRequest {
 				hint: PostIndexes.byShareIdentifiers
 			}
 		);
-		if (posts.length > 0) {
-			return posts[0]; // there should only ever be one
-		}
 	}
 }
 

@@ -31,66 +31,21 @@ class ProviderShareRequest extends RestfulRequest {
 
 	async process () {
 		await this.requireAndAllow();
-		let destination;
 		this.provider = this.request.params.provider.toLowerCase();
 		if (!this.post.get('parentPostId')) {
 			throw this.errorHandler.error('notFound', { info: 'parentPost' });
 		}
-		const parentPost = await this.data.posts.getById(this.post.get('parentPostId'));
-		if (!parentPost) {
+		this.parentPost = await this.data.posts.getById(this.post.get('parentPostId'));
+		if (!this.parentPost) {
 			throw this.errorHandler.error('notFound', { info: 'parentPost' });
 		}
 		if (this.provider === 'slack') {
-			const parentSharedTo = parentPost.get('sharedTo').find(_ => _.providerId === 'slack*com');
-			if (!parentSharedTo) {
-				// TODO: throw error
-				return;
-			}
-			const destinationKeys = ['providerId', 'teamId', 'channelId', 'parentPostId'];
-			destination = {
-				providerId: parentSharedTo.providerId,
-				teamId: parentSharedTo.teamId,
-				teamName: parentSharedTo.teamName,
-				channelId: parentSharedTo.channelId,
-				channelName: parentSharedTo.channelName,
-				parentPostId: parentSharedTo.postId
-			};
-			const alreadyShared = (this.post.get('sharedTo') || [])
-				.some(x => destinationKeys.every(y => x[y] === destination[y]));
-			if (alreadyShared) {
-				return;
-			}
-			const team = await this.data.teams.getById(this.post.get('teamId'));
-			if (!team) {
-				throw this.errorHandler.error('notFound', { info: 'team' });
-			}
-			const slackTeamId = parentSharedTo.teamId;
-			if (!slackTeamId) {
-				return;
-			}
-			const serverProviderInfo = team.get('serverProviderInfo');
-			if (
-				!serverProviderInfo &&
-				!serverProviderInfo.slack &&
-				!serverProviderInfo.slack.multiple &&
-				!serverProviderInfo.slack.multiple[slackTeamId]
-			) {
-				return;
-			}
-			const accessToken = serverProviderInfo.slack.multiple[slackTeamId].accessToken;
-			if (!accessToken) {
-				throw this.errorHandler.error('notFound', { info: 'accessToken' });
-			}
-			this.sharingHelper = new SlackSharingHelper({
-				request: this,
-				asBot: true,
-				accessToken
-			});
+			await this.prepareSlack();
 		} else {
 			throw this.errorHandler.error('invalidParameter', { info: `provider ${this.provider} not supported` });
 		}
-		if (this.sharingHelper && destination) {
-			const sharedTo = await this.sharingHelper.sharePost(this.post, destination);
+		if (this.sharingHelper && this.destination) {
+			const sharedTo = await this.sharingHelper.sharePost(this.post, this.destination);
 			if (sharedTo) {
 				this.updateOp = await new PostUpdater({
 					request: this
@@ -100,6 +55,53 @@ class ProviderShareRequest extends RestfulRequest {
 				this.responseData['post'] = this.updateOp;
 			}
 		}
+	}
+
+	async prepareSlack () {
+		const parentSharedTo = this.parentPost.get('sharedTo').find(_ => _.providerId === 'slack*com');
+		if (!parentSharedTo) {
+			throw this.errorHandler.error('invalidParameter', { reason: 'parent post was not shared' });
+		}
+		const destinationKeys = ['providerId', 'teamId', 'channelId', 'parentPostId'];
+		this.destination = {
+			providerId: parentSharedTo.providerId,
+			teamId: parentSharedTo.teamId,
+			teamName: parentSharedTo.teamName,
+			channelId: parentSharedTo.channelId,
+			channelName: parentSharedTo.channelName,
+			parentPostId: parentSharedTo.postId
+		};
+		const alreadyShared = (this.post.get('sharedTo') || [])
+			.some(x => destinationKeys.every(y => x[y] === this.destination[y]));
+		if (alreadyShared) {
+			return;
+		}
+		const team = await this.data.teams.getById(this.post.get('teamId'));
+		if (!team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+		const slackTeamId = parentSharedTo.teamId;
+		if (!slackTeamId) {
+			return;
+		}
+		const serverProviderToken = team.get('serverProviderToken');
+		if (
+			!serverProviderToken &&
+			!serverProviderToken.slack &&
+			!serverProviderToken.slack.multiple &&
+			!serverProviderToken.slack.multiple[slackTeamId]
+		) {
+			return;
+		}
+		const accessToken = serverProviderToken.slack.multiple[slackTeamId].accessToken;
+		if (!accessToken) {
+			throw this.errorHandler.error('notFound', { info: 'accessToken' });
+		}
+		this.sharingHelper = new SlackSharingHelper({
+			request: this,
+			asBot: true,
+			accessToken
+		});
 	}
 
 	async postProcess () {

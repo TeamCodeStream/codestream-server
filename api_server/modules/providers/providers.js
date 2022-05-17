@@ -67,7 +67,6 @@ const ROUTES = [
 		path: 'provider-host/:provider/:teamId/:providerId',
 		requestClass: require('./delete_provider_host_request')
 	},
-	// TODO: move this to a separate endpoint
 	{
 		method: 'post',
 		path: '/no-auth/provider-action/slack-events',
