@@ -39,8 +39,22 @@ class IngestKeyTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		const { browserIngestKey, licenseIngestKey, telemetryEndpoint } = this.apiConfig.integrations.newrelic;
-		const expectedResponse = { browserIngestKey, licenseIngestKey, telemetryEndpoint };
+		const { 
+			browserIngestKey,
+			licenseIngestKey,
+			telemetryEndpoint,
+			webviewAppId,
+			webviewAgentId,
+			accountNumber
+		} = this.apiConfig.integrations.newrelic;
+		const expectedResponse = { 
+			browserIngestKey,
+			licenseIngestKey,
+			telemetryEndpoint,
+			webviewAppId,
+			webviewAgentId,
+			accountId: accountNumber 
+		};
 		Assert.deepStrictEqual(data, expectedResponse, 'incorrect response');
 	}
 }

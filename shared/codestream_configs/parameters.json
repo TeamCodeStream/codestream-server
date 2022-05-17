@@ -571,6 +571,10 @@
 		},
 		"newrelic": {
 			"<appProvider>": {
+				"accountNumber": {
+					"desc": "NR1 Account Number for webview telemetry",
+					"env": "CSSVC_NEWRELIC_WEBVIEW_ACCOUNT_NUMBER"
+				},
 				"browserIngestKey": {
 					"desc": "NR1 ingest browser key",
 					"env": "CSSVC_NEWRELIC_BROWSER_KEY"
@@ -583,6 +587,14 @@
 					"default": "staging-collector.newrelic.com",
 					"desc": "Host endpoint passed to APM tracing library",
 					"env": "CSSVC_NEWRELIC_TELEMETRY_ENDPOINT"
+				},
+				"webviewAgentId": {
+					"desc": "NR1 Agent ID for webview telemetry",
+					"env": "CSSVC_NEWRELIC_WEBVIEW_AGENT_ID"
+				},
+				"webviewAppId": {
+					"desc": "NR1 App ID for webview telemetry",
+					"env": "CSSVC_NEWRELIC_WEBVIEW_APP_ID"
 				}
 			}
 		},

@@ -12,7 +12,7 @@
 
 # update paths
 export PATH=$CSSVC_BACKEND_ROOT/api_server/bin:$CSSVC_BACKEND_ROOT/broadcaster/bin:$CSSVC_BACKEND_ROOT/outbound_email/bin:$CSSVC_BACKEND_ROOT/inbound_email/bin:$PATH
-export NODE_PATH=$CSSVC_BACKEND_ROOT/api_server/node_modules:$CSSVC_BACKEND_ROOT/broadcaster/node_modules:$CSSVC_BACKEND_ROOT/outbound_email/server/node_modules:$CSSVC_BACKEND_ROOT/inbound_email/node_modules:$CSSVC_BACKEND_ROOT/onprem_admin/node_modules:$NODE_PATH
+export NODE_PATH=$CSSVC_BACKEND_ROOT/api_server/node_modules:$CSSVC_BACKEND_ROOT/broadcaster/node_modules:$CSSVC_BACKEND_ROOT/outbound_email/server/node_modules:$CSSVC_BACKEND_ROOT/inbound_email/node_modules:$NODE_PATH
 
 [ ! -d "$CSSVC_BACKEND_ROOT/log" ] && { echo "creating $CSSVC_BACKEND_ROOT/log/ for run-time logs" && mkdir $CSSVC_BACKEND_ROOT/log || return 1; }
 
