@@ -72,9 +72,9 @@ class ProviderShareRequest extends RestfulRequest {
 			parentPostId: parentSharedTo.postId
 		};
 		const alreadyShared = (this.post.get('sharedTo') || [])
-			.some(x => destinationKeys.every(y => x[y] === this.destination[y]));
+			.find(x => destinationKeys.every(y => x[y] === this.destination[y]));
 		if (alreadyShared) {
-			return;
+			this.destination = alreadyShared;
 		}
 		const team = await this.data.teams.getById(this.post.get('teamId'));
 		if (!team) {
@@ -93,7 +93,7 @@ class ProviderShareRequest extends RestfulRequest {
 		) {
 			return;
 		}
-		const accessToken = serverProviderToken.slack.multiple[slackTeamId].accessToken;
+		const accessToken = serverProviderToken.slack.multiple[slackTeamId];
 		if (!accessToken) {
 			throw this.errorHandler.error('notFound', { info: 'accessToken' });
 		}

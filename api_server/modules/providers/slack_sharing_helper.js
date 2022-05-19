@@ -117,22 +117,28 @@ class SlackSharingHelper extends SharingHelper {
 			});
 		}
 
-		const response = await this.slackUserHelper.postMessage({
-			channel: channelId,
-			text: text,
-			unfurl_links: true,
-			thread_ts: destination.parentPostId,
-			blocks: blocks.length ? blocks : undefined
-		});
+		const response = destination.postId
+			? await this.slackUserHelper.updateMessage({
+				channel: channelId,
+				ts: destination.postId,
+				text: text,
+				blocks: blocks.length ? blocks : undefined
+			})
+			: await this.slackUserHelper.postMessage({
+				channel: channelId,
+				text: text,
+				unfurl_links: true,
+				thread_ts: destination.parentPostId,
+				blocks: blocks.length ? blocks : undefined
+			});
 
-		const { ok, error, message } = response;
+		const { ok, error, message, ts } = response;
 		if (!ok) {
 			// TODO: throw error
 			throw new Error(error);
 		}
 
 		// TODO: sleep(1000)?
-		const ts = message.ts;
 		let permalink = '';
 		const createdAt = ts.split('.')[0] * 1000;
 
