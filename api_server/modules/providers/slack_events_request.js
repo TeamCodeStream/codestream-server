@@ -64,10 +64,16 @@ class SlackEventsRequest extends RestfulRequest {
 		try {
 			// see BodyParserModule.slackVerify() for where this comes from
 			const rawBody = request.slackRawBody;
-			if (!request.body || !rawBody) return false;
+			if (!request.body || !rawBody) {
+				this.api.log('Missing body for Slack verification');
+				return false;
+			}
 
 			const apiAppId = request.body.api_app_id;
-			if (!apiAppId) return false;
+			if (!apiAppId) {
+				this.api.log('Could not find api_app_id');
+				return false;
+			}
 
 			const slackSigningSecret = this.api.config.integrations.slack.signingSecretsByAppIds[apiAppId];
 			if (!slackSigningSecret) {
@@ -77,11 +83,17 @@ class SlackEventsRequest extends RestfulRequest {
 
 			const slackSignature = request.headers['x-slack-signature'];
 			const timestamp = request.headers['x-slack-request-timestamp'];
-			if (!slackSignature || !timestamp) return false;
+			if (!slackSignature || !timestamp) {
+				this.api.log('Missing required headers for Slack verification')
+				return false;
+			}
 
 			// protect against replay attacks
 			const time = Math.floor(new Date().getTime() / 1000);
-			if (Math.abs(time - timestamp) > 300) return false;
+			if (Math.abs(time - timestamp) > 300) {
+				this.api.log('Request expired, cannot verify');
+				return false;
+			}
 
 			const mySignature = 'v0=' +
 				crypto.createHmac('sha256', slackSigningSecret)
