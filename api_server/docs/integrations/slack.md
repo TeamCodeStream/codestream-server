@@ -28,7 +28,7 @@ Steps to create a Slack App for a non-production CodeStream environment.
 		them.
 		*   Add the following Redirect URL:
 			- `https://<codestream-api-host>/no-auth/provider-token/slack`
-		*   Add the following **User Token Scopes** and save them (Request reasons included
+		*	Add the following **User Token Scopes** and save them (Request reasons included
 			here). _NOTE: the source of truth for the list of scopes is [here](../../modules/slack_auth/slack_auth.js).
 			You should verify this list accordingly._
 			- **channels:read** - We allow users to select a public channel to share
@@ -44,11 +44,18 @@ Steps to create a Slack App for a non-production CodeStream environment.
 			- **users:read** - We show the list of users.
 			- **users:read.email** - We try to correlate CodeStream accounts with
 			slack accounts via e-mail.
-	*   Select the **Interactivity & Shortcuts** section, make these settings
+	*	Select the **Interactivity & Shortcuts** section, make these settings
 		and save them.
-		*   Turn on Interactivity (the switch on the upper right)
-		*   Add the following Request URL:
+		*	Turn on Interactivity (the switch on the upper right)
+		*	Add the following Request URL:
 			- `https://<codestream-api-host>/no-auth/provider-action/slack`
+	*	Select the **Event Subscriptions** section and do the following then save them.
+		*	Enable events (on)
+		*	Set the Request URL to `https://csaction.codestream.us/no-auth/provider-action/slack-events/pd`
+			(note the server needs to be running to respond to this request when you configure it)
+		*	In the **Subscribe to Bot Events** section, add these bot user events:
+			- message.channels
+			- message.groups
 
 ## Add and/or Distribute Slack App
 
