@@ -65,33 +65,33 @@ class SlackEventsRequest extends RestfulRequest {
 			// see BodyParserModule.slackVerify() for where this comes from
 			const rawBody = request.slackRawBody;
 			if (!request.body || !rawBody) {
-				this.api.log('Missing body for Slack verification');
+				this.api.warn('Missing body for Slack verification');
 				return false;
 			}
 
 			const apiAppId = request.body.api_app_id;
 			if (!apiAppId) {
-				this.api.log('Could not find api_app_id');
+				this.api.warn('Could not find api_app_id');
 				return false;
 			}
 
 			const slackSigningSecret = this.api.config.integrations.slack.signingSecretsByAppIds[apiAppId];
 			if (!slackSigningSecret) {
-				this.api.log(`Could not find signingSecret for appId=${apiAppId}`);
+				this.api.warn(`Could not find signingSecret for appId=${apiAppId}`);
 				return false;
 			}
 
 			const slackSignature = request.headers['x-slack-signature'];
 			const timestamp = request.headers['x-slack-request-timestamp'];
 			if (!slackSignature || !timestamp) {
-				this.api.log('Missing required headers for Slack verification')
+				this.api.warn('Missing required headers for Slack verification')
 				return false;
 			}
 
 			// protect against replay attacks
 			const time = Math.floor(new Date().getTime() / 1000);
 			if (Math.abs(time - timestamp) > 300) {
-				this.api.log('Request expired, cannot verify');
+				this.api.warn('Request expired, cannot verify');
 				return false;
 			}
 
@@ -104,7 +104,7 @@ class SlackEventsRequest extends RestfulRequest {
 				Buffer.from(mySignature, 'utf8'),
 				Buffer.from(slackSignature, 'utf8'));
 		} catch (ex) {
-			this.api.log(`verifySlackRequest error. ${ex}`);
+			this.api.warn(`verifySlackRequest error. ${ex}`);
 		}
 		return false;
 	}
