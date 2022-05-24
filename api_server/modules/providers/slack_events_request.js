@@ -69,22 +69,16 @@ class SlackEventsRequest extends RestfulRequest {
 				return false;
 			}
 
-			const apiAppId = request.body.api_app_id;
-			if (!apiAppId) {
-				this.api.warn('Could not find api_app_id');
-				return false;
-			}
-
-			const slackSigningSecret = this.api.config.integrations.slack.signingSecretsByAppIds[apiAppId];
+			const slackSigningSecret = this.api.config.integrations.slack.appSharingSigningSecret;
 			if (!slackSigningSecret) {
-				this.api.warn(`Could not find signingSecret for appId=${apiAppId}`);
+				this.api.warn('Could not find signingSecret');
 				return false;
 			}
 
 			const slackSignature = request.headers['x-slack-signature'];
 			const timestamp = request.headers['x-slack-request-timestamp'];
 			if (!slackSignature || !timestamp) {
-				this.api.warn('Missing required headers for Slack verification')
+				this.api.warn('Missing required headers for Slack verification');
 				return false;
 			}
 
