@@ -198,6 +198,10 @@ class ProviderIdentityConnector {
 			return;
 		}
 
+		// if identity provider delegated to another, prepare to set provider info for that
+		let subIDP = this.providerInfo.__subIDP;
+		delete this.providerInfo.__subIDP;
+
 		// preserve identities for other providers, but removing any identities for this provider, and replace
 		// with the new identity passed
 		const identities = (this.user.get('providerIdentities') || []).filter(id => {
@@ -218,6 +222,15 @@ class ProviderIdentityConnector {
 			providerIdentities: identities,
 			[`providerInfo.${this.provider}`]: providerInfoData
 		});
+
+		// if the identity provider delegates to another identity provider, and we have an
+		// access token for that, make it a API token for that provider
+		if (subIDP) {
+			op.$set[`providerInfo.${subIDP.name}`] = {
+				isApiToken: true,
+				accessToken: subIDP.accessToken
+			};
+		}
 
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this.request,

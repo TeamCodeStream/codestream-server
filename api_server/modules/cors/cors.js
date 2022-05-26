@@ -11,7 +11,8 @@ const _WHITELISTED_DOMAINS = [
 	'null',
 	'codestream.com',
 	'codestream.us',
-	'portal.azure.com'
+	'portal.azure.com',
+	'b2clogin.com'
 ];
 
 // parse domain out of url

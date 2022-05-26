@@ -37,7 +37,7 @@ class OAuthModule extends APIServerModule {
 
 	// get redirect parameters and url to use in the redirect response
 	getRedirectData (options) {
-		const { authPath, scopes, additionalAuthCodeParameters, scopeParameter } = this.oauthConfig;
+		const { authPath, scopes, additionalAuthCodeParameters, scopeParameter, addClientIdToScopes } = this.oauthConfig;
 		const clientInfo = this.getClientInfo(options);
 		const { redirectUri, state } = options;
 		const parameters = {
@@ -49,6 +49,9 @@ class OAuthModule extends APIServerModule {
 		if (scopes) {
 			const scopeParam = scopeParameter || 'scope';
 			parameters[scopeParam] = scopes;
+			if (addClientIdToScopes) {
+				parameters[scopeParam] += ` ${clientInfo.clientId}`;
+			}
 		}
 		if (additionalAuthCodeParameters) {
 			Object.assign(parameters, additionalAuthCodeParameters);
@@ -282,7 +285,6 @@ class OAuthModule extends APIServerModule {
 		if (refreshToken && additionalRefreshTokenParameters) {
 			Object.assign(parameters, additionalRefreshTokenParameters);
 		}
-
 		return parameters;
 	}
 
@@ -303,14 +305,13 @@ class OAuthModule extends APIServerModule {
 		}
 		if (responseData.expires_in) {
 			tokenData.expiresAt = Date.now() + (responseData.expires_in - 5) * 1000;
-		}
-		else if (accessTokenExpiresIn) {
+		} else if (accessTokenExpiresIn) {
 			tokenData.expiresAt = Date.now() + (accessTokenExpiresIn - 5) * 1000;
 		}
 		const extraData = responseData.data || {};
 		delete responseData.data;
 		tokenData.data = Object.assign({}, responseData, extraData);
-		['access_token', 'refresh_token', 'state', 'code', '_mockToken'].forEach(prop => {
+		['access_token', 'refresh_token', 'state', 'code', 'id_token', '_mockToken'].forEach(prop => {
 			delete tokenData.data[prop];
 		});
 		return tokenData;

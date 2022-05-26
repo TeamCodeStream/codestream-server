@@ -294,6 +294,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		asana: {},
 		bitbucket: {},
 		azuredevops: {},
+		newrelic_azure: {},
 		github: {},
 		gitlab: {},
 		jira: {},
@@ -313,6 +314,20 @@ module.exports = function customConfigFunc(nativeCfg) {
 		shortcut: { appClientId: 'placeholder' },
 		newrelic: { appClientId: 'placeholder' },
 	};
+
+
+	// TEMPORARY, FILL IN AS NEEDED FOR TESTING BUT DO NOT PUSH
+	Cfg.integrations['newrelic_azure'] = {
+		cloud: {
+			appClientId: 
+				'', // cstrykernr
+				//'', // stagingnewrelic
+			appClientSecret: 
+				'', // cstrykernr
+				//'', // stagingnewrelic
+			disabled: true // change to false when testing
+		}
+	}
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
 	// eg. provider: jira, installation: cloud
@@ -419,6 +434,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'shortcut',
 		'linear',
 		'newrelic',
+		'newrelic_azure'
 	];
 	// matching these paths means Authorization header is not required
 	Cfg.apiServer.unauthenticatedPaths = [
