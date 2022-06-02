@@ -41,6 +41,24 @@ class BitbucketAuthorizer {
 		};
 	}
 
+	// get email associated with a bitbucket account
+	static async getUserEmail (accessToken) {
+		const response = await Fetch(
+			`https://api.bitbucket.org/2.0/user/emails`,
+			{
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${accessToken}`
+				}
+			}
+		);
+		const json = await response.json();
+		const primary = (json.values || []).find(value => value.is_primary);
+		if (primary) {
+			return primary.email;
+		}
+	}
+	
 	// make a bitbucket api request
 	async bitbucketApiRequest(method) {
 		if (this.accessToken === 'invalid-token') {	// for testing
