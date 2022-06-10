@@ -69,6 +69,11 @@ const ROUTES = [
 	},
 	{
 		method: 'post',
+		path: '/no-auth/provider-action/slack-events',
+		requestClass: require('./slack_events_request')
+	},
+	{
+		method: 'post',
 		path: '/no-auth/provider-action/:provider',
 		requestClass: require('./provider_action_request')
 	}
@@ -99,7 +104,7 @@ class Providers extends APIServerModule {
 				return next();
 			}
 
-			if (match[1] === 'msteams') {	
+			if (match[1] === 'msteams' || match[1] === 'slack-events') {
 				// msteams can bypass all the madness below
 				return next();
 			}
@@ -145,6 +150,9 @@ class Providers extends APIServerModule {
 						};
 					}
 				} else {
+					// this should never happen since the 'data' and 'end'
+					// events have already been triggered by the body-parser
+					// JSON middleware (see BodyParserModule)
 					try {
 						request.body = JSON.parse(data);
 					} catch (error) {
