@@ -19,6 +19,7 @@ class BodyParserModule extends APIServerModule {
 				// we only need to obtain the middleware function once
 				this.jsonParserFunc = this.jsonParserFunc || BodyParser.json({
 					reviver: this.jsonBodyReviver,
+					verify: this.slackVerify,
 					limit: '20mb'
 				});
 				this.jsonParserFunc(request, response, next);
@@ -49,6 +50,13 @@ class BodyParserModule extends APIServerModule {
 			value = value.replace(/[\u0000-\u0008\u200B-\u200F\u2028-\u202F\uFFFC\uFEFF]/g, '');
 		}
 		return value;
+	}
+
+	// this is gross, but to verify json requests from slack we need access to the raw body
+	slackVerify (request, response, buffer, encoding) {
+		if (request.headers['x-slack-signature'] && request.headers['x-slack-request-timestamp']) {
+			request.slackRawBody = buffer.toString(encoding);
+		}
 	}
 }
 
