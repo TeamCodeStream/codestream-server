@@ -10,6 +10,10 @@ From within a Slack channel, those cross-posted messages use Slack's
 to CodeStream. Since this feature allows for only one callback URL per app, a
 dedicated CodeStream Slack App for each CodeStream environment is required.
 
+With the Slack v3 implementation, users can reply to messages in Slack threads
+and have those messages be synchronized back to CodeStream. This uses Slack's
+Events API, which requires a single URL be configured per Slack App.
+
 All requests made by slack are signed and verified using [Slack's procedure for
 doing so](https://api.slack.com/docs/verifying-requests-from-slack).
 
@@ -28,17 +32,42 @@ Steps to create a Slack App for a non-production CodeStream environment.
 		them.
 		*   Add the following Redirect URL:
 			- `https://<codestream-api-host>/no-auth/provider-token/slack`
+		*	Add the following **Bot Token Scopes** and save them (Request reasons included
+			here). _NOTE: the source of truth for the list of scopes is [here](../../modules/slack_auth/slack_auth.js).
+			You should verify this list accordingly._
+			- **channels:history** - We receive message events for messages
+			posted to public channels the bot has access to.
+			- **channels:read** - We fetch information about public channels the
+			bot has access to.
+			- **chat:write** - We post messages to watched threads as the bot on
+			behalf of users.
+			- **groups:history** - We receive message events for messages
+			posted to public channels the bot has access to.
+			- **groups:read** - We fetch information about private channels the
+			bot has access to.
+			- **mpim:history** - We receive message events for messages posted
+			to group DMs the bot has access to.
+			- **mpim:read** - We fetch information about group DMs the bot has
+			access to.
+			- **users:read** - We fetch information about users.
+			- **users:read.email** - We try to correlate CodeStream accounts
+			with Slack accounts via e-mail.
 		*	Add the following **User Token Scopes** and save them (Request reasons included
 			here). _NOTE: the source of truth for the list of scopes is [here](../../modules/slack_auth/slack_auth.js).
 			You should verify this list accordingly._
 			- **channels:read** - We allow users to select a public channel to share
 			to.
+			- **channels:write** - We allow users to invite the CodeStream bot
+			to public channels.
 			- **chat:write** - Users can send a copy of their messages from
 			CodeStream to slack.
 			- **groups:read** - We allow users to select a private channel to share
 			to.
+			- **groups:write** - We allow users to invite the CodeStream bot to
+			private channels.
 			- **im:read** - We allow users to select a direct message to share to.
 			- **mpim:read** - We allow users to select a group DM to share to.
+			- **mpim:write** - We allow users to create group DMs to share to.
 			- **users.profile:write** - We can update your slack status to reflect
 			your current work.
 			- **users:read** - We show the list of users.
@@ -51,11 +80,12 @@ Steps to create a Slack App for a non-production CodeStream environment.
 			- `https://<codestream-api-host>/no-auth/provider-action/slack`
 	*	Select the **Event Subscriptions** section and do the following then save them.
 		*	Enable events (on)
-		*	Set the Request URL to `https://csaction.codestream.us/no-auth/provider-action/slack-events/pd`
+		*	Set the Request URL to `https://<codestream-api-host>/no-auth/provider-action/slack-events`
 			(note the server needs to be running to respond to this request when you configure it)
 		*	In the **Subscribe to Bot Events** section, add these bot user events:
 			- message.channels
 			- message.groups
+			- message.mpim
 
 ## Add and/or Distribute Slack App
 
