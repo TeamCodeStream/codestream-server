@@ -1,5 +1,11 @@
 # Change Log
 
+## [13.0.1] - 2022-6-13
+
+### Changed
+
+- Release bump to support latest API version
+
 ## [13.0.0] - 2022-5-31
 
 ### Changed
