@@ -231,8 +231,8 @@ class CommonInit {
 		const parameters = {
 			code: this.code,
 			grant_type: 'authorization_code',
-			client_id: this.apiConfig.integrations.slack.appSharingClientId,
-			client_secret: this.apiConfig.integrations.slack.appSharingClientSecret,
+			client_id: this.apiConfig.integrations.slack.appClientId,
+			client_secret: this.apiConfig.integrations.slack.appClientSecret,
 			redirect_uri: this.redirectUri,
 			state: this.state
 		};

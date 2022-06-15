@@ -46,8 +46,8 @@ class SlackAuth extends OAuthModule {
 	// overrides OAuthModule.getClientInfo to use "sharing model" app
 	getClientInfo(options) {
 		const info = super.getClientInfo(options);
-		info.clientId = this.apiConfig.appSharingClientId;
-		info.clientSecret = this.apiConfig.appSharingClientSecret;
+		info.clientId = this.apiConfig.appClientId;
+		info.clientSecret = this.apiConfig.appClientSecret; 
 		return info;
 	}
 

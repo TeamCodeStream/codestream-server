@@ -345,10 +345,10 @@ module.exports = function customConfigFunc(nativeCfg) {
 		integrations.slack.signingSecretsByAppIds = {};
 		integrations.slack.signingSecretsByAppIds[integrations.slack.appId] =
 			integrations.slack.appSigningSecret;
-		integrations.slack.signingSecretsByAppIds[integrations.slack.appStrictId] =
-			integrations.slack.appStrictSigningSecret;
-		integrations.slack.signingSecretsByAppIds[integrations.slack.appSharingId] =
-			integrations.slack.appSharingSigningSecret;
+		integrations.slack.signingSecretsByAppIds[integrations.slack.appId] =
+			integrations.slack.appSigningSecret;
+		integrations.slack.signingSecretsByAppIds[integrations.slack.appId] =
+			integrations.slack.appSigningSecret;
 	}
 	Cfg.integrations = integrations;
 
