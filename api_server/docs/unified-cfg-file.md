@@ -108,13 +108,7 @@ working with the **codestream-cloud** configuration.
         "slack.com": {
           "appClientId": "my-client-id",
           "appClientSecret": "my-client-secret",
-          "appSharingClientId": "my-client-id",
-          "appSharingClientSecret": "my-client-secret",
-          "appSharingSigningSecret": "my-signing-secret",
           "appSigningSecret": "my-signing-secret",
-          "appStrictClientId": "my-client-id",
-          "appStrictClientSecret": "my-client-secret",
-          "appStrictSigningSecret": "my-signing-secret",
           "interactiveComponentsEnabled": true
         }
       }

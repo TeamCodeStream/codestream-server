@@ -29,7 +29,7 @@ class SlackEventsRequest extends RestfulRequest {
 				return false;
 			}
 
-			const slackSigningSecret = this.api.config.integrations.slack.appSharingSigningSecret;
+			const slackSigningSecret = this.api.config.integrations.slack.appSigningSecret;
 			if (!slackSigningSecret) {
 				this.api.warn('Could not find signingSecret');
 				return false;
