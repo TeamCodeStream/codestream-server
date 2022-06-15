@@ -99,7 +99,7 @@ class CommonInit {
 			actions: [{
 				action_id: JSON.stringify(actionPayload)
 			}],
-			api_app_id: this.apiConfig.integrations.slack.appSharingId			
+			api_app_id: this.apiConfig.integrations.slack.appId			
 		};
 
 		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
@@ -177,7 +177,7 @@ class CommonInit {
 		const now = Math.floor(Date.now() / 1000);
 		this.rawBody=`payload=${rawData}`;
 		const mySignature = 'v0=' +
-			Crypto.createHmac('sha256', this.apiConfig.integrations.slack.appSharingSigningSecret)
+			Crypto.createHmac('sha256', this.apiConfig.integrations.slack.appSigningSecret)
 				.update(`v0:${now}:${this.rawBody}`, 'utf8')
 				.digest('hex');
 		this.apiRequestOptions = this.apiRequestOptions || {};

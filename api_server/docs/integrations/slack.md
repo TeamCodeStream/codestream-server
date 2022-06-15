@@ -114,15 +114,7 @@ them to the CodeStream configuration file.
 				"appClientId": null,
 				"appClientSecret": null,
 				"appId": null,
-				"appSharingClientId": "*******************************",
-				"appSharingClientSecret": "********************************",
-				"appSharingId": "***************************",
-				"appSharingSigningSecret": "**************************",
 				"appSigningSecret": null,
-				"appStrictClientId": null,
-				"appStrictClientSecret": null,
-				"appStrictId": null,
-				"appStrictSigningSecret": null,
 				"disabled": false,
 				"interactiveComponentsEnabled": true
 			}
