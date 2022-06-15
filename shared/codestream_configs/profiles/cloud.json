@@ -497,7 +497,7 @@
 		"slack": {
 			"cloud": {
 				"defaultEnv": {
-					"_loadSecretsFile": "slack/dev-combined.cfg"
+					"_loadSecretsFile": "slack/pd-combined.cfg"
 				},
 				"eu0": {
 					"_loadSecretsFile": "slack/eu0-combined.cfg",
@@ -517,11 +517,11 @@
 					"interactiveComponentsEnabled": true
 				},
 				"pd": {
-					"_loadSecretsFile": "slack/dev-combined.cfg",
+					"_loadSecretsFile": "slack/pd-combined.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"pd2": {
-					"_loadSecretsFile": "slack/dev-combined.cfg",
+					"_loadSecretsFile": "slack/pd2-combined.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"prod": {
@@ -533,7 +533,7 @@
 					"interactiveComponentsEnabled": true
 				},
 				"qa2": {
-					"_loadSecretsFile": "slack/qa-combined.cfg",
+					"_loadSecretsFile": "slack/qa2-combined.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"stg": {
