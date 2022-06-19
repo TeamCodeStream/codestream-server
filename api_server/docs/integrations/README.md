@@ -6,6 +6,7 @@
 - [Bitbucket](bitbucket.md)
 - [Github](github.md)
 - [Gitlab](gitlab.md)
+- [Intercom](intercom.md)
 - [Jira](jira.md)
 - [Linear](linear.md)
 - [MS Teams](msteams.md)
