@@ -208,7 +208,7 @@ class SlackEventsRequest extends RestfulRequest {
 			_.teamId === this.slackEvent.team &&
 			_.channelId === this.slackEvent.channel &&
 			_.postId === this.slackEvent.thread_ts
-		))
+		));
 		const sharedTo = [{
 			providerId: 'slack*com',
 			teamId: parentSharedTo.teamId,
@@ -230,6 +230,14 @@ class SlackEventsRequest extends RestfulRequest {
 			const responseData = this.postCreator.makeResponseData({
 				transforms: this.postCreator.transforms,
 				initialResponseData: postOp.getSanitizedObject({ request: this })
+			});
+			const team = await this.data.teams.getById(parentPost.get('teamId'));
+			const company = await this.data.companies.getById(team.get('companyId'));
+			this.sendTelemetry({
+				event: 'Reply Created',
+				team,
+				company,
+				parentPost
 			});
 			this.log(`Created post ${responseData.id} via Slack event`);
 			this.cleanupTask = async () => {
@@ -276,6 +284,42 @@ class SlackEventsRequest extends RestfulRequest {
 			},
 			{
 				hint: PostIndexes.byShareIdentifiers
+			}
+		);
+	}
+
+	async sendTelemetry (params) {
+		const trackData = {
+			Endpoint: 'Slack'
+		};
+
+		if (params.parentPost) {
+			if (params.parentPost.get('reviewId')) {
+				Object.assign(trackData, {
+					'Parent ID': params.parentPost.get('reviewId'),
+					'Parent Type': 'Review'
+				});
+			} else if (params.parentPost.get('codeErrorId')) {
+				Object.assign(trackData, {
+					'Parent ID': params.parentPost.get('codeErrorId'),
+					'Parent Type': 'Error'
+				});
+			} else if (params.parentPost.get('codemarkId')) {
+				Object.assign(trackData, {
+					'Parent ID': params.parentPost.get('codemarkId'),
+					'Parent Type': 'Codemark'
+				});
+			}
+		}
+
+		this.api.services.analytics.trackWithSuperProperties(
+			params.event,
+			trackData,
+			{
+				request: this,
+				user: this.user,
+				team: params.team,
+				company: params.company,
 			}
 		);
 	}
