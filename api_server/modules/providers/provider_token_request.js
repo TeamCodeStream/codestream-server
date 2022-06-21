@@ -428,16 +428,24 @@ class ProviderTokenRequest extends RestfulRequest {
 			return;
 		}
 		const subKey = `${this.provider}.multiple.${multiAuthKey}`;
-		const op = {
+		const tokenOp = {
 			$set: {}
 		};
-		op.$set[`serverProviderData.${subKey}`] = this.serverTokenData.data;
-		op.$set[`serverProviderToken.${subKey}`] = this.serverTokenData.accessToken;
+		const dataOp = {
+			$set: {}
+		};
+		tokenOp.$set[`serverProviderToken.${subKey}`] = this.serverTokenData.accessToken;
+		dataOp.$set[`serverProviderData.${subKey}`] = this.serverTokenData.data;
 		await new ModelSaver({
 			request: this,
 			collection: this.data.teams,
 			id: this.team.id
-		}).save(op);
+		}).save(tokenOp);
+		this.transforms.teamUpdate = await new ModelSaver({
+			request: this,
+			collection: this.data.teams,
+			id: this.team.id
+		}).save(dataOp);
 	}
 
 	// this auth started out anonymously, so try to find a match for the user,
@@ -566,6 +574,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (this.transforms.userUpdate) {
 			await this.publishUserToSelf();
 		}
+		if (this.transforms.teamUpdate) {
+			await this.publishTeamToSelf();
+		}
 	}
 
 	// publish the new user to the team channel
@@ -601,6 +612,30 @@ class ProviderTokenRequest extends RestfulRequest {
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
 			this.warn(`Could not publish user update to user ${this.user.id}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	async publishTeamToSelf () {
+		const data = {
+			team: Object.assign(
+				{
+					_id: this.team.id,
+					id: this.team.id
+				},
+				this.transforms.teamUpdate
+			),
+			requestId: this.request.id
+		};
+		const channel = `team-${this.team.id}`;
+		try {
+			await this.api.services.broadcaster.publish(
+				data,
+				channel,
+				{ request: this }
+			);
+		} catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish team update to team ${this.team.id}: ${JSON.stringify(error)}`);
 		}
 	}
 
