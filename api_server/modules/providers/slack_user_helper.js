@@ -233,6 +233,10 @@ class SlackUserHelper {
 	async deleteMessage (body) {
 		return this.post('chat.delete', body);
 	}
+
+	async meMessage (body) {
+		return this.post('chat.meMessage', body);
+	}
 }
 
 module.exports = SlackUserHelper;

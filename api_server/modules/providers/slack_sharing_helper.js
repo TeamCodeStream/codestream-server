@@ -5,6 +5,7 @@ const SlackUserHelper = require('./slack_user_helper');
 
 const MENTIONS_REGEX = /(^|\s)@(\w+)(?:\b(?!@|[\(\{\[\<\-])|$)/g;
 const PSEUDO_MENTIONS_REGEX = /(^|\s)@(everyone|channel|here)(?:\b(?!@|[\(\{\[\<\-])|$)/g;
+const ME_MESSAGE_REGEX = /^\/me /;
 const MAX_BLOCK_TEXT_LENGTH = 3000;
 const REMOTE_PROVIDERS = [
 	[
@@ -68,6 +69,45 @@ class SlackSharingHelper extends SharingHelper {
 		);
 		const channelId = destination.channelId;
 		let text = post.get('text');
+
+		if (ME_MESSAGE_REGEX.test(text)) {
+			text = text.substring(4);
+			if (this.asBot) {
+				text = `*${this.request.user.get('username')}* ${text}`;
+			}
+
+			const slackText = this.toSlackText(text, userMap, post.get('mentionedUserIds'));
+			text = slackText.text;
+
+			const response = await this.slackUserHelper.meMessage({
+				channel: channelId,
+				thread_ts: destination.parentPostId,
+				text
+			});
+
+			const { ok, error, ts } = response;
+			if (!ok) {
+				// TODO: throw useful error
+				throw new Error(error);
+			}
+
+			let permalink = '';
+			const createdAt = ts.split('.')[0] * 1000;
+
+			const permalinkResponse = this.slackUserHelper.getPermalink(channelId, ts);
+			if (!permalinkResponse.ok) {
+				this.request.log(`Unable to get permalink for ${channelId} ${ts}: ${permalinkResponse.error}`);
+			} else {
+				permalink = permalinkResponse.permalink;
+			}
+
+			return {
+				...destination,
+				createdAt,
+				postId: ts,
+				url: permalink
+			};
+		}
 
 		if (text) {
 			const slackText = this.toSlackText(text, userMap, post.get('mentionedUserIds'));
@@ -146,7 +186,7 @@ class SlackSharingHelper extends SharingHelper {
 		if (!permalinkResponse.ok) {
 			this.request.log(`Unable to get permalink for ${channelId} ${ts}: ${permalinkResponse.error}`);
 		} else {
-			permalink = permalinkResponse.permalink; 
+			permalink = permalinkResponse.permalink;
 		}
 
 		return {
