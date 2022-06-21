@@ -157,6 +157,19 @@ class SlackSharingHelper extends SharingHelper {
 		};
 	}
 
+	async deletePost (destination) {
+		if (destination.channelId && destination.postId) {
+			const response = await this.slackUserHelper.deleteMessage({
+				channel: destination.channelId,
+				ts: destination.postId
+			});
+			const { ok, error } = response;
+			if (!ok) {
+				throw new Error(error);
+			}
+		}
+	}
+
 	async mapMentionsToSlackUsers (mentions, teamId, slackTeamId) {
 		const users = await this.request.data.users.getByIds(mentions || []);
 		const userMap = new Map();

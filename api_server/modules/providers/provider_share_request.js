@@ -45,7 +45,9 @@ class ProviderShareRequest extends RestfulRequest {
 			throw this.errorHandler.error('invalidParameter', { info: `provider ${this.provider} not supported` });
 		}
 		if (this.sharingHelper && this.destination) {
-			const sharedTo = await this.sharingHelper.sharePost(this.post, this.destination);
+			const sharedTo = this.post.get('deactivated')
+				? await this.sharingHelper.deletePost(this.destination)
+				: await this.sharingHelper.sharePost(this.post, this.destination);
 			if (sharedTo) {
 				this.updateOp = await new PostUpdater({
 					request: this
