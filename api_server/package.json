@@ -78,6 +78,7 @@
     "mocha-teamcity-reporter": "4.2.0",
     "nodemon": "2.0.18",
     "pre-commit": "1.2.2",
-    "randomstring": "1.2.2"
+    "randomstring": "1.2.2",
+    "snyk": "1.958.0"
   }
 }
