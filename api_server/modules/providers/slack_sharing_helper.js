@@ -61,7 +61,7 @@ class SlackSharingHelper extends SharingHelper {
 	}
 
 	/* eslint complexity: 0 */
-	async sharePost (post, destination) {
+	async sharePost (post, destination, parentText) {
 		const userMap = await this.mapMentionsToSlackUsers(
 			post.get('mentionedUserIds'),
 			post.get('teamId'),
@@ -116,15 +116,19 @@ class SlackSharingHelper extends SharingHelper {
 
 		const blocks = [];
 		if (this.asBot) {
-			blocks.push({
-				type: 'context',
-				elements: [
-					{
-						type: 'mrkdwn',
-						text: `_*${this.request.user.get('username')}* replied via CodeStream_`
-					}
-				]
-			});
+			if (parentText) {
+				blocks.push(this.blockRepliedTo(this.request.user.get('username'), parentText));
+			} else {
+				blocks.push({
+					type: 'context',
+					elements: [
+						{
+							type: 'mrkdwn',
+							text: `_*${this.request.user.get('username')}* replied via CodeStream_`
+						}
+					]
+				});
+			}
 		}
 		if (post.get('codemarkId')) {
 			const codemark = await this.request.data.codemarks.getById(post.get('codemarkId'));
@@ -523,6 +527,27 @@ class SlackSharingHelper extends SharingHelper {
 				{
 					type: 'mrkdwn',
 					text: 'This was partially truncated. Open in IDE to view it in full.'
+				}
+			]
+		};
+	}
+
+	blockRepliedTo (username, text) {
+		let replyText;
+		const maxText = text.substring(0, 28);
+		if (text === maxText) {
+			replyText = text;
+		} else {
+			const match = maxText.match(/(.+\b)\W/);
+			const truncatedText = match ? match[1] : maxText;
+			replyText = truncatedText === text ? truncatedText : `${truncatedText}...`;
+		}
+		return {
+			type: 'context',
+			elements: [
+				{
+					type: 'mrkdwn',
+					text: `_*${username}* replied to "${replyText}" via CodeStream_`
 				}
 			]
 		};

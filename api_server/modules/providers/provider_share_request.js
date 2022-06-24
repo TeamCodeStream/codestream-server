@@ -47,7 +47,7 @@ class ProviderShareRequest extends RestfulRequest {
 		if (this.sharingHelper && this.destination) {
 			const sharedTo = this.post.get('deactivated')
 				? await this.sharingHelper.deletePost(this.destination)
-				: await this.sharingHelper.sharePost(this.post, this.destination);
+				: await this.sharingHelper.sharePost(this.post, this.destination, this.parentText);
 			if (sharedTo) {
 				this.updateOp = await new PostUpdater({
 					request: this
@@ -59,8 +59,24 @@ class ProviderShareRequest extends RestfulRequest {
 		}
 	}
 
+	async getTopLevelSharedTo (post) {
+		if (!post) return {};
+		if (post.get('parentPostId')) {
+			const parentPost = await this.data.posts.getById(post.get('parentPostId'));
+			const result = await this.getTopLevelSharedTo(parentPost);
+			return {
+				...result,
+				parentText: post.get('text')
+			};
+		}
+		if (post.get('sharedTo')) return { sharedTo: post.get('sharedTo') };
+		return {};
+	}
+
 	async prepareSlack () {
-		const parentSharedTo = this.parentPost.get('sharedTo').find(_ => _.providerId === 'slack*com');
+		const { sharedTo, parentText } = await this.getTopLevelSharedTo(this.parentPost);
+		this.parentText = parentText;
+		const parentSharedTo = sharedTo.find(_ => _.providerId === 'slack*com');
 		if (!parentSharedTo) {
 			throw this.errorHandler.error('invalidParameter', { reason: 'parent post was not shared' });
 		}

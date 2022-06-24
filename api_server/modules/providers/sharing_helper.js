@@ -9,7 +9,7 @@ class SharingHelper {
 		this.logger = this.request.logger;
 	}
 
-	async sharePost (post, destination) {
+	async sharePost (post, destination, parentText) {
 		return undefined;
 	}
 }
