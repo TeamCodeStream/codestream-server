@@ -1,6 +1,8 @@
 'use strict';
 
 const crypto = require('crypto');
+const Markdown = require('markdown-it');
+const MarkdownSlack = require('markdown-it-slack');
 const SlackUserHelper = require('./slack_user_helper');
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
@@ -170,6 +172,7 @@ class SlackEventsRequest extends RestfulRequest {
 
 	async processMessageCreated () {
 		if (!this.isThreadedReply(this.slackEvent)) {
+			await this.processCodeFences();
 			return;
 		}
 		const existingPost = await this.getPost(this.slackEvent.team, this.slackEvent.channel, this.slackEvent.ts);
@@ -178,6 +181,7 @@ class SlackEventsRequest extends RestfulRequest {
 		}
 		const parentPost = await this.getPost(this.slackEvent.team, this.slackEvent.channel, this.slackEvent.thread_ts);
 		if (!parentPost) {
+			await this.processCodeFences();
 			return;
 		}
 		const botToken = await this.getBotToken(parentPost.get('teamId'), this.slackEvent.team);
@@ -252,6 +256,26 @@ class SlackEventsRequest extends RestfulRequest {
 		}
 	}
 
+	async processCodeFences () {
+		const fences = this.findCodeFences(this.slackEvent.text);
+		if (fences.length === 0) {
+			return;
+		}
+
+		const userHelper = new SlackUserHelper({
+			request: this
+		});
+		this.user = await userHelper.getUserWithoutTeam(this.slackEvent.user);
+		
+		this.sendTelemetry({
+			event: 'Code Pasted in Messaging Service',
+			data: {
+				'Connected to Slack': Boolean(this.user)
+			},
+			userId: this.slackEvent.user
+		});
+	}
+
 	isThreadedReply (message) {
 		return message.thread_ts && message.thread_ts !== message.ts;
 	}
@@ -290,7 +314,8 @@ class SlackEventsRequest extends RestfulRequest {
 
 	async sendTelemetry (params) {
 		const trackData = {
-			Endpoint: 'Slack'
+			Endpoint: 'Slack',
+			...params.data
 		};
 
 		if (params.parentPost) {
@@ -320,8 +345,42 @@ class SlackEventsRequest extends RestfulRequest {
 				user: this.user,
 				team: params.team,
 				company: params.company,
+				userId: !this.user && params.userId
 			}
 		);
+	}
+
+	findCodeFences (content) {
+		if (!this.md) {
+			this.md = Markdown();
+			this.md.use(MarkdownSlack);
+		}
+		const tokens = this.md.parse(content, {});
+		const fences = [];
+		// slack formats markdown weird and markdown-it-slack only handles it for rendering, not parsing
+		for (const token of tokens) {
+			if (token.type === 'fence') {
+				if (token.tag === 'code') {
+					if (token.info) {
+						token.content = `${token.info}\n${token.content}`;
+					}
+					const i = token.content && token.content.indexOf('```');
+					if (i && i !== -1) {
+						const [code, rest] = [token.content.slice(0, i), token.content.slice(i+3)];
+						fences.push(code);
+						fences.push(...this.findCodeFences(rest));
+					}
+				}
+			}
+			if (token.type === 'inline' && token.children) {
+				for (const childToken of token.children) {
+					if (childToken.type === 'code_inline' && childToken.tag === 'code') {
+						fences.push(childToken.content);
+					}
+				}
+			}
+		}
+		return fences;
 	}
 }
 
