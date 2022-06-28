@@ -169,6 +169,8 @@ class SlackEventsRequest extends RestfulRequest {
 	}
 
 	async processMessageCreated () {
+		await this.publishMessage();
+
 		if (!this.isThreadedReply(this.slackEvent)) {
 			return;
 		}
@@ -249,6 +251,33 @@ class SlackEventsRequest extends RestfulRequest {
 			};
 		} catch (ex) {
 			this.log(`Error creating post via Slack event: ${ex.message}`);
+		}
+	}
+
+	// publish details about the slack message to pubnub so the user can react to it
+	async publishMessage () {
+		const userHelper = new SlackUserHelper({
+			request: this
+		});
+		this.user = await userHelper.getUserWithoutTeam(this.slackEvent.user);
+		if (!this.user || this.user.get('deactivated')) return;
+		const data = {
+			slackPosts: {
+				teamId: this.slackEvent.team,
+				channelId: this.slackEvent.channel,
+				ts: this.slackEvent.ts,
+				text: this.slackEvent.text
+			}
+		};
+		const channel = `user-${this.user.id}`;
+		try {
+			await this.api.services.broadcaster.publish(
+				data,
+				channel,
+				{ request: this }
+			);
+		} catch (error) {
+			this.warn(`Could not publish message to user: ${JSON.stringify(error)}`);
 		}
 	}
 
