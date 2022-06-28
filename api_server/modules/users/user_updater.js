@@ -123,19 +123,11 @@ class UserUpdater extends ModelUpdater {
 
 		const userId = userProviderInfo[providerName] && userProviderInfo[providerName].userId;
 		this.request.log(`Updating user as needed against ${providerName}...`);
-		let wasUpdated;
-		try {
-			wasUpdated = await this.request.api.services.userAdmin.updateUser(
-				userId,
-				this.attributes,
-				{ request: this.request }
-			);
-		} catch (error) {
-			// this isn't a breaking failure, best we can do is log the message, i guess
-			const message = error instanceof Error ? error.message : JSON.stringify(error);
-			this.request.warn(`WARNING: Unable to update user with admin app: ${message}`);
-			return;
-		}
+		const wasUpdated = await this.request.api.services.userAdmin.updateUser(
+			userId,
+			this.attributes,
+			{ request: this.request }
+		);
 
 		if (wasUpdated) {
 			this.request.log(`Successfully updated user against ${providerName}`);

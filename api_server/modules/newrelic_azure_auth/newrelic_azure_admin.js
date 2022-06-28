@@ -125,7 +125,6 @@ class NewRelicAzureAdmin {
 				}
 			});
 		} catch (error) {
-			options.request.warn('CAUGHT:' + error);
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			const reason = `Unexpected error from Azure trying to update user ${userId}: ${message}`;
 			throw options.request.errorHandler.error('userAdminOpFailed', { reason });
@@ -141,8 +140,30 @@ class NewRelicAzureAdmin {
 	}
 
 	// delete a user from the Azure tenant
-	async deleteUser () {
+	async deleteUser (userId, options) {
+		const token = await this.getAccessToken(options);
 
+		const url = `${GRAPH_URL}/users/${userId}`;
+		let response;
+		try {
+			response = await Fetch(url, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			const reason = `Unexpected error from Azure trying to delete user ${userId}: ${message}`;
+			throw options.request.errorHandler.error('userAdminOpFailed', { reason });
+		}
+
+		if (!response.ok) {
+			const json = await response.json();
+			const error = `Bad response from Azure trying to delete user ${userId} (${response.status}): ${JSON.stringify(json)}`;
+			throw options.request.errorHandler.error('userAdminOpFailed', { reason: error });
+		}
 	}
 }
 

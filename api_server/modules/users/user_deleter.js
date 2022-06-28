@@ -38,6 +38,37 @@ class UserDeleter extends ModelDeleter {
 		this.deleteOp.$set.searchableEmail = deactivatedEmail.toLowerCase();
 		this.deleteOp.$set.modifiedAt = Date.now();
 	}
+
+	// before the operation to delete the user
+	async preDelete () {
+		return this.performDirectorySync();
+	}
+
+	// if we are operating with a third-party directory service, perform the sync of the deletion as neeed
+	async performDirectorySync () {
+		const userAdmin = this.request.api.services.userAdmin;
+		if (!userAdmin) {
+			return;
+		}
+
+		const providerName = userAdmin.getProviderName();
+		const userProviderInfo = this.user.get('providerInfo') || {};
+		if (
+			!userProviderInfo[providerName] ||
+			!userProviderInfo[providerName].userId
+		) {
+			return;
+		}
+
+		const userId = userProviderInfo[providerName] && userProviderInfo[providerName].userId;
+		this.request.log(`Deleting user as needed against ${providerName}...`);
+		await this.request.api.services.userAdmin.deleteUser(
+			userId,
+			{ request: this.request }
+		);
+
+		this.request.log(`Successfully deleted user against ${providerName}`);
+	}
 }
 
 module.exports = UserDeleter;
