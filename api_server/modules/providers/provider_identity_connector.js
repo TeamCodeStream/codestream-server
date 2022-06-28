@@ -228,7 +228,8 @@ class ProviderIdentityConnector {
 		if (subIDP) {
 			op.$set[`providerInfo.${subIDP.name}`] = {
 				isApiToken: true,
-				accessToken: subIDP.accessToken
+				accessToken: subIDP.accessToken,
+				userId: subIDP.userId
 			};
 		}
 

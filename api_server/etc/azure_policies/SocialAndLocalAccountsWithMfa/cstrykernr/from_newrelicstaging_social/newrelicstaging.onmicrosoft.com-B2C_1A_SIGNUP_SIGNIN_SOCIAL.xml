@@ -1,0 +1,33 @@
+<TrustFrameworkPolicy 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0" TenantId="cstrykernr.onmicrosoft.com"
+  PolicyId="B2C_1A_signup_signin_with_social"
+  PublicPolicyUri="http://cstrykernr.onmicrosoft.com/B2C_1A_signup_signin_with_social"
+  TenantObjectId="e3b46b55-3440-4391-ba10-6f5d1e59394b">
+
+  <BasePolicy>
+    <TenantId>cstrykernr.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_TrustFrameworkExtensionsSocial</PolicyId>
+  </BasePolicy>
+  
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="SignUpOrSignInSocial" />
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="identityProvider" />
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+        <OutputClaim ClaimTypeReferenceId="identityProviderAccessToken" PartnerClaimType="idp_access_token"/>
+        <OutputClaim ClaimTypeReferenceId="numericUserId" PartnerClaimType="oid"/>
+        <OutputClaim ClaimTypeReferenceId="uuid" PartnerClaimType="oid"/>
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>

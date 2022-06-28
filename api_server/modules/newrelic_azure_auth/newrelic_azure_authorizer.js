@@ -24,7 +24,8 @@ class NewRelicAzureAuthorizer {
 		if (idp && payload.idp_access_token) {
 			__subIDP = {
 				name: idp.split('.')[0],
-				accessToken: payload.idp_access_token
+				accessToken: payload.idp_access_token,
+				userId: payload.oid
 			};
 		}
 
@@ -32,10 +33,10 @@ class NewRelicAzureAuthorizer {
 		// we have to go explicitly get it
 		if (payload.idp === 'bitbucket.org' && !email && payload.idp_access_token) {
 			email = await BitbucketAuthorizer.getUserEmail(payload.idp_access_token);
-		}
-
+		} 
+		
 		return {
-			userId: payload.oid,
+			userId: payload.sub,
 			accessToken,
 			fullName: payload.name,
 			email,

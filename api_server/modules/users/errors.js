@@ -162,5 +162,10 @@ module.exports = {
 		code: 'USRC-1030',
 		message: 'Login code doesn\'t match',
 		description: 'The provided login code doesn\'t match the expected login code for the user'
+	},
+	'userAdminOpFailed': {
+		code: 'USRC-1031',
+		message: 'Failed to perform a user admin operation',
+		description: 'An unexpected error occurred attempting to perform a user admin operation with the third-party directory service in use'
 	}
 };

@@ -43,6 +43,7 @@ class UserUpdater extends ModelUpdater {
 		//await this.checkUsernameUnique();
 		await this.handleModifiedRepos();
 		this.attributes.modifiedAt = Date.now();
+		await this.performDirectorySync();
 		await super.preSave();
 	}
 
@@ -101,6 +102,45 @@ class UserUpdater extends ModelUpdater {
 					teamIds: usernameChecker.notUniqueTeamIds
 				}
 			});
+		}
+	}
+
+	// if we are operating with a third-party directory service, perform the sync of the update as neeed
+	async performDirectorySync () {
+		const userAdmin = this.request.api.services.userAdmin;
+		if (!userAdmin) {
+			return;
+		}
+
+		const providerName = userAdmin.getProviderName();
+		const userProviderInfo = this.user.get('providerInfo') || {};
+		if (
+			!userProviderInfo[providerName] ||
+			!userProviderInfo[providerName].userId
+		) {
+			return;
+		}
+
+		const userId = userProviderInfo[providerName] && userProviderInfo[providerName].userId;
+		this.request.log(`Updating user as needed against ${providerName}...`);
+		let wasUpdated;
+		try {
+			wasUpdated = await this.request.api.services.userAdmin.updateUser(
+				userId,
+				this.attributes,
+				{ request: this.request }
+			);
+		} catch (error) {
+			// this isn't a breaking failure, best we can do is log the message, i guess
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.request.warn(`WARNING: Unable to update user with admin app: ${message}`);
+			return;
+		}
+
+		if (wasUpdated) {
+			this.request.log(`Successfully updated user against ${providerName}`);
+		} else {
+			this.request.log(`User update was not needed against ${providerName}`);
 		}
 	}
 }

@@ -320,12 +320,24 @@ module.exports = function customConfigFunc(nativeCfg) {
 	Cfg.integrations['newrelic_azure'] = {
 		cloud: {
 			appClientId: 
-				'', // cstrykernr
-				//'', // stagingnewrelic
+			'', // cstrykernr
+			//'',   // newrelicstaging
 			appClientSecret: 
-				'', // cstrykernr
-				//'', // stagingnewrelic
-			disabled: true // change to false when testing
+			'', // cstrykernr
+			//'',   // newrelicstaging
+			disabled: false, // change to false when testing
+			tenant: 
+			'cstrykernr', // cstrykernr
+			//'newrelicstaging', // newrelicstaging
+			authUserFlow: 
+			'B2C_1A_SIGNUP_SIGNIN_WITH_SOCIAL', // cstrykernr
+			//'B2C_1A_SIGNUP_SIGNIN_WITH_SOCIAL', // newrelicstaging
+			adminAppClientId: 
+			'', //cstrykernr
+			//'', //newrelicstaging
+			adminAppClientSecret: 
+			'', //cstrykernr
+			//'', //newrelicstaging
 		}
 	}
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER

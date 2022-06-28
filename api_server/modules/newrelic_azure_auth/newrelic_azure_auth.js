@@ -4,12 +4,11 @@
 
 const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/oauth/oauth_module.js');
 const NewRelicAzureAuthorizer = require('./newrelic_azure_authorizer');
+const NewRelicAzureAdmin  = require('./newrelic_azure_admin');
 
 const OAUTH_CONFIG = {
 	provider: 'newrelic_azure',
-	host: 
-		//'newrelicstaging.b2clogin.com/newrelicstaging.onmicrosoft.com/B2C_1_Codestream_signupsignin', // New Relic staging app
-		'cstrykernr.b2clogin.com/cstrykernr.onmicrosoft.com/B2C_1A_SIGNUP_SIGNIN', // cstrykernr, for local testing
+	host: '', // built dynamically on initialization
 	authPath: 'oauth2/v2.0/authorize',
 	tokenPath: 'oauth2/v2.0/token',
 	exchangeFormat: 'query',
@@ -28,6 +27,18 @@ class NewRelicAzureAuth extends OAuthModule {
 	constructor (config) {
 		super(config);
 		this.oauthConfig = OAUTH_CONFIG;
+
+		const { tenant, authUserFlow } = this.api.config.integrations.newrelic_azure;
+		this.oauthConfig.host = `${tenant}.b2clogin.com/${tenant}.onmicrosoft.com/${authUserFlow}`;
+	}
+
+	services () {
+		// return the NewRelic Azure admin as a service for user administration
+		return async () => {
+			const oauthServices = await (super.services())();
+			oauthServices.userAdmin = this.userAdmin =  new NewRelicAzureAdmin({ api: this.api });
+			return oauthServices;
+		};
 	}
 
 	// match the given New Relic Azure identity to a CodeStream identity
