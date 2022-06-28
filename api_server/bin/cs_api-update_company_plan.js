@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// NOTE: THIS SCRIPT IS OBSOLETE
+
 //desc// manually set a payment plan for a company in mongo and on Intercom
 
 /* eslint no-console: 0 */
@@ -68,7 +70,8 @@ class PlanUpdater {
 
 	// open an Intercom client to write to
 	async openIntercomClient () {
-		this.intercomClient = new Intercom.Client({ token: ApiConfig.getPreferredConfig().telemetry.intercom.token });
+		// NOTE: THE LINE BELOW MAKES THIS SCRIPT OBSOLETE, WE NO LONGER HAVE AN INTERCOM KEY
+		//this.intercomClient = new Intercom.Client({ token: ApiConfig.getPreferredConfig().telemetry.intercom.token });
 	}
 
 	// change the company's plan in both mongo and on Intercom
