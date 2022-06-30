@@ -803,11 +803,6 @@
 		}
 	},
 	"telemetry": {
-		"intercom": {
-			"defaultEnv": {
-				"_loadSecretsFile": "intercom/dev.cfg"
-			}
-		},
 		"segment": {
 			"defaultEnv": {
 				"_loadSecretsFile": "segment/dev-api.cfg"

@@ -902,11 +902,6 @@
 			"desc": "disable telemetry",
 			"env": "CSSVC_TELEMETRY_DISABLED"
 		},
-		"intercom": {
-			"token": {
-				"desc": "Intercom Access Token"
-			}
-		},
 		"mixpanel": {
 			"token": {
 				"desc": "Mixpanel API token"
