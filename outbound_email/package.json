@@ -51,6 +51,9 @@
 		"eslint": "8.13.0",
 		"lambda-local": "2.0.2",
 		"nodemon": "2.0.15",
-		"pre-commit": "1.2.2"
+		"pre-commit": "1.2.2",
+		"snyk": "1.961.0"
+	},
+	"overrides": {
 	}
 }
