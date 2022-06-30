@@ -301,9 +301,6 @@
 	},
 	"telemetry": {
 		"disabled": "disable telemetry [CSSVC_TELEMETRY_DISABLED]",
-		"intercom": {
-			"token": "Intercom Access Token"
-		},
 		"mixpanel": {
 			"token": "Mixpanel API token"
 		},
