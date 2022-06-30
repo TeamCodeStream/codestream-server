@@ -209,7 +209,7 @@ class ProviderIdentityConnector {
 
 		// if identity provider gave us top level attributes, note them
 		let topLevelAttributes = this.providerInfo.__topLevelAttributes;
-		delete this._providerInfo.__topLevelAttributes;
+		delete this.providerInfo.__topLevelAttributes;
 
 		// preserve identities for other providers, but removing any identities for this provider, and replace
 		// with the new identity passed
