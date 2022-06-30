@@ -23,6 +23,14 @@ const OAUTH_CONFIG = {
 	supportsRefresh: true,
 };
 
+const ROUTES = [
+	{
+		method: 'post',
+		path: 'no-auth/verify-nr-azure-password',
+		requestClass: require('./verify_nr_azure_password'),
+	},
+];
+
 class NewRelicAzureAuth extends OAuthModule {
 	constructor(config) {
 		super(config);
@@ -42,6 +50,11 @@ class NewRelicAzureAuth extends OAuthModule {
 			});
 			return oauthServices;
 		};
+	}
+
+	// get all routes exposed by this module
+	getRoutes() {
+		return ROUTES;
 	}
 
 	// match the given New Relic Azure identity to a CodeStream identity
