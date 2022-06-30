@@ -315,31 +315,24 @@ module.exports = function customConfigFunc(nativeCfg) {
 		newrelic: { appClientId: 'placeholder' },
 	};
 
-
 	// TEMPORARY, FILL IN AS NEEDED FOR TESTING BUT DO NOT PUSH
 	Cfg.integrations['newrelic_azure'] = {
 		cloud: {
-			appClientId: 
-			'', // cstrykernr
-			//'',   // newrelicstaging
-			appClientSecret: 
-			'', // cstrykernr
-			//'',   // newrelicstaging
+			appClientId: '', // cstrykernr
+			//'02cc1838-6a0c-4d0d-ada5-fd5042e384f4',   // newrelicstaging
+			appClientSecret: '', // cstrykernr
+			//'Lns8Q~L3yKeSW4D1_lk6GjsdfTTDBVzOi3F2Mb~v',   // newrelicstaging
 			disabled: false, // change to false when testing
-			tenant: 
-			'cstrykernr', // cstrykernr
+			tenant: 'cstrykernr', // cstrykernr
 			//'newrelicstaging', // newrelicstaging
-			authUserFlow: 
-			'B2C_1A_SIGNUP_SIGNIN_WITH_SOCIAL', // cstrykernr
+			authUserFlow: 'B2C_1A_SIGNUP_SIGNIN_WITH_SOCIAL', // cstrykernr
 			//'B2C_1A_SIGNUP_SIGNIN_WITH_SOCIAL', // newrelicstaging
-			adminAppClientId: 
-			'', //cstrykernr
+			adminAppClientId: '', //cstrykernr
 			//'', //newrelicstaging
-			adminAppClientSecret: 
-			'', //cstrykernr
+			adminAppClientSecret: '', //cstrykernr
 			//'', //newrelicstaging
-		}
-	}
+		},
+	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
 	// eg. provider: jira, installation: cloud
@@ -446,7 +439,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'shortcut',
 		'linear',
 		'newrelic',
-		'newrelic_azure'
+		'newrelic_azure',
 	];
 	// matching these paths means Authorization header is not required
 	Cfg.apiServer.unauthenticatedPaths = [

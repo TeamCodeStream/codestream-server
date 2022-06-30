@@ -2,9 +2,10 @@
 
 'use strict';
 
-const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/oauth/oauth_module.js');
+const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT +
+	'/api_server/lib/oauth/oauth_module.js');
 const NewRelicAzureAuthorizer = require('./newrelic_azure_authorizer');
-const NewRelicAzureAdmin  = require('./newrelic_azure_admin');
+const NewRelicAzureAdmin = require('./newrelic_azure_admin');
 
 const OAUTH_CONFIG = {
 	provider: 'newrelic_azure',
@@ -15,7 +16,7 @@ const OAUTH_CONFIG = {
 	scopes: 'openid profile email',
 	additionalAuthCodeParameters: {
 		response_mode: 'query',
-		prompt: 'login'
+		prompt: 'login',
 	},
 	addClientIdToScopes: true,
 	mockAccessTokenExpiresIn: 3600,
@@ -23,8 +24,7 @@ const OAUTH_CONFIG = {
 };
 
 class NewRelicAzureAuth extends OAuthModule {
-
-	constructor (config) {
+	constructor(config) {
 		super(config);
 		this.oauthConfig = OAUTH_CONFIG;
 
@@ -32,22 +32,22 @@ class NewRelicAzureAuth extends OAuthModule {
 		this.oauthConfig.host = `${tenant}.b2clogin.com/${tenant}.onmicrosoft.com/${authUserFlow}`;
 	}
 
-	services () {
+	services() {
 		// return the NewRelic Azure admin as a service for user administration
 		return async () => {
-			const oauthServices = await (super.services())();
-			oauthServices.userAdmin = this.userAdmin =  new NewRelicAzureAdmin({ api: this.api });
+			const oauthServices = await super.services()();
+			oauthServices.userAdmin = this.userAdmin = new NewRelicAzureAdmin({
+				config: this.api.config,
+				logger: this.api,
+			});
 			return oauthServices;
 		};
 	}
 
 	// match the given New Relic Azure identity to a CodeStream identity
-	async getUserIdentity (options) {
+	async getUserIdentity(options) {
 		const authorizer = new NewRelicAzureAuthorizer({ options });
-		return authorizer.getNewRelicAzureIdentity(
-			options.accessToken,
-			options.providerInfo
-		);
+		return authorizer.getNewRelicAzureIdentity(options.accessToken, options.providerInfo);
 	}
 }
 

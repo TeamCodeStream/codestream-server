@@ -3,30 +3,32 @@
 
 'use strict';
 
-const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT +
+	'/shared/server_utils/email_utilities');
 const UserCreator = require('../users/user_creator');
 const Indexes = require('../users/indexes');
-const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
-const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT +
+	'/api_server/modules/teams/add_team_members');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT +
+	'/api_server/lib/util/restful/model_saver');
 const ConfirmHelper = require('../users/confirm_helper');
 const GitLensReferralLookup = require('../users/gitlens_referral_lookup');
 
 class ProviderIdentityConnector {
-
-	constructor (options) {
+	constructor(options) {
 		Object.assign(this, options);
-		['errorHandler', 'data', 'transforms', 'api'].forEach(prop => {
+		['errorHandler', 'data', 'transforms', 'api'].forEach((prop) => {
 			this[prop] = this.request[prop];
 		});
 	}
 
 	// attempt to match the given third-party provider identification information to a
 	// CodeStream user, create the user as needed and requested
-	async connectIdentity (providerInfo) {
+	async connectIdentity(providerInfo) {
 		this.providerInfo = providerInfo;
 
 		// must have these attributes from the provider or we can't proceed
-		['email', 'userId'].forEach(attribute => {
+		['email', 'userId'].forEach((attribute) => {
 			if (!this.providerInfo[attribute]) {
 				throw this.errorHandler.error('parameterRequired', { info: attribute });
 			}
@@ -45,10 +47,10 @@ class ProviderIdentityConnector {
 		await this.setUserProviderInfo();
 		await this.confirmUserAsNeeded();
 	}
-	
-	// find the user associated with the passed credentials, first by matching against the 
+
+	// find the user associated with the passed credentials, first by matching against the
 	// provider identity extracted from the passed provider info, and then by matching against email
-	async findUser () {
+	async findUser() {
 		this.user = await this.data.users.getOneByQuery(
 			{ searchableEmail: this.providerInfo.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
@@ -68,18 +70,16 @@ class ProviderIdentityConnector {
 	}
 
 	// get the user associated with an invite code, as needed
-	async getInvitedUser () {
+	async getInvitedUser() {
 		if (!this.inviteCode) {
 			return;
 		}
-		this.signupToken = await this.request.api.services.signupTokens.find(
-			this.inviteCode,
-			{ requestId: this.request.request.id }
-		);
+		this.signupToken = await this.request.api.services.signupTokens.find(this.inviteCode, {
+			requestId: this.request.request.id,
+		});
 		if (!this.signupToken) {
 			throw this.errorHandler.error('notFound', { info: 'invite code' });
-		}
-		else if (this.signupToken.expired) {
+		} else if (this.signupToken.expired) {
 			throw this.errorHandler.error('tokenExpired');
 		}
 
@@ -104,19 +104,21 @@ class ProviderIdentityConnector {
 		if (this.invitedUser.get('email').toLowerCase() !== this.providerInfo.email.toLowerCase()) {
 			if (this.invitedUser.get('isRegistered')) {
 				throw this.errorHandler.error('alreadyAccepted');
-			}
-			else if (this.user) {
+			} else if (this.user) {
 				throw this.errorHandler.error('inviteMismatch');
-			}
-			else {
-				this.request.log(`Existing unregistered user ${this.invitedUser.get('email')} will get their email changed to ${this.providerInfo.email}`);
+			} else {
+				this.request.log(
+					`Existing unregistered user ${this.invitedUser.get(
+						'email'
+					)} will get their email changed to ${this.providerInfo.email}`
+				);
 				this.user = this.invitedUser;
 			}
 		}
 	}
 
 	// create a provider-registered user if one was not found, based on the passed information
-	async createUserAsNeeded () {
+	async createUserAsNeeded() {
 		if (this.user) {
 			return;
 		}
@@ -124,21 +126,22 @@ class ProviderIdentityConnector {
 		this.userCreator = new UserCreator({
 			request: this.request,
 			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
-			subscriptionCheat: this._subscriptionCheat === this.api.config.sharedSecrets.subscriptionCheat
+			subscriptionCheat:
+				this._subscriptionCheat === this.api.config.sharedSecrets.subscriptionCheat,
 		});
 
 		const userData = {
 			_pubnubUuid: this._pubnubUuid,
-			providerIdentities: [`${this.provider}::${this.providerInfo.userId}`]
+			providerIdentities: [`${this.provider}::${this.providerInfo.userId}`],
 		};
-		['email', 'username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'].forEach(attribute => {
+		['email', 'username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'].forEach((attribute) => {
 			if (this.providerInfo[attribute]) {
 				userData[attribute] = this.providerInfo[attribute] || '';
 			}
 		});
 		if (this.providerInfo.avatarUrl) {
 			userData.avatar = {
-				image: this.providerInfo.avatarUrl
+				image: this.providerInfo.avatarUrl,
 			};
 		}
 
@@ -151,8 +154,10 @@ class ProviderIdentityConnector {
 	}
 
 	// if user was invited to a team, add them to that team
-	async addUserToTeamAsNeeded () {
-		if (!this.teamId && (!this.signupToken || !this.signupToken.teamId)) { return; }
+	async addUserToTeamAsNeeded() {
+		if (!this.teamId && (!this.signupToken || !this.signupToken.teamId)) {
+			return;
+		}
 		this.teamId = this.teamId || this.signupToken.teamId;
 		this.team = await this.data.teams.getById(this.teamId);
 		if (!this.team) {
@@ -164,14 +169,14 @@ class ProviderIdentityConnector {
 		await new AddTeamMembers({
 			request: this.request,
 			addUsers: [this.user],
-			team: this.team
+			team: this.team,
 		}).addTeamMembers();
 		this.userWasAddedToTeam = true;
 	}
 
 	// might need to update the user object, either because we had to create it before we had to create or team,
 	// or because we found an existing user object, and its identity information from the provider has changed
-	async setUserProviderInfo () {
+	async setUserProviderInfo() {
 		let mustUpdate = false;
 
 		// if the key provider info (userId or accessToken) has changed, we need to update
@@ -186,7 +191,7 @@ class ProviderIdentityConnector {
 
 		// if existing identities for this provider will be changed, we need to update
 		const identity = `${this.provider}::${this.providerInfo.userId}`;
-		const existingIdentities = (this.user.get('providerIdentities') || []).filter(id => {
+		const existingIdentities = (this.user.get('providerIdentities') || []).filter((id) => {
 			return id.startsWith(`${this.provider}::`);
 		});
 		if (existingIdentities.length !== 1 || existingIdentities[0] !== identity) {
@@ -202,26 +207,37 @@ class ProviderIdentityConnector {
 		let subIDP = this.providerInfo.__subIDP;
 		delete this.providerInfo.__subIDP;
 
+		// if identity provider gave us top level attributes, note them
+		let topLevelAttributes = this.providerInfo.__topLevelAttributes;
+		delete this._providerInfo.__topLevelAttributes;
+
 		// preserve identities for other providers, but removing any identities for this provider, and replace
 		// with the new identity passed
-		const identities = (this.user.get('providerIdentities') || []).filter(id => {
+		const identities = (this.user.get('providerIdentities') || []).filter((id) => {
 			return !id.startsWith(`${this.provider}::`);
 		});
 		identities.push(`${this.provider}::${this.providerInfo.userId}`);
-		const op = { 
+		const op = {
 			$set: {
-				modifiedAt: Date.now()
-			}
+				modifiedAt: Date.now(),
+			},
 		};
-		const providerInfoData = Object.assign({
-			userId: this.providerInfo.userId,
-			accessToken: this.providerInfo.accessToken,
-			hostUrl: this.providerInfo.hostUrl
-		}, this.tokenData || {});
-		Object.assign(op.$set, {
-			providerIdentities: identities,
-			[`providerInfo.${this.provider}`]: providerInfoData
-		});
+		const providerInfoData = Object.assign(
+			{
+				userId: this.providerInfo.userId,
+				accessToken: this.providerInfo.accessToken,
+				hostUrl: this.providerInfo.hostUrl,
+			},
+			this.tokenData || {}
+		);
+		Object.assign(
+			op.$set,
+			{
+				providerIdentities: identities,
+				[`providerInfo.${this.provider}`]: providerInfoData,
+			},
+			topLevelAttributes || {}
+		);
 
 		// if the identity provider delegates to another identity provider, and we have an
 		// access token for that, make it a API token for that provider
@@ -229,26 +245,26 @@ class ProviderIdentityConnector {
 			op.$set[`providerInfo.${subIDP.name}`] = {
 				isApiToken: true,
 				accessToken: subIDP.accessToken,
-				userId: subIDP.userId
+				userId: subIDP.userId,
 			};
 		}
 
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this.request,
 			collection: this.data.users,
-			id: this.user.id
+			id: this.user.id,
 		}).save(op);
 	}
 
 	// if we found an existing unregistered user, signing in is like confirmation,
 	// so update the user to indicate they are confirmed
-	async confirmUserAsNeeded () {
+	async confirmUserAsNeeded() {
 		if (this.user.get('isRegistered')) {
 			return;
 		}
 
 		const userData = {};
-		['email', 'username', 'fullName', 'timeZone'].forEach(attribute => {
+		['email', 'username', 'fullName', 'timeZone'].forEach((attribute) => {
 			if (this.providerInfo[attribute]) {
 				userData[attribute] = this.providerInfo[attribute];
 			}
@@ -258,7 +274,7 @@ class ProviderIdentityConnector {
 			request: this.request,
 			user: this.user,
 			dontCheckUsername: true,
-			notTrueLogin: true
+			notTrueLogin: true,
 		}).confirm(userData);
 		this.userWasConfirmed = true;
 	}
