@@ -83,6 +83,9 @@
 	"overrides": {
 		"handlebars@4.7.7": {
 			"uglify-js": "3.16.1"
+		},
+		"nodemon@2.0.18": {
+			"update-notifier": "6.0.0"
 		}
 	}
 }
