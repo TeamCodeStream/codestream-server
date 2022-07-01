@@ -15,7 +15,8 @@ class SlackUserHelper {
 	}
 
 	async get (method, args) {
-		const argString = Object.keys(args).map(key => `${key}=${args[key]}`).join('&');
+		const argString = Object.keys(args)
+			.map(key => `${key}=${args[key]}`).join('&');
 		const request = await Fetch(`https://slack.com/api/${method}?${argString}`,
 			{
 				method: 'get',
@@ -220,6 +221,14 @@ class SlackUserHelper {
 			mentionedUserIds: [...mentionedUserIds],
 			text: newText
 		};
+	}
+
+	async fetchMessages (params) {
+		return this.get('conversations.history', params);
+	}
+
+	async fetchReplies (params) {
+		return this.get('conversations.replies', params);
 	}
 
 	async postMessage (body) {

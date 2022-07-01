@@ -201,6 +201,21 @@ class SlackSharingHelper extends SharingHelper {
 		};
 	}
 
+	async sharePermalink (codemark, destination) {
+		const blocks = await this.toPermalinkBlocks(codemark);
+		if (blocks.length > 0) {
+			const response = await this.slackUserHelper.postMessage({
+				channel: destination.channelId,
+				blocks: blocks,
+				thread_ts: destination.parentPostId
+			});
+			const { ok, error, message, ts } = response;
+			if (!ok) {
+				throw new Error(error);
+			}
+		}
+	}
+
 	async deletePost (destination) {
 		if (destination.channelId && destination.postId) {
 			const response = await this.slackUserHelper.deleteMessage({
@@ -305,6 +320,38 @@ class SlackSharingHelper extends SharingHelper {
 				]
 			});
 		}
+		return blocks;
+	}
+
+	async toPermalinkBlocks (codemark) {
+		const blocks = [];
+
+		let counter = 0;
+		const markers = await this.request.data.markers.getByIds(codemark.get('markerIds'));
+		for (const marker of markers) {
+			counter++;
+			let { filename, start, end } = this.getMarkerFileData(marker);
+			let repo;
+			if (marker.get('repoId')) {
+				repo = await this.request.data.repos.getById(marker.get('repoId'));
+			}
+			if (repo) {
+				filename = `[${repo.get('name')}] ${filename}`;
+			}
+			blocks.push({
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `${filename}\n`
+				}
+			});
+			const url = this.getMarkerUrlData(marker, repo, undefined, start, end) || this.getMarkerUrlData(codemark);
+			const actions = this.blockCodemarkActions(codemark, counter, marker, url);
+			if (actions && actions.elements.length) {
+				blocks.push(actions);
+			}
+		}
+
 		return blocks;
 	}
 
@@ -463,46 +510,51 @@ class SlackSharingHelper extends SharingHelper {
 				});
 			}
 
-			let actionId;
-			const actions = {
-				type: 'actions',
-				block_id: `codeblock-actions:${counter}`,
-				elements: []
-			};
-
-			if (codemark.get('permalink')) {
-				actionId = this.toActionId(counter, 'ide', codemark, marker);
-				actions.elements.push({
-					type: 'button',
-					action_id: actionId,
-					text: {
-						type: 'plain_text',
-						text: 'Open in IDE'
-					},
-					url: `${codemark.get('permalink')}?ide=default&src=Slack&marker=${marker.id}`
-				});
-			}
-			if (url !== undefined && url.url) {
-				if (url.url.length <= MAX_BLOCK_TEXT_LENGTH) {
-					actionId = this.toExternalActionId(counter, 'code', url.name, codemark, marker);
-					actions.elements.push({
-						type: 'button',
-						action_id: actionId,
-						text: {
-							type: 'plain_text',
-							text: `Open on ${url.displayName}`
-						},
-						// users can have spaces in the paths to their source code...
-						// slack does not like them so they must be escaped
-						url: encodeURI(url.url)
-					});
-				}
-			}
+			const actions = this.blockCodemarkActions(codemark, counter, marker, url);
 			if (actions && actions.elements.length) {
 				blocks.push(actions);
 			}
 		}
 		return blocks;
+	}
+
+	blockCodemarkActions (codemark, counter, marker, url) {
+		let actionId;
+		const actions = {
+			type: 'actions',
+			block_id: `codeblock-actions:${counter}`,
+			elements: []
+		};
+
+		if (codemark.get('permalink')) {
+			actionId = this.toActionId(counter, 'ide', codemark, marker);
+			actions.elements.push({
+				type: 'button',
+				action_id: actionId,
+				text: {
+					type: 'plain_text',
+					text: 'Open in IDE'
+				},
+				url: `${codemark.get('permalink')}?ide=default&src=Slack&marker=${marker.id}`
+			});
+		}
+		if (url !== undefined && url.url) {
+			if (url.url.length <= MAX_BLOCK_TEXT_LENGTH) {
+				actionId = this.toExternalActionId(counter, 'code', url.name, codemark, marker);
+				actions.elements.push({
+					type: 'button',
+					action_id: actionId,
+					text: {
+						type: 'plain_text',
+						text: `Open on ${url.displayName}`
+					},
+					// users can have spaces in the paths to their source code...
+					// slack does not like them so they must be escaped
+					url: encodeURI(url.url)
+				});
+			}
+		}
+		return actions;
 	}
 
 	blockCodemarkMarkerless (codemark) {

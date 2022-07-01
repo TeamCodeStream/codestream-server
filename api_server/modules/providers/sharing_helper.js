@@ -12,6 +12,8 @@ class SharingHelper {
 	async sharePost (post, destination, parentText) {
 		return undefined;
 	}
+
+	async sharePermalink (codemark, destination) {}
 }
 
 module.exports = SharingHelper;

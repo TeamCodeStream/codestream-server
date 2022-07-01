@@ -81,6 +81,11 @@ const ROUTES = [
 		method: 'post',
 		path: '/provider-share/:provider',
 		requestClass: require('./provider_share_request')
+	},
+	{
+		method: 'get',
+		path: '/slack/posts',
+		requestClass: require('./get_slack_posts_request')
 	}
 ];
 
