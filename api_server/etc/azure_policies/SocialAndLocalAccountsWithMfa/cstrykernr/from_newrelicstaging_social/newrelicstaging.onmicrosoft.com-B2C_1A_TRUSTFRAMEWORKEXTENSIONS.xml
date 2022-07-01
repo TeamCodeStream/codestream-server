@@ -86,7 +86,7 @@
           <DisplayName>REST API call to communicate with Legacy IdP</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
-            <Item Key="ServiceUrl">https://auth.codestream.com/no-auth/verify-nr-azure-password</Item>
+            <Item Key="ServiceUrl">https://auth.codestream.com/no-auth/verify-nr-azure-user</Item>
             <Item Key="AuthenticationType">None</Item>
             <Item Key="SendClaimsIn">Body</Item>
           </Metadata>

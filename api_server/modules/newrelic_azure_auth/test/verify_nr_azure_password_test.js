@@ -20,7 +20,7 @@ class LoginTest extends CodeStreamAPITest {
 	}
 
 	get path() {
-		return '/no-auth/verify-nr-azure-password';
+		return '/no-auth/verify-nr-azure-user';
 	}
 
 	// before the test runs...

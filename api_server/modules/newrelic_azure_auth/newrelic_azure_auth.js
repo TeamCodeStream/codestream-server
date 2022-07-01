@@ -26,7 +26,7 @@ const OAUTH_CONFIG = {
 const ROUTES = [
 	{
 		method: 'post',
-		path: 'no-auth/verify-nr-azure-password',
+		path: 'no-auth/verify-nr-azure-user',
 		requestClass: require('./verify_nr_azure_password'),
 	},
 ];

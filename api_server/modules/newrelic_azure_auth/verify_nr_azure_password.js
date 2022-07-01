@@ -1,4 +1,4 @@
-// fulfill a no-auth/verify-nr-azure-password request, called by Azure to verify a user's password
+// fulfill a no-auth/verify-nr-azure-user request, called by Azure to verify a user's password
 // after migration, so their correct CodeStream password can be ingested into Azure
 // see: https://github.com/azure-ad-b2c/user-migration/tree/master/seamless-account-migration
 
