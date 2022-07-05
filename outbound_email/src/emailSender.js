@@ -18,7 +18,8 @@ class EmailSender {
 		else {
 			this.sendgridEmail = new SendGridEmail({
 				...this.outboundEmailServer.config.emailDeliveryService.sendgrid,
-				emailTo: this.outboundEmailServer.config.email.emailTo
+				emailTo: this.outboundEmailServer.config.email.emailTo,
+				logger: this.logger
 			});
 		}
 	}

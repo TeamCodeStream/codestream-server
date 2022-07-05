@@ -2,6 +2,7 @@
 	"name": "outbound-email",
 	"version": "13.0.2",
 	"dependencies": {
+		"@sendgrid/mail": "7.7.0",
 		"amqplib": "0.8.0",
 		"async": "2.6.4",
 		"aws-sdk": "2.1115.0",
@@ -19,7 +20,6 @@
 		"node-fetch": "2.6.7",
 		"nodemailer": "6.7.3",
 		"pubnub": "5.0.1",
-		"sendgrid": "5.2.3",
 		"socketcluster-client": "16.0.4",
 		"strftime": "0.10.1",
 		"uuid": "8.3.2"
