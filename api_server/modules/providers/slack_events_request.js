@@ -11,6 +11,31 @@ const PostUpdater = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const PostPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_publisher');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 
+const fileExtensions = require('./file_extensions');
+
+const REMOTE_PROVIDERS = [
+	{
+		name: 'GitHub',
+		regex: /github.com/i
+	},
+	{
+		name: 'GitLab',
+		regex: /gitlab.com/i
+	},
+	{
+		name: 'Bitbucket',
+		regex: /bitbucket.org/i
+	},
+	{
+		name: 'Azure DevOps',
+		regex: /dev.azure.com/i
+	},
+	{
+		name: 'Azure DevOps',
+		regex: /visualstudio.com/i
+	}
+];
+
 class SlackEventsRequest extends RestfulRequest {
 
 	async authorize () {
@@ -172,7 +197,7 @@ class SlackEventsRequest extends RestfulRequest {
 
 	async processMessageCreated () {
 		if (!this.isThreadedReply(this.slackEvent)) {
-			await this.processCodeFences();
+			await this.processEventForTelemetry();
 			return;
 		}
 		const existingPost = await this.getPost(this.slackEvent.team, this.slackEvent.channel, this.slackEvent.ts);
@@ -181,7 +206,7 @@ class SlackEventsRequest extends RestfulRequest {
 		}
 		const parentPost = await this.getPost(this.slackEvent.team, this.slackEvent.channel, this.slackEvent.thread_ts);
 		if (!parentPost) {
-			await this.processCodeFences();
+			await this.processEventForTelemetry();
 			return;
 		}
 		const botToken = await this.getBotToken(parentPost.get('teamId'), this.slackEvent.team);
@@ -256,17 +281,25 @@ class SlackEventsRequest extends RestfulRequest {
 		}
 	}
 
+	async processEventForTelemetry () {
+		const userHelper = new SlackUserHelper({
+			request: this
+		});
+		this.user = await userHelper.getUserWithoutTeam(this.slackEvent.user);
+		
+		await this.processCodeFences();
+		await this.processFilenames();
+		await this.processSha1();
+		await this.processCodeHosts();
+	}
+
 	async processCodeFences () {
 		const fences = this.findCodeFences(this.slackEvent.text);
 		if (fences.length === 0) {
 			return;
 		}
 
-		const userHelper = new SlackUserHelper({
-			request: this
-		});
-		this.user = await userHelper.getUserWithoutTeam(this.slackEvent.user);
-		
+		this.log('Code fence pasted in Slack');
 		this.sendTelemetry({
 			event: 'Code Pasted in Messaging Service',
 			data: {
@@ -274,6 +307,62 @@ class SlackEventsRequest extends RestfulRequest {
 			},
 			userId: this.slackEvent.user
 		});
+	}
+
+	// find probable filenames in the message text and send a telemetry event
+	async processFilenames () {
+		// we just want a decent likelihood that there exists a filename somewhere
+		// we filter out the most common urls and email addresses below
+		const matches = this.slackEvent.text.matchAll(/\S+\.(\w+)/g);
+		for (const match of matches) {
+			if (!fileExtensions.includes(match[1]) || match[0].includes('http') || match[0].includes('@')) {
+				continue;
+			}
+
+			this.log('Filename mentioned in Slack');
+			this.sendTelemetry({
+				event: 'Filename Mentioned in Messaging Service',
+				data: {
+					'Connected to Slack': Boolean(this.user)
+				},
+				userId: this.slackEvent.user
+			});
+			break;
+		}
+	}
+
+	async processSha1 () {
+		const match1 = this.slackEvent.text.match(/\b[a-f0-9]{7}\b/);
+		const match2 = this.slackEvent.text.match(/\b[a-f0-9]{40}\b/);
+		if (!match1 && !match2) {
+			return;
+		}
+
+		this.log('Commit hash mentioned in Slack');
+		this.sendTelemetry({
+			event: 'Commit Hash Mentioned in Messaging Service',
+			data: {
+				'Connected to Slack': Boolean(this.user),
+				Type: match1 ? 'short' : 'long'
+			},
+			userId: this.slackEvent.user
+		});
+	}
+
+	async processCodeHosts () {
+		for (const codeHost of REMOTE_PROVIDERS) {
+			if (this.slackEvent.text.match(codeHost.regex)) {
+				this.log(`Code host ${codeHost.name} mentioned in Slack`);
+				this.sendTelemetry({
+					event: 'Code Host Mentioned in Messaging Service',
+					data: {
+						'Code Host': codeHost.name,
+						'Connected to Slack': Boolean(this.user)
+					},
+					userId: this.slackEvent.user
+				});
+			}
+		}
 	}
 
 	isThreadedReply (message) {
