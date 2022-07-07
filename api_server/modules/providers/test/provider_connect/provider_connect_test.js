@@ -26,7 +26,6 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const expectedResponse = { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
 		if (this.usingSocketCluster) {
 			delete expectedResponse.pubnubKey;
-			delete expectedResponse.pubnubToken;
 		}
 		return expectedResponse;
 	}
@@ -115,7 +114,6 @@ class ProviderConnectTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert.deepEqual(user.providerIdentities, [`${this.provider}::${providerInfo[team.id][this.provider].userId}`], 'providerIdentities is not correct');
 		Assert(data.accessToken, 'no access token');
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
-		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert.deepEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 		if (this.preExistingUnconnectedUser) {

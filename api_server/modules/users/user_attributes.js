@@ -92,7 +92,7 @@ module.exports = {
 		type: 'object',
 		serverOnly: true,
 	},
-	pubNubToken: {
+	pubNubToken: { //deprecated
 		type: 'string',
 		serverOnly: true
 	},
