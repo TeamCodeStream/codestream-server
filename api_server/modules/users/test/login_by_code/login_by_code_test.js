@@ -71,7 +71,6 @@ class LoginByCodeTest extends CodeStreamAPITest {
 		Assert.strictEqual(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		Assert(data.accessToken, 'no access token');
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
-		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 		//const providerHosts = GetStandardProviderHosts(this.apiConfig);
