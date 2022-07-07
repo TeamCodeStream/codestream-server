@@ -35,12 +35,16 @@ class LoginHelper {
 
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
 
+		await this.grantSubscriptionPermissions(); // grant permissions for pubnub v3 access manager
 		await awaitParallel([
 			this.getInitialData,
 			this.getForeignCompanies,
 			this.generateAccessToken
 		], this);
-		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
+
+		// NOTE - no await here, this can run in parallel ... granting V2 access permissions (to be deprecated)
+		this.grantV2SubscriptionPermissions(); 
+
 		await this.updateLastLogin();
 		await this.resetLoginCode();
 		this.getThirdPartyProviders();
@@ -53,8 +57,9 @@ class LoginHelper {
 	// prepare for the user being allowed to login, without actually generating the
 	// response data needed for a true login
 	async allowLogin () {
+		await this.grantSubscriptionPermissions();
 		await this.generateAccessToken();
-		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
+		this.grantV2SubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
 	}
 
@@ -115,22 +120,17 @@ class LoginHelper {
 
 	// generate an access token for this login if needed
 	async generateAccessToken (force) {
-		let set = null;
+		// use previously obtained token from PubNub's V3 Access Manager
+		let set = {
+			broadcasterV3Token: this.broadcasterV3Token
+		};
 
-		// generate a unique PubNub token, to be stored with the user object, the one and only way a 
-		// user can subscribe to PubNub (though for now, they can also subscribe with their access token,
-		// but we will deprecate this ability once the old atom client is deprecated)
-		this.pubnubToken = this.user.get('pubNubToken');
-		if (!this.pubnubToken) {
-			this.pubnubToken = (UUID() + '-' + UUID()).split('-').join('');
-			set = set || {};
-			set.pubNubToken = this.pubnubToken;
-		}
-		// set a more generic "broadcaster" token, to allow for other broadcaster solutions beside PubNub
+		// generate a broadcaster token for PubNub's V2 Access Manager
+		// this token should be deprecated once we have fully moved to V3
+		// (i.e. once all clients have been upgraded to use the V3 token)
 		this.broadcasterToken = this.user.get('broadcasterToken');
 		if (!this.broadcasterToken) {
-			this.broadcasterToken = this.pubnubToken;
-			set = set || {};
+			this.broadcasterToken =  (UUID() + '-' + UUID()).split('-').join('');
 			set.broadcasterToken = this.broadcasterToken;
 		}
 
@@ -150,12 +150,9 @@ class LoginHelper {
 			) {
 				const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
 				this.accessToken = token;
-				set = set || {};
 				set[`accessTokens.${this.loginType}`] = { token, minIssuance };
 			}
-			if (set) {
-				await this.request.data.users.applyOpById(this.user.id, { $set: set });
-			}
+			await this.request.data.users.applyOpById(this.user.id, { $set: set });
 		}
 		catch (error) {
 			if (!force) {
@@ -253,6 +250,7 @@ class LoginHelper {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
 			broadcasterToken: this.broadcasterToken, // more generic "broadcaster" token, for broadcaster solutions other than PubNub
+			broadcasterV3Token: this.broadcasterV3Token, // PubNub token for V3 Access Mananger
 			capabilities, // capabilities served by this API server
 			features: {
 				slack: {
@@ -286,9 +284,26 @@ class LoginHelper {
 	}
 
 	// grant the user permission to subscribe to various broadcaster channels
-	async grantSubscriptionPermissions () {
+	// this method can be deprecated when we have fully moved to PubNub's V3 Access Manager
+	// (i.e., when all clients have been upgraded to use the v3 token)
+	async grantV2SubscriptionPermissions () {
 		try {
 			await new UserSubscriptionGranter({
+				api: this.api,
+				data: this.request.data,
+				user: this.user,
+				request: this.request
+			}).grantAllV2();
+		}
+		catch (error) {
+			throw this.request.errorHandler.error('userMessagingGrant', { reason: error });
+		}
+	}
+
+	// grant the user permission to subscribe to various broadcaster channels, in PubNub's V3 access manager
+	async grantSubscriptionPermissions () {
+		try {
+			this.broadcasterV3Token = await new UserSubscriptionGranter({
 				api: this.api,
 				data: this.request.data,
 				user: this.user,

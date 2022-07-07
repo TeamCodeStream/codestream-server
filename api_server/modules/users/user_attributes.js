@@ -100,6 +100,10 @@ module.exports = {
 		type: 'string',
 		serverOnly: true
 	},
+	broadcasterV3Token: {
+		type: 'string',
+		serverOnly: true
+	},
 	hasReceivedFirstEmail: {
 		type: 'boolean',
 		serverOnly: true

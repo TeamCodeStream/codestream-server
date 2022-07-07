@@ -12,12 +12,37 @@ class UserSubscriptionGranter  {
 		Object.assign(this, options);
 	}
 
-	// grant all permissions necessary
-	async grantAll () {
+	// grant all permissions necessary for PubNub's V2 Access Manager
+	// (this method should be deprecated when we have fully moved to the V3 Access Manager)
+	async grantAllV2 () {
 		if (!this.user.get('broadcasterToken')) {
 			throw `no broadcaster token available for user ${this.user.id}`;
 		}
 
+		this.setChannels();
+		//await this.getRepoChannels();			
+		//await this.getStreamChannels();		
+		//await this.getObjectChannels();
+		await this.grantAllChannels();
+	}
+
+	// grant all permissions necessary for PubNub's V3 Access Manager
+	async grantAll () {
+		this.setChannels();
+
+		try {
+			return await this.api.services.broadcaster.grantMultipleV3(
+				this.user.id,
+				this.channels,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			throw `unable to grant user permissions for subscriptions, userId ${this.user.id}: ${error}`;
+		}
+	}
+
+	setChannels () {
 		this.channels = [
 			`user-${this.user.id}`
 		];
@@ -34,11 +59,6 @@ class UserSubscriptionGranter  {
 				name: 'echo'
 			});
 		}
-
-		//await this.getRepoChannels();			
-		//await this.getStreamChannels();		
-		//await this.getObjectChannels();
-		await this.grantAllChannels();
 	}
 
 	/*
