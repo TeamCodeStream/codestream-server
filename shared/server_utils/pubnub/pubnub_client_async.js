@@ -248,6 +248,31 @@ class PubNubClient {
 		this._log(`Successfully granted access for ${JSON.stringify(displayTokens)} to ${JSON.stringify(channels, undefined, 3)}`, options);
 	}
 
+	// grant access via PubNub's V3 Access Manager
+	// other methods of granting access to V2 should be deprecated once clients are fully upgraded to use V3 tokens
+	async grantMultipleV3 (userId, channels, options = {}) {
+		const channelsObject = channels.reduce((obj, channel) => {
+			const name = typeof channel === 'object' ? channel.name : channel;
+			obj[name] = { read: true };
+			return obj;
+		}, {});
+
+		try {
+			const token = await this.pubnub.grantToken({
+				ttl: 43200,
+				authorized_uui: userId,
+				resources: {
+					channels: channelsObject
+				}
+			});
+			return token;
+		} catch (error) {
+			const message = `Failed to grant access for ${userId} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(error.status)}`;
+			this._warn(message, options);
+			throw new Error(message);
+		}
+	}
+
 	// revoke read and/or write permission for the specified channel for the specified
 	// set of tokens (keys)
 	async revoke (tokens, channel, options = {}) {
