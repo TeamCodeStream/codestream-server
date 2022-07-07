@@ -31,7 +31,6 @@ class ConfirmationTest extends CodeStreamAPITest {
 		const expectedResponse = { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
 		if (this.usingSocketCluster) {
 			delete expectedResponse.pubnubKey;
-			delete expectedResponse.pubnubToken;
 		}
 		return expectedResponse;
 	}
@@ -117,7 +116,6 @@ class ConfirmationTest extends CodeStreamAPITest {
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert(data.accessToken, 'no access token');
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
-		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
 		Assert.deepEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 

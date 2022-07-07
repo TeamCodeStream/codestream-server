@@ -251,7 +251,7 @@ class EmailTest {
 		let clientConfig = Object.assign({}, this.config.broadcastEngine.pubnub);
 		let user = this.userData[1].user;
 		clientConfig.uuid = user._pubnubUuid || user.id;
-		clientConfig.authKey = this.userData[1].pubnubToken;
+		clientConfig.authKey = this.userData[1].broadcasterToken;
 		let client = new PubNub(clientConfig);
 		this.pubNubClient = new PubNubClient({
 			pubnub: client

@@ -51,7 +51,6 @@ const EXPECTED_REGISTRATION_RESPONSE = {
 const EXPECTED_LOGIN_RESPONSE = {
 	user: EXPECTED_USER_FIELDS,
 	accessToken: true,
-	pubnubToken: true,
 	broadcasterToken: true,
 	pubnubKey: true,
 
