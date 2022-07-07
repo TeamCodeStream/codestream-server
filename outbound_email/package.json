@@ -19,7 +19,7 @@
 		"newrelic": "8.9.1",
 		"node-fetch": "2.6.7",
 		"nodemailer": "6.7.3",
-		"pubnub": "5.0.1",
+		"pubnub": "7.2.0",
 		"socketcluster-client": "16.0.4",
 		"strftime": "0.10.1",
 		"uuid": "8.3.2"
