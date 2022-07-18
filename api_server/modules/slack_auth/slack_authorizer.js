@@ -69,8 +69,8 @@ class SlackAuthorizer {
 				throw 'mock invalid';
 			}
 			result = await this.webClient.oauth.access({
-				client_id: this.request.api.config.integrations.slack.appSharingClientId,
-				client_secret: this.request.api.config.integrations.slack.appSharingClientSecret,
+				client_id: this.request.api.config.integrations.slack.appClientId,
+				client_secret: this.request.api.config.integrations.slack.appClientSecret,
 				redirect_uri: this.providerInfo.redirectUri,
 				code: this.providerInfo.code
 			});

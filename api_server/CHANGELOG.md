@@ -1,5 +1,17 @@
 # Change Log
 
+## [13.0.1] - 2022-6-13
+
+### Added 
+
+- Adds new endpoint for upcoming Slack integration
+
+## [13.0.0] - 2022-5-31
+
+### Changed 
+
+- Clarify button copy when signing in via the web
+
 ## [12.0.13] - 2022-5-12
 
 ### Added

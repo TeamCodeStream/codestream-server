@@ -156,7 +156,7 @@ class Reinviter {
 		await Promise.all(teamIds.map(async teamId => {
 			const message = {
 				requestId: `autoReinvite-${3-user.needsAutoReinvites}-${teamId}-${user.id}`,
-				users: [op]
+				users: [{ id: user.id, ...op }]
 			};
 			try {
 				await this.api.services.broadcaster.publish(

@@ -16,11 +16,6 @@ Team CodeStream<br/><br/>
 </html>
 `;
 	}
-
-	// TODO: set category
-	getCategory () {
-		return '';
-	}
 }
 
 module.exports = LoginCodeHandler;

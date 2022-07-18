@@ -284,7 +284,7 @@ class ProviderAuthTest extends CodeStreamAPITest {
 
 	getSlackRedirectData () {
 		const parameters = {
-			client_id: this.apiConfig.integrations.slack.appSharingClientId,
+			client_id: this.apiConfig.integrations.slack.appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,

@@ -497,47 +497,47 @@
 		"slack": {
 			"cloud": {
 				"defaultEnv": {
-					"_loadSecretsFile": "slack/dev-combined.cfg"
+					"_loadSecretsFile": "slack/pd.cfg"
 				},
 				"eu0": {
-					"_loadSecretsFile": "slack/eu0-combined.cfg",
+					"_loadSecretsFile": "slack/eu0.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"local": {
-					"_loadSecretsFile": "slack/local-combined.cfg"
+					"_loadSecretsFile": "slack/local.cfg"
 				},
 				"local1": {
-					"_loadSecretsFile": "slack/local-combined.cfg"
+					"_loadSecretsFile": "slack/local.cfg"
 				},
 				"local2": {
-					"_loadSecretsFile": "slack/local-combined.cfg"
+					"_loadSecretsFile": "slack/local.cfg"
 				},
 				"nr": {
-					"_loadSecretsFile": "slack/nr-combined.cfg",
+					"_loadSecretsFile": "slack/nr.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"pd": {
-					"_loadSecretsFile": "slack/dev-combined.cfg",
+					"_loadSecretsFile": "slack/pd.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"pd2": {
-					"_loadSecretsFile": "slack/dev-combined.cfg",
+					"_loadSecretsFile": "slack/pd2.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"prod": {
-					"_loadSecretsFile": "slack/prod-combined.cfg",
+					"_loadSecretsFile": "slack/prod.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"qa": {
-					"_loadSecretsFile": "slack/qa-combined.cfg",
+					"_loadSecretsFile": "slack/qa.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"qa2": {
-					"_loadSecretsFile": "slack/qa-combined.cfg",
+					"_loadSecretsFile": "slack/qa2.cfg",
 					"interactiveComponentsEnabled": true
 				},
 				"stg": {
-					"_loadSecretsFile": "slack/stg-combined.cfg",
+					"_loadSecretsFile": "slack/stg.cfg",
 					"interactiveComponentsEnabled": true
 				}
 			}
@@ -803,11 +803,6 @@
 		}
 	},
 	"telemetry": {
-		"intercom": {
-			"defaultEnv": {
-				"_loadSecretsFile": "intercom/dev.cfg"
-			}
-		},
 		"segment": {
 			"defaultEnv": {
 				"_loadSecretsFile": "segment/dev-api.cfg"

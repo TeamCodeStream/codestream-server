@@ -23,7 +23,7 @@ const ONE_DAY = 24 * 60 * 60 * 1000;
 const MESSAGE_LIMIT = 1000;
 const THROTTLE_TIME = 200;
 const DEBUG = false;
-const RUN_INTERVAL = 23 * 55 * 60 * 1000;
+const RUN_INTERVAL = 22 * 55 * 60 * 1000; // hours x min x sec x 1000 milisec.  22h 55m allows for random sleep when run from cron
 
 const CATEGORIES = [
 	'email_confirmation',

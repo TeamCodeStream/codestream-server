@@ -19,7 +19,7 @@ class InvalidSignatureTest extends ProviderActionTest {
 		super.prepareData(() => {
 			const now = Date.now();
 			const falseSignature = 'v0=' +
-				Crypto.createHmac('sha256', this.apiConfig.integrations.slack.appSharingSigningSecret)
+				Crypto.createHmac('sha256', this.apiConfig.integrations.slack.appSigningSecret)
 					.update(`v0:${now}:bogus`, 'utf8')
 					.digest('hex');
 			this.apiRequestOptions.headers['x-slack-signature'] = falseSignature;
