@@ -3,6 +3,8 @@
  
 'use strict';
 
+const ProviderConnectDeprecatedTest = require('./provider_connect_deprecated_test');
+/*
 const ProviderConnectTest = require('./provider_connect_test');
 const NoAttributeTest = require('./no_attribute_test');
 const NoCodeTest = require('./no_code_test');
@@ -20,6 +22,7 @@ const SignupTokenTest = require('./signup_token_test');
 const InviteTest = require('./invite_test');
 const TeamMismatchTest = require('./team_mismatch_test');
 const TeamNoMatchTest = require('./team_no_match_test');
+*/
 
 const PROVIDERS = [
 	'slack'
@@ -28,6 +31,8 @@ const PROVIDERS = [
 class ProviderConnectRequestTester {
 
 	test () {
+		new ProviderConnectDeprecatedTest({ provider: 'slack' }).test();
+		/*
 		PROVIDERS.forEach(provider => {
 			new ProviderConnectTest({ provider }).test();
 			new NoAttributeTest({ provider, attribute: 'providerInfo' }).test();
@@ -47,6 +52,7 @@ class ProviderConnectRequestTester {
 			new TeamNoMatchTest({ provider }).test();
 		});
 		new UnknownProviderTest({ provider: 'blahblah' }).test();
+		*/
 	}
 }
 
