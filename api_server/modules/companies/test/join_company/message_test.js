@@ -20,7 +20,6 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	setChannelName (callback) {
 		// expect on the user's me-channel channel
 		this.channelName = `user-${this.users[0].user.id}`;
-
 		/*
 		// for channels and directs the message comes on the stream channel
 		if (this.stream.type === 'file' || this.stream.isTeamStream) {
@@ -42,6 +41,10 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	validateMessage (message) {
+		if (message.message.setBroadcasterV3Token) { 
+			return false;
+		}
+
 		// not going to concern ourselves with the precise content of the users,
 		// just going to confirm they're sent (by id)
 		const sentUserIds = message.message.users.map(u => u.id).sort((a, b) => {

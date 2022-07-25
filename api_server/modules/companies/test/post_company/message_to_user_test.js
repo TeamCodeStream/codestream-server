@@ -55,6 +55,10 @@ class MessageToUserTest extends CodeStreamMessageTest {
 
 	// validate the incoming message
 	validateMessage (message) {
+		if (message.message.setBroadcasterV3Token) { 
+			return false;
+		}
+		
 		const subMessage = message.message;
 		Assert(subMessage.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.message.user.$set.modifiedAt = subMessage.user.$set.modifiedAt;

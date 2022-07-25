@@ -18,6 +18,7 @@ class MockPubnub {
 			this._initServer();
 		}
 		this.inited = true;
+		this.revokedTokens = {};
 	}
 
 	_initServer () {
@@ -39,6 +40,8 @@ class MockPubnub {
 		const { channels } = options;
 		const message = {
 			authKey: this.authKey,
+			uuid: this.uuid,
+			v3Token: this.v3Token,
 			channels
 		};
 		this._emit('subscribe', message);
@@ -62,6 +65,10 @@ class MockPubnub {
 		channels.forEach(channel => {
 			this._unsubscribeChannel(channel);
 		});
+	}
+
+	setToken (token) {
+		this.v3Token = token;
 	}
 
 	_unsubscribeChannel (channel) {
@@ -89,6 +96,51 @@ class MockPubnub {
 		return {};
 	}
 
+	async grantToken (options) {
+		const { ttl, authorized_uuid, resources } = options;
+		const timestamp = Math.floor(Date.now() / 1000);
+		const random = Math.floor(Math.random() * 10000000000);
+		let token = `${random}|${ttl}|${timestamp}|${authorized_uuid}|`;
+		const channels = [];
+		for (let channel in resources.channels) {
+			const channelObject = resources.channels[channel];
+			if (channelObject.read && !channels.includes(`${channel}#read`)) {
+				channels.push(`${channel}#read`);
+			}
+			if (channelObject.write && !channel.includes(`${channel}#write`)) {
+				channels.push(`${channel}#write`);
+			}
+		}
+		token += channels.join(':');
+		return token;
+	}
+
+	parseToken (token) {
+		const parsedToken = token.split('|');
+		if (parsedToken.length !== 5) {
+			throw new Error('unable to parse');
+		}
+		const ttl = parseInt(parsedToken[1], 10);
+		const timestamp = parseInt(parsedToken[2], 10);
+		const uuid = parsedToken[3];
+		const channels = parsedToken[4].split(':');
+		const channelsObject = { };
+		for (let channel of channels) {
+			const [name, perm] = channel.split('#');
+			channelsObject[name] = channelsObject[name] || {};
+			channelsObject[name][perm] = true;
+		}
+		return {
+			version: 2,
+			ttl,
+			timestamp,
+			authorized_uuid: uuid,
+			resources: {
+				channels: channelsObject
+			}
+		};
+	}
+
 	async history (options) {
 		const { channel } = options;
 		if (this.history[channel] === undefined) {
@@ -99,6 +151,10 @@ class MockPubnub {
 				return { entry };
 			})
 		};
+	}
+
+	async revokeToken (token, options) {
+		this.revokedTokens[token] = true;
 	}
 
 	_grantChannel (authKey, channel, read, write) {
@@ -143,26 +199,95 @@ class MockPubnub {
 	}
 
 	_handleClientSubscribe (message, socket) {
+		let errorMessage;
 		message = this._parse(message);
-		const { authKey, channels } = message;
+		const { authKey, v3Token, channels, uuid } = message;
+		let authorizedChannels;
+		if (v3Token) {
+			const result = this._validateV3Token(v3Token, uuid);
+			errorMessage = result.errorMessage;
+			authorizedChannels = result.channels;
+		}
+
 		this.socket = socket;
 		for (let channel of channels) {
 			if (
-				!this.grants[authKey] ||
-				!this.grants[authKey][channel] ||
-				!this.grants[authKey][channel].includes('read')
+				(
+					authorizedChannels &&
+					!authorizedChannels.includes(channel)
+				) ||
+				(
+					!authorizedChannels &&
+					(
+						!this.grants[authKey] ||
+						!this.grants[authKey][channel] ||
+						!this.grants[authKey][channel].includes('read')
+					)
+				)
 			) {
+				errorMessage = errorMessage || 'Not authorized';
 				this._emit('status', {
-					error: 'not granted',
-					operation: 'PNSubscribeOperation'
+					error: true,
+					operation: 'PNSubscribeOperation',
+					statusCode: 403,
+					errorData: {
+					  message: errorMessage,
+					  error: true,
+					  service: 'Access Manager',
+					  status: 403
+					},
+					category: 'PNAccessDeniedCategory'
 				});
 			}
 			else {
 				this._emit('status', {
-					subscribedChannels: Object.keys(this.grants[authKey])
+					subscribedChannels: authorizedChannels || Object.keys(this.grants[authKey])
 				});
 			}
 		}
+	}
+
+	_validateV3Token (token, uuid) {
+		const result = {};
+		if (this.revokedTokens[token]) {
+			result.errorMessage = 'Token is revoked';
+			return result;
+		}
+
+		let parsedToken;
+		try {
+			parsedToken = this.parseToken(token);
+		} catch (error) {
+			result.errorMessage = 'Malformed token';
+			return result;
+		}
+
+		if (!parsedToken.ttl || !parsedToken.timestamp || !parsedToken.authorized_uuid) {
+			result.errorMessage = 'Invalid token';
+			return result;
+		} 
+		if (uuid !== parsedToken.authorized_uuid) {
+			result.errorMessage = 'Unauthorized UUID';
+			return result;
+		}
+
+		const ttlInMS = parseInt(parsedToken.ttl, 10) * 60 * 1000;
+		const tsInMS = parseInt(parsedToken.timestamp, 10) * 1000;
+		if (!ttlInMS || isNaN(ttlInMS) || !tsInMS || isNaN(tsInMS)) {
+			result.errorMessage = 'Invalid time signature';
+			return result;
+		}
+		const expiresAt = tsInMS + ttlInMS;
+
+		if (expiresAt <= Date.now()) {
+			result.errorMessage = 'Token is expired';
+			return result;
+		}
+
+		result.channels = Object.keys(parsedToken.resources.channels).filter(channel => {
+			return parsedToken.resources.channels[channel].read;
+		});
+		return result;
 	}
 
 	_handleSubscribed (message) {

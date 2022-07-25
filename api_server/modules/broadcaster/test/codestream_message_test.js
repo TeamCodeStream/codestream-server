@@ -25,6 +25,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		BoundAsync.series(this, [
 			super.before,
 			this.makeData,	// make whatever data we need to be in the database to proceed
+			this.obtainV3BroadcasterToken,	// once user creates a team, we need to obtain a new V3 token
 			this.makeBroadcasterForServer,	// make broadcaster client simulating server to send
 			this.makeBroadcasterForClient,	// make broadcaster client simulating client to receive
 			this.setChannelName,	// set the channel name that we'll listen for
@@ -61,6 +62,50 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.waitForMessage,	// wait for the message to arrive
 			this.clearTimer			// once the message arrives, stop waiting
 		], callback);
+	}
+
+	// for V3 PubNub Access Manager, a new token is issued if the user has created a team,
+	// we need to obtain that new token before proceeding with the test
+	obtainV3BroadcasterToken (callback) {
+		if (!this.useV3BroadcasterToken || this.dontObtainV3Token) { return callback(); }
+
+		let listeningUser;
+		if (this.listeningUserIndex !== undefined) {
+			listeningUser = this.users[this.listeningUserIndex];
+		} else {
+			listeningUser = this.currentUser;
+		}
+
+		let path = '/bcast-token';
+		if (this.setV3TokenTTL) {
+			path += '?force=1';
+		}
+		const requestOptions = {
+			method: 'get',
+			path,
+			token: listeningUser.accessToken
+		};
+		if (this.setV3TokenTTL) {
+			requestOptions.requestOptions = {
+				headers: {
+					'x-cs-bcast-token-ttl': `${this.setV3TokenTTL}`
+				}
+			};
+		}
+		this.doApiRequest(
+			requestOptions,
+			(error, response) => {
+				if (error) { return callback(error); }
+				listeningUser.broadcasterV3Token = response.token;
+				if (
+					this.broadcasterClientsForUser[listeningUser.user.id] && 
+					this.broadcasterClientsForUser[listeningUser.user.id].pubnub
+				) {
+					this.broadcasterClientsForUser[listeningUser.user.id].pubnub.setToken(response.token);
+				}
+				callback();
+			}
+		);
 	}
 
 	makeBroadcasterForServer (callback) {
@@ -128,17 +173,23 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
 		const user = listeningUser.user;
-		const token = listeningUser.broadcasterToken;
+		const token = this.useV3BroadcasterToken ? listeningUser.broadcasterV3Token : listeningUser.broadcasterToken;
 		let clientConfig = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;
 		clientConfig.uuid = user._pubnubUuid || user.id;
-		clientConfig.authKey = token;
+		if (!this.useV3BroadcasterToken) {
+			clientConfig.authKey = token;
+		}
 		if (this.mockMode) {
 			clientConfig.ipc = this.ipc;
 			clientConfig.serverId = this.apiConfig.apiServer.ipc.serverId;
 		}
 		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
+		if (this.useV3BroadcasterToken) {
+			client.setToken(token);
+		}
+
 		this.broadcasterClientsForUser[user.id] = new PubNubClient({
 			pubnub: client
 		});
@@ -200,7 +251,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 	// wait for permissions to be set through pubnub PAM
 	wait (callback) {
-		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 100 : 5000);
+		const time = (this.usingSocketCluster || this.useV3BroadcasterToken) ? 0 : (this.mockMode ? 100 : 5000);
 		this.testLog(`Waiting ${time} for message...`);
 		setTimeout(callback, time);
 	}

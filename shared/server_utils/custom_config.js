@@ -263,6 +263,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 						'accessTokens.*.token',
 						'pubNubToken',
 						'broadcasterToken',
+						'broadcasterV3Token',
 						'modifiedRepos',
 						'compactModifiedRepos',
 					],

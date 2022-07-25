@@ -13,7 +13,7 @@ const NoPasswordTest = require('./no_password_test');
 const UnregisteredInvalidPasswordTest = require('./unregistered_invalid_password_test');
 const NewTokenTest = require('./new_token_test');
 const TokenIsValidTest = require('./token_is_valid_test');
-const SubscriptionTest = require('./subscription_test');
+const LoginSubscriptionTest = require('./login_subscription_test');
 const DontUpdateLastLoginFromWebTest = require('./dont_update_last_login_from_web_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
 
@@ -32,8 +32,10 @@ class LoginRequestTester {
 		new UnregisteredInvalidPasswordTest().test();
 		new NewTokenTest().test();
 		new TokenIsValidTest().test();
-		new SubscriptionTest({ which: 'user' }).test();
-		new SubscriptionTest({ which: 'team' }).test();
+		new LoginSubscriptionTest().test();
+		new LoginSubscriptionTest({ useV3BroadcasterToken: true }).test();
+		new LoginSubscriptionTest({ which: 'team' }).test();
+		new LoginSubscriptionTest({ which: 'team', useV3BroadcasterToken: true }).test();
 		// new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new DontUpdateLastLoginFromWebTest().test();
 		new ClearFirstSessionTest().test();

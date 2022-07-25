@@ -44,6 +44,10 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	validateMessage (message) {
+		if (message.message.setBroadcasterV3Token) { 
+			return false;
+		}
+
 		Assert(message.message.team.$set.modifiedAt >= this.modifiedAfter, 'team modifiedAt is not greater than or equal to when the user joined');
 		this.message = {
 			users: [this.currentUser.user],

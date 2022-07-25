@@ -25,6 +25,7 @@ class _UserCreator {
 					user: this.user,
 					accessToken: this.token,
 					broadcasterToken: this.broadcasterToken,
+					broadcasterV3Token: this.broadcasterV3Token,
 					password: this.data.password,
 					companyName: this.data.companyName
 				}
@@ -74,6 +75,7 @@ class _UserCreator {
 				this.user = response.user;
 				this.token = response.accessToken;
 				this.broadcasterToken = response.broadcasterToken;
+				this.broadcasterV3Token = response.broadcasterV3Token;
 				callback();
 			}
 		);
