@@ -112,8 +112,7 @@ class AddTeamMembers  {
 	// grant permission to the new members to subscribe to the team channel
 	async grantUserMessagingPermissions () {
 		const granterOptions = {
-			data: this.data,
-			broadcaster: this.api.services.broadcaster,
+			api: this.api,
 			team: this.team,
 			members: this.addUsers,
 			request: this.request

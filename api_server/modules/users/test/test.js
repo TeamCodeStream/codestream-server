@@ -25,6 +25,7 @@ const GetSignupJWTRequestTester = require('./get_signup_jwt/test');
 const NRRegistrationRequestTester = require('./nr_registration/test');
 const LoginByCodeTester = require('./login_by_code/test');
 const GenerateLoginCodeTester = require('./generate_login_code/test');
+const GetBCastTokenTester = require('./get_bcast_token/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -64,4 +65,5 @@ describe('user requests', function() {
 	describe('POST /no-auth/nr-register', NRRegistrationRequestTester.test);
 	describe('PUT /no-auth/login-by-code', LoginByCodeTester.test);
 	describe('POST /no-auth/generate-login-code', GenerateLoginCodeTester.test);
+	describe('GET /bcast-token', GetBCastTokenTester.test);
 });

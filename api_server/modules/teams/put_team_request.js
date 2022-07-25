@@ -48,14 +48,22 @@ class PutTeamRequest extends PutRequest {
 			return;
 		}
 		const granterOptions = {
-			data: this.data,
-			broadcaster: this.api.services.broadcaster,
+			api: this.api,
 			team: this.updater.team,
 			members: this.transforms.removedUsers,
 			request: this,
 			revoke: true
 		};
 		try {
+			// for PubNub V3 tokens, we revoke their token and make the assumption that they can cleanly
+			// obtain a new token either when they login, or, if they already have an active session, the
+			// connection is aborted and they are forced to obtain a new token from the server
+			await Promise.all(this.transforms.removedUsers.map(async u => {
+				if (u.get('broadcasterV3Token')) {
+					this.log(`Revoking V3 broadcaster token for user ${u.id}...`);
+					await this.api.services.broadcaster.revokeToken(u.get('broadcasterV3Token'), { request: this });
+				}
+			}));
 			await new TeamSubscriptionGranter(granterOptions).grantToMembers();
 		}
 		catch (error) {

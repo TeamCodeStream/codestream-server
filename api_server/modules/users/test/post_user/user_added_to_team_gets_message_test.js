@@ -87,6 +87,10 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 
 	// validate the received message
 	validateMessage (inMessage) {
+		if (inMessage.message.setBroadcasterV3Token) { 
+			return false;
+		}
+
 		Assert(inMessage.message.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		const message = inMessage.message;
 		const expectedUserOp = {

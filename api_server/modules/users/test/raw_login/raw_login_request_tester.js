@@ -7,7 +7,7 @@ const InitialDataTest = require('./initial_data_test');
 const MeAttributesTest = require('./me_attributes_test');
 const ExpiredTokenTest = require('./expired_token_test');
 const TokenIsValidTest = require('./token_is_valid_test');
-const SubscriptionTest = require('./subscription_test');
+const RawLoginSubscriptionTest = require('./raw_login_subscription_test');
 
 class RawLoginRequestTester {
 
@@ -17,8 +17,10 @@ class RawLoginRequestTester {
 		new MeAttributesTest().test();
 		new ExpiredTokenTest().test();
 		new TokenIsValidTest().test();
-		new SubscriptionTest({ which: 'user' }).test();
-		new SubscriptionTest({ which: 'team' }).test();
+		new RawLoginSubscriptionTest().test();
+		new RawLoginSubscriptionTest({ which: 'team' }).test();
+		new RawLoginSubscriptionTest({ useV3BroadcasterToken: true }).test();
+		new RawLoginSubscriptionTest({ useV3BroadcasterToken: true, which: 'team' }).test();
 		//new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 	}
 }

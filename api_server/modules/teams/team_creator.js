@@ -241,8 +241,7 @@ class TeamCreator extends ModelCreator {
 	// grant permission to the team creator to subscribe to the team broadcaster channel
 	async grantUserMessagingPermissions () {
 		const granterOptions = {
-			data: this.data,
-			broadcaster: this.api.services.broadcaster,
+			api: this.request.api,
 			team: this.model,
 			members: [this.user],
 			request: this.request

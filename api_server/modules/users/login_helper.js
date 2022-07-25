@@ -121,8 +121,9 @@ class LoginHelper {
 	// generate an access token for this login if needed
 	async generateAccessToken (force) {
 		// use previously obtained token from PubNub's V3 Access Manager
-		let set = {
-			broadcasterV3Token: this.broadcasterV3Token
+		let set = { };
+		if (this.broadcasterV3TokenData.newToken) {
+			set.broadcasterV3Token = this.broadcasterV3TokenData.token;
 		};
 
 		// generate a broadcaster token for PubNub's V2 Access Manager
@@ -250,7 +251,7 @@ class LoginHelper {
 			user: this.user.getSanitizedObjectForMe({ request: this.request }),	// include me-only attributes
 			accessToken: this.accessToken,	// access token to supply in future requests
 			broadcasterToken: this.broadcasterToken, // more generic "broadcaster" token, for broadcaster solutions other than PubNub
-			broadcasterV3Token: this.broadcasterV3Token, // PubNub token for V3 Access Mananger
+			broadcasterV3Token: this.broadcasterV3TokenData.token, // PubNub token for V3 Access Mananger
 			capabilities, // capabilities served by this API server
 			features: {
 				slack: {
@@ -303,12 +304,11 @@ class LoginHelper {
 	// grant the user permission to subscribe to various broadcaster channels, in PubNub's V3 access manager
 	async grantSubscriptionPermissions () {
 		try {
-			this.broadcasterV3Token = await new UserSubscriptionGranter({
+			this.broadcasterV3TokenData = await new UserSubscriptionGranter({
 				api: this.api,
-				data: this.request.data,
 				user: this.user,
 				request: this.request
-			}).grantAll();
+			}).obtainV3BroadcasterToken();
 		}
 		catch (error) {
 			throw this.request.errorHandler.error('userMessagingGrant', { reason: error });

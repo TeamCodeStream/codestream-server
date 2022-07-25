@@ -126,8 +126,7 @@ class DeleteCompanyRequest extends DeleteRequest {
 		const usersToRevoke = await this.data.users.getByIds(this.transforms.removedUsers.map(userUpdate => userUpdate.id));
 
 		const granterOptions = {
-			data: this.data,
-			broadcaster: this.api.services.broadcaster,
+			api: this.api,
 			team: this.everyoneTeam,
 			members: usersToRevoke,
 			request: this,
