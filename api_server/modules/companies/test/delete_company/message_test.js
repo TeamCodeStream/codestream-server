@@ -74,6 +74,10 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	validateMessage (message) {
+		if (message.message.setBroadcasterV3Token) { 
+			return false;
+		}
+
 		// we don't get this value any other way
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
 		return super.validateMessage(message);

@@ -2,9 +2,7 @@
 
 'use strict';
 
-// const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
-// const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
-const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
+const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 
 class UserSubscriptionGranter  {
 
@@ -23,18 +21,25 @@ class UserSubscriptionGranter  {
 		//await this.getRepoChannels();			
 		//await this.getStreamChannels();		
 		//await this.getObjectChannels();
-		await this.grantAllChannels();
+		await this.grantAllChannelsV2();
 	}
 
-	// grant all permissions necessary for PubNub's V3 Access Manager
-	async grantAll () {
-		this.setChannels();
-
+	async _grantAll () {
 		try {
+			const userId = this.user.get('_pubnubUuid') || this.user.id;
+			let ttl;
+			if (this.request.request.headers['x-cs-bcast-token-ttl']) {
+				ttl = parseInt(this.request.request.headers['x-cs-bcast-token-ttl'], 10);
+				if (isNaN(ttl) || ttl < 1 || ttl > 43200) {
+					ttl = undefined;
+				} else {
+					this.request.log(`Setting TTL for v3 broadcast token to ${ttl}`);
+				}
+			}
 			return await this.api.services.broadcaster.grantMultipleV3(
-				this.user.id,
+				userId,
 				this.channels,
-				{ request: this.request }
+				{ request: this.request, ttl }
 			);
 		}
 		catch (error) {
@@ -48,10 +53,18 @@ class UserSubscriptionGranter  {
 		];
 		this.channels.push.apply(
 			this.channels,
-			(this.user.get('teamIds') || []).map(teamId => {
-				return { name: `team-${teamId}` };
-			})
+			(this.user.get('teamIds') || []).map(teamId => `team-${teamId}`)
 		);
+
+		if (this.addTeamId && !this.channels.includes(`team=${this.addTeamId}`)) {
+			this.channels.push(`team-${this.addTeamId}`);
+		}
+		if (this.revokeTeamId) {
+			const index = this.channels.indexOf(`team-${this.revokeTeamId}`);
+			if (index !== -1) {
+				this.channels.splice(index, 1);
+			}
+		}
 
 		if (this.api.config.sharedGeneral.isOnPrem) {
 			// for on-prem, grant special channel for test "echoes"
@@ -69,9 +82,9 @@ class UserSubscriptionGranter  {
 			return;
 		}
 		const query = {
-			teamId: this.data.repos.inQuery(this.user.get('teamIds') || [])
+			teamId: this.request.data.repos.inQuery(this.user.get('teamIds') || [])
 		};
-		const repos = await this.data.repos.getByQuery(
+		const repos = await this.request.data.repos.getByQuery(
 			query,
 			{
 				fields: ['id'],
@@ -111,7 +124,7 @@ class UserSubscriptionGranter  {
 			teamId: teamId,
 			memberIds: this.user.id	// current user must be a member
 		};
-		return await this.data.streams.getByQuery(
+		return await this.request.data.streams.getByQuery(
 			query,
 			{
 				fields: ['id'],
@@ -125,7 +138,7 @@ class UserSubscriptionGranter  {
 	/*
 	// get channels for all objects the user is are following
 	async getObjectChannels () {
-		const objects = await this.data.codeErrors.getByQuery(
+		const objects = await this.request.data.codeErrors.getByQuery(
 			{ followerIds: this.user.id },
 			{
 				fields: ['id'],
@@ -143,7 +156,7 @@ class UserSubscriptionGranter  {
 	*/
 	
 	// grant permission for the user to subscribe to a given set of channel
-	async grantAllChannels () {
+	async grantAllChannelsV2 () {
 		try {
 			await this.api.services.broadcaster.grantMultiple(
 				this.user.get('broadcasterToken'),
@@ -155,6 +168,88 @@ class UserSubscriptionGranter  {
 			throw `unable to grant user permissions for subscriptions, userId ${this.user.id}: ${error}`;
 		}
 	}
+
+	// obtain a V3 PubNub Access manager issued broadcaster token, either the user's existing token,
+	// if it is still valid, or a new one
+	async obtainV3BroadcasterToken () {
+		// get the user's current broadcaster token, and parse it for authorized channels
+		let token = this.user.get('broadcasterV3Token');
+		let authorizedChannels = [];
+		if (token) {
+			authorizedChannels = this.api.services.broadcaster.
+				getAuthorizedChannelsFromToken(this.user, token, { request: this.request }) || [];
+		}
+
+		// set the channels the user should be authorized to access
+		this.setChannels();
+
+		// if they don't match, generate a new token
+		let newToken = false;
+		if (
+			this.force || 
+			!token || 
+			authorizedChannels.length !== this.channels.length ||
+			ArrayUtilities.difference(authorizedChannels, this.channels).length !== 0
+		) {
+			try {
+				token = await this._grantAll();
+				newToken = true;
+			}
+			catch (error) {
+				throw this.request.errorHandler.error('userMessagingGrant', { reason: error });
+			}
+		} 
+
+		if (newToken) {
+			// if we generated a new token, publish the new one to the user,
+			// then save it, then revoke the old token
+			await this.publishNewToken(token);
+			await this.saveNewToken(token);
+			await this.revokeOldToken();
+		}
+
+		return { token, newToken };
+	}
+
+	// we generated a new broadcaster token ... on the off-chance the user has two clients open,
+	// we'll broadcast the new token on the user's me-channel ... this will allow the client that
+	// did not issue this request to obtain the new token silently, FWIW
+	async publishNewToken (token) {
+		// send the new token to the user's me-channel
+		const channel = `user-${this.user.id}`;
+		const message = {
+			requestId: this.request.id,
+			setBroadcasterV3Token: token
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			this.request.warn(`Unable to publish new broadcaster V3 token to channel ${channel}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	// save the newly generated token to the user's object
+	async saveNewToken (token) {
+		return this.request.data.users.updateDirect(
+			{ id: this.request.data.users.objectIdSafe(this.user.id) },
+			{ $set: { broadcasterV3Token: token } }
+		);
+
+	}
+
+	// revoke the user's existing token, since we replaced it with a new one
+	async revokeOldToken () {
+		const oldToken = this.user.get('broadcasterV3Token');
+		if (oldToken) {
+			await this.api.services.broadcaster.revokeToken(oldToken, { request: this.request });
+		}
+	}
+
 }
 
 module.exports = UserSubscriptionGranter;

@@ -258,14 +258,14 @@ class PubNubClient {
 		}, {});
 
 		try {
-			const token = await this.pubnub.grantToken({
-				ttl: 43200,
-				authorized_uui: userId,
+			const ttl = options.ttl || 43200;
+			return this.pubnub.grantToken({
+				ttl,
+				authorized_uuid: userId,
 				resources: {
 					channels: channelsObject
 				}
 			});
-			return token;
 		} catch (error) {
 			const message = `Failed to grant access for ${userId} to ${JSON.stringify(channels, undefined, 3)}: ${JSON.stringify(error.status)}`;
 			this._warn(message, options);
@@ -311,6 +311,19 @@ class PubNubClient {
 		*/
 	}
 
+	// wholesale revoke a V3 Access Manager issued token
+	async revokeToken (token, options) {
+		const len = token.length;
+		const displayToken = `${token.slice(0, 6)}${'*'.repeat(len-12)}${token.slice(-6)}`;
+		try {
+			await this.pubnub.revokeToken(token);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this._warn(`Unable to revoke access for V3 token ${displayToken} : ${message}: ${JSON.stringify(error.status)}`, options);
+			//throw new Error(message);
+		}
+	}
+
 	// get list of users (by ID) currently subscribed to the passed channel
 	async getSubscribedUsers (channel, options = {}) {
 		throw 'getSubscribedUsers is no longer supported';
@@ -334,6 +347,36 @@ class PubNubClient {
 		this._log(`Here now for ${channel}: ${userIds}`, options);
 		return userIds;
 		*/
+	}
+
+	// parse the V3 Access Manager issued PubNub token for which channels the user has 
+	// been granted access to
+	getAuthorizedChannelsFromToken (user, token, options) {
+		let data;
+		try {
+			data = this.pubnub.parseToken(token);
+		} catch (error) {
+			this._warn(`Error parsing token for user ${user.id}: ${error.message}`, options);
+			return;
+		}
+		const userId = user.get('_pubnubUuid') || user.id;
+		if (data.authorized_uuid !== userId) {
+			this._warn(`User ${user.id} is not the authorized user (${data.authorized_uuid}) for this token`, options);
+			return;
+		}
+		if (!data.resources || !data.ttl || !data.timestamp || !data.resources.channels) {
+			this._warn(`Parsed token for user ${user.id} did not have resources or ttl or timestamp`, options);
+			return;
+		}
+		const expiresAt = (data.timestamp + data.ttl * 60) * 1000;
+		if (expiresAt <= Date.now()) {
+			this._warn(`Token for user ${user.id} is expired`, options);
+			return;
+		}
+		const channels = Object.keys(data.resources.channels || {}).filter(channel => {
+			return data.resources.channels[channel] && data.resources.channels[channel].read;
+		});
+		return channels;
 	}
 
 	// handle a message coming in on any channel

@@ -9,7 +9,8 @@ class CodeStreamMessageACLTest extends CodeStreamMessageTest {
 	run (callback) {
 		(async () => {
 			// try to subscribe to the channel of interest, but we expect this to fail
-			const user = this.users[0].user;
+			const nUser = this.listeningUserIndex || 0;
+			const user = this.users[nUser].user;
 			try {
 				await this.broadcasterClientsForUser[user.id].subscribe(
 					this.channelName,
@@ -17,12 +18,20 @@ class CodeStreamMessageACLTest extends CodeStreamMessageTest {
 						Assert.fail('message received');
 					}
 				);
-				Assert.fail('subscribe was successful, but should not have been');
+			} catch (error) {
+				if (error.operation === 'PNSubscribeOperation' && error.category === 'PNAccessDeniedCategory') {
+					return callback();
+				} else {
+					Assert.fail('error returned by subscribe was not correct');
+				}
 			}
-			catch (error) {
-				return callback();
-			}
+			Assert.fail('subscribe was successful, but should not have been');
 		})();
+	}
+
+	waitForRevoke (callback) {
+		const wait = this.mockMode ? 0 : 1000;
+		setTimeout(callback, wait);
 	}
 }
 

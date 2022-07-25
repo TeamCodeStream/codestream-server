@@ -2,6 +2,8 @@
 
 'use strict';
 
+const UserSubscriptionGranter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_subscription_granter');
+
 class TeamSubscriptionGranter  {
 
 	constructor (options) {
@@ -13,6 +15,7 @@ class TeamSubscriptionGranter  {
 		await this.getUsers();			// get the stream users, since only registered users can access
 		await this.getTokens();			// get the users' tokens
 		await this.grantTeamChannel();	// grant the permissions
+		await this.grantV3TeamPermissions(); // grant permissions for V3 PubNub Access Manager tokens
 	}
 
 	// get the users in a team
@@ -20,11 +23,11 @@ class TeamSubscriptionGranter  {
 		if (this.members) {
 			return;
 		}
-		this.members = await this.data.users.getByIds(
+		this.members = await this.request.data.users.getByIds(
 			this.team.getActiveMembers(),
 			{
 				// only need these fields
-				fields: ['isRegistered', 'accessToken', 'accessTokens', 'broadcasterToken']
+				fields: ['isRegistered', 'accessToken', 'accessTokens', 'broadcasterToken', 'broadcasterV3Token']
 			}
 		);
 	}
@@ -32,10 +35,6 @@ class TeamSubscriptionGranter  {
 	// get the access tokens for each user in the team that is registered
 	async getTokens () {
 		this.tokens = this.members.reduce((tokens, user) => {
-			// using the access token for PubNub subscription is to be DEPRECATED
-			if (user.get('isRegistered')) {
-				tokens.push(user.getAccessToken());
-			}
 			if (user.get('broadcasterToken')) {
 				tokens.push(user.get('broadcasterToken'));
 			}
@@ -51,7 +50,7 @@ class TeamSubscriptionGranter  {
 		const channel = 'team-' + this.team.id;
 		const func = this.revoke ? 'revoke' : 'grant';
 		try {
-			await this.broadcaster[func](
+			await this.api.services.broadcaster[func](
 				this.tokens,
 				channel,
 				{
@@ -63,6 +62,23 @@ class TeamSubscriptionGranter  {
 		catch (error) {
 			throw `unable to ${func} permissions for subscription (${channel}): ${error}`;
 		}
+	}
+
+	// grant permissions for V3 PubNub Access Manager tokens
+	async grantV3TeamPermissions () {
+		return Promise.all(this.members.map(async user => {
+			const grantOptions = {
+				api: this.api,
+				user: user,
+				request: this.request
+			};
+			if (this.revoke) {
+				grantOptions.revokeTeamId = this.team.id;
+			} else {
+				grantOptions.addTeamId = this.team.id;
+			}
+			await new UserSubscriptionGranter(grantOptions).obtainV3BroadcasterToken();
+		}));
 	}
 }
 

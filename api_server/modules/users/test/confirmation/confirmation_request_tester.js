@@ -14,20 +14,18 @@ const ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_te
 //const NoCodestreamUsernameTest = require('./no_codestream_username_test');
 const InitialDataTest = require('./initial_data_test');
 const MeAttributesTest = require('./me_attributes_test');
-const SubscriptionTest = require('./subscription_test');
+const ConfirmationSubscriptionTest = require('./confirmation_subscription_test');
 const JoinMethodTest = require('./join_method_test');
 const OriginTeamPropagates = require('./origin_team_propagates');
-/*
-const InvalidTokenTest = require('./invalid_token_test');
-const TokenExpiredTest = require('./token_expired_test');
-const NotConfTokenTest = require('./not_conf_token_test');
-const NoUidTest = require('./no_uid_test');
-const UserNotFound = require('./user_not_found_test');
-const NoIssuanceTest = require('./no_issuance_test');
-const TokenDeprecatedTest = require('./token_deprecated_test');
-const TrackTokenExpiredTest = require('./track_token_expired_test');
-const TrackTokenDeprecatedTest = require('./track_token_deprecated_test');
-*/
+//const InvalidTokenTest = require('./invalid_token_test');
+//const TokenExpiredTest = require('./token_expired_test');
+//const NotConfTokenTest = require('./not_conf_token_test');
+//const NoUidTest = require('./no_uid_test');
+//const UserNotFound = require('./user_not_found_test');
+//const NoIssuanceTest = require('./no_issuance_test');
+//const TokenDeprecatedTest = require('./token_deprecated_test');
+//const TrackTokenExpiredTest = require('./track_token_expired_test');
+//const TrackTokenDeprecatedTest = require('./track_token_deprecated_test');
 const TrackCodeExpiredTest = require('./track_code_expired_test');
 const TrackIncorrectCodeTest = require('./track_incorrect_code_test');
 const ReuseCodeTest = require('./reuse_code_test');
@@ -54,8 +52,10 @@ class ConfirmationRequestTester {
 		//new NoCodestreamUsernameTest().test();
 		new InitialDataTest().test();
 		new MeAttributesTest().test();
-		new SubscriptionTest({ which: 'user' }).test();
-		new SubscriptionTest({ which: 'team' }).test();
+		new ConfirmationSubscriptionTest().test();
+		new ConfirmationSubscriptionTest({ useV3BroadcasterToken: true }).test();
+		new ConfirmationSubscriptionTest({ which: 'team' }).test();
+		new ConfirmationSubscriptionTest({ which: 'team', useV3BroadcasterToken: true }).test();
 		// new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new JoinMethodTest().test();
 		new OriginTeamPropagates().test();

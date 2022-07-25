@@ -166,6 +166,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'signup-jwt',
 		requestClass: require('./get_signup_jwt_request')
+	},
+	{
+		method: 'get',
+		path: 'bcast-token',
+		requestClass: require('./get_broadcaster_token_request')
 	}
 ];
 
