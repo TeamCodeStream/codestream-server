@@ -27,6 +27,7 @@ class DeleteCompanyRequestTester {
 		new NonOrphanedNotDeletedTest().test();
 		new AlreadyDeletedTest().test();
 		new TeamSubscriptionRevokedTest().test();
+		new TeamSubscriptionRevokedTest({ useV3BroadcasterToken: true }).test();
 		new DeactivatedUserTest().test();
 	}
 }

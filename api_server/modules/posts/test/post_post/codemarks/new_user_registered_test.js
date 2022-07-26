@@ -24,6 +24,7 @@ class NewUserRegisteredTest extends NewUsersOnTheFlyTest {
 			data,
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.createdRegisteredUser = response;
 				this.data.addedUsers[1] = response.user.email;
 				callback();
 			}
