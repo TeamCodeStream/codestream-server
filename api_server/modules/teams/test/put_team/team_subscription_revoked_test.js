@@ -1,107 +1,33 @@
 'use strict';
 
+const SubscriptionRevokedTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/subscription_revoked_test');
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const RemoveUserTest = require('./remove_user_test');
-const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const Assert = require('assert');
-const PubNub = require('pubnub');
-const MockPubnub = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/mock_pubnub');
-const PubNubClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/pubnub/pubnub_client_async');
-const SocketClusterClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/socketcluster/socketcluster_client');
 
-class TeamSubscriptionRevokedTest extends RemoveUserTest {
+class TeamSubscriptionRevokedTest extends Aggregation(RemoveUserTest, SubscriptionRevokedTest) {
+
+	constructor (options) {
+		super(options);
+		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
+	}
 
 	get description () {
-		return 'users removed from a team should no longer be able to subscribe to the team channel for that team';
+		const v3AddOn = this.useV3BroadcasterToken ? ', using a V3 PubNub Access Manager issued broadcaster token' : '';
+		return `users removed from a team should no longer be able to subscribe to the team channel for that team${v3AddOn}`;
 	}
 
-	after (callback) {
-		this.broadcasterClient.unsubscribeAll();
-		this.broadcasterClient.disconnect();
-		super.after(callback);
-	}
-
-	// run the actual test...
-	run (callback) {
-		// do the normal test, removing the current user, but afterwards try to
-		// subscribe to the team channel, which should fail
-		BoundAsync.series(this, [
-			super.run,
-			this.makeBroadcasterClient,
-			this.trySubscribeToTeam
-		], callback);
-	}
-
-	makeBroadcasterClient (callback) {
-		// create a pubnub client and attempt to subscribe to the team channel
-		this.broadcasterClient = this.createBroadcasterClient();
-		(async () => {
-			await this.broadcasterClient.init();
+	makeSubscribingData (callback) {
+		this.init(error => {
+			if (error) { return callback(error); }
+			const removedUsers = this.getRemovedUsers();
+			this.subscribingUser = this.users.find(u => u.user.id === removedUsers[0].id);
+			this.whichChannel = this.whichObject = 'team';
 			callback();
-		})();
-	}
-
-	createBroadcasterClient () {
-		if (this.usingSocketCluster) {
-			return this.createSocketClusterClient();
-		}
-		else {
-			return this.createPubnubClient();
-		}
-	}
-
-	createSocketClusterClient () {
-		const broadcasterConfig = this.apiConfig.broadcastEngine.codestreamBroadcaster;
-		const config = Object.assign({},
-			{
-				// formerly socketCluster object
-				host: broadcasterConfig.host,
-				port: broadcasterConfig.port,
-				authKey: broadcasterConfig.secrets.api,
-				ignoreHttps: broadcasterConfig.ignoreHttps,
-				strictSSL: broadcasterConfig.sslCert.requireStrictSSL,
-				apiSecret: broadcasterConfig.secrets.api
-			},
-			{
-				uid: this.users[1].user.id,
-				authKey: this.users[1].broadcasterToken 
-			}
-		);
-		return new SocketClusterClient(config);
-	}
-
-	createPubnubClient () { 
-		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
-		const clientConfig = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
-		delete clientConfig.secretKey;
-		delete clientConfig.publishKey;
-		clientConfig.uuid = this.users[1].user._pubnubUuid || this.users[1].user.id;
-		clientConfig.authKey = this.users[1].broadcasterToken;
-		if (this.mockMode) {
-			clientConfig.ipc = this.ipc;
-			clientConfig.serverId = this.apiConfig.apiServer.ipc.serverId;
-		}
-		let client = this.mockMode ? new MockPubnub(clientConfig) : new PubNub(clientConfig);
-		return new PubNubClient({
-			pubnub: client
 		});
 	}
 
-	// try to subscribe to the team channel
-	trySubscribeToTeam (callback) {
-		(async () => {
-			try {
-				await this.broadcasterClient.subscribe(
-					`team-${this.team.id}`,
-					() => {
-						Assert.fail('message received on team channel');
-					}
-				);
-				Assert.fail('subscription to team channel was successful');
-			} 
-			catch (error) {
-				callback();
-			}
-		})();
+	triggerSubscriptionRevoked (callback) {
+		this.updateTeam(callback);
 	}
 }
 

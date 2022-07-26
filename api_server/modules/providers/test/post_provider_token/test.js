@@ -12,6 +12,7 @@ const BadProviderIdentityMatchTest = require('./bad_provider_identity_match_test
 const NoSignUpTest = require('./no_signup_test');
 const ExistingUnregisteredUserTest = require('./existing_unregistered_user_test');
 const ExistingRegisteredUserTest = require('./existing_registered_user_test');
+const TeamSubscriptionTest = require('./team_subscription_test');
 
 const PROVIDERS = [
 	'github'
@@ -27,6 +28,8 @@ class PostProviderTokenRequestTester {
 			new NoSignUpTest({ provider }).test();
 			new ExistingUnregisteredUserTest({ provider }).test();
 			new ExistingRegisteredUserTest({ provider }).test();
+			new TeamSubscriptionTest({ provider }).test();
+			new TeamSubscriptionTest({ provider, useV3BroadcasterToken: true }).test();
 		});
 		new UnknownProviderTest().test();
 		new InvalidProviderTest().test();

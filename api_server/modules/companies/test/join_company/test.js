@@ -9,6 +9,7 @@ const ACLTest = require('./acl_test');
 const NoDomainJoiningTest = require('./no_domain_joining_test');
 const MessageTest = require('./message_test');
 const MessageToTeamTest = require('./message_to_team_test');
+const JoinTeamSubscriptionTest = require('./join_team_subscription_test');
 
 class JoinCompanyRequestTester {
 
@@ -20,6 +21,8 @@ class JoinCompanyRequestTester {
 		new NoDomainJoiningTest().test();
 		new MessageTest().test();
 		new MessageToTeamTest().test();
+		new JoinTeamSubscriptionTest().test();
+		new JoinTeamSubscriptionTest({ useV3BroadcasterToken: true }).test();
 	}
 }
 

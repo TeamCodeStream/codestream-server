@@ -225,7 +225,8 @@ class MockPubnub {
 					)
 				)
 			) {
-				errorMessage = errorMessage || 'Not authorized';
+				errorMessage = errorMessage || 'Forbidden';
+				console.warn(`Rejecting subscription to ${channel}: ${errorMessage}`);
 				this._emit('status', {
 					error: true,
 					operation: 'PNSubscribeOperation',
@@ -240,6 +241,7 @@ class MockPubnub {
 				});
 			}
 			else {
+				console.warn(`Granting subscription to ${authorizedChannels || Object.keys(this.grants[authKey])}`);
 				this._emit('status', {
 					subscribedChannels: authorizedChannels || Object.keys(this.grants[authKey])
 				});
@@ -287,6 +289,7 @@ class MockPubnub {
 		result.channels = Object.keys(parsedToken.resources.channels).filter(channel => {
 			return parsedToken.resources.channels[channel].read;
 		});
+
 		return result;
 	}
 
