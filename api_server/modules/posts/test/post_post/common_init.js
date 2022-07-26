@@ -69,5 +69,4 @@ class CommonInit {
 		);
 	}
 }
-
 module.exports = CommonInit;

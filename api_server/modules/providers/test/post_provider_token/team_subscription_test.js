@@ -8,7 +8,7 @@ class TeamSubscriptionTest extends Aggregation(ExistingUnregisteredUserTest, Sub
 
 	get description () {
 		const v3AddOn = this.useV3BroadcasterToken ? ', using a V3 PubNub Access Manager issued broadcaster token' : '';
-		return `user should be able to subscribe to the team channel, when they have been invited to a team and then set a personal access token for ${this.provider}${v3AddOn}`;
+		return `user should be able to subscribe to the team channel, when they have been invited to a team and then sign up by setting a personal access token for ${this.provider}${v3AddOn}`;
 	}
 
 	setTestOptions (callback) {
@@ -27,6 +27,7 @@ class TeamSubscriptionTest extends Aggregation(ExistingUnregisteredUserTest, Sub
 
 	setChannelName (callback) {
 		this.whichChannel = this.whichObject = 'team';
+		this.subscribingUser = this.users[1];
 		super.setChannelName(callback);
 	}
 }

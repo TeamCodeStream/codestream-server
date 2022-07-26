@@ -13,6 +13,7 @@ const NoSignUpTest = require('./no_signup_test');
 const ExistingUnregisteredUserTest = require('./existing_unregistered_user_test');
 const ExistingRegisteredUserTest = require('./existing_registered_user_test');
 const TeamSubscriptionTest = require('./team_subscription_test');
+const V3BroadcasterTokenTest = require('./v3_broadcaster_token_test');
 
 const PROVIDERS = [
 	'github'

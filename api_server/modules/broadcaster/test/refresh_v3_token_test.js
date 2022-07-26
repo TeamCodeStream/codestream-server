@@ -8,7 +8,7 @@ class RefreshV3TokenTest extends SubscriptionTest {
 	constructor (options) {
 		super(options);
 		this.useV3BroadcasterToken = true;
-		this.setV3TokenTTL = 1;
+		this.setV3TokenTTL = this.mockMode ? 1/60 : 1;
 		this.userOptions.numRegistered = 1;
 		this.userOptions.numUnregistered = 0;
 	}
@@ -26,7 +26,8 @@ class RefreshV3TokenTest extends SubscriptionTest {
 	}
 
 	waitForExpire (callback) {
-		setTimeout(callback, 61000);
+		const wait = this.setV3TokenTTL * 60 * 1000 + 1;
+		setTimeout(callback, wait);
 	}
 
 	setChannelName (callback) {
