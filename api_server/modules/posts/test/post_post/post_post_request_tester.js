@@ -152,6 +152,7 @@ const NewUserUnregisteredTest = require('./codemarks/new_user_unregistered_test'
 const NewUserUnregisteredOnTeamTest = require('./codemarks/new_user_unregistered_on_team_test');
 const NewUserRegisteredTest = require('./codemarks/new_user_registered_test');
 const NewUserRegisteredOnTeamTest = require('./codemarks/new_user_registered_on_team_test');
+const NewRegisteredUserSubscribeToTeamTest = require('./codemarks/new_registered_user_subscribe_to_team_test');
 const NewUsersMessageToTeamTest = require('./codemarks/new_users_message_to_team_test');
 const NewUserMessageTest = require('./codemarks/new_user_message_test');
 const NewUserInvteTest = require('./codemarks/new_user_invite_test');
@@ -456,6 +457,8 @@ class PostPostRequestTester {
 		new NewUserUnregisteredOnTeamTest().test();
 		new NewUserRegisteredTest().test();
 		new NewUserRegisteredOnTeamTest().test();
+		new NewRegisteredUserSubscribeToTeamTest().test();
+		new NewRegisteredUserSubscribeToTeamTest({ useV3BroadcasterToken: true }).test();
 		new NewUsersMessageToTeamTest().test();
 		new NewUserMessageTest().test();
 		new NewUserInvteTest().test();
