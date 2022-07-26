@@ -120,7 +120,7 @@ class MockPubnub {
 		if (parsedToken.length !== 5) {
 			throw new Error('unable to parse');
 		}
-		const ttl = parseInt(parsedToken[1], 10);
+		const ttl = parseFloat(parsedToken[1]);
 		const timestamp = parseInt(parsedToken[2], 10);
 		const uuid = parsedToken[3];
 		const channels = parsedToken[4].split(':');
@@ -273,8 +273,8 @@ class MockPubnub {
 			return result;
 		}
 
-		const ttlInMS = parseInt(parsedToken.ttl, 10) * 60 * 1000;
-		const tsInMS = parseInt(parsedToken.timestamp, 10) * 1000;
+		const ttlInMS = parsedToken.ttl * 60 * 1000;
+		const tsInMS = parsedToken.timestamp * 1000;
 		if (!ttlInMS || isNaN(ttlInMS) || !tsInMS || isNaN(tsInMS)) {
 			result.errorMessage = 'Invalid time signature';
 			return result;

@@ -9,6 +9,7 @@ const JoiningTest = require('./joining_test');
 const NoWebmailForDomainJoiningTest = require('./no_webmail_for_domain_joining_test');
 const NoEmptyStringForCodeHostJoiningTest = require('./no_empty_string_for_code_host_joining_test');
 const TeamSubscriptionTest = require('./team_subscription_test');
+const CreateCompanyV3BroadcasterTokenTest = require('./create_company_v3_broadcaster_token_test');
 
 class PostCompanyRequestTester {
 
@@ -21,6 +22,7 @@ class PostCompanyRequestTester {
 		new NoEmptyStringForCodeHostJoiningTest().test();
 		new TeamSubscriptionTest().test();
 		new TeamSubscriptionTest({ useV3BroadcasterToken: true }).test();
+		new CreateCompanyV3BroadcasterTokenTest().test();
 		// TODO: wrong type validations
 	}
 }

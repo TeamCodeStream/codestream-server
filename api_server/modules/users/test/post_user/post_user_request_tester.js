@@ -6,6 +6,7 @@ const PostUserTest = require('./post_user_test');
 const ExistingUnregisteredUserTest = require('./existing_unregistered_user_test');
 const ExistingRegisteredUserTest = require('./existing_registered_user_test');
 const ExistingRegisteredUserSubcriptionTest = require('./existing_registered_user_subscription_test');
+const SetV3BroadcasterTokenTest = require('./set_v3_broadcaster_token_test');
 const ExistingRegisteredUserOnTeamTest = require('./existing_registered_user_on_team_test');
 const ExistingUnegisteredUserOnTeamTest = require('./existing_unregistered_user_on_team_test');
 const ExistingRegisteredUserAlreadyOnTeamTest = require('./existing_registered_user_already_on_team_test');
@@ -55,6 +56,7 @@ class PostUserRequestTester {
 		new ExistingRegisteredUserTest().test();
 		new ExistingRegisteredUserSubcriptionTest().test();
 		new ExistingRegisteredUserSubcriptionTest({ useV3BroadcasterToken: true }).test();
+		new SetV3BroadcasterTokenTest().test();
 		new ExistingRegisteredUserOnTeamTest().test();
 		new ExistingUnegisteredUserOnTeamTest().test();
 		new ExistingRegisteredUserAlreadyOnTeamTest().test();

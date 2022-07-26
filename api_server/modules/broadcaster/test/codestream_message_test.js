@@ -168,7 +168,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		if (this.listeningUserIndex !== undefined) {
 			listeningUser = this.users[this.listeningUserIndex];
 		} else {
-			listeningUser = this.currentUser;
+			listeningUser = this.listeningUser || this.currentUser;
 		}
 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
@@ -272,7 +272,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			if (this.listeningUserIndex !== undefined) {
 				listeningUser = this.users[this.listeningUserIndex];
 			} else {
-				listeningUser = this.currentUser;
+				listeningUser = this.listeningUser || this.currentUser;
 			}
 			const broadcaster = this.broadcasterClientsForUser[listeningUser.user.id];
 			try {
