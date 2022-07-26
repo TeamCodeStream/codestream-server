@@ -19,7 +19,6 @@ class CommonInit {
 	}
 
 	setTestOptions (callback) {
-		this.teamOptions.createCompanyInstead = true;
 		callback();
 	}
 

@@ -12,6 +12,7 @@ const CompanyNotFoundTest = require('./company_not_found_test');
 const UserDeletedTest = require('./user_deleted_test');
 const NonOrphanedNotDeletedTest = require('./non_orphaned_not_deleted_test');
 const TeamSubscriptionRevokedTest = require('./team_subscription_revoked_test');
+const DeleteCompanyV3BroadcasterTokenTest = require('./delete_company_v3_broadcaster_token_test');
 const DeactivatedUserTest = require('./deactivated_user_test');
 
 class DeleteCompanyRequestTester {
@@ -28,6 +29,7 @@ class DeleteCompanyRequestTester {
 		new AlreadyDeletedTest().test();
 		new TeamSubscriptionRevokedTest().test();
 		new TeamSubscriptionRevokedTest({ useV3BroadcasterToken: true }).test();
+		new DeleteCompanyV3BroadcasterTokenTest().test();
 		new DeactivatedUserTest().test();
 	}
 }

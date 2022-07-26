@@ -29,6 +29,7 @@ const UsersNotFound = require('./users_not_found_test');
 const UsersNotOnTeamTest = require('./users_not_on_team_test');
 const UsersRemovedTest = require('./users_removed_test');
 const TeamSubscriptionRevokedTest = require('./team_subscription_revoked_test');
+const SetV3BroadcasterTokenTest = require('./set_v3_broadcaster_token_test');
 //const NoMoreTeamMessagesTest = require('./no_more_team_messages_test');
 const RemovalMessageToUserTest = require('./removal_message_to_user_test');
 const UninvitedUserCanRegisterTest = require('./uninvited_user_can_register_test');
@@ -72,6 +73,7 @@ class PutTeamRequestTester {
 		new UsersRemovedTest().test();
 		new TeamSubscriptionRevokedTest().test();
 		new TeamSubscriptionRevokedTest({ useV3BroadcasterToken: true }).test();
+		new SetV3BroadcasterTokenTest().test();
 		// new NoMoreTeamMessagesTest().test(); // Disabled pending resolution of https://support.pubnub.com/support/tickets/7939 (>sigh<)
 		new RemovalMessageToUserTest().test();
 		new UninvitedUserCanRegisterTest().test();

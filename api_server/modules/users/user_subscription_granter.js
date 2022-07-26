@@ -29,8 +29,8 @@ class UserSubscriptionGranter  {
 			const userId = this.user.get('_pubnubUuid') || this.user.id;
 			let ttl;
 			if (this.request.request.headers['x-cs-bcast-token-ttl']) {
-				ttl = parseInt(this.request.request.headers['x-cs-bcast-token-ttl'], 10);
-				if (isNaN(ttl) || ttl < 1 || ttl > 43200) {
+				ttl = parseFloat(this.request.request.headers['x-cs-bcast-token-ttl']);
+				if (isNaN(ttl) || ttl <= 0 || ttl > 43200) {
 					ttl = undefined;
 				} else {
 					this.request.log(`Setting TTL for v3 broadcast token to ${ttl}`);
@@ -218,7 +218,7 @@ class UserSubscriptionGranter  {
 		// send the new token to the user's me-channel
 		const channel = `user-${this.user.id}`;
 		const message = {
-			requestId: this.request.id,
+			requestId: this.request.request.id,
 			setBroadcasterV3Token: token
 		};
 		try {
