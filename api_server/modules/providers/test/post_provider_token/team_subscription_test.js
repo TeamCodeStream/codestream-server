@@ -12,9 +12,9 @@ class TeamSubscriptionTest extends Aggregation(ExistingUnregisteredUserTest, Sub
 	}
 
 	setTestOptions (callback) {
+		this.testUserIndex = 1;
 		super.setTestOptions(() => {
 			this.teamOptions.creatorIndex = 0;
-			this.teamOptions.members = [];
 			this.userOptions.numRegistered = 1;
 			this.userOptions.numUnregistered = 1;
 			callback();
@@ -22,12 +22,15 @@ class TeamSubscriptionTest extends Aggregation(ExistingUnregisteredUserTest, Sub
 	}
 
 	makeSubscribingData (callback) {
-		this.init(callback);
+		this.init(error => {
+			if (error) { return callback(error); }
+			this.subscribingUser = this.users[1];
+			callback();
+		});
 	}
 
 	setChannelName (callback) {
 		this.whichChannel = this.whichObject = 'team';
-		this.subscribingUser = this.users[1];
 		super.setChannelName(callback);
 	}
 }

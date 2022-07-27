@@ -112,6 +112,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 
 	createPubnubClient () { 
 		const subscribingUser = this.subscribingUser || this.currentUser;
+
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
 		const token = this.useV3BroadcasterToken ? subscribingUser.broadcasterV3Token : subscribingUser.broadcasterToken;
 		const clientConfig = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
