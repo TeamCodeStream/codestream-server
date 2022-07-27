@@ -278,11 +278,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			try {
 				await broadcaster.subscribe(
 					this.channelName,
-					this.messageReceived.bind(this),
-					{
-						//withPresence: this.withPresence,
-						onFail: this.onSubscribeFail ? this.onSubscribeFail.bind(this) : undefined
-					}
+					this.messageReceived.bind(this)
 				);
 				this.testLog(`Subscribed to ${this.channelName}`);
 			}
