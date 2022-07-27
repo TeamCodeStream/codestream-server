@@ -112,6 +112,7 @@ class NewUserMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) 
 	}
 
 	validateMessage (inMessage) {
+		if (!inMessage.message.user) { return false; }
 		Assert(inMessage.message.user.$set.modifiedAt >= this.postCreatedAfter, 'modifiedAt not changed');
 		const message = inMessage.message;
 		const expectedUserOp = {
