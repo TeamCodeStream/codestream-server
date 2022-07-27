@@ -132,6 +132,12 @@ class CommonInit {
 				else {
 					this.signupResponse = data;
 					this.token = this.signupResponse.accessToken;
+					const user = this.users.find(u => u.user.id === this.signupResponse.user.id);
+					if (user) {
+						user.accessToken = this.signupResponse.accessToken;
+						user.broadcasterToken = this.signupResponse.broadcasterToken;
+						user.broadcasterV3Token = this.signupResponse.broadcasterV3Token;
+					}
 					callback();
 				}
 			}

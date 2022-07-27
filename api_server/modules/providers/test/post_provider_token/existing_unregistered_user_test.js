@@ -17,7 +17,8 @@ class ExistingUnregisteredUserTest extends PostProviderTokenTest {
 
 	getRequestBody () {
 		const body = super.getRequestBody();
-		body._mockEmail = this.users[0].user.email;
+		const userIndex = this.testUserIndex || 0;
+		body._mockEmail = this.users[userIndex].user.email;
 		return body;
 	}
 }
