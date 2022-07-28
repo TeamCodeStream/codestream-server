@@ -258,7 +258,7 @@ class PubNubClient {
 		}, {});
 
 		try {
-			const ttl = options.ttl || 43200;
+			const ttl = options.ttl || 1; //43200;
 			return this.pubnub.grantToken({
 				ttl,
 				authorized_uuid: userId,
@@ -316,6 +316,13 @@ class PubNubClient {
 		const len = token.length;
 		const displayToken = `${token.slice(0, 6)}${'*'.repeat(len-12)}${token.slice(-6)}`;
 		try {
+			const parsedToken = this.pubnub.parseToken(token);
+			const expiresAt = parsedToken.timestamp * 1000 + parsedToken.ttl * 60 * 1000;
+			if (expiresAt <= Date.now()) {
+				// don't bother, this token is expired
+				this._log(`Not revoking V3 token ${displayToken}: token is already expired`, options);
+				return;
+			}
 			await this.pubnub.revokeToken(token);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
