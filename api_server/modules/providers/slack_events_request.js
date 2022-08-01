@@ -67,6 +67,9 @@ class SlackEventsRequest extends RestfulRequest {
 		if (this.slackEvent.app_id && this.slackEvent.app_id === this.api.config.integrations.slack.appSharingId) {
 			return;
 		}
+		if (!this.slackEvent.team) {
+			this.slackEvent.team = this.request.body.team_id;
+		}
 		if (this.slackEvent.subtype === 'message_deleted') {
 			await this.processMessageDeleted();
 		}
@@ -76,7 +79,7 @@ class SlackEventsRequest extends RestfulRequest {
 		if (this.slackEvent.subtype === 'message_replied') {
 			await this.processMessageReplied();
 		}
-		if (this.slackEvent.subtype === undefined) {
+		if (this.slackEvent.subtype === undefined || this.slackEvent.subtype === 'file_share') {
 			await this.processMessageCreated();
 		}
 	}
@@ -165,7 +168,7 @@ class SlackEventsRequest extends RestfulRequest {
 		if (!this.isThreadedReply(message || {})) {
 			return;
 		}
-		const post = await this.getPost(message.team, this.slackEvent.channel, message.ts);
+		const post = await this.getPost(message.team || message.user_team, this.slackEvent.channel, message.ts);
 		if (!post) {
 			return;
 		}
@@ -253,12 +256,22 @@ class SlackEventsRequest extends RestfulRequest {
 			url: permalink || ''
 		}];
 		const textAndMentions = await userHelper.processText(this.slackEvent.text);
+		let files;
+		if (this.slackEvent.files) {
+			files = this.slackEvent.files.map(f => ({
+				name: f.name,
+				mimetype: f.mimetype,
+				size: f.size,
+				url: f.permalink
+			}));
+		}
 		try {
 			const postOp = await this.postCreator.createPost({
 				text: textAndMentions.text,
 				parentPostId: parentPost.id,
 				teamId: parentPost.get('teamId'),
 				streamId: parentPost.get('streamId'),
+				files,
 				sharedTo
 			});
 			const responseData = this.postCreator.makeResponseData({
