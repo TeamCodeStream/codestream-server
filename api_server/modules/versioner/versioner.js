@@ -7,6 +7,7 @@ const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/li
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Errors = require('./errors');
 const VersionInfo = require('./version_info');
+const ClientCommandHandler = require('./client_command_handler');
 const ReadPackageJson = require('read-package-json');
 const FS = require('fs');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
@@ -34,6 +35,10 @@ const ROUTES = [
 	}
 ];
 
+const DEPENDENCIES = [
+	'request_id'
+];
+
 class Versioner extends APIServerModule {
 
 	constructor (options) {
@@ -49,12 +54,17 @@ class Versioner extends APIServerModule {
 		return ROUTES;
 	}
 	
+	getDependencies () {
+		return DEPENDENCIES;
+	}
+
 	middlewares () {
 		// return a middleware function that will examine the plugin version info associated
 		// with the request, and determine disposition based on our internal version information
 		return async (request, response, next) => {
 			try {
 				await this.handleVersionCompatibility(request, response);
+				await this.handleClientCommands(request, response);
 			}
 			catch (error) {
 				// can not honor the request at all, abort ASAP with 403
@@ -92,6 +102,25 @@ class Versioner extends APIServerModule {
 			next();
 		};
 	}
+
+	services () {
+		return async () => {
+			return {
+				// the clientCommandHandler service allows access to the highest current active command index,
+				// needed to return to users on login
+				clientCommandHandler: {
+					highestCommandIndex: async () => {
+						return new ClientCommandHandler({
+							api: this.api,
+							versionInfo: this.versionInfo
+						}).highestCommandIndex();
+				}
+			}
+			};
+		};
+	
+	}
+
 
 	// examine the request headers for plugin version information, lookup the matching
 	// version information in our internal version matrix, and determine compatibility
@@ -214,6 +243,14 @@ class Versioner extends APIServerModule {
 				reject(`unable to read version matrix: ${message}`);
 			}
 		});
+	}
+
+	// handle commands that clients must perform
+	async handleClientCommands (request, response) {
+		return new ClientCommandHandler({
+			api: this.api,
+			versionInfo: this.versionInfo
+		}).handleClientCommands(request, response);
 	}
 
 	// describe any errors associated with this module, for help

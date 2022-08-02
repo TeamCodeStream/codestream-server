@@ -16,11 +16,5 @@
 		"currentRelease": "12.13.0",
 		"minimumPreferredRelease": "12.13.0",
 		"earliestSupportedRelease": "12.13.0"
-	},
-	{
-		"clientType": "Atom",
-		"currentRelease": "11.1.0",
-		"minimumPreferredRelease": "11.0.0",
-		"earliestSupportedRelease": "11.0.0"
 	}
 ]
