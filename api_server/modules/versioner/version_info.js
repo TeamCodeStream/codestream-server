@@ -13,6 +13,7 @@ class VersionInfo {
 	// set the version matrix
 	setVersionMatrix (versionMatrix) {
 		this.versionMatrix = versionMatrix;
+		this.determineMinimumRequiredVersion();
 	}
 
 	// given the extension's version information, lookup the matching
@@ -133,6 +134,21 @@ class VersionInfo {
 			normalizedVersion += '+' + build;
 		}
 		return normalizedVersion;
+	}
+	
+	// determine the minimum required version across all supported IDEs
+	determineMinimumRequiredVersion () {
+		this.versionMatrix.forEach(entry => {
+			if (!this.minimumRequiredVersion || CompareVersions(entry.earliestSupportedRelease, this.minimumRequiredVersion) < 0) {
+				this.minimumRequiredVersion = entry.earliestSupportedRelease;
+			}
+		});
+		this.api.log(`Minimum earlest client release determined to be: ${this.minimumRequiredVersion}`);
+	}
+
+	// get the minimum required version across all supported IDEs
+	getMinimumRequiredVersion () {
+		return this.minimumRequiredVersion;
 	}
 }
 

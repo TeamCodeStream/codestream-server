@@ -39,7 +39,8 @@ class LoginHelper {
 		await awaitParallel([
 			this.getInitialData,
 			this.getForeignCompanies,
-			this.generateAccessToken
+			this.generateAccessToken,
+			this.getServerCommandIndex
 		], this);
 
 		// NOTE - no await here, this can run in parallel ... granting V2 access permissions (to be deprecated)
@@ -167,6 +168,11 @@ class LoginHelper {
 		}
 	}
 	
+	// determine the server command index ... i.e., this highest server command active to date
+	async getServerCommandIndex () {
+		this.serverCommandIndex = await this.request.api.services.clientCommandHandler.highestCommandIndex();
+	}
+
 	// update the time the user last logged in, except if logging in via the web app
 	async updateLastLogin () {
 		if (this.dontUpdateLastLogin) {
@@ -266,7 +272,8 @@ class LoginHelper {
 			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
 			newRelicLandingServiceUrl,
-			newRelicApiUrl
+			newRelicApiUrl,
+			serverCommandIndex: this.serverCommandIndex
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub

@@ -55,7 +55,8 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'reinviteUsersLastRunAt',
 	'activeServerAlerts',
 	'globals',
-	'newRelicOrgs'
+	'newRelicOrgs',
+	'clientCommands'
 ]);
 
 
