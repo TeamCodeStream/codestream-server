@@ -32,6 +32,11 @@ class LoginCodeHelper {
 			{ searchableEmail: this.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
+		if (!this.user || this.user.get('deactivated') || !this.user.get('isRegistered')) {
+			// silent failure, can't generate login code for user that is not active and registered
+			this.request.log(`User ${this.user.id} is not active and registered, not generating login code`);
+			delete this.user;
+		}
 	}
 
 	// generate a login code and expiry date
