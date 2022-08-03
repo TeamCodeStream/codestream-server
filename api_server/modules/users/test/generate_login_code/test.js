@@ -5,6 +5,7 @@ const GenerateLoginCodeTest = require('./generate_login_code_test');
 const GenerateLoginCodeMissingEmailTest = require('./generate_login_code_missing_email_test');
 const GenerateLoginCodeBadEmailTest = require('./generate_login_code_bad_email_test');
 const LoginCodeEmailTest = require('./login_code_email_test');
+const UnregisteredUserTest = require('./unregistered_user_test');
 
 class GenerateLoginCodeTester {
 
@@ -13,6 +14,7 @@ class GenerateLoginCodeTester {
 		new GenerateLoginCodeMissingEmailTest().test();
 		new GenerateLoginCodeBadEmailTest().test();
 		new LoginCodeEmailTest().test();
+		new UnregisteredUserTest().test();
 	}
 }
 

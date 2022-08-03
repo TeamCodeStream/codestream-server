@@ -32,7 +32,9 @@ class LoginCodeHelper {
 			{ searchableEmail: this.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-		if (!this.user || this.user.get('deactivated') || !this.user.get('isRegistered')) {
+		if (!this.user) {
+			this.request.log(`User ${this.email} does not exist, not generating login code`);
+		} else if (this.user.get('deactivated') || !this.user.get('isRegistered')) {
 			// silent failure, can't generate login code for user that is not active and registered
 			this.request.log(`User ${this.user.id} is not active and registered, not generating login code`);
 			delete this.user;
