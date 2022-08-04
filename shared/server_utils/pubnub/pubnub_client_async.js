@@ -55,6 +55,19 @@ class PubNubClient {
 		);
 		this._log(`Published ${message.messageId} to ${channel}`, options);
 
+		if (this.pubnubAlternate) {
+			const resultAlternate = await this.pubnubAlternate.publish(
+				{
+					message: message,
+					channel: channel,
+					sendByPost: true
+				}
+			);
+			if (resultAlternate.error) {
+				throw resultAlternate.errorData;
+			}
+			this._log(`Published (on alternate) ${message.messageId} to ${channel}`, options);
+		}
 		if (result.error) {
 			throw result.errorData;
 		}
@@ -89,6 +102,19 @@ class PubNubClient {
 				);
 				if (result.error) {
 					throw result.errorData;
+				}
+
+				if (this.pubnubAlternate) {
+					const resultAlternate = await this.pubnubAlternate.publish(
+						{
+							message: partialMessage,
+							channel: channel,
+							sendByPost: true
+						}
+					);
+					if (resultAlternate.error) {
+						throw resultAlternate.errorData;
+					}
 				}
 			}
 			n++;

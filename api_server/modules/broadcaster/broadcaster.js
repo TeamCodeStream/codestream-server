@@ -99,9 +99,19 @@ class Broadcaster extends APIServerModule {
 		let config = Object.assign({}, this.api.config.broadcastEngine.pubnub);
 		config.uuid = 'API-' + OS.hostname();
 		this.pubnub = this.api.config.apiServer.mockMode ? new MockPubnub(config) : new PubNub(config);
+
+		if (this.api.config.broadcastEngine.pubnubAlternate && this.api.config.broadcastEngine.pubnubAlternate.publishKey) {
+			this.api.log('Connecting to PubNub (alternate)...');
+			let configAlternate = Object.assign({}, this.api.config.broadcastEngine.pubnubAlternate);
+			configAlternate.uuid = 'APIalt-' + OS.hostname();
+			this.pubnubAlternate = this.api.config.apiServer.mockMode ? new MockPubnub(configAlternate) : new PubNub(configAlternate);
+		}
+
 		this.pubnubClient = new PubNubClient({
-			pubnub: this.pubnub
+			pubnub: this.pubnub,
+			pubnubAlternate: this.pubnubAlternate
 		});
+
 		if (!this.api.config.apiServer.mockMode) {
 			await this.pubnubClient.init();
 			await TryIndefinitely(async () => {
