@@ -91,31 +91,48 @@ class ClientCommandHandler {
 				continue;
 			}
 
-
-			const commandToClient = {
+			let commandToClient = {
 				command: command.command
 			};
 			if (command.data) {
 				commandToClient.data = command.data;
 			}
-			this.clientCommands.push(commandToClient);
+			if (commandToClient.data.inRandom) {
+				commandToClient.data.in = Math.floor(Math.random() * commandToClient.data.inRandom);
+				delete commandToClient.data.inRandom;
+			} else if (commandToClient.data.at && commandToClient.data.atRandom) {
+				commandToClient.data.at += Math.floor(Math.random() * commandToClient.data.atRandom);
+				delete commandToClient.data.atRandom;
+			}
 
-			/*
+			// if this command supersedes any others already added, remove them
 			if (commandInfo.supersedes) {
 				if (commandInfo.supersedes === '__all') {
-					const commandToClient = {
-						command: command.command
-					};
-					if (command.data) {
-						commandToCient.data = command.data;
-					}
-					this.clientCommands = [commandToClient];
-					return;
+					// just execute this command, no other commands are relevant
+					this.clientCommands = [this.clientCommands[this.clientCommands.length - 1]];
+					break;
 				}
-			} else {
-				this.clientCommands.push()
+
+				commandInfo.supersedes.forEach(supersedesCommand => {
+					for (let i = this.clientCommands.length - 1; i >= 0; i--) {
+						if (this.clientCommands[i].command === supersedesCommand) {
+							// remove this command, the command we are adding to the execution list supersedes this one anyway
+							this.clientCommands.splice(i, 1);
+						}
+					}
+				});
 			}
-			*/
+
+			// if any commands already in the list supersede this one, don't bother to add
+			if (this.clientCommands.find(clientCommand => {
+				return (COMMAND_INFO[clientCommand.command].supersedes || []).includes(commandToClient.command);
+			})) {
+				commandToClient = null;
+			}
+
+			if (commandToClient) {
+				this.clientCommands.push(commandToClient);
+			}
 		}
 	}
 
@@ -138,14 +155,14 @@ class ClientCommandHandler {
 
 	// get the highest index of command currently registered
 	async highestCommandIndex () {
-		const lastClientCommand = await this.api.data.clientCommands.getByQuery(
+		const lastClientCommand = (await this.api.data.clientCommands.getByQuery(
 			{},
 			{
 				sort: { index: -1 },
 				limit: 1,
 				overrideHintRequired: true
 			}
-		)[0];
+		))[0];
 		return (lastClientCommand && lastClientCommand.index) || 0;
 	}
 }
