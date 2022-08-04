@@ -6,10 +6,11 @@ const COMMAND_INFO = {
 		supersedes: '__all'
 	},
 	'reload': {
-		supersedes: ['hello']
+		supersedes: ['fetchBroadcasterToken', 'hello']
+	},
+	'fetchBroadcasterToken': {
 	},
 	'hello': {
-		
 	}
 };
 
@@ -97,10 +98,10 @@ class ClientCommandHandler {
 			if (command.data) {
 				commandToClient.data = command.data;
 			}
-			if (commandToClient.data.inRandom) {
+			if (commandToClient.data && commandToClient.data.inRandom) {
 				commandToClient.data.in = Math.floor(Math.random() * commandToClient.data.inRandom);
 				delete commandToClient.data.inRandom;
-			} else if (commandToClient.data.at && commandToClient.data.atRandom) {
+			} else if (commandToClient.data && commandToClient.data.at && commandToClient.data.atRandom) {
 				commandToClient.data.at += Math.floor(Math.random() * commandToClient.data.atRandom);
 				delete commandToClient.data.atRandom;
 			}
