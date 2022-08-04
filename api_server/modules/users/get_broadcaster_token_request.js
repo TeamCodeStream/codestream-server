@@ -28,7 +28,12 @@ class GetBroadcasterTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('userMessagingGrant', { reason: error });
 		}
 
-		this.responseData = { token: tokenData.token };
+		this.responseData = {
+			token: tokenData.token
+		};
+		if (this.api.config.broadcastEngine.pubnub && this.api.config.broadcastEngine.pubnub.subscribeKey) {
+			this.responseData.pubnubKey = this.api.config.broadcastEngine.pubnub.subscribeKey;
+		}
 	}
 }
 

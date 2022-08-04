@@ -29,7 +29,13 @@ class GetBCastTokenTest extends CodeStreamAPITest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.strictEqual(data.token, this.currentUser.broadcasterV3Token, 'returned token is not correct');
+		const expectedResponse = {
+			token: this.currentUser.broadcasterV3Token
+		};
+		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
+			expectedResponse.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;
+		}
+		Assert.deepStrictEqual(data, expectedResponse, 'response not correct');
 	}
 }
 
