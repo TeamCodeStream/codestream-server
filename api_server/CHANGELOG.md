@@ -1,5 +1,11 @@
 # Change Log
 
+## [13.0.2] - 2022-8-15
+
+### Fixed 
+
+- Fixes an issue that allowed an invited, but unregistered, user to sign in via code
+
 ## [13.0.1] - 2022-6-13
 
 ### Added 
