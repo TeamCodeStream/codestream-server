@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// NOTE: THIS SCRIPT IS OBSOLETE
+
 //desc// update payment plan and trial info in mongo and on Intercom
 
 /* eslint no-console: 0 */
@@ -64,7 +66,8 @@ class PlanUpdater {
 
 	// open an Intercom client to write to
 	async openIntercomClient () {
-		this.intercomClient = new Intercom.Client({ token: ApiConfig.getPreferredConfig().telemetry.intercom.token });
+		// NOTE: THE LINE BELOW MAKES THIS SCRIPT OBSOLETE, WE NO LONGER HAVE AN INTERCOM KEY
+		//this.intercomClient = new Intercom.Client({ token: ApiConfig.getPreferredConfig().telemetry.intercom.token });
 	}
 
 	// look for all companies that are in trial, and for each one, change its plan as needed

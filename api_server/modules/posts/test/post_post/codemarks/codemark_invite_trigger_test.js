@@ -14,6 +14,7 @@ class CodemarkInviteTriggerTest extends CodemarkMarkerTest {
 	run (callback) {
 		BoundAsync.series(this, [
 			super.run,	// run the parent's test, but then...
+			this.wait, // wait a bit for the change to propagate
 			this.checkUser	// ...we'll check that the unregistered user object has been updated
 		], callback);
 	}
@@ -34,6 +35,12 @@ class CodemarkInviteTriggerTest extends CodemarkMarkerTest {
 		// just save the ID of the codemark created
 		this.codemarkId = data.codemark.id;
 		super.validateResponse(data);
+	}
+
+	wait (callback) {
+		const waitTime = this.mockMode ? 0 : 500;
+		this.testLog('Waiting ' + waitTime);
+		setTimeout(callback, waitTime);
 	}
 
 	// check the unregistered user object for the correct updates

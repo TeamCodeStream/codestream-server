@@ -29,7 +29,7 @@ class SlackEventsRequest extends RestfulRequest {
 				return false;
 			}
 
-			const slackSigningSecret = this.api.config.integrations.slack.appSharingSigningSecret;
+			const slackSigningSecret = this.api.config.integrations.slack.appSigningSecret;
 			if (!slackSigningSecret) {
 				this.api.warn('Could not find signingSecret');
 				return false;
@@ -54,9 +54,14 @@ class SlackEventsRequest extends RestfulRequest {
 					.update('v0:' + timestamp + ':' + rawBody, 'utf8')
 					.digest('hex');
 
-			return crypto.timingSafeEqual(
+			const signaturesMatch = crypto.timingSafeEqual(
 				Buffer.from(mySignature, 'utf8'),
 				Buffer.from(slackSignature, 'utf8'));
+
+			if (!signaturesMatch) {
+				this.api.warn('Signature does not match for slack verification');
+			}
+			return signaturesMatch;
 		} catch (ex) {
 			this.api.warn(`verifySlackRequest error. ${ex}`);
 		}

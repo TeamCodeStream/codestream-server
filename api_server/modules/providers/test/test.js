@@ -21,7 +21,7 @@ describe('provider requests', function() {
 
 	this.timeout(20000);
 
-	describe('GET /provider-auth-code', ProviderAuthCodeRequestTester.test);
+	describe('GET /provider-auth-code', ProviderAuthCodeRequestTester.test); 
 	describe('GET /no-auth/provider-auth/:provider', ProviderAuthRequestTester.test);
 	describe('GET /no-auth/provider-token/:provider', ProviderTokenRequestTester.test);
 	describe('PUT /provider-deauth/:provider', ProviderDeauthRequestTester.test);

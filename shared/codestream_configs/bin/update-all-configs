@@ -102,11 +102,25 @@ diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 # done
 
 # cloud configuration files, all environments (consumed by developers via dt-dev-update-secrets)
+cfgFileName=codestream-cloud
 for csEnv in $environmentList
 do
-	[ -n "$verbose" ] && echo === $binDir/process-profile $debug --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x
-	$binDir/process-profile $debug --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json.x || exit 1
-	diff_notify $outDir/codestream-cloud_${csEnv}_${schemaVersion}_.json "$yes"
+	[ -n "$verbose" ] && echo === $binDir/process-profile $debug --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json.x
+	$binDir/process-profile $debug --profile $codestream_configs/profiles/cloud.json --env $csEnv --out $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json.x || exit 1
+	diff_notify $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json "$yes"
+
+	# derivatives
+	for overridesFile in `ls $outDir/overrides.$cfgFileName.*.$csEnv.json`
+	do
+		baseOverridesFileName=`basename $overridesFile`
+		derivativeCfgName="`echo $baseOverridesFileName|cut -f3 -d.`"
+		derivativeFile="${derivativeCfgName}_${csEnv}_${schemaVersion}_.json"
+		echo "Processing overrides file for $cfgFileName (env:$csEnv, schema:$schemaVersion) -> $derivativeFile"
+
+		# echo dt-merge-json --existing-file $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json --new-file $overridesFile --load-secrets-from $KM_SECRETS/categories --keep-header-comments-from-new-file --overwrite-from-new
+		dt-merge-json --existing-file $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json --new-file $overridesFile --load-secrets-from $KM_SECRETS/categories --keep-header-comments-from-new-file --overwrite-from-new >$outDir/$derivativeFile.x || exit 1
+		diff_notify $outDir/$derivativeFile "$yes"
+	done
 done
 
 # onprem development configurations

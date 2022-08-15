@@ -32,5 +32,5 @@ done
 shift `expr $OPTIND - 1`
 
 cd $CS_API_TOP
-[ $reset -eq 1 ] && { $OPADM_TOP/tests/bin/drop-db && ./bin/ensure-indexes.js || exit 1; }
+[ $reset -eq 1 ] && { ./bin/ensure-indexes.js || exit 1; }
 [ $runApi -eq 1 ] && ./bin/api_server.js --one_worker
