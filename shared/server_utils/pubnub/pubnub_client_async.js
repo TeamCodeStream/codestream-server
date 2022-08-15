@@ -39,34 +39,48 @@ class PubNubClient {
 
 		const json = JSON.stringify(message);
 		if (json.length > MAX_MESSAGE_LENGTH) {
-			return await this.publishParts(json, channel);
+			return await this.publishParts(json, channel, options);
 		}
 
 		this._log(`Transmitting message ${message.messageId} for channel ${channel} to Pubnub server, ${json.length} bytes...`, options);
 		if (json.length > 2000) {
 			this._log('NOTE: Message is more than 2K bytes', options);
 		}
-		const result = await this.pubnub.publish(
-			{
-				message: message,
-				channel: channel,
-				sendByPost: true
-			}
-		);
-		this._log(`Published ${message.messageId} to ${channel}`, options);
-
-		if (this.pubnubAlternate) {
-			const resultAlternate = await this.pubnubAlternate.publish(
+		let result;
+		try {
+			result = await this.pubnub.publish(
 				{
 					message: message,
 					channel: channel,
 					sendByPost: true
 				}
 			);
-			if (resultAlternate.error) {
-				throw resultAlternate.errorData;
-			}
-			this._log(`Published (on alternate) ${message.messageId} to ${channel}`, options);
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+			this._warn(`PubNub message publish failure (${message.messageId} to ${channel}): ${errorMessage}`, options);
+			return;
+		}
+		this._log(`Published ${message.messageId} to ${channel}`, options);
+
+		if (this.pubnubAlternate) {
+			// note the absence of await here, instead using a callback
+			// we do want to know about the failure, but we don't want to wait for this to complete,
+			// since failure here, in the case of a rotated key, is somewhat nominal
+			this.pubnubAlternate.publish(
+				{
+					message: message,
+					channel: channel,
+					sendByPost: true
+				},
+				error => {
+					if (error) {
+						const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+						this._warn(`Failed to publish (on alternate) ${message.messageId} to ${channel}: ${errorMessage}`, options);
+					} else {
+						this._log(`Published (on alternate) ${message.messageId} to ${channel}`, options);
+					}
+				}
+			);
 		}
 		if (result.error) {
 			throw result.errorData;
@@ -74,7 +88,7 @@ class PubNubClient {
 	}
 
 	// publish a long message in parts
-	async publishParts (json, channel) {
+	async publishParts (json, channel, options) {
 		const fullMessageId = UUID();
 		let n = 0;
 		let totalParts = Math.floor(json.length / MAX_MESSAGE_LENGTH) + 1;
@@ -93,28 +107,43 @@ class PubNubClient {
 					totalParts,
 					message: part
 				};
-				const result = await this.pubnub.publish(
-					{
-						message: partialMessage,
-						channel: channel,
-						sendByPost: true
-					}
-				);
-				if (result.error) {
-					throw result.errorData;
-				}
-
-				if (this.pubnubAlternate) {
-					const resultAlternate = await this.pubnubAlternate.publish(
+				let result;
+				try {
+					result = await this.pubnub.publish(
 						{
 							message: partialMessage,
 							channel: channel,
 							sendByPost: true
 						}
 					);
-					if (resultAlternate.error) {
-						throw resultAlternate.errorData;
-					}
+				} catch (error) {
+					this._warn(`PubNub message publish-part failure (${partialMessage.messageId} to ${channel})`, options);
+					continue;
+				} 
+				if (result.error) {
+					throw result.errorData;
+				}
+				this._log(`Published (partial) ${partialMessage.messageId} to ${channel}`, options);
+
+				if (this.pubnubAlternate) {
+					// note the absence of await here, instead using a callback
+					// we do want to know about the failure, but we don't want to wait for this to complete,
+					// since failure here, in the case of a rotated key, is somewhat nominal
+					this.pubnubAlternate.publish(
+						{
+							message: partialMessage,
+							channel: channel,
+							sendByPost: true
+						},
+						error => {
+							if (error) {
+								const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+								this._warn(`PubNub message publish-part (alternate) failure (${partialMessage.messageId} to ${channel}): ${errorMessage}`, options);
+							} else {
+								this._log(`Published (partial, alternate) ${partialMessage.messageId} to ${channel}`, options);
+							}
+						}
+					);
 				}
 			}
 			n++;
@@ -284,7 +313,7 @@ class PubNubClient {
 		}, {});
 
 		try {
-			const ttl = options.ttl || 1; //43200;
+			const ttl = options.ttl || 43200;
 			return this.pubnub.grantToken({
 				ttl,
 				authorized_uuid: userId,
