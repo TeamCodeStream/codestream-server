@@ -72,10 +72,9 @@ class PubNubClient {
 					channel: channel,
 					sendByPost: true
 				},
-				error => {
-					if (error) {
-						const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-						this._warn(`Failed to publish (on alternate) ${message.messageId} to ${channel}: ${errorMessage}`, options);
+				result => {
+					if (result.error) {
+						this._warn(`Failed to publish (on alternate) ${message.messageId} to ${channel}: ${JSON.stringify(result.errorData)}`, options);
 					} else {
 						this._log(`Published (on alternate) ${message.messageId} to ${channel}`, options);
 					}
@@ -135,10 +134,9 @@ class PubNubClient {
 							channel: channel,
 							sendByPost: true
 						},
-						error => {
-							if (error) {
-								const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-								this._warn(`PubNub message publish-part (alternate) failure (${partialMessage.messageId} to ${channel}): ${errorMessage}`, options);
+						result => {
+							if (result.error) {
+								this._warn(`PubNub message publish-part (alternate) failure (${partialMessage.messageId} to ${channel}): ${result.errorData}`, options);
 							} else {
 								this._log(`Published (partial, alternate) ${partialMessage.messageId} to ${channel}`, options);
 							}

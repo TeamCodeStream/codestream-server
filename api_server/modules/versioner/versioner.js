@@ -32,6 +32,11 @@ const ROUTES = [
 		method: 'get',
 		path: '/no-auth/asset-info',
 		requestClass: require('./asset_info')
+	},
+	{
+		method: 'get',
+		path: '/no-auth/ping',
+		func: 'handlePing'
 	}
 ];
 
@@ -251,6 +256,11 @@ class Versioner extends APIServerModule {
 			api: this.api,
 			versionInfo: this.versionInfo
 		}).handleClientCommands(request, response);
+	}
+
+	// handle a simple ping with a pong
+	async handlePing (request, response) {
+		response.status(200).send({ pong: true });
 	}
 
 	// describe any errors associated with this module, for help

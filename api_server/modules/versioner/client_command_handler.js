@@ -110,7 +110,7 @@ class ClientCommandHandler {
 			if (commandInfo.supersedes) {
 				if (commandInfo.supersedes === '__all') {
 					// just execute this command, no other commands are relevant
-					this.clientCommands = [this.clientCommands[this.clientCommands.length - 1]];
+					this.clientCommands = [commandToClient];
 					break;
 				}
 

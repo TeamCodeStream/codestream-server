@@ -51,6 +51,19 @@ class UserSubscriptionGranter  {
 		this.channels = [
 			`user-${this.user.id}`
 		];
+
+		// add a channel that contains the last 12 characters of the subscribe key, this ensures that
+		// tokens issued against a given key will be distinct in their granted channels from tokens issued
+		// against a different key, but for the same channels otherwise.
+		// Basically, this technique ensures that when a client fetches a token because a key was rotated out,
+		// we will give the client a new token even if all the channels they would be granted are the same.
+		// It also enables us to explicitly identify the subscribe key a token was issued for (up to 12 characters),
+		// since we can parse the token for authorized channels
+		const subscribeKey = this.api.config.broadcastEngine.pubnub && this.api.config.broadcastEngine.pubnub.subscribeKey;
+		if (subscribeKey) {
+			this.channels.push(`sub-${subscribeKey.substr(-12)}`);
+		}
+
 		this.channels.push.apply(
 			this.channels,
 			(this.user.get('teamIds') || []).map(teamId => `team-${teamId}`)
@@ -191,6 +204,7 @@ class UserSubscriptionGranter  {
 			authorizedChannels.length !== this.channels.length ||
 			ArrayUtilities.difference(authorizedChannels, this.channels).length !== 0
 		) {
+			this.request.log(`User ${this.user.id} is being granted a new V3 broadcaster token`);
 			try {
 				token = await this._grantAll();
 				newToken = true;
