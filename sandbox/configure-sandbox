@@ -12,6 +12,8 @@ mode=""
 abort_on_fail=1
 [ "$1" == "git-hook" ] && mode=git_hook
 [ "$1" == "configure" ] && mode=configure
+[ "$1" == "install" ] && mode=install
+[ "$1" == "reconfigure" ] && mode=reconfigure
 [ "$1" == "deploy" ] && mode=deploy
 [ "$1" == "configureNoAbort" ] && mode=configure && abort_on_fail=0
 [ -z "$mode" ] && echo "Error: bad configure mode" && exit 1
