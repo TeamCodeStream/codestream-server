@@ -132,37 +132,103 @@
 	"broadcastEngine": {
 		"pubnub": {
 			"ci": {
-				"_loadSecretsFile": "pubnub/ci.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/ci_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/ci_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"defaultEnv": {
-				"_loadSecretsFile": "pubnub/dev.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/dev_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/dev_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"eu0": {
-				"_loadSecretsFile": "pubnub/prod.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/prod_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/prod_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"local": {
-				"_loadSecretsFile": "pubnub/local.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/local_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/local_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"local1": {
-				"_loadSecretsFile": "pubnub/local.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/local_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/local_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"local2": {
-				"_loadSecretsFile": "pubnub/local.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/local_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/local_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"pi": {
-				"_loadSecretsFile": "pubnub/ci.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/ci_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/ci_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"prod": {
-				"_loadSecretsFile": "pubnub/prod.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/prod_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/prod_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"qa": {
-				"_loadSecretsFile": "pubnub/qa.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/qa_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/qa_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"qa2": {
-				"_loadSecretsFile": "pubnub/qa.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/qa_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/qa_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			},
 			"stg": {
-				"_loadSecretsFile": "pubnub/stg.cfg"
+				"blueKey": {
+					"_loadSecretsFile": "pubnub/stg_blue.cfg"
+				},
+				"greenKey": {
+					"_loadSecretsFile": "pubnub/stg_green.cfg"
+				},
+				"preferredKeyColor": "blue"
 			}
 		}
 	},
