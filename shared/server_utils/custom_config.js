@@ -42,7 +42,7 @@ function selectBroadcastEngine(cfg) {
 		cfg.broadcastEngine.pubnub.secretKey = cfg.broadcastEngine.pubnub[preferredKeyProp].secretKey;
 		cfg.broadcastEngine.pubnub.subscribeKey = cfg.broadcastEngine.pubnub[preferredKeyProp].subscribeKey;
 		// oldKey represents the non-preferred key
-		let oldKeySet = cfg.broadcastEngine.pubnub.preferredKey == 'green' ? 'blue' : 'green';
+		let oldKeySet = cfg.broadcastEngine.pubnub.preferredKeyColor == 'green' ? 'blue' : 'green';
 		let oldKeyProp = `${oldKeySet}Key`;
 		cfg.broadcastEngine.pubnub.oldKey = {};
 		cfg.broadcastEngine.pubnub.oldKey.publishKey = cfg.broadcastEngine.pubnub[oldKeyProp].publishKey;

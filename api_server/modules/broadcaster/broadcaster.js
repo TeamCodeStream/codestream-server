@@ -96,13 +96,13 @@ class Broadcaster extends APIServerModule {
 
 	async connectToPubNub () {
 		this.api.log('Connecting to PubNub...');
-		let config = Object.assign({}, this.api.config.broadcastEngine.pubnub);
+		const config = { ...this.api.config.broadcastEngine.pubnub };
+		const configAlternate = { ...config, ...(config.oldKey || {}) };
 		config.uuid = 'API-' + OS.hostname();
 		this.pubnub = this.api.config.apiServer.mockMode ? new MockPubnub(config) : new PubNub(config);
 
-		if (this.api.config.broadcastEngine.pubnubAlternate && this.api.config.broadcastEngine.pubnubAlternate.publishKey) {
+		if (configAlternate.publishKey && !configAlternate.publishKey.match(/dummy/)) {
 			this.api.log('Connecting to PubNub (alternate)...');
-			let configAlternate = Object.assign({}, this.api.config.broadcastEngine.pubnubAlternate);
 			configAlternate.uuid = 'APIalt-' + OS.hostname();
 			this.pubnubAlternate = this.api.config.apiServer.mockMode ? new MockPubnub(configAlternate) : new PubNub(configAlternate);
 		}
