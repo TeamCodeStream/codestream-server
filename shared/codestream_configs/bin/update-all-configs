@@ -110,7 +110,7 @@ do
 	diff_notify $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json "$yes"
 
 	# derivatives
-	for overridesFile in `ls $outDir/overrides.$cfgFileName.*.$csEnv.json`
+	for overridesFile in `ls $outDir/overrides.$cfgFileName.*.$csEnv.json 2>/dev/null`
 	do
 		baseOverridesFileName=`basename $overridesFile`
 		derivativeCfgName="`echo $baseOverridesFileName|cut -f3 -d.`"
