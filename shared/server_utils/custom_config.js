@@ -34,6 +34,21 @@ function selectBroadcastEngine(cfg) {
 		console.error(`FATAL: no config data for broadcast engine ${cfg.broadcastEngine.selected}`);
 		process.exit(1);
 	}
+	// Set preferred pubnub key to be the legacy property values (the ones to use going forward)
+	if (cfg.broadcastEngine.selected == 'pubnub') {
+		// the preferred key data is the same
+		let preferredKeyProp = `${cfg.broadcastEngine.pubnub.preferredKeyColor}Key`;
+		cfg.broadcastEngine.pubnub.publishKey = cfg.broadcastEngine.pubnub[preferredKeyProp].publishKey;
+		cfg.broadcastEngine.pubnub.secretKey = cfg.broadcastEngine.pubnub[preferredKeyProp].secretKey;
+		cfg.broadcastEngine.pubnub.subscribeKey = cfg.broadcastEngine.pubnub[preferredKeyProp].subscribeKey;
+		// oldKey represents the non-preferred key
+		let oldKeySet = cfg.broadcastEngine.pubnub.preferredKey == 'green' ? 'blue' : 'green';
+		let oldKeyProp = `${oldKeySet}Key`;
+		cfg.broadcastEngine.pubnub.oldKey = {};
+		cfg.broadcastEngine.pubnub.oldKey.publishKey = cfg.broadcastEngine.pubnub[oldKeyProp].publishKey;
+		cfg.broadcastEngine.pubnub.oldKey.secretKey = cfg.broadcastEngine.pubnub[oldKeyProp].secretKey;
+		cfg.broadcastEngine.pubnub.oldKey.subscribeKey = cfg.broadcastEngine.pubnub[oldKeyProp].subscribeKey;
+	}
 }
 
 // Read the structured config to determine which queuing engine we'll use and
