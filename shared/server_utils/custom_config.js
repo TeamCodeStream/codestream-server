@@ -319,9 +319,9 @@ module.exports = function customConfigFunc(nativeCfg) {
 	Cfg.integrations['newrelic_azure'] = {
 		cloud: {
 			appClientId: '', // cstrykernr
-			//'02cc1838-6a0c-4d0d-ada5-fd5042e384f4',   // newrelicstaging
+			//'',   // newrelicstaging
 			appClientSecret: '', // cstrykernr
-			//'Lns8Q~L3yKeSW4D1_lk6GjsdfTTDBVzOi3F2Mb~v',   // newrelicstaging
+			//'',   // newrelicstaging
 			disabled: false, // change to false when testing
 			tenant: 'cstrykernr', // cstrykernr
 			//'newrelicstaging', // newrelicstaging
