@@ -6,7 +6,7 @@ const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
 const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'codemarks', 'reviews', 'markers', 'markerLocations'];
-const COLLECTIONS_FOR_TEAM = ['streams', 'posts', 'codemarks', 'reviews', 'markers', 'markerLocations'];
+const COLLECTIONS_FOR_TEAM = ['streams', 'posts', 'codemarks', 'reviews', 'codeErrors', 'markers', 'markerLocations'];
 
 class Deleter {
 
@@ -31,6 +31,7 @@ class Deleter {
 	}
 
 	async openMongoClient () {
+		if (this.mongoClient) { return; }
 		this.mongoClient = new MongoClient({ collections: COLLECTIONS });
 		try {
 			await this.mongoClient.openMongoClient(ApiConfig.getPreferredConfig().storage.mongo);
@@ -331,6 +332,9 @@ class Deleter {
 		this.logger.log(`Deactivating ${usersToDelete.length} users...`);
 		try {
 			await Promise.all(usersToDelete.map(async user => {
+				if (this.emailsOutputStream) {
+					await this.emailsOutputStream.write(`${user.email}\n`);
+				}
 				const emailParts = user.email.split('@');
 				const now = Date.now();
 				const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
