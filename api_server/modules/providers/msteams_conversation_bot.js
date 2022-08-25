@@ -27,6 +27,11 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	constructor () {
 		super();
 
+        this.onInstallationUpdateAdd(async (context, next) => {
+            await this.botInstalled(context);
+			await next();
+		});
+
 		// called for any incoming conversation update activity that includes 
 		// members added to the conversation. this is what is called right after a bot is installed
 		this.onMembersAdded(async (context, next) => {
@@ -649,6 +654,72 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 	}
 
+    // returns a link for help
+    async botInstalled (context) {
+        let body = [];
+        const userName = context.activity.from.name;
+		if (userName) {
+			body.push({
+				type: 'TextBlock',
+				size: 'Medium',
+				text: `Hey ${userName}, thanks for installing CodeStream!`,
+				wrap: true
+			});
+		}
+		body.push({
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
+			wrap: true
+		},
+		{
+			type: 'ColumnSet',
+			columns: [
+				{
+					type: 'Column',
+					items: [
+						{
+							type: 'FactSet',
+							facts: [
+								{
+									title: 'signin',
+									value: 'Sign in to start using CodeStream.'
+								},
+								{
+									title: 'signout',
+									value: 'Sign out of CodeStream.'
+								}                            
+							]
+						}
+					],
+					width: 'stretch'
+				}
+			]
+		},
+		{
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'If you already have a CodeStream account, issue the "signin" command here to get started ([click here for detailed instructions](https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/)). ',
+			wrap: true
+		},
+		{
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
+			wrap: true
+		});
+
+		const payload = {
+			type: 'AdaptiveCard',
+			body: body,
+			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+			version: '1.0'
+		};
+
+		await context.sendActivity({
+			attachments: [CardFactory.adaptiveCard(payload)]
+		});
+    }
 
 	// returns a link for help
 	async help (context) {
