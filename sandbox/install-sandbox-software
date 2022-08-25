@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[ -z "$2" ] && echo "Run dt-install-sandbox-software to call this script" && exit 1
-
 # This script is a hook called via the dt-install-sandbox-software command.
 # Do not run it directly.
 
