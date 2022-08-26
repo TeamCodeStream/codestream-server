@@ -666,7 +666,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
             text: 'Welcome to CodeStream for Microsoft Teams!',
             wrap: true,
             style: 'heading',
-            color: 'good'
+            color: 'good',
+            weight: 'large',
+            size: 'large'
         },
         {
 			type: 'TextBlock',
@@ -727,7 +729,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			type: 'AdaptiveCard',
 			body: body,
 			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-			version: '1.3'
+			version: '1.4'
 		};
 
 		await context.sendActivity({
