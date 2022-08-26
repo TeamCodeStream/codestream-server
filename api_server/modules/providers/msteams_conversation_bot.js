@@ -152,16 +152,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						token: text
 					});
 					if (result && result.success) {
-						// TODO this might work as a way to mention the bot and make it clickable
-						// const mention = {
-						//     mentioned: context.activity.from,
-						//     text: `<at>${new TextEncoder().encode(context.activity.from.name)}</at>`,
-						//     type: 'mention'
-						// };
-						// const replyActivity = MessageFactory.text(`Hi ${mention.text}`);
-						// replyActivity.entities = [mention];
-						// await context.sendActivity(replyActivity);
-
 						await this.setState(context, STATE_PROPERTY_CODESTREAM_USER_ID, result.codeStreamUserId);
 						await context.sendActivity('Next step, go to any channel where you\'d like to use CodeStream, type `@`, select `Get bots` and then select the CodeStream bot. Once you\'ve added the bot, mention it with the `connect` command.');
 					}
@@ -170,113 +160,101 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					}
 				}
 				else {
-					switch (text) {
-					// start secret commands
-					case 'EasterEgg':
-					case 'easterEgg':
-					case 'easteregg':
-						await this.easterEgg(context);
-						break;
-					case 'debug':
-						await this.debug(context);
-						break;
-					case 'status':
-						if (teamId) {
-							await this.status(context);
-						}
-						else {
-							await this.statusPersonal(context);
-						}
-						break;
-					case 'uninstall':
-						await this.uninstall(context);
-						break;
-					case 'disconnectall':
-					case 'disconnect-all':
-					case 'DisconnectAll':
-						if (teamId) {
-							await this.disconnectAll(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
-						}
-						break;
-						// end secret commands
+					switch (text.toLowerCase()) {
+                        // start secret commands
+                        case 'easteregg':
+                            await this.easterEgg(context);
+                            break;
+                        case 'debug':
+                            await this.debug(context);
+                            break;
+                        case 'status':
+                            if (teamId) {
+                                await this.status(context);
+                            }
+                            else {
+                                await this.statusPersonal(context);
+                            }
+                            break;
+                        case 'uninstall':
+                            await this.uninstall(context);
+                            break;
+                        case 'disconnectall':
+                        case 'disconnect-all':
+                            if (teamId) {
+                                await this.disconnectAll(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
+                            }
+                            break;
+                            // end secret commands
 
-					// start personal commands
-					case 'Login':
-					case 'login':
-					case 'Signin':
-					case 'signin':
-						if (teamId) {
-							await context.sendActivity(PERSONAL_BOT_MESSAGE);
-						}
-						else {
-							await this.signin(context);
-						}
-						break;
-					case 'Signup':
-					case 'signup':
-						if (teamId) {
-							await context.sendActivity(PERSONAL_BOT_MESSAGE);
-						}
-						else {
-							await this.signup(context);
-						}
-						break;
-					case 'logout':
-					case 'Logout':
-					case 'signout':
-					case 'Signout':
-						if (teamId) {
-							await context.sendActivity(PERSONAL_BOT_MESSAGE);
-						}
-						else {
-							await this.signout(context);
-						}
-						break;
-						// end personal commands
+                        // start personal commands
+                        case 'login':
+                        case 'signin':
+                            if (teamId) {
+                                await context.sendActivity(PERSONAL_BOT_MESSAGE);
+                            }
+                            else {
+                                await this.signin(context);
+                            }
+                            break;
+                        case 'signup':
+                            if (teamId) {
+                                await context.sendActivity(PERSONAL_BOT_MESSAGE);
+                            }
+                            else {
+                                await this.signup(context);
+                            }
+                            break;
+                        case 'logout':
+                        case 'signout':
+                            if (teamId) {
+                                await context.sendActivity(PERSONAL_BOT_MESSAGE);
+                            }
+                            else {
+                                await this.signout(context);
+                            }
+                            break;
+                            // end personal commands
 
-					// start commands that work in public chats/teams
-					case 'connect':
-					case 'Connect':
-						if (teamId) {
-							await this.connect(context, context.activity, teamDetails, teamChannels, teamMembers, channelData.tenant.id);
-						}
-						else {
-							await context.sendActivity(TEAM_BOT_MESSAGE);
-						}
-						break;
-					case 'disconnect':
-					case 'Disconnect':
-						if (teamId) {
-							await this.disconnect(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
-						}
-						else {
-							await context.sendActivity(TEAM_BOT_MESSAGE);
-						}
-						break;
-						// end commands that work in public chats/teams
+                        // start commands that work in public chats/teams
+                        case 'connect':
+                            if (teamId) {
+                                await this.connect(context, context.activity, teamDetails, teamChannels, teamMembers, channelData.tenant.id);
+                            }
+                            else {
+                                await context.sendActivity(TEAM_BOT_MESSAGE);
+                            }
+                            break;
+                        case 'disconnect':
+                            if (teamId) {
+                                await this.disconnect(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
+                            }
+                            else {
+                                await context.sendActivity(TEAM_BOT_MESSAGE);
+                            }
+                            break;
+                            // end commands that work in public chats/teams
 
-					// start commands that work everywhere			
-					case 'Welcome':
-					case 'welcome':
-					case 'start':
-					case 'init':
-					case 'initialize':
-					case 'ok':
-					case 'go':
-					case 'getstarted':
-					case 'Help':
-					case 'help':
-						if (teamId) {
-							await this.help(context);
-						}
-						else {
-							await this.helpPersonal(context);
-						}
-						break;
-					default:
-						await context.sendActivity('I\'m not sure about that command, but thanks for checking out CodeStream. Type the `help` if you need anything.');
-						break;
-						// end commands that work everywhere
+                        // start commands that work everywhere			
+                        case 'welcome':
+                        case 'start':
+                        case 'init':
+                        case 'initialize':
+                        case 'ok':
+                        case 'go':
+                        case 'getstarted':
+                        case 'help':
+                            if (teamId) {
+                                await this.help(context);
+                            }
+                            else {
+                                await this.helpPersonal(context);
+                            }
+                            break;
+                        default:
+                            await context.sendActivity('I\'m not sure about that command, but thanks for checking out CodeStream. Type the `help` if you need anything.');
+                            break;
+                            // end commands that work everywhere
 					}
 				}
 			}
@@ -661,6 +639,23 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 
 		body.push(
         {
+            type: 'ColumnSet',
+            horizontalAlignment: 'center',
+            columns: [
+                {
+                    type: 'Column',
+                    items: [
+                        {
+                            type: 'Image',
+                            url: '${creator.profileImage}',
+                            size: 'medium'
+                        }
+                    ],
+                    width: 'auto'
+                }
+            ]
+        },
+        {
             type: 'TextBlock',
             size: 'Medium',
             text: 'Welcome to CodeStream for Microsoft Teams!',
@@ -668,7 +663,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
             style: 'heading',
             color: 'good',
             weight: 'large',
-            size: 'large'
+            size: 'large',
+            horizontalAlignment: 'center',
         },
         {
 			type: 'TextBlock',
@@ -718,9 +714,38 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
             type: 'ActionSet',
             actions: [
                 {
-                    type: 'Action.Execute',
+                    type: 'Action.ShowCard',
                     title: 'Help',
-                    verb: 'help'
+                    card: {
+                        type: 'AdaptiveCard',
+                        body: [
+                            {
+                                type: 'RichTextBlock',
+                                text: `Here's a list of **personal** commands I can process (from a private chat):`,
+                                wrap: true
+                            },
+                            {
+                                type: 'RichTextBlock',
+                                text: '- **help** - view list of available commands\r' +
+                                      '- **signin** - signin to CodeStream\r' +
+                                      '- **signup** - signup for CodeStream\r' +
+                                      '- **signout** - signout of CodeStream\r' +
+                                      '- **connect** - connect a Teams channel to CodeStream\r' +
+                                      '- **disconnect** - disconnect a Teams channel from CodeStream'
+                            },
+                            {
+                                type: 'RichTextBlock',
+                                text: `Here's a list of **channel** commands I can process (from a channel):`,
+                                wrap: true
+                            },
+                            {
+                                type: 'RichTextBlock',
+                                text: '- **connect** - connect a Teams channel to CodeStream\r' +
+                                      '- **disconnect** - disconnect a Teams channel from CodeStream'
+                            }
+                        ]
+                    }
+                    
                 }
             ]
         });
@@ -858,119 +883,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			attachments: [CardFactory.adaptiveCard(payload)]
 		});
 	}
-
-	/* modal start */
-
-	// handleTeamsTaskModuleFetch (context, taskModuleRequest) {
-	//     // taskModuleRequest.data can be checked to determine different paths.
-
-	//     return {
-	//         task: {
-	//             type: 'continue',
-	//             value: {
-	//                 card: this.getTaskModuleAdaptiveCard(taskModuleRequest),
-	//                 //  height: 400,
-	//                 // width: 600,
-	//                 title: 'Post a Reply'
-	//             }
-	//         }
-	//     };
-	// }
-
-	// async handleTeamsTaskModuleSubmit (context, taskModuleRequest) {
-	//     // dataAdapater.handleSubmit(context);
-
-	//     // Hello. You said: ' + taskModuleRequest.data.usertext
-	//     return {
-	//         task: {
-	//             // This could also be of type 'continue' with a new Task Module and card.
-	//             type: 'message',
-	//             value: 'Reply posted to CodeSteam!'
-	//         }
-	//     };
-	// }
-
-	// getTaskModuleAdaptiveCard (taskModuleRequest) {
-	//     const codemark = taskModuleRequest.data.data.codemark;
-	//     return CardFactory.adaptiveCard({
-	//         version: '1.0.0',
-	//         type: 'AdaptiveCard',
-	//         body: [
-	//             {
-	//                 "type": "Container",
-	//                 "items": [
-	//                     {
-	//                         "type": "ColumnSet",
-	//                         "columns": [
-	//                             {
-	//                                 "type": "Column",
-	//                                 "width": "auto",
-	//                                 "items": [
-	//                                     {
-	//                                         "size": "small",
-	//                                         "style": "person",
-	//                                         "type": "Image",
-	//                                         "url": "https://www.gravatar.com/avatar/f7260737d0f0098738ec7e788ec4bfe5"
-	//                                     }
-	//                                 ]
-	//                             },
-	//                             {
-	//                                 "type": "Column",
-	//                                 "width": "stretch",
-	//                                 "items": [
-	//                                     {
-	//                                         "type": "TextBlock",
-	//                                         "text": "Matt Hidinger",
-	//                                         "weight": "bolder",
-	//                                         "wrap": true
-	//                                     },
-	//                                     {
-	//                                         "type": "TextBlock",
-	//                                         "spacing": "none",
-	//                                         "text": "Created {{DATE(2017-02-14T06:08:39Z, SHORT)}}",
-	//                                         "isSubtle": true,
-	//                                         "wrap": true
-	//                                     }
-	//                                 ]
-	//                             }
-	//                         ]
-	//                     }
-	//                 ]
-	//             },
-	//             {
-	//                 type: 'TextBlock',
-	//                 text: codemark.text || codemark.title
-	//             },
-	//             {
-	//                 type: 'Input.Text',
-	//                 id: 'usertext',
-	//                 placeholder: 'Compose a reply',
-	//                 IsMultiline: true
-	//             },
-	//             {
-	//                 type: 'TextBlock',
-	//                 text: 'reply 2'
-	//             },
-	//             {
-	//                 type: 'TextBlock',
-	//                 text: 'reply 1',
-	//                 separator: true
-	//             },
-	//         ],
-	//         actions: [
-	//             {
-	//                 type: 'Action.Submit',
-	//                 title: 'Submit',
-	//                 data: {
-	//                     codemark: codemark
-	//                 }
-	//             }
-	//         ]
-	//     });
-	// }
-
-
-	/* modal end */
 }
 
 module.exports = new MSTeamsConversationBot();
