@@ -28,7 +28,12 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		super();
 
         this.onInstallationUpdateAdd(async (context, next) => {
-            await this.botInstalled(context);
+            if (context.activity.conversation.conversationType === 'channel') {
+                await this.botInstalledChannel(context);
+            }
+            else{
+                await this.botInstalledPersonal(context);
+            }
 			await next();
 		});
 
@@ -654,19 +659,82 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 	}
 
-    // returns a link for help
-    async botInstalled (context) {
+    async botInstalledPersonal (context) {
         let body = [];
-        const userName = context.activity.from.name;
-		if (userName) {
-			body.push({
-				type: 'TextBlock',
-				size: 'Medium',
-				text: `Hey ${userName}, thanks for installing CodeStream!`,
-				wrap: true
-			});
-		}
-		body.push({
+
+		body.push(
+        {
+            type: 'TextBlock',
+            size: 'Medium',
+            text: `Thanks for installing CodeStream!`,
+            wrap: true
+        },
+        {
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
+			wrap: true
+		},
+		{
+			type: 'ColumnSet',
+			columns: [
+				{
+					type: 'Column',
+					items: [
+						{
+							type: 'FactSet',
+							facts: [
+								{
+									title: 'signin',
+									value: 'Sign in to start using CodeStream.'
+								},
+								{
+									title: 'signout',
+									value: 'Sign out of CodeStream.'
+								}                            
+							]
+						}
+					],
+					width: 'stretch'
+				}
+			]
+		},
+		{
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'If you already have a CodeStream account, issue the "signin" command here to get started ([click here for detailed instructions](https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/)). ',
+			wrap: true
+		},
+		{
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
+			wrap: true
+		});
+
+		const payload = {
+			type: 'AdaptiveCard',
+			body: body,
+			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+			version: '1.0'
+		};
+
+		await context.sendActivity({
+			attachments: [CardFactory.adaptiveCard(payload)]
+		});
+    }
+
+    async botInstalledChannel (context) {
+        let body = [];
+
+		body.push(
+        {
+            type: 'TextBlock',
+            size: 'Medium',
+            text: `Thanks for installing CodeStream into ${ context.activity.conversation.name }!`,
+            wrap: true
+        },
+        {
 			type: 'TextBlock',
 			size: 'Medium',
 			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
