@@ -160,7 +160,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					}
 				}
 				else {
-					switch (text.toLowerCase()) {
+					switch (text.toLocaleLowerCase()) {
                         // start secret commands
                         case 'easteregg':
                             await this.easterEgg(context);
@@ -252,7 +252,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
                             }
                             break;
                         default:
-                            await context.sendActivity('I\'m not sure about that command, but thanks for checking out CodeStream. Type the `help` if you need anything.');
+                            await context.sendActivity(`Sorry, I didn't understand '${text}', but thanks for checking out CodeStream. Type 'help' if you need assistance.`);
                             break;
                             // end commands that work everywhere
 					}
