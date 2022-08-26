@@ -662,7 +662,12 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
     async botInstalledPersonal (context) {
         let body = [];
 
-		body.push(
+		body.push({
+            type: 'TextBlock',
+            size: 'Medium',
+            text: `${ JSON.stringify(context) }`,
+            wrap: true
+        },
         {
             type: 'TextBlock',
             size: 'Medium',
@@ -727,7 +732,12 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
     async botInstalledChannel (context) {
         let body = [];
 
-		body.push(
+		body.push({
+            type: 'TextBlock',
+            size: 'Medium',
+            text: `${ JSON.stringify(context) }`,
+            wrap: true
+        },
         {
             type: 'TextBlock',
             size: 'Medium',
