@@ -28,10 +28,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		super();
 
         this.onInstallationUpdateAdd(async (context, next) => {
-            if (context.activity.conversation.conversationType === 'channel') {
-                await this.botInstalledChannel(context);
-            }
-            else{
+            if (context.activity.conversation.conversationType === 'personal') {
                 await this.botInstalledPersonal(context);
             }
 			await next();
@@ -662,136 +659,75 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
     async botInstalledPersonal (context) {
         let body = [];
 
-		body.push({
-            type: 'TextBlock',
-            size: 'Medium',
-            text: `${ JSON.stringify(context) }`,
-            wrap: true
-        },
+		body.push(
         {
             type: 'TextBlock',
             size: 'Medium',
-            text: `Thanks for installing CodeStream!`,
-            wrap: true
+            text: 'Welcome to CodeStream for Microsoft Teams!',
+            wrap: true,
+            style: 'heading',
+            color: 'good'
         },
         {
 			type: 'TextBlock',
-			size: 'Medium',
-			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
-			wrap: true
-		},
-		{
-			type: 'ColumnSet',
-			columns: [
-				{
-					type: 'Column',
-					items: [
-						{
-							type: 'FactSet',
-							facts: [
-								{
-									title: 'signin',
-									value: 'Sign in to start using CodeStream.'
-								},
-								{
-									title: 'signout',
-									value: 'Sign out of CodeStream.'
-								}                            
-							]
-						}
-					],
-					width: 'stretch'
-				}
-			]
-		},
-		{
+			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. ' +
+                  'If you already have a CodeStream account, click the "Sign-In" button to get started.',
+            wrap: true,
+        },
+        {
+            type: 'ActionSet',
+            actions: [
+                {
+                    type: 'Action.Execute',
+                    title: 'Sign-In',
+                    verb: 'signin',
+                    style: 'positive'
+                }
+            ]
+        },
+        {
 			type: 'TextBlock',
-			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command here to get started ([click here for detailed instructions](https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/)). ',
-			wrap: true
-		},
-		{
-			type: 'TextBlock',
-			size: 'Medium',
-			text: 'If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
-			wrap: true
-		});
+			text: 'Click the "Detailed Instructions" button to get more detailed information about our Teams integration ' +
+            'including a full list of available commands. If you need a CodeStream account, click "Download CodeStream" button ' +
+            'to get started!',
+            wrap: true,
+        },
+        {
+            type: 'ActionSet',
+            actions: [
+                {
+                    type: 'Action.OpenUrl',
+                    title: 'Detailed Instructions',
+                    url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/'
+                },
+                {
+                    type: 'Action.OpenUrl',
+                    title: 'Download CodeStream',
+                    url: 'https://www.codestream.com'
+                }
+            ]
+        },
+        {
+            type: 'TextBlock',
+            text: 'You can always type "help" to get full list of available commands',
+            wrap: true
+        },
+        {
+            type: 'ActionSet',
+            actions: [
+                {
+                    type: 'Action.Execute',
+                    title: 'Help',
+                    verb: 'help'
+                }
+            ]
+        });
 
 		const payload = {
 			type: 'AdaptiveCard',
 			body: body,
 			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-			version: '1.0'
-		};
-
-		await context.sendActivity({
-			attachments: [CardFactory.adaptiveCard(payload)]
-		});
-    }
-
-    async botInstalledChannel (context) {
-        let body = [];
-
-		body.push({
-            type: 'TextBlock',
-            size: 'Medium',
-            text: `${ JSON.stringify(context) }`,
-            wrap: true
-        },
-        {
-            type: 'TextBlock',
-            size: 'Medium',
-            text: `Thanks for installing CodeStream into ${ context.activity.conversation.name }!`,
-            wrap: true
-        },
-        {
-			type: 'TextBlock',
-			size: 'Medium',
-			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
-			wrap: true
-		},
-		{
-			type: 'ColumnSet',
-			columns: [
-				{
-					type: 'Column',
-					items: [
-						{
-							type: 'FactSet',
-							facts: [
-								{
-									title: 'signin',
-									value: 'Sign in to start using CodeStream.'
-								},
-								{
-									title: 'signout',
-									value: 'Sign out of CodeStream.'
-								}                            
-							]
-						}
-					],
-					width: 'stretch'
-				}
-			]
-		},
-		{
-			type: 'TextBlock',
-			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command here to get started ([click here for detailed instructions](https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/)). ',
-			wrap: true
-		},
-		{
-			type: 'TextBlock',
-			size: 'Medium',
-			text: 'If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
-			wrap: true
-		});
-
-		const payload = {
-			type: 'AdaptiveCard',
-			body: body,
-			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-			version: '1.0'
+			version: '1.3'
 		};
 
 		await context.sendActivity({
