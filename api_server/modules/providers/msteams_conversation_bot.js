@@ -676,10 +676,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
             type: 'ActionSet',
             actions: [
                 {
-                    type: 'Action.Execute',
+                    type: 'Action.Submit',
                     title: 'Sign-In',
-                    verb: 'signin',
-                    style: 'positive'
+                    data: 'signin'
                 }
             ]
         },
