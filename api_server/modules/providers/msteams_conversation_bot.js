@@ -27,10 +27,10 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	constructor () {
 		super();
 
-        this.onInstallationUpdateAdd(async (context, next) => {
-            if (context.activity.conversation.conversationType === 'personal') {
-                await this.botInstalledPersonal(context);
-            }
+		this.onInstallationUpdateAdd(async (context, next) => {
+			if (context.activity.conversation.conversationType === 'personal') {
+				await this.botInstalledPersonal(context);
+			}
 			await next();
 		});
 
@@ -161,100 +161,100 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				}
 				else {
 					switch (text.toLocaleLowerCase()) {
-                        // start secret commands
-                        case 'easteregg':
-                            await this.easterEgg(context);
-                            break;
-                        case 'debug':
-                            await this.debug(context);
-                            break;
-                        case 'status':
-                            if (teamId) {
-                                await this.status(context);
-                            }
-                            else {
-                                await this.statusPersonal(context);
-                            }
-                            break;
-                        case 'uninstall':
-                            await this.uninstall(context);
-                            break;
-                        case 'disconnectall':
-                        case 'disconnect-all':
-                            if (teamId) {
-                                await this.disconnectAll(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
-                            }
-                            break;
-                            // end secret commands
+						// start secret commands
+						case 'easteregg':
+							await this.easterEgg(context);
+							break;
+						case 'debug':
+							await this.debug(context);
+							break;
+						case 'status':
+							if (teamId) {
+								await this.status(context);
+							}
+							else {
+								await this.statusPersonal(context);
+							}
+							break;
+						case 'uninstall':
+							await this.uninstall(context);
+							break;
+						case 'disconnectall':
+						case 'disconnect-all':
+							if (teamId) {
+								await this.disconnectAll(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
+							}
+							break;
+							// end secret commands
 
-                        // start personal commands
-                        case 'login':
-                        case 'signin':
-                            if (teamId) {
-                                await context.sendActivity(PERSONAL_BOT_MESSAGE);
-                            }
-                            else {
-                                await this.signin(context);
-                            }
-                            break;
-                        case 'signup':
-                            if (teamId) {
-                                await context.sendActivity(PERSONAL_BOT_MESSAGE);
-                            }
-                            else {
-                                await this.signup(context);
-                            }
-                            break;
-                        case 'logout':
-                        case 'signout':
-                            if (teamId) {
-                                await context.sendActivity(PERSONAL_BOT_MESSAGE);
-                            }
-                            else {
-                                await this.signout(context);
-                            }
-                            break;
-                            // end personal commands
+						// start personal commands
+						case 'login':
+						case 'signin':
+							if (teamId) {
+								await context.sendActivity(PERSONAL_BOT_MESSAGE);
+							}
+							else {
+								await this.signin(context);
+							}
+							break;
+						case 'signup':
+							if (teamId) {
+								await context.sendActivity(PERSONAL_BOT_MESSAGE);
+							}
+							else {
+								await this.signup(context);
+							}
+							break;
+						case 'logout':
+						case 'signout':
+							if (teamId) {
+								await context.sendActivity(PERSONAL_BOT_MESSAGE);
+							}
+							else {
+								await this.signout(context);
+							}
+							break;
+							// end personal commands
 
-                        // start commands that work in public chats/teams
-                        case 'connect':
-                            if (teamId) {
-                                await this.connect(context, context.activity, teamDetails, teamChannels, teamMembers, channelData.tenant.id);
-                            }
-                            else {
-                                await context.sendActivity(TEAM_BOT_MESSAGE);
-                            }
-                            break;
-                        case 'disconnect':
-                            if (teamId) {
-                                await this.disconnect(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
-                            }
-                            else {
-                                await context.sendActivity(TEAM_BOT_MESSAGE);
-                            }
-                            break;
-                            // end commands that work in public chats/teams
+						// start commands that work in public chats/teams
+						case 'connect':
+							if (teamId) {
+								await this.connect(context, context.activity, teamDetails, teamChannels, teamMembers, channelData.tenant.id);
+							}
+							else {
+								await context.sendActivity(TEAM_BOT_MESSAGE);
+							}
+							break;
+						case 'disconnect':
+							if (teamId) {
+								await this.disconnect(context, context.activity, teamDetails, teamChannels, channelData.tenant.id);
+							}
+							else {
+								await context.sendActivity(TEAM_BOT_MESSAGE);
+							}
+							break;
+							// end commands that work in public chats/teams
 
-                        // start commands that work everywhere			
-                        case 'welcome':
-                        case 'start':
-                        case 'init':
-                        case 'initialize':
-                        case 'ok':
-                        case 'go':
-                        case 'getstarted':
-                        case 'help':
-                            if (teamId) {
-                                await this.help(context);
-                            }
-                            else {
-                                await this.helpPersonal(context);
-                            }
-                            break;
-                        default:
-                            await context.sendActivity(`Sorry, I didn't understand '${text}', but thanks for checking out CodeStream. Type 'help' if you need assistance.`);
-                            break;
-                            // end commands that work everywhere
+						// start commands that work everywhere			
+						case 'welcome':
+						case 'start':
+						case 'init':
+						case 'initialize':
+						case 'ok':
+						case 'go':
+						case 'getstarted':
+						case 'help':
+							if (teamId) {
+								await this.help(context);
+							}
+							else {
+								await this.helpPersonal(context);
+							}
+							break;
+						default:
+							await context.sendActivity(`Sorry, I didn't understand '${text}', but thanks for checking out CodeStream. Type 'help' if you need assistance.`);
+							break;
+							// end commands that work everywhere
 					}
 				}
 			}
@@ -634,120 +634,103 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 	}
 
-    async botInstalledPersonal (context) {
-        let body = [];
+	async botInstalledPersonal (context) {
+		let body = [];
 
 		body.push(
-        {
-            type: 'ColumnSet',
-            horizontalAlignment: 'center',
-            columns: [
-                {
-                    type: 'Column',
-                    items: [
-                        {
-                            type: 'Image',
-                            url: '${creator.profileImage}',
-                            size: 'medium'
-                        }
-                    ],
-                    width: 'auto'
-                }
-            ]
-        },
-        {
-            type: 'TextBlock',
-            size: 'Medium',
-            text: 'Welcome to CodeStream for Microsoft Teams!',
-            wrap: true,
-            style: 'heading',
-            color: 'good',
-            weight: 'large',
-            size: 'large',
-            horizontalAlignment: 'center',
-        },
-        {
+		{
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'Welcome to CodeStream for Microsoft Teams!',
+			wrap: true,
+			style: 'heading',
+			color: 'good',
+			weight: 'large',
+			size: 'large',
+			horizontalAlignment: 'center',
+		},
+		{
 			type: 'TextBlock',
 			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. ' +
-                  'If you already have a CodeStream account, click the "Sign-In" button to get started.',
-            wrap: true,
-        },
-        {
-            type: 'ActionSet',
-            actions: [
-                {
-                    type: 'Action.Submit',
-                    title: 'Sign-In',
-                    data: 'signin'
-                }
-            ]
-        },
-        {
+				  'If you already have a CodeStream account, click the "Sign-In" button to get started.',
+			wrap: true,
+		},
+		{
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.Submit',
+					title: 'Sign-In',
+					data: 'signin'
+				}
+			]
+		},
+		{
 			type: 'TextBlock',
 			text: 'Click the "Detailed Instructions" button to get more detailed information about our Teams integration ' +
-            'including a full list of available commands. If you need a CodeStream account, click "Download CodeStream" button ' +
-            'to get started!',
-            wrap: true,
-        },
-        {
-            type: 'ActionSet',
-            actions: [
-                {
-                    type: 'Action.OpenUrl',
-                    title: 'Detailed Instructions',
-                    url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/'
-                },
-                {
-                    type: 'Action.OpenUrl',
-                    title: 'Download CodeStream',
-                    url: 'https://www.codestream.com'
-                }
-            ]
-        },
-        {
-            type: 'TextBlock',
-            text: 'You can always type "help" to get full list of available commands',
-            wrap: true
-        },
-        {
-            type: 'ActionSet',
-            actions: [
-                {
-                    type: 'Action.ShowCard',
-                    title: 'Help',
-                    card: {
-                        type: 'AdaptiveCard',
-                        body: [
-                            {
-                                type: 'RichTextBlock',
-                                text: `Here's a list of **personal** commands I can process (from a private chat):`,
-                                wrap: true
-                            },
-                            {
-                                type: 'RichTextBlock',
-                                text: '- **help** - view list of available commands\r' +
-                                      '- **signin** - signin to CodeStream\r' +
-                                      '- **signup** - signup for CodeStream\r' +
-                                      '- **signout** - signout of CodeStream\r' +
-                                      '- **connect** - connect a Teams channel to CodeStream\r' +
-                                      '- **disconnect** - disconnect a Teams channel from CodeStream'
-                            },
-                            {
-                                type: 'RichTextBlock',
-                                text: `Here's a list of **channel** commands I can process (from a channel):`,
-                                wrap: true
-                            },
-                            {
-                                type: 'RichTextBlock',
-                                text: '- **connect** - connect a Teams channel to CodeStream\r' +
-                                      '- **disconnect** - disconnect a Teams channel from CodeStream'
-                            }
-                        ]
-                    }
-                    
-                }
-            ]
-        });
+			'including a full list of available commands. If you need a CodeStream account, click "Download CodeStream" button ' +
+			'to get started!',
+			wrap: true,
+		},
+		{
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.OpenUrl',
+					title: 'Detailed Instructions',
+					url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/'
+				},
+				{
+					type: 'Action.OpenUrl',
+					title: 'Download CodeStream',
+					url: 'https://www.codestream.com'
+				}
+			]
+		},
+		{
+			type: 'TextBlock',
+			text: 'You can always type "help" to get full list of available commands',
+			wrap: true
+		},
+		{
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.ShowCard',
+					title: 'Help',
+					card: {
+						type: 'AdaptiveCard',
+						body: [
+							{
+								type: 'RichTextBlock',
+								text: `Here's a list of **personal** commands I can process (from a private chat):`,
+								wrap: true
+							},
+							{
+								type: 'RichTextBlock',
+								text: '- **help** - view list of available commands\r' +
+									  '- **signin** - signin to CodeStream\r' +
+									  '- **signup** - signup for CodeStream\r' +
+									  '- **signout** - signout of CodeStream\r' +
+									  '- **connect** - connect a Teams channel to CodeStream\r' +
+									  '- **disconnect** - disconnect a Teams channel from CodeStream'
+							},
+							{
+								type: 'RichTextBlock',
+								text: `Here's a list of **channel** commands I can process (from a channel):`,
+								wrap: true
+							},
+							{
+								type: 'RichTextBlock',
+								text: '- **connect** - connect a Teams channel to CodeStream\r' +
+									  '- **disconnect** - disconnect a Teams channel from CodeStream'
+							}
+						]
+					}
+					
+				}
+			]
+		});
 
 		const payload = {
 			type: 'AdaptiveCard',
@@ -759,7 +742,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		await context.sendActivity({
 			attachments: [CardFactory.adaptiveCard(payload)]
 		});
-    }
+	}
 
 	// returns a link for help
 	async help (context) {
