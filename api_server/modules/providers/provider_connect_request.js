@@ -42,6 +42,11 @@ class ProviderConnectRequest extends RestfulRequest {
 				}
 			}
 		);
+
+		if (this.request.body._subscriptionCheat) {
+			this.request._subscriptionCheat = this.request.body._subscriptionCheat;
+			delete this.request.body._subscriptionCheat;
+		}
 	}
 
 	// authorize the request based on the credentials passed in for the particular provider of interest
@@ -71,8 +76,7 @@ class ProviderConnectRequest extends RestfulRequest {
 			okToCreateUser: true,
 			okToCreateTeam: false, // i don't think this code is called anymore at all, but team creation is no longer allowed in any case
 			okToFindExistingUserByEmail: true,
-			_pubnubUuid: this.request.body._pubnubUuid,
-			_subscriptionCheat: this.request.body._subscriptionCheat
+			_pubnubUuid: this.request.body._pubnubUuid
 		};
 		if (this.request.body.teamId) {
 			options.expectedTeamId = this.request.body.teamId.toLowerCase();

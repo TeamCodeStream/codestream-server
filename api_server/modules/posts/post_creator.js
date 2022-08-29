@@ -72,8 +72,12 @@ class PostCreator extends ModelCreator {
 		await this.checkCodeError();
 
 		// many attributes that are allowed but don't become attributes of the created user
-		['dontSendEmail', 'addedUsers', 'inviteInfo', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn'].forEach(parameter => {
+		['dontSendEmail', 'addedUsers', 'inviteInfo', '_delayEmail', '_inviteCodeExpiresIn'].forEach(parameter => {
 			this[parameter] = this.attributes[parameter];
+			delete this.attributes[parameter];
+		});
+		['_subscriptionCheat'].forEach(parameter => {
+			this.request[parameter] = this.attributes[parameter];
 			delete this.attributes[parameter];
 		});
 
@@ -288,7 +292,6 @@ class PostCreator extends ModelCreator {
 		this.userInviter = new UserInviter({
 			request: this.request,
 			team: this.team,
-			subscriptionCheat: this._subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
 			delayEmail: this._delayEmail,
 			inviteInfo: this.inviteInfo,

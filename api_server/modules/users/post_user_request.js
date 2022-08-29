@@ -38,7 +38,11 @@ class PostUserRequest extends PostRequest {
 	// require certain parameters, and discard unknown parameters
 	async requireAndAllow () {
 		// many attributes that are allowed but don't become attributes of the created user
-		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn', 'inviteType'].forEach(parameter => {
+		['_confirmationCheat', '_delayEmail', '_inviteCodeExpiresIn', 'inviteType'].forEach(parameter => {
+			this[parameter] = this.request.body[parameter];
+			delete this.request.body[parameter];
+		});
+		['_subscriptionCheat'].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
 		});
@@ -66,7 +70,6 @@ class PostUserRequest extends PostRequest {
 		this.userInviter = new UserInviter({
 			request: this,
 			team: this.team,
-			subscriptionCheat: this._subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
 			delayEmail: this._delayEmail,
 			inviteInfo: this.inviteInfo,

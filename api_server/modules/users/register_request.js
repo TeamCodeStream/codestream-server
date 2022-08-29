@@ -67,7 +67,6 @@ class RegisterRequest extends RestfulRequest {
 		// many attributes that are allowed but don't become attributes of the created user
 		[
 			'_confirmationCheat',
-			'_subscriptionCheat',
 			'_delayEmail',
 			'expiresIn',
 			'signupToken',
@@ -81,6 +80,13 @@ class RegisterRequest extends RestfulRequest {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
 		});
+		[
+			'_subscriptionCheat'
+		].forEach(parameter => {
+			this[parameter] = this.request.body[parameter];
+			delete this.request.body[parameter];
+		});
+
 		await this.requireAllowParameters(
 			'body',
 			{
@@ -236,8 +242,6 @@ class RegisterRequest extends RestfulRequest {
 			teamIds: this.team ? [this.team.id] : undefined,
 			companyIds: this.team ? [this.team.get('companyId')] : undefined,
 			userBeingAddedToTeamId: this.team ? this.team.id : undefined,
-			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
-			subscriptionCheat: this._subscriptionCheat === this.api.config.sharedSecrets.subscriptionCheat,
 			existingUser,	// triggers finding the existing user at a different email than the one being registered
 			dontSetInviteCode: true // suppress the default behavior for creating a user on a team
 		});
@@ -251,8 +255,7 @@ class RegisterRequest extends RestfulRequest {
 		await new AddTeamMembers({
 			request: this,
 			addUsers: [this.user],
-			team: this.team,
-			subscriptionCheat: this._subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			team: this.team
 		}).addTeamMembers();
 
 		// refetch the user since they changed when added to team

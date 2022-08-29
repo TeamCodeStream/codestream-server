@@ -343,9 +343,10 @@ class UserCreator extends ModelCreator {
 	// (since they are not confirmed yet)
 	async grantMeChannel () {
 		// subscription cheat must be provided by test script
-		if (!this.subscriptionCheat) {
+		if (this.request._subscriptionCheat !== this.api.config.sharedSecrets.subscriptionCheat) {
 			return;
 		}
+
 		// allow unregistered users to subscribe to me-channel, needed for mock email testing
 		this.api.warn(`NOTE - granting subscription permission to me channel for unregistered user ${this.model.id}, this had better be a test!`);
 		await this.api.services.broadcaster.grant(

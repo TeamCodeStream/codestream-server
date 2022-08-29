@@ -39,6 +39,7 @@ class TeamUpdater extends ModelUpdater {
 			// this is only for test purposes, for now, so can only be done with cheat code
 			delete this.attributes.providerHosts;
 		}
+		delete this.attributes._confirmationCheat;
 
 		// look for directives applied to memberIds or adminIds, we only allow a single directive at once
 		let finalDirective = null;
