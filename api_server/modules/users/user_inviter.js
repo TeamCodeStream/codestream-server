@@ -51,7 +51,6 @@ class UserInviter {
 			request: this.request,
 			teamIds: [this.team.id],
 			companyIds: [this.team.get('companyId')],
-			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
 			userBeingAddedToTeamId: this.team.id,
 			inviteCodeExpiresIn: this.inviteCodeExpiresIn,
 			inviteInfo: this.inviteInfo,
@@ -115,8 +114,7 @@ class UserInviter {
 		await new AddTeamMembers({
 			request: this.request,
 			addUsers: this.invitedUsers.map(userData => userData.user),
-			team: this.team,
-			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			team: this.team
 		}).addTeamMembers();
 
 		// refetch the users since they changed when added to team
