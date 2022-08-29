@@ -651,8 +651,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		},
 		{
 			type: 'TextBlock',
-			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. ' +
-				  'If you already have a CodeStream account, click the "Sign-In" button to get started.',
+			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. If you already have a CodeStream account, click the "Sign-In" button to get started.',
 			wrap: true,
 		},
 		{
@@ -667,9 +666,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		},
 		{
 			type: 'TextBlock',
-			text: 'Click the "Detailed Instructions" button to get more detailed information about our Teams integration ' +
-			'including a full list of available commands. If you need a CodeStream account, click "Download CodeStream" button ' +
-			'to get started!',
+			text: 'Click the "Detailed Instructions" button to get more detailed information about our Teams integration including a full list of available commands. If you need a CodeStream account, click "Download CodeStream" button to get started!',
 			wrap: true,
 		},
 		{
@@ -708,12 +705,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 							},
 							{
 								type: 'RichTextBlock',
-								text: '- **help** - view list of available commands\r' +
-									  '- **signin** - signin to CodeStream\r' +
-									  '- **signup** - signup for CodeStream\r' +
-									  '- **signout** - signout of CodeStream\r' +
-									  '- **connect** - connect a Teams channel to CodeStream\r' +
-									  '- **disconnect** - disconnect a Teams channel from CodeStream'
+								text: '- **help** - view list of available commands\r- **signin** - signin to CodeStream\r- **signup** - signup for CodeStream\r- **signout** - signout of CodeStream\r- **connect** - connect a Teams channel to CodeStream\r- **disconnect** - disconnect a Teams channel from CodeStream'
 							},
 							{
 								type: 'RichTextBlock',
@@ -722,12 +714,10 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 							},
 							{
 								type: 'RichTextBlock',
-								text: '- **connect** - connect a Teams channel to CodeStream\r' +
-									  '- **disconnect** - disconnect a Teams channel from CodeStream'
+								text: '- **connect** - connect a Teams channel to CodeStream\r- **disconnect** - disconnect a Teams channel from CodeStream'
 							}
 						]
 					}
-					
 				}
 			]
 		});
@@ -738,6 +728,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
 			version: '1.4'
 		};
+
+        await context.sendActivity(JSON.stringify(body));
 
 		await context.sendActivity({
 			attachments: [CardFactory.adaptiveCard(payload)]
