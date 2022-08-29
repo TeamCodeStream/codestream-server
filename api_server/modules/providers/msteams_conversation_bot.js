@@ -651,7 +651,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		},
 		{
 			type: 'TextBlock',
-			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. If you already have a CodeStream account, click the "Sign-In" button to get started.',
+			text: `The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. If you already have a CodeStream account, click the 'Sign-In' button to get started.`,
 			wrap: true,
 		},
 		{
@@ -666,7 +666,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		},
 		{
 			type: 'TextBlock',
-			text: 'Click the "Detailed Instructions" button to get more detailed information about our Teams integration including a full list of available commands. If you need a CodeStream account, click "Download CodeStream" button to get started!',
+			text: `Click the 'Detailed Instructions' button to get more detailed information about our Teams integration including a full list of available commands. If you need a CodeStream account, click 'Download CodeStream' button to get started!`,
 			wrap: true,
 		},
 		{
@@ -686,7 +686,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		},
 		{
 			type: 'TextBlock',
-			text: 'You can always type "help" to get full list of available commands',
+			text: `You can always type 'help' to get full list of available commands`,
 			wrap: true
 		},
 		{
