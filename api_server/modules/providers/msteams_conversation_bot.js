@@ -643,9 +643,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			size: 'Medium',
 			text: 'Welcome to CodeStream for Microsoft Teams!',
 			wrap: true,
-			style: 'heading',
 			color: 'good',
-			weight: 'large',
+			weight: 'bolder',
 			size: 'large',
 			horizontalAlignment: 'center',
 		},
@@ -697,26 +696,12 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					title: 'Help',
 					card: {
 						type: 'AdaptiveCard',
-						body: [
-							{
-								type: 'RichTextBlock',
-								text: `Here's a list of **personal** commands I can process (from a private chat):`,
-								wrap: true
-							},
-							{
-								type: 'RichTextBlock',
-								text: '- **help** - view list of available commands\r- **signin** - signin to CodeStream\r- **signup** - signup for CodeStream\r- **signout** - signout of CodeStream\r- **connect** - connect a Teams channel to CodeStream\r- **disconnect** - disconnect a Teams channel from CodeStream'
-							},
-							{
-								type: 'RichTextBlock',
-								text: `Here's a list of **channel** commands I can process (from a channel):`,
-								wrap: true
-							},
-							{
-								type: 'RichTextBlock',
-								text: '- **connect** - connect a Teams channel to CodeStream\r- **disconnect** - disconnect a Teams channel from CodeStream'
-							}
-						]
+                        inlines: [
+                            "Here's a list of personal commands I can process (from a private chat):",
+                            "- help - view list of available commands\r- signin - signin to CodeStream\r- signup - signup for CodeStream\r- signout - signout of CodeStream\r- connect - connect a Teams channel to CodeStream\r- disconnect - disconnect a Teams channel from CodeStream",
+                            "Here's a list of channel commands I can process (from a channel):",
+                            "- connect - connect a Teams channel to CodeStream\r- disconnect - disconnect a Teams channel from CodeStream"
+                        ]
 					}
 				}
 			]
