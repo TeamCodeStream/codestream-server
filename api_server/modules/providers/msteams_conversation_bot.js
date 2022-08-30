@@ -659,7 +659,12 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				{
 					type: 'Action.Submit',
 					title: 'Sign-In',
-					data: 'signin'
+					data: {
+                        msteams: {
+                            type: 'messageBack',
+                            text: 'signin'
+                        }
+                    }
 				}
 			]
 		},
@@ -696,11 +701,16 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					title: 'Help',
 					card: {
 						type: 'AdaptiveCard',
-                        inlines: [
-                            "Here's a list of personal commands I can process (from a private chat):",
-                            "- help - view list of available commands\r- signin - signin to CodeStream\r- signup - signup for CodeStream\r- signout - signout of CodeStream\r- connect - connect a Teams channel to CodeStream\r- disconnect - disconnect a Teams channel from CodeStream",
-                            "Here's a list of channel commands I can process (from a channel):",
-                            "- connect - connect a Teams channel to CodeStream\r- disconnect - disconnect a Teams channel from CodeStream"
+                        body: [
+                            {
+                                type: "RichText",
+                                inlines: [
+                                    "Here's a list of personal commands I can process (from a private chat):",
+                                    "- help - view list of available commands\r- signin - signin to CodeStream\r- signup - signup for CodeStream\r- signout - signout of CodeStream\r- connect - connect a Teams channel to CodeStream\r- disconnect - disconnect a Teams channel from CodeStream",
+                                    "Here's a list of channel commands I can process (from a channel):",
+                                    "- connect - connect a Teams channel to CodeStream\r- disconnect - disconnect a Teams channel from CodeStream"
+                                ]
+                            }
                         ]
 					}
 				}
