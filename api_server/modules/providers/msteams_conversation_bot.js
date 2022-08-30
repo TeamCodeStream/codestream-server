@@ -161,7 +161,10 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				}
 				else {
 					switch (text.toLocaleLowerCase()) {
-						// start secret commands
+                        // start secret commands
+                        case 'install':
+                            await this.botInstalledPersonal(context);
+                            break;
 						case 'easteregg':
 							await this.easterEgg(context);
 							break;
@@ -641,7 +644,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		{
 			type: 'TextBlock',
 			size: 'Medium',
-			text: 'Welcome to CodeStream for Microsoft Teams!',
+			text: 'Welcome to New Relic CodeStream for Microsoft Teams!',
 			wrap: true,
 			color: 'good',
 			weight: 'bolder',
@@ -650,7 +653,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		},
 		{
 			type: 'TextBlock',
-			text: `The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. If you already have a CodeStream account, click the 'Sign-In' button to get started.`,
+			text: `The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. If you already have a CodeStream account, click the **Sign In** button to get started.`,
 			wrap: true,
 		},
 		{
@@ -658,14 +661,14 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			actions: [
 				{
                     type: 'Action.OpenUrl',
-					title: 'Sign-In',
+					title: 'Sign In',
 					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`
                 }
 			]
 		},
 		{
 			type: 'TextBlock',
-			text: `Click the 'Detailed Instructions' button to get more detailed information about our Teams integration including a full list of available commands. If you need a CodeStream account, click 'Download CodeStream' button to get started!`,
+			text: `Click the **Detailed Instructions** button to get more detailed information about our Teams integration including a full list of available commands. If you need a CodeStream account, click **Download CodeStream** button to get started!`,
 			wrap: true,
 		},
 		{
@@ -685,7 +688,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		},
 		{
 			type: 'TextBlock',
-			text: `You can always type 'help' to get full list of available commands`,
+			text: `You can always type **help** to get full list of available commands`,
 			wrap: true
 		},
 		{
@@ -698,13 +701,24 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						type: 'AdaptiveCard',
                         body: [
                             {
-                                type: "RichTextBlock",
-                                inlines: [
-                                    "Here's a list of personal commands I can process (from a private chat):\r",
-                                    "- **help** - view list of available commands\r- **signin** - signin to CodeStream\r- **signup** - signup for CodeStream\r- **signout** - signout of CodeStream\r\r",
-                                    "Here's a list of channel commands I can process (from a channel):\r",
-                                    "- **connect** - connect a Teams channel to CodeStream\r- **disconnect** - disconnect a Teams channel from CodeStream"
-                                ]
+                                type: "TextBlock",
+                                text: "Here's a list of personal commands I can process:\r",
+                                wrap: true
+                            },
+                            {
+                                type: "TextBlock",
+                                text: "- **help** - view list of available commands\r- **signin** - sign in to CodeStream\r- **signup** - sign up for CodeStream\r- **signout** - sign out of CodeStream\r\r",
+                                wrap: true
+                            },
+                            {
+                                type: "TextBlock",
+                                text: "Here's a list of channel commands I can process:\r",
+                                wrap: true
+                            },
+                            {
+                                type: "TextBlock",
+                                text: "- **connect** - connect a Teams channel to CodeStream\r- **disconnect** - disconnect a Teams channel from CodeStream",
+                                wrap: true
                             }
                         ]
 					}
@@ -718,8 +732,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
 			version: '1.4'
 		};
-
-        await context.sendActivity(JSON.stringify(body));
 
 		await context.sendActivity({
 			attachments: [CardFactory.adaptiveCard(payload)]
