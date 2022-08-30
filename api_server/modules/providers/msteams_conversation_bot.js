@@ -703,7 +703,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 						type: 'AdaptiveCard',
                         body: [
                             {
-                                type: "RichText",
+                                type: "RichTextBlock",
                                 inlines: [
                                     "Here's a list of personal commands I can process (from a private chat):",
                                     "- help - view list of available commands\r- signin - signin to CodeStream\r- signup - signup for CodeStream\r- signout - signout of CodeStream\r- connect - connect a Teams channel to CodeStream\r- disconnect - disconnect a Teams channel from CodeStream",
