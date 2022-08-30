@@ -81,6 +81,11 @@ const ROUTES = [
 		method: 'post',
 		path: '/provider-share/:provider',
 		requestClass: require('./provider_share_request')
+	},
+	{
+		method: 'post',
+		path: '/no-auth/codespaces-auth',
+		requestClass: require('./codespaces_auth')
 	}
 ];
 
