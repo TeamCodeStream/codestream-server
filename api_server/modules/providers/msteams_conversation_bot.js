@@ -657,9 +657,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			type: 'ActionSet',
 			actions: [
 				{
-                    type: ActionTypes.OpenUrl,
-					title: 'Sign in',
-					value: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`
+                    type: 'Action.OpenUrl',
+					title: 'Sign-In',
+					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`
                 }
 			]
 		},
