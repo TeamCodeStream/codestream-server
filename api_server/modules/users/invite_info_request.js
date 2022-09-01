@@ -16,6 +16,9 @@ class InviteInfoRequest extends RestfulRequest {
 
 	async authorize () {
 		// no authorization necessary
+
+		// this functionality is now deprecated
+		throw this.errorHandler.error('deprecated', { reason: 'invite codes are deprecated' });
 	}
 
 	// process the request....

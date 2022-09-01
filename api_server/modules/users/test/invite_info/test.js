@@ -4,22 +4,24 @@
  
 'use strict';
 
-const InviteInfoTest = require('./invite_info_test');
-const CodeRequiredTest = require('./code_required_test');
-const IncorrectCodeTest = require('./incorrect_code_test');
-const TokenExpiredTest = require('./token_expired_test');
-const UserNotFoundTest = require('./user_not_found_test');
-const TeamNotFoundTest = require('./team_not_found_test');
+const InviteInfoDeprecatedTest = require('./invite_info_deprecated_test');
+//const InviteInfoTest = require('./invite_info_test');
+//const CodeRequiredTest = require('./code_required_test');
+//const IncorrectCodeTest = require('./incorrect_code_test');
+//const TokenExpiredTest = require('./token_expired_test');
+//const UserNotFoundTest = require('./user_not_found_test');
+//const TeamNotFoundTest = require('./team_not_found_test');
 
 class InviteInfoRequestTester {
 
 	test () {
-		new InviteInfoTest().test();
-		new CodeRequiredTest().test();
-		new IncorrectCodeTest().test();
-		new TokenExpiredTest().test();
-		new UserNotFoundTest().test();
-		new TeamNotFoundTest().test();
+		new InviteInfoDeprecatedTest().test();
+		//new InviteInfoTest().test();
+		//new CodeRequiredTest().test();
+		//new IncorrectCodeTest().test();
+		//new TokenExpiredTest().test();
+		//new UserNotFoundTest().test();
+		//new TeamNotFoundTest().test();
 	}
 }
 

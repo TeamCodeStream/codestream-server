@@ -265,8 +265,7 @@ class Users extends Restful {
 		};
 	}
 
-
-	initialize () {
+	async initialize () {
 		this.signupTokens.initialize();
 
 		// set up a reinvite emails
@@ -290,6 +289,14 @@ class Users extends Restful {
 			});
 			this.weeklyEmails.schedule();
 		}
+
+		// determine if we are using one-user-per-org, per global setting
+		// this can be deprecated when we have fully moved to the ONE_USER_PER_ORG paradigm
+		const setting = await this.api.data.globals.getOneByQuery(
+			{ tag: 'oneUserPerOrg' }, 
+			{ overrideHintRequired: true }
+		);
+		this.oneUserPerOrg = setting && setting.enabled;
 	}
 
 	describeErrors () {

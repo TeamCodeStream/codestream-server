@@ -4,15 +4,12 @@
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
 const UserCreator = require('./user_creator');
+const OldUserCreator = require('./old_user_creator'); // remove when ONE_USER_PER_ORG is fully deployed
 const ConfirmCode = require('./confirm_code');
-const UserPublisher = require('./user_publisher');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/errors');
 const Indexes = require('./indexes');
-const ConfirmHelper = require('./confirm_helper');
-const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
-const ConfirmRepoSignup = require('./confirm_repo_signup');
 const GitLensReferralLookup = require('./gitlens_referral_lookup');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
@@ -34,32 +31,26 @@ class RegisterRequest extends RestfulRequest {
 
 	async authorize () {
 		// no authorization necessary ... register as you see fit!
+
+		// but let's deprecate some behavior...
+		if (this.request.body.teamId || this.request.body.repoId) {
+			throw this.errorHandler.error('deprecated', { reason: 'repo-based signup is deprecated' });
+		} else if (this.request.body.inviteCode) {
+			throw this.errorHandler.error('deprecated', { reason: 'invite codes are deprecated' });
+		}
 	}
 
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require certain parameters, discard unknown parameters
 		await this.checkWebmail();			// check for webmail address, as needed
-		await this.confirmRepoSignup();		// for signup by virtue of access to a repo, confirm this is allowed
-		await this.getInvitedUser();		// get the user associated with an invite code, as needed
-		await this.getExistingUser();		// get the existing user matching this email, if any
-		if (await this.doLogin()) {			// under some circumstances, confirmation is not necessary,
-			return;							// and we just log the user in
-		}
+		if (await this.getExistingUser()) {		// get the existing user matching this email, if any
+			return; // short-circuit the flow, for an already registered user
+		} 
 		await this.generateConfirmCode();	// generate a confirmation code, as requested
 		await this.lookForGitLensReferral(); /// match against any GitLens referral, as needed
 		await this.saveUser();				// save user to database
-		await this.addUserToTeam();			// add the user to a team, as needed
-		/*
-		await this.generateLinkToken();		// generate a token for the confirm link, as requested
-		await this.saveTokenInfo();			// save the token info to the user object, if we're doing a confirm link
-		*/
 		await this.saveSignupToken();		// save the signup token so we can identify this user with an IDE session
-
-		// if confirmation is not required (for instance, on-prem without email), skip straight to login
-		if (!this.confirmationRequired) {
-			await this.doUnconfirmedLogin();
-		}
 	}
 
 	// require certain parameters, discard unknown parameters
@@ -67,21 +58,12 @@ class RegisterRequest extends RestfulRequest {
 		// many attributes that are allowed but don't become attributes of the created user
 		[
 			'_confirmationCheat',
+			'_subscriptionCheat',
 			'_delayEmail',
 			'expiresIn',
 			'signupToken',
-			'inviteCode',
-			'teamId',
-			'repoId',
-			'commitHash',
 			'machineId',
 			'checkForWebmail'
-		].forEach(parameter => {
-			this[parameter] = this.request.body[parameter];
-			delete this.request.body[parameter];
-		});
-		[
-			'_subscriptionCheat'
 		].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
@@ -96,7 +78,6 @@ class RegisterRequest extends RestfulRequest {
 				optional: {
 					string: ['fullName', 'timeZone', 'companyName', '_pubnubUuid'],
 					number: ['timeout', 'reuseTimeout'],
-					'array(string)': ['secondaryEmails'],
 					object: ['preferences']
 				}
 			}
@@ -120,60 +101,28 @@ class RegisterRequest extends RestfulRequest {
 		}
 	}
 
-	// for signup by virtue of access to a repo, confirm this is allowed
-	async confirmRepoSignup() {
-		const info = await ConfirmRepoSignup({
-			teamId: this.teamId,
-			repoId: this.repoId,
-			commitHash: this.commitHash,
-			request: this
-		});
-		Object.assign(this, info);
-	}
-
-	// get the user associated with an invite code, as needed
-	async getInvitedUser () {
-		if (!this.inviteCode) {
-			return;
-		}
-		const info = await this.api.services.signupTokens.find(
-			this.inviteCode,
-			{ requestId: this.request.id }
-		);
-		if (!info) {
-			return;
-		}
-		else if (info.expired) {
-			throw this.errorHandler.error('tokenExpired');
-		}
-		this.invitedUser = await this.data.users.getById(info.userId);
-	}
-
 	// get the existing user matching this email, if any
 	async getExistingUser () {
-		this.user = await this.data.users.getOneByQuery(
+		// find any registered user (which triggers an already-registered email),
+		// or any unregistered user that has not been invited to a team
+		const matchingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: this.request.body.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-	}
 
-	// under some circumstances, we allow the user to skip confirmation and go right to login
-	async doLogin () {
-		// email confirmation is not required if the user was invited, and they are registering with the same
-		// email that the invite was sent to
-		this.invitedUserWithSameEmail = this.invitedUser && 
-			this.invitedUser.get('email').toLowerCase() === this.request.body.email.toLowerCase();
-		if (!this.invitedUserWithSameEmail) {
-			return;
-		}
-
-		this.responseData = await new ConfirmHelper({
-			request: this,
-			user: this.invitedUser
-		}).confirm(this.request.body);
-		this.api.services.signupTokens.removeInviteCodesByUserId(this.invitedUser.id);
-		this.userLoggedIn = true;
-		return true;
+		let uninvitedUser;
+		this.user = matchingUsers.find(user => {
+			if (user.get('deactivated')) {
+				return false;
+			} else if (user.get('isRegistered')) {
+				return true;
+			} else if ((user.get('teamIds') || []).length === 0) {
+				uninvitedUser = user;
+			}
+		});
+		this.user = this.user || uninvitedUser;
+		// short-circuit the flow if the user is already registered
+		return this.user && this.user.get('isRegistered');
 	}
 
 	// generate a confirmation code for the user, we'll send this out to them
@@ -184,6 +133,7 @@ class RegisterRequest extends RestfulRequest {
 			this.request.body.isRegistered = true;
 			return;
 		}
+
 		// add confirmation related attributes to be saved when we save the user
 		if (
 			!this.user ||
@@ -219,84 +169,22 @@ class RegisterRequest extends RestfulRequest {
 			delete this.request.body.signupToken;	
 		}
 
-		// have to deal with a little weirdness here ... if we get an invite code, and the invite code references
-		// a user that already exists, and they don't match the email the user is trying to register with,
-		// we will effectively change the invited user's email to the user they are registered with ... but we
-		// can't allow this if the invited user is already registered (which shouldn't happen in theory), or if the
-		// email the user is trying to register with already belongs to another invited user
-		let existingUser;
-		if (this.invitedUser && this.invitedUser.get('email').toLowerCase() !== this.request.body.email.toLowerCase()) {
-			if (this.invitedUser.get('isRegistered')) {
-				throw this.errorHandler.error('alreadyAccepted');
-			}
-			else if (this.user) {
-				throw this.errorHandler.error('inviteMismatch');
-			}
-			else {
-				existingUser = this.invitedUser;
-			}
+		// remove this check when ONE_USER_PER_ORG is fully deployed
+		if (this.module.oneUserPerOrg) {
+			this.user = await new UserCreator({ 
+				request: this,
+				existingUser: this.user
+			}).createUser(this.request.body);
+		} else {
+			this.userCreator = new OldUserCreator({
+				request: this,
+				teamIds: this.team ? [this.team.id] : undefined,
+				companyIds: this.team ? [this.team.get('companyId')] : undefined,
+				userBeingAddedToTeamId: this.team ? this.team.id : undefined,
+				dontSetInviteCode: true // suppress the default behavior for creating a user on a team
+			});
+			this.user = await this.userCreator.createUser(this.request.body);
 		}
-
-		this.userCreator = new UserCreator({
-			request: this,
-			teamIds: this.team ? [this.team.id] : undefined,
-			companyIds: this.team ? [this.team.get('companyId')] : undefined,
-			userBeingAddedToTeamId: this.team ? this.team.id : undefined,
-			existingUser,	// triggers finding the existing user at a different email than the one being registered
-			dontSetInviteCode: true // suppress the default behavior for creating a user on a team
-		});
-		this.user = await this.userCreator.createUser(this.request.body);
-	}
-
-	// add the created user to the team indicated, for signup-by-repo
-	async addUserToTeam() {
-		if (!this.team) return;
-
-		await new AddTeamMembers({
-			request: this,
-			addUsers: [this.user],
-			team: this.team
-		}).addTeamMembers();
-
-		// refetch the user since they changed when added to team
-		this.user = await this.data.users.getById(this.user.id);
-	}
-
-	// generate a token for the confirm link, if the client wants an email with a link rather than a code
-	async generateLinkToken () {
-		if (!this.wantLink) {
-			return;	// only if the client wants an email with a link, for now
-		}
-		// time till expiration can be provided (normally for testing purposes),
-		// or default to configuration
-		let expiresIn = this.api.config.apiServer.confirmationExpiration;
-		if (this.expiresIn && this.expiresIn < expiresIn) {
-			this.warn('Overriding configured confirmation expiration to ' + this.expiresIn);
-			expiresIn = this.expiresIn;
-		}
-		const expiresAt = Date.now() + expiresIn;
-		this.token = this.api.services.tokenHandler.generate(
-			{ uid: this.user.id },
-			'conf',
-			{ expiresAt }
-		);
-		this.minIssuance = this.api.services.tokenHandler.decode(this.token).iat * 1000;
-	}
-
-	// save the token info in the database, note that we don't save the actual token, just the notion
-	// that all confirmation tokens issued previous to this one are no longer valid
-	async saveTokenInfo () {
-		if (!this.wantLink) {
-			return;	// only if the client wants an email with a link, for now
-		}
-		const op = {
-			'$set': {
-				'accessTokens.conf': {
-					minIssuance: this.minIssuance
-				}
-			}
-		};
-		await this.data.users.applyOpById(this.user.id, op);
 	}
 
 	// if a signup token is provided, this allows a client IDE session to identify the user ID that was eventually
@@ -305,7 +193,7 @@ class RegisterRequest extends RestfulRequest {
 		if (!this.signupToken) {
 			return;
 		}
-		await this.api.services.signupTokens.insert(
+		return this.api.services.signupTokens.insert(
 			this.signupToken,
 			this.user.id,
 			{ 
@@ -315,85 +203,49 @@ class RegisterRequest extends RestfulRequest {
 		);
 	}
 
-	// if email confirmation is not required, we go right to login
-	async doUnconfirmedLogin () {
-		this.responseData = await new ConfirmHelper({
-			request: this,
-			user: this.user
-		}).confirm(this.request.body);
-		this.userLoggedIn = true;
-		return true;
-	}
-
 	// handle the response to the request
 	async handleResponse () {
-		if (this.gotError || this.userLoggedIn) {
-			return await super.handleResponse();
+		if (this.gotError) {
+			return super.handleResponse();
 		}
-		// need to refetch the user, since it may have changed, this should fetch from cache, not database
-		this.user = await this.data.users.getById(this.user.id);
+
+		// we only return the user info if the user was not already registered, or for test running
 		if (!this.user.get('isRegistered') || this.user.get('_forTesting')) {
 			this.responseData = { user: this.user.getSanitizedObjectForMe({ request: this }) };
 			if (this._confirmationCheat === this.api.config.sharedSecrets.confirmationCheat) {
 				// this allows for testing without actually receiving the email
 				this.log('Confirmation cheat detected, hopefully this was called by test code');
 				this.responseData.user.confirmationCode = this.user.get('confirmationCode');
-				this.responseData.user.confirmationToken = this.token;
 			}
 		}
-		if (this.accessToken) {
-			this.responseData.accessToken = this.accessToken;
-		}
-		await super.handleResponse();
+
+		return super.handleResponse();
 	}
 
 	// after a response is returned....
 	async postProcess () {
-		// new users get published to the team channel
-		await this.publishUserToTeams();
-
-		// remove invite code from the registered user, and as a saved signup token
-		await this.removeInviteCode();
-
-		// send the confirmation email with the confirmation code
-		await this.sendConfirmationEmail();
-	}
-
-	// publish the new user to the team channel
-	async publishUserToTeams () {
-		await new UserPublisher({
-			user: this.user,
-			data: this.user.getSanitizedObject({ request: this }),
-			request: this,
-			broadcaster: this.api.services.broadcaster
-		}).publishUserToTeams();
-	}
-
-	// if the user registered using an invite code, invalidate the invite code by removing it from
-	// the user object and as a saved signup token
-	async removeInviteCode () {
-		if (!this.invitedUser) { return; }
-		await this.data.users.updateDirect(
-			{ id: this.data.users.objectIdSafe(this.invitedUser.id) },
-			{ $unset: { inviteCode: true, externalUserId: true } }
-		);
-		await this.api.services.signupTokens.remove(this.inviteCode);
+		// send the confirmation email with the confirmation code,
+		// or an already-registered email if the user is already registered
+		return this.sendEmail();
 	}
 
 	// send out the confirmation email with the confirmation code
-	async sendConfirmationEmail () {
-		if (!this.confirmationRequired || this.invitedUserWithSameEmail) {
+	// or an already-registered email if the user is already registered
+	async sendEmail () {
+		if (!this.confirmationRequired) {
 			return;
 		}
+
+		// delay the email if requested, used by test code
 		if (this._delayEmail) {
-			setTimeout(this.sendConfirmationEmail.bind(this), this._delayEmail);
+			setTimeout(this.sendEmail.bind(this), this._delayEmail);
 			delete this._delayEmail;
 			return;
 		}
 
 		// if the user is already registered, we send an email to this effect, rather
 		// than sending the confirmation code
-		if (this.userCreator.existingModel && this.user.get('isRegistered')) {
+		if (this.user && this.user.get('isRegistered')) {
 			this.log(`Triggering already-registered email to ${this.user.get('email')}...`);
 			await this.api.services.email.queueEmailSend(
 				{
@@ -407,32 +259,7 @@ class RegisterRequest extends RestfulRequest {
 			);
 		}
 
-		// otherwise if the client wants a confirmation email with a link
-		// (soon to be deprecated), send that...
-		else if (this.wantLink) {
-			// CONFIRMATION EMAILS WITH LINKS TO THE OLD WEB APP ARE NOW DEPRECATED
-			throw 'deprecated';
-			/*
-			// generate the url and queue the email send with the outbound email service
-			const host = this.api.config.webclient.host;
-			const url = `${host}/confirm-email/${encodeURIComponent(this.token)}`;
-			this.log(`Triggering confirmation email to ${this.user.get('email')}...`);
-			await this.api.services.email.queueEmailSend(
-				{
-					type: 'confirm',
-					userId: this.user.id,
-					url
-				},
-				{
-					request: this,
-					user: this.user
-				}
-			);
-			*/
-		}
-
-		// othwerwise we're sending an old-style (and now new-style) confirmation email with a 
-		// confirmation code 
+		// othwerwise send a confirmation email with a confirmation code 
 		else {
 			this.log(`Triggering confirmation email with confirmation code to ${this.user.get('email')}...`);
 			await this.api.services.email.queueEmailSend(
@@ -463,13 +290,8 @@ class RegisterRequest extends RestfulRequest {
 					'username*': '<User\'s username, must be unique for any team they are on>',
 					'fullName': '<User\'s full name>',
 					'timeZone': '<User\'s time zone, per the Time Zone Database>',
-					'secondaryEmails': '<Array of other emails the user wants to associate with their account>',
 					'preferences': '<Object representing any preferences the user wants to set as they register>',
 					'signupToken': '<Client-generated signup token, passed to signup on the web, to associate an IDE session with the new user>',
-					'inviteCode': '<Invite code associated with an invitation to this user>',
-					'teamId': '<For repo-based signup, specify team the user is joining>',
-					'repoId': '<For repo-based signup, a repo owned by the team must be passed>',
-					'commitHash': '<For repo-based signup, a commit hash known for that repo must be passed>'
 				}
 			},
 			returns: {
@@ -478,21 +300,9 @@ class RegisterRequest extends RestfulRequest {
 					user: '<@@#user object#user@@>'
 				}
 			},
-			publishes: {
-				summary: 'If the user is already on any teams, an updated user object will be published to the team channel for each team the user is on, in case some user attributes are changed by the register call.',
-				looksLike: {
-					user: '<@@#user object#user@@>'
-				}
-			},
 			errors: [
 				'parameterRequired',
-				//'usernameNotUnique',
-				'exists',
-				'validation',
-				'inviteMismatch',
-				'alreadyAccepted',
-				'notFound',
-				'createAuth'
+				'validation'
 			]
 		};
 	}

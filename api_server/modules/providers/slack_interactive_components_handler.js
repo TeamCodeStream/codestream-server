@@ -241,12 +241,8 @@ class SlackInteractiveComponentsHandler {
 
 			this.userCreator = new UserCreator({
 				request: this,
-				teamIds: [team.get('id')],
-				companyIds: [team.get('companyId')],
-				userBeingAddedToTeamId: team.get('id'),
-				externalUserId: `slack::${team.get('id')}::${this.payload.user.team_id}::${this.payload.user.id}`,
-				dontSetInviteCode: true,
-				ignoreUsernameOnConflict: true
+				team,
+				externalUserId: `slack::${team.id}::${this.payload.user.team_id}::${this.payload.user.id}`
 			});
 			let user = await this.userCreator.createUser(userData);
 			await new AddTeamMembers({

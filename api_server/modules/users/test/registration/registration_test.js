@@ -47,13 +47,10 @@ class RegistrationTest extends CodeStreamAPITest {
 		// verify we got a valid user object back, with the attributes epected
 		let user = data.user;
 		let errors = [];
-		(user.secondaryEmails || []).sort();
-		(this.data.secondaryEmails || []).sort();
 		const email = this.data.email.trim();
 		let result = (
 			((user.id === user._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((user.email === email) || errors.push('incorrect email')) &&
-			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
 			((user.username === this.data.username) || errors.push('incorrect username')) &&
 			((user.fullName === this.data.fullName) || errors.push('incorrect full name')) &&
 			((user.timeZone === this.data.timeZone) || errors.push('incorrect time zone')) &&
