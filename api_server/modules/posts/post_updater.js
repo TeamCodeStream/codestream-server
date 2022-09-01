@@ -33,6 +33,7 @@ class PostUpdater extends ModelUpdater {
 	async preSave () {
 		await this.getPost();           // get the post
 		await this.getStream();       	// get the stream the post is in
+		await this.setShareIdentifiers(); // set shareIdentifiers based on sharedTo values
 		await this.addEditToHistory();  // add this edit to the maintained history of edits
 		this.attributes.modifiedAt = Date.now();
 		await super.preSave();			// base-class preSave
@@ -52,6 +53,13 @@ class PostUpdater extends ModelUpdater {
 		if (!this.stream) {
 			throw this.errorHandler.error('notFound', { info: 'stream' });   // really shouldn't happen
 		}
+	}
+
+	async setShareIdentifiers () {
+		if (!this.attributes.sharedTo || this.attributes.sharedTo.length === 0) {
+			return;
+		}
+		this.attributes.shareIdentifiers = Post.getShareIdentifiers(this.attributes.sharedTo);
 	}
 
 	// add an edit to the maintained history of edits

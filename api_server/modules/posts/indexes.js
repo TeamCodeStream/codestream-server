@@ -22,5 +22,8 @@ module.exports = {
 	bySeqNum: {
 		streamId: 1,
 		seqNum: -1
+	},
+	byShareIdentifiers: {
+		shareIdentifiers: 1
 	}
 };

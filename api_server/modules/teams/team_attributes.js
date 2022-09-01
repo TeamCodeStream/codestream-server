@@ -56,6 +56,15 @@ module.exports = {
 		type: 'arrayOfStrings',
 		serverOnly: true
 	},
+	serverProviderData: {
+		type: 'object',
+		description: 'Object containing metadata for server-only third-party provider tokens'
+	},
+	serverProviderToken: {
+		type: 'object',
+		description: 'Object containing server-only access tokens for third-party providers',
+		serverOnly: true
+	},
 	reportingGroup: { // deprecated, now in company object
 		type: 'string',
 		maxLength: 20

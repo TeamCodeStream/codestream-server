@@ -84,6 +84,12 @@ module.exports = {
 		maxObjectLength: 500,
 		description: 'Third-party providers to whom this post has been shared'
 	},
+	shareIdentifiers: {
+		type: 'arrayOfStrings',
+		maxLength: 10,
+		maxStringLength: 200,
+		default: []
+	},
 	codeErrorId: {
 		type: 'id',
 		description: 'ID of the code error attached to this post, if any'

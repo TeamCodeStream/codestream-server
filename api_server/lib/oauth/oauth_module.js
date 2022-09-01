@@ -462,7 +462,8 @@ class OAuthModule extends APIServerModule {
 			supportsOAuthOrPAT,
 			disabled,
 			hasSharing,
-			scopes
+			scopes,
+			hasServerToken
 		} = this.oauthConfig;
 		const { appClientId, apiKey } = this.apiConfig;
 		const hasKey = appClientId || apiKey;
@@ -480,7 +481,8 @@ class OAuthModule extends APIServerModule {
 				apiHost: apiHost ? apiHost.toLowerCase() : undefined,
 				hasIssues,
 				hasCodeHosting,
-				hasSharing
+				hasSharing,
+				hasServerToken
 			};
 
 			const parseScopes = scopes => {
@@ -597,6 +599,11 @@ class OAuthModule extends APIServerModule {
 			null,
 			null
 		);
+	}
+
+	// if provider supports multiple authorizations for server tokens, override this
+	async getServerTokenMultiAuthKey () {
+		return undefined;
 	}
 
 	// if provider supports multiple authorizations (multiple access tokens), override this
