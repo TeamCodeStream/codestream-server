@@ -39,7 +39,6 @@ class ProviderIdentityConnector {
 		this.providerInfo.username = this.providerInfo.username.replace(/ /g, '_');
 
 		await this.findUser();
-		await this.getInvitedUser();
 		await this.createUserAsNeeded();
 		await this.addUserToTeamAsNeeded();
 		await this.setUserProviderInfo();
@@ -66,55 +65,7 @@ class ProviderIdentityConnector {
 			throw this.errorHandler.error('noIdentityMatch');
 		}
 	}
-
-	// get the user associated with an invite code, as needed
-	async getInvitedUser () {
-		if (!this.inviteCode) {
-			return;
-		}
-		this.signupToken = await this.request.api.services.signupTokens.find(
-			this.inviteCode,
-			{ requestId: this.request.request.id }
-		);
-		if (!this.signupToken) {
-			throw this.errorHandler.error('notFound', { info: 'invite code' });
-		}
-		else if (this.signupToken.expired) {
-			throw this.errorHandler.error('tokenExpired');
-		}
-
-		if (this.user && this.signupToken.userId === this.user.id) {
-			// user is the same as the user that was invited, and same email came from the identity provider,
-			// so we are all good
-			this.request.log('Invite code matched existing user');
-			return;
-		}
-
-		// get the user that was invited
-		this.invitedUser = await this.data.users.getById(this.signupToken.userId);
-		if (!this.invitedUser) {
-			throw this.errorHandler.error('notFound', { info: 'invited user' });
-		}
-
-		// have to deal with a little weirdness here ... if we get an invite code, and the invite code references
-		// a user that already exists, and they don't match the email the user is trying to register with,
-		// we will effectively change the invited user's email to the user they are registered with ... but we
-		// can't allow this if the invited user is already registered (which shouldn't happen in theory), or if the
-		// email the user is trying to register with already belongs to another invited user
-		if (this.invitedUser.get('email').toLowerCase() !== this.providerInfo.email.toLowerCase()) {
-			if (this.invitedUser.get('isRegistered')) {
-				throw this.errorHandler.error('alreadyAccepted');
-			}
-			else if (this.user) {
-				throw this.errorHandler.error('inviteMismatch');
-			}
-			else {
-				this.request.log(`Existing unregistered user ${this.invitedUser.get('email')} will get their email changed to ${this.providerInfo.email}`);
-				this.user = this.invitedUser;
-			}
-		}
-	}
-
+	
 	// create a provider-registered user if one was not found, based on the passed information
 	async createUserAsNeeded () {
 		if (this.user) {

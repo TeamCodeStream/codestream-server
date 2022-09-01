@@ -28,6 +28,7 @@ class ConfirmationEmailTest extends CodeStreamMessageTest {
 			throw 'wantLink is deprecated';
 			//this.data.wantLink = true;
 		}
+
 		// register a random user
 		this.doApiRequest(
 			{

@@ -40,8 +40,6 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			this.data = Object.assign({}, this.existingUserData.user, this.data);
 		}
 		const errors = [];
-		(user.secondaryEmails || []).sort();
-		(this.data.secondaryEmails || []).sort();
 		(user.teamIds || []).sort();
 		const teamIds = [this.team.id];
 		if (this.existingUserTeam) {
@@ -62,7 +60,6 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((user.id === user._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((user.email === expectedEmail) || errors.push('incorrect email')) &&
 			((user.username === expectedUsername) || errors.push('username is not the first part of the email')) &&
-			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
 			((user.fullName === expectedFullName) || errors.push('incorrect full name')) &&
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&

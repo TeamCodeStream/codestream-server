@@ -6,7 +6,6 @@ const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib
 const UserPublisher = require('./user_publisher');
 const ConfirmHelper = require('./confirm_helper');
 const Errors = require('./errors');
-const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
@@ -17,7 +16,6 @@ class ConfirmRequest extends RestfulRequest {
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
-		this.errorHandler.add(TeamErrors);
 		this.errorHandler.add(AuthErrors);
 		this.loginType = this.loginType || 'web';
 	}
@@ -29,75 +27,35 @@ class ConfirmRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();		// require parameters, and filter out unknown parameters
-		await this.verifyToken();			// verify the confirmation token, if passed
 		await this.getUser();				// get the user indicated
-		await this.validateToken();			// verify the confirmation token is not expired, per the most recently issued token, if passed
 		await this.checkAttributes();		// check the attributes provided in the request
 		if (await this.verifyCode()) {		// verify the confirmation code is correct
 			return await this.failedConfirmation();
 		}
 		await this.doConfirm();				// call out to confirm helper to finish the confirmation
-		await this.removeSignupTokens();	// remove any signup tokens or invite codes associated with this user
 	}
 
 	// require certain parameters, and discard unknown parameters
 	async requireAndAllow () {
+		if (this.request.body.token) {
+			throw this.errorHandler.error('deprecated', { reason: 'confirmation tokens are deprecated' });
+		}
 		await this.requireAllowParameters(
 			'body',
 			{
+				required: {
+					string: ['email', 'confirmationCode']
+				},
 				optional: {
-					string: ['email', 'password', 'username', 'confirmationCode', 'token', 'environment'],
+					string: ['password', 'username', 'environment'],
 					number: ['expiresIn', 'nrAccountId']
 				}
 			}
 		);
-		if (!this.request.body.token && !this.request.body.confirmationCode) {
-			// confirmation code or token must be provided
-			throw this.errorHandler.error('parameterRequired', { info: 'confirmationCode or token' });
-		}
-		if (!this.request.body.token && !this.request.body.email) {
-			// email or confirmation token must be provided
-			throw this.errorHandler.error('parameterRequired', { info: 'email or token' });
-		}
 	}
 
-	// parse and verify the passed token
-	async verifyToken () {
-		if (!this.request.body.token) {
-			return;	// expect old-fashioned confirmation code instead
-		}
-		try {
-			this.payload = this.api.services.tokenHandler.verify(this.request.body.token);
-		}
-		catch (error) {
-			const message = typeof error === 'object' ? error.message : error;
-			if (message === 'jwt expired') {
-				// for an expired token, we still need to know the user's email for tracking purposes,
-				// so we still need to decode the token and get the user
-				this.payload = this.api.services.tokenHandler.decode(this.request.body.token);
-				await this.getUser();	// still need the user for the tracking event
-				this.trackFailureEvent('Expired');
-				throw this.errorHandler.error('tokenExpired');
-			}
-			else {
-				throw this.errorHandler.error('tokenInvalid', { reason: message });
-			}
-		}
-		if (this.payload.type !== 'conf') {
-			throw this.errorHandler.error('tokenInvalid', { reason: 'not a conf token' });
-		}
-		if (!this.payload.uid) {
-			throw this.errorHandler.error('tokenInvalid', { reason: 'no uid in payload' });
-		}
-	}
-
-	// get the user associated with the email in the token payload
+	// get the user associated with the given email
 	async getUser () {
-		if (this.payload) {
-			// user ID was provided in the confirmation token, just fetch that user
-			this.user = await this.data.users.getById(this.payload.uid);
-			return;
-		}
 		const query = {
 			searchableEmail: this.request.body.email.toLowerCase()
 		};
@@ -105,36 +63,39 @@ class ConfirmRequest extends RestfulRequest {
 			query,
 			{ hint: UserIndexes.bySearchableEmail }
 		);
-		this.user = users[0];
-	}
 
-	// verify the token is not expired, per the most recently issued token
-	async validateToken () {
-		if (!this.payload || !this.user) {
-			return;	// no confirmation token (old-style code instead)
-		}
-		const accessTokens = this.user.get('accessTokens') || {};
-		const confirmationTokens = accessTokens.conf || {};
-		if (!confirmationTokens || !confirmationTokens.minIssuance) {
-			this.trackFailureEvent('Already Used');
-			throw this.errorHandler.error('tokenInvalid', { reason: 'no issuance for conf token found' });
-		}
-		if (confirmationTokens.minIssuance > this.payload.iat * 1000) {
-			this.trackFailureEvent('Already Used');
-			throw this.errorHandler.error('tokenInvalid', { reason: 'a more recent conf token has been issued' });
+		// return an already-registered error if there is a matching registered user,
+		// otherwise look for an unregistered user that is not on any teams
+		let teamlessUser;
+		let userOnTeams;
+		const registeredUser = users.find(user => {
+			const teamIds = user.get('teamIds') || [];
+			if (user.get('deactivated')) {
+				return false;
+			} else if (user.get('isRegistered')) {
+				return true;
+			} else if (teamIds.length === 0) {
+				teamlessUser = user;
+			} else {
+				userOnTeams = user;
+			}
+		});
+
+		// can't confirm an already-confirmed user
+		if (registeredUser) {
+			throw this.errorHandler.error('alreadyRegistered');
+		// remove the check below once we have fully moved to ONE_USER_PER_ORG
+		} else if (userOnTeams && !this.module.oneUserPerOrg) {
+			this.user = userOnTeams;
+		} else if (!teamlessUser) {
+			throw this.errorHandler.error('notFound', { info: 'user' });
+		} else {
+			this.user = teamlessUser;
 		}
 	}
 
 	// check that the given attributes match the user
 	async checkAttributes () {
-		// can't confirm a deactivated account
-		if (!this.user || this.user.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'user' });
-		}
-		// can't confirm an already-confirmed user
-		if (this.user.get('isRegistered')) {
-			throw this.errorHandler.error('alreadyRegistered');
-		}
 		// must provide a password for confirmation if we don't already have one
 		if (!this.user.get('passwordHash') && !this.request.body.password) {
 			throw this.errorHandler.error('parameterRequired', { info: 'password' });
@@ -147,10 +108,6 @@ class ConfirmRequest extends RestfulRequest {
 
 	// verify the confirmation code given in the request against the one that was generated
 	async verifyCode () {
-		if (!this.request.body.confirmationCode) {
-			// confirmation token was provided, no code check at all
-			return;
-		}
 		// we give the user 3 attempts to enter a confirmation code, after that, they'll
 		// have to get a new confirmation email sent to them
 		let confirmFailed = false;
@@ -260,24 +217,18 @@ class ConfirmRequest extends RestfulRequest {
 		);
 	}
 
-	// remove any old signup tokens associated with this user
-	async removeSignupTokens () {
-		await this.api.services.signupTokens.removeInviteCodesByUserId(this.user.id);
-	}
-	
 	// describe this route for help
 	static describe () {
 		return {
 			tag: 'confirm',
 			summary: 'Confirms a user\'s registration',
-			access: 'No authorization needed, though the correct confirmation code or the confirmation token must be correct',
-			description: 'Confirms a user\'s registration with confirmation code, or confirmation token',
+			access: 'No authorization needed, though the correct confirmation code must be correct',
+			description: 'Confirms a user\'s registration with confirmation code',
 			input: {
-				summary: 'Specify attributes in the body; either token must be provided, or email and confirmation code must be provided',
+				summary: 'Specify attributes in the body; email and confirmation code must be provided',
 				looksLike: {
-					'email': '<User\'s email>',
-					'confirmationCode': '<Confirmation code (sent via email to the user\'s email after initial registration)>',
-					'token': '<Confirmation token>',
+					'email*': '<User\'s email>',
+					'confirmationCode*': '<Confirmation code (sent via email to the user\'s email after initial registration)>',
 					'password': '<Can optionally set the user\'s password here>',
 					'username': '<Can optionally set the user\'s username here>'
 				}
@@ -290,7 +241,7 @@ class ConfirmRequest extends RestfulRequest {
 					pubnubKey: '<subscribe key to use for connecting to PubNub>',
 					pubnubToken: '<user\'s token for subscribing to PubNub channels>',
 					providers: '<info structures with available third-party providers>',
-					broadcastToken: '<user\'s token for subscribing to real-time messaging channels>',
+					broadcasterToken: '<user\'s token for subscribing to real-time messaging channels>',
 					teams: [
 						'<@@#team object#team@@>',
 						'...'
@@ -312,12 +263,9 @@ class ConfirmRequest extends RestfulRequest {
 				'notFound',
 				'alreadyRegistered',
 				'emailMismatch',
-				//'usernameNotUnique',
 				'tooManyConfirmAttempts',
 				'confirmCodeExpired',
-				'confirmCodeMismatch',
-				'tokenInvalid',
-				'tokenExpired'
+				'confirmCodeMismatch'
 			]
 		};
 	}

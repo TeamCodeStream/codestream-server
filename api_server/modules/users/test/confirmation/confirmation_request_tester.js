@@ -4,8 +4,10 @@
 
 const ConfirmationTest = require('./confirmation_test');
 //const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
+const ConfirmationTokenDeprecatedTest = require('./confirmation_token_deprecated_test');
 const NoAttributeTest = require('./no_attribute_test');
 const AlreadyRegisteredTest = require('./already_registered_test');
+const UnknownUserTest = require('./unknown_user_test');
 const IncorrectCodeTest = require('./incorrect_code_test');
 const MaxAttemptsTest = require('./max_attempts_test');
 const ExpirationTest = require('./expiration_test');
@@ -43,9 +45,11 @@ class ConfirmationRequestTester {
 	confirmationTest () {
 		new ConfirmationTest().test();
 		//new ConfirmationWithLinkTest().test();
+		new ConfirmationTokenDeprecatedTest().test();
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'confirmationCode' }).test();
 		new AlreadyRegisteredTest().test();
+		new UnknownUserTest().test();
 		new IncorrectCodeTest().test();
 		new MaxAttemptsTest().test();
 		new ExpirationTest().test();

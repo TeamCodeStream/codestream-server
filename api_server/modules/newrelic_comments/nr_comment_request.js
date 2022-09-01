@@ -123,9 +123,7 @@ class NRCommentRequest extends RestfulRequest {
 
 		const options = {
 			request: this,
-			externalUserId: `newrelic::${email}`,
-			dontSetInviteCode: true,
-			ignoreUsernameOnConflict: true
+			externalUserId: `newrelic::${email}`
 		};
 		if (newRelicUserId) {
 			options.providerIdentities = [`newrelic::${newRelicUserId}`];

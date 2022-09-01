@@ -16,6 +16,7 @@ const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const UserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_inviter');
+const OldUserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/old_user_inviter');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
 
@@ -289,16 +290,30 @@ class PostCreator extends ModelCreator {
 			throw this.errorHandler.error('validation', { reason: 'cannot add users to a stream that is not a team stream' });
 		}
 
-		this.userInviter = new UserInviter({
-			request: this.request,
-			team: this.team,
-			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
-			delayEmail: this._delayEmail,
-			inviteInfo: this.inviteInfo,
-			user: this.user,
-			dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
-			dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
-		});
+		// remove this check when we have fully moved to ONE_USER_PER_ORG implementation
+		if (this.request.api.modules.modulesByName.users.oneUserPerOrg) {
+			this.userInviter = new UserInviter({
+				request: this.request,
+				team: this.team,
+				inviteCodeExpiresIn: this._inviteCodeExpiresIn,
+				delayEmail: this._delayEmail,
+				inviteInfo: this.inviteInfo,
+				user: this.user,
+				dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
+				dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
+			});
+		} else {
+			this.userInviter = new OldUserInviter({
+				request: this.request,
+				team: this.team,
+				inviteCodeExpiresIn: this._inviteCodeExpiresIn,
+				delayEmail: this._delayEmail,
+				inviteInfo: this.inviteInfo,
+				user: this.user,
+				dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
+				dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
+			});
+		}
 
 		const userData = this.addedUsers.map(email => {
 			return { 

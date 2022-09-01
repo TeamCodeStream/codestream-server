@@ -6,25 +6,10 @@ const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/u
 const UserValidator = require('./user_validator');
 const User = require('./user');
 const PasswordHasher = require('./password_hasher');
-const UsernameChecker = require('./username_checker');
-const Indexes = require('./indexes');
-const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/errors.js');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const UsernameValidator = require('./username_validator');
-const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
-const UUID = require('uuid').v4;
-const Base64 = require('base-64');
-
-// how long an invite code remains valid
-const INVITE_CODE_EXPIRATION = 365 * 24 * 60 * 60 * 1000;
 
 class UserCreator extends ModelCreator {
-
-	constructor (options) {
-		super(options);
-		this.options = options;
-		this.errorHandler.add(TeamErrors);
-	}
 
 	get modelClass () {
 		return User;	// class to use to create a user model
@@ -49,7 +34,6 @@ class UserCreator extends ModelCreator {
 					'password',
 					'username',
 					'fullName',
-					'companyName',
 					'timeZone',
 					'confirmationCode',
 					'_pubnubUuid',
@@ -60,9 +44,7 @@ class UserCreator extends ModelCreator {
 					'passwordHash'
 				],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
-				boolean: ['isRegistered'],
-				'array(string)': ['secondaryEmails', 'providerIdentities'],
-				object: ['preferences', 'providerInfo', 'avatar']
+				object: ['preferences', 'avatar', 'providerInfo']
 			}
 		};
 	}
@@ -107,30 +89,11 @@ class UserCreator extends ModelCreator {
 		return true;
 	}
 
-	// override base class function to check for an existing user that has already
-	// been found, this is for the weird use case where a user is using a different
-	// email address to sign up as an already existing (unregistered) account
-	async checkExisting () {
-		if (this.existingUser) {
-			this.existingModel = this.existingUser;
-		}
-		else {
-			await super.checkExisting();
-		}
-	}
-
-	// return database query to check if a matching user already exists
-	checkExistingQuery () {
-		// allow faux users to create a user (even if their email matches)
-		if (!this.attributes.email || (this.options && this.options.externalUserId)) return undefined;
-
-		// look for matching email (case-insensitive)
-		return {
-			query: {
-				searchableEmail: this.attributes.email.toLowerCase()
-			},
-			hint: Indexes.bySearchableEmail
-		};
+	// check for an existing user
+	async getExistingModel () {
+		// in this case, if the caller provided an existing user, we use that one,
+		// otherwise the logic will create a new user record (even with the same email)
+		return this.existingUser;
 	}
 
 	// called before the user is actually saved
@@ -142,55 +105,46 @@ class UserCreator extends ModelCreator {
 			this.request.log(`Pubnub uuid of ${this.attributes._pubnubUuid} provided`);
 		}
 
-		// never save attributes for an existing registered user
-		if (
-			this.existingModel &&
-			this.existingModel.get('isRegistered')
-		) {
-			this.dontSaveIfExists = true;
-			this.notSaving = true;
-		}
-
 		// if username not provided, generate it from email
-		if (!this.notSaving && !this.attributes.username) {
+		if (!this.attributes.username) {
 			this.attributes.username = UsernameValidator.normalize(
 				EmailUtilities.parseEmail(this.attributes.email).name
 			);
-			this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
 		}
 
-		if (this.options && this.options.externalUserId) {
-			this.attributes.externalUserId = this.options.externalUserId;
-		}
-		if (this.options && this.options.providerIdentities) {
-			this.attributes.providerIdentities = this.options.providerIdentities;
-		}
-		if (this.options && this.options.nrUserId) {
-			this.attributes.nrUserId = this.options.nrUserId;
+		// these attributes can be passed in as options, but aren't directly user-settable
+		['externalUserId', 'providerIdentities', 'nrUserId'].forEach(attribute => {
+			if (this[attribute]) {
+				this.attributes[attribute] = this[attribute];
+			}
+		});
+
+		// for invited users, set invite info
+		if (this.team) {
+			this.setInviteInfo();
+			this.attributes.teamIds = [this.team.id];
+			this.attributes.companyIds = [this.team.get('companyId')];
 		}
 
-		if (this.userBeingAddedToTeamId && (!this.options || !this.options.dontSetInviteCode)) {
-			this.setInviteInfo();			// set an invite code for the user to accept an invite
+		// set id and creatorId
+		this.attributes.id = (this.existingModel && this.existingModel.id) || this.collection.createId();
+		if (this.user) {
+			// someone else is creating (inviting) this user
+			this.attributes.creatorId = this.user.id;
+		}
+		else {
+			// user creating themselves
+			this.attributes.creatorId = this.attributes.id;
 		}
 
-		await this.hashPassword();			// hash the user's password, if given
-		// username uniqueness is deprecated per https://trello.com/c/gG8fKXft
-		//await this.checkUsernameUnique();	// check if the user's username will be unique for the teams they are on
+		// hash the user's password, if given
+		await this.hashPassword();			
+
 		await super.preSave();
 	}
 
 	// set an invite code and other invite info for the user to accept an invite, as needed
 	setInviteInfo () {
-		// existing registered users don't get an invite code
-		if (this.existingModel && this.existingModel.get('isRegistered')) {
-			return;
-		}
-
-		// if user being added to team, generate an invite code and save it as a signup token
-		if (!this.existingModel || !this.existingModel.get('inviteCode')) {
-			this.inviteCode = this.attributes.inviteCode = this.generateInviteCode();
-		}
-
 		// don't set invite type if told explicitly not to do so,
 		// this is currently the case for "feedback requests on pull", where the code author is 
 		// not sent an invite until the first reply to the review
@@ -201,8 +155,8 @@ class UserCreator extends ModelCreator {
 		// set lastInviteType, can be triggered by a review or codemark notification
 		const existingLastInviteType = this.existingModel && this.existingModel.get('lastInviteType');
 		const existingFirstInviteType = this.existingModel && this.existingModel.get('firstInviteType');
-		if (this.options.inviteType) {
-			this.attributes.lastInviteType = this.options.inviteType;
+		if (this.inviteType) {
+			this.attributes.lastInviteType = this.inviteType;
 		}
 		else if (this.attributes.inviteTrigger) {
 			if (this.attributes.inviteTrigger.startsWith('R')) {
@@ -225,26 +179,13 @@ class UserCreator extends ModelCreator {
 		}
 	}
 
-	// generate an invite code ... this might be a simple GUID, or it might have baked-in
-	// data for on-prem usage
-	generateInviteCode () {
-		let inviteCode = UUID();
-		if (this.options.inviteInfo) {
-			const { serverUrl, disableStrictSSL } = this.options.inviteInfo;
-			const uuid = inviteCode.substring(0, 8);
-			const inviteInfo = `${uuid}${disableStrictSSL ? '1' : '0'}${serverUrl}`;
-			inviteCode = '$01$' + Base64.encode(inviteInfo);
-		}
-		return inviteCode;
-	}
-
 	// hash the given password, as needed
 	async hashPassword () {
 		if (this.attributes.passwordHash) {
 			delete this.attributes.password;
 			return;
 		}
-		if (!this.attributes.password || this.notSaving) { return; }
+		if (!this.attributes.password) { return; }
 		this.attributes.passwordHash = await new PasswordHasher({
 			errorHandler: this.errorHandler,
 			password: this.attributes.password
@@ -252,88 +193,8 @@ class UserCreator extends ModelCreator {
 		delete this.attributes.password;
 	}
 
-	// check if the user's username will be unique for the teams they are on
-	async checkUsernameUnique () {
-		if (this.notSaving && !this.teamIds) {
-			// doesn't matter if we won't be saving anyway, meaning we're really ignoring the username
-			return;
-		}
-		let teamIds = this.teamIds || [];
-		if (this.existingModel) {
-			const existingUserTeams = this.existingModel.get('teamIds') || [];
-			if (ArrayUtilities.difference(existingUserTeams, teamIds).length === 0) {
-				return;
-			}
-			teamIds = [...teamIds, ...this.existingModel.get('teamIds') || []];
-		}
-		const username = this.attributes.username || (this.existingModel ? this.existingModel.get('username') : null);
-		if (!username) {
-			// username not provided === no worries
-			return;
-		}
-		// check against all teams ... the username must be unique for each
-		const userId = this.existingModel ? this.existingModel.id : null;
-		const usernameChecker = new UsernameChecker({
-			data: this.data,
-			username,
-			userId,
-			teamIds,
-			resolveTillUnique: this.usernameCameFromEmail 	// don't do an error on conflict, instead append a number to the username till it's unique
-		});
-		const isUnique = await usernameChecker.checkUsernameUnique();
-		if (isUnique) {
-			this.attributes.username = usernameChecker.username;	// in case we forced it to resolve to a non-conflicting username
-			return;
-		}
-		if (this.ignoreUsernameOnConflict) {
-			if (!this.existingModel || !this.existingModel.get('isRegistered')) {
-				// in some circumstances, we tolerate a conflict for unregistered users by just throwing away
-				// the supplied username and going with the first part of the email, but we still need to resolve it
-				this.attributes.username = UsernameValidator.normalize(
-					EmailUtilities.parseEmail(this.attributes.email).name
-				);
-				this.usernameCameFromEmail = true;	// this will force a resolution of uniqueness conflict, rather than an error
-				return await this.checkUsernameUnique();
-			}
-		}
-
-		// on registration, we throw the error, but if user is being invited to the team, we tolerate it
-		if (!this.userBeingAddedToTeamId) {
-			throw this.errorHandler.error('usernameNotUnique', {
-				info: {
-					username: username,
-					teamIds: usernameChecker.notUniqueTeamIds
-				}
-			});
-		}
-	}
-
-	// create the user
-	async create () {
-		this.model.attributes.id = this.collection.createId();
-		if (this.user) {
-			// someone else is creating (inviting) this user
-			this.model.attributes.creatorId = this.user.id;
-		}
-		else {
-			// user creating themselves
-			this.model.attributes.creatorId = this.model.attributes.id;
-		}
-		if (this.teamIds && this.companyIds) {
-			// NOTE - we don't allow setting this in the original attributes,
-			// because we need to be able to trust it ... so in this case it can
-			// only come from calling code, not from a request body
-			this.model.attributes.teamIds = this.teamIds;
-			this.model.attributes.companyIds = this.companyIds;
-		}
-		await super.create();
-	}
-
 	// after the user object is saved...
 	async postSave () {
-		// save an invite code as a signup token for this user
-		await this.saveSignupToken();
-
 		// grant the user access to their own me-channel, strictly for testing purposes
 		// (since they are not confirmed yet)
 		await this.grantMeChannel();
@@ -353,29 +214,6 @@ class UserCreator extends ModelCreator {
 			[this.model.id],
 			`user-${this.model.id}`,
 			{ request: this.request }
-		);
-	}
-
-	// if we have an invite code 
-	async saveSignupToken () {
-		// if we have an invite code, save it as a signup token
-		if (!this.inviteCode) {
-			return;
-		}
-
-		let expiresIn = this.inviteCodeExpiresIn && this.inviteCodeExpiresIn < INVITE_CODE_EXPIRATION ?
-			this.inviteCodeExpiresIn : INVITE_CODE_EXPIRATION;
-		await this.api.services.signupTokens.insert(
-			this.inviteCode,
-			this.model.id,
-			{
-				requestId: this.request.request.id,
-				secureExpiresIn: expiresIn,
-				isInviteCode: true,
-				more: {
-					teamId: this.userBeingAddedToTeamId
-				}
-			}
 		);
 	}
 }
