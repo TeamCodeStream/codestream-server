@@ -23,7 +23,7 @@ class LoginCodeEmailTest extends CodeStreamMessageTest {
 				path: '/no-auth/generate-login-code',
 				data: {
 					email: this.currentUser.user.email,
-					_delayEmail: this.usingSocketCluster ? 1000 : (this.mockMode ? 300 : 8000)
+					_delayEmail: this.usingSocketCluster ? 1000 : (this.mockMode ? 1000 : 8000)
 				},
 				testEmails: true
 			},
