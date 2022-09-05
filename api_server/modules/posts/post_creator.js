@@ -89,6 +89,7 @@ class PostCreator extends ModelCreator {
 		await this.getTeam();			// get the team that owns the stream
 		await this.getCompany();		// get the company that owns the team
 		await this.validateMentionedUsers(); // validate that mentioned users are on the team
+		await this.setShareIdentifiers(); // set shareIdentifiers based on sharedTo values
 		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
@@ -212,7 +213,7 @@ class PostCreator extends ModelCreator {
 	// get the company that owns the team for which the post is being created
 	// only needed for analytics so we only do this for inbound emails 
 	async getCompany () {
-		if ((!this.forInboundEmail && !this.forCommentEngine) || !this.team) {
+		if ((!this.forInboundEmail && !this.forCommentEngine && !this.forSlack) || !this.team) {
 			// only needed for inbound email, for tracking
 			// or if no team, which can happen for replies to teamless code errors
 			return;
@@ -242,6 +243,13 @@ class PostCreator extends ModelCreator {
 		if (mentionedUsersNotOnTeam.length > 0) {
 			throw this.errorHandler.error('validation', { reason: 'one or more mentioned users are not on the team' });
 		}
+	}
+
+	async setShareIdentifiers () {
+		if (!this.attributes.sharedTo || this.attributes.sharedTo.length === 0) {
+			return;
+		}
+		this.attributes.shareIdentifiers = Post.getShareIdentifiers(this.attributes.sharedTo);
 	}
 
 	// create any added users being mentioned, these users get invited "on-the-fly"
@@ -1046,7 +1054,7 @@ class PostCreator extends ModelCreator {
 	async trackPost () {
 		// only track for email replies and NR comment engine comments,
 		// client-originating posts are tracked by the client
-		if ((!this.forInboundEmail && !this.forCommentEngine) || !this.parentPost) {
+		if ((!this.forInboundEmail && !this.forCommentEngine && !this.forSlack) || !this.parentPost) {
 			return;
 		}
 		const { request, user, team, company } = this;
@@ -1061,7 +1069,7 @@ class PostCreator extends ModelCreator {
 		);
 		const trackData = {
 			'Parent ID': parentId,
-			Endpoint: this.forCommentEngine ? 'NR1' : 'Email',
+			Endpoint: this.forCommentEngine ? 'NR1' : (this.forSlack ? 'Slack' : 'Email'),
 			'Date of Last Post': dateOfLastPost
 		};
 		if (user.get('totalPosts') === 1) {

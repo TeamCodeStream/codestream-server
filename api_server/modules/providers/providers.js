@@ -76,6 +76,11 @@ const ROUTES = [
 		method: 'post',
 		path: '/no-auth/provider-action/:provider',
 		requestClass: require('./provider_action_request')
+	},
+	{
+		method: 'post',
+		path: '/provider-share/:provider',
+		requestClass: require('./provider_share_request')
 	}
 ];
 

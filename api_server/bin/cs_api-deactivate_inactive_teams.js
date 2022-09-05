@@ -129,13 +129,13 @@ class InactiveTeamDeactivator {
 				);
 				if (numPosts >= this.numPosts) {
 					console.log(`Team ${team.id} will not be deactivated because they have ${numPosts} posts`);
-					Wait(this.throttle / 10);
+					await Wait(this.throttle / 10);
 					return;
 				}
 			}
 			return this.deactivateTeam(team);
 		} else {
-			Wait(this.throttle / 10);
+			await Wait(this.throttle / 10);
 		}
 	}
 
@@ -143,6 +143,7 @@ class InactiveTeamDeactivator {
 	async deactivateTeam (team) {
 		if (this.dryrun) {
 			console.log(`Would have deactivated team ${team.id}`);
+
 		} else {
 			await new Deactivator().go({
 				mongoClient: this.mongoClient,
@@ -154,7 +155,7 @@ class InactiveTeamDeactivator {
 		}
 
 		this.numTeamsDeactivated++;
-		Wait(this.throttle);
+		await Wait(this.throttle);
 	}
 
 	async finish () {
