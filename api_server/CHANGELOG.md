@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.0] - 2022-9-6
+
+### Added
+
+- Backend support for new Slack integration that leverages native threading
+
 ## [13.0.3] - 2022-8-25
 
 ### Added
