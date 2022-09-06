@@ -143,7 +143,7 @@ class SlackEventsRequest extends RestfulRequest {
 		if (!this.isThreadedReply(message || {})) {
 			return;
 		}
-		const post = await this.getPost(message.team, this.slackEvent.channel, message.ts);
+		const post = await this.getPost(message.team || this.slackEvent.team, this.slackEvent.channel, message.ts);
 		if (!post) {
 			return;
 		}
