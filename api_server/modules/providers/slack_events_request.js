@@ -64,7 +64,7 @@ class SlackEventsRequest extends RestfulRequest {
 			return;
 		}
 		// don't repost messages that originated from codestream
-		if (this.slackEvent.app_id && this.slackEvent.app_id === this.api.config.integrations.slack.appSharingId) {
+		if (this.slackEvent.app_id && this.slackEvent.app_id === this.api.config.integrations.slack.appId) {
 			return;
 		}
 		if (!this.slackEvent.team) {
