@@ -102,6 +102,20 @@ class SlackUserHelper {
 		return undefined;
 	}
 
+	async isSlackUserConnected (slackUserId) {
+		if (!slackUserId) return false;
+
+		const users = await this.request.data.users.getByQuery(
+			{
+				providerIdentities: `slack::${slackUserId}`,
+				deactivated: false
+			},
+			{ hint: UserIndexes.byProviderIdentities }
+		);
+
+		return users && users.length > 0;
+	}
+
 	async getUserWithoutTeam (slackUserId) {
 		if (!slackUserId) return undefined;
 
