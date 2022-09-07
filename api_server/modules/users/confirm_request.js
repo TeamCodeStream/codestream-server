@@ -85,7 +85,11 @@ class ConfirmRequest extends RestfulRequest {
 		if (registeredUser) {
 			throw this.errorHandler.error('alreadyRegistered');
 		// remove the check below once we have fully moved to ONE_USER_PER_ORG
-		} else if (userOnTeams && !this.module.oneUserPerOrg) {
+		} else if (
+			userOnTeams &&
+			!this.module.oneUserPerOrg &&
+			!this.request.headers['x-cs-one-user-per-org']
+		) {
 			this.user = userOnTeams;
 		} else if (!teamlessUser) {
 			throw this.errorHandler.error('notFound', { info: 'user' });

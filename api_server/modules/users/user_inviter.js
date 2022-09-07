@@ -6,6 +6,7 @@
 const UserCreator = require('./user_creator');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const Indexes = require('./indexes');
 
 const REINVITE_REPEATS = 2;
 
@@ -20,7 +21,6 @@ class UserInviter {
 		this.userData = userData;
 		await this.getTeam();
 		await this.createUsers();
-		await this.addTeamMembers();	// can deprecate this method when we have fully moved to one user-per-org paradigm
 		await this.setNumInvited();
 		return this.invitedUsers;
 	}
@@ -44,12 +44,31 @@ class UserInviter {
 	// create the user as needed, though the user may already exist, which requires special treatment
 	async createUser (userData) {
 		// first check for an existing user
-		// we use the existing user record only if it is unregistered and not on any teams
-		const existingUser = await this.getExistingUser();
+		// we use the existing user record only if it is on the team already
+		let existingUser = await this.getExistingUser(userData);
+		if (existingUser && (existingUser.get('teamIds') || []).length === 0) {
+			// special case of a match to an existing user that isn't on any teams
+			// in this case, we feed the user's attributes into the user we create, but don't actually
+			// use that existing user record
+			[
+				'fullName',
+				'timeZone',
+				'username',
+				'_pubnubUuid',
+				'joinMethod',
+				'preferences',
+				'avatar',
+				'originTeamId'
+			].forEach(attribute => {
+				userData[attribute] = existingUser.get(attribute);
+			});
+			existingUser = undefined;
+		}
 		const userCreator = new UserCreator({
 			request: this.request,
 			existingUser,
 			team: this.team,
+			user: this.user,
 			inviteType: !this.dontSendEmail && this.inviteType
 		});
 		const createdUser = await userCreator.createUser(userData);
@@ -61,8 +80,9 @@ class UserInviter {
 
 	// get the existing user matching this email, if any
 	async getExistingUser (userData) {
-		// find any unregistered user not yet invited to any teams, 
-		// otherwise we will create a new user record
+		// if the user has already been invited, seek them out,
+		// or if there is a user who is on no teams, use that to feed user data,
+		// but we will still create a new record
 		const matchingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: userData.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
@@ -73,13 +93,10 @@ class UserInviter {
 			}
 			const teamIds = (user.get('teamIds') || []);
 			return (
-				!user.get('isRegistered') &&
+				teamIds.length === 0 ||
 				(
-					teamIds.length === 0 ||
-					(
-						teamIds.length === 1 &&
-						teamIds[0] === this.team[0]
-					)
+					teamIds.length === 1 &&
+					teamIds[0] === this.team[0]
 				)
 			);
 		});
@@ -122,7 +139,7 @@ class UserInviter {
 			team: this.transforms.teamUpdate,
 		};
 		try {
-			await this.broadcaster.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request	}

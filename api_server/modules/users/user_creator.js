@@ -41,7 +41,8 @@ class UserCreator extends ModelCreator {
 					'iWorkOn',
 					'inviteTrigger',
 					'source',
-					'passwordHash'
+					'passwordHash',
+					'joinMethod'
 				],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
 				object: ['preferences', 'avatar', 'providerInfo']
@@ -91,6 +92,11 @@ class UserCreator extends ModelCreator {
 
 	// check for an existing user
 	async getExistingModel () {
+		if (this.force) {
+			// this forces a new user document to be created no matter what
+			return;
+		}
+		
 		// in this case, if the caller provided an existing user, we use that one,
 		// otherwise the logic will create a new user record (even with the same email)
 		return this.existingUser;

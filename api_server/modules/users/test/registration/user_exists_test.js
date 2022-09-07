@@ -2,11 +2,13 @@
 
 const RegistrationTest = require('./registration_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const Assert = require('assert');
 
 class UserExistsTest extends RegistrationTest {
 
 	get description () {
-		return 'should return the user when registering an email that already exists as an unconfirmed user';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
+		return `should return the user when registering an email that already exists as an unconfirmed user${oneUserPerOrg}`;
 	}
 
 	// before the test runs...
@@ -22,6 +24,7 @@ class UserExistsTest extends RegistrationTest {
 		this.userFactory.createRandomUser(
 			(error, data) => {
 				if (error) { return callback(error); }
+				this.userId = data.user.id;
 				this.data = this.userFactory.getRandomUserData();
 				this.data.email = data.user.email;
 				this.data._confirmationCheat = this.apiConfig.sharedSecrets.confirmationCheat;
@@ -32,6 +35,11 @@ class UserExistsTest extends RegistrationTest {
 				noConfirm: true
 			}
 		);
+	}
+
+	validateResponse (data) {
+		Assert.strictEqual(data.user.id, this.userId, 'ID of returned user not equal to existing user created');
+		return super.validateResponse(data);
 	}
 }
 

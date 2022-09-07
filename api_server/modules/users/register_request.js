@@ -121,6 +121,7 @@ class RegisterRequest extends RestfulRequest {
 			}
 		});
 		this.user = this.user || uninvitedUser;
+
 		// short-circuit the flow if the user is already registered
 		return this.user && this.user.get('isRegistered');
 	}
@@ -170,7 +171,9 @@ class RegisterRequest extends RestfulRequest {
 		}
 
 		// remove this check when ONE_USER_PER_ORG is fully deployed
-		if (this.module.oneUserPerOrg) {
+		const oneUserPerOrg = this.module.oneUserPerOrg || this.request.headers['x-cs-one-user-per-org'];
+		if (oneUserPerOrg) {
+			this.log('NOTE: Creating user under one-user-per-org paradigm');
 			this.user = await new UserCreator({ 
 				request: this,
 				existingUser: this.user

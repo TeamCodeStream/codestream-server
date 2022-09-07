@@ -1,3 +1,6 @@
+// NOTE: this test becomes obsolete when we move to ONE_USER_PER_ORG,
+// since users confirming registration is no longer an event the team is interested in,
+// only when the user accepts the invite does the team care
 'use strict';
 
 const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');

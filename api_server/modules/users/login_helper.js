@@ -56,6 +56,9 @@ class LoginHelper {
 		await this.generateAccessToken();
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
+		return {
+			accessToken: this.accessToken
+		};
 	}
 
 	// get the country-code associated with this user by IP address of the connection

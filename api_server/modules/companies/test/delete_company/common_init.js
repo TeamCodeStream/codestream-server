@@ -17,7 +17,6 @@ class CommonInit {
 	}
 
 	setTestOptions (callback) {
-		this.teamOptions.createCompanyInstead = true;
 		this.expectedVersion = 2;
 		callback();
 	}

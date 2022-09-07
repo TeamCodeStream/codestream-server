@@ -75,6 +75,7 @@ class AddTeamMembers  {
 				modifiedAt: Date.now()
 			}
 		};
+		
 		// handle the rare case where a registered user isn't on a team yet,
 		// and therefore they don't yet have a joinMethod ... we'll update
 		// the joinMethod to "Added to Team" here
