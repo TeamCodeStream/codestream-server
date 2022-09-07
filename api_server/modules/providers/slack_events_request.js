@@ -64,7 +64,7 @@ class SlackEventsRequest extends RestfulRequest {
 			return;
 		}
 		// don't repost messages that originated from codestream
-		if (this.slackEvent.app_id && this.slackEvent.app_id === this.api.config.integrations.slack.appSharingId) {
+		if (this.slackEvent.app_id && this.slackEvent.app_id === this.api.config.integrations.slack.appId) {
 			return;
 		}
 		if (!this.slackEvent.team) {
@@ -143,7 +143,7 @@ class SlackEventsRequest extends RestfulRequest {
 		if (!this.isThreadedReply(message || {})) {
 			return;
 		}
-		const post = await this.getPost(message.team, this.slackEvent.channel, message.ts);
+		const post = await this.getPost(message.team || this.slackEvent.team, this.slackEvent.channel, message.ts);
 		if (!post) {
 			return;
 		}
@@ -303,7 +303,7 @@ class SlackEventsRequest extends RestfulRequest {
 		const userHelper = new SlackUserHelper({
 			request: this
 		});
-		this.user = await userHelper.getUserWithoutTeam(this.slackEvent.user);
+		this.slackUserConnected = await userHelper.isSlackUserConnected(this.slackEvent.user);
 		
 		await this.processCodeFences();
 		await this.processFilenames();
@@ -321,7 +321,7 @@ class SlackEventsRequest extends RestfulRequest {
 		this.sendTelemetry({
 			event: 'Code Pasted in Messaging Service',
 			data: {
-				'Connected to Slack': Boolean(this.user)
+				'Connected to Slack': this.slackUserConnected
 			},
 			userId: this.slackEvent.user
 		});
@@ -341,7 +341,7 @@ class SlackEventsRequest extends RestfulRequest {
 			this.sendTelemetry({
 				event: 'Filename Mentioned in Messaging Service',
 				data: {
-					'Connected to Slack': Boolean(this.user)
+					'Connected to Slack': this.slackUserConnected
 				},
 				userId: this.slackEvent.user
 			});
@@ -360,7 +360,7 @@ class SlackEventsRequest extends RestfulRequest {
 		this.sendTelemetry({
 			event: 'Commit Hash Mentioned in Messaging Service',
 			data: {
-				'Connected to Slack': Boolean(this.user),
+				'Connected to Slack': this.slackUserConnected,
 				Type: match1 ? 'short' : 'long'
 			},
 			userId: this.slackEvent.user
@@ -375,7 +375,7 @@ class SlackEventsRequest extends RestfulRequest {
 					event: 'Code Host Mentioned in Messaging Service',
 					data: {
 						'Code Host': codeHost.name,
-						'Connected to Slack': Boolean(this.user)
+						'Connected to Slack': this.slackUserConnected
 					},
 					userId: this.slackEvent.user
 				});
