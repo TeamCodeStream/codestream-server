@@ -221,6 +221,11 @@ class APIRequestTest extends GenericTest {
 			// bot to a pubnub channel that we'll listen on
 			requestOptions.headers['X-CS-Test-Bot-Out'] = true;
 		}
+		if (options.oneUserPerOrg || this.oneUserPerOrg) {
+			// we're testing under "one-user-per-org" paradigm
+			// this can be removed when we have fully migrated to ONE_USER_PER_ORG
+			requestOptions.headers['X-CS-One-User-Per-Org'] = true;
+		}
 		requestOptions.headers['X-CS-Test-Num'] = `API-${this.testNum}`;	// makes it easy to log requests associated with particular tests
 	}
 

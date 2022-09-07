@@ -13,7 +13,8 @@ class RegistrationTest extends CodeStreamAPITest {
 	}
 	
 	get description () {
-		return 'should return valid user data when registering';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
+		return `should return valid user data when registering${oneUserPerOrg}`;
 	}
 
 	get method () {
@@ -68,7 +69,7 @@ class RegistrationTest extends CodeStreamAPITest {
 		this.confirmationCode = user.confirmationCode;
 		delete user.confirmationCode; // this is technically unsanitized, but we "cheat" during the test
 		// verify we got no attributes that clients shouldn't see
-		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES);
+		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}
 }
 

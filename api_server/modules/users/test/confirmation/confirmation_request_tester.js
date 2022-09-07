@@ -7,6 +7,7 @@ const ConfirmationTest = require('./confirmation_test');
 const ConfirmationTokenDeprecatedTest = require('./confirmation_token_deprecated_test');
 const NoAttributeTest = require('./no_attribute_test');
 const AlreadyRegisteredTest = require('./already_registered_test');
+const ConfirmInvitedUserTest = require('./confirm_invited_user_test'); // remove once ONE_USER_PER_ORG is implementedd
 const UnknownUserTest = require('./unknown_user_test');
 const IncorrectCodeTest = require('./incorrect_code_test');
 const MaxAttemptsTest = require('./max_attempts_test');
@@ -44,12 +45,17 @@ class ConfirmationRequestTester {
 
 	confirmationTest () {
 		new ConfirmationTest().test();
+		new ConfirmationTest({ oneUserPerOrg: true }).test();
 		//new ConfirmationWithLinkTest().test();
 		new ConfirmationTokenDeprecatedTest().test();
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'confirmationCode' }).test();
 		new AlreadyRegisteredTest().test();
-		new UnknownUserTest().test();
+		new AlreadyRegisteredTest({ oneUserPerOrg: true }).test();
+		new ConfirmInvitedUserTest().test();
+		new ConfirmInvitedUserTest({ oneUserPerOrg: true }).test();
+		// new UnknownUserTest().test();
+		new UnknownUserTest({ oneUserPerOrg: true }).test();
 		new IncorrectCodeTest().test();
 		new MaxAttemptsTest().test();
 		new ExpirationTest().test();
@@ -57,6 +63,7 @@ class ConfirmationRequestTester {
 		//new ConflictingUsernameTest().test();
 		//new NoCodestreamUsernameTest().test();
 		new InitialDataTest().test();
+		new InitialDataTest({ oneUserPerOrg: true }).test();
 		new MeAttributesTest().test();
 		new SubscriptionTest({ which: 'user' }).test();
 		new SubscriptionTest({ which: 'team' }).test();

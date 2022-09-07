@@ -27,6 +27,7 @@ const COMPANY_ADDITIONAL_ROUTES = [
 		requestClass: require('./put_company_test_group_request')
 	},
 	{
+		// deprecate this request when we have fully moved to ONE_USER_PER_ORG
 		method: 'put',
 		path: '/companies/join/:id',
 		requestClass: require('./join_company_request')

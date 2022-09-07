@@ -166,6 +166,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'signup-jwt',
 		requestClass: require('./get_signup_jwt_request')
+	},
+	{
+		method: 'put',
+		path: 'join-company/:id',
+		requestClass: require('./join_company_request')
 	}
 ];
 

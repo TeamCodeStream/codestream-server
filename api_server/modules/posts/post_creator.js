@@ -291,7 +291,11 @@ class PostCreator extends ModelCreator {
 		}
 
 		// remove this check when we have fully moved to ONE_USER_PER_ORG implementation
-		if (this.request.api.modules.modulesByName.users.oneUserPerOrg) {
+		if (
+			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.request.headers['x-cs-one-user-per-org']
+		) {
+			this.request.log('NOTE: Inviting user under one-user-per-org paradigm');
 			this.userInviter = new UserInviter({
 				request: this.request,
 				team: this.team,

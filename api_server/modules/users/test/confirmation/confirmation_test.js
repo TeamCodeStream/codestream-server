@@ -16,7 +16,8 @@ class ConfirmationTest extends CodeStreamAPITest {
 	}
 
 	get description () {
-		return 'should return valid user data and an access token when confirming a registration';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
+		return `should return valid user data and an access token when confirming a registration${oneUserPerOrg}`;
 	}
 
 	get method () {

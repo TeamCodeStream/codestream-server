@@ -65,7 +65,11 @@ class PostUserRequest extends PostRequest {
 
 	// invite the user, which will create them as needed, and add them to the team 
 	async inviteUser () {
-		const inviterClass = this.module.oneUserPerOrg ? UserInviter : OldUserInviter;
+		const oneUserPerOrg = this.module.oneUserPerOrg || this.request.headers['x-cs-one-user-per-org'];
+		if (oneUserPerOrg) {
+			this.log('NOTE: Inviting user under one-user-per-org paradigm');
+		}
+		const inviterClass = oneUserPerOrg ? UserInviter : OldUserInviter;
 		this.userInviter = new inviterClass({
 			request: this,
 			team: this.team,
@@ -94,9 +98,17 @@ class PostUserRequest extends PostRequest {
 			return super.handleResponse();
 		}
 
-		// get the user again because the user object would've been modified when added to the team,
-		// this should just fetch from the cache, not from the database
-		const user = await this.data.users.getById(this.transforms.createdUser.id);
+		// NOTE: this check for fetch shouldn't be necessary once we've fully migrated to ONE_USER_PER_ORG
+		let user;
+		const oneUserPerOrg = this.module.oneUserPerOrg || this.request.headers['x-cs-one-user-per-org'];
+		if (!oneUserPerOrg) {
+			// get the user again because the user object would've been modified when added to the team,
+			// this should just fetch from the cache, not from the database
+			user = await this.data.users.getById(this.transforms.createdUser.id);
+		} else {
+			user = this.transforms.createdUser;
+		}
+
 		this.responseData = { user: user.getSanitizedObject() };
 
 		return super.handleResponse();

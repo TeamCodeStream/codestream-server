@@ -73,7 +73,7 @@ class _UserCreator {
 				this.user = response.user;
 				this.token = response.accessToken;
 				this.broadcasterToken = response.broadcasterToken;
-				callback();
+				callback(null, response);
 			}
 		);
 	}

@@ -21,7 +21,6 @@ class CommonInit {
 		// create a company and don't make the "current user" a member
 		this.expectedVersion = 3;
 		Object.assign(this.teamOptions, {
-			createCompanyInstead: true,
 			creatorIndex: 1,
 			members: []
 		});
