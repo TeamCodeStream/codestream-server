@@ -9,6 +9,7 @@
 const Commander = require('commander');
 const MongoClient = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/mongo/mongo_client');
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 const { request, gql } = require('graphql-request');
 
 Commander
@@ -86,17 +87,16 @@ class PopulateNewRelicOrgIds {
 	async getMostRecentUser (company) {
 		let result = await this.data.users.getByQuery(
 			{
-				deactivated: false,
-				companyIds: {
-					$elemMatch: { $eq: company.id }
-				},
-
+				teamIds: company.everyoneTeamId
 			},
 			{
-				overrideHintRequired: true
+				hint: UserIndexes.byTeamId
 			}
 		);
 		result = result.filter(_ =>
+			!_.deactivated &&
+			_.isRegistered &&
+			_.lastLogin &&
 			_.providerInfo &&
 			_.providerInfo[company.everyoneTeamId] &&
 			_.providerInfo[company.everyoneTeamId].newrelic
