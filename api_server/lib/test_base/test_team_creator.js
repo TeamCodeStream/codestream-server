@@ -105,6 +105,9 @@ class TestTeamCreator {
 			userIndex = this.userOptions.numRegistered + n;
 		}
 		Object.assign(data, this.userOptions.userData[userIndex] || {});
+		if (this.userOptions.cheatOnSubscription) {
+			data._subscriptionCheat = this.test.apiConfig.sharedSecrets.subscriptionCheat;
+		}
 		this.test.userFactory.registerUser(
 			data,
 			(error, userData) => {
@@ -248,7 +251,9 @@ class TestTeamCreator {
 			this.users[n].user,
 			(error, response) => {
 				if (error) { return callback(error); }
+				const password = this.users[n].password;
 				this.users[n] = response;
+				this.users[n].password = password;
 				if (n === this.userOptions.currentUserIndex) {
 					this.currentUser = response;
 					this.token = response.accessToken;
@@ -279,14 +284,23 @@ class TestTeamCreator {
 			{
 				method: 'put',
 				path: '/join-company/' + this.company.id,
-				token: this.users[n].accessToken
+				token: this.users[n].accessToken,
+				requestOptions: {
+					headers: {
+						'X-CS-Confirmation-Cheat': this.test.apiConfig.sharedSecrets.confirmationCheat
+					}
+				}
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.users[n].user = response.user;
+				this.users[n].accessToken = response.accessToken;
+				if (n === this.userOptions.currentUserIndex) {
+					this.token = response.accessToken;
+				}
 				callback();
 			}
-		)
+		);
 	}
 
 	createRepos (callback) {

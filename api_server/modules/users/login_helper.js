@@ -103,6 +103,7 @@ class LoginHelper {
 	// get any companies the user is a member of (by email) in foreign environments,
 	// to display in the organization switcher
 	async getForeignCompanies () {
+		// deprecate this when we have fully moved to ONE_USER_PER_ORG
 		if (this.request.request.headers['x-cs-block-xenv']) {
 			this.request.log('Not fetching foreign companies, blocked by header');
 			return [];
@@ -305,17 +306,23 @@ class LoginHelper {
 
 	// get list of companies the user is not a member of, but is eligible to join
 	async getEligibleJoinCompanies () {
-		const domain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
+		const email = this.user.get('email');
+		const domain = EmailUtilities.parseEmail(email).domain.toLowerCase();
 		this.isWebmail = WebmailCompanies.includes(domain);
 
-		// ignore webmail domains
-		if (this.isWebmail) {
-			return;
-		}
+		const ignoreDomain = this.isWebmail;
+		const ignoreInvite = (
+			!this.request.module.oneUserPerOrg &&
+			!this.request.request.headers['x-cs-one-user-per-org']
+		);
 
 		if (this.notTrueLogin) { return; }
 
-		this.eligibleJoinCompanies = await GetEligibleJoinCompanies(domain, this.request);
+		this.eligibleJoinCompanies = await GetEligibleJoinCompanies(
+			email,
+			this.request,
+			{ ignoreDomain, ignoreInvite }
+		);
 	}
 
 	// set flag indicating whether this user's New Relic account is connected to a CodeStream company

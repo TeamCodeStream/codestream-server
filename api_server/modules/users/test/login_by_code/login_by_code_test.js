@@ -9,7 +9,8 @@ const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_ser
 class LoginByCodeTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should return valid user data when logging in by code';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
+		return `should return valid user data when logging in by code${oneUserPerOrg}`;
 	}
 
 	get method () {
@@ -18,6 +19,15 @@ class LoginByCodeTest extends CodeStreamAPITest {
 
 	get path () {
 		return '/no-auth/login-by-code';
+	}
+
+	getExpectedFields () {
+		const expectedResponse = { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
+		if (this.usingSocketCluster) {
+			delete expectedResponse.pubnubKey;
+			delete expectedResponse.pubnubToken;
+		}
+		return expectedResponse;
 	}
 
 	before (callback) {
@@ -35,6 +45,9 @@ class LoginByCodeTest extends CodeStreamAPITest {
 			email: this.currentUser.user.email,
 			_loginCheat: this.apiConfig.sharedSecrets.confirmationCheat
 		};
+		if (this.oneUserPerOrg) { // remove this check when we have fully moved to ONE_USER_PER_ORG
+			data.teamId = this.team.id;
+		}
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -47,6 +60,9 @@ class LoginByCodeTest extends CodeStreamAPITest {
 					email: this.currentUser.user.email,
 					loginCode: response.loginCode
 				};
+				if (this.oneUserPerOrg) { // remove this check when we have fully moved to ONE_USER_PER_ORG
+					this.data.teamId = this.team.id;
+				}
 				callback();
 			}
 		);

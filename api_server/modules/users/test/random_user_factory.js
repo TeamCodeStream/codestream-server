@@ -42,7 +42,7 @@ class _UserCreator {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.user = response.user;
-				callback(null, { user: this.user });
+				callback(null, { user: this.user, password: this.data.password });
 			}
 		);
 	}

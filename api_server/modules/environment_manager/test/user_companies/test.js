@@ -1,6 +1,6 @@
 // handle unit tests for the "GET /xenv/user-companies" request to fetch cross-environment companies
 // a given user (by email) is a member of
-
+// deprecate this call when we have fully moved to ONE_USER_PER_ORG
 'use strict';
 
 const UserCompaniesTest = require('./user_companies_test');

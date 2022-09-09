@@ -28,17 +28,42 @@ class LoginCodeHelper {
 
 	// fetch the user object for the requested email address
 	async getUser () {
-		this.user = await this.request.data.users.getOneByQuery(
+		const users = await this.request.data.users.getByQuery(
 			{ searchableEmail: this.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-		if (!this.user) {
-			this.request.log(`User ${this.email} does not exist, not generating login code`);
-		} else if (this.user.get('deactivated') || !this.user.get('isRegistered')) {
-			// silent failure, can't generate login code for user that is not active and registered
-			this.request.log(`User ${this.user.id} is not active and registered, not generating login code`);
-			delete this.user;
+		if (!this.request.request.headers['x-cs-one-user-per-org']) { // remove when we have fully moved to ONE_USER_PER_ORG
+			if (users.length > 1) {
+				this.request.warn(`Found more than one user matching ${this.email}, but one-user-per-org is not active, this is bad`);
+			}
+			this.user = users[0];
+		} else {
+			// under ONE_USER_PER_ORG, find the first registered user, either on the team given, or if no team given,
+			// that has no team
+			this.user = users.find(user => {
+				const teamIds = user.get('teamIds') || [];
+				return (
+					user.get('isRegistered') && 
+					!user.get('deactivated') &&
+					(
+						(
+							!this.teamId &&
+							teamIds.length === 0
+						) ||
+						(
+							this.teamId &&
+							teamIds.length === 1 &&
+							teamIds[0] === this.teamId
+						)
+					)
+				);
+			});
 		}
+
+		if (!this.user || !this.user.get('isRegistered') || this.user.get('deactivated')) {
+			this.request.log(`User ${this.email} does not exist or is not registered, not generating login code`);
+			delete this.user;
+		} 
 	}
 
 	// generate a login code and expiry date

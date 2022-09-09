@@ -34,6 +34,9 @@ class LoginRequest extends RestfulRequest {
 			{
 				required: {
 					string: ['email', 'password']
+				},
+				optional: {
+					string: ['teamId']
 				}
 			}
 		);
@@ -41,10 +44,10 @@ class LoginRequest extends RestfulRequest {
 
 	// handle the actual login check ... get user and validate password
 	async handleLogin () {
-		const { email, password } = this.request.body;
+		const { email, password, teamId } = this.request.body;
 		this.user = await new LoginCore({
 			request: this
-		}).login(email, password);
+		}).login(email, password, teamId);
 	}
 
 	// proceed with the actual login, calling into a login helper 

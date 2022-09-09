@@ -17,7 +17,7 @@ class NoLoginUnregisteredTest extends LoginTest {
 
 	getExpectedError () {
 		return {
-			code: 'USRC-1010'
+			code: 'USRC-1001'
 		};
 	}
 

@@ -22,7 +22,8 @@ class InitialDataTest extends ConfirmationTest {
 	}
 
 	get description () {
-		return 'user should receive teams and repos with response to email confirmation';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', in one-user-per-org paradigm' : '';
+		return `user should receive teams and repos with response to email confirmation${oneUserPerOrg}`;
 	}
 
 	getExpectedFields () {
@@ -48,6 +49,7 @@ class InitialDataTest extends ConfirmationTest {
 			Assert(data.teams.length === 0, 'found teams in one-user-per-org response');
 			Assert(data.repos.length === 0, 'found repos in one-user-per-org response');
 			Assert(!data.streams, 'found streams in one-user-per-org response');
+			Assert(data.eligibleJoinCompanies.length > 0, 'did not get an eligible join company in one-user-per-org response');
 		} else {
 			// validate that we got the company, team, and repo in the response,
 			// along with the expected streams

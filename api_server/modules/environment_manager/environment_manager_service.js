@@ -166,6 +166,7 @@ class EnvironmentManagerService {
 	}
 	
 	// fetch all companies across all foreign environments that a given user (by email) is a member of
+	// deprecate this when we have fully moved to ONE_USER_PER_ORG
 	async fetchUserCompaniesFromAllEnvironments (email) {
 		const hosts = this.getForeignEnvironmentHosts();
 		const companies = [];

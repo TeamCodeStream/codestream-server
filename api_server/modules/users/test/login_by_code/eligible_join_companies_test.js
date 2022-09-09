@@ -1,29 +1,15 @@
 'use strict';
 
-const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
+const InitialDataTest = require('./initial_data_test');
 const Assert = require('assert');
-const RandomString = require('randomstring');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const RandomString = require('randomstring');
 
-class EligibleJoinCompaniesTest extends CodeStreamAPITest {
-
-	constructor (options) {
-		super(options);
-		this.userOptions.numRegistered = 2;
-		delete this.teamOptions.creatorIndex;
-	}
+class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	get description () {
-		// remove this check when we have moved to ONE_USER_PER_ORG
-		if (this.oneUserPerOrg) {
-			return 'should return companies eligible for joining given an email in response to a cross-environment request';
-		} else {
-			return 'should return eligible companies matching a given domain in response to a cross-environment request';
-		}
-	}
-
-	get method () {
-		return 'get';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : '';
+		return `user should receive eligible companies to join via domain-based, code-host-based, and invite, when logging in by code${oneUserPerOrg}`;
 	}
 
 	before (callback) {
@@ -35,10 +21,24 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 		], callback);
 	}
 
-	// create companies that the current user is not a member of, but that they are
+	// create companies that the confirming user is not a member of, but that they are
 	// eligible to join via domain-based joining or code host joining
 	createEligibleJoinCompanies (callback) {
 		this.expectedEligibleJoinCompanies = [];
+
+		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
+		if (this.oneUserPerOrg) {
+			this.expectedEligibleJoinCompanies.push({
+				id: this.company.id,
+				name: this.company.name,
+				domainJoining: [],
+				codeHostJoining: [],
+				byInvite: true,
+				memberCount: 2,
+				accessToken: this.currentUser.accessToken
+			});
+		}
+
 		BoundAsync.times(
 			this,
 			2,
@@ -47,11 +47,10 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 		);
 	}
 
-	// create a company that the current user is not a member of, but that they are
+	// create a company that the confirming user is not a member of, but that they are
 	// eligible to join via domain-based joining or code host joining
 	createEligibleJoinCompany (n, callback) {
-		const email = this.currentUser.user.email;
-		const domain = email.split('@')[1];
+		const domain = this.currentUser.user.email.split('@')[1];
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -79,16 +78,6 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 					codeHostJoining: response.company.codeHostJoining,
 					memberCount: 1
 				});
-				if (this.oneUserPerOrg) { // remove when we have fully moved to ONE_USER_PER_ORG
-					this.path = '/xenv/eligible-join-companies?email=' + encodeURIComponent(email);
-				} else {
-					this.path = '/xenv/eligible-join-companies?domain=' + encodeURIComponent(domain);
-				}
-				this.apiRequestOptions = {
-					headers: {
-						'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth
-					}
-				};
 				callback();
 			}
 		);
@@ -96,7 +85,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 
 	// create companies that the confirming user has been invited to
 	createCompaniesAndInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove when have fully moved to ONE_USER_PER_ORG
+		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
 			return callback();
 		}
 		BoundAsync.timesSeries(
@@ -130,6 +119,9 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 	
 	// invite the user to company just created
 	inviteUser (teamId, callback) {
+		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
+			return callback();
+		}
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -168,13 +160,14 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that we got the eligible companies in the response
-		data.companies.sort((a, b) => {
+		data.eligibleJoinCompanies.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
 		this.expectedEligibleJoinCompanies.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
-		Assert.deepStrictEqual(data.companies, this.expectedEligibleJoinCompanies, 'eligibleJoinCompanies is not correct');
+		Assert.deepStrictEqual(data.eligibleJoinCompanies, this.expectedEligibleJoinCompanies, 'eligibleJoinCompanies is not correct');
+		super.validateResponse(data);
 	}
 }
 

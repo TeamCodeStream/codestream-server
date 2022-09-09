@@ -58,9 +58,13 @@ class UserInviter {
 				'joinMethod',
 				'preferences',
 				'avatar',
-				'originTeamId'
+				'originTeamId',
+				'passwordHash'
 			].forEach(attribute => {
-				userData[attribute] = existingUser.get(attribute);
+				const value = existingUser.get(attribute);
+				if (value !== undefined) {
+					userData[attribute] = value;
+				}
 			});
 			existingUser = undefined;
 		}
