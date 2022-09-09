@@ -21,8 +21,7 @@ class Company extends CodeStreamModel {
 			return memberIds;
 		}, []);
 
-		// TODO: we should really just have a count function
-		const members = await data.users.getByQuery(
+		return data.users.countByQuery(
 			{
 				_id: data.users.inQuerySafe(memberIds),
 				isRegistered: true,

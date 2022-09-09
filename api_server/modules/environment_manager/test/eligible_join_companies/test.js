@@ -3,7 +3,7 @@
 'use strict';
 
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
-const DomainRequiredTest = require('./domain_required_test');
+const DomainOrEmailRequiredTest = require('./domain_or_email_required_test');
 const NoSecretTest = require('./no_secret_test');
 const IncorrectSecretTest = require('./incorrect_secret_test');
 
@@ -11,7 +11,9 @@ class EligibleJoinCompaniesRequestTester {
 
 	test () {
 		new EligibleJoinCompaniesTest().test();
-		new DomainRequiredTest().test();
+		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test();
+		new DomainOrEmailRequiredTest().test();
+		new DomainOrEmailRequiredTest({ oneUserPerOrg: true }).test();
 		new NoSecretTest().test();
 		new IncorrectSecretTest().test();
 	}

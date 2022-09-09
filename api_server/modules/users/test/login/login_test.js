@@ -27,7 +27,8 @@ class LoginTest extends CodeStreamAPITest {
 	}
 
 	get description () {
-		return 'should return valid user when doing login';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : '';
+		return `should return valid user when doing login${oneUserPerOrg}`;
 	}
 
 	get method () {
@@ -61,6 +62,11 @@ class LoginTest extends CodeStreamAPITest {
 			email: this.currentUser.user.email,
 			password: this.currentUser.password
 		};
+		if (this.oneUserPerOrg) { // remove this when we have moved to ONE_USER_PER_ORG, provide teamId every time
+			// since there is a teamless user record, and one on a team, we need to ensure
+			// we login for the one on the team
+			this.data.teamId = this.team.id;
+		}
 		this.beforeLogin = Date.now();
 		callback();
 	}

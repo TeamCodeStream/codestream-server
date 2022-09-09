@@ -16,16 +16,19 @@ const TokenIsValidTest = require('./token_is_valid_test');
 const SubscriptionTest = require('./subscription_test');
 const DontUpdateLastLoginFromWebTest = require('./dont_update_last_login_from_web_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
+const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 
 class LoginRequestTester {
 
 	loginTest () {
 		new LoginTest().test();
+		new LoginTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'password' }).test();
 		new InvalidPasswordTest().test();
 		new InvalidEmailTest().test();
 		new InitialDataTest().test();
+		new InitialDataTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new MeAttributesTest().test();
 		new NoLoginUnregisteredTest().test();
 		new NoPasswordTest().test();
@@ -37,6 +40,8 @@ class LoginRequestTester {
 		// new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new DontUpdateLastLoginFromWebTest().test();
 		new ClearFirstSessionTest().test();
+		new EligibleJoinCompaniesTest().test();
+		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 	}
 }
 

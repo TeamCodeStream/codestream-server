@@ -33,12 +33,14 @@ class GetCompaniesRequest extends GetManyRequest {
 
 		// get any companies the user is a member of (by email) in foreign environments,
 		// to display in the organization switcher
+		// deprecate this when we have fully moved to ONE_USER_PER_ORG
 		await this.getForeignCompanies();
 	}
 
 	// get any companies the user is a member of (by email) in foreign environments,
 	// to display in the organization switcher
 	async getForeignCompanies () {
+		// deprecate this when we have fully moved to ONE_USER_PER_ORG
 		if (this.request.headers['x-cs-block-xenv']) {
 			this.log('Not fetching foreign companies, blocked by header');
 			return [];

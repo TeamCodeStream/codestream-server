@@ -36,6 +36,9 @@ class LoginByCodeRequest extends RestfulRequest {
 			{
 				required: {
 					string: ['email', 'loginCode']
+				},
+				optional: {
+					string: ['teamId']
 				}
 			}
 		);
@@ -43,10 +46,10 @@ class LoginByCodeRequest extends RestfulRequest {
 
 	// handle the actual login check ... get user and validate loginCode
 	async handleLogin () {
-		const { email, loginCode } = this.request.body;
+		const { email, loginCode, teamId } = this.request.body;
 		this.user = await new LoginCore({
 			request: this
-		}).loginByCode(email, loginCode);
+		}).loginByCode(email, loginCode, teamId);
 	}
 
 	// proceed with the actual login, calling into a login helper 

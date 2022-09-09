@@ -1,11 +1,11 @@
 'use strict';
 
-const LoginTest = require('./login_test');
+const LoginByCodeTest = require('./login_by_code_test');
 const Assert = require('assert');
 const UserTestConstants = require('../user_test_constants');
 const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
 
-class InitialDataTest extends LoginTest {
+class InitialDataTest extends LoginByCodeTest {
 
 	constructor (options) {
 		super(options);
@@ -23,7 +23,7 @@ class InitialDataTest extends LoginTest {
 
 	get description () {
 		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
-		return `user should receive teams and repos with response to a raw login${oneUserPerOrg}`;
+		return `user should receive teams and repos with response to logging in by code${oneUserPerOrg}`;
 	}
 
 	getExpectedFields () {

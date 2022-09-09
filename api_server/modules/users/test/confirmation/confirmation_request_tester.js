@@ -35,6 +35,7 @@ const TrackCodeExpiredTest = require('./track_code_expired_test');
 const TrackIncorrectCodeTest = require('./track_incorrect_code_test');
 const ReuseCodeTest = require('./reuse_code_test');
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
+const EligibleJoinCompaniesByInviteTest = require('./eligible_join_companies_by_invite_test');
 const IsWebmailTest = require('./is_webmail_test');
 const AccountIsConnectedTest = require('./account_is_connected_test');
 const AccountIsConnectedFalseTest = require('./account_is_connected_false_test');
@@ -54,7 +55,7 @@ class ConfirmationRequestTester {
 		new AlreadyRegisteredTest({ oneUserPerOrg: true }).test();
 		new ConfirmInvitedUserTest().test();
 		new ConfirmInvitedUserTest({ oneUserPerOrg: true }).test();
-		// new UnknownUserTest().test();
+		new UnknownUserTest().test();
 		new UnknownUserTest({ oneUserPerOrg: true }).test();
 		new IncorrectCodeTest().test();
 		new MaxAttemptsTest().test();
@@ -84,6 +85,8 @@ class ConfirmationRequestTester {
 		new TrackIncorrectCodeTest().test();
 		new ReuseCodeTest().test();
 		new EligibleJoinCompaniesTest().test();
+		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test();
+		new EligibleJoinCompaniesByInviteTest({ oneUserPerOrg: true }).test();
 		new IsWebmailTest().test();
 		new AccountIsConnectedTest().test();
 		new AccountIsConnectedFalseTest().test();

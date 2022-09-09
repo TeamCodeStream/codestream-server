@@ -22,7 +22,8 @@ class InitialDataTest extends LoginTest {
 	}
 
 	get description () {
-		return 'user should receive teams and repos with response to login';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
+		return `user should receive teams and repos with response to login${oneUserPerOrg}`;
 	}
 
 	getExpectedFields () {
@@ -36,6 +37,9 @@ class InitialDataTest extends LoginTest {
 	getUserData () {
 		const data = this.userFactory.getRandomUserData();
 		data.email = this.users[3].user.email;
+		if (this.oneUserPerOrg) { // remove this check when we have fully moved to ONE_USER_PER_ORG
+			data.teamId = this.team.id;
+		}
 		return data;
 	}
 			

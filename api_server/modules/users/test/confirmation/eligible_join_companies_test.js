@@ -8,7 +8,8 @@ const RandomString = require('randomstring');
 class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	get description () {
-		return 'user should receive eligible companies to join via domain-based and code-host-based with response to email confirmation';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', in one-user-per-org paradigm' : '';
+		return `user should receive eligible companies to join via domain-based and code-host-based with response to email confirmation${oneUserPerOrg}`;
 	}
 
 	before (callback) {
@@ -22,6 +23,19 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 	// eligible to join via domain-based joining or code host joining
 	createEligibleJoinCompanies (callback) {
 		this.expectedEligibleJoinCompanies = [];
+
+		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
+		if (this.oneUserPerOrg) {
+			this.expectedEligibleJoinCompanies.push({
+				id: this.company.id,
+				name: this.company.name,
+				domainJoining: [],
+				codeHostJoining: [],
+				byInvite: true,
+				memberCount: 2
+			});
+		}
+
 		BoundAsync.times(
 			this,
 			2,
