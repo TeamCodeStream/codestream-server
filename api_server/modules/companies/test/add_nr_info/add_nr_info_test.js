@@ -23,13 +23,13 @@ class AddNRInfoTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		Assert(data.company.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.expectedData.company.$set.modifiedAt = data.company.$set.modifiedAt;
-		if (this.expectedData.company.$addToSet.nrAccountIds) {
-			this.expectedData.company.$addToSet.nrAccountIds.sort();
-			data.company.$addToSet.nrAccountIds.sort();
+		if (this.expectedData.company.$set.nrAccountIds) {
+			this.expectedData.company.$set.nrAccountIds.sort();
+			data.company.$set.nrAccountIds.sort();
 		}
-		if (this.expectedData.company.$addToSet.nrOrgIds) {
-			this.expectedData.company.$addToSet.nrOrgIds.sort();
-			data.company.$addToSet.nrOrgIds.sort();
+		if (this.expectedData.company.$set.nrOrgIds) {
+			this.expectedData.company.$set.nrOrgIds.sort();
+			data.company.$set.nrOrgIds.sort();
 		}
 		Assert.deepStrictEqual(data, this.expectedData, 'response is incorrect');
 	}

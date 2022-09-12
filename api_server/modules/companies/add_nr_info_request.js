@@ -25,20 +25,21 @@ class AddNRInfoRequest extends RestfulRequest {
 	// process the request
 	async process () {
 		if (!this.request.body.accountIds && !this.request.body.orgIds) {
-			throw this.errorHandler.error('parameterRequired', { info: 'accountIds or orgIds' })
+			throw this.errorHandler.error('parameterRequired', { info: 'accountIds or orgIds' });
 		}
 		const op = {
 			$set: {
 				modifiedAt: Date.now()
-			},
-			$addToSet: {
 			}
 		};
 		if (this.request.body.accountIds) {
-			op.$addToSet.nrAccountIds = this.request.body.accountIds;
+			op.$set.nrAccountIds = this.request.body.accountIds;
 		}
 		if (this.request.body.orgIds) {
-			op.$addToSet.nrOrgIds = this.request.body.orgIds;
+			if (this.request.body.orgIds.length !== 1) {
+				throw this.errorHandler.error('invalidParameter', { info: 'orgIds must be a singleton' });
+			}
+			op.$set.nrOrgIds = this.request.body.orgIds;
 		}
 
 		this.updateOp = await new ModelSaver({

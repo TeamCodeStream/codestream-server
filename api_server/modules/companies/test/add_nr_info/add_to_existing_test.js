@@ -21,12 +21,9 @@ class AddToExistingTest extends AddNRInfoTest {
 					this.codeErrorFactory.randomAccountId()
 				],
 				orgIds: [
-					this.codeErrorFactory.randomOrgId(),
 					this.codeErrorFactory.randomOrgId()
 				]
 			};
-			this.expectedCompany.nrAccountIds.push.apply(this.expectedCompany.nrAccountIds, this.data.accountIds);
-			this.expectedCompany.nrOrgIds.push.apply(this.expectedCompany.nrOrgIds, this.data.orgIds);
 			this.expectedCompany.version = this.expectedData.company.$set.version = 3;
 			this.expectedData.company.$version.before = 2;
 			this.expectedData.company.$version.after = 3;

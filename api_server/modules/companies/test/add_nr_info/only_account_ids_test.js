@@ -13,7 +13,7 @@ class OnlyAccountIdsTest extends AddNRInfoTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.orgIds;
-			delete this.expectedData.company.$addToSet.nrOrgIds;
+			delete this.expectedData.company.$set.nrOrgIds;
 			callback();
 		});
 	}
