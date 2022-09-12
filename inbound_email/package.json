@@ -34,5 +34,10 @@
 	},
 	"pre-commit": [
 		"eslint"
-	]
+	],
+	"overrides": {
+		"degenerator@3.0.1": {
+			"vm2": "3.9.11"
+		}
+	}
 }
