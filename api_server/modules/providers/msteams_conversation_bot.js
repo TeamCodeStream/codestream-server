@@ -38,8 +38,11 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 
 		this.onMessage(async (context, next) => {
 			try {
-				// this needs to be run before we access the text as it 
-				// removes the <at>CodeStream</at> part of 
+
+                context.sendActivity(JSON.stringify(context));
+                
+				//this needs to be run before we access the text as it 
+				//removes the <at>CodeStream</at> part of 
 				TurnContext.removeRecipientMention(context.activity);
 				const text = context.activity.text.trim();
 
@@ -54,6 +57,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				const team = channelData && channelData.team ? channelData.team : undefined;
 				const teamId = team && typeof (team.id) === 'string' ? team.id : undefined;
 				const isPersonalChat = teamId === undefined;
+
+                await context.sendActivity(MessageFactory.text('Hey Hey Hey!'));
+                await next();
 
 				// not checking type since this can return undefined
 				if (!didBotWelcomeUser && isPersonalChat) {
@@ -521,8 +527,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
-
-		await context.sendActivity(MessageFactory.text('After signing in, please copy the code shown on your screen and paste it here.'));
+		await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	// provides a way for a user to signup
@@ -641,6 +646,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async help (context) {
@@ -721,6 +727,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async helpPersonal (context, userName) {
@@ -810,6 +817,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async sendAdaptiveCard(context, body){
