@@ -38,8 +38,8 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 
 		this.onMessage(async (context, next) => {
 			try {
-				//this needs to be run before we access the text as it 
-				//removes the <at>CodeStream</at> part of 
+				// this needs to be run before we access the text as it 
+				// removes the <at>CodeStream</at> part of 
 				TurnContext.removeRecipientMention(context.activity);
 				const text = context.activity.text.trim();
 
