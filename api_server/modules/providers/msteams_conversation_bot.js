@@ -521,8 +521,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
-
-		await context.sendActivity(MessageFactory.text('After signing in, please copy the code shown on your screen and paste it here.'));
+		await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	// provides a way for a user to signup
@@ -641,6 +640,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async help (context) {
@@ -721,6 +721,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async helpPersonal (context, userName) {
@@ -810,6 +811,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async sendAdaptiveCard(context, body){
