@@ -22,6 +22,8 @@ const TEAM_BOT_MESSAGE = 'Please run this command from a team channel.';
 const STATE_PROPERTY_WELCOMED_USER = 'welcomedUser';
 const STATE_PROPERTY_CODESTREAM_USER_ID = 'codestreamUserId';
 
+const OPEN_EXTERNAL_LINK_ICON = 'https://images.codestream.com/misc/link-external_transparent-32x32.png';
+
 class MSTeamsConversationBot extends TeamsActivityHandler {
 	// note this is a singleton, and no instance members should be used
 	constructor () {
@@ -33,75 +35,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			}
 			await next();
 		});
-
-		// called for any incoming conversation update activity that includes 
-		// members added to the conversation. this is what is called right after a bot is installed
-		this.onMembersAdded(async (context, next) => {
-			// Iterate over all new members added to the conversation
-			// for (const idx in context.activity.membersAdded) {
-				// Greet anyone that was not the target (recipient) of this message.
-				// Since the bot is the recipient for events from the channel,
-				// context.activity.membersAdded === context.activity.recipient.Id indicates the
-				// bot was added to the conversation, and the opposite indicates this is a user.
-				// if (context.activity.membersAdded[idx].id !== context.activity.recipient.id) {
-				// 	await this.firstRun(context);
-				// }
-			// }
-			// By calling next() you ensure that the next BotHandler is run.
-			await next();
-		});
-
-		// TODO implement these?
-		// this.onConversationUpdate(async (context, next) => {
-		//     console.log(JSON.stringify(context.activity));
-		//     await context.sendActivity("conversation update");
-		//     await next();
-		// });
-		// https://docs.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/subscribe-to-conversation-events?tabs=typescript
-		// this.onTeamsChannelDeletedEvent(async (channelInfo, teamInfo, context, next) => {
-		//     const card = CardFactory.heroCard('Channel Deleted', `${channelInfo.name} is the Channel deleted`);
-		//     const message = MessageFactory.attachment(card);
-		//     await context.sendActivity(message);
-		//     await next();
-		// });
-		// this.onTeamsChannelRenamedEvent(async (channelInfo, teamInfo, context, next) => {
-		//     const card = CardFactory.heroCard('Channel Renamed', `${channelInfo.name} is the Channel renamed`);
-		//     const message = MessageFactory.attachment(card);
-		//     await context.sendActivity(message);
-		//     await next();
-		// });
-		// this.onTeamsChannelCreatedEvent(async (channelInfo, teamInfo, context, next) => {
-		//     const card = CardFactory.heroCard('Channel Created', `${channelInfo.name} is the Channel created`);
-		//     const message = MessageFactory.attachment(card);
-		//     await context.sendActivity(message);
-		//     await next();
-		// });
-		// this.onTeamsTeamRenamedEvent(async (teamInfo, context, next) => {
-		//     const card = CardFactory.heroCard('Team renamed', `${teamInfo.name} is the Team renamed`);
-		//     const message = MessageFactory.attachment(card);
-		//     await context.sendActivity(message);
-		//     await next();
-		// });
-		// this.onTeamsMembersAddedEvent(async (membersAdded, teamInfo, context, next) => {
-		//     const card = CardFactory.heroCard('members added qqqqq', `${JSON.stringify(membersAdded)}`);
-		//     const message = MessageFactory.attachment(card);
-		//     await context.sendActivity(message);
-		//     await next();
-		// });
-		// this.onTeamsMembersRemovedEvent(async (membersRemoved, context, next) => {
-		//     const card = CardFactory.heroCard('members removed', `${JSON.stringify(membersRemoved)}`);
-		//     const message = MessageFactory.attachment(card);
-		//     await context.sendActivity(message);
-		//     await next();
-		// });
-		// this.onMembersAddedActivity(async (context, next) => {
-		//     context.activity.membersAdded.forEach(async (teamMember) => {
-		//         if (teamMember.id !== context.activity.recipient.id) {
-		//             await context.sendActivity(`Welcome to the team ${teamMember.givenName} ${teamMember.surname}`);
-		//         }
-		//     });
-		//     await next();
-		// });
 
 		this.onMessage(async (context, next) => {
 			try {
@@ -161,10 +94,10 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				}
 				else {
 					switch (text.toLocaleLowerCase()) {
-                        // start secret commands
-                        case 'install':
-                            await this.botInstalledPersonal(context);
-                            break;
+						// start secret commands
+						case 'install':
+							await this.botInstalledPersonal(context);
+							break;
 						case 'easteregg':
 							await this.easterEgg(context);
 							break;
@@ -467,38 +400,32 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					value: 'connected'
 				};
 			});
-			const payload = {
-				type: 'AdaptiveCard',
-				body: [
-					{
-						type: 'TextBlock',
-						size: 'Medium',
-						weight: 'Bolder',
-						text: 'CodeStream Teams'
-					},
-					{
-						type: 'ColumnSet',
-						columns: [
-							{
-								type: 'Column',
-								items: [
-									{
-										type: 'FactSet',
-										facts: facts
-									}
-								],
-								width: 'stretch'
-							}
-						]
-					}
-				],
-				'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-				version: '1.0'
-			};
 
-			await context.sendActivity({
-				attachments: [CardFactory.adaptiveCard(payload)]
+			let body = [];
+
+			body.push({
+				type: 'TextBlock',
+				size: 'Medium',
+				weight: 'Bolder',
+				text: 'CodeStream Teams'
+			},
+			{
+				type: 'ColumnSet',
+				columns: [
+					{
+						type: 'Column',
+						items: [
+							{
+								type: 'FactSet',
+								facts: facts
+							}
+						],
+						width: 'stretch'
+					}
+				]
 			});
+
+			await this.sendAdaptiveCard(context, body);
 		}
 		else {
 			await context.sendActivity(MessageFactory.text('Status Unknown'));
@@ -518,44 +445,39 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					value: 'connected'
 				};
 			});
-			const payload = {
-				type: 'AdaptiveCard',
-				body: [
-					{
-						type: 'TextBlock',
-						size: 'Medium',
-						weight: 'Bolder',
-						text: 'CodeStream Teams'
-					},
-					{
-						type: 'ColumnSet',
-						columns: [
-							{
-								type: 'Column',
-								items: [
-									{
-										type: 'FactSet',
-										facts: facts
-									}
-								],
-								width: 'stretch'
-							}
-						]
-					},
-					{
-						type: 'TextBlock',
-						size: 'Medium',
-						weight: 'Bolder',
-						text: `Your CodeStream userId: ${codeStreamUserId}`
-					},
-				],
-				'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-				version: '1.0'
-			};
 
-			await context.sendActivity({
-				attachments: [CardFactory.adaptiveCard(payload)]
+			let body = [];
+			
+			body.push({
+				type: 'TextBlock',
+				size: 'Medium',
+				weight: 'Bolder',
+				text: 'CodeStream Teams'
+			},
+			{
+				type: 'ColumnSet',
+				columns: [
+					{
+						type: 'Column',
+						items: [
+							{
+								type: 'FactSet',
+								facts: facts
+							}
+						],
+						width: 'stretch'
+					}
+				]
+			},
+			{
+				type: 'TextBlock',
+				size: 'Medium',
+				weight: 'Bolder',
+				text: `Your CodeStream userId: ${codeStreamUserId}`
 			});
+
+
+			await this.sendAdaptiveCard(context, body);
 		}
 		else {
 			await context.sendActivity(MessageFactory.text('Status Unknown'));
@@ -579,69 +501,57 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 
 	// returns a way for a user to signin if their team is not connected
 	async signin (context) {
-		// NOTE this can also work, but it's styling is a little chunky
-		// const card = CardFactory.signinCard("Sign in", `${this.api.config.apiServer.publicApiUrl}/web/login?tenantId=` + context.activity.channelData.tenant.id, "Sign in to CodeStream to get started!");
-		const card = CardFactory.heroCard('', 'Sign in to CodeStream to get started!', null,
-			[
-				{
-					type: ActionTypes.OpenUrl,
-					title: 'Sign in',
-					value: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`
-				}
-			]);
+		let body = [];
 
-		await context.sendActivity({
-			attachments: [card]
+		body.push({
+			type: 'TextBlock',
+			text: `Sign in to CodeStream to get started!`,
+			wrap: true,
+		},
+		{
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.OpenUrl',
+					title: 'Sign in',
+					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`,
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				}
+			]
 		});
-		await context.sendActivity(MessageFactory.text('After signing in, please copy the code shown on your screen and paste it here.'));
+
+		await this.sendAdaptiveCard(context, body);
+		await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	// provides a way for a user to signup
 	async signup (context) {
-		const card = CardFactory.heroCard('', 'Download the CodeStream IDE extension to get started!', null,
-			[
-				{
-					type: ActionTypes.OpenUrl,
-					title: 'Sign up',
-					value: 'https://www.codestream.com'
-				}
-			]);
-		await context.sendActivity({
-			attachments: [card]
-		});
-	}
+		let body = [];
 
-	async firstRun (context) {
-		let body = [{
+		body.push({
 			type: 'TextBlock',
-			size: 'Medium',
-			text: 'CodeStream is a collaboration platform for software developers that allows them to easily discuss and review code right inside their IDE. The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams.',
-			wrap: true
+			text: `Download the CodeStream IDE extension to get started!`,
+			wrap: true,
 		},
 		{
-			type: 'TextBlock',
-			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command to get started ([click here for detailed instructions](https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/)). If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
-			wrap: true
-		}];
-
-		const payload = {
-			type: 'AdaptiveCard',
-			body: body,
-			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-			version: '1.0'
-		};
-
-		await context.sendActivity({
-			attachments: [CardFactory.adaptiveCard(payload)]
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.OpenUrl',
+					title: 'Sign up',
+					url: 'https://www.codestream.com',
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				}
+			]
 		});
+
+		await this.sendAdaptiveCard(context, body);
 	}
 
 	async botInstalledPersonal (context) {
 		let body = [];
 
-		body.push(
-		{
+		body.push({
 			type: 'TextBlock',
 			size: 'Medium',
 			text: 'Welcome to New Relic CodeStream for Microsoft Teams!',
@@ -660,10 +570,11 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			type: 'ActionSet',
 			actions: [
 				{
-                    type: 'Action.OpenUrl',
+					type: 'Action.OpenUrl',
 					title: 'Sign In',
-					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`
-                }
+					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`,
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				}
 			]
 		},
 		{
@@ -677,12 +588,14 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				{
 					type: 'Action.OpenUrl',
 					title: 'Detailed Instructions',
-					url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/'
+					url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/',
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
 				},
 				{
 					type: 'Action.OpenUrl',
 					title: 'Download CodeStream',
-					url: 'https://www.codestream.com'
+					url: 'https://www.codestream.com',
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
 				}
 			]
 		},
@@ -699,104 +612,121 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					title: 'Help',
 					card: {
 						type: 'AdaptiveCard',
-                        body: [
-                            {
-                                type: "TextBlock",
-                                text: "Here's a list of personal commands I can process:\r",
-                                wrap: true
-                            },
-                            {
-                                type: "TextBlock",
-                                text: "- **help** - view list of available commands\r- **signin** - sign in to CodeStream\r- **signup** - sign up for CodeStream\r- **signout** - sign out of CodeStream\r\r",
-                                wrap: true
-                            },
-                            {
-                                type: "TextBlock",
-                                text: "Here's a list of channel commands I can process:\r",
-                                wrap: true
-                            },
-                            {
-                                type: "TextBlock",
-                                text: "- **connect** - connect a Teams channel to CodeStream\r- **disconnect** - disconnect a Teams channel from CodeStream",
-                                wrap: true
-                            }
-                        ]
+						body: [
+							{
+								type: "TextBlock",
+								text: "Here's a list of personal commands I can process:\r",
+								wrap: true
+							},
+							{
+								type: "TextBlock",
+								text: "- **help** - view list of available commands\r- **signin** - sign in to CodeStream\r- **signup** - sign up for CodeStream\r- **signout** - sign out of CodeStream\r\r",
+								wrap: true
+							},
+							{
+								type: "TextBlock",
+								text: "Here's a list of channel commands I can process:\r",
+								wrap: true
+							},
+							{
+								type: "TextBlock",
+								text: "- **connect** - connect a Teams channel to CodeStream\r- **disconnect** - disconnect a Teams channel from CodeStream",
+								wrap: true
+							}
+						]
 					}
 				}
 			]
 		});
 
-		const payload = {
-			type: 'AdaptiveCard',
-			body: body,
-			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-			version: '1.4'
-		};
-
-		await context.sendActivity({
-			attachments: [CardFactory.adaptiveCard(payload)]
-		});
+		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
-	// returns a link for help
 	async help (context) {
-		const payload = {
-			type: 'AdaptiveCard',
-			body: [
-				{
-					type: 'TextBlock',
-					size: 'Medium',
-					text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
-					wrap: true
-				},
-				{
-					type: 'ColumnSet',
-					columns: [
-						{
-							type: 'Column',
-							items: [
-								{
-									type: 'FactSet',
-									facts: [
-										{
-											title: 'connect',
-											value: 'Connect this channel to CodeStream.'
-										},
-										{
-											title: 'disconnect',
-											value: 'Disconnect this channel from CodeStream.'
-										}
-									]
-								}
-							],
-							width: 'stretch'
-						}
-					]
-				},
-				{
-					type: 'TextBlock',
-					size: 'Medium',
-					text: 'If you already have a CodeStream account, issue the "signin" command from the personal CodeStream bot to get started ([click here for detailed instructions](https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/)).',
-					wrap: true
-				},
-				{
-					type: 'TextBlock',
-					size: 'Medium',
-					text: 'If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
-					wrap: true
-				}
-			],
-			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-			version: '1.0'
-		};
+		let body = [];
 
-		await context.sendActivity({
-			attachments: [CardFactory.adaptiveCard(payload)]
+		body.push({
+			type: 'TextBlock',
+			size: 'Medium',
+			text: 'The CodeStream bot allows you to share discussions from CodeStream to any channel on Teams. You can use any of the following commands:',
+			wrap: true
+		},
+		{
+			type: 'ColumnSet',
+			columns: [
+				{
+					type: 'Column',
+					items: [
+						{
+							type: 'FactSet',
+							facts: [
+								{
+									title: 'connect',
+									value: 'Connect this channel to CodeStream.'
+								},
+								{
+									title: 'disconnect',
+									value: 'Disconnect this channel from CodeStream.'
+								}
+							]
+						}
+					],
+					width: 'stretch'
+				}
+			]
+		},
+		{
+			type: 'TextBlock',
+			text: `If you already have a CodeStream account, click the **Sign In** button to get started.`,
+			wrap: true,
+		},
+		{
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.OpenUrl',
+					title: 'Sign In',
+					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`,
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				}
+			]
+		},
+		{
+			type: 'TextBlock',
+			text: `Click the **Detailed Instructions** button to get more detailed information about our Teams integration including a full list of available commands. If you need a CodeStream account, click **Download CodeStream** button to get started!`,
+			wrap: true,
+		},
+		{
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.OpenUrl',
+					title: 'Detailed Instructions',
+					url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/',
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				},
+				{
+					type: 'Action.OpenUrl',
+					title: 'Download CodeStream',
+					url: 'https://www.codestream.com',
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				}
+			]
+		},
+		{
+			type: 'TextBlock',
+			text: `You can always type **help** to get full list of available commands`,
+			wrap: true
 		});
+
+		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async helpPersonal (context, userName) {
 		let body = [];
+		
 		if (userName) {
 			body.push({
 				type: 'TextBlock',
@@ -805,6 +735,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				wrap: true
 			});
 		}
+
 		body.push({
 			type: 'TextBlock',
 			size: 'Medium',
@@ -837,22 +768,58 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		},
 		{
 			type: 'TextBlock',
-			size: 'Medium',
-			text: 'If you already have a CodeStream account, issue the "signin" command here to get started ([click here for detailed instructions](https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/)). ',
-			wrap: true
+			text: `If you already have a CodeStream account, click the **Sign In** button to get started.`,
+			wrap: true,
+		},
+		{
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.OpenUrl',
+					title: 'Sign In',
+					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`,
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				}
+			]
 		},
 		{
 			type: 'TextBlock',
-			size: 'Medium',
-			text: 'If you need a CodeStream account, [download the CodeStream IDE extension](https://www.codestream.com) to get started.',
+			text: `Click the **Detailed Instructions** button to get more detailed information about our Teams integration including a full list of available commands. If you need a CodeStream account, click **Download CodeStream** button to get started!`,
+			wrap: true,
+		},
+		{
+			type: 'ActionSet',
+			actions: [
+				{
+					type: 'Action.OpenUrl',
+					title: 'Detailed Instructions',
+					url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/',
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				},
+				{
+					type: 'Action.OpenUrl',
+					title: 'Download CodeStream',
+					url: 'https://www.codestream.com',
+					iconUrl: OPEN_EXTERNAL_LINK_ICON
+				}
+			]
+		},
+		{
+			type: 'TextBlock',
+			text: `You can always type **help** to get full list of available commands`,
 			wrap: true
 		});
 
+		await this.sendAdaptiveCard(context, body);
+        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
+	}
+
+	async sendAdaptiveCard(context, body){
 		const payload = {
 			type: 'AdaptiveCard',
 			body: body,
 			'$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-			version: '1.0'
+			version: '1.4'
 		};
 
 		await context.sendActivity({

@@ -1,6 +1,6 @@
 {
 	"name": "outbound-email",
-	"version": "14.0.1",
+	"version": "14.0.2",
 	"dependencies": {
 		"@sendgrid/mail": "7.7.0",
 		"amqplib": "0.8.0",
@@ -57,6 +57,12 @@
 	"overrides": {
 		"nodemon@2.0.18": {
 			"update-notifier": "6.0.0"
+		},
+		"degenerator@3.0.1": {
+			"vm2": "3.9.11"
+		},
+		"degenerator@3.0.2": {
+			"vm2": "3.9.11"
 		}
 	}	
 }

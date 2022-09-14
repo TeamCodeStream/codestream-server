@@ -24,8 +24,6 @@ class CommonInit {
 				this.codeErrorFactory.randomAccountId()
 			],
 			orgIds: [
-				this.codeErrorFactory.randomOrgId(),
-				this.codeErrorFactory.randomOrgId(),
 				this.codeErrorFactory.randomOrgId()
 			]
 		};
@@ -33,13 +31,11 @@ class CommonInit {
 			company: {
 				_id: this.company.id,	// DEPRECATE ME
 				id: this.company.id,
-				$addToSet: {
-					nrAccountIds: this.data.accountIds,
-					nrOrgIds: this.data.orgIds
-				},
 				$set: {
 					modifiedAt: Date.now(), // placeholder
-					version: 2
+					version: 2,
+					nrAccountIds: this.data.accountIds,
+					nrOrgIds: this.data.orgIds
 				},
 				$version: {
 					before: 1,
