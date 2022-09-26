@@ -1,0 +1,57 @@
+{
+	"$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.12/MicrosoftTeams.schema.json",
+	"version": "1.0.3",
+	"manifestVersion": "1.12",
+	"id": "{botId}",
+	"packageName": "codestream.codestream-eu",
+	"name": { "short": "CodeStream EU", "full": "" },
+	"developer": {
+		"name": "CodeStream",
+		"mpnId": "",
+		"websiteUrl": "https://www.codestream.com",
+		"privacyUrl": "https://www.codestream.com/privacy",
+		"termsOfUseUrl": "https://www.codestream.com/terms"
+	},
+	"description": {
+		"short": "CodeStream is an extension to your IDE that works with your existing tools.",
+		"full": "CodeStream EU is intended for use with CodeStream organizations in the EU region. For CodeStream organizations in the US region use the CodeStream app instead. CodeStream is a powerful extension to your favorite IDE that works with existing tools to streamline workflow and increase productivity. Connects to GitHub, Jira, Microsoft Teams and all your favorite tools. CodeStream saves your team's discussions connected to the blocks of code they refer to, so that a knowledge base builds up over time. Imagine future members of the team, or even you just trying to fix a bug in someone else’s code, getting the benefit of working from an annotated codebase! CodeStream for Teams allows you to share those discussions to any Teams channel. Your teammates can jump directly from Teams into their IDE of choice with the appropriate block of code, and corresponding discussion, automatically opened. How does it work? Just like commenting on a Word doc, select a block of code and click on the Comment icon. After typing your comment or question, just click on the Teams logo to install the CodeStream bot and share to any of your Teams channels. Your teammates will get notified on Teams, and can click on the Open in IDE button to jump directly to the code, and discussion, in their IDE. A CodeStream account is required to use the app. Download the CodeStream extension for VS Code, JetBrains or Visual Studio and then signup via the CodeStream pane that appears in your IDE."
+	},
+	"icons": { "outline": "outline.png", "color": "color.png" },
+	"accentColor": "#008d99",
+	"bots": [
+		{
+			"botId": "{botId}",
+			"scopes": ["personal", "team"],
+			"commandLists": [
+				{
+					"commands": [
+						{ "title": "help", "description": "Get help using CodeStream" },
+						{ "title": "signin", "description": "Sign in to CodeStream" },
+						{ "title": "signout", "description": "Sign out from CodeStream" }
+					],
+					"scopes": ["personal"]
+				},
+				{
+					"commands": [
+						{ "title": "help", "description": "Get help using CodeStream" },
+						{
+							"title": "connect",
+							"description": "Connect this channel to CodeStream"
+						},
+						{
+							"title": "disconnect",
+							"description": "Disconnect this channel from CodeStream"
+						}
+					],
+					"scopes": ["team"]
+				}
+			],
+			"isNotificationOnly": false,
+			"supportsCalling": false,
+			"supportsVideo": false,
+			"supportsFiles": false
+		}
+	],
+	"validDomains": ["csaction.codestream.us", "www.codestream.com", "*.codestream.us"],
+	"authorization": { "permissions": { "resourceSpecific": [] } }
+}
