@@ -61,7 +61,7 @@ describe('web', function() {
 	new WhitespaceReplaceTest().test();
 
 	describe('launcher tests', require('./launcher_test'));
-	
+
 	//new TypedCodemarkPermalinkTest({ codemarkType: 'comment' }).test();
 	//new TypedCodemarkPermalinkTest({ codemarkType: 'issue' }).test();
 	//new TypedCodemarkPermalinkTest({ codemarkType: 'bookmark' }).test();
@@ -69,5 +69,4 @@ describe('web', function() {
 	//new TypedCodemarkPermalinkTest({ codemarkType: 'trap' }).test();
 
 	describe('GET /web/confirm-email', ConfirmEmailRequestTester.test);
-
 });
