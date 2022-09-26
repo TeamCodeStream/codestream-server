@@ -45,6 +45,7 @@ const CodeErrorReplyMessageTest = require('./code_error_reply_message_test');
 const InvalidCodeErrorIdTest = require('./invalid_code_error_id_test');
 const CodeErrorNotFoundTest = require('./code_error_not_found_test');
 const CodeErrorNoMatchTeamTest = require('./code_error_no_match_team_test');
+const FindCorrectFromUserTest = require('./find_correct_from_user_test');
 
 describe('inbound emails', function() {
 
@@ -93,4 +94,5 @@ describe('inbound emails', function() {
 	new InvalidCodeErrorIdTest().test();
 	new CodeErrorNotFoundTest().test();
 	new CodeErrorNoMatchTeamTest().test();
+	new FindCorrectFromUserTest().test();
 });
