@@ -20,7 +20,8 @@ class AlreadyTakenTest extends ChangeEmailTest {
 		BoundAsync.series(this, [
 			super.before,
 			this.registerUser,
-			this.confirmUser
+			this.confirmUser,
+			this.createCompany
 		], callback);
 	}
 
@@ -45,8 +46,17 @@ class AlreadyTakenTest extends ChangeEmailTest {
 				email: this.newEmail,
 				confirmationCode: this.userResponse.user.confirmationCode
 			},
-			callback
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.confirmResponse = response;
+				callback();
+			}
 		);
+	}
+
+	createCompany (callback) {
+		if (!this.inCompany) { return callback(); }
+		this.companyFactory.createRandomCompany(callback, { token: this.confirmResponse.accessToken });
 	}
 }
 
