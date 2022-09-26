@@ -20,6 +20,7 @@ class StreamNoMatchTeamTest extends InboundEmailTest {
 		BoundAsync.series(this, [
 			super.before,			// normal test setup
 			this.createOtherTeam,	// create another team
+			this.inviteUser,		// invite the user we are sending from to this team as well
 			this.makePostData
 		], callback);
 	}
@@ -36,6 +37,22 @@ class StreamNoMatchTeamTest extends InboundEmailTest {
 			{
 				token: this.token	// "i" will create this repo/team
 			}
+		);
+	}
+
+	// invite the user we are sending from to this team as well,
+	inviteUser (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/users',
+				data: {
+					teamId: this.otherTeam.id,
+					email: this.users[1].user.email
+				},
+				token: this.token
+			},
+			callback
 		);
 	}
 
