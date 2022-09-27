@@ -3,6 +3,7 @@
 const CreateNRCommentTest = require('./create_nr_comment_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 
 class ExistingRegisteredUserTest extends CreateNRCommentTest {
 
@@ -16,11 +17,15 @@ class ExistingRegisteredUserTest extends CreateNRCommentTest {
 			if (error) { return callback(error); }
 			const { user } = this.users[0];
 			this.data.creator.email = user.email;
-			Object.assign(this.expectedResponse.post.creator, {
-				email: user.email,
-				fullName: user.fullName,
-				username: user.username
-			});
+			this.expectedResponse.post.creator.email = user.email;
+			if (!this.oneUserPerOrg) { // ONE_USER_PER_ORG
+				Object.assign(this.expectedResponse.post.creator, {
+					fullName: user.fullName,
+					username: user.username
+				});
+			} else {
+				this.expectedResponse.post.creator.username = EmailUtilities.parseEmail(user.email).name;
+			}
 			this.expectedResponse.post.userMaps.placeholder = { ...this.expectedResponse.post.creator };
 			callback();
 		});
@@ -53,7 +58,12 @@ class ExistingRegisteredUserTest extends CreateNRCommentTest {
 			}, 
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert.equal(response.post.creatorId, this.users[0].user.id, 'creator of the post is not equal to the correct user');
+				if (this.oneUserPerOrg) { // ONE_USER_PER_ORG
+					Assert(response.post.creatorId !== this.users[0].user.id, 'creator of the post should not be equal to original user, faux user should have been created');
+					this.expectedCreatorId = response.post.creatorId;
+				} else {
+					Assert.equal(response.post.creatorId, this.users[0].user.id, 'creator of the post is not equal to the correct user');
+				}
 				callback();
 			}
 		);

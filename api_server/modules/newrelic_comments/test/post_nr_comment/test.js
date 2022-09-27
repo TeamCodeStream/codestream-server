@@ -67,9 +67,13 @@ class PostNRCommentRequestTester {
 		new InvalidEmailTest().test();
 		new FetchUserTest().test();
 		new ExistingFauxUserTest().test();
+		new ExistingFauxUserTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new ExistingRegisteredUserTest().test();
+		new ExistingRegisteredUserTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new MentionsTest().test();
+		new MentionsTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new MentionRegisteredUserTest().test();
+		new MentionRegisteredUserTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new NoMatchAccountIdTest().test();
 		new NewRelicUserIdTest().test();
 		new NewRelicUserIdExistingTest().test();

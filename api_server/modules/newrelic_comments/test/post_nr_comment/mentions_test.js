@@ -19,6 +19,7 @@ class MentionsTest extends CreateNRCommentTest {
 			super.run,
 			this.claimCodeError,
 			this.inviteAndRegisterFauxUser,
+			this.acceptInvite,
 			this.fetchPost,
 			this.fetchParentPost,
 			this.fetchUsers

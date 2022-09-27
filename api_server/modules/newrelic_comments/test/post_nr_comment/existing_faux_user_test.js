@@ -38,6 +38,7 @@ class ExistingFauxUserTest extends CreateNRCommentTest {
 			super.run,
 			this.claimCodeError,
 			this.inviteAndRegisterFauxUser,
+			this.acceptInvite,
 			this.fetchFirstPost,
 			this.fetchSecondPost
 		], callback);
