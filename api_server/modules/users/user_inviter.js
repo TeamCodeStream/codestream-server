@@ -46,7 +46,10 @@ class UserInviter {
 		// first check for an existing user
 		// we use the existing user record only if it is on the team already
 		let existingUser = await this.getExistingUser(userData);
-		if (existingUser && (existingUser.get('teamIds') || []).length === 0) {
+		if (
+			existingUser &&
+			(existingUser.get('teamIds') || []).length === 0
+		) {
 			// special case of a match to an existing user that isn't on any teams
 			// in this case, we feed the user's attributes into the user we create, but don't actually
 			// use that existing user record
@@ -100,7 +103,7 @@ class UserInviter {
 				teamIds.length === 0 ||
 				(
 					teamIds.length === 1 &&
-					teamIds[0] === this.team[0]
+					teamIds[0] === this.team.id
 				)
 			);
 		});

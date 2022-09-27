@@ -83,8 +83,14 @@ class NRCommentRequest extends RestfulRequest {
 			throw this.errorHandler.error('validation', { info: `${field}: ${error}` });
 		}
 
+		// remove this check one we have fully moved to ONE_USER_PER_ORG
+		const oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.headers['x-cs-one-user-per-org']
+		);
+
 		// see if the user already exists
-		const user = await this.data.users.getOneByQuery(
+		const users = await this.data.users.getByQuery(
 			{
 				searchableEmail: email.toLowerCase()
 			},
@@ -92,6 +98,29 @@ class NRCommentRequest extends RestfulRequest {
 				hint: UserIndexes.bySearchableEmail
 			}
 		);
+
+		// under ONE_USER_PER_ORG, a matching user only exists if they are on the same team as
+		// the owner of the existing code error, if any, or are already a teamless, faux user
+		let user;
+		if (oneUserPerOrg) {
+			user = users.find(u => {
+				const teamIds = u.get('teamIds') || [];
+				const codeErrorTeamId = this.codeError ? this.codeError.get('teamId') : undefined;
+				return (
+					(
+						codeErrorTeamId &&
+						teamIds.includes(codeErrorTeamId)
+					) ||
+					(
+						teamIds.length === 0 &&
+						(u.get('externalUserId') || '').match(/^newrelic::/)
+					)
+				);
+			});
+		} else {
+			user = users[0];
+		}
+
 		if (!user) {
 			// create a "faux" user, one who cannot login but stands in for the New Relic user
 			return this.createFauxUser(userInfo);
