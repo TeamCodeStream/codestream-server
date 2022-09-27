@@ -95,12 +95,37 @@ class ConfirmEmailRequest extends WebRequestBase {
 
 	// ensure the email that the user is changing to is not already an email in our system
 	async ensureUnique () {
-		const existingUser = await this.data.users.getOneByQuery(
+		// under ONE_USER_PER_ORG, users are only required to be unique within a company
+		const oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.headers['x-cs-one-user-per-org']
+		);
+
+		const existingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: this.payload.email.toLowerCase() },
 			{ hint: UserIndexes.bySearchableEmail }
 		);
-		if (existingUser) {
-			throw this.errorHandler.error('emailTaken', { info: this.payload.email });
+
+		// remove this check when we have fully moved to ONE_USER_PER_ORG
+		if (oneUserPerOrg) {
+			this.log('NOTE: doing check for uniqueness of email only in org in one-user-per-org'); 
+			const teamIds = this.user.get('teamIds') || [];
+			if (teamIds.length > 1) {
+				// this shouldn't happen under one-user-per-org, but it's just a safeguard
+				throw this.errorHandler.error('internal', { reason: 'user changing email in one-user-per-org, but belongs to more than one org' });
+			}
+
+			const teamId = teamIds[0];
+			if (teamId && existingUsers.find(user => {
+				return (
+					!user.get('deactivated') &&
+					(user.get('teamIds') || []).includes(teamId)
+				);			
+			})) {
+				throw this.errorHandler.error('emailTaken', { info: this.request.body.email });
+			}
+		} else if (existingUsers.length > 0) {
+			throw this.errorHandler.error('emailTaken', { info: this.request.body.email });
 		}
 	}
 

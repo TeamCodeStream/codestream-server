@@ -77,7 +77,7 @@ class ChangeEmailRequest extends RestfulRequest {
 
 		// remove this check when we have fully moved to ONE_USER_PER_ORG
 		if (oneUserPerOrg) {
-			this.log('NOTE: not doing check for uniqueness of email in one-user-per-org'); 
+			this.log('NOTE: doing check for uniqueness of email only in org in one-user-per-org'); 
 			const teamIds = this.user.get('teamIds') || [];
 			if (teamIds.length > 1) {
 				// this shouldn't happen under one-user-per-org, but it's just a safeguard
