@@ -7,6 +7,7 @@ const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/oa
 const OAUTH_CONFIG = {
 	provider: 'circleci',
 	host: 'circleci.com',
+	hasBuilds: true,
 	needsConfigure: true
 };
 
