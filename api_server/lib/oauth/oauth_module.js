@@ -128,6 +128,11 @@ class OAuthModule extends APIServerModule {
 		return this.oauthConfig.hasIssues;
 	}
 
+	// does this provider support builds?
+	hasBuilds () {
+		return this.oauthConfig.hasBuilds;
+	}
+
 	// does this provider support code hosting?
 	hasCodeHosting () {
 		return this.oauthConfig.hasCodeHosting;
