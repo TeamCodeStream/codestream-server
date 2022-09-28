@@ -19,6 +19,8 @@ const IdentifyScriptTest = require('./identify_script_test');
 const WhitespaceReplaceTest = require('./whitespace_replace_test');
 //const TypedCodemarkPermalinkTest = require('./typed_codemark_permalink_test');
 const ConfirmEmailRequestTester = require('./confirm_email/test');
+const WebSetPasswordRequestTester = require('./web_set_password/test');
+const SetPasswordRequestTester = require('./set_password/test');
 
 const SIMPLE_TESTS = [
 	{
@@ -69,4 +71,6 @@ describe('web', function() {
 	//new TypedCodemarkPermalinkTest({ codemarkType: 'trap' }).test();
 
 	describe('GET /web/confirm-email', ConfirmEmailRequestTester.test);
+	describe('GET /web/user/password', WebSetPasswordRequestTester.test);
+	describe('POST /web/user/password', SetPasswordRequestTester.test);
 });
