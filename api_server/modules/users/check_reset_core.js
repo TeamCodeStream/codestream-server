@@ -46,7 +46,14 @@ class CheckResetCore {
 		if (users.length < 1) {			
 			throw this.request.errorHandler.error('tokenInvalid', { reason: 'user not found' });
 		}
-		this.user = users[0];
+
+		// under one-user-per-org, we should find a registered user with a rst token
+		this.user = users.find(user => {
+			return user.get('isRegistered') && (user.get('accessTokens') || {}).rst;
+		});
+		if (!this.user) {
+			throw this.request.errorHandler.error('tokenInvalid', { reason: 'no issuance for rst token found' });
+		}
 	}
 
 	// verify the token is not expired, per the most recently issued token

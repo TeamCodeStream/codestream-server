@@ -61,7 +61,10 @@ class ForgotPasswordRequest extends RestfulRequest {
 				hint: Indexes.bySearchableEmail
 			}
 		);
-		this.user = users.length > 0 ? users[0] : null;
+
+		// under the one-user-per-org model, there can be multiple matching user records, 
+		// but for our purposes, it is sufficient to find the first one that is registered 
+		this.user = users.find(user => user.get('isRegistered'));
 	}
 
 	// generate a new access token for the user, all other access tokens will be invalidated by this

@@ -5,6 +5,7 @@ const CheckResetCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const ChangePasswordCore = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/change_password_core');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const UserErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/errors');
+const Post = require('../posts/post');
 const WebRequestBase = require('./web_request_base');
 
 class SetPasswordRequest extends WebRequestBase {
@@ -35,18 +36,11 @@ class SetPasswordRequest extends WebRequestBase {
 	}
 
 	async process() {
-		await this.requireAndAllow();
-
-		const { password, token } = this.request.body;
-		if (!token) {
-			//something happened between render and POST... (tampering? redirect it.)
-			this.warn('No token found in request');
-			this.redirectError();
-			return;
-		}
-
 		let user;
+		const { token, password } = this.request.body;
 		try {
+			await this.requireAndAllow();
+
 			user = await new CheckResetCore({
 				request: this
 			}).getUserFromToken(token);
