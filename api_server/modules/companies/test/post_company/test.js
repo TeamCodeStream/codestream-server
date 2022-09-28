@@ -9,6 +9,9 @@ const JoiningTest = require('./joining_test');
 const NoWebmailForDomainJoiningTest = require('./no_webmail_for_domain_joining_test');
 const NoEmptyStringForCodeHostJoiningTest = require('./no_empty_string_for_code_host_joining_test');
 const SubscriptionTest = require('./subscription_test');
+const OneUserPerOrgTest = require('./one_user_per_org_test');
+const LoginTest = require('./login_test');
+const FirstCompanyOneUserPerOrgTest = require('./first_company_one_user_per_org_test');
 
 class PostCompanyRequestTester {
 
@@ -20,6 +23,9 @@ class PostCompanyRequestTester {
 		new NoWebmailForDomainJoiningTest().test();
 		new NoEmptyStringForCodeHostJoiningTest().test();
 		new SubscriptionTest().test();
+		new OneUserPerOrgTest().test();
+		new LoginTest().test();
+		new FirstCompanyOneUserPerOrgTest().test();
 		// TODO: wrong type validations
 	}
 }
