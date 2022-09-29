@@ -39,7 +39,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 			});
 		}
 
-		BoundAsync.times(
+		BoundAsync.timesSeries(
 			this,
 			2,
 			this.createEligibleJoinCompany,
@@ -70,17 +70,43 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.expectedEligibleJoinCompanies.push({
-					id: response.company.id,
-					name: response.company.name,
-					byDomain: domain.toLowerCase(),
-					domainJoining: response.company.domainJoining,
-					codeHostJoining: response.company.codeHostJoining,
-					memberCount: 1
-				});
-				callback();
+				if (response.accessToken) {
+					this.getEligibleJoinCompanyByLogin(response.accessToken, domain, callback);
+				} else {
+					this.expectedEligibleJoinCompanies.push({
+						id: response.company.id,
+						name: response.company.name,
+						byDomain: domain.toLowerCase(),
+						domainJoining: response.company.domainJoining,
+						codeHostJoining: response.company.codeHostJoining,
+						memberCount: 1
+					});
+					callback();
+				}
 			}
 		);
+	}
+
+	// a user who creates a second company gets an access token instead of full company info,
+	// we must use that access token to actually get the company info
+	getEligibleJoinCompanyByLogin (token, domain, callback) {
+		this.doApiRequest({
+			method: 'put',
+			path: '/login',
+			token
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			const company = response.companies[0];
+			this.expectedEligibleJoinCompanies.push({
+				id: company.id,
+				name: company.name,
+				byDomain: domain.toLowerCase(),
+				domainJoining: company.domainJoining,
+				codeHostJoining: company.codeHostJoining,
+				memberCount: 1
+			});
+			callback();
+		});
 	}
 
 	// create companies that the confirming user has been invited to
@@ -88,6 +114,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
 			return callback();
 		}
+
 		BoundAsync.timesSeries(
 			this,
 			2,
@@ -98,39 +125,66 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	// create a company and then invite the confirming user to it
 	createCompanyAndInvite (n, callback) {
-		this.companyFactory.createRandomCompany(
+		BoundAsync.series(this, [
+			this.createCompany,
+			this.doLogin,
+			this.inviteUser
+		], callback);
+	}
+
+	// create a company
+	createCompany (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/companies',
+				data: { name: this.companyFactory.randomName() },
+				token: this.users[1].accessToken
+			},
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.currentCompanyToken = response.accessToken;
+				callback();
+			}
+		);
+	}
+
+	// do a login for a particular company based on the access token passed when creating it
+	doLogin (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/login',
+				token: this.currentCompanyToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				const company = response.companies[0];
 				this.expectedEligibleJoinCompanies.push({
-					id: response.company.id,
-					name: response.company.name,
+					id: company.id,
+					name: company.name,
 					domainJoining: [],
 					codeHostJoining: [],
 					byInvite: true,
 					memberCount: 1
 				});
-				this.inviteUser(response.company.teamIds[0], callback);
-			},
-			{
-				token: this.users[1].accessToken
+				this.currentCompanyTeamId = response.teams[0].id;
+				callback();
 			}
 		);
 	}
-	
+
 	// invite the user to company just created
-	inviteUser (teamId, callback) {
-		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
+	inviteUser (callback) {
 		this.doApiRequest(
 			{
 				method: 'post',
 				path: '/users',
 				data: {
-					teamId,
+					teamId: this.currentCompanyTeamId,
 					email: this.data.email
 				},
-				token: this.users[1].accessToken
+				token: this.currentCompanyToken
 			},
 			callback
 		);

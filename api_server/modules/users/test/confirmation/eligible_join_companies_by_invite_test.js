@@ -28,36 +28,67 @@ class EligibleJoinCompaniesByInviteTest extends EligibleJoinCompaniesTest {
 
 	// create a company and then invite the confirming user to it
 	createCompanyAndInvite (n, callback) {
-		this.companyFactory.createRandomCompany(
+		this.companyData = [];
+		BoundAsync.series(this, [
+			this.createCompany,
+			this.doLogin,
+			this.inviteUser
+		], callback);
+	}
+
+	// create a company
+	createCompany (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/companies',
+				data: { name: this.companyFactory.randomName() },
+				token: this.users[0].accessToken
+			},
 			(error, response) => {
 				if (error) { return callback(error); }
+				this.currentCompanyToken = response.accessToken;
+				callback();
+			}
+		);
+	}
+
+	// do a login for a particular company based on the access token passed when creating it
+	doLogin (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/login',
+				token: this.currentCompanyToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				const company = response.companies[0];
 				this.expectedEligibleJoinCompanies.push({
-					id: response.company.id,
-					name: response.company.name,
+					id: company.id,
+					name: company.name,
 					domainJoining: [],
 					codeHostJoining: [],
 					byInvite: true,
 					memberCount: 1
 				});
-				this.inviteUser(response.company.teamIds[0], callback);
-			},
-			{
-				token: this.users[0].accessToken
+				this.currentCompanyTeamId = response.teams[0].id;
+				callback();
 			}
 		);
 	}
-	
+
 	// invite the user to company just created
-	inviteUser (teamId, callback) {
+	inviteUser (callback) {
 		this.doApiRequest(
 			{
 				method: 'post',
 				path: '/users',
 				data: {
-					teamId,
+					teamId: this.currentCompanyTeamId,
 					email: this.data.email
 				},
-				token: this.users[0].accessToken
+				token: this.currentCompanyToken
 			},
 			callback
 		);
