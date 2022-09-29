@@ -40,7 +40,8 @@ class RandomCompanyFactory {
 			const info = {
 				company: response.companies[0],
 				team: response.teams[0],
-				streams: response.streams
+				streams: response.streams,
+				user: response.user
 			};
 			callback(null, info);
 		});

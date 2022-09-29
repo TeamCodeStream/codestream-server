@@ -87,6 +87,9 @@ class InboundEmailRequest extends RestfulRequest {
 		}
 	
 		// find the user record for the user on this team
+		this.fromUser = users.find(user => {
+			return !user.get('deactivated') && user.hasTeam(this.teamId);
+		});
 		if (!this.fromUser) {
 			this.log(`No user record found matching email ${this.fromEmail} on team ${this.teamId}`);
 			throw this.errorHandler.error('unauthorized');
