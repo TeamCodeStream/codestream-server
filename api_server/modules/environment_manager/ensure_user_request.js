@@ -14,21 +14,32 @@ class EnsureUserRequest extends XEnvRequest {
 	async process () {
 		await this.requireAndAllow();
 
-		let fetched = false, created = false;
+		const oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.headers['x-cs-one-user-per-org']
+		);
+
+		let fetched = false, created = false, userId;
 		while (!fetched) { 
 			const { email } = this.request.body.user;
 			if (!email) {
 				throw this.errorHandler.error('parameterRequired', { info: 'user.email' });
 			}
 
-			const user = await this.data.users.getOneByQuery(
-				{
-					searchableEmail: decodeURIComponent(email).toLowerCase()
-				},
-				{
-					hint: UserIndexes.bySearchableEmail
-				}
-			);
+			let user;
+			if (userId) {
+				user = await this.data.users.getById(userId);
+			} else if (!oneUserPerOrg) { // remove this part when we have fully moved to ONE_USER_PER_ORG
+				user = await this.data.users.getOneByQuery(
+					{
+						searchableEmail: decodeURIComponent(email).toLowerCase()
+					},
+					{
+						hint: UserIndexes.bySearchableEmail
+					}
+				);
+			}
+
 			if (user) {
 				// if the user exists but isn't confirmed, we confirm them automatically
 				if (!user.get('isRegistered')) {
@@ -44,7 +55,8 @@ class EnsureUserRequest extends XEnvRequest {
 				// something went wrong, shouldn't happen, but better than an infinite loop
 				throw this.errorHandler.error('createAuth', { reason: 'user not created' });
 			} else {
-				await this.createUser();
+				const responseData = await this.createUser();
+				userId = responseData.user.id;
 				await this.persist(); // make sure created user is saved to database, not just cached
 				created = true;
 			}
@@ -61,11 +73,12 @@ class EnsureUserRequest extends XEnvRequest {
 	}
 	
 	// create a new user based on the attributes passed
-	async createUser () {
+	async createUser (force = false) {
 		// first create the user, unregistered...
 		const { email, fullName, username, passwordHash, timeZone, preferences } = this.request.body.user;
 		const user = await new UserCreator({
-			request: this
+			request: this,
+			force
 		}).createUser({
 			email,
 			fullName,
@@ -93,6 +106,7 @@ class EnsureUserRequest extends XEnvRequest {
 			dontConfirmInOtherEnvironments: true
 		}).confirm(data);
 	}
+
 }
 
 module.exports = EnsureUserRequest;

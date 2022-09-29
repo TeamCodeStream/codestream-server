@@ -12,6 +12,7 @@ const NoSecretTest = require('./no_secret_test');
 const IncorrectSecretTest = require('./incorrect_secret_test');
 const UserAlreadyExistsTest = require('./user_already_exists_test');
 const MessageToTeamTest = require('./message_to_team_test');
+const DeprecatedInOneUserPerOrgTest = require('./deprecated_in_one_user_per_org_test');
 
 class ChangeEmailRequestTester {
 
@@ -25,6 +26,7 @@ class ChangeEmailRequestTester {
 		new IncorrectSecretTest().test();
 		new UserAlreadyExistsTest().test();
 		new MessageToTeamTest().test();
+		new DeprecatedInOneUserPerOrgTest().test();
 	}
 }
 

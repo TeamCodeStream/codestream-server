@@ -13,6 +13,7 @@ const PasswordTest = require('./password_test');
 const PasswordHashTest = require('./password_hash_test');
 const AlreadyRegisteredTest = require('./already_registered_test');
 const MessageToTeamTest = require('./message_to_team_test');
+const DeprecatedInOneUserPerOrgTest = require('./deprecated_in_one_user_per_org_test');
 
 class ConfirmUserRequestTester {
 
@@ -27,6 +28,7 @@ class ConfirmUserRequestTester {
 		new PasswordHashTest().test();
 		new AlreadyRegisteredTest().test();
 		new MessageToTeamTest().test();
+		new DeprecatedInOneUserPerOrgTest().test();
 	}
 }
 

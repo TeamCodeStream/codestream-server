@@ -1,5 +1,7 @@
 // handle the "PUT /xenv/change-email" request, to change a user's email across environments
  
+// NOTE: deprecate this request once we have fully moved to ONE_USER_PER_ORG
+
 'use strict';
 
 const XEnvRequest = require('./xenv_request');
@@ -17,6 +19,15 @@ class ChangeEmailRequest extends XEnvRequest {
 
 	// process the request...
 	async process () {
+		// remove this check when we fully move to ONE_USER_PER_ORG
+		const oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.headers['x-cs-one-user-per-org']
+		);
+		if (oneUserPerOrg) {
+			throw this.errorHandler.error('deprecated');
+		}
+
 		await this.requireAndAllow();
 		await this.getUser();
 		if (!this.user) { return; }

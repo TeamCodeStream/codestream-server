@@ -10,6 +10,7 @@ const NoSecretTest = require('./no_secret_test');
 const IncorrectSecretTest = require('./incorrect_secret_test');
 const FetchByIdTest = require('./fetch_by_id_test');
 const NotFoundByIdTest = require('./not_found_by_id_test');
+const IdRequiredUnderOneUserPerOrgTest = require('./id_required_under_one_user_per_org_test');
 
 class FetchUserRequestTester {
 
@@ -20,7 +21,9 @@ class FetchUserRequestTester {
 		new NoSecretTest().test();
 		new IncorrectSecretTest().test();
 		new FetchByIdTest().test();
+		new FetchByIdTest({ oneUserPerOrg: true }).test();
 		new NotFoundByIdTest().test();
+		new IdRequiredUnderOneUserPerOrgTest().test();
 	}
 }
 
