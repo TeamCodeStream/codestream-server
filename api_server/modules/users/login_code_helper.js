@@ -28,11 +28,15 @@ class LoginCodeHelper {
 
 	// fetch the user object for the requested email address
 	async getUser () {
+		const oneUserPerOrg = (
+			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.request.headers['x-cs-one-user-per-org']
+		);
 		const users = await this.request.data.users.getByQuery(
 			{ searchableEmail: this.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-		if (!this.request.request.headers['x-cs-one-user-per-org']) { // remove when we have fully moved to ONE_USER_PER_ORG
+		if (!oneUserPerOrg) { // remove when we have fully moved to ONE_USER_PER_ORG
 			if (users.length > 1) {
 				this.request.warn(`Found more than one user matching ${this.email}, but one-user-per-org is not active, this is bad`);
 			}
