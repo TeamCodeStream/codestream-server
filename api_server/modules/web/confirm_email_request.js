@@ -1,4 +1,4 @@
-// handle the "PUT /change-email-confirm" request to accept a token confirming
+// handle the "GET /confirm-email" request to accept a token confirming
 // a new email for a user
 
 'use strict';
