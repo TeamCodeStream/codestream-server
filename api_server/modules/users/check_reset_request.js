@@ -19,6 +19,8 @@ class CheckResetRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
+		throw this.errorHandler.error('deprecated');
+		
 		await this.requireAndAllow();	// require certain parameters, and discard unknown parameters	
 		this.user = await new CheckResetCore({
 			request: this			

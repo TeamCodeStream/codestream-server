@@ -14,7 +14,7 @@ const TokenDeprecatedTest = require('./token_deprecated_test');
 const UnregisteredUserTest = require('./unregistered_user_test');
 const OneUserPerOrgOkTest = require('./one_user_per_org_ok_test'); // ONE_USER_PER_ORG
 const LoginTest = require('./login_test');
-//const MultipleOrgTest = require('./multiple_org_test');
+const MultipleOrgTest = require('./multiple_org_test');
 
 class WebSetPasswordRequestTester {
 
@@ -31,7 +31,7 @@ class WebSetPasswordRequestTester {
 		new UnregisteredUserTest().test();
 		new OneUserPerOrgOkTest().test(); // can remove this once we fully move to ONE_USER_PER_ORG
 		new LoginTest().test();
-		//new MultipleOrgTest().test();
+		new MultipleOrgTest().test();
 	}
 }
 
