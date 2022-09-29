@@ -74,7 +74,7 @@ class MultipleOrgTest extends SetPasswordTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert.strictEqual(response.company.id, this.otherCompanies[n].company.id, 'not logged into the proper company');
+				Assert.strictEqual(response.companies[0].id, this.otherCompanies[n].company.id, 'not logged into the proper company');
 				callback();
 			}
 		);

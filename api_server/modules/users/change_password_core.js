@@ -14,16 +14,24 @@ class ChangePasswordCore {
 
 	// set a password on a user wo/checking their existing password
 	async setPassword(user, newPassword) {			
-		await this.savePassword(user, newPassword);
+		await this.savePassword([user], newPassword);
+	}
+
+	async setPasswordForUsers(users, newPassword) {
+		return this.savePassword(users, newPassword);
 	}
 
 	// set a password on a user checking their existing password
 	async changePassword(user, newPassword, existingPassword) {				
-		await this.savePassword(user, newPassword, existingPassword, true);
+		await this.savePassword([user], newPassword, existingPassword, true);
 	}
 
-	async savePassword(user, newPassword, existingPassword, validatePassword) {		
-		this.user = user;
+	async savePassword(users, newPassword, existingPassword, validatePassword) {	
+		if (validatePassword && this.users.length > 1) {
+			throw 'only one user allowed for password validation';
+		}	
+
+		this.users = users;
 		this.password = newPassword;		
 		this.existingPassword = existingPassword;
 
@@ -31,8 +39,10 @@ class ChangePasswordCore {
 			await this.validatePassword();	// validate the given password matches their password hash
 		}
 		await this.hashPassword();		// hash the new password
-		await this.generateToken();		// generate a new access token
-		await this.updateUser();		// update the user's database record
+		await Promise.all(this.users.map(async user => {
+			const tokenInfo = await this.generateToken(user); // generate a new access token
+			await this.updateUser(user, tokenInfo); // update the user's database record
+		}));
 	}
 
 	// validate that the existing password matches the password hash stored for the user
@@ -42,7 +52,7 @@ class ChangePasswordCore {
 			result = await callbackWrap(
 				BCrypt.compare,
 				this.existingPassword,
-				this.user.get('passwordHash')
+				this.users[0].get('passwordHash')
 			);
 		}
 		catch (error) {
@@ -66,15 +76,13 @@ class ChangePasswordCore {
 	}
 
 	// generate a new access token for the user, all other access tokens will be invalidated by this
-	async generateToken () {
-		const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
-		this.accessToken = token;
-		this.minIssuance = minIssuance;
+	async generateToken (user) {
+		return AccessTokenCreator(this.request, user.id);
 	}
 
 	// update the user in the database, with their new password hash and access tokens
-	async updateUser () {
-		const accessTokens = this.user.get('accessTokens') || {};
+	async updateUser (user, tokenInfo) {
+		const accessTokens = user.get('accessTokens') || {};
 		Object.keys(accessTokens).forEach(type => {
 			if (type === 'rst' || type === 'conf') {
 				delete accessTokens[type];
@@ -84,8 +92,8 @@ class ChangePasswordCore {
 			}
 		});
 		accessTokens.web = {
-			token: this.accessToken,
-			minIssuance: this.minIssuance
+			token: tokenInfo.accessToken,
+			minIssuance: tokenInfo.minIssuance
 		};
 		const op = {
 			'$set': {
@@ -93,7 +101,7 @@ class ChangePasswordCore {
 				accessTokens: accessTokens
 			}
 		};
-		this.user = await this.request.data.users.applyOpById(this.user.id, op);
+		await this.request.data.users.applyOpById(user.id, op);
 	}
 }
 

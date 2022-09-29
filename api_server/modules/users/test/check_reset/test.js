@@ -2,6 +2,8 @@
 
 'use strict';
 
+const CheckResetDeprecatedTest = require('./check_reset_deprecated_test');
+/*
 const CheckResetTest = require('./check_reset_test');
 const RequiredParameterTest = require('./required_parameter_test');
 const InvalidTokenTest = require('./invalid_token_test');
@@ -11,10 +13,13 @@ const NotRstTokenTest = require('./not_rst_token_test');
 const UserNotFoundTest = require('./user_not_found_test');
 const NoIssuanceTest = require('./no_issuance_test');
 const TokenDeprecatedTest = require('./token_deprecated_test');
+*/
 
 class CheckResetRequestTester {
 
 	test () {
+		new CheckResetDeprecatedTest().test();
+		/*
 		new CheckResetTest().test();
 		new RequiredParameterTest({ parameter: 'token' }).test();
 		new InvalidTokenTest().test();
@@ -24,6 +29,7 @@ class CheckResetRequestTester {
 		new UserNotFoundTest().test();
 		new NoIssuanceTest().test();
 		new TokenDeprecatedTest().test();
+		*/
 	}
 }
 

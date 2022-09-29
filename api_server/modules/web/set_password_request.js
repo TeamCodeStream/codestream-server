@@ -41,17 +41,18 @@ class SetPasswordRequest extends WebRequestBase {
 		try {
 			await this.requireAndAllow();
 
-			user = await new CheckResetCore({
+			const userInfo = await new CheckResetCore({
 				request: this
-			}).getUserFromToken(token);
+			}).getUserInfoFromToken(token);
 
-			if (!user) {
+			if (!userInfo.user) {
 				//can't find a user, no need to try again
 				this.warn('User not found');
 				this.redirectError();
 				return;
 			}
-
+			user = userInfo.user;
+			
 			if (!password) {
 				this.render({
 					error: 'password is required',
@@ -64,7 +65,7 @@ class SetPasswordRequest extends WebRequestBase {
 			await new ChangePasswordCore({
 				request: this,
 				errorHandler: this.errorHandler
-			}).setPassword(user, password);
+			}).setPasswordForUsers(userInfo.users, password);
 
 			const requestEmail = encodeURIComponent(user.get('email'));
 			this.response.redirect(`/web/user/password/updated?email=${requestEmail}`);
