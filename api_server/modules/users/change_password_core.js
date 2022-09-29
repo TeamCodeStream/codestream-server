@@ -27,7 +27,7 @@ class ChangePasswordCore {
 	}
 
 	async savePassword(users, newPassword, existingPassword, validatePassword) {	
-		if (validatePassword && this.users.length > 1) {
+		if (validatePassword && users.length > 1) {
 			throw 'only one user allowed for password validation';
 		}	
 
@@ -82,6 +82,7 @@ class ChangePasswordCore {
 
 	// update the user in the database, with their new password hash and access tokens
 	async updateUser (user, tokenInfo) {
+		this.accessToken = tokenInfo.token;
 		const accessTokens = user.get('accessTokens') || {};
 		Object.keys(accessTokens).forEach(type => {
 			if (type === 'rst' || type === 'conf') {

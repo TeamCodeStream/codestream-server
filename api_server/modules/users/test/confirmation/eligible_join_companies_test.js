@@ -36,7 +36,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 			});
 		}
 
-		BoundAsync.times(
+		BoundAsync.timesSeries(
 			this,
 			2,
 			this.createEligibleJoinCompany,
@@ -67,17 +67,43 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.expectedEligibleJoinCompanies.push({
-					id: response.company.id,
-					name: response.company.name,
-					byDomain: domain.toLowerCase(),
-					domainJoining: response.company.domainJoining,
-					codeHostJoining: response.company.codeHostJoining,
-					memberCount: 1
-				});
-				callback();
+				if (response.accessToken) {
+					this.getEligibleJoinCompanyByLogin(response.accessToken, domain, callback);
+				} else {
+					this.expectedEligibleJoinCompanies.push({
+						id: response.company.id,
+						name: response.company.name,
+						byDomain: domain.toLowerCase(),
+						domainJoining: response.company.domainJoining,
+						codeHostJoining: response.company.codeHostJoining,
+						memberCount: 1
+					});
+					callback();
+				}
 			}
 		);
+	}
+
+	// a user who creates a second company gets an access token instead of full company info,
+	// we must use that access token to actually get the company info
+	getEligibleJoinCompanyByLogin (token, domain, callback) {
+		this.doApiRequest({
+			method: 'put',
+			path: '/login',
+			token
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			const company = response.companies[0];
+			this.expectedEligibleJoinCompanies.push({
+				id: company.id,
+				name: company.name,
+				byDomain: domain.toLowerCase(),
+				domainJoining: company.domainJoining,
+				codeHostJoining: company.codeHostJoining,
+				memberCount: 1
+			});
+			callback();
+		});
 	}
 
 	// validate the response to the test request
