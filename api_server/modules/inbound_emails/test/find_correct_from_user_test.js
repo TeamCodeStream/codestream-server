@@ -55,6 +55,7 @@ class FindCorrectFromUserTest extends InboundEmailTest {
 		this.team = response.team;
 		const toEmail = `${this.useStream.id}.${this.team.id}@${this.apiConfig.email.replyToDomain}`;
 		this.data.to = [{ address: toEmail }];
+		this.expectedCreatorId = response.user.id;
 		callback();
 	}
 }

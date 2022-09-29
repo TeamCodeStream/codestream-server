@@ -48,7 +48,7 @@ class InboundEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			((post.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof post.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((post.modifiedAt >= post.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
-			((post.creatorId === this.users[1].user.id) || errors.push('creatorId not equal to the post originator ID')) &&
+			((post.creatorId === this.expectedCreatorId || this.users[1].user.id) || errors.push('creatorId not equal to the post originator ID')) &&
 			((post.origin === 'email') || errors.push('origin is not email'))
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
