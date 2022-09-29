@@ -18,7 +18,7 @@ class ConfirmHelper {
 		await this.hashPassword();			// hash the provided password, if given
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
-		if (!this.dontConfirmInOtherEnvironments) {
+		if (!this.dontConfirmInOtherEnvironments) { // fully remove this when we move to ONE_USER_PER_ORG
 			await this.confirmInOtherEnvironments();	// confirm the user in other "environments" 
 		}
 		return this.responseData;
@@ -146,6 +146,15 @@ class ConfirmHelper {
 	// users who have been invited in other "environments" (i.e. regions), get confirmed
 	// in those environments as well
 	async confirmInOtherEnvironments () {
+		// remove this check (and the whole method) when we fully move to ONE_USER_PER_ORG
+		const oneUserPerOrg = (
+			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.request.headers['x-cs-one-user-per-org']
+		);
+		if (oneUserPerOrg) {
+			return;
+		}
+
 		const { environmentManager } = this.request.api.services;
 		if (!environmentManager) { return; }
 		if (this.request.request.headers['x-cs-block-xenv']) {

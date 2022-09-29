@@ -32,7 +32,6 @@ class ConfirmEmailRequest extends WebRequestBase {
 		await this.validateToken();		// verify the token is not expired, per the most recently issued token
 		await this.ensureUnique();		// ensure the email isn't already taken
 		await this.updateUser();		// update the user object with the new email
-		await this.updateUserInOtherEnvironments();	// if the user exists in other environments (regions, cells, etc.), update there as well
 	}
 
 	// require these parameters, and discard any unknown parameters
@@ -146,11 +145,6 @@ class ConfirmEmailRequest extends WebRequestBase {
 		}).save(op);
 	}
 
-	// if the user exists in other environments (regions, cells, etc.), update there as well
-	async updateUserInOtherEnvironments () {
-		return this.api.services.environmentManager.changeEmailInAllEnvironments(this.originalEmail, this.payload.email);
-	}
-
 	// handle the response to the request, overriding the base response to do a redirect
 	async handleResponse () {
 		if (this.gotError) {
@@ -169,6 +163,7 @@ class ConfirmEmailRequest extends WebRequestBase {
 		await this.publishUserToTeams();
 
 		// change the user's email in all foreign environments
+		// this can be removed once we fully move to ONE_USER_PER_ORG
 		this.changeEmailAcrossEnvironments();
 	}
 
@@ -186,6 +181,15 @@ class ConfirmEmailRequest extends WebRequestBase {
 
 	// change the user's email in all foreign environments
 	async changeEmailAcrossEnvironments () {
+		// remove this whole method when we fully move to ONE_USER_PER_ORG
+		const oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.headers['x-cs-one-user-per-org']
+		);
+		if (oneUserPerOrg) {
+			return;
+		}
+
 		if (this.request.headers['x-cs-block-xenv']) {
 			this.log('Not changing email across environments, blocked by header');
 			return;

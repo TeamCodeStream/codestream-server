@@ -11,7 +11,8 @@ class CreateUserTest extends EnsureExistingUserTest {
 	}
 
 	get description () {
-		return 'should create a new registered user when ensuring a user across environments and the user does not exist';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : ''; // ONE_USER_PER_ORG
+		return `should create a new registered user when ensuring a user across environments and the user does not exist${oneUserPerOrg}`;
 	}
 
 	getExpectedFields () {
