@@ -21,9 +21,9 @@ class JoinCompanyLoginTest extends JoinCompanyTest {
 		callback();
 	}
 	
-	//getExpectedFields () {
-	//	return { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
-	//}
+	getExpectedFields () {
+		return { ...UserTestConstants.EXPECTED_LOGIN_RESPONSE };
+	}
 
 	// before the test runs...
 	before (callback) {

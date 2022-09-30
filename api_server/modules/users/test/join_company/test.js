@@ -11,6 +11,8 @@ const ACLTest = require('./acl_test');
 const ACLByDomainTest = require('./acl_by_domain_test');
 const NoDomainJoiningTest = require('./no_domain_joining_test');
 const MessageToTeamTest = require('./message_to_team_test');
+const OriginalUserDeletedtest = require('./original_user_deleted_test');
+const OriginalUserNotDeletedtest = require('./original_user_not_deleted_test');
 
 class JoinCompanyRequestTester {
 
@@ -27,6 +29,10 @@ class JoinCompanyRequestTester {
 		new NoDomainJoiningTest().test();
 		new MessageToTeamTest().test();
 		new MessageToTeamTest({ byDomainJoining: true }).test();
+		new OriginalUserDeletedtest().test();
+		new OriginalUserDeletedtest({ byDomainJoining: true }).test();
+		new OriginalUserNotDeletedtest().test();
+		new OriginalUserNotDeletedtest({ byDomainJoining: true }).test();
 	}
 }
 

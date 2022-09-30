@@ -45,7 +45,8 @@ class UserCreator extends ModelCreator {
 					'joinMethod'
 				],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
-				object: ['preferences', 'avatar', 'providerInfo']
+				object: ['preferences', 'avatar', 'providerInfo'],
+				'array(string)': ['providerIdentities']
 			}
 		};
 	}
