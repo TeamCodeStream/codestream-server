@@ -11,6 +11,7 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
 const UserCreator = require('./user_creator');
+const UserDeleter = require('./user_deleter');
 
 class JoinCompanyRequest extends RestfulRequest {
 
@@ -82,6 +83,15 @@ class JoinCompanyRequest extends RestfulRequest {
 		if (!this.invitedUser) {
 			this.invitedUser = await this.duplicateUser();
 		}
+
+		// if the original user is teamless, basically meaning they just confirmed,
+		// and are now joining a company, delete the original user record
+		if ((this.user.get('teamIds') || []).length === 0) {
+			await new UserDeleter({
+				request: this
+			}).deleteUser(this.user.id);
+		}
+
 		await this.confirmUser();
 		await this.addUserToTeam();
 	}
@@ -100,9 +110,14 @@ class JoinCompanyRequest extends RestfulRequest {
 			'phoneNumber',
 			'iWorkOn',
 			'preferences',
-			'avatar'
+			'avatar',
+			'providerInfo',
+			'providerIdentities'
 		].forEach(attribute => {
-			userData[attribute] = this.user.get(attribute);
+			const value = this.user.get(attribute);
+			if (typeof value !== undefined) {
+				userData[attribute] = value;
+			}
 		});
 		return new UserCreator({ 
 			request: this,
