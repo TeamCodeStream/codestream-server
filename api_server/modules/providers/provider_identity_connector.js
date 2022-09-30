@@ -18,6 +18,17 @@ class ProviderIdentityConnector {
 		['errorHandler', 'data', 'transforms', 'api'].forEach(prop => {
 			this[prop] = this.request[prop];
 		});
+
+		// just to make sure
+		if (options.signupToken || options.teamId) {
+			throw this.errorHandler.error('deprecated', { reason: 'provider identity connection with signup token or team ID is no longer supported '});
+		}
+
+		// can assume this is set when we have fully moved to ONE_USER_PER_ORG
+		this.oneUserPerOrg = (
+			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.request.headers['x-cs-one-user-per-org']
+		);
 	}
 
 	// attempt to match the given third-party provider identification information to a
@@ -40,7 +51,6 @@ class ProviderIdentityConnector {
 
 		await this.findUser();
 		await this.createUserAsNeeded();
-		await this.addUserToTeamAsNeeded();
 		await this.setUserProviderInfo();
 		await this.confirmUserAsNeeded();
 	}
@@ -48,13 +58,28 @@ class ProviderIdentityConnector {
 	// find the user associated with the passed credentials, first by matching against the 
 	// provider identity extracted from the passed provider info, and then by matching against email
 	async findUser () {
-		this.user = await this.data.users.getOneByQuery(
+		const users = await this.data.users.getByQuery(
 			{ searchableEmail: this.providerInfo.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
+
+		// under one-user-per-org, only match an existing user if it is teamless
+		let user;
+		if (this.oneUserPerOrg) {
+			this.user = users.find(user => {
+				const teamIds = user.get('teamIds') || [];
+				return (
+					!user.get('deactivated') &&
+					teamIds.length === 0
+				);
+			});
+		} else {
+			this.user = users[0];
+		}
+
 		if (this.user) {
 			this.request.log(`Matched user ${this.user.id} by email`);
-			if (this.user.get('isRegistered')) {
+			if (this.user.get('isRegistered')) { // can remove this check when we have fully moved to ONE_USER_PER_ORG
 				return;
 			}
 		}
@@ -97,25 +122,6 @@ class ProviderIdentityConnector {
 		}
 
 		this.user = this.createdUser = await this.userCreator.createUser(userData);
-	}
-
-	// if user was invited to a team, add them to that team
-	async addUserToTeamAsNeeded () {
-		if (!this.teamId && (!this.signupToken || !this.signupToken.teamId)) { return; }
-		this.teamId = this.teamId || this.signupToken.teamId;
-		this.team = await this.data.teams.getById(this.teamId);
-		if (!this.team) {
-			throw this.errorHandler.error('notFound', { info: 'team' });
-		}
-		if (this.team.getActiveMembers().includes(this.user.id)) {
-			return;
-		}
-		await new AddTeamMembers({
-			request: this.request,
-			addUsers: [this.user],
-			team: this.team
-		}).addTeamMembers();
-		this.userWasAddedToTeam = true;
 	}
 
 	// might need to update the user object, either because we had to create it before we had to create or team,
