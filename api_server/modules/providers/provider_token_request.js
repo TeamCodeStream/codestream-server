@@ -559,7 +559,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	async postProcess () {
 		if (!this.user) { return; }
 		// new users get published to the team channel
-		if (this.connector && (this.connector.userWasConfirmed || this.connector.userWasAddedToTeam)) {
+		if (this.connector && this.connector.userWasConfirmed) {
 			await this.publishUserToTeams();
 		}
 		if (this.transforms.userUpdate) {

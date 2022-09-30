@@ -8,7 +8,7 @@ const Assert = require('assert');
 class IdentityMatchTest extends Aggregation(CodeStreamAPITest, IdentityMatchCommonInit) {
 
 	get description () {
-		return `should create a team and user and set an access token for the user when completing an authorization flow for ${this.provider}`;
+		return `should create a user and set an access token for the user when completing an authorization flow for ${this.provider}`;
 	}
 
 	// before the test runs...
