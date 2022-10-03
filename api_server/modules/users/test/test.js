@@ -26,6 +26,7 @@ const NRRegistrationRequestTester = require('./nr_registration/test');
 const LoginByCodeTester = require('./login_by_code/test');
 const GenerateLoginCodeTester = require('./generate_login_code/test');
 const JoinCompanyTester = require('./join_company/test');
+const DeclineInviteTester = require('./decline_invite/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -66,4 +67,5 @@ describe('user requests', function() {
 	describe('PUT /no-auth/login-by-code', LoginByCodeTester.test);
 	describe('POST /no-auth/generate-login-code', GenerateLoginCodeTester.test);
 	describe('PUT /join-company/:id', JoinCompanyTester.test);
+	describe('PUT /decline-invite/:id', DeclineInviteTester.test);
 });

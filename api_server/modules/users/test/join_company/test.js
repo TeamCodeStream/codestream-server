@@ -1,4 +1,4 @@
-// handle unit tests for the "PUT /companies/join/:id" request, to join a company
+// handle unit tests for the "PUT /join-company/:companyId" request, to join a company
 
 'use strict';
 

@@ -171,6 +171,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'join-company/:id',
 		requestClass: require('./join_company_request')
+	},
+	{
+		method: 'put',
+		path: 'decline-invite/:id',
+		requestClass: require('./decline_invite_request')
 	}
 ];
 
