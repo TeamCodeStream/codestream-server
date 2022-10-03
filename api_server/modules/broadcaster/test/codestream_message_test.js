@@ -17,6 +17,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 	constructor (options) {
 		super(options);
 		this.reallySendMessages = true;	// we suppress messages ordinarily, but since we're actually testing them...
+		this.messageParts = {};
 	}
 
 	// before the test, set up messaging clients and start listening
@@ -262,7 +263,15 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			this.testLog(`Received message ${message.messageId} on ${message.channel}, ignoring:\n${JSON.stringify(message, 0, 10)}`);
 			return;	// ignore
 		}
-		else if (!this.validateMessage(message)) {
+
+		// if message is big enough to be split into parts, receive the part, and only proceed
+		// if this gives us the full message
+		if (message.message.part !== undefined) {
+			message = this.receiveMessagePart(message);
+			if (!message) { return; }
+		}
+
+		if (!this.validateMessage(message)) {
 			this.testLog(`Received message ${message.messageId} on ${message.channel}, but was not validated:\n${JSON.stringify(message, 0, 10)}`);
 			return; // ignore
 		}
@@ -275,6 +284,23 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		else {
 			this.testLog(`Message ${message.messageId} already received`);
 			this.messageAlreadyReceived = true;
+		}
+	}
+
+	// receive part of a multi-part message
+	receiveMessagePart (message) {
+		const { part, totalParts, fullMessageId } = message.message;
+		this.messageParts[fullMessageId] = this.messageParts[fullMessageId] || {};
+		const messageEntry = this.messageParts[fullMessageId];
+		messageEntry[part] = message.message.message;
+		if (Object.keys(messageEntry).length === totalParts) {
+			let fullMessage = '';
+			for (let i = 0; i < totalParts; i++) {
+				fullMessage += messageEntry[i.toString()];
+			}
+			delete this.messageParts[fullMessageId];
+			const json = JSON.parse(fullMessage);
+			return { message: json };
 		}
 	}
 
