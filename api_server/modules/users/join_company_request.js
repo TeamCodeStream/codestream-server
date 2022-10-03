@@ -20,7 +20,7 @@ class JoinCompanyRequest extends RestfulRequest {
 		this.errorHandler.add(TeamErrors);
 	}
 
-	// authorize the request for the current user©29
+	// authorize the request for the current user
 	async authorize () {
 		// this functionality is not supported if one-user-per-org is not active
 		// remove this check when we are fully migrated to ONE_USER_PER_ORG

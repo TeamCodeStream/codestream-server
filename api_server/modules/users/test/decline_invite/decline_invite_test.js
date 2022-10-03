@@ -1,4 +1,4 @@
-// base class for many tests of the "PUT /join-company/:companyId" requests
+// base class for many tests of the "PUT /decline-invite/:companyId" requests
 
 'use strict';
 
@@ -6,11 +6,10 @@ const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const CommonInit = require('./common_init');
 
-class JoinCompanyTest extends Aggregation(CodeStreamAPITest, CommonInit) {
+class DeclineInviteTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		const by = this.byDomainJoining ? 'domain joining' : 'invite';
-		return `should return user credentials when joining a company by ${by}`;
+		return 'should deactivate user record when declining an invite to join a company';
 	}
 
 	get method () {
@@ -23,4 +22,4 @@ class JoinCompanyTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 }
 
-module.exports = JoinCompanyTest;
+module.exports = DeclineInviteTest;
