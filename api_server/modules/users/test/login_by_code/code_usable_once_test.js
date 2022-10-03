@@ -10,7 +10,7 @@ class CodeUsableOnceTest extends LoginByCodeTest {
 
 	getExpectedError () {
 		return {
-			code: 'USRC-1029' // the number of attempts value is checked first
+			code: 'USRC-1030'
 		};
 	}
 

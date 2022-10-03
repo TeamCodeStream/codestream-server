@@ -46,7 +46,7 @@ class LoginByCodeTest extends CodeStreamAPITest {
 			_loginCheat: this.apiConfig.sharedSecrets.confirmationCheat
 		};
 		if (this.oneUserPerOrg) { // remove this check when we have fully moved to ONE_USER_PER_ORG
-			data.teamId = this.team.id;
+			data.teamId = this.useTeamId || this.team.id;
 		}
 		this.doApiRequest(
 			{
@@ -61,7 +61,7 @@ class LoginByCodeTest extends CodeStreamAPITest {
 					loginCode: response.loginCode
 				};
 				if (this.oneUserPerOrg) { // remove this check when we have fully moved to ONE_USER_PER_ORG
-					this.data.teamId = this.team.id;
+					this.data.teamId = this.useTeamId || this.team.id;
 				}
 				callback();
 			}
@@ -89,6 +89,7 @@ class LoginByCodeTest extends CodeStreamAPITest {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
+		Assert.strictEqual(data.teams[0].id, this.useTeamId || this.team.id, 'incorrect team returned');
 		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
 		//const providerHosts = GetStandardProviderHosts(this.apiConfig);
 		//Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
