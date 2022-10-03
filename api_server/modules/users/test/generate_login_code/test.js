@@ -14,6 +14,7 @@ class GenerateLoginCodeTester {
 
 	test () {
 		new GenerateLoginCodeTest().test();
+		new GenerateLoginCodeTest({ oneUserPerOrg: true }).test();
 		new GenerateLoginCodeMissingEmailTest().test();
 		new GenerateLoginCodeBadEmailTest().test();
 		new UnregisteredUserTest().test();

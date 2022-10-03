@@ -42,8 +42,7 @@ class LoginCodeHelper {
 			}
 			this.user = users[0];
 		} else {
-			// under ONE_USER_PER_ORG, find the first registered user, either on the team given, or if no team given,
-			// that has no team
+			// under ONE_USER_PER_ORG, find the first registered user, matching the team, if given
 			this.user = users.find(user => {
 				const teamIds = user.get('teamIds') || [];
 				return (
@@ -51,11 +50,9 @@ class LoginCodeHelper {
 					!user.get('deactivated') &&
 					(
 						(
-							!this.teamId &&
-							teamIds.length === 0
+							!this.teamId
 						) ||
 						(
-							this.teamId &&
 							teamIds.length === 1 &&
 							teamIds[0] === this.teamId
 						)

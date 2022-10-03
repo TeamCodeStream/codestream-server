@@ -9,6 +9,8 @@ const MissingParameterTest = require('./missing_parameter_test');
 const CodeUsableOnceTest = require('./code_usable_once_test');
 const InitialDataTest = require('./initial_data_test');
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
+const TeamIdTest = require('./team_id_test');
+const FindTeamTest = require('./find_team_test');
 
 class LoginByCodeTester {
 
@@ -25,6 +27,8 @@ class LoginByCodeTester {
 		new InitialDataTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new EligibleJoinCompaniesTest().test();
 		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
+		new TeamIdTest().test();
+		new FindTeamTest().test();
 	}
 }
 
