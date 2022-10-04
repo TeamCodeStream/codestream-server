@@ -6,6 +6,7 @@ const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib
 const Indexes = require('./indexes');
 const UserDeleter = require('./user_deleter');
 const UserPublisher = require('./user_publisher');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 
 class DeclineInviteRequest extends RestfulRequest {
 
@@ -67,6 +68,9 @@ class DeclineInviteRequest extends RestfulRequest {
 		this.responseData = {
 			user: userDeleter.updateOp
 		};
+
+		// deleting this directly removes it from the op that gets used to save the user
+		this.responseData = DeepClone(this.responseData);
 		delete this.responseData.user.$set.searchableEmail; // this is a server-only attribute
 	}
 
