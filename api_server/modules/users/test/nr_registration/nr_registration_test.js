@@ -55,18 +55,14 @@ class NRRegistrationTest extends CodeStreamAPITest {
 	validateResponse (data) {
 		let user = data.user;
 		let errors = [];
-		(user.secondaryEmails || []).sort();
-		(this.data.secondaryEmails || []).sort();
 		const email = this.expectedUserData.email.trim();
 		const username = email.split('@')[0].replace(/\+/g, '');
 		const userId = this.expectedUserData.providerInfo.newrelic.data.userId;
 		let result = (
 			((user.id === user._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((user.email === email) || errors.push('incorrect email')) &&
-			((JSON.stringify(user.secondaryEmails) === JSON.stringify(this.data.secondaryEmails)) || errors.push('secondaryEmails does not natch')) &&
 			((user.username === username) || errors.push('incorrect username')) &&
 			((user.fullName === this.expectedUserData.fullName) || errors.push('incorrect full name')) &&
-			((user.timeZone === this.data.timeZone) || errors.push('incorrect time zone')) &&
 			((user.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof user.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((user.modifiedAt >= user.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
