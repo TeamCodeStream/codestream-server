@@ -7,7 +7,8 @@ const UserTestConstants = require('../user_test_constants');
 class NRRegistrationTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should return valid user data when registering';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : '';
+		return `should return valid user data when registering${oneUserPerOrg}`;
 	}
 
 	get method () {
