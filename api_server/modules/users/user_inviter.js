@@ -7,6 +7,7 @@ const UserCreator = require('./user_creator');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const Indexes = require('./indexes');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 
 const REINVITE_REPEATS = 2;
 
@@ -21,6 +22,7 @@ class UserInviter {
 		this.userData = userData;
 		await this.getTeam();
 		await this.createUsers();
+		await this.addUsersToTeam();
 		await this.setNumInvited();
 		return this.invitedUsers;
 	}
@@ -83,6 +85,20 @@ class UserInviter {
 			user: createdUser,
 			didExist: !!existingUser
 		});
+	}
+
+	// add the created users to the team indicated
+	async addUsersToTeam () {
+		await new AddTeamMembers({
+			request: this.request,
+			addUsers: this.invitedUsers.map(userData => userData.user),
+			team: this.team
+		}).addTeamMembers();
+
+		// refetch the users since they changed when added to team
+		await Promise.all(this.invitedUsers.map(async userData => {
+			userData.user = await this.data.users.getById(userData.user.id);
+		}));
 	}
 
 	// get the existing user matching this email, if any

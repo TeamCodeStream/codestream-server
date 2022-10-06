@@ -50,6 +50,7 @@ class PostUserRequestTester {
 
 	postUserTest () {
 		new PostUserTest().test();
+		new PostUserTest({ oneUserPerOrg: true }).test();
 		new ExistingUnregisteredUserTest().test();
 		new ExistingRegisteredUserTest().test();
 		new ExistingRegisteredUserOnTeamTest().test();
@@ -62,8 +63,11 @@ class PostUserRequestTester {
 		new NoAttributeTest({ attribute: 'email'}).test();
 		new TeamNotFoundTest().test();
 		new MessageToTeamTest().test();
+		new MessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new ExistingUnregisteredUserMessageToTeamTest().test();
+		new ExistingUnregisteredUserMessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new ExistingRegisteredUserMessageToTeamTest().test();
+		new ExistingRegisteredUserMessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new UserAddedToTeamGetsMessageTest().test();
 		new UnregisteredInviteTest().test();
 		new DontSendEmailTest().test();

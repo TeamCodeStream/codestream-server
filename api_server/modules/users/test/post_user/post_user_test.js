@@ -12,7 +12,8 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return 'should return the user when creating (inviting) a user';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : ''; // ONE_USER_PER_ORG
+		return `should return the user when creating (inviting) a user${oneUserPerOrg}`;
 	}
 
 	get method () {
@@ -72,8 +73,10 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
-		if (!this.existingUserIsRegistered) {
-			Assert(user.inviteCode, 'user does not have an invite code');
+		if (!this.oneUserPerOrg && !this.existingUserIsRegistered) {
+			if (!this.oneUserPerOrg) {
+				Assert(user.inviteCode, 'user does not have an invite code');
+			}
 			const userWasAlreadyInvited = this.wantExistingUser && (this.existingUserAlreadyOnTeam || this.existingUserOnTeam);
 			const lastInviteType = this.noLastInviteType ?
 				undefined :
