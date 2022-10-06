@@ -10,7 +10,8 @@ class ExistingUnregisteredUserTest extends PostUserTest {
 	}
 
 	get description () {
-		return 'should return the user when inviting a user that already exists but is unregistered';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : ''; // ONE_USER_PER_ORG
+		return `should return the user when inviting a user that already exists but is unregistered${oneUserPerOrg}`;
 	}
 
 }
