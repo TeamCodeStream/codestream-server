@@ -63,16 +63,22 @@ class ProviderIdentityConnector {
 			{ hint: Indexes.bySearchableEmail }
 		);
 
-		// under one-user-per-org, only match an existing user if it is teamless
-		let user;
+		// under one-user-per-org, match a registered user matching the team provided,
+		// or the first registered user, or a teamless unregistered user
 		if (this.oneUserPerOrg) {
-			this.user = users.find(user => {
+			let firstRegisteredUser, teamlessUnregisteredUser;
+			const matchingUser = users.find(user => {
+				if (user.get('deactivated')) { return; }
 				const teamIds = user.get('teamIds') || [];
-				return (
-					!user.get('deactivated') &&
-					teamIds.length === 0
-				);
+				if (this.teamId && teamIds.includes(this.teamId)) {
+					return user;
+				} else if (!firstRegisteredUser && user.get('isRegistered')) {
+					firstRegisteredUser = user;
+				} else if (!teamlessUnregisteredUser && !user.get('isRegistered') && teamIds.length === 0) {
+					teamlessUnregisteredUser = user;
+				}
 			});
+			this.user = matchingUser || firstRegisteredUser || teamlessUnregisteredUser;
 		} else {
 			this.user = users[0];
 		}
