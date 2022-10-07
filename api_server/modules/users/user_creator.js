@@ -114,9 +114,14 @@ class UserCreator extends ModelCreator {
 
 		// if username not provided, generate it from email
 		if (!this.attributes.username) {
-			this.attributes.username = UsernameValidator.normalize(
-				EmailUtilities.parseEmail(this.attributes.email).name
-			);
+			if (this.existingModel) {
+				this.attributes.username = this.existingModel.get('username');
+			}
+			if (!this.attributes.username) {
+				this.attributes.username = UsernameValidator.normalize(
+					EmailUtilities.parseEmail(this.attributes.email).name
+				);
+			}
 		}
 
 		// these attributes can be passed in as options, but aren't directly user-settable
@@ -176,7 +181,7 @@ class UserCreator extends ModelCreator {
 		else if (existingLastInviteType) {
 			this.attributes.lastInviteType = 'reinvitation';
 		}
-		else if (this.userBeingAddedToTeamId) {
+		else if (this.team) {
 			this.attributes.lastInviteType = 'invitation';
 		}
 

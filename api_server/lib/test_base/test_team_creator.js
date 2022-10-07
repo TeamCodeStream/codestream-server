@@ -104,7 +104,7 @@ class TestTeamCreator {
 		} else {
 			userIndex = this.userOptions.numRegistered + n;
 		}
-		Object.assign(data, this.userOptions.userData[userIndex] || {});
+		Object.assign(data, (this.userOptions.userData && this.userOptions.userData[userIndex]) || {});
 		if (this.userOptions.cheatOnSubscription) {
 			data._subscriptionCheat = this.test.apiConfig.sharedSecrets.subscriptionCheat;
 		}
@@ -139,13 +139,15 @@ class TestTeamCreator {
 			return callback();
 		}
 		const token = this.teamOptions.creatorToken || this.users[this.teamOptions.creatorIndex].accessToken;
-
 		this.test.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
 				this.company = response.company;
 				this.teamStream = response.streams[0];
+				if (this.teamOptions.creatorToken && response.accessToken) {
+					this.teamOptions.creatorToken = response.accessToken;
+				}
 				if (this.teamOptions.creatorIndex !== undefined) {
 					Object.assign(this.users[this.teamOptions.creatorIndex].user, {
 						teamIds: this.team.id,
@@ -206,6 +208,7 @@ class TestTeamCreator {
 		if (!email) {
 			email = userIndex !== null ? this.users[userIndex].user.email : this.test.userFactory.randomEmail();
 		}
+
 		this.test.doApiRequest(
 			{
 				method: 'post',
