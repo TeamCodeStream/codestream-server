@@ -50,11 +50,10 @@ class UserInviter {
 		let existingUser = await this.getExistingUser(userData);
 		if (
 			existingUser &&
-			(existingUser.get('teamIds') || []).length === 0
+			!(existingUser.get('teamIds') || []).includes(this.team.id)
 		) {
-			// special case of a match to an existing user that isn't on any teams
-			// in this case, we feed the user's attributes into the user we create, but don't actually
-			// use that existing user record
+			// if we found a user that matches by email, but isn't actually on the team, we create
+			// a new user record, and feed the user's attributes from the existing user
 			[
 				'fullName',
 				'timeZone',
@@ -78,7 +77,7 @@ class UserInviter {
 			existingUser,
 			team: this.team,
 			user: this.user,
-			inviteType: !this.dontSendEmail && this.inviteType
+			inviteType: (!this.dontSendEmail && this.inviteType)
 		});
 		const createdUser = await userCreator.createUser(userData);
 		this.invitedUsers.push({
@@ -103,26 +102,29 @@ class UserInviter {
 
 	// get the existing user matching this email, if any
 	async getExistingUser (userData) {
-		// if the user has already been invited, seek them out,
-		// or if there is a user who is on no teams, use that to feed user data,
-		// but we will still create a new record
 		const matchingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: userData.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-		return matchingUsers.find(user => {
+
+		// preferentially return a user previously invited to this team,
+		// or a teamless user, or a user on another team
+		// for the latter, we feed the user data, but we will still create a new record
+		let teamlessUser, userOnOtherTeam;
+		const userOnTeam = matchingUsers.find(user => {
 			if (user.get('deactivated')) { 
 				return false;
 			}
 			const teamIds = (user.get('teamIds') || []);
-			return (
-				teamIds.length === 0 ||
-				(
-					teamIds.length === 1 &&
-					teamIds[0] === this.team.id
-				)
-			);
+			if (teamIds.length === 0) {
+				teamlessUser = user;
+			} else if (teamIds.length === 1 && teamIds[0] === this.team.id) {
+				return user;
+			} else {
+				userOnOtherTeam = user;
+			}
 		});
+		return userOnTeam || teamlessUser || userOnOtherTeam;
 	}
 
 	// track the number of users the inviting user has invited

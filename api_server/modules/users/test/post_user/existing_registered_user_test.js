@@ -17,12 +17,17 @@ class ExistingRegisteredUserTest extends PostUserTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		// verify join method and associated analytics attributes
 		const user = data.user;
-		const originTeamId = this.originTeam ? this.originTeam.id : this.team.id;
-		Assert(user.joinMethod === 'Added to Team', 'join method not set to "Added to Team"');
-		Assert(user.primaryReferral === 'internal', 'primary referral not set to "internal"');
-		Assert(user.originTeamId === originTeamId, 'origin team ID not set to correct team');
+		if (!this.oneUserPerOrg) {
+			// verify join method and associated analytics attributes
+			const originTeamId = this.originTeam ? this.originTeam.id : this.team.id;
+			Assert(user.joinMethod === 'Added to Team', 'join method not set to "Added to Team"');
+			Assert(user.primaryReferral === 'internal', 'primary referral not set to "internal"');
+			Assert(user.originTeamId === originTeamId, 'origin team ID not set to correct team');
+		} else {
+			Assert(user.id !== this.existingUserData.user.id, 'user returned should be different than invited user, under one-user-per-org');
+			Assert(!user.isRegistered, 'invited user should not be registered, under one-user-per-org');
+		}
 		super.validateResponse(data);
 	}
 }

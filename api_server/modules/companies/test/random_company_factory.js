@@ -41,7 +41,8 @@ class RandomCompanyFactory {
 				company: response.companies[0],
 				team: response.teams[0],
 				streams: response.streams,
-				user: response.user
+				user: response.user,
+				accessToken
 			};
 			callback(null, info);
 		});
