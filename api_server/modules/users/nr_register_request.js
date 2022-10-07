@@ -175,9 +175,7 @@ class NRRegisterRequest extends RestfulRequest {
 				nrUserId: this.nrUserId
 			});
 		}
-		const createdUser = await this.userCreator.createUser(this.userData);
-		// not sure why this re-fetch is necessary, it really shouldn't be
-		this.user = await this.data.users.getById(createdUser.id);
+		this.user = await this.userCreator.createUser(this.userData);
 	}
 
 	// mark the user as registered and log them in
