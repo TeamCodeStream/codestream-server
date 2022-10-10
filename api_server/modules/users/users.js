@@ -307,6 +307,11 @@ class Users extends Restful {
 			{ overrideHintRequired: true }
 		);
 		this.oneUserPerOrg = setting && setting.enabled;
+		if (this.oneUserPerOrg) {
+			this.api.log('NOTE: API Server is running in one-user-per-org mode');
+		} else {
+			this.api.log('NOTE: API Server is NOT running in one-user-per-org-mode');
+		}
 	}
 
 	describeErrors () {
