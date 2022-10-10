@@ -11,23 +11,14 @@ class UserCompaniesRequest extends XEnvRequest {
 	// process the request...
 	async process () {
 
-		// remove this check when we fully move to ONE_USER_PER_ORG
-		const oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.headers['x-cs-one-user-per-org']
-		);
-		if (oneUserPerOrg) {
-			throw this.errorHandler.error('deprecated');
-		}
-
 		await this.requireAllowParameters('query', {
 			required: {
 				string: ['email'],
 			}
 		});
 
-		// get user matching the email
-		const user = await this.data.users.getOneByQuery(
+		// get users matching the email
+		const users = await this.data.users.getByQuery(
 			{ 
 				searchableEmail: decodeURIComponent(this.request.query.email).toLowerCase() 
 			},
@@ -35,23 +26,29 @@ class UserCompaniesRequest extends XEnvRequest {
 				hint: UserIndexes.bySearchableEmail
 			}
 		);
-		if (!user) {
-			return [];
-		}
 
-		// get companies the user is a member of
-		const companyIds = user.get('companyIds') || [];
-		let companies = [];
-		if (companyIds.length > 0) {
-			companies = await this.data.companies.getByIds(companyIds);
-		}
+		// get all the companyID, to make a single request to the database for all the companies
+		const allCompanyIds = [];
+		users.forEach(user => {
+			const companyIds = user.get('companyIds') || [];
+			allCompanyIds.push.apply(allCompanyIds, companyIds); 
+		});
+		const allCompanies = await this.data.companies.getByIds(allCompanyIds);
 
-		const accessToken = ((user.get('accessTokens') || {}).web || {}).token;
-		this.responseData.companies = companies.map(company => {
-			return {
-				...(company.getSanitizedObject({ request: this })),
-				accessToken
-			};
+		// put each company in the response, along with access token if available
+		this.responseData.companies = [];
+		users.forEach(user => {
+			const companyIds = user.get('companyIds') || [];
+			companyIds.forEach(companyId => {
+				const company = allCompanies.find(c => c.id === companyId);
+				if (company) {
+					const accessToken = ((user.get('accessTokens') || {}).web || {}).token;
+					this.responseData.companies.push({
+						...(company.getSanitizedObject({ request: this })),
+						accessToken
+					});
+				}
+			});
 		});
 	}
 }
