@@ -139,28 +139,34 @@ class EnvironmentManagerService {
 	}
 
 	// fetch all companies across all foreign environments that have domain joining on for the given domain
-	async fetchEligibleJoinCompaniesFromAllEnvironments (domain) {
+	async fetchEligibleJoinCompaniesFromAllEnvironments (emailOrDomain) { // becomes just email under ONE_USER_PER_ORG
 		const hosts = this.getForeignEnvironmentHosts();
 		const companies = [];
 		await Promise.all(hosts.map(async host => {
-			const companiesFromEnvironment = await this.fetchEligibleJoinCompaniesFromEnvironment(host, domain);
+			const companiesFromEnvironment = await this.fetchEligibleJoinCompaniesFromEnvironment(host, emailOrDomain); // becomes just email under ONE_USER_PER_ORG
 			companies.push.apply(companies, companiesFromEnvironment);
 		}));
 		return companies;
 	}
 
 	// fetch all companies from the given environment host that have domain joining on for the given domain
-	async fetchEligibleJoinCompaniesFromEnvironment (host, domain) {
-		const url = `${host.publicApiUrl}/xenv/eligible-join-companies?domain=${encodeURIComponent(domain)}`;
-		this.api.log(`Fetching eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}...`);
+	async fetchEligibleJoinCompaniesFromEnvironment (host, emailOrDomain) {  // becomes just email under ONE_USER_PER_ORG
+		let url;
+		if (emailOrDomain.match(/@/)) { // remove this check when we fully move to ONE_USER_PER_ORG, make it just an email
+			url = `${host.publicApiUrl}/xenv/eligible-join-companies?email=${encodeURIComponent(emailorDomain)}`;
+			this.api.log(`Fetching eligible join companies matching email ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}...`);
+		} else {
+			url = `${host.publicApiUrl}/xenv/eligible-join-companies?domain=${encodeURIComponent(emailorDomain)}`;
+			this.api.log(`Fetching eligible join companies matching domain ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}...`);
+		}	 
 		const response = await this.fetchFromUrl(url);
 		if (response && response.companies) {
-			this.api.log(`Did fetch ${response.companies.length} eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}`);
+			this.api.log(`Did fetch ${response.companies.length} eligible join companies matching email/domain ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}`);
 			return response.companies.map(company => {
 				return { company, host };
 			});
 		} else {
-			this.api.log(`Did not fetch any eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}`);
+			this.api.log(`Did not fetch any eligible join companies matching email/domain ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}`);
 			return [];
 		}
 	}
