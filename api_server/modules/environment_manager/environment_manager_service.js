@@ -153,10 +153,10 @@ class EnvironmentManagerService {
 	async fetchEligibleJoinCompaniesFromEnvironment (host, emailOrDomain) {  // becomes just email under ONE_USER_PER_ORG
 		let url;
 		if (emailOrDomain.match(/@/)) { // remove this check when we fully move to ONE_USER_PER_ORG, make it just an email
-			url = `${host.publicApiUrl}/xenv/eligible-join-companies?email=${encodeURIComponent(emailorDomain)}`;
+			url = `${host.publicApiUrl}/xenv/eligible-join-companies?email=${encodeURIComponent(emailOrDomain)}`;
 			this.api.log(`Fetching eligible join companies matching email ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}...`);
 		} else {
-			url = `${host.publicApiUrl}/xenv/eligible-join-companies?domain=${encodeURIComponent(emailorDomain)}`;
+			url = `${host.publicApiUrl}/xenv/eligible-join-companies?domain=${encodeURIComponent(emailOrDomain)}`;
 			this.api.log(`Fetching eligible join companies matching domain ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}...`);
 		}	 
 		const response = await this.fetchFromUrl(url);
