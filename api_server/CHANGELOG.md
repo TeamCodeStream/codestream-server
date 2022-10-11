@@ -1,5 +1,15 @@
 # Change Log
 
+## [14.0.3] - 2022-10-11
+
+### Added
+
+- Adds backend support for CircleCI integration
+
+### Fixed 
+
+- Fixes an issue preventing signup via New Relic api key if you were invited
+
 ## [14.0.2] - 2022-9-14
 
 ### Changed

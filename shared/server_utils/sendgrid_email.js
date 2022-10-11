@@ -100,7 +100,7 @@ class SendGridEmail {
 			// we'll put the real email address in the subject for debugging
 			message.subject = `{{{${to}}}} ${message.subject}`;
 			message.to = this.emailTo;
-			this.log(`Diverting to ${to}`, options.requestId);
+			this.log(`Diverting to ${message.to}`, options.requestId);
 		}
 
 		return message;

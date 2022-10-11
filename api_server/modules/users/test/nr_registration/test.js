@@ -8,6 +8,8 @@ const BadApiKeyTest = require('./bad_api_key_test');
 const NoApiKeyTest = require('./no_api_key_test');
 const NRRegistrationTest = require('./nr_registration_test');
 //const StagingApiTest = require('./staging_api_test');
+const ExistsButUnregisteredTest = require('./exists_but_unregistered_test');
+const ExistsButUnregisteredInvitedTest = require('./exists_but_unregistered_invited_test');
 
 class NRRegistrationRequestTester {
 
@@ -18,6 +20,8 @@ class NRRegistrationRequestTester {
 		new AlreadyRegisteredEmailTest().test();
 		//new EuApiTest().test();
 		//new StagingApiTest().test();
+		new ExistsButUnregisteredTest().test();
+		new ExistsButUnregisteredInvitedTest().test();
 	}
 }
 

@@ -197,6 +197,14 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'newrelic.com',
 		needsConfigure: true
+	},
+	'circleci*com': {
+		id: 'circleci*com',
+		name: 'circleci',
+		isEnterprise: false,
+		host: 'circleci.com',
+		hasBuilds: true,
+		needsConfigure: true
 	}
 };
 

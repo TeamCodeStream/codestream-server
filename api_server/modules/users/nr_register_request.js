@@ -128,7 +128,7 @@ class NRRegisterRequest extends RestfulRequest {
 			{ searchableEmail: this.userData.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-		if (this.user) {
+		if (this.user && this.user.get('isRegistered')) {
 			throw this.errorHandler.error('alreadyRegistered', { info: this.userData.email });
 		}
 	}
@@ -139,7 +139,10 @@ class NRRegisterRequest extends RestfulRequest {
 			request: this,
 			nrUserId: this.nrUserId
 		});
-		this.user = await this.userCreator.createUser(this.userData);
+		const createdUser = await this.userCreator.createUser(this.userData);
+
+		// not sure why this re-fetch is necessary, it really shouldn't be
+		this.user = await this.data.users.getById(createdUser.id);
 	}
 
 	// mark the user as registered and log them in
