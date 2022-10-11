@@ -66,9 +66,12 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		}
 
 		// the access token passed must match the user's stored access token
-		const token = this.user.accessTokens && this.user.accessTokens.web && this.user.accessTokens.web.token;
-		if (token !== accessToken) {
-			throw this.errorHandler.error('updateAuth', { reason: 'token mismatch' });
+		// NOTE: this is only a requirement before one-user-per-org
+		if (!this.oneUserPerOrg) {
+			const token = this.user.accessTokens && this.user.accessTokens.web && this.user.accessTokens.web.token;
+			if (token !== accessToken) {
+				throw this.errorHandler.error('updateAuth', { reason: 'token mismatch' });
+			}
 		}
 	}
 
