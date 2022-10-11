@@ -15,6 +15,12 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 	}
 
 	async authorize () {
+		// remove this check when we fully move to ONE_USER_PER_ORG
+		this.oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.headers['x-cs-one-user-per-org']
+		);
+
 		await this.xenvRequireAndAllow();
 
 		// in the authorization phase, we'll fetch the user across environments, and make a copy 
@@ -24,11 +30,6 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		await this.copyUser();
 		await this.deleteUser(); // also delete the original user
 
-		// remove this check when we fully move to ONE_USER_PER_ORG
-		this.oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.headers['x-cs-one-user-per-org']
-		);
 		if (this.oneUserPerOrg) {
 			// pretend the one-user-per-org join-company request is the super-class,
 			// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
