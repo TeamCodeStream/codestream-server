@@ -6,6 +6,7 @@ const JoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server
 const OneUserPerOrgJoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/join_company_request');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const AccessTokenCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/access_token_creator');
+const User = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user');
 
 class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 
@@ -67,12 +68,9 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		}
 
 		// the access token passed must match the user's stored access token
-		// NOTE: this is only a requirement before one-user-per-org
-		if (!this.oneUserPerOrg) {
-			const token = this.user.accessTokens && this.user.accessTokens.web && this.user.accessTokens.web.token;
-			if (token !== accessToken) {
-				throw this.errorHandler.error('updateAuth', { reason: 'token mismatch' });
-			}
+		const token = this.user.accessTokens && this.user.accessTokens.web && this.user.accessTokens.web.token;
+		if (token !== accessToken) {
+			throw this.errorHandler.error('updateAuth', { reason: 'token mismatch' });
 		}
 	}
 
@@ -80,6 +78,14 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 	// as a failsafe, we'll ensure the user's ID doesn't exist in our local database 
 	// (our hope is that collisions are extremely unlikely)
 	async copyUser () {
+		// under one-user-per-org, we expect an existing record for the invited user,
+		// or, if joining by domain, a new user record will be created in any case
+		// SO: here we only create a memory-only user record to carry the attributes
+		if (this.oneUserPerOrg) {
+			this.user = new User(this.user);
+			return;
+		}
+
 		const collidingUser = await this.data.users.getById(this.user.id);
 		if (collidingUser) {
 			throw this.errorHandler.error('internal', { info: `found a colliding user matching ID ${this.user.id}` });
@@ -89,17 +95,6 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		const { token, minIssuance } = AccessTokenCreator(this, this.user.id);
 		this.user.accessTokens = this.user.accessTokens || {};
 		this.user.accessTokens.web = { token, minIssuance };
-
-		// if we're in one-user-per-org, and the fetched user is on a team,
-		// we assume this is an invited user accepting an invite and pre-emptively put the user on the company/team
-		if (this.oneUserPerOrg && (this.user.teamIds || []).length > 0) {
-			this.company = await this.data.companies.getById(this.request.params.id.toLowerCase());
-			if (!this.company || this.company.get('deactivated')) {
-				throw this.errorHandler.error('notFound', { info: 'company' });
-			}
-			this.user.teamIds = [this.company.get('everyoneTeamId')];
-			this.user.companyIds = [this.company.id];
-		} 
 
 		// save the user
 		await this.data.users.createDirect(this.user);

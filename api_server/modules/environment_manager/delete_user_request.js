@@ -22,11 +22,6 @@ class DeleteUserRequest extends XEnvRequest {
 			throw this.errorHandler.error('alreadyDeleted');
 		}
 
-		// user can only be deleted if they are unregistered
-		if (user.get('isRegistered')) {
-			throw this.errorHandler.error('deleteAuth', { reason: 'user is registered' });
-		}
-
 		// remove this check when we fully move to ONE_USER_PER_ORG
 		const oneUserPerOrg = (
 			this.api.modules.modulesByName.users.oneUserPerOrg ||
