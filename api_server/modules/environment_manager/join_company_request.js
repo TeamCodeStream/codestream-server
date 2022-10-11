@@ -3,6 +3,7 @@
 'use strict';
 
 const JoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/join_company_request');
+const OneUserPerOrgJoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/join_company_request');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const AccessTokenCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/access_token_creator');
 
@@ -23,7 +24,18 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		await this.copyUser();
 		await this.deleteUser(); // also delete the original user
 
-		return super.authorize();
+		// remove this check when we fully move to ONE_USER_PER_ORG
+		this.oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.headers['x-cs-one-user-per-org']
+		);
+		if (this.oneUserPerOrg) {
+			// pretend the one-user-per-org join-company request is the super-class,
+			// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
+			await OneUserPerOrgJoinCompanyRequest.prototype.authorize.call(this);
+		} else {
+			return super.authorize();
+		}
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -74,6 +86,17 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		this.user.accessTokens = this.user.accessTokens || {};
 		this.user.accessTokens.web = { token, minIssuance };
 
+		// if we're in one-user-per-org, and the fetched user is on a team,
+		// we assume this is an invited user accepting an invite and pre-emptively put the user on the company/team
+		if (this.oneUserPerOrg && (this.user.teamIds || []).length > 0) {
+			this.company = await this.data.companies.getById(this.request.params.id.toLowerCase());
+			if (!this.company || this.company.get('deactivated')) {
+				throw this.errorHandler.error('notFound', { info: 'company' });
+			}
+			this.user.teamIds = [this.company.get('everyoneTeamId')];
+			this.user.companyIds = [this.company.id];
+		} 
+
 		// save the user
 		await this.data.users.createDirect(this.user);
 
@@ -90,6 +113,26 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 	async deleteUser () {
 		const { serverUrl, userId } = this.request.body;
 		return this.api.services.environmentManager.deleteUserFromHostById(serverUrl, userId);
+	}
+
+	async process () {
+		// pretend the one-user-per-org join-company request is the super-class,
+		// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
+		if (this.oneUserPerOrg) {
+			return OneUserPerOrgJoinCompanyRequest.prototype.process();
+		} else {
+			return super.process();
+		}
+	}
+
+	async postProcess () {
+		// pretend the one-user-per-org join-company request is the super-class,
+		// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
+		if (this.oneUserPerOrg) {
+			return OneUserPerOrgJoinCompanyRequest.prototype.postProcess();
+		} else {
+			return super.postProcess();
+		}
 	}
 }
 
