@@ -119,7 +119,10 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		// pretend the one-user-per-org join-company request is the super-class,
 		// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
 		if (this.oneUserPerOrg) {
-			return OneUserPerOrgJoinCompanyRequest.prototype.process();
+			this.duplicateUser = OneUserPerOrgJoinCompanyRequest.prototype.duplicateUser;
+			this.confirmUser = OneUserPerOrgJoinCompanyRequest.prototype.confirmUser;
+			this.addUserToTeam = OneUserPerOrgJoinCompanyRequest.prototype.addUserToTeam;
+			return OneUserPerOrgJoinCompanyRequest.prototype.process.call(this);
 		} else {
 			return super.process();
 		}
@@ -129,7 +132,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		// pretend the one-user-per-org join-company request is the super-class,
 		// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
 		if (this.oneUserPerOrg) {
-			return OneUserPerOrgJoinCompanyRequest.prototype.postProcess();
+			return OneUserPerOrgJoinCompanyRequest.prototype.postProcess.call(this);
 		} else {
 			return super.postProcess();
 		}
