@@ -362,6 +362,11 @@ module.exports = {
 		type: 'number',
 		description: 'User ID of this user on New Relic'
 	},
+	nrUserInfo: {
+		type: 'object',
+		description: 'Info associated with the user as returned by New Relic IdP when provisioning',
+		serverOnly: true
+	},
 	originUserId: {
 		type: 'id',
 		description: 'when a user is copied by way of invite, retains the ID of the first user record the human user created an account with',
