@@ -76,23 +76,33 @@ class MongoCollection {
 		delete options.requestId;
 		const mongoArgs = [query, ...args, options];
 		let results, error;
-		const logQuery = () => {
+		const logQuery = dryRun => {
 			const time = Date.now() - startTime;
 			if (time > 2000) {
 				if (this.options.queryLogger) {
 					this.options.queryLogger.warn(`WTF? QUERY TOOK ${time} MS!!!`);
 				}
 			}
-			const logOptions = { query, mongoFunc, time, requestId, error };
+			const logOptions = { query, mongoFunc, time, requestId, error, dryRun };
 			logOptions.queryOptions = options;
 			this._logMongoQuery(logOptions, args);
 		};
 		try {
-			results = await this.dbCollection[mongoFunc].apply(
-				this.dbCollection,
-				mongoArgs
-			);
-			logQuery();
+			let dontRun;
+			if (this.options.dryRunMode) {
+				const readQueries = ['find', 'findOne', 'countDocuments'];
+				if (!readQueries.includes(mongoFunc)) {
+					dontRun = true;
+				}
+			}
+
+			if (!dontRun) {
+				results = await this.dbCollection[mongoFunc].apply(
+					this.dbCollection,
+					mongoArgs
+				);
+			}
+			logQuery(dontRun);
 			return results;
 		}
 		catch (error) {
@@ -181,6 +191,7 @@ class MongoCollection {
 		else {
 			// stream the results, passing back just the cursor, the caller will
 			// be responsible for iterating
+			logQuery();
 			return {
 				cursor: cursor,
 				next: async () => {
@@ -188,7 +199,7 @@ class MongoCollection {
 					return this._idStringify(result);
 				},
 				done: (error, results) => {
-					logQuery(error, results);
+					//logQuery(error, results);
 				}
 			};
 		}
@@ -522,13 +533,15 @@ class MongoCollection {
 			mongoFunc = '???',
 			requestId = 'NOREQ',
 			queryOptions = {},
-			noSlow = false
+			noSlow = false,
+			dryRun = false
 		} = options;
 		const queryString = this._jsonStringify(this._sanitizeForLogging(query, 'query', options));
 		const optionsString = this._jsonStringify(queryOptions);
 		const additionalArgumentsString = this._jsonStringify(this._sanitizeForLogging(args || [], 'additionalArguments', options));
 		const fullQuery = `${requestId} db.${this.dbCollection.collectionName}.${mongoFunc}(${queryString},${optionsString},${additionalArgumentsString})`;
-		logger.log(`${fullQuery}|${time}|${error}`);
+		const dryRunString = dryRun ? 'WOULD HAVE RUN:' : '';
+		logger.log(`${dryRunString}${fullQuery}|${time}|${error}`);
 		if (
 			!noSlow &&
 			this.options.slowLogger &&

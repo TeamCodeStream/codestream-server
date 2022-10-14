@@ -167,7 +167,8 @@ class MongoClient {
 			*/
 			hintsRequired: this.options.hintsRequired,
 			noLogData: (this.options.queryLogging || {}).noLogData,
-			mockMode: this.options.mockMode
+			mockMode: this.options.mockMode,
+			dryRunMode: this.options.dryRunMode
 		});
 	}
 
