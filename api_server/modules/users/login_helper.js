@@ -103,7 +103,6 @@ class LoginHelper {
 	// get any companies the user is a member of (by email) in foreign environments,
 	// to display in the organization switcher
 	async getForeignCompanies () {
-		// deprecate this when we have fully moved to ONE_USER_PER_ORG
 		if (this.request.request.headers['x-cs-block-xenv']) {
 			this.request.log('Not fetching foreign companies, blocked by header');
 			return [];
