@@ -13,6 +13,7 @@ const NoDomainJoiningTest = require('./no_domain_joining_test');
 const MessageToTeamTest = require('./message_to_team_test');
 const OriginalUserDeletedtest = require('./original_user_deleted_test');
 const OriginalUserNotDeletedtest = require('./original_user_not_deleted_test');
+const JoinMethodTest = require('./join_method_test');
 
 class JoinCompanyRequestTester {
 
@@ -33,6 +34,7 @@ class JoinCompanyRequestTester {
 		new OriginalUserDeletedtest({ byDomainJoining: true }).test();
 		new OriginalUserNotDeletedtest().test();
 		new OriginalUserNotDeletedtest({ byDomainJoining: true }).test();
+		new JoinMethodTest().test();
 	}
 }
 
