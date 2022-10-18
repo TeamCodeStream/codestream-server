@@ -18,6 +18,7 @@ const ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_te
 const InitialDataTest = require('./initial_data_test');
 const MeAttributesTest = require('./me_attributes_test');
 const SubscriptionTest = require('./subscription_test');
+const NoSubscribeToTeamChannelTest = require('./no_subscribe_to_team_channel_test');
 const JoinMethodTest = require('./join_method_test');
 const OriginTeamPropagates = require('./origin_team_propagates');
 /*
@@ -68,6 +69,7 @@ class ConfirmationRequestTester {
 		new MeAttributesTest().test();
 		new SubscriptionTest({ which: 'user' }).test();
 		new SubscriptionTest({ which: 'team' }).test();
+		new NoSubscribeToTeamChannelTest().test();
 		// new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new JoinMethodTest().test();
 		new OriginTeamPropagates().test();
