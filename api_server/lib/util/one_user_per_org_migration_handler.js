@@ -3,6 +3,7 @@
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
+const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 
 const USER_ATTRIBUTES_TO_COPY = [
 	'createdAt',
@@ -44,8 +45,7 @@ const USER_ATTRIBUTES_TO_COPY = [
 	'lastInviteSentAt',
 	'autoReinviteInfo',
 	'source',
-	'nrUserId',
-	'accessTokens'
+	'nrUserId'
 ];
 
 
@@ -57,6 +57,7 @@ class MigrationHandler {
 		this.logger = this.api || this.logger || console;
 		this.throttle = this.throttle || 100;
 		this.teamIdWithMostContentByUser = {};
+		this.tokenHandler = new TokenHandler(this.tokenSecret);
 	}
 
 	// migrate this company to one-user-per-org
@@ -187,6 +188,14 @@ class MigrationHandler {
 			}
 		}
 
+		// generate a new access token, these must be distinct from team to team
+		// since during token login they identify the particular team the user is logging into
+		const token = this.tokenHandler.generate({ uid: newUserData.id });
+		const minIssuance = this.tokenHandler.decode(token).iat * 1000;
+		newUserData.accessTokens = {
+			web: { token, minIssuance }
+		};
+		
 		// copy lastReads only for the team stream for this team
 		// and delete from the original user record
 		if (teamStreamId && user.lastReads && user.lastReads[teamStreamId]) {

@@ -65,7 +65,8 @@ class Migrator {
 			data: this.data,
 			logger: console,
 			dryRun: this.dryrun,
-			verbose: this.verbose
+			verbose: this.verbose,
+			tokenSecret: this.tokenSecret
 		});
 
 		const result = await this.data.companies.getByQuery(
@@ -115,7 +116,8 @@ class Migrator {
 		await new Migrator().go({ 
 			dryrun: !!Commander.dryrun,
 			throttle,
-			verbose: !!Commander.verbose
+			verbose: !!Commander.verbose,
+			tokenSecret: ApiConfig.getPreferredConfig().sharedSecrets.auth
 		});
 	}
 	catch (error) {
