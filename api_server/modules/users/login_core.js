@@ -66,7 +66,6 @@ class LoginCore {
 			const teamIds = user.get('teamIds') || [];
 			if (this.teamId) {
 				return teamIds.length === 1 && teamIds[0] === this.teamId;
-				return x;
 			} else if (this.loginCode) {
 				if (user.get('loginCode') === this.loginCode) {
 					return true;
