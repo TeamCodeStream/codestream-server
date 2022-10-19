@@ -27,7 +27,8 @@ class InviteEmailHandler extends EmailHandler {
 		}
 		const inviterName = inviter.fullName || inviter.email;
 		this.subject = `${inviterName} invited you to collaborate`;
-		if (this.user.isRegistered) {
+		const isRegistered = await this.userIsRegistered();
+		if (isRegistered) {
 			return await this.renderForRegisteredUser();
 		}
 		else {
@@ -38,9 +39,7 @@ class InviteEmailHandler extends EmailHandler {
 	async renderForRegisteredUser () {
 		this.content = `
 <html>
-I've added you to the ${this.company.name} organization on CodeStream so that we can discuss code.<br/>
-<br/>
-In the CodeStream extension, select “Switch Organizations" under the headshot menu to check out discussions in the ${this.company.name} organization.<br/>
+You can accept this invitation by going to the <b>username menu > Switch Organizations</b> in CodeStream, and selecting the <b>${this.company.name}</b> organization.
 </html>
 `;
 	}
@@ -74,6 +73,16 @@ Team CodeStream<br/>
 	// analytics category for this email type
 	getCategory () {
 		return this.message.isReinvite ? 'reinvitation' : 'invitation';
+	}
+
+	async userIsRegistered () {
+		const numRegisteredUsers = await this.data.users.countByQuery(
+			{
+				searchableEmail: this.user.email.toLowerCase(),
+				isRegistered: true
+			}
+		);
+		return numRegisteredUsers > 0;
 	}
 }
 
