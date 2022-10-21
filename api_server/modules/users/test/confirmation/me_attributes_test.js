@@ -41,7 +41,7 @@ class MeAttributesTest extends ConfirmationTest {
 	validateResponse (data) {
 		// validate that the user got a correct lastReads attribute when confirming
 		if (this.oneUserPerOrg) {
-			console.warn('NOTE: under one-user-per-org, lastReads is not updated on confirmation, since the user has not yet accepted the invite');
+			console.log('NOTE: under one-user-per-org, lastReads is not updated on confirmation, since the user has not yet accepted the invite');
 			Assert.deepStrictEqual(data.user.lastReads, {}, 'lastReads should be an empty object');
 		} else {
 			Assert(data.user.lastReads[this.teamStream.id] === 0, 'lastReads should be 0');

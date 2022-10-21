@@ -74,7 +74,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 	// run the actual test...
 	run (callback) {
 		if (this.oneUserPerOrg && this.which === 'team') {
-			console.warn('NOTE - UNDER ONE-USER-PER-ORG, USER IS NOT YET A MEMBER OF THE TEAM UPON CONFIRMATION, SO CANNOT SUBSCRIBE TO TEAM CHANNEL, PASSING SUPERFICIALLY');
+			console.log('NOTE - UNDER ONE-USER-PER-ORG, USER IS NOT YET A MEMBER OF THE TEAM UPON CONFIRMATION, SO CANNOT SUBSCRIBE TO TEAM CHANNEL, PASSING SUPERFICIALLY');
 			this.testDidNotRun = true;
 			return callback();
 		}

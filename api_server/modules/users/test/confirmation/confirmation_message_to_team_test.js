@@ -90,7 +90,7 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		// under ONE_USER_PER_ORG, we get no message when the user confirms (since they haven't accepted the invite yet)
 		// so pass this test superficially, and remove it when we have fully deployed
 		if (this.oneUserPerOrg) {
-			console.warn('NOTE - MESSAGE IS NOT PUBLISHED TO TEAM ON CONFIRMATION UNDER ONE-USER-PER-ORG, PASSING SUPERFICIALLY');
+			console.log('NOTE - MESSAGE IS NOT PUBLISHED TO TEAM ON CONFIRMATION UNDER ONE-USER-PER-ORG, PASSING SUPERFICIALLY');
 			this.testDidNotRun = true;
 			return callback();
 		} else {

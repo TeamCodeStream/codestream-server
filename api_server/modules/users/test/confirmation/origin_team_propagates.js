@@ -33,7 +33,7 @@ class OriginTeamPropagates extends JoinMethodTest {
 
 	validateResponse (data) {
 		if (this.oneUserPerOrg) {
-			console.warn('NOTE: under one-user-per-org, originTeam is not set on confirmation, this test can probably be retired');
+			console.log('NOTE: under one-user-per-org, originTeam is not set on confirmation, this test can probably be retired');
 		} else {
 			Assert(this.originTeam, 'no origin team');
 			super.validateResponse(data);

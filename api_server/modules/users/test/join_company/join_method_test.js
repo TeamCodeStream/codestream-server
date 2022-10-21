@@ -10,7 +10,6 @@ class JoinMethodTest extends JoinCompanyLoginTest {
 	}
 
 	validateResponse (data) {
-console.warn('DATA:', JSON.stringify(data, 0, 5));
 		const originTeamId = this.originTeam ? this.originTeam.id : this.team.id;
 		Assert(data.user.joinMethod === 'Added to Team', 'joinMethod not properly set');
 		Assert(data.user.primaryReferral === 'internal', 'primaryReferral not set to internal');

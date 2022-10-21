@@ -6,7 +6,6 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
-const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
 const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 
 class LoginTest extends CodeStreamAPITest {
@@ -23,6 +22,7 @@ class LoginTest extends CodeStreamAPITest {
 		};
 		this.userOptions.numRegistered = 1;
 		this.teamOptions.numAdditionalInvites = 0;
+		delete this.teamOptions.creatorIndex;
 	}
 
 	get description () {
@@ -82,8 +82,6 @@ class LoginTest extends CodeStreamAPITest {
 			environmentGroup[runTimeEnvironment].shortName
 		) || runTimeEnvironment;
 		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
-		const providerHosts = GetStandardProviderHosts(this.apiConfig);
-		Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		Assert.strictEqual(data.runtimeEnvironment, expectedEnvironment);
 		Assert.deepStrictEqual(data.environmentHosts, Object.values(environmentGroup));
 		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);

@@ -17,6 +17,7 @@ const SubscriptionTest = require('./subscription_test');
 const DontUpdateLastLoginFromWebTest = require('./dont_update_last_login_from_web_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
+const TeamIdTest = require('./team_id_test');
 
 class LoginRequestTester {
 
@@ -42,6 +43,7 @@ class LoginRequestTester {
 		new ClearFirstSessionTest().test();
 		new EligibleJoinCompaniesTest().test();
 		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
+		new TeamIdTest().test();
 	}
 }
 

@@ -5,15 +5,37 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class AlreadyTakenTest extends ChangeEmailTest {
 
+	constructor (options) {
+		super(options);
+		this.errorExpected = (
+			(
+				this.oneUserPerOrg &&
+				this.inCompany
+			) ||
+			!this.oneUserPerOrg
+		);
+
+		if (this.inCompany) {
+			this.userOptions.numRegistered = 2;
+			this.teamOptions.creatorIndex = 1;
+			if (!this.oneUserPerOrg) {
+				this.teamOptions.members = [];
+			}
+		}
+	}
+
 	get description () {
 		const which = this.isRegistered ? 'registered' : 'unregistered';
-		return `should return an error when submitting a request to change email and the new email already belongs to a ${which} user`;
+		const inAnOrg = this.inCompany ? ' in a company' : '';
+		const oneUserPerOrg = this.oneUserPerOrg ? 'under one-user-per-org, ' : '';
+		const behavior = this.errorExpected ? 'return an error' : 'return an OK response';
+		return `${oneUserPerOrg}should ${behavior} when submitting a request to change email to the email of another ${which} user${inAnOrg}`;
 	}
 
 	getExpectedError () {
-		return {
+		return this.errorExpected ? {
 			code: 'USRC-1025'
-		};
+		} : null;
 	}
 
 	before (callback) {
@@ -21,7 +43,7 @@ class AlreadyTakenTest extends ChangeEmailTest {
 			super.before,
 			this.registerUser,
 			this.confirmUser,
-			this.createCompany
+			this.inviteUser
 		], callback);
 	}
 
@@ -53,10 +75,21 @@ class AlreadyTakenTest extends ChangeEmailTest {
 			}
 		);
 	}
-
-	createCompany (callback) {
+	
+	inviteUser (callback) {
 		if (!this.inCompany) { return callback(); }
-		this.companyFactory.createRandomCompany(callback, { token: this.confirmResponse.accessToken });
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/users',
+				data: {
+					email: this.userResponse.user.email,
+					teamId: this.team.id
+				},
+				token: this.users[1].accessToken
+			},
+			callback
+		);
 	}
 }
 

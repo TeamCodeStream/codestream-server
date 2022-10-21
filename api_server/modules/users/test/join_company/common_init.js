@@ -23,7 +23,6 @@ class CommonInit {
 		this.oneUserPerOrg = true;
 		
 		// create a company and don't make the "current user" a member
-		this.expectedVersion = 3;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,
 			members: []
@@ -32,6 +31,7 @@ class CommonInit {
 	}
 
 	setPath (callback) {
+		this.expectedVersion = this.team.version + (this.byDomainJoining ? 1 : 2);
 		this.path = `/join-company/${this.company.id}`;
 		callback();
 	}
@@ -49,6 +49,7 @@ class CommonInit {
 	enableDomainJoining (callback) {
 		if (!this.byDomainJoining) { return callback(); }
 		const domain = this.users[0].user.email.split('@')[1];
+		this.expectedVersion++;
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -66,6 +67,7 @@ class CommonInit {
 	inviteUser (callback) {
 		if (this.byDomainJoining) { return callback(); }
 		if (this.dontInvite) { return callback(); }
+		this.expectedVersion++;
 		this.doApiRequest(
 			{
 				method: 'post',

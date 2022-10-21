@@ -1,18 +1,20 @@
 'use strict';
 
-const NoTeamsTest = require('./no_teams_test');
+const CheckSignupTest = require('./check_signup_test');
 const Assert = require('assert');
 
-class AccountIsConnectedTest extends NoTeamsTest {
-
-	constructor (options) {
-		super(options);
-		this.userOptions.numRegistered = 1;
-		this.teamOptions.creatorIndex = 0;
-	}
+class AccountIsConnectedTest extends CheckSignupTest {
 
 	get description () {
 		return 'user should get a flag indicating their NR account is connected to a company with response to check signup, when a match to the given account ID is found';
+	}
+
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.userOptions.numRegistered = 2;
+			this.teamOptions.creatorIndex = 1;
+			callback();
+		});
 	}
 
 	before (callback) {

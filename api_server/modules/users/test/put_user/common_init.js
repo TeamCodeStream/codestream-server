@@ -24,18 +24,19 @@ class CommonInit {
 		Object.assign(this.expectedUser, this.data);
 		this.path = '/users/' + (this.id || this.currentUser.user.id);
 		this.modifiedAfter = Date.now();
+		const expectedVersion = this.currentUser.user.version + 1;
 		this.expectedData = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$set: {
-					version: 4,
+					version: expectedVersion,
 					modifiedAt: Date.now(), // placeholder
 					...this.data
 				},
 				$version: {
-					before: 3,
-					after: 4
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

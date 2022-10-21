@@ -205,7 +205,7 @@ class ProviderIdentityConnector {
 			request: this.request,
 			user: this.user,
 			dontCheckUsername: true,
-			notTrueLogin: true
+			notRealLogin: true
 		}).confirm(userData);
 		this.userWasConfirmed = true;
 	}

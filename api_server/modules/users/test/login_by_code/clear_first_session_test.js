@@ -1,13 +1,13 @@
 'use strict';
 
-const LoginTest = require('./login_test');
+const LoginByCodeTest = require('./login_by_code_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
-class ClearFirstSessionTest extends LoginTest {
+class ClearFirstSessionTest extends LoginByCodeTest {
 
 	get description () {
-		return 'firstSession should be set to 0 on second login';
+		return 'firstSession should be set to 0 on second login, by code';
 	}
 
 	run (callback) {
@@ -21,7 +21,7 @@ class ClearFirstSessionTest extends LoginTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/no-auth/login',
+				path: '/no-auth/login-by-code',
 				data: this.data
 			},
 			(error, response) => {

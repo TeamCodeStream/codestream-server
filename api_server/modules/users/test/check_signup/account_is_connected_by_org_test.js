@@ -1,19 +1,21 @@
 'use strict';
 
-const NoTeamsTest = require('./no_teams_test');
+const CheckSignupTest = require('./check_signup_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
-class AccountIsConnectedByOrgTest extends NoTeamsTest {
-
-	constructor (options) {
-		super(options);
-		this.userOptions.numRegistered = 1;
-		this.teamOptions.creatorIndex = 0;
-	}
+class AccountIsConnectedByOrgTest extends CheckSignupTest {
 
 	get description () {
 		return 'user should get a flag indicating their NR account is connected to a company with response to check signup, when a match to the given account ID found via org ID lookup';
+	}
+
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.userOptions.numRegistered = 2;
+			this.teamOptions.creatorIndex = 1;
+			callback();
+		});
 	}
 
 	before (callback) {
@@ -57,7 +59,7 @@ class AccountIsConnectedByOrgTest extends NoTeamsTest {
 				data: {
 					orgIds: [this.orgId]
 				},
-				token: this.users[0].accessToken
+				token: this.users[1].accessToken
 			},
 			callback
 		);

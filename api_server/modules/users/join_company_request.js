@@ -12,6 +12,7 @@ const Indexes = require('./indexes');
 const ConfirmHelper = require('./confirm_helper');
 const UserCreator = require('./user_creator');
 const UserDeleter = require('./user_deleter');
+const UserAttributes = require('./user_attributes');
 
 class JoinCompanyRequest extends RestfulRequest {
 
@@ -99,21 +100,13 @@ class JoinCompanyRequest extends RestfulRequest {
 	// under one-user-per-org, joining a company by virtue of domain joining (no invite) means
 	// duplicating the user record for the joining user
 	async duplicateUser () {
-		const userData = {};
-		[
-			'email',
-			'passwordHash',
-			'username',
-			'fullName',
-			'timeZone',
-			'_pubnubUuid',
-			'phoneNumber',
-			'iWorkOn',
-			'preferences',
-			'avatar',
-			'providerInfo',
-			'providerIdentities'
-		].forEach(attribute => {
+		const userData = {
+			copiedFromUserId: this.user.id
+		};
+		const attributesToCopy = Object.keys(UserAttributes).filter(attr => {
+			return UserAttributes[attr].copyOnInvite;
+		});
+		attributesToCopy.forEach(attribute => {
 			const value = this.user.get(attribute);
 			if (typeof value !== undefined) {
 				userData[attribute] = value;
@@ -131,7 +124,7 @@ class JoinCompanyRequest extends RestfulRequest {
 		this.responseData = await new ConfirmHelper({
 			request: this,
 			user: this.invitedUser,
-			notTrueLogin: true
+			notRealLogin: true
 		}).confirm({
 			email: this.invitedUser.get('email'),
 			username: this.invitedUser.get('username'),
@@ -146,6 +139,8 @@ class JoinCompanyRequest extends RestfulRequest {
 		if (this.request.headers['x-cs-confirmation-cheat'] === this.api.config.sharedSecrets.confirmationCheat) {
 			this.warn('NOTE: passing user object back in join-company request, this had better be a test!');
 			this.responseData.user = this.invitedUser.getSanitizedObject({ request: this });
+			this.responseData.broadcasterToken = this.invitedUser.get('broadcasterToken');
+			this.responseData.user.version++;
 		}
 	}
 

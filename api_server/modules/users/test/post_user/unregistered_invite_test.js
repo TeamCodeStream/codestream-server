@@ -15,6 +15,14 @@ class UnregisteredInviteTest extends PostUserTest {
 	// perform a follow-up fetch of the user object that should have been modified
 	// by the invitation
 	run (callback) {
+		// under ONE_USER_PER_ORG, we get no analytics when the user is added (since they haven't accepted the invite yet)
+		// so pass this test superficially, and remove it when we have fully deployed
+		if (this.oneUserPerOrg) {
+			console.log('NOTE - INVITE ANALYTICS ARE NOT SET ON INVITE UNDER ONE-USER-PER-ORG, PASSING SUPERFICIALLY');
+			this.testDidNotRun = true;
+			return callback();
+		}
+
 		this.firstRun = true;
 		BoundAsync.series(this, [
 			super.run,	// just to be sure we'll actually run twice, to get numInvites to increment twice

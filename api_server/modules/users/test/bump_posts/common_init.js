@@ -20,17 +20,18 @@ class CommonInit {
 	}
 
 	setExpectedData (callback) {
+		const expectedVersion = this.currentUser.user.version + this.numAuthoredPosts + 1;
 		this.expectedData = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$set: {
 					totalPosts: this.numAuthoredPosts + 1,
-					version: 6
+					version: expectedVersion
 				},
 				$version: {
-					before: 5,
-					after: 6
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

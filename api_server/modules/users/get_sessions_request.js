@@ -7,6 +7,8 @@ const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib
 class GetSessionsRequest extends RestfulRequest {
 
 	authorize () {
+		throw this.errorHandler.error('deprecated');
+
 		// no authorization needed, the request always applies to the authenticated user
 	}
 

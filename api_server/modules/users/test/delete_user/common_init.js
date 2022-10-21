@@ -19,12 +19,12 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.testUser = 1;
-		this.expectedVersion = 4;
 		callback();
 	}
 
 	setExpectedData (callback) {
 		this.user = this.users[this.testUser].user;
+		this.expectedVersion = this.expectedVersion || (this.user.version + 1);
 		this.expectedData = {
 			user: {
 				_id: this.user.id,	// DEPRECATE ME

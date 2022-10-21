@@ -193,9 +193,15 @@ class LoginHelper {
 				op.$set.lastOriginDetail = originDetail;
 			}
 		}
-		if (this.trueLogin) {
+
+		const setFirstSession = (
+			!this.dontSetFirstSession &&
+			!this.user.get('originalUserId')
+		);
+		if (setFirstSession) {
 			op.$set.firstSessionStartedAt = this.user.get('firstSessionStartedAt') === undefined ? Date.now() : 0;
 		}
+
 		if (this.countryCode) {
 			op.$set.countryCode = this.countryCode;
 		}
@@ -231,7 +237,7 @@ class LoginHelper {
 
 	// form the response to the request
 	async formResponse () {
-		if (this.notTrueLogin) {
+		if (this.notRealLogin) {
 			return;
 		}
 
@@ -315,7 +321,7 @@ class LoginHelper {
 			!this.request.request.headers['x-cs-one-user-per-org']
 		);
 
-		if (this.notTrueLogin) { return; }
+		if (this.notRealLogin) { return; }
 
 		this.eligibleJoinCompanies = await GetEligibleJoinCompanies(
 			email,

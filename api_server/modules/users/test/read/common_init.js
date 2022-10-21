@@ -17,19 +17,20 @@ class CommonInit {
 	}
 
 	setExpectedData (callback) {
+		const expectedVersion = this.currentUser.user.version + 1;
 		this.expectedData = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$set: {
-					version: 4
+					version: expectedVersion
 				},
 				$unset: {
 					[`lastReads.${this.teamStream.id}`]: true,
 				},
 				$version: {
-					before: 3,
-					after: 4
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

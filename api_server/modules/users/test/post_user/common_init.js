@@ -79,7 +79,6 @@ class CommonInit {
 		}
 		else {
 			this.data.email = this.userFactory.randomEmail();
-			this.data.fullName = this.userFactory.randomFullName();
 		}
 		callback();
 	}

@@ -506,11 +506,16 @@ class ProviderTokenRequest extends RestfulRequest {
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
 		const token = (this.tokenPayload && this.tokenPayload.st) || this.stateToken;
+		let expiresIn = this.request.query && this.request.query.expires_in;
+		if (expiresIn) {
+			expiresIn = parseInt(expiresIn);
+		}
 		await this.api.services.signupTokens.insert(
 			token,
 			this.user ? this.user.id : null,
 			{
 				requestId: this.request.id,
+				expiresIn,
 				more: {
 					signupStatus: this.signupStatus,
 					error: this.errorCode,

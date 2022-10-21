@@ -15,6 +15,9 @@ class OriginTeamPropagatesTest extends ExistingRegisteredUserTest {
 	}
 
 	createOriginTeam (teamCreator, callback) {
+		if (this.oneUserPerOrg) {
+			return callback(); // originTeam is no longer applicable in one-user-per-org
+		}
 		const token = teamCreator.users[this.teamOptions.creatorIndex].accessToken;
 		this.companyFactory.createRandomCompany(
 			(error, response) => {
@@ -29,7 +32,11 @@ class OriginTeamPropagatesTest extends ExistingRegisteredUserTest {
 	}
 
 	validateResponse (data) {
-		Assert(this.originTeam, 'no origin team');
+		if (this.oneUserPerOrg) {
+			return; // originTeam is no longer applicable in one-user-per-org
+		} else {
+			Assert(this.originTeam, 'no origin team');
+		}
 		super.validateResponse(data);
 	}
 }

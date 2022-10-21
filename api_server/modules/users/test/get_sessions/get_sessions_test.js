@@ -27,6 +27,7 @@ class GetSessionsTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		return super.before(callback); 	// since presence updates are deprecated, we can really prep this test
 		BoundAsync.series(this, [
 			super.before,
 			this.sendPresenceUpdates

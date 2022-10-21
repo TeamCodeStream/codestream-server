@@ -8,6 +8,7 @@ const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/serv
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const Indexes = require('./indexes');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const UserAttributes = require('./user_attributes');
 
 const REINVITE_REPEATS = 2;
 
@@ -48,23 +49,23 @@ class UserInviter {
 		// first check for an existing user
 		// we use the existing user record only if it is on the team already
 		let existingUser = await this.getExistingUser(userData);
+		let wasRegisteredOnTeam = (
+			existingUser &&
+			existingUser.get('isRegistered') &&
+			existingUser.hasTeam(this.team.id)
+		);
+		let isReinvite = !!existingUser;
 		if (
 			existingUser &&
 			!(existingUser.get('teamIds') || []).includes(this.team.id)
 		) {
+			const attributesToCopy = Object.keys(UserAttributes).filter(attr => {
+				return UserAttributes[attr].copyOnInvite;
+			});
+	
 			// if we found a user that matches by email, but isn't actually on the team, we create
 			// a new user record, and feed the user's attributes from the existing user
-			[
-				'fullName',
-				'timeZone',
-				'username',
-				'_pubnubUuid',
-				'joinMethod',
-				'preferences',
-				'avatar',
-				'originTeamId',
-				'passwordHash'
-			].forEach(attribute => {
+			attributesToCopy.forEach(attribute => {
 				const value = existingUser.get(attribute);
 				if (value !== undefined) {
 					userData[attribute] = value;
@@ -82,7 +83,8 @@ class UserInviter {
 		const createdUser = await userCreator.createUser(userData);
 		this.invitedUsers.push({
 			user: createdUser,
-			didExist: !!existingUser
+			isReinvite,
+			wasRegisteredOnTeam
 		});
 	}
 
@@ -201,7 +203,12 @@ class UserInviter {
 
 	// send an invite email to the given user
 	async sendInviteEmail (userData) {
-		const { user, didExist } = userData;
+		const { user, isReinvite, wasRegisteredOnTeam} = userData;
+
+		// don't send an email if invited user is already registered and already on a team
+		if (wasRegisteredOnTeam) {
+			return;
+		}
 
 		// queue invite email for send by outbound email service
 		this.request.log(`Triggering invite email to ${user.get('email')}...`);
@@ -212,7 +219,7 @@ class UserInviter {
 				inviterId: this.user.id,
 				teamId: this.team.id,
 				teamName: this.team.get('name'),
-				isReinvite: didExist
+				isReinvite
 			},
 			{
 				request: this.request,
@@ -224,7 +231,7 @@ class UserInviter {
 	// for an unregistered user, we track that they've been invited
 	// and how many times for analytics purposes
 	async updateInvites (userData) {
-		const { user, didExist } = userData;
+		const { user, isReinvite } = userData;
 		const update = {
 			$set: {
 				internalMethod: 'invitation',
@@ -237,7 +244,7 @@ class UserInviter {
 		};
 
 		// only trigger a re-invite cycle if this is a brand new user
-		if (!didExist) {
+		if (!isReinvite) {
 			Object.assign(update.$set, {
 				needsAutoReinvites: REINVITE_REPEATS,
 				autoReinviteInfo: {
