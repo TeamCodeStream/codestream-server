@@ -11,7 +11,6 @@ const ReadACLTest = require('./read_acl_test');
 const ReadMessageTest = require('./read_message_test');
 const ReadAllMessageTest = require('./read_all_message_test');
 const StreamNotFoundTest = require('./stream_not_found_test');
-const ReadObjectStreamTest = require('./read_object_stream_test');
 
 class ReadRequestTester {
 
@@ -24,7 +23,6 @@ class ReadRequestTester {
 		new ReadMessageTest().test();
 		new ReadAllMessageTest().test();
 		new StreamNotFoundTest().test();
-		new ReadObjectStreamTest().test();
 	}
 }
 

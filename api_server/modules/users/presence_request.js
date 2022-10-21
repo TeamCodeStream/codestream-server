@@ -9,6 +9,7 @@ const SessionManager = require('./session_manager');
 class PresenceRequest extends RestfulRequest {
 
 	async authorize () {
+		throw this.errorHandler.error('deprecated');
 		// only applies to current user, no authorization required
 	}
 

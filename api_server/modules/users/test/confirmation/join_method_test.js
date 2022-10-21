@@ -29,7 +29,7 @@ class JoinMethodTest extends ConfirmationTest {
 		// validate that the joinMethod has been set to "Added to Team"
 		const originTeamId = this.originTeam ? this.originTeam.id : this.team.id;
 		if (this.oneUserPerOrg) {
-			console.warn('NOTE: under one-user-per-org, joinMethod is not set on confirmation, this test can probably be retired');
+			console.log('NOTE: under one-user-per-org, joinMethod is not set on confirmation, this test can probably be retired');
 		} else {
 			Assert(data.user.joinMethod === 'Added to Team', 'joinMethod not properly set');
 			Assert(data.user.primaryReferral === 'internal', 'primaryReferral not set to internal');

@@ -1,9 +1,9 @@
 'use strict';
 
-const NoTeamsTest = require('./no_teams_test');
+const CheckSignupTest = require('./check_signup_test');
 const Assert = require('assert');
 
-class AccountIsConnectedFalseTest extends NoTeamsTest {
+class AccountIsConnectedFalseTest extends CheckSignupTest {
 
 	get description () {
 		return 'user should get a flag indicating their NR account is not connected to a company with response to check signup, when account ID is sent but no matching company is found';

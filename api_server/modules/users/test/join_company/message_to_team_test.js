@@ -41,7 +41,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				_id: this.team.id,
 				$set: {
 					modifiedAt: message.message.team.$set.modifiedAt,
-					version: 2
+					version: this.expectedVersion
 				},
 				$addToSet: {
 					memberIds: [ this.joinResponse.userId ]
@@ -51,8 +51,8 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					foreignMemberIds: [ this.joinResponse.userId ]
 				},
 				$version: {
-					before: 1,
-					after: 2
+					before: this.expectedVersion - 1,
+					after: this.expectedVersion
 				}
 			}
 		};
@@ -71,8 +71,13 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			version: this.byDomainJoining ? 1 : 2
 		});
 
+		// these are present only for invites
+		if (!this.byDomainJoining) {
+			expectedUser.firstInviteType = expectedUser.lastInviteType = 'invitation';
+		}
+
 		// these are present in the original confirmed user, but not the copy
-		['preferences', 'lastReads', 'lastLogin'].forEach(attribute => {
+		['preferences', 'lastReads', 'lastLogin', 'firstSessionStartedAt'].forEach(attribute => {
 			delete expectedUser[attribute];
 		});
 		if (this.byDomainJoining) {

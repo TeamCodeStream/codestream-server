@@ -1,33 +1,40 @@
 'use strict';
 
-const NoTeamsTest = require('./no_teams_test');
+const CheckSignupTest = require('./check_signup_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-class EligibleJoinCompaniesTest extends NoTeamsTest {
-
-	constructor (options) {
-		super(options);
-		this.userOptions.numRegistered = 1;
-	}
+class EligibleJoinCompaniesTest extends CheckSignupTest {
 
 	get description () {
-		return 'user should receive eligible companies to join via domain-based and code-host-based with response to check signup';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : '';
+		return `user should receive eligible companies to join via domain-based, code-host-based, and invite, with response to check signup${oneUserPerOrg}`;
 	}
 
-	before (callback) {
-		super.before(error => {
-			if (error) { return callback(error); }
-			this.createEligibleJoinCompanies(callback);
+	setTestOptions (callback) {
+		super.setTestOptions(() => {
+			this.userOptions.numRegistered = 2;
+			callback();
 		});
+	}
+
+	doProviderAuth (callback) {
+		// do these other things before initiating the auth process
+		this.mockEmail = this.currentUser.user.email;  // identify auth process with the existing user
+		BoundAsync.series(this, [
+			this.createEligibleJoinCompanies,
+			this.createCompaniesAndInvite,
+			this.acceptInvite,
+			super.doProviderAuth
+		], callback);
 	}
 
 	// create companies that the confirming user is not a member of, but that they are
 	// eligible to join via domain-based joining or code host joining
 	createEligibleJoinCompanies (callback) {
 		this.expectedEligibleJoinCompanies = [];
-		BoundAsync.times(
+		BoundAsync.timesSeries(
 			this,
 			2,
 			this.createEligibleJoinCompany,
@@ -54,18 +61,146 @@ class EligibleJoinCompaniesTest extends NoTeamsTest {
 						`gitlab.com/${RandomString.generate(10)}`
 					]
 				},
-				token: this.users[0].accessToken
+				token: this.users[1].accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
+				if (response.accessToken) {
+					this.getEligibleJoinCompanyByLogin(response.accessToken, domain, callback);
+				} else {
+					this.expectedEligibleJoinCompanies.push({
+						id: response.company.id,
+						name: response.company.name,
+						byDomain: domain.toLowerCase(),
+						domainJoining: response.company.domainJoining,
+						codeHostJoining: response.company.codeHostJoining,
+						memberCount: 1
+					});
+					callback();
+				}
+			}
+		);
+	}
+
+	// a user who creates a second company gets an access token instead of full company info,
+	// we must use that access token to actually get the company info
+	getEligibleJoinCompanyByLogin (token, domain, callback) {
+		this.doApiRequest({
+			method: 'put',
+			path: '/login',
+			token
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			const company = response.companies[0];
+			this.expectedEligibleJoinCompanies.push({
+				id: company.id,
+				name: company.name,
+				byDomain: domain.toLowerCase(),
+				domainJoining: company.domainJoining,
+				codeHostJoining: company.codeHostJoining,
+				memberCount: 1
+			});
+			callback();
+		});
+	}
+
+	// create companies that the confirming user has been invited to
+	createCompaniesAndInvite (callback) {
+		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
+			return callback();
+		}
+
+		BoundAsync.timesSeries(
+			this,
+			2,
+			this.createCompanyAndInvite,
+			callback
+		);
+	}
+
+	// create a company and then invite the confirming user to it
+	createCompanyAndInvite (n, callback) {
+		BoundAsync.series(this, [
+			this.createCompany,
+			this.doLogin,
+			this.inviteUser
+		], callback);
+	}
+
+	// create a company
+	createCompany (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/companies',
+				data: { name: this.companyFactory.randomName() },
+				token: this.users[1].accessToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.currentCompanyToken = response.accessToken;
+				callback();
+			}
+		);
+	}
+
+	// do a login for a particular company based on the access token passed when creating it
+	doLogin (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/login',
+				token: this.currentCompanyToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				const company = response.companies[0];
 				this.expectedEligibleJoinCompanies.push({
-					id: response.company.id,
-					name: response.company.name,
-					byDomain: domain.toLowerCase(),
-					domainJoining: response.company.domainJoining,
-					codeHostJoining: response.company.codeHostJoining,
+					id: company.id,
+					name: company.name,
+					domainJoining: [],
+					codeHostJoining: [],
+					byInvite: true,
 					memberCount: 1
 				});
+				this.currentCompanyTeamId = response.teams[0].id;
+				callback();
+			}
+		);
+	}
+
+	// invite the user to company just created
+	inviteUser (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/users',
+				data: {
+					teamId: this.currentCompanyTeamId,
+					email: this.currentUser.user.email
+				},
+				token: this.currentCompanyToken
+			},
+			callback
+		);
+	}
+
+	// accept the invite for one of the companies the user has been invited to
+	acceptInvite (callback) {
+		if (!this.oneUserPerOrg) { // remove when have fully moved to ONE_USER_PER_ORG
+			return callback();
+		}
+		const companyInfo = this.expectedEligibleJoinCompanies[this.expectedEligibleJoinCompanies.length - 1];
+		companyInfo.memberCount++;
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/join-company/' + companyInfo.id,
+				token: this.currentUser.accessToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				companyInfo.accessToken = response.accessToken;
 				callback();
 			}
 		);

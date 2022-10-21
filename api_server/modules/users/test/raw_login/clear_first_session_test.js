@@ -7,7 +7,7 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 class ClearFirstSessionTest extends LoginTest {
 
 	get description () {
-		return 'firstSession should be set to 0 on second login';
+		return 'firstSession should be set to 0 on second login, by raw login';
 	}
 
 	run (callback) {
@@ -21,8 +21,8 @@ class ClearFirstSessionTest extends LoginTest {
 		this.doApiRequest(
 			{
 				method: 'put',
-				path: '/no-auth/login',
-				data: this.data
+				path: '/login',
+				token: this.token
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

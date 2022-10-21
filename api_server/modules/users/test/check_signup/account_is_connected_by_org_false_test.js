@@ -1,10 +1,10 @@
 'use strict';
 
-const NoTeamsTest = require('./no_teams_test');
+const CheckSignupTest = require('./check_signup_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
-class AccountIsConnectedByOrgFalseTest extends NoTeamsTest {
+class AccountIsConnectedByOrgFalseTest extends CheckSignupTest {
 
 	get description () {
 		return 'user should get a flag indicating their NR account is not connected to a company with response to email confirmation, when account ID is sent which matches a known org ID but no matching company is found';

@@ -209,6 +209,8 @@ class TestTeamCreator {
 			email = userIndex !== null ? this.users[userIndex].user.email : this.test.userFactory.randomEmail();
 		}
 
+		const _subscriptionCheat = this.userOptions.cheatOnSubscription ? this.test.apiConfig.sharedSecrets.subscriptionCheat : undefined;
+
 		this.test.doApiRequest(
 			{
 				method: 'post',
@@ -216,7 +218,8 @@ class TestTeamCreator {
 				data: {
 					email: email,
 					teamId: this.team.id,
-					_pubnubUuid: this.test.userFactory.getNextPubnubUuid()
+					_pubnubUuid: this.test.userFactory.getNextPubnubUuid(),
+					_subscriptionCheat
 				},
 				token
 			}, 
@@ -298,7 +301,9 @@ class TestTeamCreator {
 				if (error) { return callback(error); }
 				this.users[n].user = response.user;
 				this.users[n].accessToken = response.accessToken;
+				this.users[n].broadcasterToken = response.broadcasterToken;
 				if (n === this.userOptions.currentUserIndex) {
+					this.currentUser = this.users[n];
 					this.token = response.accessToken;
 				}
 				callback();

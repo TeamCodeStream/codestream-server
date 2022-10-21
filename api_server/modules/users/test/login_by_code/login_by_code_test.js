@@ -8,6 +8,21 @@ const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_ser
 
 class LoginByCodeTest extends CodeStreamAPITest {
 
+	constructor (options) {
+		super(options);
+		this.expectedOrigin = 'VS Code';
+		this.expectedOriginDetail = 'VS Code Insiders';
+		this.apiRequestOptions = {
+			headers: {
+				'X-CS-Plugin-IDE': 'VS Code',
+				'X-CS-Plugin-IDE-Detail': 'VS Code Insiders',
+			}
+		};
+		this.userOptions.numRegistered = 1;
+		this.teamOptions.numAdditionalInvites = 0;
+		delete this.teamOptions.creatorIndex;
+	}
+
 	get description () {
 		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
 		return `should return valid user data when logging in by code${oneUserPerOrg}`;
@@ -45,8 +60,8 @@ class LoginByCodeTest extends CodeStreamAPITest {
 			email: this.currentUser.user.email,
 			_loginCheat: this.apiConfig.sharedSecrets.confirmationCheat
 		};
-		if (this.oneUserPerOrg) { // remove this check when we have fully moved to ONE_USER_PER_ORG
-			data.teamId = this.useTeamId || this.team.id;
+		if (this.useTeamId) {
+			data.teamId = this.useTeamId;
 		}
 		this.doApiRequest(
 			{
@@ -60,8 +75,8 @@ class LoginByCodeTest extends CodeStreamAPITest {
 					email: this.currentUser.user.email,
 					loginCode: response.loginCode
 				};
-				if (this.oneUserPerOrg) { // remove this check when we have fully moved to ONE_USER_PER_ORG
-					this.data.teamId = this.useTeamId || this.team.id;
+				if (this.useTeamId) {
+					this.data.teamId = this.useTeamId;
 				}
 				callback();
 			}
@@ -89,10 +104,7 @@ class LoginByCodeTest extends CodeStreamAPITest {
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
 		Assert(this.usingSocketCluster || data.pubnubToken, 'no pubnub token');
 		Assert(data.broadcasterToken, 'no broadcaster token');
-		Assert.strictEqual(data.teams[0].id, this.useTeamId || this.team.id, 'incorrect team returned');
 		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
-		//const providerHosts = GetStandardProviderHosts(this.apiConfig);
-		//Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		Assert.deepStrictEqual(data.environmentHosts, Object.values(this.apiConfig.environmentGroup || {}));
 		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);
 		Assert.deepStrictEqual(data.isProductionCloud, this.apiConfig.sharedGeneral.isProductionCloud || false);

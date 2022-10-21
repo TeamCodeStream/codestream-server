@@ -15,6 +15,7 @@ const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils
 const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_creator');
 const ConfirmHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/confirm_helper');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const UserAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_attributes');
 
 class TeamCreator extends ModelCreator {
 
@@ -110,19 +111,13 @@ class TeamCreator extends ModelCreator {
 
 	// under one-user-per-org, we create a duplicate user record as the company/team creator
 	async duplicateUser () {
-		const userData = {};
-		[
-			'email',
-			'passwordHash',
-			'username',
-			'fullName',
-			'timeZone',
-			'_pubnubUuid',
-			'phoneNumber',
-			'iWorkOn',
-			'preferences',
-			'avatar'
-		].forEach(attribute => {
+		const userData = {
+			copiedFromUserId: this.user.id
+		};
+		const attributesToCopy = Object.keys(UserAttributes).filter(attr => {
+			return UserAttributes[attr].copyOnInvite;
+		});
+		attributesToCopy.forEach(attribute => {
 			const value = this.user.get(attribute);
 			if (value !== undefined) {
 				userData[attribute] = value;
@@ -257,7 +252,7 @@ class TeamCreator extends ModelCreator {
 		this.transforms.additionalCompanyResponse = await new ConfirmHelper({
 			request: this.request,
 			user: this.user,
-			notTrueLogin: true
+			notRealLogin: true
 		}).confirm({
 			email: this.user.get('email')
 		});

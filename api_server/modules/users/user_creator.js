@@ -42,7 +42,10 @@ class UserCreator extends ModelCreator {
 					'inviteTrigger',
 					'source',
 					'passwordHash',
-					'joinMethod'
+					'joinMethod',
+					'originalUserId',
+					'copiedFromUserId',
+					'countryCode'
 				],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
 				object: ['preferences', 'avatar', 'providerInfo'],

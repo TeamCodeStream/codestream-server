@@ -6,7 +6,6 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
-const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 
@@ -24,6 +23,7 @@ class LoginTest extends CodeStreamAPITest {
 		};
 		this.userOptions.numRegistered = 1;
 		this.teamOptions.numAdditionalInvites = 0;
+		delete this.teamOptions.creatorIndex;
 	}
 
 	get description () {
@@ -62,10 +62,8 @@ class LoginTest extends CodeStreamAPITest {
 			email: this.currentUser.user.email,
 			password: this.currentUser.password
 		};
-		if (this.oneUserPerOrg) { // remove this when we have moved to ONE_USER_PER_ORG, provide teamId every time
-			// since there is a teamless user record, and one on a team, we need to ensure
-			// we login for the one on the team
-			this.data.teamId = this.team.id;
+		if (this.useTeamId) {
+			this.data.teamId = this.useTeamId;
 		}
 		this.beforeLogin = Date.now();
 		callback();
@@ -101,8 +99,6 @@ class LoginTest extends CodeStreamAPITest {
 			environmentGroup[runTimeEnvironment].shortName
 		) || runTimeEnvironment;
 		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
-		const providerHosts = GetStandardProviderHosts(this.apiConfig);
-		Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		Assert.deepStrictEqual(data.runtimeEnvironment, expectedEnvironment, 'runtimeEnvironment not correct');
 		Assert.deepStrictEqual(data.environmentHosts, Object.values(environmentGroup), 'environmentHosts not correct');
 		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem, 'isOnPrem not correct');

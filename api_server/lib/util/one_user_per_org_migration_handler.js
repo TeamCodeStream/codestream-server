@@ -45,9 +45,14 @@ const USER_ATTRIBUTES_TO_COPY = [
 	'lastInviteSentAt',
 	'autoReinviteInfo',
 	'source',
-	'nrUserId'
+	'nrUserId',
+	'originalUserId',
+	'totalPosts',
+	'lastPostCreatedAt',
+	'totalReviews',
+	'numMentions',
+	'numInvites'
 ];
-
 
 class MigrationHandler {
 	
@@ -176,7 +181,7 @@ class MigrationHandler {
 		const teamStreamId = company.teamStream && company.teamStream.id;
 		const newUserData = {
 			id: this.data.users.createId().toString(),
-			wasCopiedFrom: user.id, // breadcrumb
+			copiedFromUserId: user.id, // breadcrumb
 			teamIds: [teamId],
 			companyIds: [company.id]
 		};
@@ -234,13 +239,6 @@ class MigrationHandler {
 		if (user.creatorId === user.id) {
 			newUserData.creatorId = newUserData.id;
 		}
-
-		// QUESTION:
-			// totalPosts: these aren't going to be accurate anymore (we can't discern by team here)
-			// lastPostCreatedAt: should we copy this for each user, and then let it get updated per team?
-			// totalReviews: same concern as totalPosts
-			// numMentions: same concern as totalPosts
-			// numInvites: same concern as totalPosts
 
 		const result = await this.data.users.create(newUserData);
 		if (this.dryRun) {
@@ -486,7 +484,7 @@ class MigrationHandler {
 				companyIds: company.id
 			},
 			$push: {
-				copies: userCopy.id // breadcrumb
+				migrationCopies: userCopy.id // breadcrumb
 			}
 		};
 		if (Object.keys(originalUserUnset).length > 0) {

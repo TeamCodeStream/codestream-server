@@ -64,14 +64,18 @@ class DeclineInviteRequest extends RestfulRequest {
 		const userDeleter = new UserDeleter({
 			request: this
 		});
-		await userDeleter.deleteModel(this.invitedUser.id);
+		this.transforms.updateOp = await userDeleter.deleteModel(this.invitedUser.id);
 		this.responseData = {
 			user: userDeleter.updateOp
 		};
+	}
 
-		// deleting this directly removes it from the op that gets used to save the user
-		this.responseData = DeepClone(this.responseData);
+	handleResponse () {
+		if (this.gotError) {
+			return super.handleResponse();
+		}
 		delete this.responseData.user.$set.searchableEmail; // this is a server-only attribute
+		return super.handleResponse();
 	}
 
 	// after the user is updated...

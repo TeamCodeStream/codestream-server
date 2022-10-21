@@ -13,15 +13,15 @@ class TeamIdTest extends InitialDataTest {
 	}
 
 	get description () {
-		return `under one-user-per-org, when logging in via login code, user should be able to login to the correct team`;
+		return `under one-user-per-org, when logging in via password, user should be able to login to the correct team`;
 	}
 
-	generateLoginCode (callback) {
-		BoundAsync.series(this, [
-			this.createOtherCompanies,
-			this.setData,
-			super.generateLoginCode
-		], callback);
+	setData (callback) {
+		this.createOtherCompanies(error => {
+			if (error) { return callback(error); }
+			this.useTeamId = this.otherCompanyResponses[1].team.id;
+			super.setData(callback);
+		});
 	}
 
 	createOtherCompanies (callback) {
@@ -45,11 +45,6 @@ class TeamIdTest extends InitialDataTest {
 				token: this.currentUser.accessToken
 			}
 		);
-	}
-
-	setData (callback) {
-		this.useTeamId = this.otherCompanyResponses[1].team.id;
-		callback();
 	}
 
 	validateResponse (data) {

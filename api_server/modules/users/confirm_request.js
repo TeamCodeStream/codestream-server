@@ -141,7 +141,8 @@ class ConfirmRequest extends RestfulRequest {
 			user: this.user,
 			loginType: this.loginType,
 			nrAccountId,
-			environment
+			environment,
+			dontSetFirstSession: true
 		}).confirm(this.request.body);
 	}
 

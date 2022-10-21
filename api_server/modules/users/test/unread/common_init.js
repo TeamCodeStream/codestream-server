@@ -35,6 +35,7 @@ class CommonInit {
 	}
 
 	setExpectedData (callback) {
+		const expectedVersion = this.currentUser.user.version + 2;  // 1 for when we mark it read first
 		this.lastReadPost = this.postData[this.unreadPost - 1].post;
 		this.expectedData = {
 			user: {
@@ -42,11 +43,11 @@ class CommonInit {
 				id: this.currentUser.user.id,
 				$set: {
 					[`lastReads.${this.teamStream.id}`]: this.lastReadPost.seqNum,
-					version: 5
+					version: expectedVersion
 				},
 				$version: {
-					before: 4,
-					after: 5
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

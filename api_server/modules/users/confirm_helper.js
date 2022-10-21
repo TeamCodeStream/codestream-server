@@ -47,9 +47,10 @@ class ConfirmHelper {
 			user: this.user,
 			loginType: this.loginType,
 			nrAccountId: this.nrAccountId,
-			dontUpdateLastLogin: this.dontUpdateLastLogin
+			dontUpdateLastLogin: this.dontUpdateLastLogin,
+			dontSetFirstSession: this.dontSetFirstSession
 		});
-		if (this.notTrueLogin) {
+		if (this.notRealLogin) {
 			this.responseData = await loginHelper.allowLogin();
 		} 
 		else {

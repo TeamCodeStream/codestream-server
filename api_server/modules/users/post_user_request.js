@@ -55,9 +55,6 @@ class PostUserRequest extends PostRequest {
 			{
 				required: {
 					string: ['teamId', 'email']
-				},
-				optional: {
-					string: ['_pubnubUuid', 'fullName']
 				}
 			}
 		);
@@ -82,11 +79,6 @@ class PostUserRequest extends PostRequest {
 		const userData = {
 			email: this.request.body.email.trim()
 		};
-		['fullName', '_pubnubUuid'].forEach(attribute => {
-			if (this.request.body[attribute]) {
-				userData[attribute] = this.request.body[attribute];
-			}
-		});
 		this.invitedUsers = await this.userInviter.inviteUsers([userData]);
 		const invitedUserData = this.invitedUsers[0];
 		this.transforms.createdUser = invitedUserData.user;
