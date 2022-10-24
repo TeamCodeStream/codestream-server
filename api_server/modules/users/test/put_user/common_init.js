@@ -75,7 +75,12 @@ class CommonInit {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Object.assign(this.expectedUser, response.user.$set, this.data);
+				Object.assign(this.expectedUser, response.user.$set, this.data, {
+					lastReads: {},
+					preferences: {
+						acceptedTOS: true
+					}
+				});
 				delete this.data;	// don't need this anymore
 				callback();
 			}

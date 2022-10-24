@@ -16,7 +16,7 @@ class PutUserFetchTest extends PutUserTest {
 	}
 
 	getExpectedFields () {
-		return { user: UserTestConstants.EXPECTED_USER_FIELDS };
+		return { user: UserTestConstants.EXPECTED_ME_FIELDS };
 	}
 
 	// before the test runs...
