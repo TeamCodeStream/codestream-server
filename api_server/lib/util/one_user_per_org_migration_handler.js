@@ -46,7 +46,7 @@ const USER_ATTRIBUTES_TO_COPY = [
 	'autoReinviteInfo',
 	'source',
 	'nrUserId',
-	'originalUserId',
+	'originUserId',
 	'totalPosts',
 	'lastPostCreatedAt',
 	'totalReviews',
@@ -179,8 +179,11 @@ class MigrationHandler {
 	async makeUserCopy (user, company, originalUserUnset) {
 		const teamId = company.everyoneTeamId;
 		const teamStreamId = company.teamStream && company.teamStream.id;
+		const id = this.data.users.createId().toString();
+		const originUserId = user.originUserId || user.id;
 		const newUserData = {
-			id: this.data.users.createId().toString(),
+			id,
+			originUserId,
 			copiedFromUserId: user.id, // breadcrumb
 			teamIds: [teamId],
 			companyIds: [company.id]

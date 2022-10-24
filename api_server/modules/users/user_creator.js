@@ -43,7 +43,7 @@ class UserCreator extends ModelCreator {
 					'source',
 					'passwordHash',
 					'joinMethod',
-					'originalUserId',
+					'originUserId',
 					'copiedFromUserId',
 					'countryCode'
 				],
@@ -143,6 +143,10 @@ class UserCreator extends ModelCreator {
 
 		// set id and creatorId
 		this.attributes.id = (this.existingModel && this.existingModel.id) || this.collection.createId();
+		if (!this.attributes.originUserId && !this.existingModel) {
+			this.attributes.originUserId = this.attributes.id; // marks the first user record associated with this email
+		}
+
 		if (this.user) {
 			// someone else is creating (inviting) this user
 			this.attributes.creatorId = this.user.id;

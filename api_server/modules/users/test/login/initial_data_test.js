@@ -9,6 +9,7 @@ class InitialDataTest extends LoginTest {
 
 	constructor (options) {
 		super(options);
+		this.firstSessionShouldBeUndefined = this.oneUserPerOrg;
 		this.userOptions.numRegistered = 2;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,

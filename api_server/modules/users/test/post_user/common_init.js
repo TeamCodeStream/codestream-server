@@ -5,6 +5,7 @@
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const TestTeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/test_team_creator');
+const RandomString = require('randomstring');
 
 class CommonInit {
 
@@ -81,6 +82,95 @@ class CommonInit {
 			this.data.email = this.userFactory.randomEmail();
 		}
 		callback();
+	}
+
+	registerAndConfirmUser (callback) {
+		BoundAsync.series(this, [
+			this.registerUser,
+			this.confirmUser
+		], callback);
+	}
+
+	registerUser (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/no-auth/register',
+				data: {
+					email: this.data.email,
+					username: RandomString.generate(10),
+					password: RandomString.generate(10),
+					_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat
+				}
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.registerResponse = response;
+				callback();
+			}
+		);
+	}
+
+	confirmUser (callback) {
+		this.doApiRequest(
+			{
+				method: 'post',
+				path: '/no-auth/confirm',
+				data: {
+					email: this.data.email,
+					confirmationCode: this.registerResponse.user.confirmationCode
+				}
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.confirmResponse = response;
+				callback();
+			}
+		);
+	}
+
+	acceptInviteAndLogin (callback) {
+		BoundAsync.series(this, [
+			this.acceptInvite,
+			this.loginToCompany
+		], callback);
+	}
+
+
+	acceptInvite (callback) {
+		const token = (this.confirmResponse && this.confirmResponse.accessToken) || this.existingUserData.accessToken;
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/join-company/' + this.company.id,
+				token,
+				requestOptions: {
+					headers: {
+						'X-CS-Confirmation-Cheat': this.apiConfig.sharedSecrets.confirmationCheat
+					}
+				}
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.joinCompanyResponse = response;
+				callback();
+			}
+		)
+	}
+
+	loginToCompany (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/login',
+				token: this.joinCompanyResponse ? this.joinCompanyResponse.accessToken : this.existingUserData.accessToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.loginToCompanyResponse = response;
+				callback();
+			}
+		)
 	}
 }
 
