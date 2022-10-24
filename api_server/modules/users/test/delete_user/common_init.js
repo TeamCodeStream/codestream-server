@@ -43,6 +43,12 @@ class CommonInit {
 		};
 		this.expectedUser = DeepClone(this.user);
 		Object.assign(this.expectedUser, this.expectedData.user.$set);
+		Object.assign(this.expectedUser, {
+			lastReads: {},
+			preferences: {
+				acceptedTOS: true
+			}
+		});
 		this.modifiedAfter = Date.now();
 		callback();
 	}

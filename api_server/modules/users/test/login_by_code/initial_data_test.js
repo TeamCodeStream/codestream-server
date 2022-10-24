@@ -9,7 +9,7 @@ class InitialDataTest extends LoginByCodeTest {
 
 	constructor (options) {
 		super(options);
-		this.firstSessionShouldBeUndefined = true;
+		this.firstSessionShouldBeUndefined = this.oneUserPerOrg;
 		this.userOptions.numRegistered = 2;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,
