@@ -83,7 +83,11 @@ class LoginTest extends CodeStreamAPITest {
 		Assert(data.user.email === this.data.email, 'email doesn\'t match');
 		Assert(data.user.lastLogin >= this.beforeLogin, 'lastLogin not set to most recent login time');
 		if (!this.dontCheckFirstSession) {
-			Assert(data.user.firstSessionStartedAt >= this.beforeLogin, 'firstSessionStartedAt not set to most recent login time');
+			if (this.firstSessionShouldBeUndefined) {
+				Assert.strictEqual(data.user.firstSessionStartedAt, undefined, 'firstSessionStartedAt should be undefined');
+			} else {
+				Assert(data.user.firstSessionStartedAt >= this.beforeLogin, 'firstSessionStartedAt not set to most recent login time');
+			}
 		}
 		Assert.strictEqual(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		Assert(data.accessToken, 'no access token');

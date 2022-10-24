@@ -43,6 +43,12 @@ const DuplicateUsernameOkTest = require('./duplicate_username_ok_test');
 const NumUsersInvitedTest = require('./num_users_invited_test');
 const TrimEmailTest = require('./trim_email_test');
 const ManualInviteTypeTest = require('./manual_invite_type_test');
+const OriginUserIdTest = require('./origin_user_id_test');
+const ExistingUnregisteredUserOriginUserIdTest = require('./existing_unregistered_user_origin_user_id_test');
+const ExistingRegisteredUserOriginUserIdTest = require('./existing_registered_user_origin_user_id_test');
+const ExistingRegisteredUserOnTeamOriginUserIdTest = require('./existing_registered_user_on_team_origin_user_id_test');
+const ExistingUnregisteredUserOnTeamOriginUserIdTest = require('./existing_unregistered_user_on_team_origin_user_id_test');
+const ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest = require('./existing_registered_user_already_on_team_origin_user_id_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -105,6 +111,12 @@ class PostUserRequestTester {
 		new NumUsersInvitedTest().test();
 		new TrimEmailTest().test();
 		new ManualInviteTypeTest().test();
+		new OriginUserIdTest().test();
+		new ExistingUnregisteredUserOriginUserIdTest().test();
+		new ExistingRegisteredUserOriginUserIdTest().test();
+		new ExistingRegisteredUserOnTeamOriginUserIdTest().test();
+		new ExistingUnregisteredUserOnTeamOriginUserIdTest().test();
+		new ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest().test();
 	}
 }
 

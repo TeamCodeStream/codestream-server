@@ -24,7 +24,12 @@ class DeleteUserFetchTest extends DeleteUserTest {
 		BoundAsync.series(this, [
 			super.before,	// do the usual test prep
 			this.deleteUser	// perform the actual deletion
-		], callback);
+		], error => {
+			if (error) { return callback(error); }
+			this.path = '/users/me';
+			this.token = this.users[this.testUser].accessToken;
+			callback();
+		});
 	}
 
 	// validate that the response is correct

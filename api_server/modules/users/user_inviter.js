@@ -59,10 +59,11 @@ class UserInviter {
 			existingUser &&
 			!(existingUser.get('teamIds') || []).includes(this.team.id)
 		) {
+			userData.copiedFromUserId = existingUser.id;
 			const attributesToCopy = Object.keys(UserAttributes).filter(attr => {
 				return UserAttributes[attr].copyOnInvite;
 			});
-	
+
 			// if we found a user that matches by email, but isn't actually on the team, we create
 			// a new user record, and feed the user's attributes from the existing user
 			attributesToCopy.forEach(attribute => {

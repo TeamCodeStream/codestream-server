@@ -196,7 +196,7 @@ class LoginHelper {
 
 		const setFirstSession = (
 			!this.dontSetFirstSession &&
-			!this.user.get('originalUserId')
+			!this.user.get('copiedFromUserId') // don't set firstSessionStartedAt if this is not the original registering user
 		);
 		if (setFirstSession) {
 			op.$set.firstSessionStartedAt = this.user.get('firstSessionStartedAt') === undefined ? Date.now() : 0;

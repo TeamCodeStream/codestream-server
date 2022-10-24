@@ -138,7 +138,7 @@ class JoinCompanyRequest extends RestfulRequest {
 		
 		if (this.request.headers['x-cs-confirmation-cheat'] === this.api.config.sharedSecrets.confirmationCheat) {
 			this.warn('NOTE: passing user object back in join-company request, this had better be a test!');
-			this.responseData.user = this.invitedUser.getSanitizedObject({ request: this });
+			this.responseData.user = this.invitedUser.getSanitizedObjectForMe({ request: this });
 			this.responseData.broadcasterToken = this.invitedUser.get('broadcasterToken');
 			this.responseData.user.version++;
 		}

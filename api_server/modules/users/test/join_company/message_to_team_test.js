@@ -8,7 +8,8 @@ const Assert = require('assert');
 class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'when a user joins a company, other members of the team should get a message that the user has been added';
+		const which = this.byDomainJoining ? 'by domain joining' : 'by invite under one-user-per-org';
+		return `when a user joins a company ${which}, other members of the team should get a message that the user has been added`;
 	}
 
 	// make the data that triggers the message to be received
@@ -34,8 +35,10 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	validateMessage (message) {
 		Assert(message.message.team.$set.modifiedAt >= this.joinedAfter, 'team modifiedAt is not greater than or equal to when the user joined');
+		const userInMessage = { ...this.currentUser.user };
+		delete userInMessage.originUserId; // this is a "me" attribute
 		this.message = {
-			users: [{ ...this.currentUser.user }],
+			users: [userInMessage],
 			team: {
 				id: this.team.id,
 				_id: this.team.id,
