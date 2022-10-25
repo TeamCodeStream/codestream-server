@@ -283,7 +283,11 @@ class TestTeamCreator {
 		if ((this.users[n].user.companyIds || []).includes(this.company.id)) {
 			return callback();
 		}
-		if (this.teamOptions.members !== 'all' && !this.teamOptions.members.includes(n)) {
+		if (
+			this.teamOptions.members !== 'all' &&
+			this.teamOptions.members instanceof Array &&
+			 !this.teamOptions.members.includes(n)
+		) {
 			return callback();
 		}
 		this.test.doApiRequest(

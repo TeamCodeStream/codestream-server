@@ -18,6 +18,10 @@ class CommonInit {
 		], callback);
 	}
 
+	setTestOptions (callback) {
+		return callback();
+	}
+	
 	// form the data for the company update
 	makeCompanyData (callback) {
 		this.data = {
