@@ -83,10 +83,6 @@ module.exports = {
 		type: 'string',
 		description: 'ID of the "everyone" team for this company',
 	},
-	enableDomainBasedJoining: {
-		type: 'boolean',
-		description: 'Flag indicating whether users with matching domains in their email can join this company'
-	},
 	domainJoining: {
 		type: 'arrayOfStrings',
 		maxLength: 100,
