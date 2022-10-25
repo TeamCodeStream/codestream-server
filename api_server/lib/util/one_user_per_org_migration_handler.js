@@ -207,7 +207,7 @@ class MigrationHandler {
 		// copy lastReads only for the team stream for this team
 		// and delete from the original user record
 		if (teamStreamId && user.lastReads && user.lastReads[teamStreamId]) {
-			newUserData[lastReads] = {
+			newUserData.lastReads = {
 				[teamStreamId]: user.lastReads[teamStreamId]
 			};
 			originalUserUnset[`lastReads.${teamStreamId}`] = true;
