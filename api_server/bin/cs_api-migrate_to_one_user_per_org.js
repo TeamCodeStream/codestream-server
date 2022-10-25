@@ -66,6 +66,7 @@ class Migrator {
 			logger: console,
 			dryRun: this.dryrun,
 			verbose: this.verbose,
+			throttle: this.throttle,
 			tokenSecret: this.tokenSecret
 		});
 
