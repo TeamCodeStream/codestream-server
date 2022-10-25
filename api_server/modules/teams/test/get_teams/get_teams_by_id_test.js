@@ -9,8 +9,11 @@ class GetTeamsByIdTest extends GetTeamsTest {
 	}
 
 	setPath (callback) {
-		// i'm in both of these teams, so i should be able to fetch them
-		this.path = `/teams?ids=${this.team.id},${this.teamWithMe.id}`;
+		if (this.oneUserPerOrg) {
+			this.path = `/teams?ids=${this.team.id}`; // only this makes sense in ONE_USER_PER_ORG
+		} else {
+			this.path = `/teams?ids=${this.team.id},${this.teamWithMe.id}`;
+		}
 		callback();
 	}
 }

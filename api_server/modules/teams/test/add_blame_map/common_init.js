@@ -61,6 +61,7 @@ class CommonInit {
 			userId: this.users[2].user.id
 		};
 		this.updatedAt = Date.now();
+		const expectedVersion = this.oneUserPerOrg ? 10 : 8;
 		this.expectedResponse = {
 			team: {
 				id: this.team.id,
@@ -68,11 +69,11 @@ class CommonInit {
 				$set: {
 					[`settings.blameMap.${emailKey}`]: this.data.userId,
 					modifiedAt: Date.now(),
-					version: 8
+					version: expectedVersion
 				},
 				$version: {
-					before: 7,
-					after: 8
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

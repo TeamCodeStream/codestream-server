@@ -18,7 +18,7 @@ class PutTeamSettingsTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
-		this.expectVersion = 4;
+		this.expectVersion = this.oneUserPerOrg ? 5 : 4;
 		BoundAsync.series(this, [
 			super.before,
 			this.preSetSettings,

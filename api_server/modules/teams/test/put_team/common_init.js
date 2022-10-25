@@ -51,6 +51,7 @@ class CommonInit {
 		this.expectedTeam = Object.assign({}, this.team, this.data, { plan: 'FREEPLAN' });
 		this.path = '/teams/' + this.team.id;
 		this.modifiedAfter = Date.now();
+		const expectedVersion = this.oneUserPerOrg ? 10 : 7;
 		this.expectedData = {
 			team: {
 				_id: this.team.id,	// DEPRECATE ME
@@ -58,11 +59,11 @@ class CommonInit {
 				$set: {
 					name: this.data.name,
 					modifiedAt: this.modifiedAfter,
-					version: 7
+					version: expectedVersion
 				},
 				$version: {
-					before: 6,
-					after: 7
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

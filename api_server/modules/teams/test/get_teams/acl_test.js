@@ -18,9 +18,11 @@ class ACLTest extends GetTeamsTest {
 		// include the "foreign" team in the IDs, this should fail
 		let ids = [
 			this.team.id,
-			this.teamWithMe.id,
 			this.teamWithoutMe.id
 		];
+		if (!this.oneUserPerOrg) {
+			ids.push(this.teamWithMe.id);
+		}
 		this.path = '/teams?ids=' + ids.join(',');
 		callback();
 	}

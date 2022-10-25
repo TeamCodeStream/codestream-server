@@ -39,6 +39,7 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 		// user with the team removed from their teamIds
 		this.otherUserUpdatesTeam = true;
 		this.updatedAt = Date.now();
+		const expectedVersion = this.currentUser.user.version + 1;
 		this.updateTeam(error => {
 			if (error) { return callback(error); }
 			this.message = {
@@ -50,11 +51,11 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 						companyIds: this.team.companyId
 					},
 					$set: {
-						version: 4
+						version: expectedVersion
 					},
 					$version: {
-						before: 3,
-						after: 4
+						before: expectedVersion - 1,
+						after: expectedVersion
 					}
 				}
 			};

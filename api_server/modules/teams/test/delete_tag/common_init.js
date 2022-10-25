@@ -61,6 +61,7 @@ class CommonInit {
 		this.tagId = Object.keys(this.tagsCreated)[1];
 		this.path = `/team-tags/${this.team.id}/${this.tagId}`;
 		this.updatedAt = Date.now();
+		const expectedVersion = this.oneUserPerOrg ? 11 : 9;
 		this.expectedResponse = {
 			team: {
 				id: this.team.id,
@@ -68,11 +69,11 @@ class CommonInit {
 				$set: {
 					[`tags.${this.tagId}.deactivated`]: true,
 					modifiedAt: Date.now(),
-					version: 9
+					version: expectedVersion
 				},
 				$version: {
-					before: 8,
-					after: 9
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};
