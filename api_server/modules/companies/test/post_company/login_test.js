@@ -1,10 +1,15 @@
 'use strict';
 
-const OneUserPerOrgTest = require('./one_user_per_org_test');
+const PostCompanyTest = require('./post_company_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
-class LoginTest extends OneUserPerOrgTest {
+class LoginTest extends PostCompanyTest {
+
+	constructor (options) {
+		super(options);
+		this.oneUserPerOrg = true;
+	}
 
 	get description () {
 		return 'should be able to login using the returned access token after creating a company under one-user-per-org';

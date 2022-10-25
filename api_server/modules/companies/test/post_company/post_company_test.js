@@ -13,12 +13,12 @@ class PostCompanyTest extends CodeStreamAPITest {
 		return 'post';
 	}
 
-	get path () {
-		return '/companies';
-	}
-
 	get description () {
-		return 'should return a valid company when creating a new company';
+		if (this.oneUserPerOrg) {
+			return 'should return userId, teamId, and accessToken when creating a new company under one-user-per-org';
+		} else {
+			return 'should return a valid company when creating a new company';
+		}
 	}
 
 	getExpectedFields () {
@@ -38,12 +38,17 @@ class PostCompanyTest extends CodeStreamAPITest {
 		this.data = {
 			name: this.companyFactory.randomName()
 		};
+		this.path = '/companies';
 		callback();
 	}
 
 	/* eslint complexity: 0 */
 	// validate the response to the test request
 	validateResponse (data) {
+		if (this.oneUserPerOrg && this.teamOptions.creatorIndex !== undefined) {
+			return this.validateOneUserPerOrgResponse(data);
+		}
+		
 		const company = data.company;
 		const team = data.team;
 		const errors = [];
@@ -84,6 +89,16 @@ class PostCompanyTest extends CodeStreamAPITest {
 		);
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		this.validateSanitized(stream, TeamTestConstants.UNSANITIZED_STREAM_ATTRIBUTES);
+	}
+
+	validateOneUserPerOrgResponse (data) {
+		this.responseData = data;
+		const { accessToken, userId, teamId } = data;
+		Assert(accessToken && typeof accessToken === 'string', 'access token not returned or not string type');
+		Assert(userId && typeof userId === 'string', 'user id not returned or not string type');
+		Assert(userId !== this.currentUser.user.id, 'userId returned is equal to the joining user, but should represent a duplicate user object');
+		Assert(teamId && typeof teamId === 'string', 'team id not returned or not string type');
+		Assert(teamId !== this.team.id, 'teamId returned is equal to the original team, but should represent a duplicate object');
 	}
 }
 
