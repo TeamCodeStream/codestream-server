@@ -9,7 +9,7 @@ class ExistingUserTest extends IdentityMatchTest {
 		const invite = this.userIsInvited ? ', when user is invited to a team' : '';
 		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : '';
 		const status = this.isRegistered ? 'registered' : 'unregistered';
-		return `should be ok to complete a ${this.provider} authorization flow when an ${status} user with matching email is already on CodeStream${invite}${oneUserPerOrg}`;
+		return `should be ok to complete a ${this.provider} authorization flow when a(n) ${status} user with matching email is already on CodeStream${invite}${oneUserPerOrg}`;
 	}
 
 	setTestOptions (callback) {
@@ -35,7 +35,7 @@ class ExistingUserTest extends IdentityMatchTest {
 	}
 
 	validateResponse (data) {
-		if (this.oneUserPerOrg && this.userIsInvited) {
+		if (this.oneUserPerOrg && this.userIsInvited && !this.isRegistered) {
 			Assert.notStrictEqual(data.user.id, this.users[this.userIndex].user.id, 'id of matched user was the id of an invited unregistered user and should not have been under one-user-per-org');
 		} else {
 			Assert.strictEqual(data.user.id, this.users[this.userIndex].user.id, 'id of matched user did not correspond to the id of the expected unregistered user');

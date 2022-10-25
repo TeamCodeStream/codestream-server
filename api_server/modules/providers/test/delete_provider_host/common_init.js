@@ -66,6 +66,7 @@ class CommonInit {
 		}
 		const starredHost = this.host.replace(/\./g, '*').toLowerCase();
 		const encodedHost = encodeURIComponent(starredHost);
+		const expectedVersion = this.oneUserPerOrg ? 7 : 6;
 		this.path = `/provider-host/${this.provider}/${this.team.id}/${encodedHost}`;
 		this.modifiedAfter = Date.now();
 		this.expectedData = {
@@ -74,14 +75,14 @@ class CommonInit {
 				id: this.team.id,
 				$set: {
 					modifiedAt: this.modifiedAfter,
-					version: 6
+					version: expectedVersion
 				},
 				$unset: {
 					[`providerHosts.${starredHost}`]: true
 				},
 				$version: {
-					before: 5,
-					after: 6
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

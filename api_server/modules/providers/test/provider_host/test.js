@@ -13,13 +13,14 @@ const MessageToTeamTest = require('./message_to_team_test');
 
 const TEST_HOSTS = [
 	{
+		provider: 'jiraserver',
+		host: 'https://jira.codestream.us'
+	},
+	/*
+	{
 		provider: 'github_enterprise',
 		host: 'https://git.codestream.us',
 		hasCodeHosting: true
-	},
-	{
-		provider: 'jiraserver',
-		host: 'https://jira.codestream.us'
 	},
 	{
 		provider: 'gitlab_enterprise',
@@ -31,6 +32,7 @@ const TEST_HOSTS = [
 		host: 'https://bitbucket.codestream.us',
 		hasCodeHosting: true
 	}
+	*/
 ];
 
 var TEST_HOST_NUM = 0;
