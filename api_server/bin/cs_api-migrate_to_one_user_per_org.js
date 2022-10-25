@@ -13,7 +13,7 @@ const OneUserPerOrgMigrationHandler = require('../lib/util/one_user_per_org_migr
 
 Commander
 	.option('--dryrun', 'Do a dry run, meaning don\'t actually write anything to our database, but report on numbers')
-	.option('--throttle', 'Throttle processing each user by this amount of time')
+	.option('--throttle <throttle>', 'Throttle processing each user by this amount of time')
 	.option('--verbose', 'Verbose logging output')
 	.parse(process.argv);
 
