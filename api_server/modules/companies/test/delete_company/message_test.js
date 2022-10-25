@@ -38,6 +38,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	setExpectedMessage (callback) {
+		const expectedVersion = this.currentUser.user.version + (this.oneUserPerOrg ? 3 : 4);
 		this.message = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
@@ -47,12 +48,12 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					teamIds: this.team.id
 				},
 				$set: {
-					version: 7,
+					version: expectedVersion + 1,
 					modifiedAt: Date.now() // placeholder
 				},
 				$version: {
-					before: 6,
-					after: 7
+					before: expectedVersion,
+					after: expectedVersion + 1
 				}
 			}
 		};

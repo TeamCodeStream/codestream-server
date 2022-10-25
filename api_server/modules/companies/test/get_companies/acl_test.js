@@ -18,9 +18,11 @@ class ACLTest extends GetCompaniesTest {
 		// include the "foreign" company in the IDs, this should fail
 		let ids = [
 			this.company.id,
-			this.companyWithMe.id,
 			this.companyWithoutMe.id
 		];
+		if (!this.oneUserPerOrg) {
+			ids.push(this.companyWithMe.id);
+		}
 		this.path = '/companies?ids=' + ids.join(',');
 		callback();
 	}
