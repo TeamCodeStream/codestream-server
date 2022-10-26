@@ -75,6 +75,15 @@ module.exports = async function GetEligibleJoinCompanies (domain, request, optio
 	const companiesByInvite = (email && !options.ignoreInvite) ?
 		await _getEligibleJoinCompaniesByInvite(email, request) :
 		[];
+
+	// if the user is invited to any companies that are also available by domain,
+	// the invite record should override
+	for (let i = companiesByDomain.length - 1; i >= 0; i--) {
+		if (companiesByInvite.find(c => c.id === companiesByDomain[i].id)) {
+			companiesByDomain.splice(i, 1);
+		}
+	}
+	
 	const allCompanies = [ ...companiesByDomain, ...companiesByInvite ];
 
 	// return information about those companies (but not full company objects, 
