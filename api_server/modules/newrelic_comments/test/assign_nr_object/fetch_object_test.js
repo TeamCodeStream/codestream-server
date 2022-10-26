@@ -21,7 +21,8 @@ class FetchObjectTest extends AssignNRObjectTest {
 			this.createNRAssignment,
 			this.setPath,
 			this.claimCodeError,
-			this.inviteAndRegisterFauxUser
+			this.inviteAndRegisterFauxUser,
+			this.acceptInvite
 		], callback);
 	}
 

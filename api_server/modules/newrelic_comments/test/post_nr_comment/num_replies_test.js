@@ -16,6 +16,7 @@ class NumRepliesTest extends NestedCommentTest {
 			super.run,	// this posts the reply and checks the result, but then...
 			this.claimCodeError, // claim the code error for the team
 			this.inviteAndRegisterFauxUser, 	// need to register to read the post
+			this.acceptInvite,
 			this.checkParentPost	// ...we'll check the parent post as well
 		], callback);
 	}

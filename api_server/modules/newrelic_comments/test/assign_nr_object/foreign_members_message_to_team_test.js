@@ -66,6 +66,7 @@ class ForeignMembersMessageToTeamTest extends Aggregation(CodeStreamMessageTest,
 		// fetch the users indicated in the foreignMemberIds array, and ensure those users match
 		// the emails passed in with the test request
 		const foreignMemberIds = message.message.team.$addToSet.foreignMemberIds;
+		const expectedVersion = this.oneUserPerOrg ? 5 : 4;
 		this.doApiRequest(
 			{
 				method: 'get',
@@ -91,12 +92,12 @@ class ForeignMembersMessageToTeamTest extends Aggregation(CodeStreamMessageTest,
 							memberIds: [...foreignMemberIds]
 						},
 						$set: {
-							version: 4,
+							version: expectedVersion,
 							modifiedAt: message.message.team.$set.modifiedAt
 						},
 						$version: {
-							before: 3,
-							after: 4
+							before: expectedVersion - 1,
+							after: expectedVersion
 						}
 					}
 				};
