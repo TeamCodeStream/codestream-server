@@ -95,8 +95,8 @@ module.exports = async function GetEligibleJoinCompanies (domain, request, optio
 		const joinCompany = {
 			id: company.id,
 			name: company.get('name'),
-			domainJoining: company.get('domainJoining') || [],
-			codeHostJoining: company.get('codeHostJoining') || [],
+			domainJoining: user ? undefined : company.get('domainJoining') || [],
+			codeHostJoining: user ? undefined: company.get('codeHostJoining') || [],
 			memberCount
 		};
 		if (user) {
