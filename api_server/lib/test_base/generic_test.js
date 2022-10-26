@@ -17,7 +17,7 @@ class GenericTest {
 		this.testNum = ++NumTests;
 		this.mockMode = process.env.CS_API_MOCK_MODE;
 		this.testLogs = [];
-		this.oneUserPerOrg = true; // default to true when we have fully deployed ONE_USER_PER_ORG
+		this.oneUserPerOrg = true;
 	}
 
 	// override me!
