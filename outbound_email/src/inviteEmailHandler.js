@@ -59,7 +59,7 @@ You can accept this invitation by going to the <b>username menu > Switch Organiz
 
 this.content = `
 <html>
-CodeStream's cloud-based service and IDE plugins help dev teams discuss, review, and understand code. Discussing code is now as simple as commenting on a Google Doc — select the code and type your question.<br/>
+CodeStream’s IDE extension brings together the tools you use every day… GitHub, Jira, Slack and more than a dozen other services… right in your IDE, simplifying your daily workflow.<br/>
 <br/>
 1. Install CodeStream for ${allLinks}.<br/>
 <br/>
