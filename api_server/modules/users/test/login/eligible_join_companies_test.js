@@ -31,8 +31,6 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 			this.expectedEligibleJoinCompanies.push({
 				id: this.company.id,
 				name: this.company.name,
-				domainJoining: [],
-				codeHostJoining: [],
 				byInvite: true,
 				memberCount: 2,
 				accessToken: this.currentUser.accessToken
@@ -163,8 +161,6 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 				this.expectedEligibleJoinCompanies.push({
 					id: company.id,
 					name: company.name,
-					domainJoining: [],
-					codeHostJoining: [],
 					byInvite: true,
 					memberCount: 1
 				});
@@ -214,13 +210,13 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 	// validate the response to the test request
 	validateResponse (data) {
 		// validate that we got the eligible companies in the response
-		data.eligibleJoinCompanies.sort((a, b) => {
+		data.user.eligibleJoinCompanies.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
 		this.expectedEligibleJoinCompanies.sort((a, b) => {
 			return a.id.localeCompare(b.id);
 		});
-		Assert.deepStrictEqual(data.eligibleJoinCompanies, this.expectedEligibleJoinCompanies, 'eligibleJoinCompanies is not correct');
+		Assert.deepStrictEqual(data.user.eligibleJoinCompanies, this.expectedEligibleJoinCompanies, 'eligibleJoinCompanies is not correct');
 		super.validateResponse(data);
 	}
 }

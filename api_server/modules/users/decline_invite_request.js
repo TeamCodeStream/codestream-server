@@ -6,7 +6,7 @@ const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib
 const Indexes = require('./indexes');
 const UserDeleter = require('./user_deleter');
 const UserPublisher = require('./user_publisher');
-const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
+const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
 
 class DeclineInviteRequest extends RestfulRequest {
 
@@ -87,6 +87,12 @@ class DeclineInviteRequest extends RestfulRequest {
 			request: this,
 			broadcaster: this.api.services.broadcaster
 		}).publishUserToTeams();
+
+		// publish to all registered users the resulting change in eligibleJoinCompanies
+		await new EligibleJoinCompaniesPublisher({
+			request: this,
+			broadcaster: this.api.services.broadcaster
+		}).publishEligibleJoinCompanies(this.user.get('email'))
 	}
 
 	// describe this route for help

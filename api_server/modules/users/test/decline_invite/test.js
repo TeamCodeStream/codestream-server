@@ -8,6 +8,7 @@ const CompanyNotFoundTest = require('./company_not_found_test');
 const CompanyDeactivatedTest = require('./company_deactivated_test');
 const ACLTest = require('./acl_test');
 const MessageToTeamTest = require('./message_to_team_test');
+const MessageToUserTest = require('./message_to_user_test');
 
 class DeclineInviteRequestTester {
 
@@ -18,6 +19,7 @@ class DeclineInviteRequestTester {
 		new CompanyDeactivatedTest().test();
 		new ACLTest().test();
 		new MessageToTeamTest().test();
+		new MessageToUserTest().test();
 	}
 }
 

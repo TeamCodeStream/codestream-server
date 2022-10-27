@@ -3,6 +3,7 @@
 'use strict';
 
 const GetRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_request');
+const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
 
 class GetUserRequest extends GetRequest {
 
@@ -12,6 +13,12 @@ class GetUserRequest extends GetRequest {
 		if (this.request.params.id.toLowerCase() === 'me') {
 			// allow certain "me-attributes" that only this user can see
 			this.responseData = { user: this.user.getSanitizedObjectForMe({ request: this }) };
+
+			// send "eligible join companies" if needed
+			const eligibleJoinCompanies = await GetEligibleJoinCompanies(this.user.get('email'), this);
+			if (eligibleJoinCompanies && eligibleJoinCompanies.length > 0) {
+				this.responseData.user.eligibleJoinCompanies = eligibleJoinCompanies;
+			}
 			return;
 		}
 		await super.process();

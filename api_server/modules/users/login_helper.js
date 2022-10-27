@@ -273,7 +273,6 @@ class LoginHelper {
 			runtimeEnvironment: runTimeEnvironment,
 			environmentHosts: Object.values(environmentGroup || []),
 			isWebmail: this.isWebmail,
-			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
 			newRelicLandingServiceUrl,
 			newRelicApiUrl
@@ -292,6 +291,11 @@ class LoginHelper {
 
 		// add any foreign (cross-environment) companies
 		this.responseData.companies = [...this.responseData.companies, ...(this.foreignCompanies || [])];
+
+		// add eligibleJoinCompanies as a user attribute
+		if (this.eligibleJoinCompanies && this.eligibleJoinCompanies.length > 0) {
+			this.responseData.user.eligibleJoinCompanies = this.eligibleJoinCompanies;
+		}
 	}
 
 	// grant the user permission to subscribe to various broadcaster channels

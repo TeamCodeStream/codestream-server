@@ -37,6 +37,16 @@ class DeleteUserFetchTest extends DeleteUserTest {
 		Assert(data.user.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the user was updated');
 		this.expectedUser.modifiedAt = data.user.modifiedAt;
 		this.expectedUser.email = this.message.users[0].$set.email;
+
+		const user = this.users[this.testUser];
+		this.expectedUser.eligibleJoinCompanies = [{
+			accessToken: user.accessToken,
+			id: this.company.id,
+			name: this.company.name,
+			byInvite: true,
+			memberCount: 1
+		}];
+
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.user, this.expectedUser, 'fetched user does not match');
 	}

@@ -79,7 +79,7 @@ module.exports = async function GetEligibleJoinCompanies (domain, request, optio
 	// if the user is invited to any companies that are also available by domain,
 	// the invite record should override
 	for (let i = companiesByDomain.length - 1; i >= 0; i--) {
-		if (companiesByInvite.find(c => c.id === companiesByDomain[i].id)) {
+		if (companiesByInvite.find(c => c.company.id === companiesByDomain[i].company.id)) {
 			companiesByDomain.splice(i, 1);
 		}
 	}

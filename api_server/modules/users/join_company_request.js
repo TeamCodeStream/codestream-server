@@ -13,6 +13,7 @@ const ConfirmHelper = require('./confirm_helper');
 const UserCreator = require('./user_creator');
 const UserDeleter = require('./user_deleter');
 const UserAttributes = require('./user_attributes');
+const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
 
 class JoinCompanyRequest extends RestfulRequest {
 
@@ -165,6 +166,12 @@ class JoinCompanyRequest extends RestfulRequest {
 			team: this.team,
 			teamUpdate: this.transforms.teamUpdate
 		}).publishAddedUsers();
+
+		// publish to all registered users the resulting change in eligibleJoinCompanies
+		await new EligibleJoinCompaniesPublisher({
+			request: this,
+			broadcaster: this.api.services.broadcaster
+		}).publishEligibleJoinCompanies(this.invitedUser.get('email'))
 	}
 
 	// describe this route for help

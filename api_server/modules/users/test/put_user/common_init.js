@@ -22,6 +22,13 @@ class CommonInit {
 		this.setTestData();
 		this.expectedUser = DeepClone(this.currentUser.user);
 		Object.assign(this.expectedUser, this.data);
+		this.expectedUser.eligibleJoinCompanies = [{
+			accessToken: this.currentUser.accessToken,
+			byInvite: true,
+			id: this.company.id,
+			name: this.company.name,
+			memberCount: 2
+		}];
 		this.path = '/users/' + (this.id || this.currentUser.user.id);
 		this.modifiedAfter = Date.now();
 		const expectedVersion = this.currentUser.user.version + 1;

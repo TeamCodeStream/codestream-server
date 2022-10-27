@@ -9,6 +9,7 @@ const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 const Indexes = require('./indexes');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const UserAttributes = require('./user_attributes');
+const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
 
 const REINVITE_REPEATS = 2;
 
@@ -152,7 +153,8 @@ class UserInviter {
 		await awaitParallel([
 			this.publishAddToTeam,
 			this.sendInviteEmails,
-			this.publishNumUsersInvited
+			this.publishNumUsersInvited,
+			this.publishEligibleJoinCompanies
 		], this);
 	}
 
@@ -283,6 +285,16 @@ class UserInviter {
 			// this doesn't break the chain, but it is unfortunate
 			this.request.warn(`Unable to publish inviting user update message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
+	}
+
+	// publish to all registered users the resulting change in eligibleJoinCompanies
+	async publishEligibleJoinCompanies () {
+		return Promise.all(this.invitedUsers.map(async user => {
+			await new EligibleJoinCompaniesPublisher({
+				request: this.request,
+				broadcaster: this.request.api.services.broadcaster
+			}).publishEligibleJoinCompanies(user.user.get('email'))
+		}));
 	}
 }
 

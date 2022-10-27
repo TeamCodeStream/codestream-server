@@ -144,6 +144,7 @@ class ConfirmRequest extends RestfulRequest {
 			environment,
 			dontSetFirstSession: true
 		}).confirm(this.request.body);
+		this.eligibleJoinCompanies = this.responseData.user.eligibleJoinCompanies;
 	}
 
 	// user failed confirmation for whatever reason, we'll do a database update
@@ -185,6 +186,7 @@ class ConfirmRequest extends RestfulRequest {
 		// get the user again since it was changed, this should fetch from cache and not from database
 		this.user = await this.data.users.getById(this.user.id);
 		this.responseData.user = this.user.getSanitizedObjectForMe({ request: this });
+		this.responseData.user.eligibleJoinCompanies = this.eligibleJoinCompanies;
 		await super.handleResponse();
 	}
 

@@ -1,22 +1,22 @@
 'use strict';
 
-const InitialDataTest = require('./initial_data_test');
+const GetMyselfTest = require('./get_myself_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-class EligibleJoinCompaniesTest extends InitialDataTest {
+class EligibleJoinCompaniesTest extends GetMyselfTest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', in one-user-per-org paradigm' : '';
-		return `user should receive eligible companies to join via domain-based and code-host-based with response to email confirmation${oneUserPerOrg}`;
+		return `user should receive eligible companies to join via domain-based, code-host-based, and invite, when fetching own user object`;
 	}
 
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
 			this.createEligibleJoinCompanies,
-			this.createCompaniesAndInvite
+			this.createCompaniesAndInvite,
+			this.acceptInvite
 		], callback);
 	}
 
@@ -31,7 +31,8 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 				id: this.company.id,
 				name: this.company.name,
 				byInvite: true,
-				memberCount: 2
+				memberCount: 2,
+				accessToken: this.currentUser.accessToken
 			});
 		}
 
@@ -46,7 +47,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 	// create a company that the confirming user is not a member of, but that they are
 	// eligible to join via domain-based joining or code host joining
 	createEligibleJoinCompany (n, callback) {
-		const domain = this.data.email.split('@')[1];
+		const domain = this.currentUser.user.email.split('@')[1];
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -62,7 +63,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 						`gitlab.com/${RandomString.generate(10)}`
 					]
 				},
-				token: this.users[0].accessToken
+				token: this.users[1].accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -135,7 +136,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 				method: 'post',
 				path: '/companies',
 				data: { name: this.companyFactory.randomName() },
-				token: this.users[0].accessToken
+				token: this.users[1].accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -176,11 +177,32 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 				path: '/users',
 				data: {
 					teamId: this.currentCompanyTeamId,
-					email: this.data.email
+					email: this.currentUser.user.email
 				},
 				token: this.currentCompanyToken
 			},
 			callback
+		);
+	}
+
+	// accept the invite for one of the companies the user has been invited to
+	acceptInvite (callback) {
+		if (!this.oneUserPerOrg) { // remove when have fully moved to ONE_USER_PER_ORG
+			return callback();
+		}
+		const companyInfo = this.expectedEligibleJoinCompanies[this.expectedEligibleJoinCompanies.length - 1];
+		companyInfo.memberCount++;
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/join-company/' + companyInfo.id,
+				token: this.currentUser.accessToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				companyInfo.accessToken = response.accessToken;
+				callback();
+			}
 		);
 	}
 
