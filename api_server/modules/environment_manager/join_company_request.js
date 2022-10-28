@@ -68,6 +68,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		if (!this.user) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
+this.log('DID FETCH USER FROM XENV:', this.user);
 
 		// the access token passed must match the user's stored access token
 		const token = this.user.accessTokens && this.user.accessTokens.web && this.user.accessTokens.web.token;
@@ -123,7 +124,7 @@ this.log('FETCHED USER COPY:', this.user.attributes);
 		const company = await this.data.companies.getById(this.request.params.id.toLowerCase());
 		const users = await this.data.users.getByQuery(
 			{
-				searchableEmail: this.user.get('email').toLowerCase()
+				searchableEmail: this.user.email.toLowerCase()
 			},
 			{
 				hint: UserIndexes.bySearchableEmail
