@@ -68,7 +68,6 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		if (!this.user) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
-this.log('DID FETCH USER FROM XENV:', this.user);
 
 		// the access token passed must match the user's stored access token
 		const token = this.user.accessTokens && this.user.accessTokens.web && this.user.accessTokens.web.token;
@@ -84,12 +83,9 @@ this.log('DID FETCH USER FROM XENV:', this.user);
 		// under one-user-per-org, we expect an existing record for the invited user,
 		// so look for that, and if found, make that the user record we work with
 		// otherwise, we assume joining by domain
-this.log('********** IN copyUser');
 		let invitedUser;
 		if (this.oneUserPerOrg) {
-this.log('TRyING to FInD InviTED USER...');
 			invitedUser = await this.tryFindInvitedUser();
-this.log('FOUND INVITED USER:', invitedUser ? invitedUser.id : 'NO');
 		}
 
 		if (!invitedUser) {
@@ -104,14 +100,12 @@ this.log('FOUND INVITED USER:', invitedUser ? invitedUser.id : 'NO');
 			this.user.accessTokens.web = { token, minIssuance };
 
 			// save the user
-this.log('CREATING USER COPY...');
 			await this.data.users.createDirect(this.user);
 		}
 
 		// fetch again, and proceed with processing the request
 		const userId = (invitedUser && invitedUser.id) || this.user.id;
 		this.user = await this.data.users.getById(userId);
-this.log('FETCHED USER COPY:', this.user.attributes);
 		if (!this.user) {
 			throw this.errorHandler.error('internal', { info: `cross-environment user ${userId} was not created locally` });
 		}
@@ -138,7 +132,6 @@ this.log('FETCHED USER COPY:', this.user.attributes);
 			)
 		});
 		if (invitedUser) {
-this.log('FOUND AN INVITED USER,, CONFIRMING...');
 			await new ConfirmHelper({
 				request: this,
 				user: invitedUser,
@@ -147,7 +140,6 @@ this.log('FOUND AN INVITED USER,, CONFIRMING...');
 			}).confirm(data);
 			return invitedUser;
 		}
-this.log('DID NOT FIND AN INVITED USER');
 	}
 
 	// delete the original user, since they joined a company in this environment
