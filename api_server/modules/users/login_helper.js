@@ -296,11 +296,6 @@ class LoginHelper {
 		if (this.eligibleJoinCompanies && this.eligibleJoinCompanies.length > 0) {
 			this.responseData.user.eligibleJoinCompanies = this.eligibleJoinCompanies;
 		}
-
-		
-
-		// for now, remove once client-side work is done
-		this.responseData.eligibleJoinCompanies = this.eligibleJoinCompanies;
 	}
 
 	// grant the user permission to subscribe to various broadcaster channels

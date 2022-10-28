@@ -187,15 +187,6 @@ class ConfirmRequest extends RestfulRequest {
 		this.user = await this.data.users.getById(this.user.id);
 		this.responseData.user = this.user.getSanitizedObjectForMe({ request: this });
 		this.responseData.user.eligibleJoinCompanies = this.eligibleJoinCompanies;
-
-
-
-		// for now, until client-side work is done
-		this.responseData.eligibleJoinCompanies = this.eligibleJoinCompanies;
-
-
-
-		
 		await super.handleResponse();
 	}
 
