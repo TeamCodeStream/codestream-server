@@ -21,7 +21,7 @@ class RandomCompanyFactory {
 			if (error) { return callback(error); }
 			// we need this because behavior is different depending on whether this is
 			// the user's first company or not ... if it is not, under one-user-per-org,
-			// we get a new access token and must do a login to get the company inf
+			// we get a new access token and must do a login to get the company info
 			if (response.accessToken) {
 				this.getCompanyInfoThroughLogin(response.accessToken, callback);
 			} else {

@@ -21,20 +21,23 @@ class MultiTeamTest extends TeamLookupTest {
 
 	// create a second team to use for the test
 	createSecondTeam(callback) {
-		new TestTeamCreator({
+		const testTeamCreator = new TestTeamCreator({
 			test: this,
 			userOptions: this.userOptions,
 			teamOptions: Object.assign({}, this.teamOptions, {
 				creatorToken: this.users[1].accessToken
 			}),
 			repoOptions: Object.assign({}, this.repoOptions, {
-				creatorToken: this.users[1].accessToken,
+				creatorIndex: 0,
 				withKnownCommitHashes: [this.repo.knownCommitHashes[2]]
 			})
-		}).create((error, response) => {
+		});
+		testTeamCreator.create((error, response) => {
 			if (error) { return callback(error); }
+			this.secondTeamCreator = response.users[0];
 			this.secondTeam = response.team;
 			this.secondRepo = response.repos[0];
+			this.secondTeamToken = this.oneUserPerOrg ? testTeamCreator.teamOptions.creatorToken : this.users[1].accessToken
 			callback();
 		});
 	}
@@ -45,7 +48,7 @@ class MultiTeamTest extends TeamLookupTest {
 			{
 				method: 'put',
 				path: `/team-settings/${this.secondTeam.id}`,
-				token: this.users[1].accessToken,
+				token: this.secondTeamToken,
 				data: {
 					autoJoinRepos: [this.secondRepo.id]
 				}
@@ -62,7 +65,7 @@ class MultiTeamTest extends TeamLookupTest {
 			});
 			Assert.strictEqual(data[1].repo.id, this.secondRepo.id, 'returned repo should match the second repo');
 			Assert.strictEqual(data[1].team.id, this.secondTeam.id, 'returned team should match the second team');
-			const expectedAdminIds = [this.users[1].user.id];
+			const expectedAdminIds = this.oneUserPerOrg ? [this.secondTeam.adminIds[0]] : [this.users[1].user.id];
 			Assert.deepStrictEqual(data[1].admins.map(a => a.id), expectedAdminIds, 'returned admins should match the team creator');
 		}
 		super.validateResponse(data);
