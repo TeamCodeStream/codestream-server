@@ -42,6 +42,9 @@ class EligibleJoinCompaniesPublisher {
 				id: user.id,
 				$set: {
 					eligibleJoinCompanies
+				},
+				$version: {
+					before: '*'
 				}
 			}
 		};
