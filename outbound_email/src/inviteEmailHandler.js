@@ -40,6 +40,9 @@ class InviteEmailHandler extends EmailHandler {
 		this.content = `
 <html>
 You can accept this invitation by going to the <b>username menu > Switch Organizations</b> in CodeStream, and selecting the <b>${this.company.name}</b> organization.
+<br/>
+<br/>
+<img style="display:inline-block" src="https://images.codestream.com/misc/Invitations.png" />
 </html>
 `;
 	}
