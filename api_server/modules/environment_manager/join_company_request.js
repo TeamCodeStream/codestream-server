@@ -7,6 +7,8 @@ const OneUserPerOrgJoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT +
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const AccessTokenCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/access_token_creator');
 const User = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const ConfirmHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/confirm_helper');
 
 class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 
@@ -79,33 +81,72 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 	// (our hope is that collisions are extremely unlikely)
 	async copyUser () {
 		// under one-user-per-org, we expect an existing record for the invited user,
-		// or, if joining by domain, a new user record will be created in any case
-		// SO: here we only create a memory-only user record to carry the attributes
+		// so look for that, and if found, make that the user record we work with
+		// otherwise, we assume joining by domain
+this.log('********** IN copyUser');
+		let invitedUser;
 		if (this.oneUserPerOrg) {
-			this.user = new User(this.user);
-			return;
+this.log('TRyING to FInD InviTED USER...');
+			invitedUser = await this.tryFindInvitedUser();
+this.log('FOUND INVITED USER:', invitedUser ? invitedUser.id : 'NO');
 		}
 
-		const collidingUser = await this.data.users.getById(this.user.id);
-		if (collidingUser) {
-			throw this.errorHandler.error('internal', { info: `found a colliding user matching ID ${this.user.id}` });
+		if (!invitedUser) {
+			const collidingUser = await this.data.users.getById(this.user.id);
+			if (collidingUser) {
+				throw this.errorHandler.error('internal', { info: `found a colliding user matching ID ${this.user.id}` });
+			}
+
+			// create an access token for the copy of the user, access tokens don't translate across environments
+			const { token, minIssuance } = AccessTokenCreator(this, this.user.id);
+			this.user.accessTokens = this.user.accessTokens || {};
+			this.user.accessTokens.web = { token, minIssuance };
+
+			// save the user
+this.log('CREATING USER COPY...');
+			await this.data.users.createDirect(this.user);
 		}
-
-		// create an access token for the copy of the user, access tokens don't translate across environments
-		const { token, minIssuance } = AccessTokenCreator(this, this.user.id);
-		this.user.accessTokens = this.user.accessTokens || {};
-		this.user.accessTokens.web = { token, minIssuance };
-
-		// save the user
-		await this.data.users.createDirect(this.user);
 
 		// fetch again, and proceed with processing the request
-		const userId = this.user.id;
+		const userId = (invitedUser && invitedUser.id) || this.user.id;
 		this.user = await this.data.users.getById(userId);
+this.log('FETCHED USER COPY:', this.user.attributes);
 		if (!this.user) {
 			throw this.errorHandler.error('internal', { info: `cross-environment user ${userId} was not created locally` });
 		}
 		this.request.user = this.user; // make this user the submitter of the request
+	}
+
+	// try to find a record representing an invited user to this company
+	// if found, confirm them and proceed
+	async tryFindInvitedUser () {
+		const company = await this.data.companies.getById(this.request.params.id.toLowerCase());
+		const users = await this.data.users.getByQuery(
+			{
+				searchableEmail: this.user.get('email').toLowerCase()
+			},
+			{
+				hint: UserIndexes.bySearchableEmail
+			}
+		);
+		const invitedUser = users.find(user => {
+			return (
+				!user.get('isRegistered') && 
+				(user.get('teamIds') || []).length === 1 &&
+				user.get('teamIds')[0] === company.get('everyoneTeamId')
+			)
+		});
+		if (invitedUser) {
+this.log('FOUND AN INVITED USER,, CONFIRMING...');
+			await new ConfirmHelper({
+				request: this,
+				user: invitedUser,
+				dontUpdateLastLogin: true,
+				dontConfirmInOtherEnvironments: true
+			}).confirm(data);
+			return invitedUser;
+		}
+this.log('DID NOT FIND AN INVITED USER');
 	}
 
 	// delete the original user, since they joined a company in this environment
