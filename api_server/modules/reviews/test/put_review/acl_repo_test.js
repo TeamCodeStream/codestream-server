@@ -32,6 +32,7 @@ class ACLRepoTest extends AmendReviewTest {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;
 				this.otherTeamStream = response.streams[0];
+				this.otherTeamToken = response.accessToken;
 				callback();
 			},
 			{ token: this.token }
@@ -56,7 +57,7 @@ class ACLRepoTest extends AmendReviewTest {
 						}]
 					}
 				},
-				token: this.token
+				token: this.otherTeamToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
