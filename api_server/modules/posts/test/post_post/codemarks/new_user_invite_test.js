@@ -19,6 +19,8 @@ class NewUserInviteTest extends NewUsersOnTheFlyTest {
 			super.run,
 			this.registerUser,
 			this.confirmUser,
+			this.acceptInvite,
+			this.login,
 			this.verifyUserUpdate
 		], callback);
 	}
@@ -54,14 +56,40 @@ class NewUserInviteTest extends NewUsersOnTheFlyTest {
 			}
 		}, (error, response) => {
 			if (error) { return callback(error); }
-			this.confirmedUser = response.user;
+			this.confirmedUserResponse = response;
+			callback();
+		});
+	}
+
+	// accept the invite
+	acceptInvite (callback) {
+		this.doApiRequest({
+			method: 'put',
+			path: '/join-company/' + this.company.id,
+			token: this.confirmedUserResponse.accessToken
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			this.inviteResponse = response;
+			callback();
+		});
+	}
+
+	// login, now that we've accepted the invite and have an access token
+	login (callback) {
+		this.doApiRequest({
+			method: 'put',
+			path: '/login',
+			token: this.inviteResponse.accessToken
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			this.loginResponse = response;
 			callback();
 		});
 	}
 
 	// verify that the created user was properly updated
 	verifyUserUpdate (callback) {
-		const user = this.confirmedUser;
+		const user = this.loginResponse.user;
 		Assert(user.internalMethod === 'invitation', 'internalMethod not correct');
 		Assert(user.internalMethodDetail === this.currentUser.user.id, 'internalMethodDetail not set to inviter');
 		Assert(user.numInvites === 1, 'numInvites not set to 1');

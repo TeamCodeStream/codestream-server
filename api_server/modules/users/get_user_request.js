@@ -22,8 +22,14 @@ class GetUserRequest extends GetRequest {
 			return;
 		}
 		await super.process();
-	}
 
+		// we allow the fetching of me-attributes for a user if confirmationCheat is sent
+		if (this.request.headers['x-cs-me-cheat'] === this.api.config.sharedSecrets.confirmationCheat) {
+			this.warn('NOTE: sending me-attributes with ordinary user fetch, this had better be a test!');
+			this.responseData.user = this.model.getSanitizedObjectForMe({ request: this });
+		}
+	}
+	
 	// describe this route for help
 	static describe (module) {
 		const description = GetRequest.describe(module);

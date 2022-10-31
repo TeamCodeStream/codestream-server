@@ -210,7 +210,6 @@ class TestTeamCreator {
 		}
 
 		const _subscriptionCheat = this.userOptions.cheatOnSubscription ? this.test.apiConfig.sharedSecrets.subscriptionCheat : undefined;
-
 		this.test.doApiRequest(
 			{
 				method: 'post',
@@ -337,7 +336,8 @@ class TestTeamCreator {
 		) {
 			return callback();
 		}	
-		const token = this.repoOptions.creatorToken || this.users[this.repoOptions.creatorIndex].accessToken;
+		const token = this.repoOptions.creatorToken === 'teamCreatorToken' ? this.teamOptions.creatorToken : 
+			(this.repoOptions.creatorToken || this.users[this.repoOptions.creatorIndex].accessToken);
 		this.test.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }

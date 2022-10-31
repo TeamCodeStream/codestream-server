@@ -44,6 +44,7 @@ class NewUsersMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Commo
 		// do the update, this should trigger a message to the
 		// team channel with the added users
 		this.updatedAt = Date.now();
+		const expectedVersion = this.oneUserPerOrg ? 5 : 4;
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -71,11 +72,11 @@ class NewUsersMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Commo
 							foreignMemberIds: userIds
 						},
 						$set: {
-							version: 4
+							version: expectedVersion
 						},
 						$version: {
-							before: 3,
-							after: 4
+							before: expectedVersion - 1,
+							after: expectedVersion
 						}
 					}
 				};

@@ -13,7 +13,7 @@ class RelatedCodemarksDifferentTeamTest extends RelatedCodemarksTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1010',
-			reason: 'all related codemarks must be for the same team'
+			reason: 'user does not have access to all related codemark'
 		};
 	}
 
@@ -33,6 +33,7 @@ class RelatedCodemarksDifferentTeamTest extends RelatedCodemarksTest {
 		this.companyFactory.createRandomCompany((error, response) => {
 			if (error) { return callback(error); }
 			this.otherTeam = response.team;
+			this.otherTeamToken = response.accessToken;
 			callback();
 		}, { token: this.users[1].accessToken });
 	}
@@ -46,7 +47,7 @@ class RelatedCodemarksDifferentTeamTest extends RelatedCodemarksTest {
 					teamId: this.otherTeam.id,
 					email: this.currentUser.user.email
 				},
-				token: this.users[1].accessToken
+				token: this.otherTeamToken
 			},
 			callback
 		);
@@ -65,7 +66,7 @@ class RelatedCodemarksDifferentTeamTest extends RelatedCodemarksTest {
 				method: 'post',
 				path: '/codemarks',
 				data: codemarkData,
-				token: this.users[1].accessToken
+				token: this.otherTeamToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

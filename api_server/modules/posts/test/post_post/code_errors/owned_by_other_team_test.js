@@ -30,6 +30,7 @@ class OwnedByOtherTeamTest extends CodeErrorTest {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;
 				this.otherTeamStream = response.streams[0];
+				this.otherTeamToken = response.accessToken;
 				callback();
 			},
 			{
@@ -51,7 +52,7 @@ class OwnedByOtherTeamTest extends CodeErrorTest {
 				callback();
 			}, 
 			{
-				token: this.users[1].accessToken,
+				token: this.otherTeamToken,
 				streamId: this.otherTeamStream.id,
 				wantCodeError: true
 			}

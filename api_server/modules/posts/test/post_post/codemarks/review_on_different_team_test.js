@@ -11,8 +11,7 @@ class ReviewOnDifferentTeamTest extends AttachToReviewTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1011',
-			reason: 'review does not belong to the team that would own the codemark'
+			code: 'RAPI-1011'
 		};
 	}
 
@@ -26,19 +25,15 @@ class ReviewOnDifferentTeamTest extends AttachToReviewTest {
 	createOtherTeam (callback) {
 		// the current user will create their own team, and since they are not a member 
 		// of the team that owns the review, the codemark creation should fail
-		this.doApiRequest(
-			{
-				method: 'post',
-				path: '/companies',
-				data: {
-					name: 'private'
-				},
-				token: this.token
-			},
+		this.companyFactory.createRandomCompany(
 			(error, response) => {
+				if (error) { return callback(error); }
 				this.data.streamId = response.streams[0].id;
 				delete this.data.codemark.markers;	// ignore markers on this request, since we don't have a file stream in this team for them to go into
 				callback();
+			},
+			{
+				token: this.token
 			}
 		);
 	}

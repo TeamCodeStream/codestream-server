@@ -14,7 +14,7 @@ class NewUserMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) 
 	}
 
 	get description () {
-		return 'when an existing registered user is added to a team while creating a post with a codemark, the user should get a message indicating they have been added to the team';
+		return 'when an existing registered user is added to a team while creating a post with a codemark, the user should get a message with eligibleJoinCompanies updated, indicating an invite to the team';
 	}
 
 	// make the data that triggers the message to be received
@@ -111,37 +111,27 @@ class NewUserMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) 
 		);
 	}
 
-	validateMessage (inMessage) {
-		Assert(inMessage.message.user.$set.modifiedAt >= this.postCreatedAfter, 'modifiedAt not changed');
-		const message = inMessage.message;
-		const expectedUserOp = {
-			_id: this.addedUser.user.id,	// DEPRECATE ME
-			id: this.addedUser.user.id,
-			$addToSet: {
-				teamIds: this.team.id,
-				companyIds: this.company.id
-			},
-			$set: {
-				joinMethod: 'Added to Team',
-				primaryReferral: 'internal',
-				originTeamId: this.team.id,
-				modifiedAt: inMessage.message.user.$set.modifiedAt,
-				version: 3
-			},
-			$version: {
-				before: 2,
-				after: 3
+	validateMessage (message) {
+		this.expectedEligibleJoinCompanies = [{
+			byInvite: true,
+			id: this.company.id,
+			memberCount: 2,
+			name: this.company.name
+		}];
+
+		this.message = {
+			user: {
+				id: this.addedUser.user.id,
+				$set: {
+					eligibleJoinCompanies: this.expectedEligibleJoinCompanies
+				},
+				$version: {
+					before: '*'
+				}
 			}
 		};
-		Assert.deepEqual(message.user, expectedUserOp, 'user op not correct');
-		Assert.equal(message.company.id, this.company.id, 'company ID not correct');
-		Assert.equal(message.team.id, this.team.id, 'team ID not correct');
-		const expectedUserIds = this.team.memberIds;
-		expectedUserIds.sort();
-		const userIds = message.users.map(u => u.id);
-		userIds.sort();
-		Assert.deepEqual(userIds, expectedUserIds, 'user IDs not correct');
-		return true;
+
+		return super.validateMessage(message);
 	}
 }
 

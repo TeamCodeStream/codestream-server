@@ -50,10 +50,13 @@ class UserInviter {
 		// first check for an existing user
 		// we use the existing user record only if it is on the team already
 		let existingUser = await this.getExistingUser(userData);
-		let wasRegisteredOnTeam = (
+		let wasOnTeam = (
 			existingUser &&
-			existingUser.get('isRegistered') &&
 			existingUser.hasTeam(this.team.id)
+		);
+		let wasRegisteredOnTeam = (
+			wasOnTeam &&
+			existingUser.get('isRegistered')
 		);
 		let isReinvite = !!existingUser;
 		if (
@@ -86,6 +89,7 @@ class UserInviter {
 		this.invitedUsers.push({
 			user: createdUser,
 			isReinvite,
+			wasOnTeam,
 			wasRegisteredOnTeam
 		});
 	}
