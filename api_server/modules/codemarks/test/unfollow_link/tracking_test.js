@@ -73,6 +73,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				distinct_id: this.currentUser.user.id,
 				Change: 'Codemark Unfollowed',
 				'Source of Change': 'Email link',
+				'Last Invite Type': 'invitation',
 				company: {
 					id: this.company.id,
 					name: this.company.name,
