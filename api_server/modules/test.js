@@ -26,4 +26,5 @@ describe('modules', () => {
 	require('./inbound_emails/test/test.js');
 	require('./marker_locations/test/test.js');
 	require('./newrelic_comments/test/test.js');
+	require('./environment_manager/test/test.js');
 });
