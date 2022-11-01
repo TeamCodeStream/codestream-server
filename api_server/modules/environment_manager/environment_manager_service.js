@@ -208,7 +208,7 @@ class EnvironmentManagerService {
 	}
 	
 	// publish eligible join companies for an email in the passed environment
-	async publishEligigleJoinCompaniesInEnvironment (host, email) {
+	async publishEligibleJoinCompaniesInEnvironment (host, email) {
 		const url = `${host.publicApiUrl}/xenv/publish-ejc`;
 		this.api.log(`Publishing eligible join companies for ${email} in environment ${host.name}:${host.publicApiUrl}...`);
 		const body = { email };
