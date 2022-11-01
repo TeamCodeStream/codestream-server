@@ -5,6 +5,7 @@
 const PutRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/put_request');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const TeamSubscriptionGranter = require('./team_subscription_granter');
+const EligibleJoinCompaniesPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/eligible_join_companies_publisher');
 
 class PutTeamRequest extends PutRequest {
 
@@ -87,7 +88,21 @@ class PutTeamRequest extends PutRequest {
 			return;
 		}
 		await Promise.all(this.transforms.userUpdates.map(async userUpdate => {
-			await this.publishRemovalToUser(userUpdate);
+			const user = this.transforms.removedUsers.find(user => user.id === userUpdate.id);
+			if (!user) { return; } // shouldn't happen
+			if (user.get('isRegistered')) {
+				// for registered users, publish their removal
+				await this.publishRemovalToUser(userUpdate);
+			} else {
+				// for unregistered users, these are removed invites,
+				// so publish eligibleJoinCompanies updates to any registered user matching the email
+				const email = this.transforms.removedUserEmails[user.id];
+				if (!email) { return; } // shouldn't happen
+				await new EligibleJoinCompaniesPublisher({
+					request: this,
+					broadcaster: this.api.services.broadcaster
+				}).publishEligibleJoinCompanies(email);
+			}
 		}));
 	}
 

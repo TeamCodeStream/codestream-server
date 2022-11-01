@@ -11,12 +11,17 @@ class CommonInit {
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 4;
 		BoundAsync.series(this, [
+			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.makeAdmins,	// make other users into admins, as needed
 			this.makeTeamData	// make the data to be used during the update
 		], callback);
 	}
 	
+	setTestOptions (callback) {
+		return callback();
+	}
+
 	// make other users into admins for the team, if desired for the test
 	makeAdmins (callback) {
 		const adminIds = [];

@@ -163,6 +163,7 @@ class TeamUpdater extends ModelUpdater {
 			return;
 		}
 		this.transforms.userUpdates = [];
+		this.transforms.removedUserEmails = {};
 		await Promise.all(this.transforms.removedUsers.map(async user => {
 			await this.removeUserFromTeam(user);
 		}));
@@ -170,6 +171,7 @@ class TeamUpdater extends ModelUpdater {
 
 	// for a user being removed from the team, update their teamIds array
 	async removeUserFromTeam (user) {
+		const originalEmail = user.get('email');
 		const op = {
 			$pull: {
 				teamIds: this.team.id,
@@ -202,6 +204,7 @@ class TeamUpdater extends ModelUpdater {
 			id: user.id
 		}).save(op);
 		this.transforms.userUpdates.push(updateOp);
+		this.transforms.removedUserEmails[user.id] = originalEmail;
 	}
 }
 
