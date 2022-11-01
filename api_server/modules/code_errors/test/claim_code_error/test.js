@@ -11,8 +11,8 @@ const AlreadyClaimedByTeamTest = require('./already_claimed_by_team_test');
 const ClaimedByOtherTeamTest = require('./claimed_by_other_team_test');
 const ChildPostsClaimedTest = require('./child_posts_claimed_test');
 const ForeignUsersTest = require('./foreign_users_test');
-const NotAddedAsForeignUsersTest = require('./not_added_as_foreign_users_test');
-const ExternalForeignUsersTest = require('./external_foreign_users_test');
+//const NotAddedAsForeignUsersTest = require('./not_added_as_foreign_users_test');
+//const ExternalForeignUsersTest = require('./external_foreign_users_test');
 const FetchCodeErrorTest = require('./fetch_code_error_test');
 const FetchStreamTest = require('./fetch_stream_test');
 const MessageTest = require('./message_test');
@@ -32,8 +32,9 @@ class ClaimCodeErrorRequestTester {
 		new ClaimedByOtherTeamTest().test();
 		new ChildPostsClaimedTest().test();
 		new ForeignUsersTest().test();
-		new NotAddedAsForeignUsersTest().test();
-		new ExternalForeignUsersTest().test();
+		// NOTE - this functionality doesn't work anymore, as of one-user-per-org
+		//new NotAddedAsForeignUsersTest().test();
+		//new ExternalForeignUsersTest().test();
 		new FetchCodeErrorTest().test();
 		new FetchStreamTest().test();
 		new MessageTest().test();
