@@ -18,7 +18,8 @@ class JoinCompanyRequest extends RestfulRequest {
 
 	// authorize the request for the current user©29
 	async authorize () {
-		// NOTE: this call to be completely deprecated one we fully move to ONE_USER_PER_ORG
+		// this endpoint deprecated in favor of /join-company/:id per one-user-per-org
+		throw this.errorHandler.error('deprecated');
 		
 		// get the company
 		this.company = await this.data.companies.getById(this.request.params.id.toLowerCase());

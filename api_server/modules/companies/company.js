@@ -32,7 +32,6 @@ class Company extends CodeStreamModel {
 				hint: { _id: 1 }
 			}
 		);
-		return members.length;
 	}
 }
 

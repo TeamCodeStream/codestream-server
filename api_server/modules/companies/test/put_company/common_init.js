@@ -67,7 +67,7 @@ class CommonInit {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = response;
+				this.message = this.message || response;
 				delete this.data;	// don't need this anymore
 				callback();
 			}
