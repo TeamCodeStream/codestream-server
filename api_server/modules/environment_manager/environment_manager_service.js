@@ -199,6 +199,22 @@ class EnvironmentManagerService {
 		}
 	}
 	
+	// publish eligible join companies for an email across environments
+	async publishEligibleJoinCompaniesInEnvironments (email) {
+		const hosts = this.getForeignEnvironmentHosts();
+		await Promise.all(hosts.map(async host => {
+			return await this.publishEligibleJoinCompaniesInEnvironment(host, email);
+		}));
+	}
+	
+	// publish eligible join companies for an email in the passed environment
+	async publishEligigleJoinCompaniesInEnvironment (host, email) {
+		const url = `${host.publicApiUrl}/xenv/publish-ejc`;
+		this.api.log(`Publishing eligible join companies for ${email} in environment ${host.name}:${host.publicApiUrl}...`);
+		const body = { email };
+		return this.fetchFromUrl(url, { method: 'post', body });
+	}
+
 	// fetch from the environment host, given a url
 	async fetchFromUrl (url, options = {}) {
 		let response;

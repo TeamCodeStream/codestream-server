@@ -50,6 +50,11 @@ const ROUTES = [
 		method: 'delete',
 		path: '/xenv/delete-user/:id',
 		requestClass: require('./delete_user_request')
+	},
+	{
+		method: 'post',
+		path: '/xenv/publish-ejc',
+		requestClass: require('./publish_eligible_join_companies_request')
 	}
 ];
 
