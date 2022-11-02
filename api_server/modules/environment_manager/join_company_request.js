@@ -137,7 +137,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 				user: invitedUser,
 				dontUpdateLastLogin: true,
 				dontConfirmInOtherEnvironments: true
-			}).confirm(data);
+			}).confirm({});
 			return invitedUser;
 		}
 	}
