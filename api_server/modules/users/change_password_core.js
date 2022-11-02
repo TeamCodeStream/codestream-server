@@ -93,7 +93,7 @@ class ChangePasswordCore {
 			}
 		});
 		accessTokens.web = {
-			token: tokenInfo.accessToken,
+			token: tokenInfo.token,
 			minIssuance: tokenInfo.minIssuance
 		};
 		const op = {
