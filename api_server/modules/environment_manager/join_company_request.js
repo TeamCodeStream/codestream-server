@@ -123,13 +123,14 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 				hint: UserIndexes.bySearchableEmail
 			}
 		);
-		const invitedUser = users.find(user => {
+		return users.find(user => {
 			return (
 				!user.get('isRegistered') && 
 				(user.get('teamIds') || []).length === 1 &&
 				user.get('teamIds')[0] === company.get('everyoneTeamId')
 			)
 		});
+		/*
 		if (invitedUser) {
 			await new ConfirmHelper({
 				request: this,
@@ -140,6 +141,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 			}).confirm({});
 			return invitedUser;
 		}
+		*/
 	}
 
 	// delete the original user, since they joined a company in this environment

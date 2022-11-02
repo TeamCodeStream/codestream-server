@@ -60,7 +60,7 @@ this.log('FOUND:', matchingUsers.map(u => u.id));
 
 		this.invitedUser = matchingUsers.find(user => {
 			const teamIds = user.get('teamIds') || [];
-this.log(`user ${user.id} deactivated=${user.get('deactivated')} isRegistered=${user.get('isRegistered')}} teamIds=${teamIds}`);
+this.log(`user ${user.id} deactivated=${user.get('deactivated')} isRegistered=${user.get('isRegistered')} teamIds=${teamIds}`);
 			return (
 				!user.get('deactivated') &&
 				!user.get('isRegistered') &&
