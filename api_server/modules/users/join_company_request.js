@@ -47,6 +47,7 @@ class JoinCompanyRequest extends RestfulRequest {
 		}
 
 		// get the user record that corresponds to this user's invite
+this.log(`Finding users matching ${this.user.get('email').toLowerCase()}`);
 		const matchingUsers = await this.data.users.getByQuery(
 			{
 				searchableEmail: this.user.get('email').toLowerCase()
@@ -55,9 +56,11 @@ class JoinCompanyRequest extends RestfulRequest {
 				hint: Indexes.bySearchableEmail
 			}
 		);
+this.log('FOUND:', matchingUsers.map(u => u.id));
 
 		this.invitedUser = matchingUsers.find(user => {
 			const teamIds = user.get('teamIds') || [];
+this.log(`user ${user.id} deactivated=${user.get('deactivated')} isRegistered=${user.get('isRegistered')}} teamIds=${teamIds}`);
 			return (
 				!user.get('deactivated') &&
 				!user.get('isRegistered') &&
@@ -65,6 +68,8 @@ class JoinCompanyRequest extends RestfulRequest {
 				teamIds[0] === this.team.id
 			);
 		});
+this.log('INVITED USER?', this.invitedUser ? this.invitedUser.id : 'NOPE');
+
 		if (this.invitedUser) {
 			return;
 		}

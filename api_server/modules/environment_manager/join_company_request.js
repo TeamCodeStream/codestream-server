@@ -6,7 +6,6 @@ const JoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server
 const OneUserPerOrgJoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/join_company_request');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const AccessTokenCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/access_token_creator');
-const User = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 const ConfirmHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/confirm_helper');
 
@@ -135,6 +134,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 			await new ConfirmHelper({
 				request: this,
 				user: invitedUser,
+				notRealLogin: true,
 				dontUpdateLastLogin: true,
 				dontConfirmInOtherEnvironments: true
 			}).confirm({});
