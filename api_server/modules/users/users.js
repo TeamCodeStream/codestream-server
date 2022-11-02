@@ -236,8 +236,17 @@ class Users extends Restful {
 	middlewares () {
 		return async (request, response, next) => {
 
+			// look for global maintenance mode set
+			const globalMaintenanceMode = await this.api.data.globals.getOneByQuery(
+				{ tag: 'inMaintenanceMode' }, 
+				{ overrideHintRequired: true }
+			);
+
 			// for users in "maintenance mode", set header and return error
-			if (request.user && request.user.get('inMaintenanceMode')) {
+			if (
+				(globalMaintenanceMode && globalMaintenanceMode.enabled) || 
+				(request.user && request.user.get('inMaintenanceMode'))
+			) {
 				response.set('X-CS-API-Maintenance-Mode', 1);
 				request.abortWith = {
 					status: 403,
