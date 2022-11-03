@@ -38,6 +38,13 @@ class FetchTest extends ProviderSetTokenTest {
 		this.expectedUser.joinMethod = 'Created Team';
 		this.expectedUser.originTeamId = this.team.id;
 		this.expectedUser.primaryReferral = 'external';
+		this.expectedUser.eligibleJoinCompanies = [{
+			id: this.company.id,
+			name: this.company.name,
+			memberCount: 2,
+			byInvite: true,
+			accessToken: this.currentUser.accessToken
+		}];
 		Assert.deepEqual(data.user, this.expectedUser, 'fetched user does not match');
 	}
 }
