@@ -2,6 +2,7 @@
 
 const FetchUserTest = require('./fetch_user_test');
 const Assert = require('assert');
+const ObjectId = require('mongodb').ObjectId;
 
 class NotFoundTest extends FetchUserTest {
 
@@ -9,8 +10,10 @@ class NotFoundTest extends FetchUserTest {
 		return 'should return an empty result when trying to fetch a user that doesn\'t exist';
 	}
 
-	getExpectedFields () {
-		return null;
+	getExpectedError () {
+		return {
+			code: 'RAPI-1003'
+		};
 	}
 
 	// before the test runs...
@@ -19,13 +22,9 @@ class NotFoundTest extends FetchUserTest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			const randomEmail = this.userFactory.randomEmail();
-			this.path = '/xenv/fetch-user?email=' + encodeURIComponent(randomEmail);
+			this.path = '/xenv/fetch-user?id=' + ObjectId();
 			callback();
 		});
-	}
-
-	validateResponse (data) {
-		Assert.deepStrictEqual(data, {}, 'returned data was not empty object');
 	}
 }
 

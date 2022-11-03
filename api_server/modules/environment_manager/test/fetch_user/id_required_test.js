@@ -1,8 +1,8 @@
 'use strict';
 
-const FetchByIdTest = require('./fetch_by_id_test');
+const FetchUserTest = require('./fetch_user_test');
 
-class IdRequiredUnderOneUserPerOrgTest extends FetchByIdTest {
+class IdRequiredTest extends FetchUserTest {
 
 	constructor (options) {
 		super(options);
@@ -31,4 +31,4 @@ class IdRequiredUnderOneUserPerOrgTest extends FetchByIdTest {
 	}
 }
 
-module.exports = IdRequiredUnderOneUserPerOrgTest;
+module.exports = IdRequiredTest;

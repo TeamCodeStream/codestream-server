@@ -39,8 +39,6 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 			this.expectedEligibleJoinCompanies.push({
 				id: this.company.id,
 				name: this.company.name,
-				domainJoining: [],
-				codeHostJoining: [],
 				byInvite: true,
 				memberCount: 2,
 				accessToken: this.currentUser.accessToken
@@ -182,8 +180,6 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 				this.expectedEligibleJoinCompanies.push({
 					id: company.id,
 					name: company.name,
-					domainJoining: [],
-					codeHostJoining: [],
 					byInvite: true,
 					memberCount: 1
 				});

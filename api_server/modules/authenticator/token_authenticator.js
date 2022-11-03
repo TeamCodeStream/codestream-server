@@ -102,7 +102,7 @@ class TokenAuthenticator {
 		catch (error) {
 			throw this.errorHandler.error('internal', { reason: error });
 		}
-		if (!user) {
+		if (!user || user.deactivated) {
 			throw this.errorHandler.error('userNotFound');
 		}
 		if (this.userClass) {

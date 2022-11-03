@@ -3,6 +3,7 @@
 
 'use strict';
 
+/*
 const ChangeEmailTest = require('./change_email_test');
 const FetchTest = require('./fetch_test');
 const NotFoundTest = require('./not_found_test');
@@ -12,11 +13,13 @@ const NoSecretTest = require('./no_secret_test');
 const IncorrectSecretTest = require('./incorrect_secret_test');
 const UserAlreadyExistsTest = require('./user_already_exists_test');
 const MessageToTeamTest = require('./message_to_team_test');
-const DeprecatedInOneUserPerOrgTest = require('./deprecated_in_one_user_per_org_test');
+*/
+const DeprecatedTest = require('./deprecated_test');
 
 class ChangeEmailRequestTester {
 
 	test () {
+		/*
 		new ChangeEmailTest().test();
 		new FetchTest().test();
 		new NotFoundTest().test();
@@ -26,7 +29,8 @@ class ChangeEmailRequestTester {
 		new IncorrectSecretTest().test();
 		new UserAlreadyExistsTest().test();
 		new MessageToTeamTest().test();
-		new DeprecatedInOneUserPerOrgTest().test();
+		*/
+		new DeprecatedTest().test();
 	}
 }
 

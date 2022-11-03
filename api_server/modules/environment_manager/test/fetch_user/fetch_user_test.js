@@ -19,7 +19,7 @@ class FetchUserTest extends CodeStreamAPITest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// we'll fetch "ourselves", either by literal ID, or by "me" in the path
-			this.path = '/xenv/fetch-user?email=' + encodeURIComponent(this.currentUser.user.email);
+			this.path = '/xenv/fetch-user?id=' + encodeURIComponent(this.currentUser.user.id);
 			this.apiRequestOptions = {
 				headers: {
 					'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth

@@ -2,16 +2,16 @@
 
 const EnsureUserTest = require('./ensure_user_test');
 
-class ConfirmUnregisteredUserTest extends EnsureUserTest {
+class ExistingUnregisteredUserOnTeamTest extends EnsureUserTest {
 
 	constructor (options) {
 		super(options);
 		this.userOptions.numUnregistered = 1;
-		this.shouldBeCurrentUser = true;
+		this.teamOptions.creatorIndex = 0;
 	}
 
 	get description () {
-		return 'should confirm and fetch the existing user, matched by email, when ensuring a user across environments and the user is initially unregistered and teamless';
+		return 'should create a new user when ensuring a user across environments and the user exists and is unregistered, but on a team';
 	}
 
 	// before the test runs...
@@ -23,7 +23,6 @@ class ConfirmUnregisteredUserTest extends EnsureUserTest {
 			callback();
 		});
 	}
-
 }
 
-module.exports = ConfirmUnregisteredUserTest;
+module.exports = ExistingUnregisteredUserOnTeamTest;
