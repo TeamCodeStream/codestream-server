@@ -15,7 +15,6 @@ class EnsureUserRequest extends XEnvRequest {
 		await this.requireAndAllow();
 		await this.getExistingUser();
 		this.responseData = await this.createUser();
-this.log('EnsureUserREquest returning:' + JSON.stringify(this.responseData, 0, 5));
 	}
 
 	// require certain parameters, and discard unknown parameters

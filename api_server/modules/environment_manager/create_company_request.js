@@ -35,12 +35,11 @@ class CreateCompanyRequest extends RestfulRequest {
 	async ensureUser () {
 		const { serverUrl } = this.request.body;
 		this.ensureUserResponse = await this.api.services.environmentManager.ensureUserOnEnvironmentHost(serverUrl, this.request.user.attributes);
-this.log('ensureUserResponse:' + JSON.stringify(this.ensureUserResponse, 0 , 5));
 	}
 
 	// create the company on the environment host, impersonating the user we just ensured
 	async createCompany () {
-		const token = (((this.ensureUserResponse.user || {}).accessTokens || {}).web || {}).token;
+		const token = this.ensureUserResponse.accessToken;
 		if (!token) {
 			throw this.errorHandler.error('createAuth', { reason: 'cross-environment access token not received' });
 		}
