@@ -10,7 +10,9 @@ class UserCompaniesRequest extends XEnvRequest {
 
 	// process the request...
 	async process () {
-
+		// this endpoint is deprecated as of one-user-per-org
+		throw this.errorHandler.error('deprecated'); 
+		
 		await this.requireAllowParameters('query', {
 			required: {
 				string: ['email'],
