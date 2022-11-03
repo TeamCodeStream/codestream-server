@@ -182,11 +182,11 @@ class TeamUpdater extends ModelUpdater {
 			}
 		};
 
-		// unregistered users who are left with no team are simply deactivated
-		if (
-			!user.get('isRegistered') && 
+		// under one-user-per-org, the user record is always deactivated, even for registered users
+		if (true
+			/*!user.get('isRegistered') && 
 			user.get('teamIds').length === 1 &&
-			user.get('teamIds')[0] === this.team.id
+			user.get('teamIds')[0] === this.team.id*/
 		) {
 			const emailParts = user.get('email').split('@');
 			const now = Date.now();
