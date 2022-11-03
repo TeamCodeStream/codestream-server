@@ -37,7 +37,7 @@ class LoginHelper {
 
 		await awaitParallel([
 			this.getInitialData,
-			this.getForeignCompanies,
+			//this.getForeignCompanies, // doesn't apply anymore under one-user-per-org
 			this.generateAccessToken
 		], this);
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
@@ -100,6 +100,7 @@ class LoginHelper {
 		this.initialData = await this.initialDataFetcher.fetchInitialData();
 	}
 
+	/*
 	// get any companies the user is a member of (by email) in foreign environments,
 	// to display in the organization switcher
 	async getForeignCompanies () {
@@ -115,6 +116,7 @@ class LoginHelper {
 			return company.company;
 		});
 	}
+	*/
 
 	// generate an access token for this login if needed
 	async generateAccessToken (force) {
