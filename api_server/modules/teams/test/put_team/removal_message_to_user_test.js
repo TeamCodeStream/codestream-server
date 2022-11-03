@@ -51,7 +51,9 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 						companyIds: this.team.companyId
 					},
 					$set: {
-						version: expectedVersion
+						version: expectedVersion,
+						deactivated: true,
+						email: 'placeholder'
 					},
 					$version: {
 						before: expectedVersion - 1,
@@ -66,6 +68,8 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 	validateMessage (message) {
 		Assert(message.message.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		Assert(message.message.user.$set.email.match(/.*-deactivated[0-9]+@.*/, 'email not a deactivated labelled email'));
+		this.message.user.$set.email = message.message.user.$set.email;
 		return super.validateMessage(message);
 	}
 }

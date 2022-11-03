@@ -110,6 +110,7 @@ class PutTeamRequest extends PutRequest {
 	async publishRemovalToUser (userUpdate) {
 		const channel = 'user-' + userUpdate.id;
 		const message = Object.assign({}, { user: userUpdate }, { requestId: this.request.id });
+		delete message.user.$set.searchableEmail;
 		try {
 			await this.api.services.broadcaster.publish(
 				message,

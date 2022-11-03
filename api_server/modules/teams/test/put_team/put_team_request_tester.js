@@ -27,7 +27,8 @@ const AdminRemoveAdminsTest = require('./admin_remove_admins_test');
 const AdminRemoveUsersTest = require('./admin_remove_users_test');
 const UsersNotFound = require('./users_not_found_test');
 const UsersNotOnTeamTest = require('./users_not_on_team_test');
-const UsersRemovedTest = require('./users_removed_test');
+const UserDeactivated = require('./user_deactivated_test');
+const UserDisabledTest = require('./user_disabled_test');
 const TeamSubscriptionRevokedTest = require('./team_subscription_revoked_test');
 //const NoMoreTeamMessagesTest = require('./no_more_team_messages_test');
 const RemovalMessageToUserTest = require('./removal_message_to_user_test');
@@ -70,7 +71,8 @@ class PutTeamRequestTester {
 		new AdminRemoveUsersTest().test();
 		new UsersNotFound().test();
 		new UsersNotOnTeamTest().test();
-		new UsersRemovedTest().test();
+		new UserDeactivated().test();
+		new UserDisabledTest().test();
 		new TeamSubscriptionRevokedTest().test();
 		// new NoMoreTeamMessagesTest().test(); // Disabled pending resolution of https://support.pubnub.com/support/tickets/7939 (>sigh<)
 		new RemovalMessageToUserTest().test();

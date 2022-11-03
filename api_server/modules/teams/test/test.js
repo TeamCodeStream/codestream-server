@@ -18,10 +18,13 @@ describe('team requests', function() {
 
 	this.timeout(20000);
 
+	/*
 	describe('GET /teams/:id', teamsRequestTester.getTeamTest);
 	describe('GET /teams', teamsRequestTester.getTeamsTest);
 	describe('POST /teams', teamsRequestTester.postTeamTest);
+	*/
 	describe('PUT /teams/:id', teamsRequestTester.putTeamTest);
+	/*
 	describe('PUT /team-settings/:id', teamsRequestTester.putTeamSettingsTest);
 	describe('POST /team-tags/:id', CreateTagRequestTester.test);
 	describe('PUT /team-tags/:teamId/:id', UpdateTagRequestTester.test);
@@ -29,4 +32,5 @@ describe('team requests', function() {
 	describe('POST /add-blame-map/:teamId', AddBlameMapRequestTester.test);
 	describe('PUT /delete-blame-map/:teamId', DeleteBlameMapRequestTester.test);
 	describe('GET /no-auth/teams/:teamId/auth-settings', GetAuthSettingsRequestTester.test);
+	*/
 });
