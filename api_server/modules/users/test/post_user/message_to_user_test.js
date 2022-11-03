@@ -92,6 +92,9 @@ class MessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				id: user.id,
 				$set: {
 					eligibleJoinCompanies: this.expectedEligibleJoinCompanies
+				},
+				$version: {
+					before: '*'
 				}
 			}
 		};

@@ -3,7 +3,7 @@
 const JoinCompanyTest = require('./join_company_test');
 const Assert = require('assert');
 
-class OriginalUserNotDeletedtest extends JoinCompanyTest {
+class OriginalUserNotDeletedTest extends JoinCompanyTest {
 
 	get description () {
 		const by = this.byDomainJoining ? 'domain joining' : 'invite';
@@ -39,4 +39,4 @@ class OriginalUserNotDeletedtest extends JoinCompanyTest {
 	}
 }
 
-module.exports = OriginalUserNotDeletedtest;
+module.exports = OriginalUserNotDeletedTest;

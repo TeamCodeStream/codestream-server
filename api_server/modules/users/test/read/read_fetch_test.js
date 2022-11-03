@@ -49,7 +49,7 @@ class ReadFetchTest extends ReadTest {
 	validateSanitized (user, fields) {
 		// the base-clase validation doesn't know to avoid looking for me-only attributes,
 		// so remove those from the fields we'll be checking against
-		fields = fields || UserTestConstants.UNSANITIZED_ATTRIBUTES;
+		fields = fields || [...UserTestConstants.UNSANITIZED_ATTRIBUTES];
 		let meAttributes = Object.keys(UserAttributes).filter(attribute => UserAttributes[attribute].forMe);
 		meAttributes.forEach(attribute => {
 			let index = fields.indexOf(attribute);

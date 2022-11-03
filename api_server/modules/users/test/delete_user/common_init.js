@@ -5,6 +5,7 @@
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
+const UserTestConstants = require('../user_test_constants');
 
 class CommonInit {
 
@@ -42,13 +43,10 @@ class CommonInit {
 			}
 		};
 		this.expectedUser = DeepClone(this.user);
-		Object.assign(this.expectedUser, this.expectedData.user.$set);
-		Object.assign(this.expectedUser, {
-			lastReads: {},
-			preferences: {
-				acceptedTOS: true
-			}
+		UserTestConstants.UNSANITIZED_ATTRIBUTES.forEach(attribute => {
+			delete this.expectedUser[attribute]; // deletes any me-attributes
 		});
+		Object.assign(this.expectedUser, this.expectedData.user.$set);
 		this.modifiedAfter = Date.now();
 		callback();
 	}

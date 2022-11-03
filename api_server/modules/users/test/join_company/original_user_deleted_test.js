@@ -17,12 +17,12 @@ class OriginalUserDeletedtest extends JoinCompanyTest {
 			this.doApiRequest(
 				{
 					method: 'get',
-					path: '/users/' + this.currentUser.user.id,
+					path: '/users/me',
 					token: this.currentUser.accessToken
 				},
 				(error, response) => {
-					if (error) { return callback(error); }
-					Assert(response.user.deactivated, 'original user was not deactivated');
+					Assert(error, 'attempt to fetch me should return an error');
+					Assert.strictEqual(response.code, 'AUTH-1004', 'user should not be authorized to fetch their deactivated record');
 					callback();
 				}
 			);
