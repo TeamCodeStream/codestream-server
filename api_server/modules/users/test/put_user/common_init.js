@@ -27,6 +27,7 @@ class CommonInit {
 			byInvite: true,
 			id: this.company.id,
 			name: this.company.name,
+			teamId: this.team.id,
 			memberCount: 2
 		}];
 		this.path = '/users/' + (this.id || this.currentUser.user.id);

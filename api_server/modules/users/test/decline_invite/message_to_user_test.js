@@ -29,6 +29,7 @@ class MessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					accessToken: this.currentUser.accessToken,
 					byInvite: true,
 					id: response.company.id,
+					teamId: response.company.everyoneTeamId,
 					memberCount: 1,
 					name: response.company.name
 				}];

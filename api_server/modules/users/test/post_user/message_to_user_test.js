@@ -38,7 +38,8 @@ class MessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					byInvite: true,
 					id: response.company.id,
 					memberCount: 1,
-					name: response.company.name
+					name: response.company.name,
+					teamId: response.company.everyoneTeamId
 				}];
 				callback();
 			},
@@ -83,7 +84,8 @@ class MessageToUserTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			byInvite: true,
 			id: this.company.id,
 			memberCount: 2,
-			name: this.company.name
+			name: this.company.name,
+			teamId: this.team.id
 		});
 
 		const user = this.users[this.existingRegisteredUserIndex].user;

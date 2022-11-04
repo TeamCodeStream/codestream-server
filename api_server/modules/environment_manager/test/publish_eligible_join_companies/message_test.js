@@ -23,6 +23,7 @@ class MessageTest extends CodeStreamMessageTest {
 					eligibleJoinCompanies: [{
 						id: this.company.id,
 						name: this.company.name,
+						teamId: this.team.id,
 						memberCount: 2,
 						byInvite: true,
 						accessToken: this.currentUser.accessToken

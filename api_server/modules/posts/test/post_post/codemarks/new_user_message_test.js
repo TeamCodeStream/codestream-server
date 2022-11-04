@@ -116,7 +116,8 @@ class NewUserMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) 
 			byInvite: true,
 			id: this.company.id,
 			memberCount: 2,
-			name: this.company.name
+			name: this.company.name,
+			teamId: this.company.everyoneTeamId
 		}];
 
 		this.message = {

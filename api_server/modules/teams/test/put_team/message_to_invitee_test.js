@@ -82,6 +82,7 @@ class MessageToInviteeTest extends Aggregation(CodeStreamMessageTest, CommonInit
 						{
 							id: createdCompany.id,
 							name: createdCompany.name,
+							teamId: createdCompany.everyoneTeamId,
 							memberCount: 1,
 							byInvite: true,
 							accessToken: this.users[this.listeningUserIndex].accessToken

@@ -41,6 +41,7 @@ class FetchTest extends ProviderInfoTest {
 		this.expectedUser.eligibleJoinCompanies = [{
 			id: this.company.id,
 			name: this.company.name,
+			teamId: this.company.everyoneTeamId,
 			memberCount: 2,
 			byInvite: true,
 			accessToken: this.currentUser.accessToken

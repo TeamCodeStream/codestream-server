@@ -39,6 +39,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 			this.expectedEligibleJoinCompanies.push({
 				id: this.company.id,
 				name: this.company.name,
+				teamId: this.team.id,
 				byInvite: true,
 				memberCount: 2,
 				accessToken: this.currentUser.accessToken
@@ -93,6 +94,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 					this.expectedEligibleJoinCompanies.push({
 						id: response.company.id,
 						name: response.company.name,
+						teamId: response.company.everyoneTeamId,
 						byDomain: domain.toLowerCase(),
 						domainJoining: response.company.domainJoining,
 						codeHostJoining: response.company.codeHostJoining,
@@ -117,6 +119,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 			this.expectedEligibleJoinCompanies.push({
 				id: company.id,
 				name: company.name,
+				teamId: company.everyoneTeamId,
 				byDomain: domain.toLowerCase(),
 				domainJoining: company.domainJoining,
 				codeHostJoining: company.codeHostJoining,
@@ -180,6 +183,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 				this.expectedEligibleJoinCompanies.push({
 					id: company.id,
 					name: company.name,
+					teamId: company.everyoneTeamId,
 					byInvite: true,
 					memberCount: 1
 				});

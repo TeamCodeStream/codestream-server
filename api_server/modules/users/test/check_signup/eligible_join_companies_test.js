@@ -71,6 +71,7 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 					this.expectedEligibleJoinCompanies.push({
 						id: response.company.id,
 						name: response.company.name,
+						teamId: response.company.everyoneTeamId,
 						byDomain: domain.toLowerCase(),
 						domainJoining: response.company.domainJoining,
 						codeHostJoining: response.company.codeHostJoining,
@@ -95,6 +96,7 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 			this.expectedEligibleJoinCompanies.push({
 				id: company.id,
 				name: company.name,
+				teamId: company.everyoneTeamId,
 				byDomain: domain.toLowerCase(),
 				domainJoining: company.domainJoining,
 				codeHostJoining: company.codeHostJoining,
@@ -157,6 +159,7 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 				const company = response.companies[0];
 				this.expectedEligibleJoinCompanies.push({
 					id: company.id,
+					teamId: company.everyoneTeamId,
 					name: company.name,
 					byInvite: true,
 					memberCount: 1

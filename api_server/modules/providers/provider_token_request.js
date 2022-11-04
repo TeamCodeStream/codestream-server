@@ -233,7 +233,6 @@ class ProviderTokenRequest extends RestfulRequest {
 				oauthTokenSecret: secretPayload.sec
 			};
 		}
-console.warn('************** TOKEN PAYLOAD:', this.tokenPayload);
 	}
 
 	// decode a string from special encoding that does not rely on encodeURIComponent,
