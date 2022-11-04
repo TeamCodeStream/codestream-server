@@ -33,6 +33,7 @@ class CodemarkNoMatchTeamTest extends CodemarkReplyTest {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;
 				this.otherTeamStream = response.streams[0];
+				this.otherTeamToken = response.accessToken;
 				callback();
 			},
 			{
@@ -51,7 +52,7 @@ class CodemarkNoMatchTeamTest extends CodemarkReplyTest {
 					teamId: this.otherTeam.id,
 					email: this.users[1].user.email
 				},
-				token: this.token
+				token: this.otherTeamToken
 			},
 			callback
 		);

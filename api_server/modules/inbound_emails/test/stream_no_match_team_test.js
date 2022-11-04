@@ -32,6 +32,7 @@ class StreamNoMatchTeamTest extends InboundEmailTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeam = response.team;
+				this.otherTeamToken = response.accessToken;
 				callback();
 			},
 			{
@@ -50,7 +51,7 @@ class StreamNoMatchTeamTest extends InboundEmailTest {
 					teamId: this.otherTeam.id,
 					email: this.users[1].user.email
 				},
-				token: this.token
+				token: this.otherTeamToken
 			},
 			callback
 		);
