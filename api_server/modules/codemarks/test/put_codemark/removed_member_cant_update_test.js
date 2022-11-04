@@ -10,8 +10,7 @@ class RemovedMemberCantUpdateTest extends PutCodemarkTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1010',
-			reason: 'user must be on the team that owns the codemark'
+			code: 'AUTH-1004' // removed member gets deactivated, under one-user-per-org, can't use their token
 		};
 	}
 
