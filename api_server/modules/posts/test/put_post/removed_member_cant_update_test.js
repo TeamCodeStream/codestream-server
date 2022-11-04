@@ -10,8 +10,7 @@ class RemovedMemberCantUpdateTest extends PutPostTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1010',
-			reason: 'the user does not have access to this post'
+			code: 'AUTH-1004' // user gets deactivated, so can't use token at all
 		};
 	}
 
