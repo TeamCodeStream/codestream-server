@@ -4,6 +4,8 @@
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
+const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/get_eligible_join_companies');
+const EligibleJoinCompaniesPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/eligible_join_companies_publisher');
 
 class CreateCompanyRequest extends RestfulRequest {
 
@@ -54,6 +56,27 @@ class CreateCompanyRequest extends RestfulRequest {
 			}
 		});
 		this.responseData.accessToken = token;
+
+		// add an eligibleJoinCompanies update to the response so the client can update immediately,
+		// rather than waiting for a pubnub message
+		const eligibleJoinCompanies = GetEligibleJoinCompanies(this.user.get('email'), this);
+		this.responseData.user = {
+			id: this.user.id,
+			$set: {
+				eligibleJoinCompanies
+			},
+			$version: {
+				before: '*'
+			}
+		}
+	}
+
+	// publish that eligibleJoinCompanies has changed for this user
+	async postProcess () {
+		await new EligibleJoinCompaniesPublisher({
+			request: this,
+			broadcaster: this.api.services.broadcaster
+		}).publishEligibleJoinCompanies(this.user.get('email'));
 	}
 }
 

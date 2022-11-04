@@ -6,7 +6,6 @@
 /* globals describe */
 
 describe('modules', () => {
-	/*
 	require('./authenticator/test/test.js');
 	require('./versioner/test/test.js');
 	require('./analytics/test/test.js');
@@ -26,7 +25,6 @@ describe('modules', () => {
 	require('./web/test/test.js');
 	require('./inbound_emails/test/test.js');
 	require('./marker_locations/test/test.js');
-	*/
 	require('./newrelic_comments/test/test.js');
-//	require('./environment_manager/test/test.js');
+	require('./environment_manager/test/test.js');
 });
