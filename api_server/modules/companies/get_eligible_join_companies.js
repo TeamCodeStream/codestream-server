@@ -94,9 +94,10 @@ module.exports = async function GetEligibleJoinCompanies (domain, request, optio
 		const memberCount = await company.getCompanyMemberCount(request.data);
 		const joinCompany = {
 			id: company.id,
+			teamId: company.get('everyoneTeamId'),
 			name: company.get('name'),
 			domainJoining: user ? undefined : company.get('domainJoining') || [],
-			codeHostJoining: user ? undefined: company.get('codeHostJoining') || [],
+			codeHostJoining: user ? undefined : company.get('codeHostJoining') || [],
 			memberCount
 		};
 		if (user) {
