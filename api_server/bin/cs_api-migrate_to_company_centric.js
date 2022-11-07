@@ -107,5 +107,3 @@ class Migrator {
 		process.exit();
 	}
 })();
-
-
