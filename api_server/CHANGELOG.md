@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.5] - 2022-11-10
+
+### Added
+
+- Adds backend support for unified identity
+
 ## [14.0.3] - 2022-10-11
 
 ### Added
