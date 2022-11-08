@@ -220,6 +220,7 @@ class EnvironmentManagerService {
 		let response;
 		options.headers = options.headers || {};
 		options.headers['x-cs-auth-secret'] = this.api.config.environmentGroupSecrets.requestAuth;
+		options.headers['x-cs-override-maintenance-mode'] = 'xyz123';
 		if (options.body) {
 			options.headers['content-type'] = 'application/json';
 			options.body = JSON.stringify(options.body);
