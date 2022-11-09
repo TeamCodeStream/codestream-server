@@ -146,6 +146,20 @@ class CommonInit {
 			callback();
 		});
 	}
+
+	// in one-user-per-org, user must accept the invite
+	acceptInvite (callback) {
+		if (!this.oneUserPerOrg) { return callback(); }
+		this.doApiRequest({
+			method: 'put',
+			path: '/join-company/' + this.company.id,
+			token: this.token
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			this.token = response.accessToken;
+			callback();
+		});
+	}
 }
 
 module.exports = CommonInit;

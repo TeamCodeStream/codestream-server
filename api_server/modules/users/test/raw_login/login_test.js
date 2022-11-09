@@ -6,7 +6,6 @@ const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const UserTestConstants = require('../user_test_constants');
 const UserAttributes = require('../../user_attributes');
-const GetStandardProviderHosts = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/provider_test_constants');
 const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/versioner/determine_capabilities');
 
 class LoginTest extends CodeStreamAPITest {
@@ -23,10 +22,12 @@ class LoginTest extends CodeStreamAPITest {
 		};
 		this.userOptions.numRegistered = 1;
 		this.teamOptions.numAdditionalInvites = 0;
+		delete this.teamOptions.creatorIndex;
 	}
 
 	get description () {
-		return 'should return valid user when doing a raw login';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
+		return `should return valid user when doing a raw login${oneUserPerOrg}`;
 	}
 
 	get method () {
@@ -67,7 +68,13 @@ class LoginTest extends CodeStreamAPITest {
 		Assert(data.user._id === data.user.id, 'id not set to _id');	// DEPRECATE ME
 		Assert(data.user.email === this.currentUser.user.email, 'email doesn\'t match');
 		Assert(data.user.lastLogin > this.beforeLogin, 'lastLogin not set to most recent login time');
-		Assert(data.user.firstSessionStartedAt > this.beforeLogin, 'firstSessionStartedAt should have been set');
+		if (!this.dontCheckFirstSession) {
+			if (this.firstSessionShouldBeUndefined) {
+				Assert.strictEqual(data.user.firstSessionStartedAt, undefined, 'firstSessionStartedAt should be undefined');
+			} else {
+				Assert(data.user.firstSessionStartedAt >= this.beforeLogin, 'firstSessionStartedAt not set to most recent login time');
+			}
+		}
 		Assert.strictEqual(data.user.lastOrigin, this.expectedOrigin, 'lastOrigin not set to plugin IDE');
 		Assert(data.accessToken, 'no access token');
 		Assert(this.usingSocketCluster || data.pubnubKey, 'no pubnub key');
@@ -81,8 +88,6 @@ class LoginTest extends CodeStreamAPITest {
 			environmentGroup[runTimeEnvironment].shortName
 		) || runTimeEnvironment;
 		Assert.deepStrictEqual(data.capabilities, this.expectedCapabilities, 'capabilities are incorrect');
-		const providerHosts = GetStandardProviderHosts(this.apiConfig);
-		Assert.deepStrictEqual(data.teams[0].providerHosts, providerHosts, 'returned provider hosts is not correct');
 		Assert.strictEqual(data.runtimeEnvironment, expectedEnvironment);
 		Assert.deepStrictEqual(data.environmentHosts, Object.values(environmentGroup));
 		Assert.deepStrictEqual(data.isOnPrem, this.apiConfig.sharedGeneral.isOnPrem);

@@ -3,25 +3,29 @@
 
 'use strict';
 
-const EnsureExistingUserTest = require('./ensure_existing_user_test');
+const EnsureUserTest = require('./ensure_user_test');
+const ConfirmUnregisteredUserTest = require('./confirm_unregistered_user_test');
+const ExistingRegisteredUserTest = require('./existing_registered_user_test');
+const ExistingUnregisteredUserOnTeamTest = require('./existing_unregistered_user_on_team_test');
+const ExistingRegisteredUserOnTeamTest = require('./existing_registered_user_on_team_test');
 const EmailRequiredTest = require('./email_required_test');
 const UserRequiredTest = require('./user_required_test');
 const NoSecretTest = require('./no_secret_test');
 const IncorrectSecretTest = require('./incorrect_secret_test');
-const ConfirmUnregisteredUserTest = require('./confirm_unregistered_user_test');
-const CreateUserTest = require('./create_user_test');
 
-class FetchUserRequestTester {
+class EnsureUserRequestTester {
 
 	test () {
-		new EnsureExistingUserTest().test();
+		new EnsureUserTest().test();
+		new ConfirmUnregisteredUserTest().test();
+		new ExistingRegisteredUserTest().test();
+		new ExistingUnregisteredUserOnTeamTest().test();
+		new ExistingRegisteredUserOnTeamTest().test();
 		new EmailRequiredTest().test();
 		new UserRequiredTest().test();
 		new NoSecretTest().test();
 		new IncorrectSecretTest().test();
-		new ConfirmUnregisteredUserTest().test();
-		new CreateUserTest().test();
 	}
 }
 
-module.exports = new FetchUserRequestTester();
+module.exports = new EnsureUserRequestTester();

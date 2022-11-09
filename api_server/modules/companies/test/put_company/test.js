@@ -10,6 +10,7 @@ const ACLTest = require('./acl_test');
 const ACLTeamTest = require('./acl_team_test');
 const MessageTest = require('./message_test');
 const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
+const MessageToInviteeTest = require('./message_to_invitee_test');
 
 class PutCompanyRequestTester {
 
@@ -32,6 +33,7 @@ class PutCompanyRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'planFrequency' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'planPaidSeats' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'planCoupon' }).test();
+		new MessageToInviteeTest().test();
 	}
 }
 

@@ -16,7 +16,7 @@ class MultiTeamNoAutoJoinTest extends MultiTeamTest {
 			{
 				method: 'put',
 				path: `/team-settings/${this.secondTeam.id}`,
-				token: this.users[1].accessToken,
+				token: this.secondTeamToken,
 				data: {
 					autoJoinRepos: [ObjectId()]
 				}

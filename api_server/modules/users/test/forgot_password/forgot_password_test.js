@@ -27,7 +27,7 @@ class ForgotPasswordTest extends CodeStreamAPITest {
 		super.before(error => {
 			if (error) { return callback(error); }
 			// send the user's email
-			this.data = { email: this.currentUser.user.email };
+			this.data = { email: this.users[0].user.email };
 			callback();
 		});
 	}

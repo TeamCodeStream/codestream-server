@@ -33,6 +33,7 @@ class CommonInit {
 		if (this.hasCodeHosting) {
 			this.providerHostData.hasCodeHosting = true;
 		}
+		const expectedVersion = this.oneUserPerOrg ? 5 : 4;
 		this.expectedData = {
 			team: {
 				_id: this.team.id,	// DEPRECATE ME
@@ -40,11 +41,11 @@ class CommonInit {
 				$set: {
 					modifiedAt: this.modifiedAfter,
 					[`providerHosts.${starredHost}`]: this.providerHostData,
-					version: 4
+					version: expectedVersion
 				},
 				$version: {
-					before: 3,
-					after: 4
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			},
 			providerId: starredHost

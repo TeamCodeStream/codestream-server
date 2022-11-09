@@ -17,7 +17,7 @@ class PostFromOtherTeamTest extends PutCodemarkTest {
 	getExpectedError () {
 		return {
 			code: 'RAPI-1010',
-			reason: 'linked post must be for the same team'
+			reason: 'user must be the author of the post being linked'
 		};
 	}
 
@@ -36,6 +36,7 @@ class PostFromOtherTeamTest extends PutCodemarkTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.otherTeamStream = response.streams[0];
+				this.otherTeamToken = response.accessToken;
 				callback();
 			},
 			{
@@ -55,7 +56,7 @@ class PostFromOtherTeamTest extends PutCodemarkTest {
 			},
 			{
 				streamId: this.otherTeamStream.id,
-				token: this.token
+				token: this.otherTeamToken
 			}
 		);
 	}

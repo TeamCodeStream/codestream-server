@@ -9,6 +9,7 @@ class InitialDataTest extends LoginTest {
 
 	constructor (options) {
 		super(options);
+		this.firstSessionShouldBeUndefined = this.oneUserPerOrg;
 		this.userOptions.numRegistered = 2;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,
@@ -22,7 +23,8 @@ class InitialDataTest extends LoginTest {
 	}
 
 	get description () {
-		return 'user should receive teams and repos with response to a raw login';
+		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
+		return `user should receive teams and repos with response to a raw login${oneUserPerOrg}`;
 	}
 
 	getExpectedFields () {

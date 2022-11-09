@@ -4,11 +4,12 @@
 'use strict';
 
 const UserCreator = require('./user_creator');
-const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
-const AddTeamPublisher = require('./add_team_publisher');
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
-const ConfirmHelper = require('./confirm_helper');
+const Indexes = require('./indexes');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const UserAttributes = require('./user_attributes');
+const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
 
 const REINVITE_REPEATS = 2;
 
@@ -23,7 +24,6 @@ class UserInviter {
 		this.userData = userData;
 		await this.getTeam();
 		await this.createUsers();
-		await this.checkForCrossEnvironmentRegisteredUsers();
 		await this.addUsersToTeam();
 		await this.setNumInvited();
 		return this.invitedUsers;
@@ -47,66 +47,50 @@ class UserInviter {
 
 	// create the user as needed, though the user may already exist, which requires special treatment
 	async createUser (userData) {
+		// first check for an existing user
+		// we use the existing user record only if it is on the team already
+		let existingUser = await this.getExistingUser(userData);
+		let wasOnTeam = (
+			existingUser &&
+			existingUser.hasTeam(this.team.id)
+		);
+		let wasRegisteredOnTeam = (
+			wasOnTeam &&
+			existingUser.get('isRegistered')
+		);
+		let isReinvite = !!existingUser;
+		if (
+			existingUser &&
+			!(existingUser.get('teamIds') || []).includes(this.team.id)
+		) {
+			userData.copiedFromUserId = existingUser.id;
+			const attributesToCopy = Object.keys(UserAttributes).filter(attr => {
+				return UserAttributes[attr].copyOnInvite;
+			});
+
+			// if we found a user that matches by email, but isn't actually on the team, we create
+			// a new user record, and feed the user's attributes from the existing user
+			attributesToCopy.forEach(attribute => {
+				const value = existingUser.get(attribute);
+				if (value !== undefined) {
+					userData[attribute] = value;
+				}
+			});
+			existingUser = undefined;
+		}
 		const userCreator = new UserCreator({
 			request: this.request,
-			teamIds: [this.team.id],
-			companyIds: [this.team.get('companyId')],
-			subscriptionCheat: this.subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
-			userBeingAddedToTeamId: this.team.id,
-			inviteCodeExpiresIn: this.inviteCodeExpiresIn,
-			inviteInfo: this.inviteInfo,
-			inviteType: !this.dontSendEmail && this.inviteType,
-			dontSetInviteType: this.dontSendEmail
+			existingUser,
+			team: this.team,
+			user: this.user,
+			inviteType: (!this.dontSendEmail && this.inviteType)
 		});
 		const createdUser = await userCreator.createUser(userData);
-		const didExist = !!userCreator.existingModel;
-		const wasOnTeam = userCreator.existingModel && userCreator.existingModel.hasTeam(this.team.id);
 		this.invitedUsers.push({
 			user: createdUser,
+			isReinvite,
 			wasOnTeam,
-			didExist,
-			inviteCode: userCreator.inviteCode
-		});
-	}
-
-	// if the users are already registered and confirmed in another environment (i.e., region, cell),
-	// then they automatically become confirmed by this invite
-	async checkForCrossEnvironmentRegisteredUsers () {
-		if (this.request.request.headers['x-cs-block-xenv']) {
-			this.request.log('Not checking for cross-environment registered users, blocked by header');
-			return;
-		}
-		await Promise.all(this.invitedUsers.map(async userData => {
-			const foreignUser = await this.checkForCrossEnvironmentRegisteredUser(userData.user);
-			if (foreignUser) {
-				this.request.log(`User ${userData.user.get('email')} was found to be registered in at least one other environment, user will be confirmed...`);
-				await this.confirmUser(userData.user, foreignUser.user);
-			}
-		}));
-	}
-
-	// if a user is already registered and confirmed in another environment (i.e., region, cell),
-	// then they automatically become confirmed by this invite
-	async checkForCrossEnvironmentRegisteredUser (user) {
-		const foreignUsers = await this.request.api.services.environmentManager.searchEnvironmentHostsForUser(user.get('email'));
-		if (foreignUsers) {
-			return foreignUsers.find(foreignUser => foreignUser.user.isRegistered);
-		}
-	}
-
-	// confirm the given invitee, given that they are already confirmed in another environment (i.e., region or cell)
-	async confirmUser (user, foreignUser) {
-		const { username, fullName, passwordHash } = foreignUser;
-		return new ConfirmHelper({
-			request: this.request,
-			user,
-			dontUpdateLastLogin: true,
-			dontConfirmInOtherEnvironments: true
-		}).confirm({ 
-			email: user.get('email'),
-			username,
-			fullName,
-			passwordHash
+			wasRegisteredOnTeam
 		});
 	}
 
@@ -115,8 +99,7 @@ class UserInviter {
 		await new AddTeamMembers({
 			request: this.request,
 			addUsers: this.invitedUsers.map(userData => userData.user),
-			team: this.team,
-			subscriptionCheat: this.subscriptionCheat // allows unregistered users to subscribe to me-channel, needed for mock email testing
+			team: this.team
 		}).addTeamMembers();
 
 		// refetch the users since they changed when added to team
@@ -125,14 +108,36 @@ class UserInviter {
 		}));
 	}
 
+	// get the existing user matching this email, if any
+	async getExistingUser (userData) {
+		const matchingUsers = await this.data.users.getByQuery(
+			{ searchableEmail: userData.email.toLowerCase() },
+			{ hint: Indexes.bySearchableEmail }
+		);
+
+		// preferentially return a user previously invited to this team,
+		// or a teamless user, or a user on another team
+		// for the latter, we feed the user data, but we will still create a new record
+		let teamlessUser, userOnOtherTeam;
+		const userOnTeam = matchingUsers.find(user => {
+			if (user.get('deactivated')) { 
+				return false;
+			}
+			const teamIds = (user.get('teamIds') || []);
+			if (teamIds.length === 0) {
+				teamlessUser = user;
+			} else if (teamIds.length === 1 && teamIds[0] === this.team.id) {
+				return user;
+			} else {
+				userOnOtherTeam = user;
+			}
+		});
+		return userOnTeam || teamlessUser || userOnOtherTeam;
+	}
+
 	// track the number of users the inviting user has invited
 	async setNumInvited () {
-		const numInvited = this.invitedUsers.reduce((total, userData) => {
-			if (!userData.wasOnTeam) {
-				total++;
-			}
-			return total;
-		}, 0);
+		const numInvited = this.invitedUsers.length;
 		if (numInvited === 0) { return; }
 		const op = {
 			$set: {
@@ -152,24 +157,32 @@ class UserInviter {
 		await awaitParallel([
 			this.publishAddToTeam,
 			this.sendInviteEmails,
-			this.publishNumUsersInvited
+			this.publishNumUsersInvited,
+			this.publishEligibleJoinCompanies
 		], this);
 	}
 
 	// publish to the team that the users have been added,
 	// and publish to each user that they've been added to the team
 	async publishAddToTeam () {
-		// get the team again since the team object has been modified,
-		// this should just fetch from the cache, not from the database
-		const team = await this.data.teams.getById(this.team.id);
-		await new AddTeamPublisher({
-			request: this.request,
-			broadcaster: this.api.services.broadcaster,
-			users: this.invitedUsers.map(userData => userData.user),
-			team: team,
-			teamUpdate: this.transforms.teamUpdate,
-			userUpdates: this.transforms.userUpdates
-		}).publishAddedUsers();
+		const channel = `team-${this.team.id}`;
+		const sanitizedUsers = this.invitedUsers.map(userData => userData.user.getSanitizedObject({ request: this.request }));
+		const message = {
+			requestId: this.request.request.id,
+			users: sanitizedUsers,
+			team: this.transforms.teamUpdate,
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this.request	}
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish user added message to team ${this.team.id}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// send invite emails to the added users
@@ -197,9 +210,10 @@ class UserInviter {
 
 	// send an invite email to the given user
 	async sendInviteEmail (userData) {
-		const { user, wasOnTeam, didExist } = userData;
+		const { user, isReinvite, wasRegisteredOnTeam} = userData;
+
 		// don't send an email if invited user is already registered and already on a team
-		if (user.get('isRegistered') && wasOnTeam) {
+		if (wasRegisteredOnTeam) {
 			return;
 		}
 
@@ -212,48 +226,19 @@ class UserInviter {
 				inviterId: this.user.id,
 				teamId: this.team.id,
 				teamName: this.team.get('name'),
-				isReinvite: didExist
+				isReinvite
 			},
 			{
 				request: this.request,
 				user
 			}
 		);
-
-		// This is disabled since SQS doesn't support long enough message delays,
-		//  but since it might be applicable for on-prem with RabbitMQ, I'm leaving the code in place
-		/*
-		// for unregistered users, queue resending the invite every given interval until they accept, or we reach 
-		// a maximum number of invites
-		if (!user.get('isRegistered')) {
-			for (let i = 0; i < REINVITE_REPEATS; i++) {
-				const reinviteTime = REINVITE_INTERVAL * (i+1);
-				this.request.log(`Triggering reinvite in ${reinviteTime} ms...`);
-				await this.api.services.email.queueReinvite(
-					{
-						userId: user.id,
-						inviterId: this.user.id,
-						teamName: this.team.get('name'),
-						isReinvite: didExist
-					},
-					{
-						request: this.request,
-						user,
-						delay: reinviteTime
-					}
-				);
-			}
-		}
-		*/
 	}
 
 	// for an unregistered user, we track that they've been invited
 	// and how many times for analytics purposes
 	async updateInvites (userData) {
-		const { user, didExist } = userData;
-		if (user.get('isRegistered')) {
-			return;	// we only do this for unregistered users
-		}
+		const { user, isReinvite } = userData;
 		const update = {
 			$set: {
 				internalMethod: 'invitation',
@@ -266,7 +251,7 @@ class UserInviter {
 		};
 
 		// only trigger a re-invite cycle if this is a brand new user
-		if (!didExist) {
+		if (!isReinvite) {
 			Object.assign(update.$set, {
 				needsAutoReinvites: REINVITE_REPEATS,
 				autoReinviteInfo: {
@@ -304,6 +289,16 @@ class UserInviter {
 			// this doesn't break the chain, but it is unfortunate
 			this.request.warn(`Unable to publish inviting user update message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
+	}
+
+	// publish to all registered users the resulting change in eligibleJoinCompanies
+	async publishEligibleJoinCompanies () {
+		return Promise.all(this.invitedUsers.map(async user => {
+			await new EligibleJoinCompaniesPublisher({
+				request: this.request,
+				broadcaster: this.request.api.services.broadcaster
+			}).publishEligibleJoinCompanies(user.user.get('email'))
+		}));
 	}
 }
 

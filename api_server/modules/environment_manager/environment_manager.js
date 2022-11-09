@@ -26,7 +26,7 @@ const ROUTES = [
 		path: 'xenv/eligible-join-companies',
 		requestClass: require('./eligible_join_companies_request')
 	},
-	{
+	{ // deprecate this call when we have fully moved to ONE_USER_PER_ORG
 		method: 'get',
 		path: '/xenv/user-companies',
 		requestClass: require('./user_companies_request')
@@ -50,6 +50,11 @@ const ROUTES = [
 		method: 'delete',
 		path: '/xenv/delete-user/:id',
 		requestClass: require('./delete_user_request')
+	},
+	{
+		method: 'post',
+		path: '/xenv/publish-ejc',
+		requestClass: require('./publish_eligible_join_companies_request')
 	}
 ];
 

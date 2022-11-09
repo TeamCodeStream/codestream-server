@@ -6,7 +6,7 @@ const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/
 class UnregisteredUserTest extends CodeStreamAPITest {
 
 	get description () {
-		return 'should return empty data when attempting to generate a login code for a nonexistent user';
+		return 'should return empty data when attempting to generate a login code for an unregistered user';
 	}
 
 	get method () {

@@ -37,6 +37,13 @@ const EXPECTED_ME_FIELDS = [
 	'preferences'
 ];
 
+// we expect to see these fields when an unregistered user has been invited to a team
+const EXPECTED_INVITE_FIELDS = [
+	'internalMethod',
+	'internalMethodDetail',
+	'numInvites'
+];
+
 // response to retrieving a user object looks like this
 const EXPECTED_USER_RESPONSE = {
 	user: EXPECTED_USER_FIELDS
@@ -77,8 +84,10 @@ module.exports = {
 	EXPECTED_USER_RESPONSE,
 	EXPECTED_REGISTRATION_RESPONSE,
 	EXPECTED_LOGIN_RESPONSE,
+	EXPECTED_REGISTRATION_FIELDS,
 	EXPECTED_USER_FIELDS,
 	EXPECTED_ME_FIELDS,
+	EXPECTED_INVITE_FIELDS,
 	UNSANITIZED_ATTRIBUTES,
 	UNSANITIZED_ATTRIBUTES_FOR_ME
 };

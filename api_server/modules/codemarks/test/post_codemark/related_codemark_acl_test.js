@@ -57,7 +57,7 @@ class RelatedCodemarkACLTest extends RelatedCodemarksTest {
 				method: 'post',
 				path: '/codemarks',
 				data: codemarkData,
-				token: this.users[1].accessToken
+				token: this.otherTeamResponse.accessToken
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

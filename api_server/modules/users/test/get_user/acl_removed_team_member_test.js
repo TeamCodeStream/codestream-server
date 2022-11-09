@@ -10,7 +10,7 @@ class ACLRemovedTeamMemberTest extends GetTeamMemberTest {
 
 	getExpectedError() {
 		return {
-			code: 'RAPI-1009'
+			code: 'AUTH-1004' // was 'RAPI-1009', but under one-user-per-org, the account actually gets deactivated
 		};
 	}
 

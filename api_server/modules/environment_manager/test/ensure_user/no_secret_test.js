@@ -1,8 +1,8 @@
 'use strict';
 
-const EnsureExistingUserTest = require('./ensure_existing_user_test');
+const EnsureUserTest = require('./ensure_user_test');
 
-class NoSecretTest extends EnsureExistingUserTest {
+class NoSecretTest extends EnsureUserTest {
 
 	get description () {
 		return 'should return an error when making a cross-environment request to ensure a user but not providing the auth secret';

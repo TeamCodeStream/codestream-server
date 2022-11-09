@@ -1,8 +1,8 @@
 'use strict';
 
-const EnsureExistingUserTest = require('./ensure_existing_user_test');
+const EnsureUserTest = require('./ensure_user_test');
 
-class EmailRequiredTest extends EnsureExistingUserTest {
+class EmailRequiredTest extends EnsureUserTest {
 
 	get description () {
 		return 'should return an error when submitting a cross-environment request to ensure a user without providing an email in the user object';

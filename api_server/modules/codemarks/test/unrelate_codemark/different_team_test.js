@@ -22,6 +22,7 @@ class DifferentTeamTest extends UnrelateCodemarkTest {
 		BoundAsync.series(this, [
 			this.makeOtherTeam,
 			this.inviteCurrentUser,
+			this.acceptInvite,
 			super.makeCodemarks
 		], callback);
 	}
@@ -30,6 +31,7 @@ class DifferentTeamTest extends UnrelateCodemarkTest {
 		this.companyFactory.createRandomCompany((error, response) => {
 			if (error) { return callback(error); }
 			this.otherTeam = response.team;
+			this.otherTeamToken = response.accessToken;
 			callback();
 		}, { token: this.users[1].accessToken });
 	}
@@ -43,9 +45,24 @@ class DifferentTeamTest extends UnrelateCodemarkTest {
 					teamId: this.otherTeam.id,
 					email: this.currentUser.user.email
 				},
-				token: this.users[1].accessToken
+				token: this.otherTeamToken
 			},
 			callback
+		);
+	}
+
+	acceptInvite (callback) {
+		this.doApiRequest(
+			{
+				method: 'put',
+				path: '/join-company/' + this.otherTeam.companyId,
+				token: this.currentUser.accessToken
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.acceptInviteResponse = response;
+				callback();
+			}
 		);
 	}
 

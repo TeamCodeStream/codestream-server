@@ -32,6 +32,7 @@ class NumUsersInvitedTest extends Aggregation(CodeStreamMessageTest, CommonInit)
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the user channel 
 		this.updatedAt = Date.now();
+		const expectedVersion = this.currentUser.user.version + 1;
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -47,12 +48,12 @@ class NumUsersInvitedTest extends Aggregation(CodeStreamMessageTest, CommonInit)
 						id: this.currentUser.user.id,
 						$set: {
 							numUsersInvited: 1,
-							version: 4,
+							version: expectedVersion,
 							modifiedAt: Date.now() // placeholder
 						},
 						$version: {
-							before: 3,
-							after: 4
+							before: expectedVersion - 1,
+							after: expectedVersion
 						}
 					}
 				};

@@ -27,51 +27,39 @@ class UnregisteredMentionTest extends PostPostTest {
 	run (callback) {
 		BoundAsync.series(this, [
 			super.run,
-			this.registerUser,
-			this.confirmUser,
+			this.fetchUser,
 			this.verifyUserUpdate
 		], callback);
 	}
 
-	// register the mentioned user, since they were unregistered, and we need
-	// an access token for them to get their me-object and verify
-	registerUser (callback) {
-		this.doApiRequest({
-			method: 'post',
-			path: '/no-auth/register',
-			data: {
-				email: this.mentionedUser.email,
-				username: RandomString.generate(12),
-				password: RandomString.generate(12),
-				_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat,	// gives us the confirmation code in the response
-				_forceConfirmation: true								// this forces confirmation even if not enforced in environment
+	// fetch the user's me-object after accepting
+	fetchUser (callback) {
+		if (!this.oneUserPerOrg) {
+			return callback();
+		}
+		this.doApiRequest(
+			{
+				method: 'get',
+				path: '/users/' + this.mentionedUser.id,
+				token: this.token,
+				requestOptions: {
+					headers: {
+						// use this cheat to fetch me-attributes, even though we're not fetching "me"
+						'X-CS-Me-Cheat': this.apiConfig.sharedSecrets.confirmationCheat
+					}
+				}
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.meResponse = response;
+				callback();
 			}
-		}, (error, response) => {
-			if (error) { return callback(error); }
-			this.registeredUser = response.user;
-			callback();
-		});
-	}
-
-	// confirm the mentioned user's registration
-	confirmUser (callback) {
-		this.doApiRequest({
-			method: 'post',
-			path: '/no-auth/confirm',
-			data: {
-				email: this.registeredUser.email,
-				confirmationCode: this.registeredUser.confirmationCode
-			}
-		}, (error, response) => {
-			if (error) { return callback(error); }
-			this.confirmedUser = response.user;
-			callback();
-		});
+		);
 	}
 
 	// verify that the mentioned user was properly updated by the mention
 	verifyUserUpdate (callback) {
-		const user = this.confirmedUser;
+		const { user } = this.meResponse;
 		Assert(user.internalMethod === 'mention_notification', 'internalMethod not correct');
 		Assert(user.internalMethodDetail === this.currentUser.user.id, 'internalMethodDetail not set to post author');
 		Assert(user.numMentions === 1, 'numMentions not set to 1');

@@ -50,6 +50,7 @@ class CommonInit {
 	makeCodemark (n, callback) {
 		const data = this.codemarkFactory.getRandomCodemarkData();
 		const teamId = this.secondCodemarkInOtherTeam && n === 1 ? this.otherTeam.id : this.team.id;
+		const token = this.secondCodemarkInOtherTeam && n === 1 ? this.otherTeamToken : this.users[1].accessToken;
 		Object.assign(data, {
 			teamId,
 			providerType: RandomString.generate(8)
@@ -66,7 +67,7 @@ class CommonInit {
 				method: 'post',
 				path: '/codemarks',
 				data: data,
-				token: this.users[1].accessToken
+				token
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

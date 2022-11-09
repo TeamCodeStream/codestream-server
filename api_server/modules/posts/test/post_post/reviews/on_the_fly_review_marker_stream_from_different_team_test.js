@@ -31,13 +31,13 @@ class OnTheFlyReviewMarkerStreamFromDifferentTeamTest extends ReviewMarkerStream
 		new TestTeamCreator({
 			test: this,
 			teamOptions: Object.assign({}, this.teamOptions, {
-				creatorIndex: null,
+				creatorIndex: undefined,
 				creatorToken: this.users[1].accessToken,
 				numAdditionalInvites: 0
 			}),
 			userOptions: this.userOptions,
 			repoOptions: {
-				creatorToken: this.users[1].accessToken
+				creatorToken: 'teamCreatorToken'
 			}
 		}).create((error, response) => {
 			if (error) { return callback(error); }

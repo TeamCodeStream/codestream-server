@@ -34,6 +34,7 @@ class CommonInit {
 		this.updatedAt = Date.now();
 		const expectedData = { ...this.data };
 		delete expectedData.id;
+		const expectedVersion = this.oneUserPerOrg ? 8 : 6;
 		this.expectedResponse = {
 			team: {
 				id: this.team.id,
@@ -41,11 +42,11 @@ class CommonInit {
 				$set: {
 					[`tags.${id}`]: expectedData,
 					modifiedAt: Date.now(),
-					version: 6
+					version: expectedVersion
 				},
 				$version: {
-					before: 5,
-					after: 6
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

@@ -5,6 +5,7 @@
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
+const UserTestConstants = require('../user_test_constants');
 
 class CommonInit {
 
@@ -19,12 +20,12 @@ class CommonInit {
 
 	setTestOptions (callback) {
 		this.testUser = 1;
-		this.expectedVersion = 4;
 		callback();
 	}
 
 	setExpectedData (callback) {
 		this.user = this.users[this.testUser].user;
+		this.expectedVersion = this.expectedVersion || (this.user.version + 1);
 		this.expectedData = {
 			user: {
 				_id: this.user.id,	// DEPRECATE ME
@@ -42,6 +43,9 @@ class CommonInit {
 			}
 		};
 		this.expectedUser = DeepClone(this.user);
+		UserTestConstants.UNSANITIZED_ATTRIBUTES.forEach(attribute => {
+			delete this.expectedUser[attribute]; // deletes any me-attributes
+		});
 		Object.assign(this.expectedUser, this.expectedData.user.$set);
 		this.modifiedAfter = Date.now();
 		callback();

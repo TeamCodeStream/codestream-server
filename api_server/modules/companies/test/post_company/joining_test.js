@@ -6,6 +6,13 @@ const Assert = require('assert');
 
 class JoiningTest extends PostCompanyTest {
 
+	constructor (options) {
+		super(options);
+		if (this.oneUserPerOrg) {
+			delete this.teamOptions.creatorIndex;
+		}
+	}
+	
 	get description () {
 		return 'should be able to attach join settings to allow domain and cost host based joining when creating a company';
 	}

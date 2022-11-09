@@ -4,35 +4,39 @@
 const RegistrationTest = require('./registration_test');
 const NoAttributeTest = require('./no_attribute_test');
 const UserExistsTest = require('./user_exists_test');
+const InvitedUserExistsTest = require('./invited_user_exists_test');
 const BadEmailTest = require('./bad_email_test');
 const BadUsernameTest = require('./bad_username_test');
 const BadPasswordTest = require('./bad_password_test');
 //const ConflictingUsernameTest = require('./conflicting_username_test');
 //const NoCodestreamUsernameTest = require('./no_codestream_username_test');
-const UserMessageToTeamTest = require('./user_message_to_team_test');
+//const UserMessageToTeamTest = require('./user_message_to_team_test');
 const ConfirmationEmailTest = require('./confirmation_email_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
+const AlreadyRegisteredOneUserPerOrgTest = require('./already_registered_one_user_per_org_test'); // ONE_USER_PER_ORG
 const PreferencesTest = require('./preferences_test');
 const SpecialCharactersUsernameTest = require('./special_characters_username_test');
 const ReuseConfirmationCodeTest = require('./reuse_confirmation_code_test');
 const NewCodeAfterReusabilityWindowTest = require('./new_code_after_reusability_window_test');
-const InviteCodeTest = require('./invite_code_test');
-const InviteCodeRemovedTest = require('./invite_code_removed_test');
-const InviteCodeDifferentEmailTest = require('./invite_code_different_email_test');
-const InviteCodeExpiredTest = require('./invite_code_expired_test');
-const InviteCodeRemovedAfterUseTest = require('./invite_code_removed_after_use_test');
-const AlreadyInvitedTest = require('./already_invited_test');
-const InvitedUserMessageToTeamTest = require('./invited_user_message_to_team_test');
+const InviteCodeDeprecatedTest = require('./invite_code_deprecated_test');
+//const InviteCodeTest = require('./invite_code_test');
+//const InviteCodeRemovedTest = require('./invite_code_removed_test');
+//const InviteCodeDifferentEmailTest = require('./invite_code_different_email_test');
+//const InviteCodeExpiredTest = require('./invite_code_expired_test');
+//const InviteCodeRemovedAfterUseTest = require('./invite_code_removed_after_use_test');
+//const AlreadyInvitedTest = require('./already_invited_test');
+//const InvitedUserMessageToTeamTest = require('./invited_user_message_to_team_test');
 const TrimEmailTest = require('./trim_email_test');
-const RepoBasedSignupTest = require('./repo_based_signup_test');
-const RepoBasedSignupParameterRequiredTest = require('./repo_based_signup_parameter_required_test');
-const RepoBasedSignupInvalidRepoIdTest = require('./repo_based_signup_invalid_repo_id_test');
-const RepoBasedSignupInvalidCommitHashTest = require('./repo_based_signup_invalid_commit_hash_test');
-const RepoBasedSignupTeamNotFoundTest = require('./repo_based_signup_team_not_found_test');
-const RepoBasedSignupMismatchedRepoTest = require('./repo_based_signup_mismatched_repo_test');
-const RepoBasedSignupNoAutoJoinTest = require('./repo_based_signup_no_auto_join_test');
-const RepoBasedSignupMessageToTeamTest = require('./repo_based_signup_message_to_team_test');
-const RepoBasedSignupConfirmationEmailTest = require('./repo_based_signup_confirmation_email_test');
+const RepoBasedSignupDeprecatedTest = require('./repo_based_signup_deprecated_test');
+//const RepoBasedSignupTest = require('./repo_based_signup_test');
+//const RepoBasedSignupParameterRequiredTest = require('./repo_based_signup_parameter_required_test');
+//const RepoBasedSignupInvalidRepoIdTest = require('./repo_based_signup_invalid_repo_id_test');
+//const RepoBasedSignupInvalidCommitHashTest = require('./repo_based_signup_invalid_commit_hash_test');
+//const RepoBasedSignupTeamNotFoundTest = require('./repo_based_signup_team_not_found_test');
+//const RepoBasedSignupMismatchedRepoTest = require('./repo_based_signup_mismatched_repo_test');
+//const RepoBasedSignupNoAutoJoinTest = require('./repo_based_signup_no_auto_join_test');
+//const RepoBasedSignupMessageToTeamTest = require('./repo_based_signup_message_to_team_test');
+//const RepoBasedSignupConfirmationEmailTest = require('./repo_based_signup_confirmation_email_test');
 const GitLensReferralTest = require('./gitlens_referral_test');
 const GitLensReferralMachineIdTest = require('./gitlens_referral_machine_id_test');
 const WebmailTest = require('./webmail_test');
@@ -44,16 +48,19 @@ class RegistrationRequestTester {
 
 	registrationTest () {
 		new RegistrationTest().test();
-		new NoAttributeTest({ attribute: 'email' }).test();
+		new RegistrationTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new NoAttributeTest({ attribute: 'password' }).test();
 		new NoAttributeTest({ attribute: 'username' }).test();
 		new BadEmailTest().test();
 		new BadUsernameTest().test();
 		new BadPasswordTest().test();
 		new UserExistsTest().test();
+		new UserExistsTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
+		new InvitedUserExistsTest().test();
+		new InvitedUserExistsTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		//new ConflictingUsernameTest().test();
 		//new NoCodestreamUsernameTest().test();
-		new UserMessageToTeamTest().test();
+		//new UserMessageToTeamTest().test();
 		new SpecialCharactersUsernameTest().test();
 		// these tests must be serialized because for technical reasons the tests
 		// are actually run in their "before" stage, and they will fail due to timeouts
@@ -61,28 +68,31 @@ class RegistrationRequestTester {
 		SerializeTests([
 			ConfirmationEmailTest,
 			AlreadyRegisteredEmailTest,
-			RepoBasedSignupConfirmationEmailTest
+			AlreadyRegisteredOneUserPerOrgTest, // ONE_USER_PER_ORG
+			//RepoBasedSignupConfirmationEmailTest
 		]);
 		new PreferencesTest().test();
 		new ReuseConfirmationCodeTest().test();
 		new NewCodeAfterReusabilityWindowTest().test();
-		new InviteCodeTest().test();
-		new InviteCodeRemovedTest().test();
-		new InviteCodeDifferentEmailTest().test();
-		new InviteCodeExpiredTest().test();
-		new InviteCodeRemovedAfterUseTest().test();
-		new AlreadyInvitedTest().test();
-		new InvitedUserMessageToTeamTest().test();
+		new InviteCodeDeprecatedTest().test();
+		//new InviteCodeTest().test();
+		//new InviteCodeRemovedTest().test();
+		//new InviteCodeDifferentEmailTest().test();
+		//new InviteCodeExpiredTest().test();
+		//new InviteCodeRemovedAfterUseTest().test();
+		//new AlreadyInvitedTest().test();
+		//new InvitedUserMessageToTeamTest().test();
 		new TrimEmailTest().test();
-		new RepoBasedSignupTest().test();
-		new RepoBasedSignupParameterRequiredTest({ attribute: 'repoId' }).test();
-		new RepoBasedSignupParameterRequiredTest({ attribute: 'commitHash' }).test();
-		new RepoBasedSignupInvalidRepoIdTest().test();
-		new RepoBasedSignupInvalidCommitHashTest().test();
-		new RepoBasedSignupTeamNotFoundTest().test();
-		new RepoBasedSignupMismatchedRepoTest().test();
-		new RepoBasedSignupNoAutoJoinTest().test();
-		new RepoBasedSignupMessageToTeamTest().test();
+		new RepoBasedSignupDeprecatedTest().test();
+		//new  RepoBasedSignupTest().test();
+		//new RepoBasedSignupParameterRequiredTest({ attribute: 'repoId' }).test();
+		//new RepoBasedSignupParameterRequiredTest({ attribute: 'commitHash' }).test();
+		//new RepoBasedSignupInvalidRepoIdTest().test();
+		//new RepoBasedSignupInvalidCommitHashTest().test();
+		//new RepoBasedSignupTeamNotFoundTest().test();
+		//new RepoBasedSignupMismatchedRepoTest().test();
+		//new RepoBasedSignupNoAutoJoinTest().test();
+		//new RepoBasedSignupMessageToTeamTest().test();
 		new GitLensReferralTest().test();
 		new GitLensReferralMachineIdTest().test();
 		new WebmailTest().test();

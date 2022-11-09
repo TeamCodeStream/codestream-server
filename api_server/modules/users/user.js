@@ -20,10 +20,17 @@ class User extends CodeStreamModel {
 		if (this.attributes.email) {	// searchable email is a lowercase form for case-insensitive matching
 			this.attributes.searchableEmail = this.attributes.email.toLowerCase();
 		}
+		
 		// ensure all stored IDs are lowercase
 		this.lowerCase('teamIds');
 		this.lowerCase('companyIds');
 		await super.preSave(options);
+	}
+
+	// set default attributes
+	setDefaults () {
+		super.setDefaults();
+		this.attributes.lastReads = {};
 	}
 
 	// is the user a member of all of these companies?

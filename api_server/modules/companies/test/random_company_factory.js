@@ -17,7 +17,35 @@ class RandomCompanyFactory {
 			path: '/companies',
 			data: data,
 			token: token
-		}, callback);
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			// we need this because behavior is different depending on whether this is
+			// the user's first company or not ... if it is not, under one-user-per-org,
+			// we get a new access token and must do a login to get the company info
+			if (response.accessToken) {
+				this.getCompanyInfoThroughLogin(response.accessToken, callback);
+			} else {
+				callback(null, response);
+			}
+		});
+	}
+
+	getCompanyInfoThroughLogin (accessToken, callback) {
+		this.apiRequester.doApiRequest({
+			method: 'put',
+			path: '/login',
+			token: accessToken
+		}, (error, response) => {
+			if (error) { return callback(error); }
+			const info = {
+				company: response.companies[0],
+				team: response.teams[0],
+				streams: response.streams,
+				user: response.user,
+				accessToken
+			};
+			callback(null, info);
+		});
 	}
 
 	// return a random company name

@@ -47,6 +47,7 @@ class MessageTest extends CodeStreamMessageTest {
 		// data, and confirm the appropriate complex op to apply at the client
 		let data = ComplexUpdate.UPDATE_OP;
 		this.updatedAt = Date.now();
+		const expectedVersion = this.oneUserPerOrg ? 6 : 5;
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -63,10 +64,10 @@ class MessageTest extends CodeStreamMessageTest {
 					}
 				};
 				Object.assign(this.message.team, ComplexUpdate.EXPECTED_OP);
-				this.message.team.$set.version = 5;
+				this.message.team.$set.version = expectedVersion;
 				this.message.team.$version = {
-					before: 4,
-					after: 5
+					before: expectedVersion - 1,
+					after: expectedVersion
 				};
 				callback();
 			}

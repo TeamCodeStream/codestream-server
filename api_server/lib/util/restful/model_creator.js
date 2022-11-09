@@ -80,6 +80,20 @@ class ModelCreator {
 	// check if there is a matching document already, according to a query specified
 	// by the derived class, which can also decide whether this is allowed or not
 	async checkExisting () {
+		const model = await this.getExistingModel();
+		if (model) {
+			// got a matching document, is this ok?
+			if (!this.modelCanExist(model)) {	// derived class tells us whether this is allowed
+				throw this.errorHandler.error('exists');
+			}
+			// ok, it's allowed
+			this.existingModel = model;
+		}
+	}
+
+	// get an existing model, if there is one, according to a query specified
+	// by the derived class, which can also decide whether this is allowed or not
+	async getExistingModel () {
 		const queryData = this.checkExistingQuery();
 		if (!queryData) {
 			// derived class doesn't care
@@ -89,15 +103,7 @@ class ModelCreator {
 		const options = {
 			hint: queryData.hint
 		};
-		const model = await this.collection.getOneByQuery(queryData.query, options);
-		if (model) {
-			// got a matching document, is this ok?
-			if (!this.modelCanExist(model)) {	// derived class tells us whether this is allowed
-				throw this.errorHandler.error('exists');
-			}
-			// ok, it's allowed
-			this.existingModel = model;
-		}
+		return this.collection.getOneByQuery(queryData.query, options);
 	}
 
 	// override to provide a query to check for a document matching the input attributes
@@ -114,21 +120,20 @@ class ModelCreator {
 	// right before the document gets saved....
 	async preSave (options = {}) {
 		if (this.existingModel) {
+			this.model = this.existingModel;
 			if (this.dontSaveIfExists) {
 				// we have a document that matches the input attributes, and there's no need
 				// to make any changes, just pass it back to the client as-is
-				this.model = this.existingModel;
 				return;
 			}
-			// override with the attributes passed in, we'll save these
 			this.attributes = Object.assign({}, this.existingModel.attributes, this.attributes, { id: this.existingModel.id });
-		}
-		else if (this.useId) {
+		} else if (this.useId) {
 			this.attributes.id = this.useId;
 		}
+
 		// create a new model with the passed attributes, and let the model pre-save itself ...
 		// this is where pre-save validation of the attributes happens
-		this.model = new this.modelClass(this.attributes);
+		this.model = this.model || new this.modelClass(this.attributes);
 		try {
 			await this.model.preSave({ ...options, new: !this.existingModel });
 		}
@@ -172,13 +177,13 @@ class ModelCreator {
 	// determine what is actually changing, for a save
 	async determineChanges () {
 		this.changes = {};
-		Object.keys(this.model.attributes).forEach(attribute => {
+		Object.keys(this.attributes).forEach(attribute => {
 			if (attribute === 'id' || attribute === '_id') { return; }
 			if (!this.attributesAreEqual(
 				this.existingModel.get(attribute),
-				this.model.get(attribute))
+				this.attributes[attribute])
 			) {
-				this.changes[attribute] = this.model.get(attribute);
+				this.changes[attribute] = this.attributes[attribute];
 			}
 		});
 	}
@@ -205,7 +210,8 @@ class ModelCreator {
 			collection: this.collection,
 			id: this.existingModel.id
 		}).save(op);
-	}
+		Object.assign(this.existingModel.attributes, this.changes);
+}
 
 	// requisition an ID for the model we are about to create ... use this if you need
 	// to know the ID ahead of time

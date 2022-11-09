@@ -22,20 +22,29 @@ class CommonInit {
 		this.setTestData();
 		this.expectedUser = DeepClone(this.currentUser.user);
 		Object.assign(this.expectedUser, this.data);
+		this.expectedUser.eligibleJoinCompanies = [{
+			accessToken: this.currentUser.accessToken,
+			byInvite: true,
+			id: this.company.id,
+			name: this.company.name,
+			teamId: this.team.id,
+			memberCount: 2
+		}];
 		this.path = '/users/' + (this.id || this.currentUser.user.id);
 		this.modifiedAfter = Date.now();
+		const expectedVersion = this.currentUser.user.version + 1;
 		this.expectedData = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
 				$set: {
-					version: 4,
+					version: expectedVersion,
 					modifiedAt: Date.now(), // placeholder
 					...this.data
 				},
 				$version: {
-					before: 3,
-					after: 4
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};
@@ -74,7 +83,12 @@ class CommonInit {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Object.assign(this.expectedUser, response.user.$set, this.data);
+				Object.assign(this.expectedUser, response.user.$set, this.data, {
+					lastReads: {},
+					preferences: {
+						acceptedTOS: true
+					}
+				});
 				delete this.data;	// don't need this anymore
 				callback();
 			}

@@ -37,7 +37,7 @@ class LoginHelper {
 
 		await awaitParallel([
 			this.getInitialData,
-			this.getForeignCompanies,
+			//this.getForeignCompanies, // doesn't apply anymore under one-user-per-org
 			this.generateAccessToken
 		], this);
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
@@ -56,6 +56,9 @@ class LoginHelper {
 		await this.generateAccessToken();
 		this.grantSubscriptionPermissions(); // NOTE - no await here, this can run in parallel
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
+		return {
+			accessToken: this.accessToken
+		};
 	}
 
 	// get the country-code associated with this user by IP address of the connection
@@ -97,6 +100,7 @@ class LoginHelper {
 		this.initialData = await this.initialDataFetcher.fetchInitialData();
 	}
 
+	/*
 	// get any companies the user is a member of (by email) in foreign environments,
 	// to display in the organization switcher
 	async getForeignCompanies () {
@@ -112,6 +116,7 @@ class LoginHelper {
 			return company.company;
 		});
 	}
+	*/
 
 	// generate an access token for this login if needed
 	async generateAccessToken (force) {
@@ -190,9 +195,15 @@ class LoginHelper {
 				op.$set.lastOriginDetail = originDetail;
 			}
 		}
-		if (this.trueLogin) {
+
+		const setFirstSession = (
+			!this.dontSetFirstSession &&
+			!this.user.get('copiedFromUserId') // don't set firstSessionStartedAt if this is not the original registering user
+		);
+		if (setFirstSession) {
 			op.$set.firstSessionStartedAt = this.user.get('firstSessionStartedAt') === undefined ? Date.now() : 0;
 		}
+
 		if (this.countryCode) {
 			op.$set.countryCode = this.countryCode;
 		}
@@ -228,7 +239,7 @@ class LoginHelper {
 
 	// form the response to the request
 	async formResponse () {
-		if (this.notTrueLogin) {
+		if (this.notRealLogin) {
 			return;
 		}
 
@@ -264,7 +275,6 @@ class LoginHelper {
 			runtimeEnvironment: runTimeEnvironment,
 			environmentHosts: Object.values(environmentGroup || []),
 			isWebmail: this.isWebmail,
-			eligibleJoinCompanies: this.eligibleJoinCompanies,
 			accountIsConnected: this.accountIsConnected,
 			newRelicLandingServiceUrl,
 			newRelicApiUrl
@@ -283,6 +293,11 @@ class LoginHelper {
 
 		// add any foreign (cross-environment) companies
 		this.responseData.companies = [...this.responseData.companies, ...(this.foreignCompanies || [])];
+
+		// add eligibleJoinCompanies as a user attribute
+		if (this.eligibleJoinCompanies && this.eligibleJoinCompanies.length > 0) {
+			this.responseData.user.eligibleJoinCompanies = this.eligibleJoinCompanies;
+		}
 	}
 
 	// grant the user permission to subscribe to various broadcaster channels
@@ -302,17 +317,23 @@ class LoginHelper {
 
 	// get list of companies the user is not a member of, but is eligible to join
 	async getEligibleJoinCompanies () {
-		const domain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
+		const email = this.user.get('email');
+		const domain = EmailUtilities.parseEmail(email).domain.toLowerCase();
 		this.isWebmail = WebmailCompanies.includes(domain);
 
-		// ignore webmail domains
-		if (this.isWebmail) {
-			return;
-		}
+		const ignoreDomain = this.isWebmail;
+		const ignoreInvite = (
+			!this.request.module.oneUserPerOrg &&
+			!this.request.request.headers['x-cs-one-user-per-org']
+		);
 
-		if (this.notTrueLogin) { return; }
+		if (this.notRealLogin) { return; }
 
-		this.eligibleJoinCompanies = await GetEligibleJoinCompanies(domain, this.request);
+		this.eligibleJoinCompanies = await GetEligibleJoinCompanies(
+			email,
+			this.request,
+			{ ignoreDomain, ignoreInvite }
+		);
 	}
 
 	// set flag indicating whether this user's New Relic account is connected to a CodeStream company

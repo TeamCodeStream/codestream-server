@@ -21,8 +21,7 @@ class RawLoginRequest extends RestfulRequest {
 		this.responseData = await new LoginHelper({
 			request: this,
 			user: this.request.user,
-			loginType: this.loginType,
-			trueLogin: true
+			loginType: this.loginType
 		}).login();
 	}
 

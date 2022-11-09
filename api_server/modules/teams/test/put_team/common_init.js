@@ -11,12 +11,17 @@ class CommonInit {
 		this.teamOptions.creatorIndex = 1;
 		this.userOptions.numRegistered = 4;
 		BoundAsync.series(this, [
+			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
 			this.makeAdmins,	// make other users into admins, as needed
 			this.makeTeamData	// make the data to be used during the update
 		], callback);
 	}
 	
+	setTestOptions (callback) {
+		return callback();
+	}
+
 	// make other users into admins for the team, if desired for the test
 	makeAdmins (callback) {
 		const adminIds = [];
@@ -51,6 +56,7 @@ class CommonInit {
 		this.expectedTeam = Object.assign({}, this.team, this.data, { plan: 'FREEPLAN' });
 		this.path = '/teams/' + this.team.id;
 		this.modifiedAfter = Date.now();
+		const expectedVersion = this.oneUserPerOrg ? 10 : 7;
 		this.expectedData = {
 			team: {
 				_id: this.team.id,	// DEPRECATE ME
@@ -58,11 +64,11 @@ class CommonInit {
 				$set: {
 					name: this.data.name,
 					modifiedAt: this.modifiedAfter,
-					version: 7
+					version: expectedVersion
 				},
 				$version: {
-					before: 6,
-					after: 7
+					before: expectedVersion - 1,
+					after: expectedVersion
 				}
 			}
 		};

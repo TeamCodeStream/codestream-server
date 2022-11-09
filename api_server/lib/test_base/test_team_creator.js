@@ -10,14 +10,26 @@ class TestTeamCreator {
 
 	create (callback) {
 		this.users = [];
-		BoundAsync.series(this, [
+		// remove this check when we are fully migrated to ONE_USER_PER_ORG
+		const series = this.test.oneUserPerOrg ? [
+			this.createUnregisteredUsers,
+			this.confirmTeamCreator,
+			this.preCreateTeam,
+			this.createTeam,
+			this.inviteUsers,
+			this.confirmUsers,
+			this.acceptInvites,
+			this.createRepos
+		] : [
 			this.createRegisteredUsers,
 			this.createUnregisteredUsers,
 			this.preCreateTeam,
 			this.createTeam,
 			this.inviteUsers,
 			this.createRepos
-		], error => {
+		];
+
+		BoundAsync.series(this, series, error => {
 			if (error) { return callback(error); }
 			callback(null, {
 				team: this.team,
@@ -36,6 +48,7 @@ class TestTeamCreator {
 		});
 	}
 
+	// NOTE: remove when we have migrated to ONE_USER_PER_ORG
 	createRegisteredUsers (callback) {
 		BoundAsync.timesSeries(
 			this,
@@ -45,6 +58,7 @@ class TestTeamCreator {
 		);
 	}
 
+	// NOTE: remove when we have migrated to ONE_USER_PER_ORG
 	createRegisteredUser (n, callback) {
 		const data = this.test.userFactory.getRandomUserData();
 		data._confirmationCheat = this.test.apiConfig.sharedSecrets.confirmationCheat;
@@ -63,11 +77,19 @@ class TestTeamCreator {
 			}
 		);
 	}
-
+		
 	createUnregisteredUsers (callback) {
+		let numUsers;
+		if (this.test.oneUserPerOrg) { // remove this check when we are fully migrated to ONE_USER_PER_ORG
+			numUsers =
+				(this.userOptions.numRegistered || 0) +
+				(this.userOptions.numUnregistered || 0);
+		} else {
+			numUsers = this.userOptions.numUnregistered || 0;
+		}
 		BoundAsync.timesSeries(
 			this,
-			this.userOptions.numUnregistered || 0,
+			numUsers,
 			this.createUnregisteredUser,
 			callback
 		);
@@ -75,8 +97,17 @@ class TestTeamCreator {
 
 	createUnregisteredUser (n, callback) {
 		const data = this.test.userFactory.getRandomUserData();
-		const userIndex = this.userOptions.numRegistered + n;
-		Object.assign(data, this.userOptions.userData[userIndex] || {});
+		data._confirmationCheat = this.test.apiConfig.sharedSecrets.confirmationCheat;
+		let userIndex;
+		if (this.test.oneUserPerOrg) { // remove this check when we are fully migrated to ONE_USER_PER_ORG
+			userIndex = n;
+		} else {
+			userIndex = this.userOptions.numRegistered + n;
+		}
+		Object.assign(data, (this.userOptions.userData && this.userOptions.userData[userIndex]) || {});
+		if (this.userOptions.cheatOnSubscription) {
+			data._subscriptionCheat = this.test.apiConfig.sharedSecrets.subscriptionCheat;
+		}
 		this.test.userFactory.registerUser(
 			data,
 			(error, userData) => {
@@ -85,6 +116,13 @@ class TestTeamCreator {
 				callback();
 			}
 		);
+	}
+
+	confirmTeamCreator (callback) {
+		if (typeof this.teamOptions.creatorIndex !== 'number') { 
+			return callback();
+		}
+		this.confirmUser(this.teamOptions.creatorIndex, callback);
 	}
 
 	preCreateTeam (callback) {
@@ -101,13 +139,21 @@ class TestTeamCreator {
 			return callback();
 		}
 		const token = this.teamOptions.creatorToken || this.users[this.teamOptions.creatorIndex].accessToken;
-
 		this.test.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.team = response.team;
 				this.company = response.company;
 				this.teamStream = response.streams[0];
+				if (this.teamOptions.creatorToken && response.accessToken) {
+					this.teamOptions.creatorToken = response.accessToken;
+				}
+				if (this.teamOptions.creatorIndex !== undefined) {
+					Object.assign(this.users[this.teamOptions.creatorIndex].user, {
+						teamIds: this.team.id,
+						companyIds: this.company.id
+					});
+				}
 				callback();
 			},
 			{
@@ -162,6 +208,8 @@ class TestTeamCreator {
 		if (!email) {
 			email = userIndex !== null ? this.users[userIndex].user.email : this.test.userFactory.randomEmail();
 		}
+
+		const _subscriptionCheat = this.userOptions.cheatOnSubscription ? this.test.apiConfig.sharedSecrets.subscriptionCheat : undefined;
 		this.test.doApiRequest(
 			{
 				method: 'post',
@@ -169,14 +217,17 @@ class TestTeamCreator {
 				data: {
 					email: email,
 					teamId: this.team.id,
-					_pubnubUuid: this.test.userFactory.getNextPubnubUuid()
+					_pubnubUuid: this.test.userFactory.getNextPubnubUuid(),
+					_subscriptionCheat
 				},
 				token
 			}, 
 			(error, response) => {
 				if (error) { return callback(error); }
 				if (userIndex !== null) { 
+					const confirmationCode = this.users[userIndex].user.confirmationCode;
 					this.users[userIndex].user = response.user;
+					this.users[userIndex].user.confirmationCode = confirmationCode;
 				}
 				else {
 					this.users.push({ user: response.user });
@@ -185,6 +236,79 @@ class TestTeamCreator {
 					this.team.memberIds.push(response.user.id);
 				}
 				this.team.companyMemberCount++;
+				callback();
+			}
+		);
+	}
+
+	confirmUsers (callback) {
+		BoundAsync.timesSeries(
+			this,
+			this.userOptions.numRegistered || 0,
+			this.confirmUser,
+			callback
+		);
+	}
+	
+	confirmUser (n, callback) {
+		if (this.users[n].accessToken) { return callback(); }
+		this.test.userFactory.confirmUser(
+			this.users[n].user,
+			(error, response) => {
+				if (error) { return callback(error); }
+				const password = this.users[n].password;
+				this.users[n] = response;
+				this.users[n].password = password;
+				if (n === this.userOptions.currentUserIndex) {
+					this.currentUser = response;
+					this.token = response.accessToken;
+				}
+				callback();
+			}
+		);
+	}
+
+	acceptInvites (callback) {
+		if (!this.company) { return callback(); }
+		BoundAsync.timesSeries(
+			this,
+			this.userOptions.numRegistered || 0,
+			this.acceptInvite,
+			callback
+		);
+	}
+
+	acceptInvite (n, callback) {
+		if ((this.users[n].user.companyIds || []).includes(this.company.id)) {
+			return callback();
+		}
+		if (
+			this.teamOptions.members !== 'all' &&
+			this.teamOptions.members instanceof Array &&
+			 !this.teamOptions.members.includes(n)
+		) {
+			return callback();
+		}
+		this.test.doApiRequest(
+			{
+				method: 'put',
+				path: '/join-company/' + this.company.id,
+				token: this.users[n].accessToken,
+				requestOptions: {
+					headers: {
+						'X-CS-Confirmation-Cheat': this.test.apiConfig.sharedSecrets.confirmationCheat
+					}
+				}
+			},
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.users[n].user = response.user;
+				this.users[n].accessToken = response.accessToken;
+				this.users[n].broadcasterToken = response.broadcasterToken;
+				if (n === this.userOptions.currentUserIndex) {
+					this.currentUser = this.users[n];
+					this.token = response.accessToken;
+				}
 				callback();
 			}
 		);
@@ -212,7 +336,8 @@ class TestTeamCreator {
 		) {
 			return callback();
 		}	
-		const token = this.repoOptions.creatorToken || this.users[this.repoOptions.creatorIndex].accessToken;
+		const token = this.repoOptions.creatorToken === 'teamCreatorToken' ? this.teamOptions.creatorToken : 
+			(this.repoOptions.creatorToken || this.users[this.repoOptions.creatorIndex].accessToken);
 		this.test.postFactory.createRandomPost(
 			(error, response) => {
 				if (error) { return callback(error); }

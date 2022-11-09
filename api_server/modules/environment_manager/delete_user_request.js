@@ -22,7 +22,8 @@ class DeleteUserRequest extends XEnvRequest {
 			throw this.errorHandler.error('alreadyDeleted');
 		}
 
-		// users can only be deleted from across environments if they aren't on any teams
+		// if not under one-user-per-org, where users must accept invites, users can only be deleted
+		// from across environments if they aren't on any teams
 		if ((user.get('teamIds') || []).length > 0) {
 			throw this.errorHandler.error('deleteAuth', { reason: 'user is on at least one team' });
 		}

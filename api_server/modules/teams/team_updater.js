@@ -39,6 +39,7 @@ class TeamUpdater extends ModelUpdater {
 			// this is only for test purposes, for now, so can only be done with cheat code
 			delete this.attributes.providerHosts;
 		}
+		delete this.attributes._confirmationCheat;
 
 		// look for directives applied to memberIds or adminIds, we only allow a single directive at once
 		let finalDirective = null;
@@ -162,6 +163,7 @@ class TeamUpdater extends ModelUpdater {
 			return;
 		}
 		this.transforms.userUpdates = [];
+		this.transforms.removedUserEmails = {};
 		await Promise.all(this.transforms.removedUsers.map(async user => {
 			await this.removeUserFromTeam(user);
 		}));
@@ -169,6 +171,7 @@ class TeamUpdater extends ModelUpdater {
 
 	// for a user being removed from the team, update their teamIds array
 	async removeUserFromTeam (user) {
+		const originalEmail = user.get('email');
 		const op = {
 			$pull: {
 				teamIds: this.team.id,
@@ -179,11 +182,11 @@ class TeamUpdater extends ModelUpdater {
 			}
 		};
 
-		// unregistered users who are left with no team are simply deactivated
-		if (
-			!user.get('isRegistered') && 
+		// under one-user-per-org, the user record is always deactivated, even for registered users
+		if (true
+			/*!user.get('isRegistered') && 
 			user.get('teamIds').length === 1 &&
-			user.get('teamIds')[0] === this.team.id
+			user.get('teamIds')[0] === this.team.id*/
 		) {
 			const emailParts = user.get('email').split('@');
 			const now = Date.now();
@@ -201,6 +204,7 @@ class TeamUpdater extends ModelUpdater {
 			id: user.id
 		}).save(op);
 		this.transforms.userUpdates.push(updateOp);
+		this.transforms.removedUserEmails[user.id] = originalEmail;
 	}
 }
 

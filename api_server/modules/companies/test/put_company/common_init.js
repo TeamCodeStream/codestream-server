@@ -19,10 +19,9 @@ class CommonInit {
 	}
 
 	setTestOptions (callback) {
-		this.teamOptions.createCompanyInstead = true;
-		callback();
+		return callback();
 	}
-
+	
 	// form the data for the company update
 	makeCompanyData (callback) {
 		this.data = {
@@ -68,7 +67,7 @@ class CommonInit {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				this.message = response;
+				this.message = this.message || response;
 				delete this.data;	// don't need this anymore
 				callback();
 			}

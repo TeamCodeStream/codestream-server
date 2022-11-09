@@ -11,7 +11,7 @@ class WebLoginCodeRequest extends APIRequest {
 	}
 
 	async process () {
-		const { email } = this.request.body;
+		const { email, teamId } = this.request.body;
 		if (!email) {
 			return this.loginError();
 		}
@@ -19,7 +19,8 @@ class WebLoginCodeRequest extends APIRequest {
 		try {
 			this.loginCodeHelper = new LoginCodeHelper({
 				request: this,
-				email: email
+				email,
+				teamId
 			});
 			await this.loginCodeHelper.updateUserCode();
 		} catch (error) {

@@ -18,8 +18,7 @@ const InvalidIdentityTokenTest = require('./invalid_identity_token_test');
 const BadProviderIdentityMatchTest = require('./bad_provider_identity_match_test');
 const NoIdentityMatchTokenTest = require('./no_identity_match_token_test');
 const NoSignUpTest = require('./no_signup_test');
-const ExistingUnregisteredUserTest = require('./existing_unregistered_user_test');
-const ExistingRegisteredUserTest = require('./existing_registered_user_test');
+const ExistingUserTest = require('./existing_user_test');
 
 const PROVIDERS = [
 	'trello',
@@ -45,7 +44,6 @@ const AUTH_PROVIDERS = [
 	'github',
 	'gitlab',
 	'bitbucket'
-	// TODO: 'okta'
 ];
 
 class ProviderTokenRequestTester {
@@ -66,8 +64,14 @@ class ProviderTokenRequestTester {
 			new BadProviderIdentityMatchTest({ provider }).test();
 			new NoIdentityMatchTokenTest({ provider }).test();
 			new NoSignUpTest({ provider }).test();
-			new ExistingUnregisteredUserTest({ provider }).test();
-			new ExistingRegisteredUserTest({ provider }).test();
+			new ExistingUserTest({ provider }).test();
+			new ExistingUserTest({ provider, oneUserPerOrg: true }).test();
+			new ExistingUserTest({ provider, userIsInvited: true }).test();
+			new ExistingUserTest({ provider, userIsInvited: true, oneUserPerOrg: true }).test();
+			new ExistingUserTest({ provider, isRegistered: true }).test();
+			new ExistingUserTest({ provider, oneUserPerOrg: true, isRegistered: true }).test();
+			new ExistingUserTest({ provider, userIsInvited: true, isRegistered: true }).test();
+			new ExistingUserTest({ provider, userIsInvited: true, oneUserPerOrg: true, isRegistered: true }).test();
 		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();

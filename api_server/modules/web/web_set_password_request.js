@@ -22,9 +22,10 @@ class WebSetPasswordRequest extends WebRequestBase {
 
 		let user;
 		try {
-			user = await new CheckResetCore({
+			const userInfo = await new CheckResetCore({
 				request: this
-			}).getUserFromToken(token);
+			}).getUserInfoFromToken(token);
+			user = userInfo.user;
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);

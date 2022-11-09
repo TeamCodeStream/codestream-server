@@ -24,7 +24,7 @@ class ClaimCodeErrorTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
-		this.expectedTeamVersion = 4;
+		this.expectedTeamVersion = 5;
 		this.init(callback);
 	}
 

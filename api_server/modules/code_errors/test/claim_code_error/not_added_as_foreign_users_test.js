@@ -9,7 +9,7 @@ class NotAddedAsForeignUsersTest extends ForeignUsersTest {
 	}
 
 	setTestOptions (callback) {
-		this.expectedTeamVersion = 10;
+		this.expectedTeamVersion = 14;
 		super.setTestOptions(() => {
 			this.numChildPosts = 10;
 			this.childPostByUser = [ , 3, 1, , 8, 4, , 2];

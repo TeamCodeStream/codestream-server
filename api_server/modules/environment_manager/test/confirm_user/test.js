@@ -3,6 +3,7 @@
 
 'use strict';
 
+/*
 const ConfirmUserTest = require('./confirm_user_test');
 const NotFoundTest = require('./not_found_test');
 const EmailRequiredTest = require('./email_required_test');
@@ -13,10 +14,13 @@ const PasswordTest = require('./password_test');
 const PasswordHashTest = require('./password_hash_test');
 const AlreadyRegisteredTest = require('./already_registered_test');
 const MessageToTeamTest = require('./message_to_team_test');
+*/
+const DeprecatedTest = require('./deprecated_test');
 
 class ConfirmUserRequestTester {
 
 	test () {
+		/*
 		new ConfirmUserTest().test();
 		new NotFoundTest().test();
 		new EmailRequiredTest().test();
@@ -27,6 +31,8 @@ class ConfirmUserRequestTester {
 		new PasswordHashTest().test();
 		new AlreadyRegisteredTest().test();
 		new MessageToTeamTest().test();
+		*/
+		new DeprecatedTest().test();
 	}
 }
 

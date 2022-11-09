@@ -3,6 +3,8 @@
 'use strict';
 
 const PutRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/put_request');
+const EligibleJoinCompaniesPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/eligible_join_companies_publisher');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 class PutCompanyRequest extends PutRequest {
 
@@ -30,6 +32,11 @@ class PutCompanyRequest extends PutRequest {
 
 	// after the team is updated...
 	async postProcess () {
+		await this.publishToTeam();
+		await this.publishToInvitees();
+	}
+
+	async publishToTeam () {
 		// publish the change to all users on the "everyone" team
 		const channel = 'team-' + this.everyoneTeam.id;
 		const message = Object.assign({}, this.responseData, { requestId: this.request.id });
@@ -44,6 +51,39 @@ class PutCompanyRequest extends PutRequest {
 			// this doesn't break the chain, but it is unfortunate...
 			this.warn(`Could not publish updated company message to team ${this.everyoneTeam.id}: ${JSON.stringify(error)}`);
 		}
+	}
+
+	// publish the change to all registered, invited users, in their "eligibleJoinCompanies" array
+	async publishToInvitees () {
+		// this sucks, and is NOT scaleable ... we need to broadcast out to every member of the
+		// company that the company attributes have changed, because those attributes appear
+		// in the eligibleJoinCompanies attribute for each user, and that gets displayed in the org
+		// switcher ... unfortunately we haven't really implemented a good data model for this,
+		// since it's an array ... so to broadcast the change we really need to fetch EVERYONE's
+		// eligibleJoinCompanies, all at once ... just not a good idea for big orgs
+		// https://issues.newrelic.com/browse/NR-62509
+		const activeMemberIds = this.everyoneTeam.getActiveMembers();
+		const members = await this.data.users.getByQuery(
+			{
+				id: { $in: activeMemberIds.map(id => this.data.users.objectIdSafe(id)) }
+			},
+			{
+				noCache: true,
+				fields: [/*'isRegistered', */'email'],
+				hint: UserIndexes.byId
+			}
+		);
+		/*
+		const unregisteredMembers = members.filter(member => {
+			return !member.isRegistered;
+		});
+		*/
+		await Promise.all(members.map(async user => {
+			await new EligibleJoinCompaniesPublisher({
+				request: this,
+				broadcaster: this.api.services.broadcaster
+			}).publishEligibleJoinCompanies(user.email);
+		}));
 	}
 
 	// describe this route for help

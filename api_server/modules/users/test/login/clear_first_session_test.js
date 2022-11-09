@@ -22,10 +22,7 @@ class ClearFirstSessionTest extends LoginTest {
 			{
 				method: 'put',
 				path: '/no-auth/login',
-				data: {
-					email: this.data.email,
-					password: this.data.password
-				}
+				data: this.data
 			},
 			(error, response) => {
 				if (error) { return callback(error); }

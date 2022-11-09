@@ -6,7 +6,7 @@ const PostUserTest = require('./post_user_test');
 const ExistingUnregisteredUserTest = require('./existing_unregistered_user_test');
 const ExistingRegisteredUserTest = require('./existing_registered_user_test');
 const ExistingRegisteredUserOnTeamTest = require('./existing_registered_user_on_team_test');
-const ExistingUnegisteredUserOnTeamTest = require('./existing_unregistered_user_on_team_test');
+const ExistingUnregisteredUserOnTeamTest = require('./existing_unregistered_user_on_team_test');
 const ExistingRegisteredUserAlreadyOnTeamTest = require('./existing_registered_user_already_on_team_test');
 const ExistingUnregisteredUserAlreadyOnTeamTest = require('./existing_unregistered_user_already_on_team_test');
 const OriginTeamPropagatesTest = require('./origin_team_propagates_test');
@@ -43,6 +43,13 @@ const DuplicateUsernameOkTest = require('./duplicate_username_ok_test');
 const NumUsersInvitedTest = require('./num_users_invited_test');
 const TrimEmailTest = require('./trim_email_test');
 const ManualInviteTypeTest = require('./manual_invite_type_test');
+const OriginUserIdTest = require('./origin_user_id_test');
+const ExistingUnregisteredUserOriginUserIdTest = require('./existing_unregistered_user_origin_user_id_test');
+const ExistingRegisteredUserOriginUserIdTest = require('./existing_registered_user_origin_user_id_test');
+const ExistingRegisteredUserOnTeamOriginUserIdTest = require('./existing_registered_user_on_team_origin_user_id_test');
+const ExistingUnregisteredUserOnTeamOriginUserIdTest = require('./existing_unregistered_user_on_team_origin_user_id_test');
+const ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest = require('./existing_registered_user_already_on_team_origin_user_id_test');
+const MessageToUserTest = require('./message_to_user_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -50,20 +57,30 @@ class PostUserRequestTester {
 
 	postUserTest () {
 		new PostUserTest().test();
+		new PostUserTest({ oneUserPerOrg: true }).test();
 		new ExistingUnregisteredUserTest().test();
+		new ExistingUnregisteredUserTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserTest().test();
+		new ExistingRegisteredUserTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserOnTeamTest().test();
-		new ExistingUnegisteredUserOnTeamTest().test();
+		new ExistingRegisteredUserOnTeamTest({ oneUserPerOrg: true }).test();
+		new ExistingUnregisteredUserOnTeamTest().test();
+		new ExistingUnregisteredUserOnTeamTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserAlreadyOnTeamTest().test();
+		new ExistingRegisteredUserAlreadyOnTeamTest({ oneUserPerOrg: true }).test();
 		new ExistingUnregisteredUserAlreadyOnTeamTest().test();
+		new ExistingUnregisteredUserAlreadyOnTeamTest({ oneUserPerOrg: true }).test();
 		new OriginTeamPropagatesTest().test();
 		new ACLTest().test();
 		new NoAttributeTest({ attribute: 'teamId'}).test();
 		new NoAttributeTest({ attribute: 'email'}).test();
 		new TeamNotFoundTest().test();
 		new MessageToTeamTest().test();
+		new MessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new ExistingUnregisteredUserMessageToTeamTest().test();
+		new ExistingUnregisteredUserMessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new ExistingRegisteredUserMessageToTeamTest().test();
+		new ExistingRegisteredUserMessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new UserAddedToTeamGetsMessageTest().test();
 		new UnregisteredInviteTest().test();
 		new DontSendEmailTest().test();
@@ -95,6 +112,13 @@ class PostUserRequestTester {
 		new NumUsersInvitedTest().test();
 		new TrimEmailTest().test();
 		new ManualInviteTypeTest().test();
+		new OriginUserIdTest().test();
+		new ExistingUnregisteredUserOriginUserIdTest().test();
+		new ExistingRegisteredUserOriginUserIdTest().test();
+		new ExistingRegisteredUserOnTeamOriginUserIdTest().test();
+		new ExistingUnregisteredUserOnTeamOriginUserIdTest().test();
+		new ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest().test();
+		new MessageToUserTest().test();
 	}
 }
 

@@ -1,6 +1,8 @@
 // handle the "POST /xenv/confirm-user" request, to confirm a given user via email, for internal use
 // between environments
 
+// NOTE: deprecate this request once we have fully moved to ONE_USER_PER_ORG
+
 'use strict';
 
 const XEnvRequest = require('./xenv_request');
@@ -12,6 +14,15 @@ class ConfirmUserRequest extends XEnvRequest {
 
 	// process the request...
 	async process () {
+		// remove this check when we fully move to ONE_USER_PER_ORG
+		const oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.headers['x-cs-one-user-per-org']
+		);
+		if (oneUserPerOrg) {
+			throw this.errorHandler.error('deprecated');
+		}
+
 		await this.requireAndAllow();
 		await this.getUser();
 		if (!this.user) { return; }
@@ -33,7 +44,7 @@ class ConfirmUserRequest extends XEnvRequest {
 
 	// get the referenced user, if it exists
 	async getUser () {
-		// get the user by passed-in email
+		// get any users matching this email
 		this.user = await this.data.users.getOneByQuery(
 			{
 				searchableEmail: this.request.body.email.toLowerCase()
@@ -42,6 +53,8 @@ class ConfirmUserRequest extends XEnvRequest {
 				hint: UserIndexes.bySearchableEmail
 			}
 		);
+
+		// in the one-user-per-org scenario, we want any user that is unregistered and
 		if (!this.user) { return; }
 
 		// ignore deactivated users, or users that are already registered

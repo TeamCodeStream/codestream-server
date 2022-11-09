@@ -13,42 +13,8 @@ class EnsureUserRequest extends XEnvRequest {
 	// process the request...
 	async process () {
 		await this.requireAndAllow();
-
-		let fetched = false, created = false;
-		while (!fetched) { 
-			const { email } = this.request.body.user;
-			if (!email) {
-				throw this.errorHandler.error('parameterRequired', { info: 'user.email' });
-			}
-
-			const user = await this.data.users.getOneByQuery(
-				{
-					searchableEmail: decodeURIComponent(email).toLowerCase()
-				},
-				{
-					hint: UserIndexes.bySearchableEmail
-				}
-			);
-			if (user) {
-				// if the user exists but isn't confirmed, we confirm them automatically
-				if (!user.get('isRegistered')) {
-					this.responseData = await this.confirmUser(user);
-				} else {
-					this.responseData = { 
-						user: user.attributes,
-						accessToken: ((user.get('accessTokens') || {}).web || {}).token
-					};
-				}
-				fetched = true;
-			} else if (created) {
-				// something went wrong, shouldn't happen, but better than an infinite loop
-				throw this.errorHandler.error('createAuth', { reason: 'user not created' });
-			} else {
-				await this.createUser();
-				await this.persist(); // make sure created user is saved to database, not just cached
-				created = true;
-			}
-		}
+		await this.getExistingUser();
+		this.responseData = await this.createUser();
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -60,12 +26,36 @@ class EnsureUserRequest extends XEnvRequest {
 		});
 	}
 	
+	// find an existing user matching the email passed in
+	// under one-user-per-org, the existing user is only found if it is teamless
+	async getExistingUser () {
+		const { email } = this.request.body.user;
+		if (!email) {
+			throw this.errorHandler.error('parameterRequired', { info: 'user.email' });
+		}
+		const users = await this.data.users.getByQuery(
+			{
+				searchableEmail: decodeURIComponent(email).toLowerCase()
+			},
+			{
+				hint: UserIndexes.bySearchableEmail
+			}
+		);
+		this.existingUser = users.find(user => {
+			return (
+				!user.get('deactivated') &&
+				(user.get('teamIds') || []).length === 0
+			);
+		});
+	}
+
 	// create a new user based on the attributes passed
 	async createUser () {
 		// first create the user, unregistered...
 		const { email, fullName, username, passwordHash, timeZone, preferences } = this.request.body.user;
 		const user = await new UserCreator({
-			request: this
+			request: this,
+			existingUser: this.existingUser
 		}).createUser({
 			email,
 			fullName,
@@ -82,9 +72,10 @@ class EnsureUserRequest extends XEnvRequest {
 	// confirm an unregistered user
 	async confirmUser (user) {
 		// call out to a confirmation helper, to finish the confirmation
-		// we don't copy any incoming info, except the password hash
+		// we don't copy any incoming info, except the password hash and full name
 		const data = {
-			passwordHash: this.request.body.user.passwordHash
+			passwordHash: this.request.body.user.passwordHash,
+			fullName: this.request.body.user.fullName
 		};
 		return new ConfirmHelper({
 			request: this,
@@ -93,6 +84,7 @@ class EnsureUserRequest extends XEnvRequest {
 			dontConfirmInOtherEnvironments: true
 		}).confirm(data);
 	}
+
 }
 
 module.exports = EnsureUserRequest;

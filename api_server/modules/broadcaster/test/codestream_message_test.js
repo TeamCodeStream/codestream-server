@@ -129,7 +129,7 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 
 		// we remove the secretKey, which clients should NEVER have, and the publishKey, which we won't be using
 		const user = listeningUser.user;
-		const token = listeningUser.broadcasterToken;
+		const token = listeningUser.broadcasterToken || listeningUser.user.id;
 		let clientConfig = Object.assign({}, this.apiConfig.broadcastEngine.pubnub);
 		delete clientConfig.secretKey;
 		delete clientConfig.publishKey;

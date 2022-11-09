@@ -1,3 +1,6 @@
+// NOTE: this test becomes obsolete when we move to ONE_USER_PER_ORG,
+// since users confirming registration is no longer an event the team is interested in,
+// only when the user accepts the invite does the team care
 'use strict';
 
 const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
@@ -83,6 +86,18 @@ class ConfirmationMessageToTeamTest extends CodeStreamMessageTest {
 		this.userFactory.confirmUser(this.registeringUser, callback, { headers: { 'x-cs-plugin-ide': this.expectedOrigin }});
 	}
 
+	run (callback) {
+		// under ONE_USER_PER_ORG, we get no message when the user confirms (since they haven't accepted the invite yet)
+		// so pass this test superficially, and remove it when we have fully deployed
+		if (this.oneUserPerOrg) {
+			console.log('NOTE - MESSAGE IS NOT PUBLISHED TO TEAM ON CONFIRMATION UNDER ONE-USER-PER-ORG, PASSING SUPERFICIALLY');
+			this.testDidNotRun = true;
+			return callback();
+		} else {
+			super.run(callback);
+		}
+	}
+	
 	// validate the message received
 	validateMessage (message) {
 		// we can't predict these in advance, just check that they were updated

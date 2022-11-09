@@ -5,6 +5,7 @@
 
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 const UserInviter = require('./user_inviter');
+const OldUserInviter = require('./old_user_inviter');	 // deprecate when we've moved to the ONE_USER_PER_ORG paradigm
 
 class PostUserRequest extends PostRequest {
 
@@ -38,7 +39,13 @@ class PostUserRequest extends PostRequest {
 	// require certain parameters, and discard unknown parameters
 	async requireAndAllow () {
 		// many attributes that are allowed but don't become attributes of the created user
-		['_confirmationCheat', '_subscriptionCheat', '_delayEmail', '_inviteCodeExpiresIn', 'inviteType'].forEach(parameter => {
+		[
+			'_confirmationCheat',
+			'_subscriptionCheat',
+			'_delayEmail',
+			'inviteType',
+			'dontSendEmail'
+		].forEach(parameter => {
 			this[parameter] = this.request.body[parameter];
 			delete this.request.body[parameter];
 		});
@@ -48,28 +55,22 @@ class PostUserRequest extends PostRequest {
 			{
 				required: {
 					string: ['teamId', 'email']
-				},
-				optional: {
-					string: ['_pubnubUuid', 'fullName', 'inviteType'],
-					object: ['inviteInfo'],
-					boolean: ['dontSendEmail']
 				}
 			}
 		);
-		this.dontSendEmail = !!this.request.body.dontSendEmail;
-		delete this.request.body.dontSendEmail;
-		this.inviteInfo = this.request.body.inviteInfo;
 	}
 
 	// invite the user, which will create them as needed, and add them to the team 
 	async inviteUser () {
-		this.userInviter = new UserInviter({
+		const oneUserPerOrg = this.module.oneUserPerOrg || this.request.headers['x-cs-one-user-per-org'];
+		if (oneUserPerOrg) {
+			this.log('NOTE: Inviting user under one-user-per-org paradigm');
+		}
+		const inviterClass = oneUserPerOrg ? UserInviter : OldUserInviter;
+		this.userInviter = new inviterClass({
 			request: this,
 			team: this.team,
-			subscriptionCheat: this._subscriptionCheat, // allows unregistered users to subscribe to me-channel, needed for mock email testing
-			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
 			delayEmail: this._delayEmail,
-			inviteInfo: this.inviteInfo,
 			inviteType: this.inviteType,
 			user: this.user,
 			dontSendEmail: this.dontSendEmail
@@ -78,15 +79,9 @@ class PostUserRequest extends PostRequest {
 		const userData = {
 			email: this.request.body.email.trim()
 		};
-		['fullName', '_pubnubUuid'].forEach(attribute => {
-			if (this.request.body[attribute]) {
-				userData[attribute] = this.request.body[attribute];
-			}
-		});
 		this.invitedUsers = await this.userInviter.inviteUsers([userData]);
-		this.invitedUserData = this.invitedUsers[0];
-		this.transforms.createdUser = this.invitedUserData.user;
-		this.inviteCode = this.invitedUserData.inviteCode;
+		const invitedUserData = this.invitedUsers[0];
+		this.transforms.createdUser = invitedUserData.user;
 	}
 
 	// form the response to the request
@@ -94,16 +89,21 @@ class PostUserRequest extends PostRequest {
 		if (this.gotError) {
 			return super.handleResponse();
 		}
-		// get the user again because the user object would've been modified when added to the team,
-		// this should just fetch from the cache, not from the database
-		const user = await this.data.users.getById(this.transforms.createdUser.id);
+
+		// NOTE: this check for fetch shouldn't be necessary once we've fully migrated to ONE_USER_PER_ORG
+		let user;
+		const oneUserPerOrg = this.module.oneUserPerOrg || this.request.headers['x-cs-one-user-per-org'];
+		if (!oneUserPerOrg) {
+			// get the user again because the user object would've been modified when added to the team,
+			// this should just fetch from the cache, not from the database
+			user = await this.data.users.getById(this.transforms.createdUser.id);
+		} else {
+			user = this.transforms.createdUser;
+		}
+
 		this.responseData = { user: user.getSanitizedObject() };
 
-		// send invite code in the response, for testing purposes
-		if (this._confirmationCheat === this.api.config.sharedSecrets.confirmationCheat) {
-			this.responseData.inviteCode = this.inviteCode;
-		}
-		await super.handleResponse();
+		return super.handleResponse();
 	}
 
 	// after the response has been sent...

@@ -22,21 +22,33 @@ class PostCompanyRequest extends PostRequest {
 		if (this.gotError) {
 			return super.handleResponse();
 		}
-		if (this.transforms.createdTeam) {
-			this.responseData.team = this.transforms.createdTeam.getSanitizedObject({ request: this });
-			this.responseData.team.companyMemberCount = 1;
-		}
-		if (this.transforms.createdTeamStream) {
-			this.responseData.streams = [
-				this.transforms.createdTeamStream.getSanitizedObject({ request: this })
-			]
+
+		// only return a full response if we are not in one-user-per-org (ONE_USER_PER_ORG),
+		// or this was the user's first company
+		if (this.transforms.additionalCompanyResponse) {
+			this.log('NOTE: sending additional company response to POST /companies request');
+			this.responseData = this.transforms.additionalCompanyResponse;
+		} else {
+			if (this.transforms.createdTeam) {
+				this.responseData.team = this.transforms.createdTeam.getSanitizedObject({ request: this });
+				this.responseData.team.companyMemberCount = 1;
+			}
+			if (this.transforms.createdTeamStream) {
+				this.responseData.streams = [
+					this.transforms.createdTeamStream.getSanitizedObject({ request: this })
+				]
+			}
 		}
 		return super.handleResponse();
 	}
 
 	// after we've processed the request....
 	async postProcess () {
-		await this.publishUserUpdate();
+		// only necessary when not in ONE_USER_PER_ORG, once we have moved fully to that, 
+		// this can be completely removed
+		if (!this.transforms.additionalCompanyResponse) {
+			await this.publishUserUpdate();
+		}
 	}
 
 	// publish a joinMethod update if the joinMethod attribute was changed for the user as

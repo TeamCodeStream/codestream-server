@@ -139,33 +139,40 @@ class EnvironmentManagerService {
 	}
 
 	// fetch all companies across all foreign environments that have domain joining on for the given domain
-	async fetchEligibleJoinCompaniesFromAllEnvironments (domain) {
+	async fetchEligibleJoinCompaniesFromAllEnvironments (emailOrDomain) { // becomes just email under ONE_USER_PER_ORG
 		const hosts = this.getForeignEnvironmentHosts();
 		const companies = [];
 		await Promise.all(hosts.map(async host => {
-			const companiesFromEnvironment = await this.fetchEligibleJoinCompaniesFromEnvironment(host, domain);
+			const companiesFromEnvironment = await this.fetchEligibleJoinCompaniesFromEnvironment(host, emailOrDomain); // becomes just email under ONE_USER_PER_ORG
 			companies.push.apply(companies, companiesFromEnvironment);
 		}));
 		return companies;
 	}
 
 	// fetch all companies from the given environment host that have domain joining on for the given domain
-	async fetchEligibleJoinCompaniesFromEnvironment (host, domain) {
-		const url = `${host.publicApiUrl}/xenv/eligible-join-companies?domain=${encodeURIComponent(domain)}`;
-		this.api.log(`Fetching eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}...`);
+	async fetchEligibleJoinCompaniesFromEnvironment (host, emailOrDomain) {  // becomes just email under ONE_USER_PER_ORG
+		let url;
+		if (emailOrDomain.match(/@/)) { // remove this check when we fully move to ONE_USER_PER_ORG, make it just an email
+			url = `${host.publicApiUrl}/xenv/eligible-join-companies?email=${encodeURIComponent(emailOrDomain)}`;
+			this.api.log(`Fetching eligible join companies matching email ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}...`);
+		} else {
+			url = `${host.publicApiUrl}/xenv/eligible-join-companies?domain=${encodeURIComponent(emailOrDomain)}`;
+			this.api.log(`Fetching eligible join companies matching domain ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}...`);
+		}	 
 		const response = await this.fetchFromUrl(url);
 		if (response && response.companies) {
-			this.api.log(`Did fetch ${response.companies.length} eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}`);
+			this.api.log(`Did fetch ${response.companies.length} eligible join companies matching email/domain ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}`);
 			return response.companies.map(company => {
 				return { company, host };
 			});
 		} else {
-			this.api.log(`Did not fetch any eligible join companies matching domain ${domain} from environment ${host.name}:${host.publicApiUrl}`);
+			this.api.log(`Did not fetch any eligible join companies matching email/domain ${emailOrDomain} from environment ${host.name}:${host.publicApiUrl}`);
 			return [];
 		}
 	}
 	
 	// fetch all companies across all foreign environments that a given user (by email) is a member of
+	// deprecate this when we have fully moved to ONE_USER_PER_ORG
 	async fetchUserCompaniesFromAllEnvironments (email) {
 		const hosts = this.getForeignEnvironmentHosts();
 		const companies = [];
@@ -192,11 +199,28 @@ class EnvironmentManagerService {
 		}
 	}
 	
+	// publish eligible join companies for an email across environments
+	async publishEligibleJoinCompaniesInEnvironments (email) {
+		const hosts = this.getForeignEnvironmentHosts();
+		await Promise.all(hosts.map(async host => {
+			return await this.publishEligibleJoinCompaniesInEnvironment(host, email);
+		}));
+	}
+	
+	// publish eligible join companies for an email in the passed environment
+	async publishEligibleJoinCompaniesInEnvironment (host, email) {
+		const url = `${host.publicApiUrl}/xenv/publish-ejc`;
+		this.api.log(`Publishing eligible join companies for ${email} in environment ${host.name}:${host.publicApiUrl}...`);
+		const body = { email };
+		return this.fetchFromUrl(url, { method: 'post', body });
+	}
+
 	// fetch from the environment host, given a url
 	async fetchFromUrl (url, options = {}) {
 		let response;
 		options.headers = options.headers || {};
 		options.headers['x-cs-auth-secret'] = this.api.config.environmentGroupSecrets.requestAuth;
+		options.headers['x-cs-override-maintenance-mode'] = 'xyz123';
 		if (options.body) {
 			options.headers['content-type'] = 'application/json';
 			options.body = JSON.stringify(options.body);

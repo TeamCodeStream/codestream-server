@@ -39,6 +39,7 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 		// user with the team removed from their teamIds
 		this.otherUserUpdatesTeam = true;
 		this.updatedAt = Date.now();
+		const expectedVersion = this.currentUser.user.version + 1;
 		this.updateTeam(error => {
 			if (error) { return callback(error); }
 			this.message = {
@@ -50,11 +51,13 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 						companyIds: this.team.companyId
 					},
 					$set: {
-						version: 4
+						version: expectedVersion,
+						deactivated: true,
+						email: 'placeholder'
 					},
 					$version: {
-						before: 3,
-						after: 4
+						before: expectedVersion - 1,
+						after: expectedVersion
 					}
 				}
 			};
@@ -65,6 +68,8 @@ class RemovalMessageToUserTest extends Aggregation(CodeStreamMessageTest, Common
 	validateMessage (message) {
 		Assert(message.message.user.$set.modifiedAt >= this.updatedAt, 'modifiedAt not changed');
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
+		Assert(message.message.user.$set.email.match(/.*-deactivated[0-9]+@.*/, 'email not a deactivated labelled email'));
+		this.message.user.$set.email = message.message.user.$set.email;
 		return super.validateMessage(message);
 	}
 }

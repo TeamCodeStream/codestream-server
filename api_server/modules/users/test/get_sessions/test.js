@@ -2,12 +2,14 @@
 
 'use strict';
 
-const GetSessionsTest = require('./get_sessions_test');
+const GetSessionsDeprecatedTest = require('./get_sessions_deprecated_test');
+//const GetSessionsTest = require('./get_sessions_test');
 
 class GetSessionsRequestTester {
 
 	test () {
-		new GetSessionsTest().test();
+		new GetSessionsDeprecatedTest().test();
+		//new GetSessionsTest().test();
 	}
 }
 

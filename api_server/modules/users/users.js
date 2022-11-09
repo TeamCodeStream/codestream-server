@@ -166,6 +166,16 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'get',
 		path: 'signup-jwt',
 		requestClass: require('./get_signup_jwt_request')
+	},
+	{
+		method: 'put',
+		path: 'join-company/:id',
+		requestClass: require('./join_company_request')
+	},
+	{
+		method: 'put',
+		path: 'decline-invite/:id',
+		requestClass: require('./decline_invite_request')
 	}
 ];
 
@@ -280,8 +290,7 @@ class Users extends Restful {
 		};
 	}
 
-
-	initialize () {
+	async initialize () {
 		this.signupTokens.initialize();
 
 		// set up a reinvite emails
@@ -304,6 +313,19 @@ class Users extends Restful {
 				module: this
 			});
 			this.weeklyEmails.schedule();
+		}
+
+		// determine if we are using one-user-per-org, per global setting
+		// this can be deprecated when we have fully moved to the ONE_USER_PER_ORG paradigm
+		const setting = await this.api.data.globals.getOneByQuery(
+			{ tag: 'oneUserPerOrg' }, 
+			{ overrideHintRequired: true }
+		);
+		this.oneUserPerOrg = setting && setting.enabled;
+		if (this.oneUserPerOrg) {
+			this.api.log('NOTE: API Server is running in one-user-per-org mode');
+		} else {
+			this.api.log('NOTE: API Server is NOT running in one-user-per-org-mode');
 		}
 	}
 

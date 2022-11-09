@@ -6,15 +6,22 @@ const GenerateLoginCodeMissingEmailTest = require('./generate_login_code_missing
 const GenerateLoginCodeBadEmailTest = require('./generate_login_code_bad_email_test');
 const LoginCodeEmailTest = require('./login_code_email_test');
 const UnregisteredUserTest = require('./unregistered_user_test');
+const NoLoginCodeToUnregisteredUserTest = require('./no_login_code_to_unregistered_user_test');
+
+const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class GenerateLoginCodeTester {
 
 	test () {
 		new GenerateLoginCodeTest().test();
+		new GenerateLoginCodeTest({ oneUserPerOrg: true }).test();
 		new GenerateLoginCodeMissingEmailTest().test();
 		new GenerateLoginCodeBadEmailTest().test();
-		new LoginCodeEmailTest().test();
 		new UnregisteredUserTest().test();
+		SerializeTests([
+			LoginCodeEmailTest,
+			NoLoginCodeToUnregisteredUserTest
+		]);
 	}
 }
 

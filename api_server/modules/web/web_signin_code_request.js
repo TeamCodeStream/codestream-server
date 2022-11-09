@@ -12,7 +12,7 @@ class WebSigninCodeRequest extends APIRequest {
 	}
 
 	async process () {
-		const { email, code } = this.request.body;
+		const { email, code, teamId } = this.request.body;
 		if (!email || !code) {
 			return this.loginError();
 		}
@@ -26,7 +26,7 @@ class WebSigninCodeRequest extends APIRequest {
 		try {
 			this.user = await new LoginCore({
 				request: this
-			}).loginByCode(email, code);
+			}).loginByCode(email, code, teamId);
 
 			if (this.request.body.tenantId) {
 				this.interstitial = '/web/assign/team?tenantId=' + this.request.body.tenantId;

@@ -10,7 +10,7 @@ class NoStreamIdReplyMatchTest extends PostReplyTest {
 
 	getExpectedError () {
 		return {
-			code: 'POST-1006'
+			code: 'RAPI-1011'
 		};
 	}
 

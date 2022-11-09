@@ -7,7 +7,6 @@ const WebErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
-const ConfirmRepoSignup = require('../users/confirm_repo_signup');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 
 class ProviderTokenRequest extends RestfulRequest {
@@ -42,7 +41,6 @@ class ProviderTokenRequest extends RestfulRequest {
 				return;
 			}
 			await this.validateState();			// decode the state token and validate
-			await this.validateRepoInfo();		// validate repo info received in the payload
 			if (this.handleError()) {			// check for error condition passed in
 				return;
 			}
@@ -95,6 +93,13 @@ class ProviderTokenRequest extends RestfulRequest {
 		const which = this.isClientToken ? 'body' : 'query';
 		const input = this.isClientToken ? this.request.body : this.request.query;
 
+		// let's explicitly deprecate the user of invite codes and repo-signups
+		if (this.request[which].invite_code) {
+			throw this.errorHandler.error('deprecated', { reason: 'invite codes are deprecated' });
+		} else if (this.request[which].repo_info) {
+			throw this.errorHandler.error('deprecated', { reason: 'repo-based signup is deprecated' });
+		}
+
 		// mock token must be accompanied by secret
 		if (input._mockToken && decodeURIComponent(input._secret || '') !== this.api.config.sharedSecrets.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
@@ -118,8 +123,6 @@ class ProviderTokenRequest extends RestfulRequest {
 					'error',
 					'oauth_token',
 					'signup_token',
-					'invite_code',
-					'repo_info',
 					'_mockToken',
 					'_mockEmail'
 				],
@@ -165,8 +168,6 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (this.isClientToken) {
 			this.userId = 'anon';
 			this.stateToken = this.request.body.signup_token;
-			this.inviteCode = this.request.body.invite_code;
-			this.repoInfo = this.request.body.repo_info;
 			this.noSignup = this.request.body.no_signup;
 			this.machineId = this.request.body.machine_id;
 			return;
@@ -200,13 +201,18 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('tokenInvalid', { reason: 'not a provider authorization token' });
 		}
 
+		// let's explicitly deprecate the user of invite codes and repo-signups
+		if (this.tokenPayload.ic) {
+			throw this.errorHandler.error('deprecated', { reason: 'invite codes are deprecated' });
+		} else if (this.tokenPayload.ri) {
+			throw this.errorHandler.error('deprecated', { reason: 'repo-based signup is deprecated' });
+		}
+
 		this.userId = this.tokenPayload.userId;
 		this.teamId = this.tokenPayload.teamId;
 		this.providerAccess = this.tokenPayload.access;
 		this.sharing = this.tokenPayload.sm;
 		this.noAllowSignup = !this.tokenPayload.suok && !this.serviceAuth.supportsSignup();
-		this.inviteCode = this.tokenPayload.ic;
-		this.repoInfo = this.tokenPayload.ri;
 		this.noSignup = this.tokenPayload.nosu;
 		this.hostUrl = this.tokenPayload.hu;
 		this.machineId = this.tokenPayload.mi;
@@ -234,19 +240,6 @@ class ProviderTokenRequest extends RestfulRequest {
 	// this should match the encode algorithm in provider_auth_request.js
 	specialDecode (str) {
 		return str.replace(/\*\*\*\(_colon_\)/g, ':').replace(/\*\*\*\(_slash_\)/g, '/');
-	}
-
-	// validate any repo info received in the token payload
-	async validateRepoInfo () {
-		if (this.repoInfo) {
-			const repoInfo = decodeURIComponent(this.repoInfo).split('|');
-			this.repoInfo = await ConfirmRepoSignup({
-				teamId: repoInfo[0],
-				repoId: repoInfo[1],
-				commitHash: repoInfo[2],
-				request: this
-			});
-		}
 	}
 
 	// handle any error sent by the provider
@@ -489,10 +482,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this,
 			provider: this.provider,
 			okToCreateUser: this.userId === 'anon' && !this.noSignup,
-			inviteCode: this.inviteCode,
 			tokenData: this.tokenData,
 			hostUrl: this.hostUrl,
-			teamId: this.repoInfo && this.repoInfo.team && this.repoInfo.team.id,
 			machineId: this.machineId
 		});
 		await this.connector.connectIdentity(userIdentity);
@@ -515,11 +506,16 @@ class ProviderTokenRequest extends RestfulRequest {
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
 		const token = (this.tokenPayload && this.tokenPayload.st) || this.stateToken;
+		let expiresIn = this.request.query && this.request.query.expires_in;
+		if (expiresIn) {
+			expiresIn = parseInt(expiresIn);
+		}
 		await this.api.services.signupTokens.insert(
 			token,
 			this.user ? this.user.id : null,
 			{
 				requestId: this.request.id,
+				expiresIn,
 				more: {
 					signupStatus: this.signupStatus,
 					error: this.errorCode,
@@ -568,7 +564,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	async postProcess () {
 		if (!this.user) { return; }
 		// new users get published to the team channel
-		if (this.connector && (this.connector.userWasConfirmed || this.connector.userWasAddedToTeam)) {
+		if (this.connector && this.connector.userWasConfirmed) {
 			await this.publishUserToTeams();
 		}
 		if (this.transforms.userUpdate) {

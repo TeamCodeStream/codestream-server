@@ -18,9 +18,27 @@ class NewRelicUserIdExistingAssigneeTest extends NewRelicUserIdAssigneeTest {
 		});
 	}
 
+	before (callback) {
+		if (this.oneUserPerOrg) {
+			console.log('NOTE: under one-user-per-org, no connection with the original faux user and the register is maintained, so this test will pass superifically and should be deprecated');
+			return callback();
+		} else {
+			super.before(callback);
+		}
+	}
+
 	inviteAndRegisterFauxUser (callback) {
 		// override base class
 		callback();
+	}
+
+	run (callback) {
+		if (this.oneUserPerOrg) {
+			console.log('NOTE: under one-user-per-org, no connection with the original faux user and the register is maintained, so this test will pass superifically and should be deprecated');
+			return callback();
+		} else {
+			super.run(callback);
+		}
 	}
 }
 

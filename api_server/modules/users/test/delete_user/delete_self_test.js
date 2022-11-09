@@ -15,7 +15,6 @@ class DeleteSelfTest extends DeleteUserTest {
 			callback();
 		});
 	}
-
 }
 
 module.exports = DeleteSelfTest;

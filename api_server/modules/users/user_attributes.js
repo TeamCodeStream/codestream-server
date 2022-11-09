@@ -17,7 +17,8 @@ module.exports = {
 		type: 'email',
 		maxLength: 256,
 		required: false,
-		description: 'The user\'s email'
+		description: 'The user\'s email',
+		copyOnInvite: true
 	},
 	searchableEmail: {
 		type: 'email',
@@ -34,7 +35,8 @@ module.exports = {
 	username: {
 		type: 'username',
 		maxLength: 21,
-		description: 'The user\'s username, unique to all @@#teams#team@@ the user is on'
+		description: 'The user\'s username, unique to all @@#teams#team@@ the user is on',
+		copyOnInvite: true
 	},
 	isRegistered: {
 		type: 'boolean',
@@ -53,12 +55,14 @@ module.exports = {
 	fullName: {
 		type: 'string',
 		maxLength: 256,
-		description: 'The user\'s full name'
+		description: 'The user\'s full name',
+		copyOnInvite: true
 	},
 	passwordHash: {
 		type: 'string',
 		maxLength: 64,
-		serverOnly: true
+		serverOnly: true,
+		copyOnInvite: true
 	},
 	confirmationCode: {
 		type: 'string',
@@ -109,7 +113,8 @@ module.exports = {
 		maxLength: 10000,
 		serverOnly: true,
 		forMe: true,
-		description: 'Free-form object representing the user\'s preferences; this attribute is only visible to the user that owns it'
+		description: 'Free-form object representing the user\'s preferences; this attribute is only visible to the user that owns it',
+		copyOnInvite: true
 	},
 	registeredAt: {
 		type: 'timestamp',
@@ -150,7 +155,8 @@ module.exports = {
 	timeZone: {
 		type: 'string',
 		maxLength: 50,
-		description: 'The user\'s time zone'
+		description: 'The user\'s time zone',
+		copyOnInvite: true
 	},
 	sessions: {
 		type: 'object',
@@ -159,7 +165,8 @@ module.exports = {
 	_pubnubUuid: {
 		type: 'string',
 		maxLength: 14,
-		ignoreDescribe: true
+		ignoreDescribe: true,
+		copyOnInvite: true
 	},
 	internalMethod: {
 		type: 'string',
@@ -190,13 +197,15 @@ module.exports = {
 		type: 'string',
 		maxLength: 100,
 		default: '',
-		description: 'User\'s phone number'
+		description: 'User\'s phone number',
+		copyOnInvite: true
 	},
 	iWorkOn: {
 		type: 'string',
 		maxLength: 200,
 		default: '',
-		description: 'Whatever the user works on'
+		description: 'Whatever the user works on',
+		copyOnInvite: true
 	},
 	lastActivityAt: {
 		type: 'timestamp',
@@ -210,13 +219,15 @@ module.exports = {
 		type: 'arrayOfStrings',
 		maxLength: 20,
 		maxStringLength: 200,
-		default: []
+		default: [],
+		copyOnInvite: true
 	},
 	providerInfo: {
 		type: 'object',
 		serverOnly: true,
 		forMe: true,
-		description: 'Object containing credentials info for third-party providers'
+		description: 'Object containing credentials info for third-party providers',
+		copyOnInvite: true
 	},
 	lastLogin: {
 		type: 'timestamp',
@@ -305,12 +316,14 @@ module.exports = {
 	avatar: {
 		type: 'object',
 		description: 'Object describing user\'s headshot or avatar',
-		maxLength: 300
+		maxLength: 300,
+		copyOnInvite: true
 	},
 	countryCode: {
 		type: 'string',
 		description: 'Two-letter country code for the user, obtained from the IP on login',
-		maxLength: 2
+		maxLength: 2,
+		copyOnInvite: true
 	},
 	hasGitLens: {
 		type: 'boolean',
@@ -348,5 +361,18 @@ module.exports = {
 	nrUserId: {
 		type: 'number',
 		description: 'User ID of this user on New Relic'
+	},
+	originUserId: {
+		type: 'id',
+		description: 'when a user is copied by way of invite, retains the ID of the first user record the human user created an account with',
+		copyOnInvite: true,
+		serverOnly: true,
+		forMe: true
+	},
+	copiedFromUserId: {
+		type: 'id',
+		description: 'when a user is copied by way of invite, retains the ID of the user record this user record was copied from',
+		serverOnly: true,
+		forMe: true
 	}
 };

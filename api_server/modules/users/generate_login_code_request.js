@@ -46,6 +46,9 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 			required: {
 				string: ['email'],
 			},
+			optional: {
+				string: ['teamId']
+			}
 		});
 	}
 
@@ -54,6 +57,7 @@ class GenerateLoginCodeRequest extends RestfulRequest {
 		this.loginCodeHelper = new LoginCodeHelper({
 			request: this,
 			email: this.request.body.email,
+			teamId: this.request.body.teamId,
 			_delayEmail: this._delayEmail,
 			expiresIn: this.expiresIn
 		});

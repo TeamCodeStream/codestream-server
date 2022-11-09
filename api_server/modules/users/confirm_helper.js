@@ -4,7 +4,6 @@
 
 const LoginHelper = require('./login_helper');
 const PasswordHasher = require('./password_hasher');
-const UsernameChecker = require('./username_checker');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class ConfirmHelper {
@@ -17,11 +16,9 @@ class ConfirmHelper {
 		this.responseData = {};
 		this.data = data;
 		await this.hashPassword();			// hash the provided password, if given
-		// username uniqueness is deprecated per https://trello.com/c/gG8fKXft
-		//await this.checkUsernameUnique();	// check that the user's username will be unique for their team, as needed
 		await this.updateUser();			// update the user's database record
 		await this.doLogin();				// proceed with the actual login
-		if (!this.dontConfirmInOtherEnvironments) {
+		if (!this.dontConfirmInOtherEnvironments) { // fully remove this when we move to ONE_USER_PER_ORG
 			await this.confirmInOtherEnvironments();	// confirm the user in other "environments" 
 		}
 		return this.responseData;
@@ -43,34 +40,6 @@ class ConfirmHelper {
 		delete this.data.password;
 	}
 
-	// check that the user's username will be unique for the team(s) they are on
-	async checkUsernameUnique () {
-		if (this.dontCheckUsername) {
-			return;
-		}
-		const username = this.data.username || this.user.get('username');
-		if (!username) {
-			return;
-		}
-		// we check against each team the user is on, it must be unique in all teams
-		const teamIds = this.user.get('teamIds') || [];
-		const usernameChecker = new UsernameChecker({
-			data: this.request.data,
-			username: username,
-			userId: this.user.id,
-			teamIds: teamIds
-		});
-		const isUnique = await usernameChecker.checkUsernameUnique();
-		if (!isUnique) {
-			throw this.request.errorHandler.error('usernameNotUnique', {
-				info: {
-					username: username,
-					teamIds: usernameChecker.notUniqueTeamIds
-				}
-			});
-		}
-	}
-
 	// proceed with the actual login, calling into a login helper 
 	async doLogin () {
 		const loginHelper = new LoginHelper({
@@ -78,10 +47,11 @@ class ConfirmHelper {
 			user: this.user,
 			loginType: this.loginType,
 			nrAccountId: this.nrAccountId,
-			dontUpdateLastLogin: this.dontUpdateLastLogin
+			dontUpdateLastLogin: this.dontUpdateLastLogin,
+			dontSetFirstSession: this.dontSetFirstSession
 		});
-		if (this.notTrueLogin) {
-			await loginHelper.allowLogin();
+		if (this.notRealLogin) {
+			this.responseData = await loginHelper.allowLogin();
 		} 
 		else {
 			this.responseData = await loginHelper.login();
@@ -177,6 +147,15 @@ class ConfirmHelper {
 	// users who have been invited in other "environments" (i.e. regions), get confirmed
 	// in those environments as well
 	async confirmInOtherEnvironments () {
+		// remove this check (and the whole method) when we fully move to ONE_USER_PER_ORG
+		const oneUserPerOrg = (
+			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.request.headers['x-cs-one-user-per-org']
+		);
+		if (oneUserPerOrg) {
+			return;
+		}
+
 		const { environmentManager } = this.request.api.services;
 		if (!environmentManager) { return; }
 		if (this.request.request.headers['x-cs-block-xenv']) {

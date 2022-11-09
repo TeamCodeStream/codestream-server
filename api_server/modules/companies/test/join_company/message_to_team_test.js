@@ -43,6 +43,15 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		this.doJoin(callback);
 	}
 
+	run (callback) {
+		if (this.oneUserPerOrg) {
+			console.log('NOTE: under one-user-per-org, this method to join a company is being deprecated, this test will pass superficially');
+			callback();
+		} else {
+			super.run(callback);
+		}
+	}
+	
 	validateMessage (message) {
 		Assert(message.message.team.$set.modifiedAt >= this.modifiedAfter, 'team modifiedAt is not greater than or equal to when the user joined');
 		this.message = {

@@ -18,6 +18,17 @@ class ProviderIdentityConnector {
 		['errorHandler', 'data', 'transforms', 'api'].forEach(prop => {
 			this[prop] = this.request[prop];
 		});
+
+		// just to make sure
+		if (options.signupToken || options.teamId) {
+			throw this.errorHandler.error('deprecated', { reason: 'provider identity connection with signup token or team ID is no longer supported '});
+		}
+
+		// can assume this is set when we have fully moved to ONE_USER_PER_ORG
+		this.oneUserPerOrg = (
+			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.request.headers['x-cs-one-user-per-org']
+		);
 	}
 
 	// attempt to match the given third-party provider identification information to a
@@ -39,9 +50,7 @@ class ProviderIdentityConnector {
 		this.providerInfo.username = this.providerInfo.username.replace(/ /g, '_');
 
 		await this.findUser();
-		await this.getInvitedUser();
 		await this.createUserAsNeeded();
-		await this.addUserToTeamAsNeeded();
 		await this.setUserProviderInfo();
 		await this.confirmUserAsNeeded();
 	}
@@ -49,13 +58,34 @@ class ProviderIdentityConnector {
 	// find the user associated with the passed credentials, first by matching against the 
 	// provider identity extracted from the passed provider info, and then by matching against email
 	async findUser () {
-		this.user = await this.data.users.getOneByQuery(
+		const users = await this.data.users.getByQuery(
 			{ searchableEmail: this.providerInfo.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
+
+		// under one-user-per-org, match a registered user matching the team provided,
+		// or the first registered user, or a teamless unregistered user
+		if (this.oneUserPerOrg) {
+			let firstRegisteredUser, teamlessUnregisteredUser;
+			const matchingUser = users.find(user => {
+				if (user.get('deactivated')) { return; }
+				const teamIds = user.get('teamIds') || [];
+				if (this.teamId && teamIds.includes(this.teamId)) {
+					return user;
+				} else if (!firstRegisteredUser && user.get('isRegistered')) {
+					firstRegisteredUser = user;
+				} else if (!teamlessUnregisteredUser && !user.get('isRegistered') && teamIds.length === 0) {
+					teamlessUnregisteredUser = user;
+				}
+			});
+			this.user = matchingUser || firstRegisteredUser || teamlessUnregisteredUser;
+		} else {
+			this.user = users[0];
+		}
+
 		if (this.user) {
 			this.request.log(`Matched user ${this.user.id} by email`);
-			if (this.user.get('isRegistered')) {
+			if (this.user.get('isRegistered')) { // can remove this check when we have fully moved to ONE_USER_PER_ORG
 				return;
 			}
 		}
@@ -66,55 +96,7 @@ class ProviderIdentityConnector {
 			throw this.errorHandler.error('noIdentityMatch');
 		}
 	}
-
-	// get the user associated with an invite code, as needed
-	async getInvitedUser () {
-		if (!this.inviteCode) {
-			return;
-		}
-		this.signupToken = await this.request.api.services.signupTokens.find(
-			this.inviteCode,
-			{ requestId: this.request.request.id }
-		);
-		if (!this.signupToken) {
-			throw this.errorHandler.error('notFound', { info: 'invite code' });
-		}
-		else if (this.signupToken.expired) {
-			throw this.errorHandler.error('tokenExpired');
-		}
-
-		if (this.user && this.signupToken.userId === this.user.id) {
-			// user is the same as the user that was invited, and same email came from the identity provider,
-			// so we are all good
-			this.request.log('Invite code matched existing user');
-			return;
-		}
-
-		// get the user that was invited
-		this.invitedUser = await this.data.users.getById(this.signupToken.userId);
-		if (!this.invitedUser) {
-			throw this.errorHandler.error('notFound', { info: 'invited user' });
-		}
-
-		// have to deal with a little weirdness here ... if we get an invite code, and the invite code references
-		// a user that already exists, and they don't match the email the user is trying to register with,
-		// we will effectively change the invited user's email to the user they are registered with ... but we
-		// can't allow this if the invited user is already registered (which shouldn't happen in theory), or if the
-		// email the user is trying to register with already belongs to another invited user
-		if (this.invitedUser.get('email').toLowerCase() !== this.providerInfo.email.toLowerCase()) {
-			if (this.invitedUser.get('isRegistered')) {
-				throw this.errorHandler.error('alreadyAccepted');
-			}
-			else if (this.user) {
-				throw this.errorHandler.error('inviteMismatch');
-			}
-			else {
-				this.request.log(`Existing unregistered user ${this.invitedUser.get('email')} will get their email changed to ${this.providerInfo.email}`);
-				this.user = this.invitedUser;
-			}
-		}
-	}
-
+	
 	// create a provider-registered user if one was not found, based on the passed information
 	async createUserAsNeeded () {
 		if (this.user) {
@@ -122,9 +104,7 @@ class ProviderIdentityConnector {
 		}
 		this.request.log('No match to user, will create...');
 		this.userCreator = new UserCreator({
-			request: this.request,
-			// allow unregistered users to listen to their own me-channel, strictly for testing purposes
-			subscriptionCheat: this._subscriptionCheat === this.api.config.sharedSecrets.subscriptionCheat
+			request: this.request
 		});
 
 		const userData = {
@@ -148,25 +128,6 @@ class ProviderIdentityConnector {
 		}
 
 		this.user = this.createdUser = await this.userCreator.createUser(userData);
-	}
-
-	// if user was invited to a team, add them to that team
-	async addUserToTeamAsNeeded () {
-		if (!this.teamId && (!this.signupToken || !this.signupToken.teamId)) { return; }
-		this.teamId = this.teamId || this.signupToken.teamId;
-		this.team = await this.data.teams.getById(this.teamId);
-		if (!this.team) {
-			throw this.errorHandler.error('notFound', { info: 'team' });
-		}
-		if (this.team.getActiveMembers().includes(this.user.id)) {
-			return;
-		}
-		await new AddTeamMembers({
-			request: this.request,
-			addUsers: [this.user],
-			team: this.team
-		}).addTeamMembers();
-		this.userWasAddedToTeam = true;
 	}
 
 	// might need to update the user object, either because we had to create it before we had to create or team,
@@ -244,7 +205,7 @@ class ProviderIdentityConnector {
 			request: this.request,
 			user: this.user,
 			dontCheckUsername: true,
-			notTrueLogin: true
+			notRealLogin: true
 		}).confirm(userData);
 		this.userWasConfirmed = true;
 	}

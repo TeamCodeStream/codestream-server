@@ -24,7 +24,11 @@ class DeleteUserFetchTest extends DeleteUserTest {
 		BoundAsync.series(this, [
 			super.before,	// do the usual test prep
 			this.deleteUser	// perform the actual deletion
-		], callback);
+		], error => {
+			if (error) { return callback(error); }
+			this.path = '/users/' + this.users[this.testUser].user.id;
+			callback();
+		});
 	}
 
 	// validate that the response is correct
@@ -32,6 +36,7 @@ class DeleteUserFetchTest extends DeleteUserTest {
 		Assert(data.user.modifiedAt >= this.modifiedAfter, 'modifiedAt is not greater than before the user was updated');
 		this.expectedUser.modifiedAt = data.user.modifiedAt;
 		this.expectedUser.email = this.message.users[0].$set.email;
+
 		// verify what we fetch is what we got back in the response
 		Assert.deepEqual(data.user, this.expectedUser, 'fetched user does not match');
 	}

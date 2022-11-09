@@ -4,8 +4,11 @@
 
 const ConfirmationTest = require('./confirmation_test');
 //const ConfirmationWithLinkTest = require('./confirmation_with_link_test');
+const ConfirmationTokenDeprecatedTest = require('./confirmation_token_deprecated_test');
 const NoAttributeTest = require('./no_attribute_test');
 const AlreadyRegisteredTest = require('./already_registered_test');
+const ConfirmInvitedUserTest = require('./confirm_invited_user_test'); // remove once ONE_USER_PER_ORG is implementedd
+const UnknownUserTest = require('./unknown_user_test');
 const IncorrectCodeTest = require('./incorrect_code_test');
 const MaxAttemptsTest = require('./max_attempts_test');
 const ExpirationTest = require('./expiration_test');
@@ -15,6 +18,7 @@ const ConfirmationMessageToTeamTest = require('./confirmation_message_to_team_te
 const InitialDataTest = require('./initial_data_test');
 const MeAttributesTest = require('./me_attributes_test');
 const SubscriptionTest = require('./subscription_test');
+const NoSubscribeToTeamChannelTest = require('./no_subscribe_to_team_channel_test');
 const JoinMethodTest = require('./join_method_test');
 const OriginTeamPropagates = require('./origin_team_propagates');
 /*
@@ -42,10 +46,17 @@ class ConfirmationRequestTester {
 
 	confirmationTest () {
 		new ConfirmationTest().test();
+		new ConfirmationTest({ oneUserPerOrg: true }).test();
 		//new ConfirmationWithLinkTest().test();
+		new ConfirmationTokenDeprecatedTest().test();
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'confirmationCode' }).test();
 		new AlreadyRegisteredTest().test();
+		new AlreadyRegisteredTest({ oneUserPerOrg: true }).test();
+		new ConfirmInvitedUserTest().test();
+		new ConfirmInvitedUserTest({ oneUserPerOrg: true }).test();
+		new UnknownUserTest().test();
+		new UnknownUserTest({ oneUserPerOrg: true }).test();
 		new IncorrectCodeTest().test();
 		new MaxAttemptsTest().test();
 		new ExpirationTest().test();
@@ -53,9 +64,11 @@ class ConfirmationRequestTester {
 		//new ConflictingUsernameTest().test();
 		//new NoCodestreamUsernameTest().test();
 		new InitialDataTest().test();
+		new InitialDataTest({ oneUserPerOrg: true }).test();
 		new MeAttributesTest().test();
 		new SubscriptionTest({ which: 'user' }).test();
 		new SubscriptionTest({ which: 'team' }).test();
+		new NoSubscribeToTeamChannelTest().test();
 		// new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new JoinMethodTest().test();
 		new OriginTeamPropagates().test();
@@ -73,6 +86,7 @@ class ConfirmationRequestTester {
 		new TrackIncorrectCodeTest().test();
 		new ReuseCodeTest().test();
 		new EligibleJoinCompaniesTest().test();
+		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test();
 		new IsWebmailTest().test();
 		new AccountIsConnectedTest().test();
 		new AccountIsConnectedFalseTest().test();

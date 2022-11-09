@@ -10,8 +10,7 @@ class RemovedMemberCantDeleteTest extends DeletePostTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1013',
-			reason: 'the user does not have access to this post'
+			code: 'AUTH-1004' // removed member gets deactivated, under one-user-per-org, can't use their token
 		};
 	}
 

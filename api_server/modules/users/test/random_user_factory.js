@@ -25,8 +25,7 @@ class _UserCreator {
 					user: this.user,
 					accessToken: this.token,
 					broadcasterToken: this.broadcasterToken,
-					password: this.data.password,
-					companyName: this.data.companyName
+					password: this.data.password
 				}
 			);
 		});
@@ -43,7 +42,7 @@ class _UserCreator {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.user = response.user;
-				callback(null, { user: this.user });
+				callback(null, { user: this.user, password: this.data.password });
 			}
 		);
 	}
@@ -74,7 +73,7 @@ class _UserCreator {
 				this.user = response.user;
 				this.token = response.accessToken;
 				this.broadcasterToken = response.broadcasterToken;
-				callback();
+				callback(null, response);
 			}
 		);
 	}
@@ -108,8 +107,7 @@ class RandomUserFactory {
 	randomNamedUser () {
 		return {
 			email: this.randomEmail(),
-			fullName: this.randomFullName(),
-			companyName: this.randomCompanyName()
+			fullName: this.randomFullName()
 		};
 	}
 
@@ -118,23 +116,13 @@ class RandomUserFactory {
 		return `${RandomString.generate(8)} ${RandomString.generate(10)}`;
 	}
 	
-	// generate a random company name
-	randomCompanyName () {
-		return `company${RandomString.generate(10)}`;
-	}
-
 	// get some random data to use for creating a user, with options specified
 	getRandomUserData (options = {}) {
 		let email = this.randomEmail(options);
-		let secondaryEmails = [
-			this.randomEmail(),
-			this.randomEmail()
-		];
 		let fullName = this.randomFullName();
 		let timeZone = 'America/New_York';
-		let companyName = this.randomCompanyName();
 		let _forceConfirmation = 1;	// force confirmation, even if environment settings have it turned off
-		let data = { email, secondaryEmails, fullName, companyName, timeZone, _forceConfirmation, _confirmationCheat: options.confirmationCheat };
+		let data = { email, fullName, timeZone, _forceConfirmation, _confirmationCheat: options.confirmationCheat };
 		if (options.timeout) {
 			data.timeout = options.timeout;
 		}

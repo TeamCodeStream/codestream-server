@@ -24,11 +24,12 @@ class ChangeEmailTest extends CodeStreamAPITest {
 
 	// before the test runs...
 	before (callback) {
+		this.newEmail = this.userFactory.randomEmail();
 		super.before(error => {
 			if (error) { return callback(error); }
 			// set the new email
 			this.data = {
-				email: this.userFactory.randomEmail()
+				email: this.newEmail
 			};
 			callback();
 		});

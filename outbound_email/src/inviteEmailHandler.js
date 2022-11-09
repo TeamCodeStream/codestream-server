@@ -27,7 +27,8 @@ class InviteEmailHandler extends EmailHandler {
 		}
 		const inviterName = inviter.fullName || inviter.email;
 		this.subject = `${inviterName} invited you to collaborate`;
-		if (this.user.isRegistered) {
+		const isRegistered = await this.userIsRegistered();
+		if (isRegistered) {
 			return await this.renderForRegisteredUser();
 		}
 		else {
@@ -38,9 +39,10 @@ class InviteEmailHandler extends EmailHandler {
 	async renderForRegisteredUser () {
 		this.content = `
 <html>
-I've added you to the ${this.company.name} organization on CodeStream so that we can discuss code.<br/>
+You can accept this invitation by going to the <b>username menu > Switch Organization</b> in CodeStream, and selecting the <b>${this.company.name}</b> organization.
 <br/>
-In the CodeStream extension, select “Switch Organizations" under the headshot menu to check out discussions in the ${this.company.name} organization.<br/>
+<br/>
+<img style="display:inline-block" src="https://images.codestream.com/misc/Invitations.png" />
 </html>
 `;
 	}
@@ -60,7 +62,7 @@ In the CodeStream extension, select “Switch Organizations" under the headshot 
 
 this.content = `
 <html>
-CodeStream's cloud-based service and IDE plugins help dev teams discuss, review, and understand code. Discussing code is now as simple as commenting on a Google Doc — select the code and type your question.<br/>
+CodeStream’s IDE extension brings together the tools you use every day… GitHub, Jira, Slack and more than a dozen other services… right in your IDE, simplifying your daily workflow.<br/>
 <br/>
 1. Install CodeStream for ${allLinks}.<br/>
 <br/>
@@ -74,6 +76,16 @@ Team CodeStream<br/>
 	// analytics category for this email type
 	getCategory () {
 		return this.message.isReinvite ? 'reinvitation' : 'invitation';
+	}
+
+	async userIsRegistered () {
+		const numRegisteredUsers = await this.data.users.countByQuery(
+			{
+				searchableEmail: this.user.email.toLowerCase(),
+				isRegistered: true
+			}
+		);
+		return numRegisteredUsers > 0;
 	}
 }
 

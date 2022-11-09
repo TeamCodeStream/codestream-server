@@ -12,25 +12,38 @@ class LoginCore {
 		Object.assign(this, options);
 	}
 
-	async login (email, password) {
+	async login (email, password, teamId = undefined) {
 		this.email = email;
 		this.password = password;
-		await this.getUser();
-		await this.validatePassword();
+		this.teamId = teamId;
+		await this.getUsers();
+		await this.validateByPassword();
+		if (!this.user) {
+			throw this.request.errorHandler.error('passwordMismatch');
+		}
 		return this.user;
 	}
 
-	async loginByCode (email, loginCode) {
+	async loginByCode (email, loginCode, teamId = undefined) {
 		this.email = email;
 		this.loginCode = loginCode;
-		await this.getUser();
-		await this.validateLoginCode();
+		this.teamId = teamId;
+		await this.getUsers();
+		await this.validateByLoginCode();
+		if (!this.user) {
+			if (this.lastError) {
+				throw this.lastError;
+			} else {
+				throw this.errorHandler.error('notFound');
+			}
+		}
 		return this.user;
 	}
 
 	// get the user indicated by the passed email
-	async getUser () {
-		this.user = await this.request.data.users.getOneByQuery(
+	async getUsers () {
+		// look for all users matching the given email, and check for the first one that succeeds
+		this.users = await this.request.data.users.getByQuery(
 			{
 				searchableEmail: this.email.toLowerCase()
 			},
@@ -38,57 +51,92 @@ class LoginCore {
 				hint: Indexes.bySearchableEmail
 			}
 		);
-		/*
-		// Killing this check to avoid email harvesting vulnerability, instead we'll drop through
-		// and return a password mismatch error even if the user doesn't exist
-		if (!this.user || this.user.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'email' });
+
+		// if we have a teamId, look only for the user that matches that teamId
+		// otherwise if we have a login code, look for any user that matches that login code,
+		// but if none is found, use the first registered user
+		// otherwise if we are validating by password, we'll check against any and all
+		// registered users to a match to the password
+		let firstRegisteredUser;
+		this.users = this.users.filter(user => {
+			if (!user.get('isRegistered') || user.get('deactivated')) {
+				return false;
+			}
+
+			const teamIds = user.get('teamIds') || [];
+			if (this.teamId) {
+				return teamIds.length === 1 && teamIds[0] === this.teamId;
+			} else if (this.loginCode) {
+				if (user.get('loginCode') === this.loginCode) {
+					return true;
+				} else {
+					firstRegisteredUser = user;
+				}
+			} else {
+				return true;
+			}
+		});
+
+		if (this.loginCode && this.users.length === 0 && firstRegisteredUser) {
+			this.users = [firstRegisteredUser];
 		}
-		*/
+	}
+
+	// find any matching user that is valid according to the password given
+	async validateByPassword () {
+		for (let user of this.users) {
+			if (await this.validatePassword(user)) {
+				this.user = user;
+				break;
+			}
+		}
 	}
 
 	// validate that the given password matches the password hash stored for the user
-	async validatePassword () {
+	async validatePassword (user) {
 		let result;
 		try {
 			if (
-				this.user &&
-				!this.user.get('deactivated') &&
-				this.user.get('passwordHash')
+				user.get('isRegistered') &&
+				user.get('passwordHash') &&
+				!user.get('deactivated')
 			) {
 				result = await callbackWrap(
 					BCrypt.compare,
 					this.password,
-					this.user.get('passwordHash')
+					user.get('passwordHash')
 				);
 			}
 		}
 		catch (error) {
-			throw this.request.errorHandler.error('token', { reason: error });
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.request.warn(`Error comparing password: ${message}`);
+			return false;
 		}
-		if (!result) {
-			throw this.request.errorHandler.error('passwordMismatch');
-		}
-		if (!this.user.get('isRegistered')) {
-			throw this.request.errorHandler.error('noLoginUnregistered');
+		return result;
+	}
+
+	// find any matching user that is valid according to the login code given
+	async validateByLoginCode () {
+		for (let user of this.users) {
+			if (await this.validateLoginCode(user)) {
+				this.user = user;
+				break;
+			}
 		}
 	}
 
 	// validate that the given login code matches the one stored for the user,
 	// that it isn't expired, and that the user hasn't tried too many attempts
-	async validateLoginCode () {
-		// avoid email harvesting vulnerability
-		if (!this.user || this.user.get('deactivated')) {
-			throw this.request.errorHandler.error('loginCodeMismatch');
-		}
+	async validateLoginCode (user) {
 		try {
-			if (this.user.get('loginCodeAttempts') === undefined || parseInt(this.user.get('loginCodeAttempts')) >= parseInt(MAX_LOGIN_CODE_ATTEMPTS)) {
+			if (user.get('loginCodeAttempts') >= MAX_LOGIN_CODE_ATTEMPTS) {
 				throw this.request.errorHandler.error('tooManyLoginCodeAttempts');
 			}
-			if (!this.user.get('loginCode') || this.user.get('loginCode') !== this.loginCode) {
+			else if (!user.get('loginCode') || user.get('loginCode') !== this.loginCode) {
 				throw this.request.errorHandler.error('loginCodeMismatch');
 			}
-			if (!this.user.get('loginCodeExpiresAt') || Date.now() > this.user.get('loginCodeExpiresAt')) {
+			else if (!user.get('loginCodeExpiresAt') || Date.now() > user.get('loginCodeExpiresAt')) {
 				throw this.request.errorHandler.error('loginCodeExpired');
 			}
 		} catch (error) {
@@ -98,11 +146,13 @@ class LoginCore {
 				}
 			};
 			this.request.data.users.updateDirect(
-				{ id: this.request.data.users.objectIdSafe(this.user.id) },
+				{ id: this.request.data.users.objectIdSafe(user.id) },
 				op
 			);
-			throw error;
+			this.lastError = error;
+			return false;
 		}
+		return true;
 	}
 }
 

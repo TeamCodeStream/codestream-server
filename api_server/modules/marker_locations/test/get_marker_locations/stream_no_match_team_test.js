@@ -30,7 +30,7 @@ class StreamNoMatchTeamTest extends GetMarkerLocationsTest {
 		new TestTeamCreator({
 			test: this,
 			teamOptions: Object.assign({}, this.teamOptions, {
-				creatorIndex: null,
+				creatorIndex: undefined,
 				creatorToken: this.users[1].accessToken,
 				members: [this.currentUser.user.email],
 				numAdditionalInvites: 0

@@ -14,6 +14,7 @@ const GetRemovedTeamMemberTest = require('./get_removed_team_member_test');
 const ACLRemovedTeamMemberTest = require('./acl_removed_team_member_test');
 const GetForeignTeamMemberTest = require('./get_foreign_team_member_test');
 const ACLForeignTeamMemberTest = require('./acl_foreign_team_member_test');
+const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 
 class GetUserRequestTester {
 
@@ -31,6 +32,7 @@ class GetUserRequestTester {
 		new ACLRemovedTeamMemberTest().test();
 		new GetForeignTeamMemberTest().test();
 		new ACLForeignTeamMemberTest().test();
+		new EligibleJoinCompaniesTest({ id: 'me' }).test();
 	}
 }
 

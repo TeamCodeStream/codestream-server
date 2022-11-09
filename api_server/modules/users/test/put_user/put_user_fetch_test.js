@@ -16,7 +16,7 @@ class PutUserFetchTest extends PutUserTest {
 	}
 
 	getExpectedFields () {
-		return { user: UserTestConstants.EXPECTED_USER_FIELDS };
+		return { user: UserTestConstants.EXPECTED_ME_FIELDS };
 	}
 
 	// before the test runs...
@@ -24,7 +24,11 @@ class PutUserFetchTest extends PutUserTest {
 		BoundAsync.series(this, [
 			super.before,	// do the usual test prep
 			this.updateUser	// perform the actual update
-		], callback);
+		], error => {
+			if (error) { return callback(error); }
+			this.path = '/users/me';
+			callback();
+		});
 	}
 
 	// validate that the response is correct

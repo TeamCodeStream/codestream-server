@@ -8,7 +8,7 @@ class CheckResetCore {
 	}
 
 	// parse and verify the passed token
-	async getUserFromToken(token) {
+	async getUserInfoFromToken(token) {
 		try {
 			this.payload = this.request.api.services.tokenHandler.verify(token);
 		}
@@ -24,14 +24,23 @@ class CheckResetCore {
 		if (this.payload.type !== 'rst') {			
 			throw this.request.errorHandler.error('tokenInvalid', { reason: 'not an rst token' });
 		}
-		await this.getUser();
+		const users = await this.getUsers();
+
+		// under one-user-per-org, we should find a registered user with a rst token
+		this.user = users.find(user => {
+			return user.get('isRegistered') && (user.get('accessTokens') || {}).rst;
+		});
+		if (!this.user) {
+			throw this.request.errorHandler.error('tokenInvalid', { reason: 'no issuance for rst token found' });
+		}
+
 		await this.validateToken();
 
-		return this.user;
+		return { users, user: this.user };
 	}
 
-	// get the user associated with the email in the token payload
-	async getUser () {
+	// get the user(s) associated with the email in the token payload
+	async getUsers() {
 		if (!this.payload.email) {
 			throw this.request.errorHandler.error('tokenInvalid', { reason: 'no email found in rst token' });
 		}
@@ -46,7 +55,7 @@ class CheckResetCore {
 		if (users.length < 1) {			
 			throw this.request.errorHandler.error('tokenInvalid', { reason: 'user not found' });
 		}
-		this.user = users[0];
+		return users;
 	}
 
 	// verify the token is not expired, per the most recently issued token

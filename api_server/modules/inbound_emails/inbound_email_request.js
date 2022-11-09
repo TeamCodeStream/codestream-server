@@ -33,8 +33,8 @@ class InboundEmailRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		await this.requireAllow();
-		await this.getCreator();
 		await this.parseToAddresses();
+		await this.getCreator();
 		await this.getStream();
 		await this.getParentPost();
 		await this.validate();
@@ -85,7 +85,15 @@ class InboundEmailRequest extends RestfulRequest {
 		if (users.length === 0) {
 			throw this.errorHandler.error('creatorNotFound', { info: this.fromEmail });
 		}
-		this.fromUser = users[0];
+	
+		// find the user record for the user on this team
+		this.fromUser = users.find(user => {
+			return !user.get('deactivated') && user.hasTeam(this.teamId);
+		});
+		if (!this.fromUser) {
+			this.log(`No user record found matching email ${this.fromEmail} on team ${this.teamId}`);
+			throw this.errorHandler.error('unauthorized');
+		}
 	}
 
 	// get the stream ID represented by one of the email addresses in the to-field
@@ -95,6 +103,10 @@ class InboundEmailRequest extends RestfulRequest {
 		// stop when we find the first valid stream ID
 		while (!this.streamId && i < this.request.body.to.length) {
 			await this.parseToAddress(this.request.body.to[i++]);
+		}
+
+		if (!this.streamId) {
+			throw this.errorHandler.error('noMatchFound', { info: this.request.body.to });
 		}
 	}
 

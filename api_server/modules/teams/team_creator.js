@@ -4,17 +4,18 @@
 
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const Team = require('./team');
-const CompanyCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/company_creator');
 const CodeStreamModelValidator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/models/codestream_model_validator');
 const TeamSubscriptionGranter = require('./team_subscription_granter');
 const TeamAttributes = require('./team_attributes');
 const Errors = require('./errors');
-const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/etc/webmail_companies');
-const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const DefaultTags = require('./default_tags');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
+const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_creator');
+const ConfirmHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/confirm_helper');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const UserAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_attributes');
 
 class TeamCreator extends ModelCreator {
 
@@ -67,6 +68,19 @@ class TeamCreator extends ModelCreator {
 
 	// called before the team is actually saved
 	async preSave () {
+		this.oneUserPerOrg = (
+			this.api.modules.modulesByName.users.oneUserPerOrg ||
+			this.request.request.headers['x-cs-one-user-per-org']
+		);
+		const teamIds = this.user.get('teamIds') || [];
+
+		// under one-user-per-org, create a duplicate of the creator if they are already on a team
+		// we can remove the oneUserPerOrg part of this check when we have fully moved to ONE_USER_PER_ORG
+		if (this.oneUserPerOrg && teamIds.length > 0) { 
+			this.request.log('NOTE: duplicating user under one-user-per-org');
+			await this.duplicateUser();
+		}
+		
 		this.createId();
 		this.attributes.createdAt = Date.now();
 		this.attributes.creatorId = this.user.id;	// user making the request is the team creator
@@ -82,7 +96,8 @@ class TeamCreator extends ModelCreator {
 		});
 
 		// set some analytics, based on whether this is the user's first team
-		const firstTeamForUser = (this.user.get('teamIds') || []).length === 0;
+		const originalUser = this.originalUser || this.user; // ONE_USER_PER_ORG
+		const firstTeamForUser = (originalUser.get('teamIds') || []).length === 0;
 		this.attributes.primaryReferral = firstTeamForUser ? 'external' : 'internal';
 
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
@@ -94,56 +109,39 @@ class TeamCreator extends ModelCreator {
 		await super.preSave();
 	}
 
+	// under one-user-per-org, we create a duplicate user record as the company/team creator
+	async duplicateUser () {
+		const userData = {
+			copiedFromUserId: this.user.id
+		};
+		const attributesToCopy = Object.keys(UserAttributes).filter(attr => {
+			return UserAttributes[attr].copyOnInvite;
+		});
+		attributesToCopy.forEach(attribute => {
+			const value = this.user.get(attribute);
+			if (value !== undefined) {
+				userData[attribute] = value;
+			}
+		});
+		this.originalUser = this.user;
+		this.transforms.createdUser = this.user = await new UserCreator({ 
+			request: this.request,
+			force: true
+		}).createUser(userData);
+	}
+
 	// create a company document for the team, or if the company ID is provided, update the company
 	async createOrAttachToCompany () {
 		if (this.attributes.companyId) {
 			if (!this.dontAttachToCompany) {
-				return this.attachToCompany();
+				throw this.errorHandler.error('deprecated', { reason: 'multiple teams within a company are deprecated' });
+				//return this.attachToCompany();
 			} 
 		}
 		else {
-			return this.createCompany();
+			throw this.errorHandler.error('deprecated', { reason: 'company creation within team creation is deprecated' });
+			//return this.createCompany();
 		} 
-	}
-
-	// attach the team to an existing company 
-	async attachToCompany () {
-		// get the company
-		this.company = await this.data.companies.getById(this.attributes.companyId);
-		if (!this.company || this.company.get('deactivated')) {
-			throw this.errorHandler.error('notFound', { info: 'company' });
-		} 
-
-		// can only attach to a company that was created by the same user creating the team
-		if (!(this.user.get('companyIds') || []).includes(this.company.id)) {
-			throw this.errorHandler.error('updateAuth', { reason: 'user can only attach a team to a company they are a member of' });
-		}
-
-		const op = {
-			$addToSet: {
-				teamIds: this.attributes.id
-			},
-			$set: {
-				modifiedAt: Date.now()
-			}
-		};
-		this.transforms.companyUpdate = await new ModelSaver({
-			request: this.request,
-			collection: this.data.companies,
-			id: this.company.id
-		}).save(op);
-	}
-
-	// create a company for the team
-	async createCompany () {
-		const company = this.attributes.company || {};
-		company.name = company.name || this.determineCompanyName();	// company name is determined from the user's email
-		this.company = this.transforms.createdCompany = await new CompanyCreator({
-			request: this.request,
-			teamIds: [this.attributes.id]
-		}).createCompany(company);
-		this.attributes.companyId = this.transforms.createdCompany.id;
-		delete this.attributes.company;
 	}
 
 	// create a stream for the entire team, everyone on the team is always a member of this stream
@@ -160,34 +158,26 @@ class TeamCreator extends ModelCreator {
 		}).createStream(stream);
 	}
 
-	// determine a name for this company, based on the user's domain or email
-	determineCompanyName () {
-		// if the user previously set a company name, just use that
-		if (this.user.get('companyName')) {
-			return this.user.get('companyName');
-		}
-
-		// if it's a webmail user, we just name the company after the whole email,
-		// otherwise use the domain
-		const email = EmailUtilities.parseEmail(this.user.get('email'));
-		if (WebmailCompanies.includes(email.domain)) {
-			return this.user.get('email');
-		}
-		else {
-			return email.domain;
-		}
-	}
-
 	// after the team has been saved...
 	async postSave () {
 		await super.postSave();
 		await this.updateUser();	// update the current user to indicate they are a member of the team
 		await this.grantUserMessagingPermissions();		// grant permission to the team creator to subscribe to the team broadcaster channel
-		//await this.sendTeamCreatedEmail();	// send email to us that a new team has been created
+
+		if (this.originalUser) {
+			// under one-user-per-org, if this wasn't the user's first team/company, 
+			// the duplicated user needs to be confirmed, and added to the everyone team
+			// this conditional check can be removed once we have fully moved to ONE_USER_PER_ORG
+			await this.confirmUser();
+			await this.addUserToTeam();
+		}
 	}
 
 	// update a user to indicate they have been added to a new team
 	async updateUser () {
+		// remove this method when we have fully moved to ONE_USER_PER_ORG, as user is always duplicated
+		if (this.originalUser) { return; } 
+
 		// add the team's ID to the user's teamIds array, and the company ID to the companyIds array
 		const op = {
 			$addToSet: {
@@ -210,6 +200,7 @@ class TeamCreator extends ModelCreator {
 	}
 
 	// update the joinMethod attribute for the user, if this is their first team
+	// i _think_ this method can be deprecated when we have fully moved to ONE_USER_PER_ORG
 	updateUserJoinMethod (user, op) {
 		// join method only applies if this is the user's first team
 		const teamIds = user.get('teamIds') || [];
@@ -255,31 +246,35 @@ class TeamCreator extends ModelCreator {
 		}
 	}
 
-	// send email to us that a new team has been created
-	async sendTeamCreatedEmail () {
-		if (this.model) {
-			[ 'claudio@codestream.com', 'scott@codestream.com', 'jack@codestream.com' ].forEach(email => {
-				if (this.api.config.email.replyToDomain === 'prod.codestream.com') {
-					this.request.log(`Triggering team-created email for team ${this.model.id} ("${this.model.get('name')}")...`);
-					this.api.services.email.queueEmailSend(
-						{
-							type: 'teamCreated',
-							userId: this.user.id,
-							teamName: this.model.get('name'),
-							companyId: this.company.id,
-							companyName: this.company.get('name'),
-							to: email
-						},
-						{
-							request: this.request
-						}
-					);
-				}
-				else {
-					this.request.log('Would have sent team created email to ' + email);
-				}
-			});
+	// under one-user-per-org, accepting an invite means confirming the user record for the unregistered
+	// user who has been created as a result of the invite
+	async confirmUser () {
+		this.transforms.additionalCompanyResponse = await new ConfirmHelper({
+			request: this.request,
+			user: this.user,
+			notRealLogin: true
+		}).confirm({
+			email: this.user.get('email')
+		});
+
+		Object.assign(this.transforms.additionalCompanyResponse, {
+			userId: this.user.id,
+			teamId: this.attributes.id
+		});
+		
+		if (this.request.request.headers['x-cs-confirmation-cheat'] === this.api.config.sharedSecrets.confirmationCheat) {
+			this.warn('NOTE: passing user object back in POST /companies request, this had better be a test!');
+			this.transforms.additionalCompanyResponse.user = this.user.getSanitizedObject({ request: this });
 		}
+	}
+
+	async addUserToTeam () {
+		// add the newly duplicated user to the everyone team for the company
+		return new AddTeamMembers({
+			request: this,
+			addUsers: [this.user],
+			team: this.model
+		}).addTeamMembers();
 	}
 }
 

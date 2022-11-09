@@ -27,7 +27,7 @@ class ClaimedByOtherTeamTest extends ClaimCodeErrorTest {
 				this.otherTeam = response.team;
 				this.otherCompany = response.company;
 				this.claimByTeamId = this.otherTeam.id;
-				this.claimByToken = this.users[1].accessToken;
+				this.claimByToken = response.accessToken;
 				callback();
 			}, {
 				token: this.users[1].accessToken
