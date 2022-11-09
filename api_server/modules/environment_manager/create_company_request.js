@@ -59,7 +59,7 @@ class CreateCompanyRequest extends RestfulRequest {
 
 		// add an eligibleJoinCompanies update to the response so the client can update immediately,
 		// rather than waiting for a pubnub message
-		const eligibleJoinCompanies = GetEligibleJoinCompanies(this.user.get('email'), this);
+		const eligibleJoinCompanies = await GetEligibleJoinCompanies(this.user.get('email'), this);
 		this.responseData.user = {
 			id: this.user.id,
 			$set: {
