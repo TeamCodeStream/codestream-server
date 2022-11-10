@@ -82,12 +82,73 @@ class CompanyCreator extends ModelCreator {
 		if (this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
 		}
+
 		await super.preSave();
 	}
 
 	// is this an on-prem installation?
 	isOnPrem () {
 		return this.request.api.config.sharedGeneral.isOnPrem;
+	}
+
+	// after company model is created and saved...
+	async postSave () {
+		// handle signing the user up or in with third-party Identity Provider
+		await this.handleIdPSignup();
+	}
+
+	// upon company creation is where we first register the user with our third-party Identity Provider
+	// (i.e. NewRelic/Azure) ... even if the user is creating a second org to be a member of, 
+	// under one-user-per-org, it's more or less functionally the same as signing up
+	async handleIdPSignup () {
+		if (!this.api.services.idp) { return; }
+
+		let password;
+		const encryptedPassword = this.user.get('encryptedPasswordTemp');
+		if (encryptedPassword) {
+			password = await this.decryptPassword(encryptedPassword)
+		}
+
+		const name = this.user.get('fullName') || this.user.get('email').split('@')[0];
+		const nrUserInfo = await this.api.services.idp.fullSignup(
+			{
+				name: name,
+				email: this.user.get('email'),
+				password
+			},
+			{ 
+				request: this.request
+			}
+		);
+
+		// save NR user info obtained from the signup process
+		await this.request.data.users.update(
+			{
+				id: this.user.id,
+				nrUserInfo,
+				nrUserId: nrUserInfo.user_id
+			}
+		);
+
+		// save New Relic's organization info with the company
+		// NOTE - we do this post-save of creating the company to ensure that a failure
+		// here doesn't end up with an orphaned user and organization on New Relic,
+		// better to do it once we're (reasonably) sure things are going to succeed on our end
+		const nrOrgInfo = { ... nrUserInfo };
+		delete nrOrgInfo.user_id;
+		await this.request.data.companies.update(
+			{
+				id: this.model.id,
+				nrOrgId: nrUserInfo.organization_id,
+				nrOrgInfo
+			}
+		);
+	}
+
+	// decrypt the user's stored password, which is encrypted upon registration for
+	// temporary maintenance during the signup flow
+	async decryptPassword (encryptedPassword) {
+		return this.request.api.services.passwordEncrypt.decryptPassword(encryptedPassword);
 	}
 }
 

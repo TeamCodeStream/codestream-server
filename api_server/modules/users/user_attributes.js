@@ -64,6 +64,11 @@ module.exports = {
 		serverOnly: true,
 		copyOnInvite: true
 	},
+	encryptedPasswordTemp: {
+		type: 'string',
+		maxLength: 64,
+		serverOnly: true
+	},
 	confirmationCode: {
 		type: 'string',
 		maxLength: 6,
