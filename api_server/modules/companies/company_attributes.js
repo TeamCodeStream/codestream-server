@@ -116,5 +116,15 @@ module.exports = {
 	isNRConnected: {
 		type: 'boolean',
 		description: 'Indicates this company has at least one user who is connected to New Relic'
+	},
+	nrOrgId: {
+		type: 'string',
+		maxLength: 40,
+		description: 'New Relic organization ID associated with this company'
+	},
+	nrOrgInfo: {
+		type: 'object',
+		description: 'Info associated with the company as returned by New Relic IdP when provisioning the first user',
+		serverOnly: true
 	}
 };

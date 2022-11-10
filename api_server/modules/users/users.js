@@ -12,6 +12,7 @@ const Errors = require('./errors');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Reinviter = require('./reinviter');
 const WeeklyEmails = require('./weekly_emails');
+const PasswordEncrypt = require('./password_encrypt');
 
 const DEPENDENCIES = [
 	'authenticator'	// need the user
@@ -225,7 +226,14 @@ class Users extends Restful {
 		return async () => {
 			this.api.log('Initializing signup token service...');
 			this.signupTokens = new SignupTokens({ api: this.api });
-			return { signupTokens: this.signupTokens };
+
+			// FIXME: make a dedicated config value for this
+			this.passwordEncrypt = new PasswordEncrypt(process.env.CS_API_PASSWORD_KEY);
+			
+			return { 
+				signupTokens: this.signupTokens,
+				passwordEncrypt: this.passwordEncrypt
+			};
 		};
 	}
 

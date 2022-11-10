@@ -4,9 +4,15 @@
 
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 const TeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_creator');
+const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
 
 class PostCompanyRequest extends PostRequest {
 
+	constructor (options) {
+		super(options);
+		this.errorHandler.add(NewRelicIDPErrors);
+	}
+	
 	async authorize () {
 		// anyone can create a company at any time
 	}

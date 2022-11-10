@@ -14,12 +14,14 @@ const UserCreator = require('./user_creator');
 const UserDeleter = require('./user_deleter');
 const UserAttributes = require('./user_attributes');
 const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
+const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
 
 class JoinCompanyRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(TeamErrors);
+		this.errorHandler.add(NewRelicIDPErrors);
 	}
 
 	// authorize the request for the current user
@@ -86,6 +88,10 @@ class JoinCompanyRequest extends RestfulRequest {
 			this.invitedUser = await this.duplicateUser();
 		}
 
+		await this.confirmUser();
+		await this.addUserToTeam();
+		await this.handleIdPSignup();
+
 		// if the original user is teamless, basically meaning they just confirmed,
 		// and are now joining a company, delete the original user record
 		if ((this.user.get('teamIds') || []).length === 0) {
@@ -93,9 +99,6 @@ class JoinCompanyRequest extends RestfulRequest {
 				request: this
 			}).deleteUser(this.user.id);
 		}
-
-		await this.confirmUser();
-		await this.addUserToTeam();
 	}
 
 	// under one-user-per-org, joining a company by virtue of domain joining (no invite) means
@@ -122,22 +125,13 @@ class JoinCompanyRequest extends RestfulRequest {
 	// under one-user-per-org, accepting an invite means confirming the user record for the unregistered
 	// user who has been created as a result of the invite
 	async confirmUser () {
-		const accessToken = ((this.invitedUser.get('accessTokens') || {}).web || {}).token;
-		if (accessToken) {
-			this.responseData = {
-				accessToken
-			};
-		} else {
-			this.responseData = await new ConfirmHelper({
-				request: this,
-				user: this.invitedUser,
-				notRealLogin: true
-			}).confirm({
-				email: this.invitedUser.get('email'),
-				username: this.invitedUser.get('username'),
-				fullName: this.invitedUser.get('fullName')
-			});
-		}
+		this.responseData = await new ConfirmHelper({
+			request: this,
+			user: this.invitedUser,
+			notRealLogin: true
+		}).confirm({
+			passwordHash: this.user.get('passwordHash')
+		});
 
 		Object.assign(this.responseData, {
 			userId: this.invitedUser.id,
@@ -152,8 +146,8 @@ class JoinCompanyRequest extends RestfulRequest {
 		}
 	}
 
+	// add the invited user to the everyone team for the company
 	async addUserToTeam () {
-		// add the invited user to the everyone team for the company
 		await new AddTeamMembers({
 			request: this,
 			addUsers: [this.invitedUser],
@@ -162,6 +156,60 @@ class JoinCompanyRequest extends RestfulRequest {
 		}).addTeamMembers();
 	}
 
+	// upon joining company creation is where we first register the user with our third-party Identity Provider
+	// (i.e. NewRelic/Azure) ... even if the user is joining a second org, under one-user-per-org,
+	// it's more or less functionally the same as signing up
+	async handleIdPSignup () {
+		if (!this.api.services.idp) { return; }
+
+		let password;
+		const encryptedPassword = this.user.get('encryptedPasswordTemp');
+		if (encryptedPassword) {
+			password = await this.decryptPassword(encryptedPassword)
+		}
+
+		const nrOrgInfo = this.company.get('nrOrgInfo');
+		if (!nrOrgInfo) {
+			// shouldn't happen
+			throw this.errorHandler.error('createAuth', { reason: 'company does not have New Relic org info' });
+		}
+
+		const name = this.invitedUser.get('fullName') || this.invitedUser.get('email').split('@')[0];
+		const nrUserInfo = await this.api.services.idp.createUserWithPassword(
+			{
+				name,
+				email: this.invitedUser.get('email'),
+				authentication_domain_id: nrOrgInfo.authentication_domain_id,
+				email_is_verified: true,
+				active: true
+			},
+			password,
+			{ 
+				request: this.request
+			}
+		);
+
+		// save NR user info obtained from the signup process
+		await this.data.users.applyOpById(
+			this.invitedUser.id,
+			{
+				$set: {
+					nrUserInfo: nrUserInfo.attributes,
+					nrUserId: nrUserInfo.id
+				},
+				$unset: {
+					encryptedPasswordTemp: true
+				}
+			}
+		);
+	}
+
+	// decrypt the user's stored password, which is encrypted upon registration for
+	// temporary maintenance during the signup flow
+	async decryptPassword (encryptedPassword) {
+		return this.request.api.services.passwordEncrypt.decryptPassword(encryptedPassword);
+	}
+	
 	// after the join is complete and response returned...
 	async postProcess () {
 		// publish to the team that the users have been added,

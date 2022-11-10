@@ -5,11 +5,14 @@
 const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module');
 const Fetch = require('node-fetch');
 const Crypto = require('crypto');
+const UUID = require('uuid').v4;
 
 // FIXME: this is for now ... ultimately, these should come from config
 const SERVICE_HOSTS = {
 	'signup': 'https://signup-processor.staging-service.newrelic.com',
 	'user': 'https://staging-user-service.nr-ops.net',
+	'login': ' https://staging-login.newrelic.com',
+	'credentials': 'https://staging-credential-service.nr-ops.net'
 };
 
 const USER_SERVICE_SECRET = process.env.NEWRELIC_USER_SERVICE_SECRET; // for now, ultimately, this needs to come from config
@@ -29,29 +32,78 @@ class NewRelicIDP extends APIServerModule {
 		this.serviceHosts = SERVICE_HOSTS;
 	}
 
-	async createUser (data, options = {}) {
-		data = {
-			data: {
-				type: 'user',
-				attributes: {
-					authentication_domain_id: "36bdeb68-b5a9-4b47-a1a7-90999c7f2d30", // what should this be, really???
-					email: data.email,
-					username: data.username,
-					name: data.name
+	async createUserWithPassword (attributes, password, options = {}) {
+		// first create the actual user
+		const createUserResponse = await this.createUser(attributes, options);
+
+		// now create a "pending password" using the credentials service,
+		// since the createUser API doesn't take a password 
+		const pendingPasswordResponse = await this._newrelic_idp_call(
+			'credentials',
+			'/v1/pending_passwords',
+			'post',
+			{
+				data: {
+					type: 'pendingPassword',
+					attributes: {
+						password,
+						passwordConfirmation: password
+					}
 				}
 			}
+		);
+
+		// now apply the "pending password" to the user
+		await this._newrelic_idp_call(
+			'credentials',
+			`/v1/pending_passwords/${pendingPasswordResponse.data.id}/apply/${createUserResponse.data.id}`,
+			'post',
+			{
+				timestamp: Date.now(),
+				request_id: UUID()
+			}
+		);
+
+		return createUserResponse.data;
+	}
+
+	async createUser (attributes, options = {}) {
+		const body = {
+			data: {
+				type: 'user',
+				attributes
+			}
 		}
-		const resp = await this._newrelic_idp_call(
+		return this._newrelic_idp_call(
 			'user',
 			'/v1/users',
 			'post',
-			data
+			body
 		);
-		return resp;
+	}
+
+	// do a full signup, which includes the actual signup API call, 
+	// as well as a "login" call thereafter to return an actual token 
+	// the user can use
+	async fullSignup (data, options = {}) {
+		const signupResponse = await this.signupUser(data, options);
+		/*
+		const loginResponse = await this.loginUser(
+			{
+				username: data.email,
+				password: data.password
+			},
+			options
+		);
+		*/
+		return {
+			...signupResponse,
+			//token: loginResponse.value
+		};
 	}
 
 	async signupUser (data, options = {}) {
-		const resp = await this._newrelic_idp_call(
+		return this._newrelic_idp_call(
 			'signup',
 			'/internal/v1/signups/provision',
 			'post',
@@ -63,7 +115,60 @@ class NewRelicIDP extends APIServerModule {
 			},
 			options
 		);
-		return resp;
+	}
+
+	async loginUser (data, options = {}) {
+		return this._newrelic_idp_call(
+			'login',
+			'/idp/azureb2c-csropc/token',
+			'post',
+			data,
+			options
+		);
+	}
+
+	async listUsers (email, options = {}) {
+		return this._newrelic_idp_call(
+			'user',
+			'/v1/users',
+			'get',
+			{ email },
+			options
+		);
+	}
+
+	async getUser (id, options = {}) {
+		return this._newrelic_idp_call(
+			'user',
+			'/v1/users/' + id,
+			'get',
+			{ },
+			options
+		);
+	}
+
+	async getUsersByAuthDomain (domainId, options = {}) {
+		return this._newrelic_idp_call(
+			'user',
+			'/v1/users',
+			'get',
+			{ 
+				authentication_domain_id: domainId
+			},
+			options
+		);
+	}
+
+	async getUsersByUsername (username, options = {}) {
+		return this._newrelic_idp_call(
+			'user',
+			'/v1/users',
+			'get',
+			{
+				username
+			},
+			options
+		);
 	}
 
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {
@@ -73,13 +178,13 @@ class NewRelicIDP extends APIServerModule {
 		}
 
 		let payloadSignature;
-		if (service === 'user') {
+		if (service === 'user' || service === 'credentials') {
 			payloadSignature = await this._signPayload(params, options);
 		}
 
 		let url = `${host}${path}`;
 		let body;
-		if (method === 'get') {
+		if (method === 'get' && Object.keys(params).length > 0) {
 			url += '?' + Object.keys(params).map(key => {
 				return `${key}=${encodeURIComponent(params[key])}`;
 			}).join('&');
@@ -103,6 +208,9 @@ class NewRelicIDP extends APIServerModule {
 
 		let json;
 		try {
+			if (path.match(/token/)) {
+				const text = await response.text();
+			}
 			json = await response.json();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
@@ -110,7 +218,7 @@ class NewRelicIDP extends APIServerModule {
 		}
 
 		if (!response.ok) {
-			const message = json.error || '???';
+			const message = json ? JSON.stringify(json) : '???';
 			this._throw('apiFailed', `${method.toUpperCase()} ${path}: response not ok (${response.status}): ${message}`, options);
 		}
 
