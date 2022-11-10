@@ -9,7 +9,6 @@ const ConfirmCode = require('./confirm_code');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/errors');
-const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
 const Indexes = require('./indexes');
 const GitLensReferralLookup = require('./gitlens_referral_lookup');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
@@ -28,7 +27,6 @@ class RegisterRequest extends RestfulRequest {
 		this.errorHandler.add(Errors);
 		this.errorHandler.add(AuthErrors);
 		this.errorHandler.add(TeamErrors);
-		this.errorHandler.add(NewRelicIDPErrors);
 	}
 
 	async authorize () {
