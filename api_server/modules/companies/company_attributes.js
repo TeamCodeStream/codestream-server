@@ -121,5 +121,15 @@ module.exports = {
 		type: 'string',
 		maxLength: 100,
 		description: 'Indicates users in this org should switch to a new serverUrl for future requests'
+	},
+	nrOrgId: {
+		type: 'string',
+		maxLength: 40,
+		description: 'New Relic organization ID associated with this company'
+	},
+	nrOrgInfo: {
+		type: 'object',
+		description: 'Info associated with the company as returned by New Relic IdP when provisioning the first user',
+		serverOnly: true
 	}
 };

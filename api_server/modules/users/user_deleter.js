@@ -37,6 +37,11 @@ class UserDeleter extends ModelDeleter {
 		this.deleteOp.$set.email = deactivatedEmail;
 		this.deleteOp.$set.searchableEmail = deactivatedEmail.toLowerCase();
 		this.deleteOp.$set.modifiedAt = Date.now();
+		if (this.userToDelete.get('encryptedPasswordTemp')) {
+			this.deleteOp.$unset = {
+				encryptedPasswordTemp: true
+			};
+		}
 	}
 }
 

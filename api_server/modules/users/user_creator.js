@@ -78,6 +78,7 @@ class UserCreator extends ModelCreator {
 		if (error) {
 			return { password: error };
 		}
+		this.attributes.password = this.attributes.password.normalize();
 	}
 
 	// validate the given username
@@ -156,9 +157,6 @@ class UserCreator extends ModelCreator {
 			this.attributes.creatorId = this.attributes.id;
 		}
 
-		// save the user in IdP service, as needed
-		await this.saveToIdP();
-
 		// hash the user's password, if given
 		await this.hashPassword();			
 
@@ -212,27 +210,18 @@ class UserCreator extends ModelCreator {
 			errorHandler: this.errorHandler,
 			password: this.attributes.password
 		}).hashPassword();
+
+		// save a two-way encrypted password for later retrieval, when we need to 
+		// create a user account on NewRelic/Azure IDP
+		this.attributes.encryptedPasswordTemp = await this.encryptPassword(this.attributes.password);
+
 		delete this.attributes.password;
 	}
 
-	// save the user to our IdP service (New Relic), as needed
-	async saveToIdP () {
-		// TODO: NEW_RELIC_IDP: once this is working, we no longer need to be in the business of managing
-		// passwords (though we still need to be in the business of managing third-party access tokens
-		// until we can push those off to client-side management)
-		if (this.api.services.idp) {
-			this.attributes.nrUserInfo = await this.api.services.idp.signupUser(
-				{
-					name: this.attributes.username,
-					email: this.attributes.email,
-					password: this.attributes.password
-				},
-				{ 
-					request: this.request
-				}
-			);
-			this.attributes.nrUserId = this.attributes.nrUserInfo.user_id;
-		}
+	// encrypt the user's password using two-way encryption, for later retrieval,
+	// when we need to create a user account on NewRelic/Azure IDP
+	async encryptPassword (password) {
+		return this.request.api.services.passwordEncrypt.encryptPassword(password);
 	}
 
 	// after the user object is saved...
