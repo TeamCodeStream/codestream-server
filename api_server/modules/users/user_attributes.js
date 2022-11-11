@@ -384,10 +384,5 @@ module.exports = {
 		description: 'when a user is copied by way of invite, retains the ID of the user record this user record was copied from',
 		serverOnly: true,
 		forMe: true
-	},
-	nrUserInfo: {
-		type: 'object',
-		description: 'Info associated with the user as returned by New Relic IdP when provisioning',
-		serverOnly: true
 	}
 };
