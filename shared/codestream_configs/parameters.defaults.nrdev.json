@@ -1,0 +1,41 @@
+{
+	"apiServer": {
+		"phoneHomeUrl": "http://localhost.cdstrm.dev:12089",
+		"publicApiUrl": "https://localhost.cdstrm.dev:12079"
+	},
+	"email": {
+		"emailTo": "${DT_USER}@newrelic.com",
+		"replyToDomain": "${CSSVC_ENV}.cdstrm.us",
+		"senderEmail": "${CSSVC_ENV}_alerts@cdstrm.us",
+		"supportEmail": "${CSSVC_ENV}_support@cdstrm.us"
+	},
+	"queuingEngine": {
+		"awsSQS": {
+			"outboundEmailQueueName": "local_${DT_USER}_outboundEmail"
+		}
+	},
+	"ssl": {
+		"cafile": "${HOME}/.codestream/certs/wildcard.cdstrm.dev/wildcard.cdstrm.dev-ca",
+		"certfile": "${HOME}/.codestream/certs/wildcard.cdstrm.dev/wildcard.cdstrm.dev-crt",
+		"keyfile": "${HOME}/.codestream/certs/wildcard.cdstrm.dev/wildcard.cdstrm.dev-key"
+	},
+	// "uploadEngine": {
+	// 	"s3": {
+	// 		"bucket": {
+	// 			"default": "codestream-dev",
+	// 			"desc": "S3 bucket name",
+	// 			"env": "CSSVC_S3_BUCKET_NAME"
+	// 		},
+	// 		"keyPrefix": {
+	// 			"default": "usercontent/users/${DT_USER}",
+	// 			"desc": "S3 object key prefix (no trailing /)",
+	// 			"env": "CSSVC_S3_KEY_PREFIX"
+	// 		},
+	// 		"publicUrl": {
+	// 			"default": "http://codestream-dev.s3.us-east-1.amazonaws.com",
+	// 			"desc": "public-facing url and prefix for serving images from S3",
+	// 			"env": "CSSVC_S3_PUBLIC_URL"
+	// 		}
+	// 	}
+	// }
+}

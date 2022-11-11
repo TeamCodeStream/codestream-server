@@ -170,6 +170,14 @@ def buildCfgFileProperties(schema, keyPath, task='show-desc'):
 				node[k] = schema[k]['env'] if dtCore.util.someValueOrNone(schema[k], 'env') else "undefined"
 
 
+def overrideDefaults(schema: dict, schemaDefaults: dict) -> None:
+	for overrideProp in schemaDefaults.keys():
+		if isinstance(schemaDefaults[overrideProp], dict):
+			overrideDefaults(schema[overrideProp], schemaDefaults[overrideProp])
+		else:
+			schema[overrideProp]['default'] = schemaDefaults[overrideProp]
+
+
 secretsDefault = os.environ['KM_SECRETS'] if 'KM_SECRETS' in os.environ else ""
 if os.path.isdir(f"{secretsDefault}/categories"):
 	secretsDefault = f"{secretsDefault}/categories"
@@ -181,6 +189,9 @@ parser.add_argument('--sort-json', type=str, help="sort a json file where their 
 parser.add_argument('-p', '--profile', type=str, help="profile")
 parser.add_argument('-e', '--env', type=str, default="defaultEnv", help="environment")
 parser.add_argument('--secrets', type=str, default=secretsDefault, help="secrets directory")
+parser.add_argument('--config-dir', type=str, help="directory containing schema, version and related files (defaults to parent of dir where this script resides)")
+parser.add_argument('--schema', type=str, default="parameters.json", help="schema file. defaults to paraemters.json")
+parser.add_argument('--schema-defaults', type=str, help="alternate default values from those in parameters.json")
 parser.add_argument('--out', type=str, help="output file (defaults to stdout)")
 if len(sys.argv) == 1:
 	parser.print_help()
@@ -190,8 +201,19 @@ args = parser.parse_args()
 # if not args.secrets:
 # 	printErr("warning: no secrets directory defined")
 
-repoRoot = os.path.dirname(os.path.realpath(__file__)) + "/.."
-schema = dtCore.io.readJsonFileIgnoreComments(repoRoot + "/parameters.json")
+configDir = args.config_dir or os.path.dirname(os.path.realpath(__file__)) + "/.."
+schemaFile = args.schema if os.path.exists(args.schema) else f"{configDir}/{args.schema}" if os.path.exists(f"{configDir}/{args.schema}") else None
+if not schemaFile:
+	dtCore.io.printErr(f"could not find schema. Tried {args.schema} and {configDir}/{args.schema}")
+	exit(1)
+schema = dtCore.io.readJsonFileIgnoreComments(schemaFile)
+if args.schema_defaults:
+	schemaDefaultsFile = args.schema_defaults if os.path.exists(args.schema_defaults) else f"{configDir}/{args.schema_defaults}" if os.path.exists(f"{configDir}/{args.schema_defaults}") else None
+	if not schemaDefaultsFile:
+		dtCore.io.printErr(f"could not find schema defaults file. Tried {args.schema_defaults} and {configDir}/{args.schema_defaults}")
+		exit(1)
+	schemaDefaults = dtCore.io.readJsonFileIgnoreComments(schemaDefaultsFile)
+	overrideDefaults(schema, schemaDefaults)
 
 cfgFile = {}
 if args.show_desc:

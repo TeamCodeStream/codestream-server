@@ -17,12 +17,15 @@ default environment list: $environmentList
 if [ "$DT_RDB_WHICH" == "nrdev" ]; then
 	profiles="$DT_RESOURCES/codestream/config-profiles"
 	environmentList="local local1 local2 dev pd pd2"
+	schemaDefaults="--schema-defaults parameters.defaults.$DT_RDB_WHICH.json"
 	# environmentList="local local1 local2 pd pd2 qa qa2 ci pi stg"
 elif [ "$DT_RDB_WHICH" == "nrprod" ]; then
 	profiles="$DT_RESOURCES/codestream/config-profiles"
 	environmentList="us1 eu1"
+	schemaDefaults="--schema-defaults parameters.defaults.$DT_RDB_WHICH.json"
 else
 	environmentList="local local1 local2 ci pi pd pd2 qa qa2 prod eu0 dev nr stg"
+	schemaDefaults=""
 fi
 yes=""
 verbose=""
@@ -82,31 +85,31 @@ echo "Current schema version is: $schemaVersion"
 # fi
 
 # create the README.parameter-definitions file for documentation
-[ -n "$verbose" ] && echo === $binDir/process-profile $debug --show-desc --out $codestream_configs/README.parameter-definitions.json.x
-$binDir/process-profile $debug --show-desc --out $codestream_configs/README.parameter-definitions.json.x
+[ -n "$verbose" ] && echo === $binDir/process-profile $schemaDefaults $debug --show-desc --out $codestream_configs/README.parameter-definitions.json.x
+$binDir/process-profile $schemaDefaults $debug --show-desc --out $codestream_configs/README.parameter-definitions.json.x
 diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 
 # create the config templates for on-prem single host preview and quickstart (beta release only)
 # for onpremConfig in minimal quickstart
 # do
-# 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremConfig --profile $profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
-# 	$binDir/process-profile --env $onpremConfig --profile $profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile $schemaDefaults --env $onpremConfig --profile $profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
+# 	$binDir/process-profile $schemaDefaults --env $onpremConfig --profile $profiles/onprem-single-host-preview-template.json --out $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template.x
 # 	diff_notify $onpremInstallDir/onprem-install/config-templates/beta/single-host-preview-$onpremConfig-cfg.json.template "$yes"
 # done
 
 # create onprem config suitable for local sandbox development
 # for onpremEnv in local
 # do
-# 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $onpremEnv --profile $profiles/onprem-single-host-preview-template.json --out $outDir/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
-# 	$binDir/process-profile --env $onpremEnv --profile $profiles/onprem-single-host-preview-template.json --out $outDir/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile $schemaDefaults --env $onpremEnv --profile $profiles/onprem-single-host-preview-template.json --out $outDir/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
+# 	$binDir/process-profile $schemaDefaults --env $onpremEnv --profile $profiles/onprem-single-host-preview-template.json --out $outDir/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json.x
 # 	diff_notify $outDir/onprem-quickstart_${onpremEnv}_${schemaVersion}_.json "$yes"
 # done
 
 # create default configs deployed with the api repo
 # for csEnv in open-development onprem-slh-quickstart
 # do
-# 	[ -n "$verbose" ] && echo === $binDir/process-profile --env $csEnv --profile $profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
-# 	$binDir/process-profile --env $csEnv --profile $profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile $schemaDefaults --env $csEnv --profile $profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
+# 	$binDir/process-profile $schemaDefaults --env $csEnv --profile $profiles/onprem-single-host-preview-template.json --out $codestream_server/api_server/etc/configs/$csEnv.json.x
 # 	diff_notify $codestream_server/api_server/etc/configs/$csEnv.json "$yes"
 # done
 
@@ -114,8 +117,8 @@ diff_notify $codestream_configs/README.parameter-definitions.json "$yes"
 cfgFileName=codestream-cloud
 for csEnv in $environmentList
 do
-	[ -n "$verbose" ] && echo === $binDir/process-profile $debug --profile $profiles/cloud.json --env $csEnv --out $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json.x
-	$binDir/process-profile $debug --profile $profiles/cloud.json --env $csEnv --out $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json.x || exit 1
+	[ -n "$verbose" ] && echo === $binDir/process-profile $schemaDefaults $debug --profile $profiles/cloud.json --env $csEnv --out $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json.x
+	$binDir/process-profile $schemaDefaults $debug --profile $profiles/cloud.json --env $csEnv --out $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json.x || exit 1
 	diff_notify $outDir/${cfgFileName}_${csEnv}_${schemaVersion}_.json "$yes"
 
 	# derivatives
@@ -135,8 +138,8 @@ done
 # onprem development configurations
 # for csEnv in "local" ci pi dev
 # do
-# 	[ -n "$verbose" ] && echo === $binDir/process-profile --profile $profiles/onprem-development.json --env $csEnv --out $outDir/onprem-development_${csEnv}_${schemaVersion}_.json.x
-# 	$binDir/process-profile --profile $profiles/onprem-development.json --env $csEnv --out $outDir/onprem-development_${csEnv}_${schemaVersion}_.json.x
+# 	[ -n "$verbose" ] && echo === $binDir/process-profile $schemaDefaults --profile $profiles/onprem-development.json --env $csEnv --out $outDir/onprem-development_${csEnv}_${schemaVersion}_.json.x
+# 	$binDir/process-profile $schemaDefaults --profile $profiles/onprem-development.json --env $csEnv --out $outDir/onprem-development_${csEnv}_${schemaVersion}_.json.x
 # 	diff_notify $outDir/onprem-development_${csEnv}_${schemaVersion}_.json "$yes"
 # done
 
