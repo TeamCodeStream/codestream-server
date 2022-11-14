@@ -1,3 +1,4 @@
+// this is an example of a file containing overrides to property defaults found in parameters.json
 {
 	"apiServer": {
 		"phoneHomeUrl": "http://localhost.cdstrm.dev:12089",

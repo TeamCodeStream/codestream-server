@@ -17,14 +17,17 @@ default environment list: $environmentList
 if [ "$DT_RDB_WHICH" == "nrdev" ]; then
 	profiles="$DT_RESOURCES/codestream/config-profiles"
 	environmentList="local local1 local2 dev pd pd2"
-	schemaDefaults="--schema-defaults parameters.defaults.$DT_RDB_WHICH.json"
 	# environmentList="local local1 local2 pd pd2 qa qa2 ci pi stg"
 elif [ "$DT_RDB_WHICH" == "nrprod" ]; then
 	profiles="$DT_RESOURCES/codestream/config-profiles"
 	environmentList="us1 eu1"
-	schemaDefaults="--schema-defaults parameters.defaults.$DT_RDB_WHICH.json"
 else
 	environmentList="local local1 local2 ci pi pd pd2 qa qa2 prod eu0 dev nr stg"
+fi
+if [ -f "$DT_RESOURCES/codestream/config-profiles/parameters.defaults.$DT_RDB_WHICH.json" ]; then
+	schemaDefaults="--schema-defaults $DT_RESOURCES/codestream/config-profiles/parameters.defaults.$DT_RDB_WHICH.json"
+	echo "Overriding default values with: $schemaDefaults"
+else
 	schemaDefaults=""
 fi
 yes=""
