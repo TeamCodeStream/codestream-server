@@ -2,12 +2,10 @@
 
 'use strict';
 
-const JoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/join_company_request');
-const OneUserPerOrgJoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/join_company_request');
+const JoinCompanyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/join_company_request');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const AccessTokenCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/access_token_creator');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
-const ConfirmHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/confirm_helper');
 
 class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 
@@ -30,15 +28,9 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		// environment, wherein the request can proceed normally
 		await this.fetchUser();
 		await this.copyUser();
-		await this.deleteUser(); // also delete the original user
+		await this.deleteUser(); // also delete the original user, if teamless
 
-		if (this.oneUserPerOrg) {
-			// pretend the one-user-per-org join-company request is the super-class,
-			// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
-			await OneUserPerOrgJoinCompanyRequest.prototype.authorize.call(this);
-		} else {
-			return super.authorize();
-		}
+		return super.authorize();
 	}
 
 	// require certain parameters, and discard unknown parameters
@@ -125,51 +117,19 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		);
 		return users.find(user => {
 			return (
-				!user.get('isRegistered') && 
 				(user.get('teamIds') || []).length === 1 &&
 				user.get('teamIds')[0] === company.get('everyoneTeamId')
 			)
 		});
-		/*
-		if (invitedUser) {
-			await new ConfirmHelper({
-				request: this,
-				user: invitedUser,
-				notRealLogin: true,
-				dontUpdateLastLogin: true,
-				dontConfirmInOtherEnvironments: true
-			}).confirm({});
-			return invitedUser;
-		}
-		*/
 	}
 
 	// delete the original user, since they joined a company in this environment
 	async deleteUser () {
-		const { serverUrl, userId } = this.request.body;
-		return this.api.services.environmentManager.deleteUserFromHostById(serverUrl, userId);
-	}
-
-	async process () {
-		// pretend the one-user-per-org join-company request is the super-class,
-		// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
-		if (this.oneUserPerOrg) {
-			this.duplicateUser = OneUserPerOrgJoinCompanyRequest.prototype.duplicateUser;
-			this.confirmUser = OneUserPerOrgJoinCompanyRequest.prototype.confirmUser;
-			this.addUserToTeam = OneUserPerOrgJoinCompanyRequest.prototype.addUserToTeam;
-			return OneUserPerOrgJoinCompanyRequest.prototype.process.call(this);
-		} else {
-			return super.process();
-		}
-	}
-
-	async postProcess () {
-		// pretend the one-user-per-org join-company request is the super-class,
-		// a super-duper ugly HACK until we get to ONE_USER_PER_ORG
-		if (this.oneUserPerOrg) {
-			return OneUserPerOrgJoinCompanyRequest.prototype.postProcess.call(this);
-		} else {
-			return super.postProcess();
+		// only delete the original user if they are teamless, otherwise they are a registered
+		// user in that environment that accepted an invite to a team in this environment
+		if ((this.user.get('teamIds') || []).length === 0) {
+			const { serverUrl, userId } = this.request.body;
+			return this.api.services.environmentManager.deleteUserFromHostById(serverUrl, userId);
 		}
 	}
 }
