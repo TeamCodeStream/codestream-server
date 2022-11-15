@@ -39,7 +39,7 @@ const _getEligibleJoinCompaniesByInvite = async (email, request) => {
 		}, 
 		{
 			hint: UserIndexes.bySearchableEmail,
-			fields: ['companyIds', 'isRegistered', 'accessTokens'],
+			fields: ['companyIds', 'isRegistered', 'accessTokens', 'externalUserId'],
 
 			// this is important because it can overwrite changes to user updates
 			// in progress at a higher level
@@ -51,10 +51,12 @@ const _getEligibleJoinCompaniesByInvite = async (email, request) => {
 	// each user record should, in theory, have only one company
 	const companies = [];
 	await Promise.all(users.map(async user => {
-		const companiesByUser = await _getEligibleJoinCompaniesByUserInvite(user, request);
-		companies.push.apply(companies, companiesByUser.map(company => { 
-			return { company, user };
-		}));
+		if (!user.externalUserId) {  // suppress "faux" users, i.e., users created by virtue of a slack reply
+			const companiesByUser = await _getEligibleJoinCompaniesByUserInvite(user, request);
+			companies.push.apply(companies, companiesByUser.map(company => { 
+				return { company, user };
+			}));
+		}
 	}));
 
 	return companies;
