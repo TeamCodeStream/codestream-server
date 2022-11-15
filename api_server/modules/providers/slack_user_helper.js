@@ -116,8 +116,8 @@ class SlackUserHelper {
 		return users && users.length > 0;
 	}
 
-	async getUserWithoutTeam (slackUserId) {
-		if (!slackUserId) return undefined;
+	async getUser (slackUserId, codestreamTeamId) {
+		if (!slackUserId || !codestreamTeamId) return undefined;
 
 		const users = await this.request.data.users.getByQuery(
 			{
@@ -127,25 +127,12 @@ class SlackUserHelper {
 			{ hint: UserIndexes.byProviderIdentities }
 		);
 
-		if (users.length > 1) {
-			// this shouldn't really happen
-			this.request.log(`Multiple CodeStream users found matching identity ${slackUserId}`);
-			return undefined;
-		}
-		if (users.length === 1) {
-			return users[0];
-		}
-		return undefined;
-	}
-
-	async getUser (slackUserId, codestreamTeamId) {
-		if (!slackUserId || !codestreamTeamId) return undefined;
-
-		const user = await this.getUserWithoutTeam(slackUserId);
-
-		if (user && user.hasTeam(codestreamTeamId)) return user;
-
-		return undefined;
+		return users.find(user => {
+			return (
+				!user.get('deactivated') && 
+				user.hasTeam(codestreamTeamId)
+			);
+		});
 	}
 
 	async getFauxUser (codestreamTeamId, slackWorkspaceId, slackUserId) {
@@ -156,18 +143,12 @@ class SlackUserHelper {
 			{ hint: UserIndexes.byExternalUserId }
 		);
 
-		if (users.length > 1) {
-			// this shouldn't really happen
-			this.log(`Multiple CodeStream users found matching identity slack workspaceId=${slackWorkspaceId} userId=${slackUserId} on codestream team=${codestreamTeamId}`);
-			return undefined;
-		}
-		if (users.length === 1) {
-			const user = users[0];
-			if (user.get('deactivated')) return undefined;
-
-			return user;
-		}
-		return undefined;
+		return users.find(user => {
+			return (
+				!user.get('deactivated') && 
+				user.hasTeam(codestreamTeamId)
+			);
+		});
 	}
 
 	async getUserFromSlack (userId) {
@@ -209,7 +190,7 @@ class SlackUserHelper {
 		return this.request.data.users.getById(codeStreamUserId);
 	}
 
-	async processText (text) {
+	async processText (text, codestreamTeamId) {
 		const mentionedUserIds = new Set();
 		const replacements = {};
 		const re = new RegExp('<@([^>]+)>', 'g');
@@ -217,7 +198,7 @@ class SlackUserHelper {
 		const matches = text.matchAll(re);
 		for (const match of matches) {
 			const userId = match[1];
-			const user = await this.getUserWithoutTeam(userId);
+			const user = await this.getUser(userId, codestreamTeamId);
 			if (user) {
 				mentionedUserIds.add(user.id);
 				// TODO: use the correct value here

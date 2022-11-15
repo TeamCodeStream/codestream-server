@@ -35,9 +35,7 @@ class SlackInteractiveComponentsHandler {
 	constructor (request, payloadData) {
 		Object.assign(this, request);
 
-		this.log = request.api.log;
-		this.logger = this.api.logger;
-
+		this.log = request.log;
 		this.payload = payloadData.payload;
 		this.actionPayload = payloadData.actionPayload;
 	}
@@ -78,7 +76,7 @@ class SlackInteractiveComponentsHandler {
 
 	async handleBlockActionGeneric () {
 		const teamId = this.actionPayload.teamId || this.actionPayload.tId;
-		let payloadActionUser = await this.getUserWithoutTeam(this.payload.user.id);
+		let payloadActionUser = await this.getUser(this.payload.user.id, teamId);
 		if (!payloadActionUser) {
 			// if we can't find a user that has auth'd with slack, try to find a matching faux user
 			payloadActionUser = await this.getFauxUser(teamId, this.payload.user.team_id, this.payload.user.id);
@@ -551,10 +549,10 @@ class SlackInteractiveComponentsHandler {
 		return 'OpenReviewGenericError';
 	}
 
-	async getUserWithoutTeam (slackUserId) {
-		if (!slackUserId) return undefined;
+	async getUser (slackUserId, codestreamTeamId) {
+		if (!slackUserId || !codestreamTeamId) return undefined;
 
-		const users = await this.data.users.getByQuery(
+		const users = await this.request.data.users.getByQuery(
 			{
 				providerIdentities: `slack::${slackUserId}`,
 				deactivated: false
@@ -562,47 +560,28 @@ class SlackInteractiveComponentsHandler {
 			{ hint: UserIndexes.byProviderIdentities }
 		);
 
-		if (users.length > 1) {
-			// this shouldn't really happen
-			this.log(`Multiple CodeStream users found matching identity ${slackUserId}`);
-			return undefined;
-		}
-		if (users.length === 1) {
-			return users[0];
-		}
-		return undefined;
-	}
-
-	async getUser (slackUserId, codestreamTeamId) {
-		if (!slackUserId || !codestreamTeamId) return undefined;
-
-		const user = await this.getUserWithoutTeam(slackUserId);
-
-		if (user && user.hasTeam(codestreamTeamId)) return user;
-
-		return undefined;
+		return users.find(user => {
+			return (
+				!user.get('deactivated') && 
+				user.hasTeam(codestreamTeamId)
+			);
+		});
 	}
 
 	async getFauxUser (codestreamTeamId, slackWorkspaceId, slackUserId) {
 		if (!codestreamTeamId || !slackWorkspaceId || !slackUserId) return undefined;
 
 		const query = { externalUserId: `slack::${codestreamTeamId}::${slackWorkspaceId}::${slackUserId}` };
-		const users = await this.data.users.getByQuery(query,
+		const users = await this.request.data.users.getByQuery(query,
 			{ hint: UserIndexes.byExternalUserId }
 		);
 
-		if (users.length > 1) {
-			// this shouldn't really happen
-			this.log(`Multiple CodeStream users found matching identity slack workspaceId=${slackWorkspaceId} userId=${slackUserId} on codestream team=${codestreamTeamId}`);
-			return undefined;
-		}
-		if (users.length === 1) {
-			const user = users[0];
-			if (user.get('deactivated')) return undefined;
-
-			return user;
-		}
-		return undefined;
+		return users.find(user => {
+			return (
+				!user.get('deactivated') && 
+				user.hasTeam(codestreamTeamId)
+			);
+		});
 	}
 
 	async getUserFromSlack (userId, accessToken) {
