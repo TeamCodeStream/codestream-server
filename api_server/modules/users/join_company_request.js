@@ -136,7 +136,7 @@ class JoinCompanyRequest extends RestfulRequest {
 				user: this.invitedUser,
 				notRealLogin: true
 			}).confirm({
-				passwordHash: this.invitedUser.get('passwordHash')
+				passwordHash: this.user.get('passwordHash')
 			});
 		}
 
