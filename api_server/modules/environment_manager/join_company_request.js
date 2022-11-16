@@ -55,7 +55,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 			throw this.errorHandler.error('missingAuthorization');
 		}
 
-		this.user = await this.api.services.environmentManager.fetchUserFromHostById(serverUrl, userId);
+		this.originalUser = this.user = await this.api.services.environmentManager.fetchUserFromHostById(serverUrl, userId);
 		if (!this.user) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
@@ -127,7 +127,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 	async deleteUser () {
 		// only delete the original user if they are teamless, otherwise they are a registered
 		// user in that environment that accepted an invite to a team in this environment
-		if ((this.user.get('teamIds') || []).length === 0) {
+		if ((this.originalUser.get('teamIds') || []).length === 0) {
 			const { serverUrl, userId } = this.request.body;
 			return this.api.services.environmentManager.deleteUserFromHostById(serverUrl, userId);
 		}
