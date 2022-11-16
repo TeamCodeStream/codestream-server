@@ -122,17 +122,22 @@ class JoinCompanyRequest extends RestfulRequest {
 	// under one-user-per-org, accepting an invite means confirming the user record for the unregistered
 	// user who has been created as a result of the invite
 	async confirmUser () {
-		if (this.invitedUser.get('isRegistered')) { return; }
-
-		this.responseData = await new ConfirmHelper({
-			request: this,
-			user: this.invitedUser,
-			notRealLogin: true
-		}).confirm({
-			email: this.invitedUser.get('email'),
-			username: this.invitedUser.get('username'),
-			fullName: this.invitedUser.get('fullName')
-		});
+		const accessToken = ((this.invitedUser.get('accessTokens') || {}).web || {}).token;
+		if (accessToken) {
+			this.responseData = {
+				accessToken
+			};
+		} else {
+			this.responseData = await new ConfirmHelper({
+				request: this,
+				user: this.invitedUser,
+				notRealLogin: true
+			}).confirm({
+				email: this.invitedUser.get('email'),
+				username: this.invitedUser.get('username'),
+				fullName: this.invitedUser.get('fullName')
+			});
+		}
 
 		Object.assign(this.responseData, {
 			userId: this.invitedUser.id,
