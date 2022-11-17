@@ -140,7 +140,8 @@ class CompanyCreator extends ModelCreator {
 			{
 				id: this.model.id,
 				nrOrgId: nrUserInfo.organization_id,
-				nrOrgInfo
+				nrOrgInfo,
+				codestreamOnly: true
 			}
 		);
 	}
