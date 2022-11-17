@@ -11,9 +11,12 @@ const UUID = require('uuid').v4;
 const SERVICE_HOSTS = {
 	'signup': 'https://signup-processor.staging-service.newrelic.com',
 	'user': 'https://staging-user-service.nr-ops.net',
-	'login': ' https://staging-login.newrelic.com',
+	'login': 'https://staging-login.newrelic.com',
 	'credentials': 'https://staging-credential-service.nr-ops.net'
 };
+
+const PATH_TO_LOGIN = '/idp/azureb2c-cs/redirect?return_to={wherever you want them to go to}';
+const TEMP = 'https://staging-login.newrelic.com/idp/azureb2c-cs/redirect?return_to=https%3A%2F%2Flocalhost.codestream.us%3A12079%2Fno-auth%2Fprovider-token%2Fnewrelic-idp';
 
 const USER_SERVICE_SECRET = process.env.NEWRELIC_USER_SERVICE_SECRET; // for now, ultimately, this needs to come from config
 
