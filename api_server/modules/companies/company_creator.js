@@ -139,9 +139,10 @@ class CompanyCreator extends ModelCreator {
 		await this.request.data.companies.update(
 			{
 				id: this.model.id,
-				nrOrgId: nrUserInfo.organization_id,
+				linkedNROrgId: nrUserInfo.organization_id,
 				nrOrgInfo,
-				codestreamOnly: true
+				codestreamOnly: true,
+				orgOrigination: 'CS'
 			}
 		);
 	}
