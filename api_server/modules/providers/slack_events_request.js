@@ -255,7 +255,7 @@ class SlackEventsRequest extends RestfulRequest {
 			postId: this.slackEvent.ts,
 			url: permalink || ''
 		}];
-		const textAndMentions = await userHelper.processText(this.slackEvent.text);
+		const textAndMentions = await userHelper.processText(this.slackEvent.text, parentPost.get('teamId'));
 		let files;
 		if (this.slackEvent.files) {
 			files = this.slackEvent.files.map(f => ({

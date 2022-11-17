@@ -47,7 +47,6 @@ class JoinCompanyRequest extends RestfulRequest {
 		}
 
 		// get the user record that corresponds to this user's invite
-this.log(`Finding users matching ${this.user.get('email').toLowerCase()}`);
 		const matchingUsers = await this.data.users.getByQuery(
 			{
 				searchableEmail: this.user.get('email').toLowerCase()
@@ -56,19 +55,15 @@ this.log(`Finding users matching ${this.user.get('email').toLowerCase()}`);
 				hint: Indexes.bySearchableEmail
 			}
 		);
-this.log('FOUND:', matchingUsers.map(u => u.id));
 
 		this.invitedUser = matchingUsers.find(user => {
 			const teamIds = user.get('teamIds') || [];
-this.log(`user ${user.id} deactivated=${user.get('deactivated')} isRegistered=${user.get('isRegistered')} teamIds=${teamIds}`);
 			return (
 				!user.get('deactivated') &&
-				!user.get('isRegistered') &&
 				teamIds.length === 1 &&
 				teamIds[0] === this.team.id
 			);
 		});
-this.log('INVITED USER?', this.invitedUser ? this.invitedUser.id : 'NOPE');
 
 		if (this.invitedUser) {
 			return;
@@ -127,15 +122,22 @@ this.log('INVITED USER?', this.invitedUser ? this.invitedUser.id : 'NOPE');
 	// under one-user-per-org, accepting an invite means confirming the user record for the unregistered
 	// user who has been created as a result of the invite
 	async confirmUser () {
-		this.responseData = await new ConfirmHelper({
-			request: this,
-			user: this.invitedUser,
-			notRealLogin: true
-		}).confirm({
-			email: this.invitedUser.get('email'),
-			username: this.invitedUser.get('username'),
-			fullName: this.invitedUser.get('fullName')
-		});
+		const accessToken = ((this.invitedUser.get('accessTokens') || {}).web || {}).token;
+		if (accessToken) {
+			this.responseData = {
+				accessToken
+			};
+		} else {
+			this.responseData = await new ConfirmHelper({
+				request: this,
+				user: this.invitedUser,
+				notRealLogin: true
+			}).confirm({
+				email: this.invitedUser.get('email'),
+				username: this.invitedUser.get('username'),
+				fullName: this.invitedUser.get('fullName')
+			});
+		}
 
 		Object.assign(this.responseData, {
 			userId: this.invitedUser.id,
