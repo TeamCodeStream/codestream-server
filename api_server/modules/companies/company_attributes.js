@@ -117,7 +117,7 @@ module.exports = {
 		type: 'boolean',
 		description: 'Indicates this company has at least one user who is connected to New Relic'
 	},
-	nrOrgId: {
+	linkedNROrgId: {
 		type: 'string',
 		maxLength: 40,
 		description: 'New Relic organization ID associated with this company'
@@ -130,5 +130,10 @@ module.exports = {
 	codestreamOnly: {
 		type: 'boolean',
 		description: 'Indicates this is a "CodeStream" only org from the perspective of New Relic IdP, CodeStream admins can administer',
+	},
+	orgOrigination: {
+		type: 'string',
+		maxLength: '2',
+		description: 'When set to CS, indicates the org was not created to pair with an existing NR org'
 	}
 };

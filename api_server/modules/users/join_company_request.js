@@ -175,7 +175,7 @@ class JoinCompanyRequest extends RestfulRequest {
 			password = await this.decryptPassword(encryptedPassword)
 		}
 
-		const nrOrgInfo = this.company.get('nrOrgInfo');
+		const nrOrgInfo = this.company.get('linkedNROrgInfo');
 		if (!nrOrgInfo) {
 			// shouldn't happen
 			throw this.errorHandler.error('createAuth', { reason: 'company does not have New Relic org info' });
