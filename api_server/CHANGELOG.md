@@ -1,5 +1,18 @@
 # Change Log
 
+## [14.0.7] - 2022-11-17
+
+### Fixed
+
+- Fixes an issue where organizations from other regions were being presented for you to join even if you were already a member
+- Fixes an issue where the same organization was listed twice in the Switch Oranizations menu
+
+## [14.0.6] - 2022-11-10
+
+### Changed
+
+- Force extension update to version 14.6
+
 ## [14.0.5] - 2022-11-10
 
 ### Added
