@@ -122,7 +122,7 @@ module.exports = {
 		maxLength: 100,
 		description: 'Indicates users in this org should switch to a new serverUrl for future requests'
 	},
-	nrOrgId: {
+	linkedNROrgId: {
 		type: 'string',
 		maxLength: 40,
 		description: 'New Relic organization ID associated with this company'
@@ -135,5 +135,10 @@ module.exports = {
 	codestreamOnly: {
 		type: 'boolean',
 		description: 'Indicates this is a "CodeStream" only org from the perspective of New Relic IdP, CodeStream admins can administer',
+	},
+	orgOrigination: {
+		type: 'string',
+		maxLength: '2',
+		description: 'When set to CS, indicates the org was not created to pair with an existing NR org'
 	}
 };
