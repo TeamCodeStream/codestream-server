@@ -145,7 +145,7 @@ class NewRelicIDP extends APIServerModule {
 			'user',
 			'/v1/users/' + id,
 			'get',
-			{ },
+			undefined,
 			options
 		);
 	}
@@ -174,6 +174,23 @@ class NewRelicIDP extends APIServerModule {
 		);
 	}
 
+	async updateUser (id, data, options = {}) {
+		const user = await this.getUser(id);
+		if (!user) return null;
+		const { attributes } = user.data;
+		data = Object.assign({
+			email: attributes.email,
+			name: attributes.name
+		}, data);
+		return this._newrelic_idp_call(
+			'user',
+			'/v1/users/' + id,
+			'patch',
+			{ data: { attributes: data } },
+			options
+		);
+	}
+
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {
 		const host = this.serviceHosts[service];
 		if (!host) {
@@ -185,24 +202,26 @@ class NewRelicIDP extends APIServerModule {
 			payloadSignature = await this._signPayload(params, options);
 		}
 
+		const haveParams = Object.keys(params).length > 0;
 		let url = `${host}${path}`;
 		let body;
-		if (method === 'get' && Object.keys(params).length > 0) {
+		if (method === 'get' && haveParams) {
 			url += '?' + Object.keys(params).map(key => {
 				return `${key}=${encodeURIComponent(params[key])}`;
 			}).join('&');
-		} else {
+		} else if (haveParams) {
 			body = params;
 		}
 
 		const fetchOptions = {
 			method,
-			body: JSON.stringify(body),
 			headers: {
 				'Content-Type': 'application/json'
 			}
 		};
-
+		if (body) {
+			fetchOptions.body = JSON.stringify(body);
+		}
 		if (payloadSignature) {
 			fetchOptions.headers['NewRelic-Signed-Body'] = payloadSignature;
 		}
