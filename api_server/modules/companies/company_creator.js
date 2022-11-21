@@ -102,6 +102,17 @@ class CompanyCreator extends ModelCreator {
 	// under one-user-per-org, it's more or less functionally the same as signing up
 	async handleIdPSignup () {
 		if (!this.api.services.idp) { return; }
+		if (this.request.request.headers['x-cs-no-newrelic']) {
+			this.request.log('NOTE: not handling IDP signup');
+			await this.request.data.companies.update(
+				{
+					id: this.model.id,
+					codestreamOnly: true,
+					orgOrigination: 'CS'
+				}
+			);
+			return;
+		}
 
 		let password;
 		const encryptedPassword = this.user.get('encryptedPasswordTemp');

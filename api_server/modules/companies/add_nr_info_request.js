@@ -9,6 +9,8 @@ class AddNRInfoRequest extends RestfulRequest {
 
 	// authorize the request for the current user
 	async authorize () {
+		throw this.errorHandler.error('deprecated');
+		
 		// get the company
 		this.company = await this.data.companies.getById(this.request.params.id.toLowerCase());
 		if (!this.company || this.company.get('deactivated')) {

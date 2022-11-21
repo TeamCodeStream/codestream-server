@@ -168,6 +168,10 @@ class JoinCompanyRequest extends RestfulRequest {
 	// it's more or less functionally the same as signing up
 	async handleIdPSignup () {
 		if (!this.api.services.idp) { return; }
+		if (this.request.headers['x-cs-no-newrelic']) {
+			this.log('NOTE: not handling IDP signup');
+			return;
+		}
 
 		let password;
 		const encryptedPassword = this.user.get('encryptedPasswordTemp');
