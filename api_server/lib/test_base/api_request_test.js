@@ -226,6 +226,7 @@ class APIRequestTest extends GenericTest {
 			// this can be removed when we have fully migrated to ONE_USER_PER_ORG
 			requestOptions.headers['X-CS-One-User-Per-Org'] = true;
 		}
+		requestOptions.headers['X-CS-No-NewRelic'] = true;
 		requestOptions.headers['X-CS-Test-Num'] = `API-${this.testNum}`;	// makes it easy to log requests associated with particular tests
 	}
 

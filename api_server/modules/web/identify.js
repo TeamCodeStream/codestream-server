@@ -41,25 +41,15 @@ module.exports = async function(options) {
 	} else {
 		abTest = '[]';
 	}
-	const nrConnected = !!(company && company.get('isNRConnected'));
+	const codeStreamOnly = !!(company && company.get('codestreamOnly'));
+	const orgOrigination = (company && company.get('orgOrigination')) || '';
 
 	let nrUserId, nrOrgId;
-	if (user.get('providerInfo')) {
-		const providerInfo = user.get('providerInfo');
-		const data = (
-			team &&
-			providerInfo[team.id] &&
-			providerInfo[team.id].newrelic &&
-			providerInfo[team.id].newrelic.data
-		);
-		if (data) {
-			if (data.userId) {
-				nrUserId = data.userId;
-			} 
-			if (data.orgIds && data.orgIds.length) {
-				nrOrgId = data.orgIds[0];
-			}
-		}
+	if (user.get('nrUserId')) {
+		nrOrgId = user.get('nrUserId');
+	}
+	if (company && company.get('linkedNROrgId')) {
+		nrOrgId = company.get('linkedNROrgId');
 	}
 
 	let region = undefined;
@@ -90,7 +80,8 @@ module.exports = async function(options) {
 		trialStartAt,
 		trialEndAt,
 		abTest,
-		nrConnected,
+		codeStreamOnly,
+		orgOrigination,
 		nrUserId,
 		nrOrgId,
 		region
