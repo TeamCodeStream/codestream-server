@@ -117,7 +117,8 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
 			((properties.company.created_at === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
 			((properties.company.plan === plan) || errors.push('company.plan not correct')) &&
-			((properties['NR Connected Org'] === false) || errors.push('"NR Connected Org" not correct'))
+			((properties['CodeStream Only'] === true) || errors.push('CodeStream Only should be true')) &&
+			((properties['Org Origination'] === 'CS') || errors.push('Org Origination should be CS'))
 		);
 		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
 			result &&= (properties.Region === (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name) || errors.push('Region not correct');
