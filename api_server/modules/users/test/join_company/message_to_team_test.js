@@ -99,6 +99,9 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			expectedUser[attribute] = actualUser[attribute];
 		});
 
+		Assert(typeof actualUser.nrUserId === 'string', 'nrUserId not set');
+		expectedUser.nrUserId = actualUser.nrUserId;
+
 		return super.validateMessage(message);
 	}
 }

@@ -53,7 +53,8 @@ class NewRelicIDP extends APIServerModule {
 						passwordConfirmation: password
 					}
 				}
-			}
+			},
+			options
 		);
 
 		// now apply the "pending password" to the user
@@ -64,7 +65,8 @@ class NewRelicIDP extends APIServerModule {
 			{
 				timestamp: Date.now(),
 				request_id: UUID()
-			}
+			},
+			options
 		);
 
 		return createUserResponse.data;
@@ -81,7 +83,8 @@ class NewRelicIDP extends APIServerModule {
 			'user',
 			'/v1/users',
 			'post',
-			body
+			body,
+			options
 		);
 	}
 
@@ -192,6 +195,10 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {
+		if (options.mockResponse) {
+			return this._getMockResponse(service, path, method, params, options);
+		}
+
 		const host = this.serviceHosts[service];
 		if (!host) {
 			this._throw('nrIDPInternal', `no host for service ${service}`, options);
@@ -251,6 +258,115 @@ class NewRelicIDP extends APIServerModule {
 		return Crypto.createHmac('sha256', USER_SERVICE_SECRET)
 			.update(JSON.stringify(data))
 			.digest('hex');
+	}
+
+	_getMockResponse (service, path, method, params, options) {
+		let response;
+		if (service === 'signup') {
+			if (path === '/internal/v1/signups/provision' && method === 'post') {
+				return this._getMockSignupResponse();
+			}
+		} else if (service === 'user') {
+			if (path === '/v1/users' && method === 'post') {
+				return this._getMockCreateUserResponse(params);
+			}
+		} else if (service === 'login') {
+			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
+				return this._getMockLoginResponse(params);
+			}
+		} else if (service === 'credentials') {
+			let match;
+			if (path === '/v1/pending_passwords' && method === 'post') {
+				return this._getMockPendingPasswordResponse();
+			} else if (match = path.match(/^\/v1\/pending_passwords\/.+\/apply\/([0-9]+)$/)) {
+				return this._getMockPendingPasswordApplyResponse(match[1]);
+			}
+		}
+		 
+		if (!response) {
+			this._throw('nrIDPInternal', `no IdP mock response for ${service} ${method} ${path}`, options);
+		}
+	}
+
+	_getMockSignupResponse () {
+		return 	{
+			organization_id: UUID(),
+			customer_id: 'CC-' + Math.floor(Math.random() * 1000000000),
+			customer_contract_id: UUID(),
+			organization_group_id: UUID(),
+			authenticatin_domain_id: UUID(),
+			user_id: Math.floor(Math.random() * 1000000000).toString(),
+			account_id: Math.floor(Math.random() * 100000000)
+		};
+	}
+
+	_getMockCreateUserResponse (params) {
+		const idpObjectId = UUID();
+		const now = Date.now();
+		return {
+			data: {
+				id: Math.floor(Math.random() * 1000000000).toString(),
+				type: 'user',
+				attributes: {
+					email: params.data.attributes.email,
+					firstName: params.data.attributes.name,
+					lastName: '',
+					state: 'active',
+					gravatarEmail: '',
+					version: 2,
+					name: params.data.attributes.name,
+					timeZone: 'Etc/UTC',
+					authenticationDomainId: params.data.attributes.authenticatin_domain_id,
+					activeIdp: 'azureb2c',
+					activeIdpObjectId: idpObjectId,
+					supportedIdps: [
+						{
+							name: 'azureb2c',
+							idp_object_id: idpObjectId
+						}
+					],
+					userTierId: 1,
+					userTier: 'basic_user_tier',
+					lastLogin: 0,
+					lastActive: 0,
+					createdAt: now,
+					updatedAt: now
+				}
+	   		}
+		};
+	}
+
+	_getMockLoginResponse (params) {
+		// TODO
+	}
+
+	_getMockPendingPasswordResponse () {
+		const now = Date.now();
+		return {
+			data: {
+				id: UUID(),
+				type: 'pendingPassword',
+				attributes: {
+					createdAt: now,
+					updatedAt: now
+				}
+			}
+		};
+	}
+
+	_getMockPendingPasswordApplyResponse (userId) {
+		const now = Date.now();
+		return {
+			data: {
+				id: UUID(),
+				type: 'userPassword',
+				attributes: {
+					userId,
+					createdAt: now,
+					updatedAt: now
+				}
+			}
+		};
 	}
 
 	_throw (type, message, options = {}) {
