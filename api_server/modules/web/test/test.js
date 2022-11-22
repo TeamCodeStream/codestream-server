@@ -43,7 +43,7 @@ const SIMPLE_TESTS = [
 
 describe('web', function() {
 
-	this.timeout(5000);
+	this.timeout(10000);
 
 	SIMPLE_TESTS.forEach(test => {
 		new SimpleWebTest(test).test();

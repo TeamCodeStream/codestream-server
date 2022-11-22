@@ -10,6 +10,9 @@ class SetPasswordTest extends CodeStreamAPITest {
 		super(options);
 		this.userOptions.numRegistered = 1;
 		delete this.teamOptions.creatorIndex;
+		this.apiRequestOptions = {
+			noJsonInResponse: true
+		};
 	}
 
 	get description () {

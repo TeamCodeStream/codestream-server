@@ -43,6 +43,12 @@ class SetPasswordTest extends CodeStreamAPITest {
 			expiresIn: this.expiresIn,
 			_confirmationCheat: this.apiConfig.sharedSecrets.confirmationCheat,	// gives us the token in the response
 		};
+
+		// bypass CSRF protection
+		this.apiRequestOptions = this.apiRequestOptions || {};
+		this.apiRequestOptions.headers = this.apiRequestOptions.headers || {};
+		this.apiRequestOptions.headers['x-csrf-bypass-secret'] = this.apiConfig.sharedSecrets.confirmationCheat;
+
 		// issue a forgot-password request, with a secret to allow use to receive the token
 		// in the response, rather than having to go through email
 		this.newPassword = RandomString.generate(12);
