@@ -60,6 +60,7 @@ class PostCompanyTest extends CodeStreamAPITest {
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((company.everyoneTeamId === team.id) || errors.push('everyoneTeamId not set to the ID of the everyone team')) &&
+			((typeof company.linkedNROrgId === 'string') || errors.push('linkedNROrgId not set')) &&
 			((team.id === team._id) || errors.push('team.id not set to team._id')) && // DEPRECATE ME
 			((team.name === 'Everyone') || errors.push('team name not set to "Everyone"')) &&
 			((team.isEveryoneTeam === true) || errors.push('team isEveryoneFlag not set')) &&

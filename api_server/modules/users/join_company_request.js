@@ -168,9 +168,10 @@ class JoinCompanyRequest extends RestfulRequest {
 	// it's more or less functionally the same as signing up
 	async handleIdPSignup () {
 		if (!this.api.services.idp) { return; }
+		let mockResponse;
 		if (this.request.headers['x-cs-no-newrelic']) {
-			this.log('NOTE: not handling IDP signup');
-			return;
+			mockResponse = true;
+			this.log('NOTE: not handling IDP signup, sending mock response');
 		}
 
 		let password;
@@ -179,7 +180,7 @@ class JoinCompanyRequest extends RestfulRequest {
 			password = await this.decryptPassword(encryptedPassword)
 		}
 
-		const nrOrgInfo = this.company.get('linkedNROrgInfo');
+		const nrOrgInfo = this.company.get('nrOrgInfo');
 		if (!nrOrgInfo) {
 			// shouldn't happen
 			throw this.errorHandler.error('createAuth', { reason: 'company does not have New Relic org info' });
@@ -196,7 +197,8 @@ class JoinCompanyRequest extends RestfulRequest {
 			},
 			password,
 			{ 
-				request: this.request
+				request: this,
+				mockResponse
 			}
 		);
 
