@@ -66,7 +66,7 @@ module.exports = {
 	},
 	encryptedPasswordTemp: {
 		type: 'string',
-		maxLength: 64,
+		maxLength: 100,
 		serverOnly: true
 	},
 	confirmationCode: {
