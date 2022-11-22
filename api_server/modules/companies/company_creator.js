@@ -128,11 +128,16 @@ class CompanyCreator extends ModelCreator {
 		);
 
 		// save NR user info obtained from the signup process
-		await this.request.data.users.update(
+		await this.data.users.applyOpById(
+			this.user.id,
 			{
-				id: this.user.id,
-				nrUserInfo,
-				nrUserId: nrUserInfo.user_id
+				$set: {
+					nrUserInfo: nrUserInfo,
+					nrUserId: nrUserInfo.user_id
+				},
+				$unset: {
+					encryptedPasswordTemp: true
+				}
 			}
 		);
 

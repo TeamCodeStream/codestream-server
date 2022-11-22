@@ -16,7 +16,8 @@ class PasswordEncrypt {
 		const cipher = Crypto.createCipheriv('aes-256-cbc', this._key, iv);
 		let crypted = cipher.update(password, 'utf8', 'hex');
 		crypted += cipher.final('hex');
-		return `${crypted}.${iv}`;
+		const now = Date.now();
+		return `${crypted}.${iv}.${now}`;
 	};
 	
 	decryptPassword = (encryptedPassword) => {

@@ -294,6 +294,21 @@ class Users extends Restful {
 				};
 			}
 
+			// look for a temporary encrypted password older than 10 minutes, and delete
+			if (
+				request.user &&
+				request.user.get('encryptedPasswordTemp')
+			) {
+				const [ , , time ] = request.user.get('encryptedPasswordTemp').split('.');
+				const timestamp = parseInt(time, 10);
+				if (timestamp < Date.now() - 10 * 60 * 60 * 1000) {
+					// note: no need to await here
+					this.api.data.users.updateDirect(
+						{ _id: this.api.data.users.objectIdSafe(request.user.id) },
+						{ $unset: { encryptedPasswordTemp: true } }
+					);
+				}
+			}
 			next();
 		};
 	}
