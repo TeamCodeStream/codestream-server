@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.8] - 2022-11-29
+
+### Fixed
+
+- Fixes an issue preventing users in EU-based CodeStream organizations from connecting to MS Teams
+
 ## [14.0.7] - 2022-11-17
 
 ### Fixed
