@@ -9,7 +9,6 @@ class NoTokenTest extends ErrorTest {
 	}
 
 	before (callback) {
-		delete this.apiRequestOptions;
 		super.before(error => {
 			if (error) { return callback(error); }
 			delete this.data.token;

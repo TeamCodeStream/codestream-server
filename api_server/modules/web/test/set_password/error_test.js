@@ -8,10 +8,9 @@ class ErrorTest extends SetPasswordTest {
 	before (callback) {
 		super.before(error => {
 			if (error) { return callback(error); }
-			this.apiRequestOptions = {
-				noJsonInResponse: true,
-				expectRedirect: true
-			};
+			this.apiRequestOptions = this.apiRequestOptions || {};
+			this.apiRequestOptions.noJsonInResponse = true;
+			this.apiRequestOptions.expectRedirect = true;
 			callback();
 		});
 	}

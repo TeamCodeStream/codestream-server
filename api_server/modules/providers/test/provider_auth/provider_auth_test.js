@@ -110,8 +110,10 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			redirectData = this.getTrelloRedirectData(); 
 			break;
 		case 'github':
-		case 'github_enterprise': 
 			redirectData = this.getGithubRedirectData();
+			break;
+		case 'github_enterprise': 
+			redirectData = this.getGithubRedirectData(true);
 			break;
 		case 'asana':
 			redirectData = this.getAsanaRedirectData();
@@ -171,14 +173,22 @@ class ProviderAuthTest extends CodeStreamAPITest {
 		return { url, parameters };
 	}
 
-	getGithubRedirectData () {
+	getGithubScopes (isGHE = false) {
+		let scopes = 'repo,read:user,user:email,notifications';
+		if (!isGHE) {
+			scopes += ',read:org';
+		}
+		return scopes;
+	}
+
+	getGithubRedirectData (isGHE = false) {
 		const appClientId = this.testHost ? 'testClientId' : this.apiConfig.integrations.github.appClientId;
 		const parameters = {
 			client_id: appClientId,
 			redirect_uri: this.redirectUri,
 			response_type: 'code',
 			state: this.state,
-			scope: 'repo,read:user,user:email,notifications'
+			scope: this.getGithubScopes(isGHE)
 		};
 		const host = this.testHost || 'https://github.com';
 		const url = `${host}/login/oauth/authorize`;

@@ -9,7 +9,6 @@ class InvalidTokenTest extends ErrorTest {
 	}
 
 	before (callback) {
-		delete this.apiRequestOptions;
 		super.before(error => {
 			if (error) { return callback(error); }
 			this.data.token = 'abcxyz';

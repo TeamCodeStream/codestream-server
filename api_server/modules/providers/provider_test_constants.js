@@ -66,7 +66,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		apiHost: 'api.github.com',
 		hasIssues: true,
 		hasCodeHosting: true,
-		scopes: ['repo', 'read:user', 'user:email', 'notifications'],
+		scopes: ['repo', 'read:user', 'user:email', 'notifications', 'read:org'],
 		supportsOAuthOrPAT: true
 	},
 	'github/enterprise': {
