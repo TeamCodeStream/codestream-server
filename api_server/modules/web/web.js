@@ -40,6 +40,10 @@ const STANDARD_PAGES = [
 	{
 		route: 'web/unsubscribe-reminder-complete',
 		template: 'unsubscribe_reminder_complete'
+	},
+	{
+		route: 'web/signed-out',
+		template: 'signed_out'
 	}
 ];
 
