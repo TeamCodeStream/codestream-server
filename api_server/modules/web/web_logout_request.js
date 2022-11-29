@@ -10,8 +10,13 @@ class WebLogOutRequest extends APIRequest {
 			secure: true,
 			signed: true
 		});
-		this.response.redirect('/web/login');
-		this.responseHandled = true;
+
+		const returnTo = encodeURIComponent(this.api.config.apiServer.publicApiUrl + '/web/finish');
+		// TODO: get this from configuration
+		const loginPath = 'https://staging-login.newrelic.com/idp/azureb2c-cs/redirect?return_to=' + returnTo;
+		this.module.evalTemplate(this, 'signed_out', {
+			path: loginPath
+		});
 	}
 }
 
