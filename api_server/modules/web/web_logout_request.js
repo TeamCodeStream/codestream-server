@@ -1,6 +1,7 @@
 'use strict';
 
 const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_request.js');
+const Icons = require('./icons.json');
 
 class WebLogOutRequest extends APIRequest {
 	async authorize() {
@@ -15,7 +16,8 @@ class WebLogOutRequest extends APIRequest {
 		// TODO: get this from configuration
 		const loginPath = 'https://staging-login.newrelic.com/idp/azureb2c-cs/redirect?return_to=' + returnTo;
 		this.module.evalTemplate(this, 'signed_out', {
-			path: loginPath
+			path: loginPath,
+			newRelicIcon: Icons['newrelic']
 		});
 	}
 }
