@@ -39,8 +39,6 @@ class WebLoginRequest extends APIRequest {
 			}
 			links.push(link);
 		});
-		const oktaLink = `/web/configure-okta?url=${finishUrl}`;
-		const oktaEnabled = !!this.api.config.integrations.okta.appClientId;
 		const passwordSwitchLinkQueryObj = {
 			...this.request.query,
 			password: !usePassword,
@@ -59,6 +57,27 @@ class WebLoginRequest extends APIRequest {
 			.join('&');
 		const forgotLink = `/web/login?${forgotLinkQuery}`;
 
+		let orgId;
+		if (teamId) {
+			const team = await this.data.teams.getById(teamId.toLowerCase());
+			if (team && team.get('companyId')) {
+				const company = await this.data.companies.getById(team.get('companyId'));
+				if (company && company.get('linkedNROrgId')) {
+					orgId = company.get('linkedNROrgId');
+				}
+			}
+		}
+
+		const returnTo = this.api.config.apiServer.publicApiUrl + finishUrl;
+		let nrLoginUrl = `https://staging-login.newrelic.com/idp/azureb2c-cs/redirect?return_to=${encodeURIComponent(returnTo)}`;
+		if (orgId) {
+			nrLoginUrl += '&orgId=' + orgId;
+		}
+		this.log('Redirecting to ' + nrLoginUrl);
+		this.response.redirect(nrLoginUrl);
+		this.responseHandled = true;		
+
+		/*
 		this.module.evalTemplate(this, 'login', { 
 			error,
 			email,
@@ -76,16 +95,14 @@ class WebLoginRequest extends APIRequest {
 			gitHubLink: links[0],
 			gitLabLink: links[1],
 			bitbucketLink: links[2],
-			oktaLink,
 			gitHubIcon: Icons['github'],
 			gitLabIcon: Icons['gitlab'],
 			bitbucketIcon: Icons['bitbucket'],
-			oktaIcon: Icons['okta'],
-			oktaEnabled,
 			csrf,
 			src: src,
 			segmentKey: this.api.config.telemetry.segment.webToken
 		});
+		*/
 	}
 
 	handleError () {
