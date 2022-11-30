@@ -6,7 +6,7 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 
 // look for any companies with domain-based joining that match the domain of the user's email
 const _getEligibleJoinCompaniesByDomain = async (domain, request) => {
-	const companies = await request.data.companies.getByQuery(
+	let companies = await request.data.companies.getByQuery(
 		{
 			domainJoining: domain,
 			deactivated: false
@@ -15,9 +15,59 @@ const _getEligibleJoinCompaniesByDomain = async (domain, request) => {
 			hint: Indexes.byDomainJoining 
 		}
 	);
+
+	// filter out companies that are no codestreamOnly, and in fact, if they are not, then
+	// domainJoining should be reset
+	companies = await _filterOnCodeStreamOnly(companies, request);
+
 	return companies.map(company => { 
 		return { company, domain };
 	});
+};
+
+// filter companies that matched by domain for companies that are codestream-only,
+// companies that are not can no longer be joined by domain at all ... if we find any of these,
+// we will, in fact, remove domainJoining for them
+const _filterOnCodeStreamOnly = async (companies, request) => {
+	const filteredCompanies = [];
+	await Promise.all(companies.map(async company => {
+		let codestreamOnly = true;
+		if (!company.get('codestreamOnly')) {
+			codestreamOnly = false;
+		} else if (company.get('linkedNROrgId')) {
+			// TODO: not sure if we really want to do this here, it will delay data returned
+			// to the client during signup
+			const stillCodestreamOnly = await request.api.services.idp.isNROrgCodeStreamOnly(company.get('linkedNROrgId'));
+			if (stillCodestreamOnly) {
+				filteredCompanies.push(company);
+			} else {
+				codestreamOnly = false;
+			}
+		} else {
+			filteredCompanies.push(company);
+		}
+
+		if (!codestreamOnly) {
+			await _disableDomainJoining(company, request);
+		}
+	}));
+	return filteredCompanies;
+};
+
+// we found a company that is no longer "codestream only", meaning its linked NR org has 
+// become an official NR org ... we don't want this company to keep showing up as having
+// domain joining, so remove the domainJoining property
+const _disableDomainJoining = async (company, request) => {
+	await request.data.companies.updateDirect(
+		{
+			_id: request.data.companies.objectIdSafe(company.id)
+		},
+		{
+			$unset: {
+				domainJoining: true
+			}
+		}
+	);
 };
 
 // look for any companies the specific user has been invited to (either registered or unregistered)
