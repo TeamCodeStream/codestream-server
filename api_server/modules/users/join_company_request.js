@@ -74,12 +74,38 @@ class JoinCompanyRequest extends RestfulRequest {
 		// check that the user's email domain matches whatever domain-based joining the company has enabled
 		const domains = this.company.get('domainJoining') || [];
 		const userDomain = EmailUtilities.parseEmail(this.user.get('email')).domain.toLowerCase();
-		if (domains.includes(userDomain)) {
-			this.joinMethod = 'Joined Team by Domain';
-			return;
+		if (!domains.includes(userDomain)) {
+			throw this.errorHandler.error('notAuthorizedToJoin');
 		}
 
-		throw this.errorHandler.error('notAuthorizedToJoin');
+		// check whether the company is marked as "codestream-only", and whether its linked NR org
+		// is also "codestream-only", which is the only scenario under which domain joining is possible,
+		// if not, then remove domain joining for the org
+		let codestreamOnly = true;
+		if (!this.company.get('codestreamOnly')) {
+			codestreamOnly = false;
+		} else if (
+			this.company.get('linkedNROrgId') &&
+			!(await this.api.services.idp.isNROrgCodeStreamOnly(this.company.get('linkedNROrgId')))
+		) {
+			codestreamOnly = false;
+		}
+		if (!codestreamOnly && this.company.get('domainJoining') || []) {
+			await this.data.companies.updateDirect(
+				{
+					_id: this.data.companies.objectIdSafe(this.company.id)
+				},
+				{
+					$unset: {
+						domainJoining: true
+					}
+				}
+			);
+			throw this.errorHandler.error('notAuthorizedToJoin');
+		}
+
+
+		this.joinMethod = 'Joined Team by Domain';
 	}
 
 	// process the request
