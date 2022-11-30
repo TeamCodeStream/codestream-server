@@ -194,6 +194,11 @@ class NewRelicIDP extends APIServerModule {
 		);
 	}
 
+	async isNROrgCodeStreamOnly (nrOrgId, options = {}) {
+		// absolutely no idea how we are going to do this yet...
+		return true;
+	}
+	
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {
 		if (options.mockResponse) {
 			return this._getMockResponse(service, path, method, params, options);
