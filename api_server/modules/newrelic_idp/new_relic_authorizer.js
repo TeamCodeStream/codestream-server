@@ -242,7 +242,7 @@ class NewRelicAuthorizer {
 				return (
 					subscription.entitlements &&
 					!!subscription.entitlements.find(entitlement => {
-						return entitlement.name === 'error_hiding_and_linking'; // 'unlimited_consumption';
+						return entitlement.name === 'unlimited_consumption';
 					})
 				);
 			})
