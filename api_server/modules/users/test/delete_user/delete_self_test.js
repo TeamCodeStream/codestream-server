@@ -5,7 +5,14 @@ const DeleteUserTest = require('./delete_user_test');
 class DeleteSelfTest extends DeleteUserTest {
 
 	get description () {
-		return 'should delete associated review when a post is deleted';
+		return 'user should not be able to delete themselves if they are not an admin';
+	}
+
+	getExpectedError () {
+		return {
+			code: 'RAPI-1013',
+			reason: 'only the user or an admin can delete a user'
+		};
 	}
 
 	setTestOptions (callback) {
