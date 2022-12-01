@@ -88,11 +88,6 @@ module.exports = {
 		maxLength: 100,
 		description: 'Array of domains recognized by this company for which users with those domains in their emails can automatically join'
 	},
-	codeHostJoining: {
-		type: 'arrayOfStrings',
-		maxLength: 100,
-		description: 'Array of strings indicating ability to join this company based on GitHub/GitLab/Bitbucket affiliation, in the form "host/org", eg. "github.com/acme"'
-	},
 	isBeingMigratedToCompanyCentric: {
 		type: 'boolean',
 		description: 'Indicates migration to the "company-centric" paradigm is currently in progress for this company',

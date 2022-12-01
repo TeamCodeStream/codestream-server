@@ -94,8 +94,7 @@ class PutCompanyRequest extends PutRequest {
 			summary: description.input,
 			looksLike: {
 				'name': '<Updated name of the company>',
-				'domainJoining': '<Updated array of domains allowed for domain-based joining',
-				'codeHostJoining': '<Updated array of code hosts allowed for code host-based joining'
+				'domainJoining': '<Updated array of domains allowed for domain-based joining'
 			}
 		};
 		description.publishes = {
