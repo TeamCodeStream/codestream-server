@@ -37,7 +37,11 @@ const _filterOnCodeStreamOnly = async (companies, request) => {
 		} else if (company.get('linkedNROrgId')) {
 			// TODO: not sure if we really want to do this here, it will delay data returned
 			// to the client during signup
-			const stillCodestreamOnly = await request.api.services.idp.isNROrgCodeStreamOnly(company.get('linkedNROrgId'));
+			const stillCodestreamOnly = await request.api.services.idp.isNROrgCodeStreamOnly(
+				company.get('linkedNROrgId'),
+				company.get('everyoneTeamId'),
+				{ request }
+			);
 			if (stillCodestreamOnly) {
 				filteredCompanies.push(company);
 			} else {
@@ -56,7 +60,7 @@ const _filterOnCodeStreamOnly = async (companies, request) => {
 
 // we found a company that is no longer "codestream only", meaning its linked NR org has 
 // become an official NR org ... we don't want this company to keep showing up as having
-// domain joining, so remove the domainJoining property
+// domain joining, so remove the domainJoining property and its codestreamOnly flag
 const _disableDomainJoining = async (company, request) => {
 	await request.data.companies.updateDirect(
 		{
@@ -64,7 +68,8 @@ const _disableDomainJoining = async (company, request) => {
 		},
 		{
 			$unset: {
-				domainJoining: true
+				domainJoining: true,
+				codestreamOnly: true
 			}
 		}
 	);

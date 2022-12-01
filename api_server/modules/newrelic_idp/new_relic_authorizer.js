@@ -60,7 +60,7 @@ class NewRelicAuthorizer {
 		}
 
 		// instantiate graphQL client
-		const baseUrl = this.getGraphQLBaseUrl(user);
+		const baseUrl = this.getGraphQLBaseUrl();
 		this.client = new GraphQLClient(
 			baseUrl,
 			{
@@ -85,7 +85,7 @@ class NewRelicAuthorizer {
 			if (this.mockAccounts) {
 				response = { actor: { accounts: this.mockAccounts } };
 			} else {
-				response = await client.query(`{
+				response = await this.client.query(`{
 					actor {
 						accounts {
 							id
@@ -216,6 +216,42 @@ class NewRelicAuthorizer {
 		return this.authorizeAccount(accountId);
 	}
 
+	// determine when an NR account has the "unlimited_consumption" entitlement,
+	// used to determine, in part, whether its org is "codestream only"
+	async nrOrgHasUnlimitedConsumptionEntitlement (accountId) {
+		const query = gql`
+{
+	currentUser {
+		account(id: ${accountId}) {
+			subscriptions {
+				entitlements {
+					attributes {
+			  			key
+			  			value
+					}
+					name
+				}
+			}
+		}
+	}
+}`;
+		const response = await this.client.request(query);
+		return (
+			response.currentUser && 
+			response.currentUser.account &&
+			response.currentUser.account.subscriptions &&
+			response.currentUser.account.subscriptions &&
+			!!response.currentUser.account.subscriptions.find(subscription => {
+				return (
+					subscription.entitlements &&
+					!!subscription.entitlements.find(entitlement => {
+						return entitlement.name === 'error_hiding_and_linking'; // 'unlimited_consumption';
+					})
+				);
+			})
+		);
+	}
+
 	// parse the account ID out from the error group guid
 	accountIdFromErrorGroupGuid (guid) {
 		const parsed = Buffer.from(guid, "base64").toString("utf-8");
@@ -227,9 +263,9 @@ class NewRelicAuthorizer {
 	}
 
 	// get the base URL for New Relic GraphQL client
-	getGraphQLBaseUrl (user) {
-		const url = this.request.api.config.sharedGeneral.newRelicApiUrl || 'https://api.newrelic.com';
-		return `${url}/graphql`;
+	getGraphQLBaseUrl () {
+		const host = this.graphQLHost || this.request.api.config.sharedGeneral.newRelicApiUrl || 'https://api.newrelic.com';
+		return `${host}/graphql`;
 	}
 }
 

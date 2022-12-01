@@ -8,7 +8,7 @@ const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
-const NewRelicAuthorizer = require('./new_relic_authorizer');
+const NewRelicAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/new_relic_authorizer');
 
 class ClaimCodeErrorRequest extends RestfulRequest {
 
