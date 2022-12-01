@@ -6,13 +6,16 @@ const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/li
 const Fetch = require('node-fetch');
 const Crypto = require('crypto');
 const UUID = require('uuid').v4;
+const NewRelicAuthorizer = require('./new_relic_authorizer');
 
 // FIXME: this is for now ... ultimately, these should come from config
 const SERVICE_HOSTS = {
 	'signup': 'https://signup-processor.staging-service.newrelic.com',
 	'user': 'https://staging-user-service.nr-ops.net',
 	'login': 'https://staging-login.newrelic.com',
-	'credentials': 'https://staging-credential-service.nr-ops.net'
+	'credentials': 'https://staging-credential-service.nr-ops.net',
+	'org': 'https://staging-organization-service.nr-ops.net',
+	'graphql': 'https://nerd-graph.staging-service.nr-ops.net'
 };
 
 const PATH_TO_LOGIN = '/idp/azureb2c-cs/redirect?return_to={wherever you want them to go to}';
@@ -194,11 +197,43 @@ class NewRelicIDP extends APIServerModule {
 		);
 	}
 
-	async isNROrgCodeStreamOnly (nrOrgId, options = {}) {
-		// absolutely no idea how we are going to do this yet...
-		return true;
+	// determine whether an NR org qualifies as "codestream only"
+	// currently, we need to examine whether it has the unlimited_consumption entitlement
+	async isNROrgCodeStreamOnly (nrOrgId, codestreamTeamId, options = {}) {
+		// before determining if the org has the unlimited_consumption entitlement,
+		// we need to get its reporting account
+		const accountId = await this.getOrgReportingAccount(nrOrgId, options);
+		if (!accountId) {
+			this._throw('nrIDPInternal', `could not get reporting account for NR Org ID ${nrOrgId}`, options);
+		}
+
+		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
+		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
+		const hasEntitlement = await new NewRelicAuthorizer({
+			graphQLHost: SERVICE_HOSTS['graphql'],
+			request: options.request,
+			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
+		}).nrOrgHasUnlimitedConsumptionEntitlement(accountId);
+		return !hasEntitlement;
 	}
-	
+
+	// get the "reporting account" for the given NR org ID
+	async getOrgReportingAccount (nrOrgId, options) {
+		const result = await this._newrelic_idp_call(
+			'org',
+			'/v0/organizations/' + nrOrgId,
+			'get',
+			undefined,
+			options
+		);
+
+		return (
+			result.data &&
+			result.data.attributes &&
+			result.data.attributes.reportingAccountId
+		);
+	}
+
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {
 		if (options.mockResponse) {
 			return this._getMockResponse(service, path, method, params, options);
