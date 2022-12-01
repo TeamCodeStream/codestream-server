@@ -9,7 +9,7 @@ const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/m
 const Indexes = require('./indexes');
 const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
-const NewRelicAuthorizer = require('./new_relic_authorizer');
+const NewRelicAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/new_relic_authorizer');
 
 class CodeErrorCreator extends ModelCreator {
 

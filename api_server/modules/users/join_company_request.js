@@ -86,7 +86,11 @@ class JoinCompanyRequest extends RestfulRequest {
 			codestreamOnly = false;
 		} else if (
 			this.company.get('linkedNROrgId') &&
-			!(await this.api.services.idp.isNROrgCodeStreamOnly(this.company.get('linkedNROrgId')))
+			!(await this.api.services.idp.isNROrgCodeStreamOnly(
+				this.company.get('linkedNROrgId'),
+				this.company.get('everyoneTeamId'),
+				{ request: this }
+			))
 		) {
 			codestreamOnly = false;
 		}
@@ -97,7 +101,8 @@ class JoinCompanyRequest extends RestfulRequest {
 				},
 				{
 					$unset: {
-						domainJoining: true
+						domainJoining: true,
+						codestreamOnly: true
 					}
 				}
 			);
