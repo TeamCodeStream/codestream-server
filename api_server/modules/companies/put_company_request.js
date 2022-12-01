@@ -28,6 +28,36 @@ class PutCompanyRequest extends PutRequest {
 		if (!(this.everyoneTeam.get('adminIds') || []).includes(this.request.user.id)) {
 			throw this.errorHandler.error('updateAuth', { reason: 'only admins can update this company' });
 		}
+
+		// under unified identitiy, companies can only be updated if they are "codestream only",
+		// here we not only check if the flag is present, but we double-check with New Relic
+		if (!this.company.get('codestreamOnly')) {
+			throw this.errorHandler.error('updateAuth', { reason: 'this company/org is managed by New Relic and can not be updated' });
+		}
+		const nrOrgId = this.company.get('linkedNROrgId'); // this SHOULD always be set under unified identity, once migrated
+		if (!nrOrgId) { return; }
+		const stillCodeStreamOnly = await this.api.services.idp.isNROrgCodeStreamOnly(
+			nrOrgId,
+			this.company.get('everyoneTeamId'),
+			{ request: this }
+		);
+		if (stillCodeStreamOnly) {
+			return;
+		}
+
+		// if no-longer codestream only, remove the flag and disable domain joining
+		await this.data.companies.updateDirect(
+			{
+				_id: this.data.companies.objectIdSafe(this.company.id)
+			},
+			{
+				$unset: {
+					domainJoining: true,
+					codestreamOnly: true
+				}
+			}
+		);
+		throw this.errorHandler.error('updateAuth', { reason: 'this company/org was found to be managed by New Relic and can not be updated' });
 	}
 
 	// after the team is updated...
