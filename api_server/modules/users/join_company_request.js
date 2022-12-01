@@ -130,6 +130,14 @@ class JoinCompanyRequest extends RestfulRequest {
 				request: this
 			}).deleteUser(this.user.id);
 		}
+
+		// for tests, pass the updated user back in the response
+		if (this.request.headers['x-cs-confirmation-cheat'] === this.api.config.sharedSecrets.confirmationCheat) {
+			this.warn('NOTE: passing user object back in join-company request, this had better be a test!');
+			this.responseData.user = this.invitedUser.getSanitizedObjectForMe({ request: this });
+			this.responseData.broadcasterToken = this.invitedUser.get('broadcasterToken');
+			this.responseData.user.version++;
+		}
 	}
 
 	// under one-user-per-org, joining a company by virtue of domain joining (no invite) means
@@ -175,13 +183,6 @@ class JoinCompanyRequest extends RestfulRequest {
 			userId: this.invitedUser.id,
 			teamId: this.team.id
 		});
-		
-		if (this.request.headers['x-cs-confirmation-cheat'] === this.api.config.sharedSecrets.confirmationCheat) {
-			this.warn('NOTE: passing user object back in join-company request, this had better be a test!');
-			this.responseData.user = this.invitedUser.getSanitizedObjectForMe({ request: this });
-			this.responseData.broadcasterToken = this.invitedUser.get('broadcasterToken');
-			this.responseData.user.version++;
-		}
 	}
 
 	// add the invited user to the everyone team for the company

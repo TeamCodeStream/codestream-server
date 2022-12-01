@@ -20,11 +20,13 @@ class DeleteUserRequest extends DeleteRequest {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		}
 
-		// i can always delete myself
+		/*
+		// i can always delete myself -- disabled per NR-69169
 		if (this.userToDelete.id === this.user.id) {
 			return;
 		}
-		
+		*/ 
+
 		// find common teams between the user to delete, and the user doing the deletion
 		// only if the user doing the deletion is an admin on one of their common teams, can the user be deleted
 		const userTeams = await this.data.teams.getByIds(this.user.get('teamIds') || []);
