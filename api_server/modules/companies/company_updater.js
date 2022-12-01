@@ -25,7 +25,7 @@ class CompanyUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['name'],
-			'array(string)': ['domainJoining', 'codeHostJoining']
+			'array(string)': ['domainJoining']
 		};
 	}
 
