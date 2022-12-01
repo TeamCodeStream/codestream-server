@@ -33,7 +33,7 @@ class CompanyCreator extends ModelCreator {
 				string: ['name']
 			},
 			optional: {
-				'array(string)': ['domainJoining', 'codeHostJoining']
+				'array(string)': ['domainJoining']
 			}
 		};
 	}

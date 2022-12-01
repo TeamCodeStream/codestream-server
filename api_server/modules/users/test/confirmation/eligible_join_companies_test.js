@@ -57,10 +57,6 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 					domainJoining: [
 						this.companyFactory.randomDomain(),
 						domain
-					],
-					codeHostJoining: [
-						`github.com/${RandomString.generate(10)}`,
-						`gitlab.com/${RandomString.generate(10)}`
 					]
 				},
 				token: this.users[0].accessToken
@@ -76,7 +72,6 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 						teamId: response.company.everyoneTeamId,
 						byDomain: domain.toLowerCase(),
 						domainJoining: response.company.domainJoining,
-						codeHostJoining: response.company.codeHostJoining,
 						memberCount: 1
 					});
 					callback();
@@ -101,7 +96,6 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 				teamId: company.everyoneTeamId,
 				byDomain: domain.toLowerCase(),
 				domainJoining: company.domainJoining,
-				codeHostJoining: company.codeHostJoining,
 				memberCount: 1
 			});
 			callback();
