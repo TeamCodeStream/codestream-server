@@ -117,5 +117,10 @@ module.exports = {
 		description: 'Show pre-release TOS to CLM beta testers',
 		version: '12.0.13',
 		restricted: true
+	},
+	'showVulnerabilityManagement': {
+		description: 'Show vulnerability management tree under Observability',
+		version: '14.0.8',
+		restricted: true
 	}
 };
