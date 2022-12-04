@@ -16,7 +16,7 @@ default environment list: $environmentList
 
 if [ "$DT_RDB_WHICH" == "nrdev" ]; then
 	profiles="$DT_RESOURCES/codestream/config-profiles"
-	environmentList="local local1 local2 dev pd pd2"
+	environmentList="local local1 local2 dev pd pd2 qa qa2 stg"
 	# environmentList="local local1 local2 pd pd2 qa qa2 ci pi stg"
 elif [ "$DT_RDB_WHICH" == "nrprod" ]; then
 	profiles="$DT_RESOURCES/codestream/config-profiles"
