@@ -127,6 +127,14 @@ class CompanyCreator extends ModelCreator {
 			}
 		);
 
+		// for some insane reason, the user_id comes out as a string 
+		if (typeof nrUserInfo.user_id === 'string') {
+			nrUserInfo.user_id = parseInt(nrUserInfo.user_id, 10);
+			if (!nrUserInfo.user_id || isNaN(nrUserInfo.user_id)) {
+				throw this.errorHandler.error('internal', { reason: 'provisioned user had non-numeric ID from New Relic' });
+			}
+		}
+			
 		// save NR user info obtained from the signup process
 		await this.data.users.applyOpById(
 			this.user.id,

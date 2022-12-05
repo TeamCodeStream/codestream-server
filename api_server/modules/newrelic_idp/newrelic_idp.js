@@ -7,6 +7,7 @@ const Fetch = require('node-fetch');
 const Crypto = require('crypto');
 const UUID = require('uuid').v4;
 const NewRelicAuthorizer = require('./new_relic_authorizer');
+const RandomString = require('randomstring');
 
 // FIXME: this is for now ... ultimately, these should come from config
 const SERVICE_HOSTS = {
@@ -213,7 +214,7 @@ class NewRelicIDP extends APIServerModule {
 			graphQLHost: SERVICE_HOSTS['graphql'],
 			request: options.request,
 			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
-		}).nrOrgHasUnlimitedConsumptionEntitlement(accountId);
+		}).nrOrgHasUnlimitedConsumptionEntitlement(accountId, options);
 		return !hasEntitlement;
 	}
 
@@ -321,6 +322,11 @@ class NewRelicIDP extends APIServerModule {
 			} else if (match = path.match(/^\/v1\/pending_passwords\/.+\/apply\/([0-9]+)$/)) {
 				return this._getMockPendingPasswordApplyResponse(match[1]);
 			}
+		} else if (service === 'org') {
+			let match;
+			if ((match = path.match(/^\/v0\/organizations\/(.+)$/)) && method === 'get') {
+				return this._getMockOrgResponse(match[1]);
+			}
 		}
 		 
 		if (!response) {
@@ -407,6 +413,37 @@ class NewRelicIDP extends APIServerModule {
 				}
 			}
 		};
+	}
+
+	_getMockOrgResponse (orgId) {
+		const accountId = Math.floor(Math.random() * 100000000);
+		return {
+			data: {
+				id: orgId,
+				type: 'organization',
+				attributes: {
+					name: 'Organization ' + RandomString.generate(8),
+					traits: [],
+					reportingAccountId: accountId,
+					accountCreationParentId: null,
+					organizationGroupId: UUID(),
+					customerContractId: UUID(),
+					createdAt: Date.now() - 24 * 60 * 60 * 1000,
+					deleteable: false,
+					customer_id: 'CC-' + Math.floor(Math.random() * 1000000000)
+				},
+				relationships: {
+					accounts: {
+						data: [
+							{
+								id: accountId.toString(),
+								type: 'account'
+							}
+						]
+					}
+				}
+			}
+		}
 	}
 
 	_throw (type, message, options = {}) {
