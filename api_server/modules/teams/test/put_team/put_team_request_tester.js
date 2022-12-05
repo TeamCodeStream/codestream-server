@@ -39,6 +39,15 @@ const ReinviteRemovedUserTest = require('./reinvite_removed_user_test');
 const RemovedUsersNotInCompanyMemberCountTest = require('./removed_users_not_in_company_member_count_test');
 const UnregisteredOnTwoTeamsTest = require('./unregistered_on_two_teams_test');
 const MessageToInviteeTest = require('./message_to_invitee_test');
+const NotCodeStreamOnlyTest = require('./not_codestream_only_test');
+const NotCodeStreamOnlyDiscoveryTest = require('./not_codestream_only_discovery_test');
+const NotCodeStreamOnlyDiscoveryMessageTest = require('./not_codestream_only_discovery_message_test');
+const NotCodeStreamOnlyAddAdminTest = require('./not_codestream_only_add_admin_test');
+const NotCodeStreamOnlyDiscoveryAddAdminTest = require('./not_codestream_only_discovery_add_admin_test');
+const NotCodeStreamOnlyDiscoveryMessageAddAdminTest = require('./not_codestream_only_discovery_message_add_admin_test');
+const NotCodeStreamOnlyRemoveAdminTest = require('./not_codestream_only_remove_admin_test');
+const NotCodeStreamOnlyDiscoveryRemoveAdminTest = require('./not_codestream_only_discovery_remove_admin_test');
+const NotCodeStreamOnlyDiscoveryMessageRemoveAdminTest = require('./not_codestream_only_discovery_message_remove_admin_test');
 
 class PutTeamRequestTester {
 
@@ -83,6 +92,15 @@ class PutTeamRequestTester {
 		new RemovedUsersNotInCompanyMemberCountTest().test();
 		new UnregisteredOnTwoTeamsTest().test();
 		new MessageToInviteeTest().test();
+		new NotCodeStreamOnlyTest().test();
+		new NotCodeStreamOnlyDiscoveryTest().test();
+		new NotCodeStreamOnlyDiscoveryMessageTest().test();
+		new NotCodeStreamOnlyAddAdminTest().test();
+		new NotCodeStreamOnlyDiscoveryAddAdminTest().test();
+		new NotCodeStreamOnlyDiscoveryMessageAddAdminTest().test();
+		new NotCodeStreamOnlyRemoveAdminTest().test();
+		new NotCodeStreamOnlyDiscoveryRemoveAdminTest().test();
+		new NotCodeStreamOnlyDiscoveryMessageRemoveAdminTest().test();
 	}
 }
 

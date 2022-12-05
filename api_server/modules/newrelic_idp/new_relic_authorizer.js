@@ -34,6 +34,9 @@ class NewRelicAuthorizer {
 				this.checkResponse = true;
 				return;
 			}
+		} else if (headers['x-cs-no-newrelic']) {
+			this.request.warn('No New Relic specified in request, not making graphql client');
+			return;
 		}
 
 		// get the user's NR access token, non-starter if no access token
@@ -215,8 +218,26 @@ class NewRelicAuthorizer {
 
 	// determine when an NR account has the "unlimited_consumption" entitlement,
 	// used to determine, in part, whether its org is "codestream only"
-	async nrOrgHasUnlimitedConsumptionEntitlement (accountId) {
-		const query = gql`
+	async nrOrgHasUnlimitedConsumptionEntitlement (accountId, options = {}) {
+		let response;
+		if (options.mockResponse) {
+			response = {
+				currentUser: {
+					account: {
+						subscriptions: [
+							{
+								entitlements: [
+								]
+							}
+						]
+					}
+				}
+			};
+			if (options.mockNoCodeStreamOnly) {
+				response.currentUser.account.subscriptions[0].entitlements.push({ name: 'unlimited_consumption' });
+			}
+		} else {
+			const query = gql`
 {
 	currentUser {
 		account(id: ${accountId}) {
@@ -232,7 +253,9 @@ class NewRelicAuthorizer {
 		}
 	}
 }`;
-		const response = await this.client.request(query);
+			response = await this.client.request(query);
+		}
+
 		return (
 			response.currentUser && 
 			response.currentUser.account &&

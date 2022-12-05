@@ -15,6 +15,7 @@ const UserDeleter = require('./user_deleter');
 const UserAttributes = require('./user_attributes');
 const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
 const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
+const IsCodeStreamOnly = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/is_codestream_only');
 
 class JoinCompanyRequest extends RestfulRequest {
 
@@ -40,6 +41,15 @@ class JoinCompanyRequest extends RestfulRequest {
 		this.company = await this.data.companies.getById(this.request.params.id.toLowerCase());
 		if (!this.company || this.company.get('deactivated')) {
 			throw this.errorHandler.error('notFound', { info: 'company' });
+		}
+
+		// check whether the company is marked as "codestream-only", and whether its linked NR org
+		// is also "codestream-only", which is the only scenario under which domain joining is possible
+		const codestreamOnly = await IsCodeStreamOnly(this.company, this);
+		if (!codestreamOnly) {
+			await this.persist();
+			await this.publishCompanyNoCSOnly();
+			throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'membership in this company is managed by New Relic' });
 		}
 
 		// get the company's everyone team
@@ -77,38 +87,6 @@ class JoinCompanyRequest extends RestfulRequest {
 		if (!domains.includes(userDomain)) {
 			throw this.errorHandler.error('notAuthorizedToJoin');
 		}
-
-		// check whether the company is marked as "codestream-only", and whether its linked NR org
-		// is also "codestream-only", which is the only scenario under which domain joining is possible,
-		// if not, then remove domain joining for the org
-		let codestreamOnly = true;
-		if (!this.company.get('codestreamOnly')) {
-			codestreamOnly = false;
-		} else if (
-			this.company.get('linkedNROrgId') &&
-			!(await this.api.services.idp.isNROrgCodeStreamOnly(
-				this.company.get('linkedNROrgId'),
-				this.company.get('everyoneTeamId'),
-				{ request: this }
-			))
-		) {
-			codestreamOnly = false;
-		}
-		if (!codestreamOnly && this.company.get('domainJoining') || []) {
-			await this.data.companies.updateDirect(
-				{
-					_id: this.data.companies.objectIdSafe(this.company.id)
-				},
-				{
-					$unset: {
-						domainJoining: true,
-						codestreamOnly: true
-					}
-				}
-			);
-			throw this.errorHandler.error('notAuthorizedToJoin');
-		}
-
 
 		this.joinMethod = 'Joined Team by Domain';
 	}
@@ -239,6 +217,14 @@ class JoinCompanyRequest extends RestfulRequest {
 			}
 		);
 
+		// for some insane reason, the ID comes out as a string 
+		if (typeof nrUserInfo.id === 'string') {
+			nrUserInfo.id = parseInt(nrUserInfo.id, 10);
+			if (!nrUserInfo.id || isNaN(nrUserInfo.id)) {
+				throw this.errorHandler.error('internal', { reason: 'created user had non-numeric ID from New Relic' });
+			}
+		}
+
 		// save NR user info obtained from the signup process
 		await this.data.users.applyOpById(
 			this.invitedUser.id,
@@ -277,6 +263,32 @@ class JoinCompanyRequest extends RestfulRequest {
 			request: this,
 			broadcaster: this.api.services.broadcaster
 		}).publishEligibleJoinCompanies(this.invitedUser.get('email'))
+	}
+
+	// if the company object has changed (because it was found to no longer be "codestream only"),
+	// publish the change to the team channel
+	async publishCompanyNoCSOnly () {
+		if (!this.transforms.updateCompanyNoCSOnly) {
+			return;
+		}
+
+		// publish the change to all users on the "everyone" team
+		const channel = 'team-' + this.company.get('everyoneTeamId');
+		const message = {
+			company: this.transforms.updateCompanyNoCSOnly,
+			requestId: this.request.id
+		};;
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish updated company message to team ${this.company.get('everyoneTeamId')}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// describe this route for help

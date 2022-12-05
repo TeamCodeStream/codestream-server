@@ -6,19 +6,30 @@
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 const UserInviter = require('./user_inviter');
 const OldUserInviter = require('./old_user_inviter');	 // deprecate when we've moved to the ONE_USER_PER_ORG paradigm
+const IsCodeStreamOnly = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/is_codestream_only');
 
 class PostUserRequest extends PostRequest {
 
 	async authorize () {
 		// first, inviting user must be on the team
 		await this.user.authorizeFromTeamId(this.request.body, this, { error: 'createAuth' });
-
-		// then, if the onlyAdminsCanInvite team setting is set, then the user must be an admin for the team
 		const teamId = decodeURIComponent(this.request.body.teamId).toLowerCase();
 		this.team = await this.data.teams.getById(teamId);
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
+
+		// if the company is not a codestream-only company, which we'll verify through NR,
+		// then no members can be invited, all member management happens through NR
+		const company = await this.data.companies.getById(this.team.get('companyId'));
+		const codestreamOnly = await IsCodeStreamOnly(company, this);
+		if (!codestreamOnly) {
+			await this.persist();
+			await this.publishCompanyNoCSOnly();
+			throw this.errorHandler.error('createAuth', { reason: 'member management for this company can only be done through New Relic' });
+		}
+
+		// then, if the onlyAdminsCanInvite team setting is set, then the user must be an admin for the team
 		if (
 			(this.team.get('settings') || {}).onlyAdminsCanInvite &&
 			!(this.team.get('adminIds') || []).includes(this.user.id)
@@ -108,7 +119,33 @@ class PostUserRequest extends PostRequest {
 
 	// after the response has been sent...
 	async postProcess () {
-		return this.userInviter.postProcess();
+		await this.userInviter.postProcess();
+	}
+
+	// if the company object has changed (because it was found to no longer be "codestream only"),
+	// publish the change to the team channel
+	async publishCompanyNoCSOnly () {
+		if (!this.transforms.updateCompanyNoCSOnly) {
+			return;
+		}
+
+		// publish the change to all users on the "everyone" team
+		const channel = 'team-' + this.team.id;
+		const message = {
+			company: this.transforms.updateCompanyNoCSOnly,
+			requestId: this.request.id
+		};;
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish updated company message to team ${this.team.id}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	// describe this route for help
