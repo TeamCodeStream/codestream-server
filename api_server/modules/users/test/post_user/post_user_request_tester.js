@@ -50,6 +50,9 @@ const ExistingRegisteredUserOnTeamOriginUserIdTest = require('./existing_registe
 const ExistingUnregisteredUserOnTeamOriginUserIdTest = require('./existing_unregistered_user_on_team_origin_user_id_test');
 const ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest = require('./existing_registered_user_already_on_team_origin_user_id_test');
 const MessageToUserTest = require('./message_to_user_test');
+const NotCodeStreamOnlyTest = require('./not_codestream_only_test');
+const NotCodeStreamOnlyDiscoveryTest = require('./not_codestream_only_discovery_test');
+const NotCodeStreamOnlyDiscoveryMessageTest = require('./not_codestream_only_discovery_message_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -119,6 +122,9 @@ class PostUserRequestTester {
 		new ExistingUnregisteredUserOnTeamOriginUserIdTest().test();
 		new ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest().test();
 		new MessageToUserTest().test();
+		new NotCodeStreamOnlyTest().test();
+		new NotCodeStreamOnlyDiscoveryTest().test();
+		new NotCodeStreamOnlyDiscoveryMessageTest().test();
 	}
 }
 

@@ -10,9 +10,15 @@ class RemoveSelfTest extends RemoveUserTest {
 	}
 
 	get description () {
-		return 'should not need to be an admin to remove yourself from a team';
+		return 'per unified identity, must be an admin to remove yourself from a team';
 	}
-   
+
+	getExpectedError () {
+		return {
+			code: 'TEAM-1002'
+		};
+	}
+
 	// get the users we want to remove from the team
 	getRemovedUsers () {
 		return [this.currentUser.user];
