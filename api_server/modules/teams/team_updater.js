@@ -239,7 +239,7 @@ class TeamUpdater extends ModelUpdater {
 			requestId: this.request.request.id
 		};;
 		try {
-\			await this.request.api.services.broadcaster.publish(
+			await this.request.api.services.broadcaster.publish(
 				message,
 				channel,
 				{ request: this.request }
