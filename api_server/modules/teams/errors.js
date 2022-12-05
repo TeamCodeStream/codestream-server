@@ -22,5 +22,10 @@ module.exports = {
 		code: 'TEAM-1003',
 		message: 'Not authorized to join this team',
 		description: 'The user is attempting to join a team but does not have the proper conditions in their account to do so'
+	},
+	'notAuthorizedToAdmin': {
+		code: 'TEAM-1004',
+		message: 'Not authorized to administer this team',
+		description: 'The user is attempting to administer a team but does not have the authority to dd so'
 	}
 };

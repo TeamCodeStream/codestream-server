@@ -78,6 +78,7 @@ class UserInviter {
 			});
 			existingUser = undefined;
 		}
+		
 		const userCreator = new UserCreator({
 			request: this.request,
 			existingUser,
