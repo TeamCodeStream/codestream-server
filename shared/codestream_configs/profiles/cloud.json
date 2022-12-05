@@ -668,6 +668,7 @@
 		"eu0": {
 			"isProductionCloud": true,
 			"newRelicApiUrl": "https://api.eu.newrelic.com",
+			"newRelicSecApiUrl": "https://nrsec-workflow-api.eu.service.newrelic.com",
 			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
 			"runTimeEnvironment": "eu0"
 		},
@@ -686,6 +687,7 @@
 		"prod": {
 			"isProductionCloud": true,
 			"newRelicApiUrl": "https://api.newrelic.com",
+			"newRelicSecApiUrl": "https://nrsec-workflow-api.service.newrelic.com",
 			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
 			"runTimeEnvironment": "prod"
 		},
