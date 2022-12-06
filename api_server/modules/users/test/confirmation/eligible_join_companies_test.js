@@ -9,7 +9,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	get description () {
 		const oneUserPerOrg = this.oneUserPerOrg ? ', in one-user-per-org paradigm' : '';
-		return `user should receive eligible companies to join via domain-based and code-host-based with response to email confirmation${oneUserPerOrg}`;
+		return `user should receive eligible companies to join via domain-based and invite with response to email confirmation${oneUserPerOrg}`;
 	}
 
 	before (callback) {

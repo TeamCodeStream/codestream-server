@@ -1,32 +1,22 @@
 'use strict';
 
-const CheckSignupTest = require('./check_signup_test');
+const NRRegistrationTest = require('./nr_registration_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-class EligibleJoinCompaniesTest extends CheckSignupTest {
+class EligibleJoinCompaniesTest extends NRRegistrationTest {
 
 	get description () {
 		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : '';
-		return `user should receive eligible companies to join via domain-based and invite, with response to check signup${oneUserPerOrg}`;
+		return `user should receive eligible companies to join via domain-based and invite, when logging in${oneUserPerOrg}`;
 	}
 
-	setTestOptions (callback) {
-		super.setTestOptions(() => {
-			this.userOptions.numRegistered = 2;
-			callback();
-		});
-	}
-
-	doProviderAuth (callback) {
-		// do these other things before initiating the auth process
-		this.mockEmail = this.currentUser.user.email;  // identify auth process with the existing user
+	before (callback) {
 		BoundAsync.series(this, [
+			super.before,
 			this.createEligibleJoinCompanies,
-			this.createCompaniesAndInvite,
-			this.acceptInvite,
-			super.doProviderAuth
+			this.createCompaniesAndInvite
 		], callback);
 	}
 
@@ -43,9 +33,9 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 	}
 
 	// create a company that the confirming user is not a member of, but that they are
-	// eligible to join via domain-based joining or code host joining
+	// eligible to join via domain-based joining
 	createEligibleJoinCompany (n, callback) {
-		const domain = this.currentUser.user.email.split('@')[1];
+		const domain = this.expectedUserData.email.split('@')[1];
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -159,8 +149,8 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 				const company = response.companies[0];
 				this.expectedEligibleJoinCompanies.push({
 					id: company.id,
-					teamId: company.everyoneTeamId,
 					name: company.name,
+					teamId: company.everyoneTeamId,
 					byInvite: true,
 					memberCount: 1
 				});
@@ -178,7 +168,7 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 				path: '/users',
 				data: {
 					teamId: this.currentCompanyTeamId,
-					email: this.currentUser.user.email
+					email: this.expectedUserData.email
 				},
 				token: this.currentCompanyToken
 			},

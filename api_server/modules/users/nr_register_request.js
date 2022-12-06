@@ -5,7 +5,7 @@
 
 const UserCreator = require('./user_creator');
 const OldUserCreator = require('./old_user_creator');
-const ConfirmHelper = require('./confirm_helper');
+const LoginHelper = require('./login_helper');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
@@ -39,6 +39,9 @@ class NRRegisterRequest extends RestfulRequest {
 			{
 				required: {
 					string: ['apiKey']
+				},
+				optional: {
+					string: ['_pubnubUuid']
 				}
 			}
 		);
@@ -96,6 +99,9 @@ class NRRegisterRequest extends RestfulRequest {
 					}
 				}
 			};
+			if (this.request.body._pubnubUuid) {
+				this.userData._pubnubUuid = this.request.body._pubnubUuid;
+			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.warn('Caught error running GraphQL query: ' + message);
@@ -180,10 +186,10 @@ class NRRegisterRequest extends RestfulRequest {
 
 	// mark the user as registered and log them in
 	async doLogin () {
-		this.responseData = await new ConfirmHelper({
+		this.responseData = await new LoginHelper({
 			request: this,
 			user: this.user
-		}).confirm(this.userData);
+		}).login();
 	}
 
 	// describe this route for help
