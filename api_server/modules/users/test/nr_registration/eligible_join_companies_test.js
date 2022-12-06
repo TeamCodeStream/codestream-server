@@ -1,23 +1,22 @@
 'use strict';
 
-const InitialDataTest = require('./initial_data_test');
+const NRRegistrationTest = require('./nr_registration_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
 
-class EligibleJoinCompaniesTest extends InitialDataTest {
+class EligibleJoinCompaniesTest extends NRRegistrationTest {
 
 	get description () {
 		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : '';
-		return `user should receive eligible companies to join via domain-based and invite, when logging in by code${oneUserPerOrg}`;
+		return `user should receive eligible companies to join via domain-based and invite, when logging in${oneUserPerOrg}`;
 	}
 
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,
 			this.createEligibleJoinCompanies,
-			this.createCompaniesAndInvite,
-			this.acceptInvite
+			this.createCompaniesAndInvite
 		], callback);
 	}
 
@@ -25,20 +24,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 	// eligible to join via domain-based joining or code host joining
 	createEligibleJoinCompanies (callback) {
 		this.expectedEligibleJoinCompanies = [];
-
-		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
-		if (this.oneUserPerOrg) {
-			this.expectedEligibleJoinCompanies.push({
-				id: this.company.id,
-				name: this.company.name,
-				teamId: this.team.id,
-				byInvite: true,
-				memberCount: 2,
-				accessToken: this.currentUser.accessToken
-			});
-		}
-
-		BoundAsync.times(
+		BoundAsync.timesSeries(
 			this,
 			2,
 			this.createEligibleJoinCompany,
@@ -47,9 +33,9 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 	}
 
 	// create a company that the confirming user is not a member of, but that they are
-	// eligible to join via domain-based joining or code host joining
+	// eligible to join via domain-based joining
 	createEligibleJoinCompany (n, callback) {
-		const domain = this.currentUser.user.email.split('@')[1];
+		const domain = this.expectedUserData.email.split('@')[1];
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -59,6 +45,10 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 					domainJoining: [
 						this.companyFactory.randomDomain(),
 						domain
+					],
+					codeHostJoining: [
+						`github.com/${RandomString.generate(10)}`,
+						`gitlab.com/${RandomString.generate(10)}`
 					]
 				},
 				token: this.users[1].accessToken
@@ -74,6 +64,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 						teamId: response.company.everyoneTeamId,
 						byDomain: domain.toLowerCase(),
 						domainJoining: response.company.domainJoining,
+						codeHostJoining: response.company.codeHostJoining,
 						memberCount: 1
 					});
 					callback();
@@ -98,6 +89,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 				teamId: company.everyoneTeamId,
 				byDomain: domain.toLowerCase(),
 				domainJoining: company.domainJoining,
+				codeHostJoining: company.codeHostJoining,
 				memberCount: 1
 			});
 			callback();
@@ -109,6 +101,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
 			return callback();
 		}
+
 		BoundAsync.timesSeries(
 			this,
 			2,
@@ -175,7 +168,7 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 				path: '/users',
 				data: {
 					teamId: this.currentCompanyTeamId,
-					email: this.data.email
+					email: this.expectedUserData.email
 				},
 				token: this.currentCompanyToken
 			},
