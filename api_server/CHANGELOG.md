@@ -1,15 +1,10 @@
 # Change Log
 
-## [14.0.9] - 2022-12-7
+## [14.0.8] - 2022-12-7
 
 ### Fixed
 
 - Fixes an issue that didn't expose organizations you can join via domain or invitation when signing up using a New Relic user api key
-
-## [14.0.8] - 2022-11-29
-
-### Fixed
-
 - Fixes an issue preventing users in EU-based CodeStream organizations from connecting to MS Teams
 
 ## [14.0.7] - 2022-11-17
