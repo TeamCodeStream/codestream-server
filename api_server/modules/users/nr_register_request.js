@@ -5,7 +5,7 @@
 
 const UserCreator = require('./user_creator');
 const OldUserCreator = require('./old_user_creator');
-const LoginHelper = require('./login_helper');
+const ConfirmHelper = require('./confirm_helper');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
@@ -186,10 +186,10 @@ class NRRegisterRequest extends RestfulRequest {
 
 	// mark the user as registered and log them in
 	async doLogin () {
-		this.responseData = await new LoginHelper({
+		this.responseData = await new ConfirmHelper({
 			request: this,
 			user: this.user
-		}).login();
+		}).confirm(this.userData);
 	}
 
 	// describe this route for help
