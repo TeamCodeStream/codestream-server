@@ -51,11 +51,21 @@ class DeleteUserRequest extends DeleteRequest {
 	async postProcess () {
 		// publish the user to the appropriate broadcaster channel(s)
 		await new UserPublisher({
-			user: this.user,
+			user: this.userToDelete,
 			data: this.responseData.user,
 			request: this,
 			broadcaster: this.api.services.broadcaster
 		}).publishUserToTeams();
+
+		// for unregistered users, these are removed invites,
+		// so publish eligibleJoinCompanies updates to any registered user matching the email
+		const email = this.userToDelete.get('email');
+		if (!email) { return; } // shouldn't happen
+		await new EligibleJoinCompaniesPublisher({
+			request: this,
+			broadcaster: this.api.services.broadcaster
+		}).publishEligibleJoinCompanies(email);
+
 	}
 
 	// describe this route for help

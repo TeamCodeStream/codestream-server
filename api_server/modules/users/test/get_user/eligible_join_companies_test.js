@@ -8,7 +8,7 @@ const RandomString = require('randomstring');
 class EligibleJoinCompaniesTest extends GetMyselfTest {
 
 	get description () {
-		return `user should receive eligible companies to join via domain-based, code-host-based, and invite, when fetching own user object`;
+		return `user should receive eligible companies to join via domain-based and invite, when fetching own user object`;
 	}
 
 	before (callback) {

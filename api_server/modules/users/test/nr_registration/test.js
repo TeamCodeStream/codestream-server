@@ -10,6 +10,7 @@ const NRRegistrationTest = require('./nr_registration_test');
 //const StagingApiTest = require('./staging_api_test');
 const ExistsButUnregisteredTest = require('./exists_but_unregistered_test');
 const ExistsButUnregisteredInvitedTest = require('./exists_but_unregistered_invited_test');
+const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 
 class NRRegistrationRequestTester {
 
@@ -25,6 +26,7 @@ class NRRegistrationRequestTester {
 		new ExistsButUnregisteredTest({ oneUserPerOrg: true }).test();
 		new ExistsButUnregisteredInvitedTest().test();
 		new ExistsButUnregisteredInvitedTest({ oneUserPerOrg: true }).test();
+		new EligibleJoinCompaniesTest().test();
 	}
 }
 

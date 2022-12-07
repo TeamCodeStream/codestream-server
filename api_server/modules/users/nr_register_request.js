@@ -39,6 +39,9 @@ class NRRegisterRequest extends RestfulRequest {
 			{
 				required: {
 					string: ['apiKey']
+				},
+				optional: {
+					string: ['_pubnubUuid']
 				}
 			}
 		);
@@ -96,6 +99,9 @@ class NRRegisterRequest extends RestfulRequest {
 					}
 				}
 			};
+			if (this.request.body._pubnubUuid) {
+				this.userData._pubnubUuid = this.request.body._pubnubUuid;
+			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.warn('Caught error running GraphQL query: ' + message);
