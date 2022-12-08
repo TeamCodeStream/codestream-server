@@ -16,7 +16,9 @@ Commander
 	.option('-a --auth <domain_id>', 'List all New Relic / Azure users under given authentication domain ID')
 	.option('-u --username <username>', 'List all New Relic / Azure users matching a given username')
 	.option('--update <id>', 'Update the attributes of the user, given its ID')
+	.option('--org-name <id>', 'Update the attributes of the org, given its ID')
 	.option('--data <data>', 'The data to use when updating user attributes, in json')
+	.option('--name <name>', 'The name to use when updating an org name, in json')
 	.parse(process.argv);
 
 (async function() {
@@ -43,6 +45,8 @@ Commander
 				process.exit();
 			}
 			response = await idp.updateUser(Commander.update, json);
+		} else if (Commander.orgName && Commander.name) {
+			response = await idp.changeOrgName(Commander.orgName, Commander.name);
 		}
 		console.log(JSON.stringify(response && response.data, undefined, 5));
 	}
