@@ -45,16 +45,17 @@ class PostCompanyTest extends CodeStreamAPITest {
 	/* eslint complexity: 0 */
 	// validate the response to the test request
 	validateResponse (data) {
-		if (this.oneUserPerOrg && this.teamOptions.creatorIndex !== undefined) {
+		if (this.oneUserPerOrg && this.teamOptions.creatorIndex !== undefined && !this.expectFullResponse) {
 			return this.validateOneUserPerOrgResponse(data);
 		}
 		
 		const company = data.company;
 		const team = data.team;
+		const expectedName = this.expectedName || this.data.name;
 		const errors = [];
 		const result = (
 			((company.id === company._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
-			((company.name === this.data.name) || errors.push('name does not match')) &&
+			((company.name === expectedName) || errors.push('name does not match')) &&
 			((company.deactivated === false) || errors.push('deactivated not false')) &&
 			((typeof company.createdAt === 'number') || errors.push('createdAt not number')) &&
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&

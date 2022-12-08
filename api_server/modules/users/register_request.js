@@ -105,22 +105,25 @@ class RegisterRequest extends RestfulRequest {
 	async getExistingUser () {
 		// find any registered user (which triggers an already-registered email),
 		// or any unregistered user that has not been invited to a team
+		// exception: if the user has companyName, they are in the process of creating a new org,
+		// and we allow to proceed
 		const matchingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: this.request.body.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
 
 		let uninvitedUser;
-		this.user = matchingUsers.find(user => {
+		let registeredUser;
+		matchingUsers.find(user => {
 			if (user.get('deactivated')) {
 				return false;
-			} else if (user.get('isRegistered')) {
-				return true;
-			} else if ((user.get('teamIds') || []).length === 0) {
+			} else if (user.get('isRegistered') && !this.request.body.companyName) {
+				registeredUser = user;
+			} else if (!user.get('isRegistered') && (user.get('teamIds') || []).length === 0) {
 				uninvitedUser = user;
 			}
 		});
-		this.user = this.user || uninvitedUser;
+		this.user = registeredUser || uninvitedUser;
 
 		// short-circuit the flow if the user is already registered
 		return this.user && this.user.get('isRegistered');

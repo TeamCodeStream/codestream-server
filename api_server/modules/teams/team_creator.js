@@ -184,9 +184,6 @@ class TeamCreator extends ModelCreator {
 				companyIds: this.attributes.companyId,
 				teamIds: this.model.id
 			},
-			$unset: {
-				companyName: true
-			},
 			$set: {
 				modifiedAt: Date.now()
 			}

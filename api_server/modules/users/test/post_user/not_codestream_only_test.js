@@ -1,9 +1,9 @@
 'use strict';
 
-const RemoveUserTest = require('./remove_user_test');
+const PostUserTest = require('./post_user_test');
 const RandomString = require('randomstring');
 
-class NotCodeStreamOnlyTest extends RemoveUserTest {
+class NotCodeStreamOnlyTest extends PostUserTest {
 
 	get description () {
 		return 'should return an error when trying to remove a user from a team when that team is associated with an org that is not codestream-only';

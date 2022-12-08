@@ -45,7 +45,8 @@ class UserCreator extends ModelCreator {
 					'joinMethod',
 					'originUserId',
 					'copiedFromUserId',
-					'countryCode'
+					'countryCode',
+					'companyName'
 				],
 				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
 				object: ['preferences', 'avatar', 'providerInfo'],

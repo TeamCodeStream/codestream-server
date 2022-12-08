@@ -83,6 +83,11 @@ class CompanyCreator extends ModelCreator {
 			this.attributes._forTesting = true;
 		}
 
+		// set company name if user entered it earlier
+		if (this.user.get('companyName')) {
+			this.attributes.name = this.user.get('companyName');
+		}
+
 		await super.preSave();
 	}
 
@@ -119,7 +124,8 @@ class CompanyCreator extends ModelCreator {
 			{
 				name: name,
 				email: this.user.get('email'),
-				password
+				password,
+				orgName: this.user.get('companyName')
 			},
 			{ 
 				request: this.request,
@@ -144,7 +150,8 @@ class CompanyCreator extends ModelCreator {
 					nrUserId: nrUserInfo.user_id
 				},
 				$unset: {
-					encryptedPasswordTemp: true
+					encryptedPasswordTemp: true,
+					companyName: true
 				}
 			}
 		);
@@ -153,7 +160,7 @@ class CompanyCreator extends ModelCreator {
 		// NOTE - we do this post-save of creating the company to ensure that a failure
 		// here doesn't end up with an orphaned user and organization on New Relic,
 		// better to do it once we're (reasonably) sure things are going to succeed on our end
-		const nrOrgInfo = { ... nrUserInfo };
+		const nrOrgInfo = { ...nrUserInfo };
 		delete nrOrgInfo.user_id;
 		await this.request.data.companies.update(
 			{
