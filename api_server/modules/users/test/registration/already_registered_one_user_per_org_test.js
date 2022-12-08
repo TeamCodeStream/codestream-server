@@ -1,8 +1,8 @@
 'use strict';
 
-const AlreadyRegisteredEamilTest = require('./already_registered_email_test');
+const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
 
-class AlreadyRegisteredOneUserPerOrgTest extends AlreadyRegisteredEamilTest {
+class AlreadyRegisteredOneUserPerOrgTest extends AlreadyRegisteredEmailTest {
 
 	constructor (options) {
 		super(options);

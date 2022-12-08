@@ -13,6 +13,7 @@ const FirstCompanyOneUserPerOrgTest = require('./first_company_one_user_per_org_
 const ClearFirstSessionTest = require('./clear_first_session_test');
 const NRUserIdTest = require('./nr_user_id_test');
 const LinkedNROrgIdTest = require('./linked_nr_org_id_test');
+const CompanyNameFromRegistrationTest = require('./company_name_from_registration_test');
 
 class PostCompanyRequestTester {
 
@@ -29,6 +30,7 @@ class PostCompanyRequestTester {
 		new ClearFirstSessionTest().test();
 		new NRUserIdTest().test();
 		new LinkedNROrgIdTest().test();
+		new CompanyNameFromRegistrationTest().test();
 		// TODO: wrong type validations
 	}
 }

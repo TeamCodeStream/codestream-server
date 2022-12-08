@@ -106,6 +106,11 @@ class NewRelicIDP extends APIServerModule {
 			options
 		);
 		*/
+
+		if (data.orgName) {
+//			await this.changeOrgName(signupResponse.organization_id, data.orgName, options);
+		}
+
 		return {
 			...signupResponse,
 			//token: loginResponse.value
@@ -233,6 +238,18 @@ class NewRelicIDP extends APIServerModule {
 			result.data.attributes &&
 			result.data.attributes.reportingAccountId
 		);
+	}
+
+	// change an organization name for the given org ID
+	async changeOrgName (nrOrgId, name, options) {
+		const result = await this._newrelic_idp_call(
+			'org',
+			'/v0/organizations/' + nrOrgId,
+			'put',
+			{ data: { name } },
+			options
+		);
+		return result;
 	}
 
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {

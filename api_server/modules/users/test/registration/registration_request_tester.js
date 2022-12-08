@@ -4,6 +4,7 @@
 const RegistrationTest = require('./registration_test');
 const NoAttributeTest = require('./no_attribute_test');
 const UserExistsTest = require('./user_exists_test');
+const UserExistsCompanyNameTest = require('./user_exists_company_name_test');
 const InvitedUserExistsTest = require('./invited_user_exists_test');
 const BadEmailTest = require('./bad_email_test');
 const BadUsernameTest = require('./bad_username_test');
@@ -14,6 +15,7 @@ const BadPasswordTest = require('./bad_password_test');
 const ConfirmationEmailTest = require('./confirmation_email_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
 const AlreadyRegisteredOneUserPerOrgTest = require('./already_registered_one_user_per_org_test'); // ONE_USER_PER_ORG
+const AlreadyRegisteredCompanyNameTest = require('./already_registered_company_name_test');
 const PreferencesTest = require('./preferences_test');
 const SpecialCharactersUsernameTest = require('./special_characters_username_test');
 const ReuseConfirmationCodeTest = require('./reuse_confirmation_code_test');
@@ -56,6 +58,7 @@ class RegistrationRequestTester {
 		new BadPasswordTest().test();
 		new UserExistsTest().test();
 		new UserExistsTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
+		new UserExistsCompanyNameTest().test();
 		new InvitedUserExistsTest().test();
 		new InvitedUserExistsTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		//new ConflictingUsernameTest().test();
@@ -71,6 +74,7 @@ class RegistrationRequestTester {
 			AlreadyRegisteredOneUserPerOrgTest, // ONE_USER_PER_ORG
 			//RepoBasedSignupConfirmationEmailTest
 		]);
+		new AlreadyRegisteredCompanyNameTest().test();
 		new PreferencesTest().test();
 		new ReuseConfirmationCodeTest().test();
 		new NewCodeAfterReusabilityWindowTest().test();

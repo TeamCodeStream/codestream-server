@@ -1,7 +1,7 @@
 'use strict';
 
-var BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-var ConfirmationTest = require('./confirmation_test');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const ConfirmationTest = require('./confirmation_test');
 
 class AlreadyRegisteredTest extends ConfirmationTest {
 
