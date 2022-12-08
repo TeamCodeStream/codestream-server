@@ -108,7 +108,7 @@ class NewRelicIDP extends APIServerModule {
 		*/
 
 		if (data.orgName) {
-//			await this.changeOrgName(signupResponse.organization_id, data.orgName, options);
+			await this.changeOrgName(signupResponse.organization_id, data.orgName, options);
 		}
 
 		return {
@@ -245,8 +245,8 @@ class NewRelicIDP extends APIServerModule {
 		const result = await this._newrelic_idp_call(
 			'org',
 			'/v0/organizations/' + nrOrgId,
-			'put',
-			{ data: { name } },
+			'patch',
+			{ data: { attributes: { name } } },
 			options
 		);
 		return result;
@@ -263,7 +263,7 @@ class NewRelicIDP extends APIServerModule {
 		}
 
 		let payloadSignature;
-		if (service === 'user' || service === 'credentials') {
+		if (service === 'user' || service === 'org' || service === 'credentials') {
 			payloadSignature = await this._signPayload(params, options);
 		}
 
