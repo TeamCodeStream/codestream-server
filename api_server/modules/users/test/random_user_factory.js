@@ -118,7 +118,7 @@ class RandomUserFactory {
 	
 	// get some random data to use for creating a user, with options specified
 	getRandomUserData (options = {}) {
-		let email = this.randomEmail(options);
+		let email = options.useEmail || this.randomEmail(options);
 		let fullName = this.randomFullName();
 		let timeZone = 'America/New_York';
 		let _forceConfirmation = 1;	// force confirmation, even if environment settings have it turned off
@@ -134,6 +134,9 @@ class RandomUserFactory {
 		}
 		else if (!options.noUsername) {
 			data.username = RandomString.generate(12);
+		}
+		if (options.companyName) {
+			data.companyName = options.companyName;
 		}
 		if (options.wantLink) {
 			throw 'wantLink is deprecated';

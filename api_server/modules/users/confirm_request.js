@@ -68,13 +68,18 @@ class ConfirmRequest extends RestfulRequest {
 		// otherwise look for an unregistered user that is not on any teams
 		let teamlessUser;
 		let userOnTeams;
-		const registeredUser = users.find(user => {
+		let registeredUser;
+		let userWithCompanyName;
+		users.find(user => {
 			const teamIds = user.get('teamIds') || [];
 			if (user.get('deactivated')) {
 				return false;
 			} else if (user.get('isRegistered')) {
-				return true;
+				registeredUser = user;
 			} else if (teamIds.length === 0) {
+				if (user.get('companyName')) {
+					userWithCompanyName = true;
+				}
 				teamlessUser = user;
 			} else {
 				userOnTeams = user;
@@ -82,15 +87,11 @@ class ConfirmRequest extends RestfulRequest {
 		});
 
 		// can't confirm an already-confirmed user
-		if (registeredUser) {
+		if (registeredUser && !userWithCompanyName) {
+			// exception: if the user has a company name, they are in the process
+			// of creating a new org, so we don't care if they exist, we'll
+			// be creating a new user regardless
 			throw this.errorHandler.error('alreadyRegistered');
-		// remove the check below once we have fully moved to ONE_USER_PER_ORG
-		} else if (
-			userOnTeams &&
-			!this.module.oneUserPerOrg &&
-			!this.request.headers['x-cs-one-user-per-org']
-		) {
-			this.user = userOnTeams;
 		} else if (!teamlessUser) {
 			throw this.errorHandler.error('notFound', { info: 'user' });
 		} else {

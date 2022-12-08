@@ -7,6 +7,7 @@ const ConfirmationTest = require('./confirmation_test');
 const ConfirmationTokenDeprecatedTest = require('./confirmation_token_deprecated_test');
 const NoAttributeTest = require('./no_attribute_test');
 const AlreadyRegisteredTest = require('./already_registered_test');
+const AlreadyRegisteredCompanyNameTest = require('./already_registered_company_name_test');
 const ConfirmInvitedUserTest = require('./confirm_invited_user_test'); // remove once ONE_USER_PER_ORG is implementedd
 const UnknownUserTest = require('./unknown_user_test');
 const IncorrectCodeTest = require('./incorrect_code_test');
@@ -37,10 +38,11 @@ const TrackIncorrectCodeTest = require('./track_incorrect_code_test');
 const ReuseCodeTest = require('./reuse_code_test');
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 const IsWebmailTest = require('./is_webmail_test');
-const AccountIsConnectedTest = require('./account_is_connected_test');
-const AccountIsConnectedFalseTest = require('./account_is_connected_false_test');
-const AccountIsConnectedByOrgTest = require('./account_is_connected_by_org_test');
-const AccountIsConnectedByOrgFalseTest = require('./account_is_connected_by_org_false_test');
+//const AccountIsConnectedTest = require('./account_is_connected_test');
+//const AccountIsConnectedFalseTest = require('./account_is_connected_false_test');
+//const AccountIsConnectedByOrgTest = require('./account_is_connected_by_org_test');
+//const AccountIsConnectedByOrgFalseTest = require('./account_is_connected_by_org_false_test');
+const ForceCreateCompanyTest = require('./force_create_company_test');
 
 class ConfirmationRequestTester {
 
@@ -53,6 +55,7 @@ class ConfirmationRequestTester {
 		new NoAttributeTest({ attribute: 'confirmationCode' }).test();
 		new AlreadyRegisteredTest().test();
 		new AlreadyRegisteredTest({ oneUserPerOrg: true }).test();
+		new AlreadyRegisteredCompanyNameTest().test();
 		new ConfirmInvitedUserTest().test();
 		new ConfirmInvitedUserTest({ oneUserPerOrg: true }).test();
 		new UnknownUserTest().test();
@@ -88,10 +91,12 @@ class ConfirmationRequestTester {
 		new EligibleJoinCompaniesTest().test();
 		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test();
 		new IsWebmailTest().test();
-		new AccountIsConnectedTest().test();
-		new AccountIsConnectedFalseTest().test();
-		new AccountIsConnectedByOrgTest().test();
-		new AccountIsConnectedByOrgFalseTest().test();
+		// NR account connection is deprecated
+		//new AccountIsConnectedTest().test();
+		//new AccountIsConnectedFalseTest().test();
+		//new AccountIsConnectedByOrgTest().test();
+		//new AccountIsConnectedByOrgFalseTest().test();
+		new ForceCreateCompanyTest().test();
 	}
 }
 

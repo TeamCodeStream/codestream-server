@@ -21,6 +21,11 @@ class ConfirmHelper {
 		if (!this.dontConfirmInOtherEnvironments) { // fully remove this when we move to ONE_USER_PER_ORG
 			await this.confirmInOtherEnvironments();	// confirm the user in other "environments" 
 		}
+		if (this.user.get('companyName')) {
+			// this indicates the user is in the process of creating a new org,
+			// we want the client to skip the join-company step and force creating one
+			this.responseData.forceCreateCompany = true;
+		}
 		return this.responseData;
 	}
 
