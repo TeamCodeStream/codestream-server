@@ -205,6 +205,14 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'circleci.com',
 		hasBuilds: true,
 		needsConfigure: true
+	},
+	'jenkins':{
+		id:'jenkins',
+		name: 'jenkins',
+		isEnterprise: false,
+		host: 'jenkins',
+		hasBuilds: true,
+		needsConfigure: true
 	}
 };
 
