@@ -32,6 +32,7 @@ class PopulateNewRelicOrgIds {
 	}
 
 	async go () {
+		this.newRelicApiUrl = ApiConfig.getPreferredConfig().sharedGeneral.newRelicApiUrl || 'https://api.newrelic.com';
 		await this.openMongoClient();
 		await this.processCompanies();
 		process.exit();
@@ -53,25 +54,37 @@ class PopulateNewRelicOrgIds {
 		const result = await this.data.companies.getByQuery(
 			{
 				deactivated: false,
-				isNRConnected: true,
-				nrOrgIds: { $exists: false }
+				isNRConnected: true
 			},
 			{
 				stream: true,
 				overrideHintRequired: true
 			}
 		);
-		let company, user, orgId;
+		let company, users;
 		this.numCompaniesPopulated = 0;
+		this.numCompaniesFailed = 0;
 		do {
 			company = await result.next();
 			if (company) {
-				user = await this.getMostRecentUser(company);
-				if (user) {
-					orgId = await this.getOrganizationId(user.providerInfo[company.everyoneTeamId].newrelic.accessToken);
-					if (orgId) {
-						await this.setOrgId(company, orgId);
+				users = await this.getUsersWithApiKeys(company);
+				let orgId = null;
+				for (let user of users) {
+					try {
+						orgId = await this.getOrganizationId(user.providerInfo[company.everyoneTeamId].newrelic.accessToken);
+					} catch (error) {
+						console.warn(error.message);
 					}
+
+					if (orgId) {
+						console.log(`Setting orgId for company ${company.id} to ${orgId}`);
+						await this.setOrgId(company, orgId);
+						break;
+					}
+				}
+				if (!orgId) {
+					console.log(`Unable to find an authorized user for company ${company.id}`);
+					this.numCompaniesFailed++;
 				}
 			}
 		} while (company);
@@ -79,12 +92,14 @@ class PopulateNewRelicOrgIds {
 		
 		if (this.dryrun) {
 			console.log(`Would have populated nrOrgIds on ${this.numCompaniesPopulated} companies`);
+			console.log(`Would have failed to populate nrOrgIds for ${this.numCompaniesFailed} companies`);
 		} else {
 			console.log(`Populated nrOrgIds on ${this.numCompaniesPopulated} companies`);
+			console.log(`Failed to populate nrOrgIds for ${this.numCompaniesFailed} companies`);
 		}
 	}
 
-	async getMostRecentUser (company) {
+	async getUsersWithApiKeys (company) {
 		let result = await this.data.users.getByQuery(
 			{
 				teamIds: company.everyoneTeamId
@@ -102,15 +117,12 @@ class PopulateNewRelicOrgIds {
 			_.providerInfo[company.everyoneTeamId].newrelic
 		);
 		result.sort((a, b) => a.lastLogin - b.lastLogin);
-		if (result.length) {
-			return result[result.length - 1];
-		}
-		return undefined;
+		return result;
 	}
 
 	// fetch the user's organization ID from NR
 	async getOrganizationId (apiKey) {
-		const baseUrl = ApiConfig.getPreferredConfig().sharedGeneral.newRelicApiUrl || 'https://api.newrelic.com';
+		const baseUrl = this.newRelicApiUrl;
 		const url = baseUrl + '/graphql';
 		const query = gql`{
 			actor {
@@ -158,7 +170,6 @@ class PopulateNewRelicOrgIds {
 				throw 'invalid throttle value';
 			}
 		}
-
 		await ApiConfig.loadPreferredConfig();
 		await new PopulateNewRelicOrgIds(options).go();
 	}
