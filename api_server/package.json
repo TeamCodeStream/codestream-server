@@ -78,7 +78,7 @@
 		"nodemon": "2.0.18",
 		"pre-commit": "1.2.2",
 		"randomstring": "1.2.2",
-		"snyk": "1.996.0"
+		"snyk": "1.1064.0"
 	},
 	"overrides": {
 		"handlebars@4.7.7": {
