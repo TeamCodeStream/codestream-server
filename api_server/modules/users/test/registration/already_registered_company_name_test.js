@@ -10,7 +10,7 @@ class AlreadyRegisteredCompanyNameTest extends RegistrationTest {
 	}
 
 	get description () {
-		return 'should be ok to register with an email that already exists as a registerd and confirmed user, if companyName is specified during the registration';
+		return 'should be ok to register with an email that already exists as a registered and confirmed user, if companyName is specified during the registration';
 	}
 
 	// before the test runs...

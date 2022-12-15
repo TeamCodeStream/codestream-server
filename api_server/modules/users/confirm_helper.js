@@ -5,6 +5,7 @@
 const LoginHelper = require('./login_helper');
 const PasswordHasher = require('./password_hasher');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const JoinCompanyHelper = require('./join_company_helper');
 
 class ConfirmHelper {
 
@@ -17,6 +18,7 @@ class ConfirmHelper {
 		this.data = data;
 		await this.hashPassword();			// hash the provided password, if given
 		await this.updateUser();			// update the user's database record
+		await this.joinCompany();			// automatically join a company if requested
 		await this.doLogin();				// proceed with the actual login
 		if (!this.dontConfirmInOtherEnvironments) { // fully remove this when we move to ONE_USER_PER_ORG
 			await this.confirmInOtherEnvironments();	// confirm the user in other "environments" 
@@ -199,7 +201,29 @@ class ConfirmHelper {
 				searchableEmail: newEmail.toLowerCase()
 			});
 		}
+	}
 
+	// the confirming user is in the process of joining a company
+	async joinCompany () {
+		if (!this.user.get('joinCompanyId')) { return; }
+		this.joinCompanyHelper = new JoinCompanyHelper({
+			request: this.request,
+			user: this.user,
+			inviteOnly: true,
+			alreadyConfirmed: true,
+			originalEmail: this.user.get('originalEmail'),
+			companyId: this.user.get('joinCompanyId'),
+			confirmHelperClass: ConfirmHelper // this avoids a circular require
+		});
+		await this.joinCompanyHelper.authorize();
+		await this.joinCompanyHelper.process();
+		this.user = this.request.user = this.request.request.user = this.joinCompanyHelper.invitedUser;
+	}
+
+	async postProcess () {
+		if (this.joinCompanyHelper) {
+			return this.joinCompanyHelper.postProcess();
+		}
 	}
 }
 
