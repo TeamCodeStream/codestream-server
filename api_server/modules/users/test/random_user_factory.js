@@ -138,6 +138,9 @@ class RandomUserFactory {
 		if (options.companyName) {
 			data.companyName = options.companyName;
 		}
+		if (options.joinCompanyId) {
+			data.joinCompanyId = options.joinCompanyId;
+		}
 		if (options.wantLink) {
 			throw 'wantLink is deprecated';
 			/*

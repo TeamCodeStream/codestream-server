@@ -280,6 +280,18 @@ module.exports = {
 		maxLength: 100,
 		description: 'Temporary holding place for the company name, until the user actually creates a team'
 	},
+	joinCompanyId: {
+		type: 'string',
+		serverOnly: true,
+		maxLength: 100,
+		description: 'Temporary holding place for the company a user is in the process of joining'
+	},
+	originalEmail: {
+		type: 'string',
+		serverOnly: true,
+		maxLength: 256,
+		description: 'Temporary holding place for the original email a user was invited with when in the process of accepting an invite (their email might actually change)'
+	},
 	externalUserId: {
 		type: 'string',
 		maxLength: 100,
