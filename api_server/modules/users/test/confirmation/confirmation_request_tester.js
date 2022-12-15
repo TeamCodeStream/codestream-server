@@ -43,6 +43,9 @@ const IsWebmailTest = require('./is_webmail_test');
 //const AccountIsConnectedByOrgTest = require('./account_is_connected_by_org_test');
 //const AccountIsConnectedByOrgFalseTest = require('./account_is_connected_by_org_false_test');
 const ForceCreateCompanyTest = require('./force_create_company_test');
+const JoinOnConfirmTest = require('./join_on_confirm_test');
+const JoinOnConfirmDifferentEmailTest = require('./join_on_confirm_different_email_test');
+const JoinOnConfirmEmailTakenTest = require('./join_on_confirm_email_taken_test');
 
 class ConfirmationRequestTester {
 
@@ -97,6 +100,9 @@ class ConfirmationRequestTester {
 		//new AccountIsConnectedByOrgTest().test();
 		//new AccountIsConnectedByOrgFalseTest().test();
 		new ForceCreateCompanyTest().test();
+		new JoinOnConfirmTest().test();
+		new JoinOnConfirmDifferentEmailTest().test();
+		new JoinOnConfirmEmailTakenTest().test();
 	}
 }
 

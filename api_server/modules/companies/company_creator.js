@@ -151,7 +151,8 @@ class CompanyCreator extends ModelCreator {
 				},
 				$unset: {
 					encryptedPasswordTemp: true,
-					companyName: true
+					companyName: true,
+					originalEmail: true
 				}
 			}
 		);

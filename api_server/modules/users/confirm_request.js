@@ -8,6 +8,7 @@ const ConfirmHelper = require('./confirm_helper');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
 
 const MAX_CONFIRMATION_ATTEMPTS = 3;
 
@@ -17,6 +18,7 @@ class ConfirmRequest extends RestfulRequest {
 		super(options);
 		this.errorHandler.add(Errors);
 		this.errorHandler.add(AuthErrors);
+		this.errorHandler.add(NewRelicIDPErrors);
 		this.loginType = this.loginType || 'web';
 	}
 
@@ -69,7 +71,7 @@ class ConfirmRequest extends RestfulRequest {
 		let teamlessUser;
 		let userOnTeams;
 		let registeredUser;
-		let userWithCompanyName;
+		let userJoiningOrg;
 		users.find(user => {
 			const teamIds = user.get('teamIds') || [];
 			if (user.get('deactivated')) {
@@ -77,8 +79,8 @@ class ConfirmRequest extends RestfulRequest {
 			} else if (user.get('isRegistered')) {
 				registeredUser = user;
 			} else if (teamIds.length === 0) {
-				if (user.get('companyName')) {
-					userWithCompanyName = true;
+				if (user.get('companyName') || user.get('joinCompanyId')) {
+					userJoiningOrg = true;
 				}
 				teamlessUser = user;
 			} else {
@@ -87,7 +89,7 @@ class ConfirmRequest extends RestfulRequest {
 		});
 
 		// can't confirm an already-confirmed user
-		if (registeredUser && !userWithCompanyName) {
+		if (registeredUser && !userJoiningOrg) {
 			// exception: if the user has a company name, they are in the process
 			// of creating a new org, so we don't care if they exist, we'll
 			// be creating a new user regardless
@@ -137,14 +139,15 @@ class ConfirmRequest extends RestfulRequest {
 		delete this.request.body.nrAccountId;
 		const environment = this.request.body.environment;
 		delete this.request.body.environment;
-		this.responseData = await new ConfirmHelper({
+		this.helper = new ConfirmHelper({
 			request: this,
 			user: this.user,
 			loginType: this.loginType,
 			nrAccountId,
 			environment,
 			dontSetFirstSession: true
-		}).confirm(this.request.body);
+		});
+		this.responseData = await this.helper.confirm(this.request.body);
 		this.eligibleJoinCompanies = this.responseData.user.eligibleJoinCompanies;
 	}
 
@@ -195,6 +198,9 @@ class ConfirmRequest extends RestfulRequest {
 	async postProcess () {
 		// publish the now-registered-and-confirmed user to all the team members
 		await this.publishUserToTeams();
+		
+		// the confirm-helper might have its own post-request processing...
+		await this.helper.postProcess();
 	}
 
 	// publish the now-registered-and-confirmed user to all the team members,
