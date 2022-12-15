@@ -60,6 +60,7 @@ class NewRelicAuthorizer {
 			this.checkResponse = {
 				needNRToken: true
 			};
+			return;
 		}
 
 		// instantiate graphQL client
@@ -222,6 +223,10 @@ class NewRelicAuthorizer {
 	// determine when an NR account has the "unlimited_consumption" entitlement,
 	// used to determine, in part, whether its org is "codestream only"
 	async nrOrgHasUnlimitedConsumptionEntitlement (accountId, options = {}) {
+		if (this.checkResponse) {
+			return false; // without a proper key to access the organization entitlements, assume it does NOT have them
+		}
+		
 		let response;
 		if (options.mockResponse) {
 			response = {

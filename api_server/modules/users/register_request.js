@@ -76,7 +76,7 @@ class RegisterRequest extends RestfulRequest {
 					string: ['email', 'password', 'username']
 				},
 				optional: {
-					string: ['fullName', 'timeZone', 'companyName', '_pubnubUuid'],
+					string: ['fullName', 'timeZone', 'companyName', 'joinCompanyId', 'originalEmail', '_pubnubUuid'],
 					number: ['timeout', 'reuseTimeout'],
 					object: ['preferences']
 				}
@@ -106,7 +106,8 @@ class RegisterRequest extends RestfulRequest {
 		// find any registered user (which triggers an already-registered email),
 		// or any unregistered user that has not been invited to a team
 		// exception: if the user has companyName, they are in the process of creating a new org,
-		// and we allow to proceed
+		// or: if the user has joinCompanyId, they are in the process of joining an org,
+		// then we allow to proceed
 		const matchingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: this.request.body.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
@@ -117,7 +118,11 @@ class RegisterRequest extends RestfulRequest {
 		matchingUsers.find(user => {
 			if (user.get('deactivated')) {
 				return false;
-			} else if (user.get('isRegistered') && !this.request.body.companyName) {
+			} else if (
+				user.get('isRegistered') &&
+				!this.request.body.companyName &&
+				!this.request.body.joinCompanyId
+			) {
 				registeredUser = user;
 			} else if (!user.get('isRegistered') && (user.get('teamIds') || []).length === 0) {
 				uninvitedUser = user;
