@@ -277,6 +277,32 @@ class NewRelicAuthorizer {
 		);
 	}
 
+	// delete the given user
+	async deleteUser (id, options = {}) {
+		let response;
+		if (options.mockResponse) {
+			response = {
+				userManagementDeleteUser: {
+					deletedUser: {
+						id: "1000064621"
+					}
+				}
+	  		};
+		} else {
+			const mutation = gql`
+mutation {
+	userManagementDeleteUser(deleteUserOptions: {id: "${id}"}) {
+		deletedUser {
+			id
+		}
+	}
+}`;
+
+			response = await this.client.request(mutation, { id });
+		}
+		return;
+	}
+
 	// parse the account ID out from the error group guid
 	accountIdFromErrorGroupGuid (guid) {
 		const parsed = Buffer.from(guid, "base64").toString("utf-8");

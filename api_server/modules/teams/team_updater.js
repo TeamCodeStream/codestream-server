@@ -189,6 +189,11 @@ class TeamUpdater extends ModelUpdater {
 
 	// for a user being removed from the team, update their teamIds array
 	async removeUserFromTeam (user) {
+		// first remove the user from New Relic, if this fails, we don't want to proceed
+		if (this.api.services.idp && user.get('nrUserId')) {
+			await this.api.services.idp.deleteUser(user.get('nrUserId'), this.team.id, { request: this.request });
+		}
+
 		const originalEmail = user.get('email');
 		const op = {
 			$pull: {
