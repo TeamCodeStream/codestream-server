@@ -203,6 +203,15 @@ class NewRelicIDP extends APIServerModule {
 		);
 	}
 
+	async deleteUser (id, codestreamTeamId, options = {}) {
+		// use the NewRelicAuthorizer, which makes a graphql call to delete the user
+		await new NewRelicAuthorizer({
+			graphQLHost: SERVICE_HOSTS['graphql'],
+			request: options.request,
+			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
+		}).deleteUser(id, options);
+	}
+
 	// determine whether an NR org qualifies as "codestream only"
 	// currently, we need to examine whether it has the unlimited_consumption entitlement
 	async isNROrgCodeStreamOnly (nrOrgId, codestreamTeamId, options = {}) {
