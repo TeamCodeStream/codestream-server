@@ -19,6 +19,7 @@ Commander
 	.option('--org-name <id>', 'Update the attributes of the org, given its ID')
 	.option('--data <data>', 'The data to use when updating user attributes, in json')
 	.option('--name <name>', 'The name to use when updating an org name, in json')
+	.option('--delete <id>', 'Delete the user given by ID')
 	.parse(process.argv);
 
 (async function() {
@@ -47,6 +48,8 @@ Commander
 			response = await idp.updateUser(Commander.update, json);
 		} else if (Commander.orgName && Commander.name) {
 			response = await idp.changeOrgName(Commander.orgName, Commander.name);
+		} else if (Commander.delete) {
+			response = await idp.deleteUser(Commander.delete);
 		}
 		console.log(JSON.stringify(response && response.data, undefined, 5));
 	}
