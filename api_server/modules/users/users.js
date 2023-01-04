@@ -177,6 +177,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'decline-invite/:id',
 		requestClass: require('./decline_invite_request')
+	},
+	{
+		method: 'put',
+		path: 'logout',
+		requestClass: require('./logout_request')
 	}
 ];
 

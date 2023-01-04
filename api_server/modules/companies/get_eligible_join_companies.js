@@ -52,7 +52,10 @@ const _getEligibleJoinCompaniesByInvite = async (email, request) => {
 	// each user record should, in theory, have only one company
 	const companies = [];
 	await Promise.all(users.map(async user => {
-		if (!user.externalUserId) {  // suppress "faux" users, i.e., users created by virtue of a slack reply
+		// suppress "faux" users, i.e., users created by virtue of a slack reply, and registered users with
+		// no access token, which indicates a revoked token by virtue of logging out
+		const revokedToken = user.isRegistered && !((user.accessTokens || {}).web || {}).token;
+		if (!revokedToken && !user.externalUserId) {
 			const companiesByUser = await _getEligibleJoinCompaniesByUserInvite(user, request);
 			companies.push.apply(companies, companiesByUser.map(company => { 
 				return { company, user };
