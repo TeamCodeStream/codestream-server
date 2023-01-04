@@ -33,6 +33,23 @@ class CompanyUpdater extends ModelUpdater {
 	validateAttributes () {
 		return CompanyValidations.validateAttributes(this.attributes);
 	}
+
+	// before the actual save
+	async preSave () {
+		// if changing name, change on New Relic IDP as well
+		if (
+			this.attributes.name &&
+			this.request.api.services.idp &&
+			this.request.company.get('linkedNROrgId')
+		) {
+			await this.request.api.services.idp.changeOrgName(
+				this.request.company.get('linkedNROrgId'),
+				this.attributes.name,
+				{ request: this.request }
+			);
+		}
+		return super.preSave();
+	}
 }
 
 module.exports = CompanyUpdater;
