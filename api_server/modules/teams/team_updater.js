@@ -191,7 +191,12 @@ class TeamUpdater extends ModelUpdater {
 	async removeUserFromTeam (user) {
 		// first remove the user from New Relic, if this fails, we don't want to proceed
 		if (this.api.services.idp && user.get('nrUserId')) {
-			await this.api.services.idp.deleteUser(user.get('nrUserId'), this.team.id, { request: this.request });
+			let mockResponse;
+			if (this.request.request.headers['x-cs-no-newrelic']) {
+				mockResponse = true;
+				this.request.log('NOTE: not removing user on New Relic, sending mock response instead');
+			}
+			await this.api.services.idp.deleteUser(user.get('nrUserId'), this.team.id, { request: this.request, mockResponse });
 		}
 
 		const originalEmail = user.get('email');

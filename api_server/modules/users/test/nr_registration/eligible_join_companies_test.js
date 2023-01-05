@@ -45,10 +45,6 @@ class EligibleJoinCompaniesTest extends NRRegistrationTest {
 					domainJoining: [
 						this.companyFactory.randomDomain(),
 						domain
-					],
-					codeHostJoining: [
-						`github.com/${RandomString.generate(10)}`,
-						`gitlab.com/${RandomString.generate(10)}`
 					]
 				},
 				token: this.users[1].accessToken
@@ -64,7 +60,6 @@ class EligibleJoinCompaniesTest extends NRRegistrationTest {
 						teamId: response.company.everyoneTeamId,
 						byDomain: domain.toLowerCase(),
 						domainJoining: response.company.domainJoining,
-						codeHostJoining: response.company.codeHostJoining,
 						memberCount: 1
 					});
 					callback();
@@ -89,7 +84,6 @@ class EligibleJoinCompaniesTest extends NRRegistrationTest {
 				teamId: company.everyoneTeamId,
 				byDomain: domain.toLowerCase(),
 				domainJoining: company.domainJoining,
-				codeHostJoining: company.codeHostJoining,
 				memberCount: 1
 			});
 			callback();

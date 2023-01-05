@@ -59,7 +59,8 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				name: this.currentUser.user.fullName,
 				'Join Method': 'Created Team',
 				distinct_id: this.currentUser.user.id,
-				'Email Type': 'Reminder'
+				'Email Type': 'Reminder',
+				'NR User ID': this.currentUser.user.nrUserId
 			}
 		};
 		Assert.deepStrictEqual(data, expectedMessage, 'tracking data not correct');

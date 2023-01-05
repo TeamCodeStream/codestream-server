@@ -352,6 +352,8 @@ class NewRelicIDP extends APIServerModule {
 			let match;
 			if ((match = path.match(/^\/v0\/organizations\/(.+)$/)) && method === 'get') {
 				return this._getMockOrgResponse(match[1]);
+			} else if ((match = path.match(/^\/v0\/organizations\/(.+)$/)) && method === 'patch') {
+				return this._getMockOrgPatchResponse(match[1]);
 			}
 		}
 		 
@@ -470,6 +472,11 @@ class NewRelicIDP extends APIServerModule {
 				}
 			}
 		}
+	}
+
+	_getMockOrgPatchResponse (orgId) {
+		// for now, just return nothing
+		return {};
 	}
 
 	_throw (type, message, options = {}) {
