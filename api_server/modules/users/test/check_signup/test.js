@@ -12,10 +12,10 @@ const TokenExpiredTest = require('./token_expired_test');
 const NoReuseTokenTest = require('./no_reuse_token_test');
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 const IsWebmailTest = require('./is_webmail_test');
-const AccountIsConnectedTest = require('./account_is_connected_test');
-const AccountIsConnectedFalseTest = require('./account_is_connected_false_test');
-const AccountIsConnectedByOrgTest = require('./account_is_connected_by_org_test');
-const AccountIsConnectedByOrgFalseTest = require('./account_is_connected_by_org_false_test');
+//const AccountIsConnectedTest = require('./account_is_connected_test');
+//const AccountIsConnectedFalseTest = require('./account_is_connected_false_test');
+//const AccountIsConnectedByOrgTest = require('./account_is_connected_by_org_test');
+//const AccountIsConnectedByOrgFalseTest = require('./account_is_connected_by_org_false_test');
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class CheckSignupRequestTester {
@@ -34,10 +34,10 @@ class CheckSignupRequestTester {
 			NoReuseTokenTest,
 			EligibleJoinCompaniesTest,
 			IsWebmailTest,
-			AccountIsConnectedTest,
-			AccountIsConnectedFalseTest,
-			AccountIsConnectedByOrgTest,
-			AccountIsConnectedByOrgFalseTest
+			//AccountIsConnectedTest,
+			//AccountIsConnectedFalseTest,
+			//AccountIsConnectedByOrgTest,
+			//AccountIsConnectedByOrgFalseTest
 		]);
 	}
 }

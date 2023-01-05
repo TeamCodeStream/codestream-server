@@ -147,7 +147,7 @@ class JoinCompanyHelper {
 			}
 		});
 		return new UserCreator({ 
-			request: this,
+			request: this.request,
 			force: true
 		}).createUser(userData);
 	}
