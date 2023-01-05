@@ -153,6 +153,9 @@ class TestTeamCreator {
 						teamIds: this.team.id,
 						companyIds: this.company.id
 					});
+					if (response.user && response.user.$set && response.user.$set.nrUserId) {
+						this.users[this.teamOptions.creatorIndex].user.nrUserId = response.user.$set.nrUserId;
+					}
 				}
 				callback();
 			},

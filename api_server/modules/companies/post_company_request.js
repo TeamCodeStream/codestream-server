@@ -45,6 +45,14 @@ class PostCompanyRequest extends PostRequest {
 				]
 			}
 		}
+
+		if (this.transforms.userUpdate) {
+			this.responseData.user = this.transforms.userUpdate;
+			if (this.responseData.user.$set) {
+				delete this.responseData.user.$set.nrUserInfo;
+			}
+		}
+
 		return super.handleResponse();
 	}
 

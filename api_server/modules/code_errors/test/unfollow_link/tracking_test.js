@@ -84,7 +84,9 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					return `${key}|${this.testGroupData[key]}`;
 				}),
 				'CodeStream Only': true,
-				'Org Origination': 'CS'
+				'Org Origination': 'CS',
+				'NR User ID': this.currentUser.user.nrUserId,
+				'NR Organization ID': this.company.linkedNROrgId
 			}
 		};
 		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {

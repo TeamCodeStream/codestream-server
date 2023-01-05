@@ -42,10 +42,16 @@ class CompanyUpdater extends ModelUpdater {
 			this.request.api.services.idp &&
 			this.request.company.get('linkedNROrgId')
 		) {
+			let mockResponse;
+			if (this.request.request.headers['x-cs-no-newrelic']) {
+				mockResponse = true;
+				this.request.log('NOTE: not changing org name on New Relic, sending mock response instead');
+			}
+		
 			await this.request.api.services.idp.changeOrgName(
 				this.request.company.get('linkedNROrgId'),
 				this.attributes.name,
-				{ request: this.request }
+				{ request: this.request, mockResponse }
 			);
 		}
 		return super.preSave();
