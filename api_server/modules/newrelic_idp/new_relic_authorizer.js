@@ -35,11 +35,7 @@ class NewRelicAuthorizer {
 				this.checkResponse = true;
 				return;
 			}
-		} else if (headers['x-cs-no-newrelic']) {
-			this.request.warn('No New Relic specified in request, not making graphql client');
-			return;
-		}
-
+		} 
 		// get the user's NR access token, non-starter if no access token
 		const { user } = this.request;
 		const token = (
@@ -60,6 +56,11 @@ class NewRelicAuthorizer {
 			this.checkResponse = {
 				needNRToken: true
 			};
+			return;
+		}
+
+		if (headers['x-cs-no-newrelic']) {
+			this.request.warn('No New Relic specified in request, not making graphql client');
 			return;
 		}
 
@@ -223,10 +224,6 @@ class NewRelicAuthorizer {
 	// determine when an NR account has the "unlimited_consumption" entitlement,
 	// used to determine, in part, whether its org is "codestream only"
 	async nrOrgHasUnlimitedConsumptionEntitlement (accountId, options = {}) {
-		if (this.checkResponse) {
-			return false; // without a proper key to access the organization entitlements, assume it does NOT have them
-		}
-		
 		let response;
 		if (options.mockResponse) {
 			response = {
@@ -287,7 +284,7 @@ class NewRelicAuthorizer {
 			response = {
 				userManagementDeleteUser: {
 					deletedUser: {
-						id: "1000064621"
+						id: `${id}`
 					}
 				}
 	  		};

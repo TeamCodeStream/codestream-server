@@ -59,7 +59,8 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				name: this.currentUser.user.fullName,
 				'Join Method': 'Created Team',
 				distinct_id: this.currentUser.user.id,
-				'Email Type': 'Weekly Activity'
+				'Email Type': 'Weekly Activity',
+				'NR User ID': this.currentUser.user.nrUserId
 			}
 		};
 		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
