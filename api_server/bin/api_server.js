@@ -38,7 +38,8 @@ const DataCollections = {
 	msteams_conversations: require(ModuleDirectory + '/msteams_conversations/msteams_conversation'),
 	msteams_states: require(ModuleDirectory + '/msteams_states/msteams_state'),
 	msteams_teams: require(ModuleDirectory + '/msteams_teams/msteams_team'),
-	reposByCommitHash: require(ModuleDirectory + '/repos/repo_by_commit_hash')
+	reposByCommitHash: require(ModuleDirectory + '/repos/repo_by_commit_hash'),
+	demoTemplates: require(ModuleDirectory + '/demo_templates/demo_template')
 };
 
 // establish our mongo collections, these include our DataCollections, but 
@@ -55,7 +56,8 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'reinviteUsersLastRunAt',
 	'activeServerAlerts',
 	'globals',
-	'newRelicOrgs'
+	'newRelicOrgs',
+	'demoTemplates'
 ]);
 
 

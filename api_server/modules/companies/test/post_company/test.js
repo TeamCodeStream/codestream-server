@@ -12,6 +12,7 @@ const SubscriptionTest = require('./subscription_test');
 const LoginTest = require('./login_test');
 const FirstCompanyOneUserPerOrgTest = require('./first_company_one_user_per_org_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
+const DemoOrgTest = require('./demo_org_test');
 
 class PostCompanyRequestTester {
 
@@ -27,6 +28,7 @@ class PostCompanyRequestTester {
 		new LoginTest().test();
 		new FirstCompanyOneUserPerOrgTest().test();
 		new ClearFirstSessionTest().test();
+		new DemoOrgTest().test();
 		// TODO: wrong type validations
 	}
 }

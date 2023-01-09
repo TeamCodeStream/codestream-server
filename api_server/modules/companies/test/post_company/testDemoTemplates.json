@@ -1,0 +1,662 @@
+[{
+  "name": "Demo1",
+  "documents": {
+    "companies": [
+      {
+        "_id": "63b5a5bd2e2b955cfb19b705",
+        "version": 1,
+        "deactivated": false,
+        "createdAt": {
+          "$numberLong": "1672848829019"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848829272"
+        },
+        "name": "Demo1",
+        "creatorId": "636c5273a690126e0febde2f",
+        "hasBeenMigratedToCompanyCentric": true,
+        "everyoneTeamId": "63b5a5bd2e2b955cfb19b707",
+        "teamIds": [
+          "63b5a5bd2e2b955cfb19b707"
+        ],
+        "plan": "FREEPLAN"
+      }
+    ],
+    "teams": [
+      {
+        "_id": "63b5a5bd2e2b955cfb19b707",
+        "version": 1,
+        "deactivated": false,
+        "createdAt": {
+          "$numberLong": "1672848829021"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848829032"
+        },
+        "companyId": "63b5a5bd2e2b955cfb19b705",
+        "name": "Everyone",
+        "isEveryoneTeam": true,
+        "creatorId": "63b5a5bd2e2b955cfb19b706",
+        "memberIds": [
+          "63b5a5bd2e2b955cfb19b706"
+        ],
+        "adminIds": [
+          "63b5a5bd2e2b955cfb19b706"
+        ],
+        "tags": {
+          "_blue": {
+            "color": "blue",
+            "sortOrder": 1000
+          },
+          "_green": {
+            "color": "green",
+            "sortOrder": 2000
+          },
+          "_yellow": {
+            "color": "yellow",
+            "sortOrder": 3000
+          },
+          "_orange": {
+            "color": "orange",
+            "sortOrder": 4000
+          },
+          "_red": {
+            "color": "red",
+            "sortOrder": 5000
+          },
+          "_purple": {
+            "color": "purple",
+            "sortOrder": 6000
+          },
+          "_aqua": {
+            "color": "aqua",
+            "sortOrder": 7000
+          },
+          "_gray": {
+            "color": "gray",
+            "sortOrder": 8000
+          }
+        },
+        "primaryReferral": "internal",
+        "removedMemberIds": [],
+        "foreignMemberIds": [],
+        "lastPostCreatedAt": {
+          "$numberLong": "1672848982136"
+        }
+      }
+    ],
+    "users": [
+      {
+        "_id": "63b5a5bd2e2b955cfb19b706",
+        "version": 14,
+        "deactivated": false,
+        "phoneNumber": "",
+        "iWorkOn": "",
+        "providerIdentities": [],
+        "createdAt": {
+          "$numberLong": "1672848829020"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848985134"
+        },
+        "lastReads": {},
+        "copiedFromUserId": "636c5273a690126e0febde2f",
+        "email": "dsellars@newrelic.com",
+        "username": "dsellars",
+        "passwordHash": "$2b$10$nnJVd69vWdMqCiKkpXALBe0O0v2HWlZhrj1ZHsHLrSGxlUPFsakjS",
+        "preferences": {
+          "acceptedTOS": true,
+          "skipGitEmailCheck": true,
+          "observabilityRepoEntities": [
+            {
+              "repoId": "63755f915084101b5ff7be88",
+              "entityGuid": "MXxBUE18QVBQTElDQVRJT058MTE0Njk5Njk"
+            },
+            {
+              "repoId": "63757ab48b90c413315eea85",
+              "entityGuid": "MTAxMDAyNjh8QVBNfEFQUExJQ0FUSU9OfDIwNDIwMzA5"
+            },
+            {
+              "repoId": "6399094f2859441011be35dd",
+              "entityGuid": "MTA2NzEyODl8QVBNfEFQUExJQ0FUSU9OfDc5ODY4MTI"
+            }
+          ],
+          "sidebarPanes": {
+            "observability": {
+              "size": 1.6,
+              "collapsed": true,
+              "maximized": false
+            },
+            "open-pull-requests": {
+              "size": 1.1200000000000003,
+              "collapsed": true,
+              "removed": false,
+              "maximized": false
+            },
+            "open-reviews": {
+              "collapsed": false,
+              "size": 0.28
+            },
+            "codemarks-for-file": {
+              "collapsed": false
+            },
+            "tasks": {
+              "collapsed": true,
+              "maximized": false
+            },
+            "ci-cd": {
+              "collapsed": true
+            }
+          },
+          "hideCodeErrorInstructions": true,
+          "codemarkDomain": "repo",
+          "636c5289a690126e0febde31": {
+            "shareCodemarkEnabled": false
+          },
+          "issueReposDefaultBranch": {
+            "63703a6f86ad99ce5faa9a9e": "develop",
+            "637304e5ca38e508de36a93a": "main",
+            "6399094f2859441011be35dd": "master"
+          },
+          "activeO11y": {
+            "6399094f2859441011be35dd": "MTA2NzEyODl8QVBNfEFQUExJQ0FUSU9OfDEwOTU0ODI5",
+            "63757ab48b90c413315eea85": "MTAxMDAyNjh8QVBNfEFQUExJQ0FUSU9OfDIwNDE5OTky",
+            "63703a6f86ad99ce5faa9a9e": "MTExODkwMzh8QVBNfEFQUExJQ0FUSU9OfDIyNDIxODA5",
+            "6376465c6a04168fdf1c9278": "MXxBUE18QVBQTElDQVRJT058MjIyMDY5ODQ",
+            "639b49d4b7c1b68df52cc279": "MXxBUE18QVBQTElDQVRJT058MzI5MzIyMDM"
+          },
+          "hiddenPaneNodes": {
+            "0newrelic-errors-in-repo-63755f915084101b5ff7be88": false
+          },
+          "pullRequestQueries": {
+            "github*com": [
+              {
+                "providerId": "github*com",
+                "name": "Waiting on my Review",
+                "query": "is:pr is:open involves:@me",
+                "hidden": true
+              },
+              {
+                "providerId": "github*com",
+                "name": "Assigned to Me",
+                "query": "is:pr is:open assignee:@me",
+                "hidden": false
+              },
+              {
+                "providerId": "github*com",
+                "name": "Created by Me",
+                "query": "is:pr is:open author:@me",
+                "hidden": false
+              },
+              {
+                "providerId": "github*com",
+                "name": "Recent",
+                "query": "recent",
+                "hidden": false
+              }
+            ]
+          },
+          "lastTeamId": "63b5a5bd2e2b955cfb19b707",
+          "63b5a5bd2e2b955cfb19b707": {
+            "shareCodemarkEnabled": false
+          }
+        },
+        "timeZone": "America/New_York",
+        "providerInfo": {
+          "636c5289a690126e0febde31": {
+            "github": {
+              "accessToken": "---",
+              "data": {
+                "token_type": "bearer",
+                "scope": "notifications,read:user,repo,user:email"
+              }
+            },
+            "newrelic": {
+              "accessToken": "---",
+              "isApiToken": true,
+              "pendingVerification": false,
+              "data": {
+                "userId": 2314107,
+                "orgIds": []
+              }
+            },
+            "jira": {
+              "accessToken": "---",
+              "data": {
+                "expires_in": 3600,
+                "token_type": "Bearer",
+                "scope": "offline_access read:jira-user read:jira-work write:jira-work"
+              },
+              "expiresAt": {
+                "$numberLong": "1672852373849"
+              },
+              "refreshToken": "---"
+            }
+          }
+        },
+        "originUserId": "636c5273a690126e0febde2f",
+        "creatorId": "636c5273a690126e0febde2f",
+        "searchableEmail": "dsellars@newrelic.com",
+        "isRegistered": true,
+        "registeredAt": {
+          "$numberLong": "1672848829030"
+        },
+        "accessTokens": {
+          "web": {
+            "token": "---",
+            "minIssuance": {
+              "$numberLong": "1672848829000"
+            }
+          }
+        },
+        "pubNubToken": "---",
+        "broadcasterToken": "---",
+        "companyIds": [
+          "63b5a5bd2e2b955cfb19b705"
+        ],
+        "teamIds": [
+          "63b5a5bd2e2b955cfb19b707"
+        ],
+        "joinMethod": "Added to Team",
+        "primaryReferral": "internal",
+        "lastLogin": {
+          "$numberLong": "1672848836472"
+        },
+        "lastOrigin": "JetBrains",
+        "lastOriginDetail": "IntelliJ IDEA Ultimate Edition",
+        "lastPostCreatedAt": {
+          "$numberLong": "1672848982136"
+        },
+        "totalPosts": 2,
+        "totalReviews": 1
+      }
+    ],
+    "reposByCommitHash": [],
+    "codeErrors": [],
+    "codemarkLinks": [
+      {
+        "_id": "642e565b39dd4371878963cb2cde8ef6",
+        "codemarkId": "63b5a6562e2b955cfb19b70d",
+        "md5Hash": "c0a9fda79bdcd954cd90bafff00d0c46",
+        "teamId": "63b5a5bd2e2b955cfb19b707"
+      },
+      {
+        "_id": "ca8125fb5fa245f48ac98eb847fc7c36",
+        "md5Hash": "7570a0c905501f7092e9868b5fc401a6",
+        "reviewId": "63b5a63c2e2b955cfb19b70b",
+        "teamId": "63b5a5bd2e2b955cfb19b707"
+      }
+    ],
+    "codemarks": [
+      {
+        "_id": "63b5a6562e2b955cfb19b70d",
+        "version": 1,
+        "deactivated": false,
+        "streamId": "63b5a5bd2e2b955cfb19b708",
+        "postId": "63b5a6562e2b955cfb19b70c",
+        "numReplies": 0,
+        "pinned": true,
+        "createdAt": {
+          "$numberLong": "1672848982142"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848982142"
+        },
+        "text": "is this good?",
+        "type": "comment",
+        "title": "",
+        "tags": [],
+        "relatedCodemarkIds": [],
+        "remoteCodeUrl": {
+          "name": "github",
+          "url": "https://github.com/teamcodestream/spring-petclinic/blob/a4e4f7d7f2607c165ec1484b34b7f3b770188507/src/main/java/org/springframework/samples/petclinic/clm/ClmController.java#L37"
+        },
+        "teamId": "63b5a5bd2e2b955cfb19b707",
+        "origin": "JetBrains",
+        "originDetail": "IntelliJ IDEA Ultimate Edition",
+        "creatorId": "63b5a5bd2e2b955cfb19b706",
+        "markerIds": [
+          "63b5a6562e2b955cfb19b70e"
+        ],
+        "fileStreamIds": [
+          "63b5a6562e2b955cfb19b70f"
+        ],
+        "followerIds": [
+          "63b5a5bd2e2b955cfb19b706"
+        ],
+        "permalink": "https://localhost.codestream.us:12079/c/Y7WlvS4rlVz7GbcH/ZC5WWzndQ3GHiWPLLN6O9g",
+        "lastActivityAt": {
+          "$numberLong": "1672848982142"
+        }
+      }
+    ],
+    "markerLocations": [
+      {
+        "_id": "63b5a6562e2b955cfb19b70f|a4e4f7d7f2607c165ec1484b34b7f3b770188507",
+        "locations": {
+          "63b5a6562e2b955cfb19b70e": [
+            37,
+            3,
+            37,
+            94,
+            {}
+          ]
+        },
+        "teamId": "63b5a5bd2e2b955cfb19b707"
+      },
+      {
+        "_id": "63b5a6562e2b955cfb19b70f|52ed2a2fe29ea998e44f585f5ea77a88a9f4aec6",
+        "locations": {
+          "63b5a6562e2b955cfb19b70e": [
+            34,
+            3,
+            34,
+            94,
+            {
+              "contentChanged": true
+            }
+          ]
+        },
+        "teamId": "63b5a5bd2e2b955cfb19b707"
+      }
+    ],
+    "markers": [
+      {
+        "_id": "63b5a6562e2b955cfb19b70e",
+        "version": 1,
+        "deactivated": false,
+        "createdAt": {
+          "$numberLong": "1672848982141"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848982141"
+        },
+        "code": "setMessage(model, \"Java/org.springframework.samples.petclinic.clm.ClmController/autoOnly\");",
+        "branchWhenCreated": "main",
+        "remoteCodeUrl": {
+          "name": "github",
+          "url": "https://github.com/teamcodestream/spring-petclinic/blob/a4e4f7d7f2607c165ec1484b34b7f3b770188507/src/main/java/org/springframework/samples/petclinic/clm/ClmController.java#L37"
+        },
+        "file": "src/main/java/org/springframework/samples/petclinic/clm/ClmController.java",
+        "repoId": "63b5a5c42e2b955cfb19b709",
+        "teamId": "63b5a5bd2e2b955cfb19b707",
+        "postStreamId": "63b5a5bd2e2b955cfb19b708",
+        "postId": "63b5a6562e2b955cfb19b70c",
+        "commitHashWhenCreated": "a4e4f7d7f2607c165ec1484b34b7f3b770188507",
+        "creatorId": "63b5a5bd2e2b955cfb19b706",
+        "referenceLocations": [
+          {
+            "location": [
+              37,
+              3,
+              37,
+              94,
+              {}
+            ],
+            "commitHash": "a4e4f7d7f2607c165ec1484b34b7f3b770188507",
+            "flags": {
+              "canonical": true
+            }
+          },
+          {
+            "location": [
+              34,
+              3,
+              34,
+              94,
+              {
+                "contentChanged": true
+              }
+            ],
+            "commitHash": "52ed2a2fe29ea998e44f585f5ea77a88a9f4aec6",
+            "flags": {
+              "backtracked": true
+            }
+          }
+        ],
+        "codemarkId": "63b5a6562e2b955cfb19b70d",
+        "repo": "github.com/teamcodestream/spring-petclinic",
+        "remotesWhenCreated": [
+          "github.com/teamcodestream/spring-petclinic",
+          "source.datanerd.us/codestream/clm-java-spring-petclinic"
+        ],
+        "fileStreamId": "63b5a6562e2b955cfb19b70f"
+      }
+    ],
+    "posts": [
+      {
+        "_id": "63b5a6562e2b955cfb19b70c",
+        "version": 1,
+        "deactivated": false,
+        "numReplies": 0,
+        "reactions": {},
+        "shareIdentifiers": [],
+        "createdAt": {
+          "$numberLong": "1672848982136"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848982143"
+        },
+        "text": "is this ok?",
+        "streamId": "63b5a5bd2e2b955cfb19b708",
+        "mentionedUserIds": [],
+        "files": [],
+        "teamId": "63b5a5bd2e2b955cfb19b707",
+        "origin": "JetBrains",
+        "originDetail": "IntelliJ IDEA Ultimate Edition",
+        "creatorId": "63b5a5bd2e2b955cfb19b706",
+        "codemarkId": "63b5a6562e2b955cfb19b70d",
+        "seqNum": 2
+      },
+      {
+        "_id": "63b5a63c2e2b955cfb19b70a",
+        "version": 1,
+        "deactivated": false,
+        "numReplies": 0,
+        "reactions": {},
+        "shareIdentifiers": [],
+        "createdAt": {
+          "$numberLong": "1672848956138"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848956142"
+        },
+        "text": "Sample FR",
+        "streamId": "63b5a5bd2e2b955cfb19b708",
+        "mentionedUserIds": [],
+        "files": [],
+        "teamId": "63b5a5bd2e2b955cfb19b707",
+        "origin": "JetBrains",
+        "originDetail": "IntelliJ IDEA Ultimate Edition",
+        "creatorId": "63b5a5bd2e2b955cfb19b706",
+        "reviewId": "63b5a63c2e2b955cfb19b70b",
+        "seqNum": 1
+      }
+    ],
+    "repos": [
+      {
+        "_id": "63b5a5c42e2b955cfb19b709",
+        "version": 1,
+        "deactivated": false,
+        "createdAt": {
+          "$numberLong": "1672848836732"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848836732"
+        },
+        "remotes": [
+          {
+            "url": "github.com/teamcodestream/spring-petclinic",
+            "normalizedUrl": "github.com/teamcodestream/spring-petclinic",
+            "companyIdentifier": "github.com/teamcodestream"
+          },
+          {
+            "url": "source.datanerd.us/codestream/clm-java-spring-petclinic",
+            "normalizedUrl": "source.datanerd.us/codestream/clm-java-spring-petclinic",
+            "companyIdentifier": "datanerd.us"
+          }
+        ],
+        "knownCommitHashes": [
+          "a4e4f7d7f2607c165ec1484b34b7f3b770188507",
+          "505bf220a4d53a50ad5026f2403795987b122a72",
+          "50803e26a9ba225a7b3c564e1e864b4ed2bb3757",
+          "2987daae6ded95448f09db697f1dad74f2c14470",
+          "0b999b337dd58ad9aea9e04784b661c2994fcd00",
+          "d5cf15107a3dc797354e5d3c353a846f377a64a1",
+          "556824d7c7f31405deb6ba7bc066cf957eed0be5",
+          "7ff5e857fdb41a9f3e012c56390c2baa1f8b0f3e",
+          "f09d67cc1c216b445d01f1893f37ff391bb3b4b7",
+          "349fdef18bcf688709f19097c140c69724905768",
+          "1ada19e818c07b501d43d5da9f5259a0b49a647f",
+          "2987daae6ded95448f09db697f1dad74f2c14470",
+          "a4e4f7d7f2607c165ec1484b34b7f3b770188507"
+        ],
+        "teamId": "63b5a5bd2e2b955cfb19b707",
+        "creatorId": "63b5a5bd2e2b955cfb19b706",
+        "name": "spring-petclinic"
+      }
+    ],
+    "reviews": [
+      {
+        "_id": "63b5a63c2e2b955cfb19b70b",
+        "version": 1,
+        "deactivated": false,
+        "streamId": "63b5a5bd2e2b955cfb19b708",
+        "postId": "63b5a63c2e2b955cfb19b70a",
+        "numReplies": 0,
+        "createdAt": {
+          "$numberLong": "1672848956141"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848956141"
+        },
+        "title": "Sample FR",
+        "text": "Update timeout",
+        "reviewers": [],
+        "allReviewersMustApprove": false,
+        "authorsById": {},
+        "tags": [],
+        "status": "open",
+        "entryPoint": "Feedback Requests Section",
+        "reviewChangesets": [
+          {
+            "repoId": "63b5a5c42e2b955cfb19b709",
+            "branch": "main",
+            "commits": [],
+            "modifiedFiles": [
+              {
+                "linesAdded": 1,
+                "linesRemoved": 1,
+                "oldFile": "src/main/java/org/springframework/samples/petclinic/api/client/CatFactClient.java",
+                "file": "src/main/java/org/springframework/samples/petclinic/api/client/CatFactClient.java",
+                "status": "M",
+                "statusY": "M"
+              }
+            ],
+            "modifiedFilesInCheckpoint": [
+              {
+                "linesAdded": 1,
+                "linesRemoved": 1,
+                "oldFile": "src/main/java/org/springframework/samples/petclinic/api/client/CatFactClient.java",
+                "file": "src/main/java/org/springframework/samples/petclinic/api/client/CatFactClient.java",
+                "status": "M",
+                "statusY": "M"
+              }
+            ],
+            "includeSaved": true,
+            "includeStaged": false,
+            "checkpoint": 0
+          }
+        ],
+        "teamId": "63b5a5bd2e2b955cfb19b707",
+        "origin": "JetBrains",
+        "originDetail": "IntelliJ IDEA Ultimate Edition",
+        "creatorId": "63b5a5bd2e2b955cfb19b706",
+        "reviewDiffs": {
+          "63b5a5c42e2b955cfb19b709": {
+            "leftBaseAuthor": "Dillon Sellars",
+            "leftBaseSha": "2987daae6ded95448f09db697f1dad74f2c14470",
+            "leftDiffsCompressed": "NoXSA===",
+            "rightBaseAuthor": "Dillon Sellars",
+            "rightBaseSha": "2987daae6ded95448f09db697f1dad74f2c14470",
+            "rightDiffsCompressed": "NobwRA9gNgJgYgSygUwHIEMC2ywC4wDOATgMYD0m6CAdmQFboBu6ZERA5mQQA5E3sAzIlmQB3NgGsuWbigJluyAC4koNBOXTcEZVQmTUlZAMLolcdCSXG1BpQDoGzMABpIsABLJ0MZETxgrmDUYogoGNgBxOSUNPRMLGycPHzUgsLY4kRSBDJyCsp61BpkWjp6diZmFlY2+oaOCUEhol4+fgFBABYArtQSBHig7jAAykroREp4AEwzbtAwADI0yIO4AOxuLeOT07hz22IrIetbYGqnQ2AABEE3ADpKAAIAKsIkOG6PStw9AEZqEg3UzmSxKG4CQpdUE1JQACgAlDdwG4ALRPJ4wCAAdSoCIArAAGREAbiCAGpMUpsXiEAiAGwk8nfalKIgATxu8JsEAI3kByA8Sl+dTsNy6Iu4YsMNwAvDdhaLbIYCPYSERvEpkAARZACdA9KAIxHI1G3alPJXcADiyhu7HtCpaiqldoRDzAkt+BFwZF0ZgNVnsxWoDDIQaUnrJ90tIs53N5/PQgutACU1twINR+TdNTxs7mFd7pSqHMgAB7IEg9bXwx1KU0osAAXTcl2QvjUmHpfnWwDAD2oQSHI+HblHE/Hg+nk5nrYAvi2l0A",
+            "rightReverseDiffsCompressed": "NobwRA9gNgJgYgSygUwHIEMC2ywC4wDOATgMYD0m6CAdmQFboBu6ZERA5mQQA5E3sAzIlmQB3NgGsuWbigJluyAC4koNBOXTcEZVQmTUlZAMLolcdCSXG1BpQDoGzMABpIsABLJ0MZETxgrmDUYogoGNgBxOSUNPRMLGycPHzUgsLY4kRSBDJyCsp61BpkWjp6diZmFlY2+oaOCUEhol4+fgFBABYArtQSBHig7jAAykroREp4AEwzbtAwADI0yIO4AOxuLeOT07hz22IrIetbYGqnQ2AABEE3ADpKAAIAKsIkOG6PStw9AEZqEg3UzmSxKG4CQpdUE1JQACgAlDdwG4ALRPJ4wCAAdSoCIAbAAGREAbiCAGpMUpsXiEAiAKwk8nfalKIgATxu8JsEAI3kByA8Sl+dTsNy6Iu4YsMNwAvDdhaLbIYCPYSERvEpkAARZACdA9KAIxHI1G3alPJXcADiyhu7HtCpaiqldoRDzAkt+BFwZF0ZgNVnsxWoDDIQaUnrJ90tIs53N5/PQgutACU1twINR+TdNTxs7mFd7pSqHMgAB7IEg9bXwx1KU0osAAXTcl2QvjUmHpfnWwDAD2oQSHI+HblHE/Hg+nk5nrYAvi2l0A",
+            "latestCommitSha": "a4e4f7d7f2607c165ec1484b34b7f3b770188507",
+            "rightToLatestCommitDiffsCompressed": "NobwRA9gNgJgYgSygUwHIEMC2ywC4wDOATgMYD0m6CAdmQFboBu6ZERA5mQQA5E3sAzIlmQB3NgGsuWbigJluyAC4koNBOXTcEZVQmTUlZAMLolcdCSXG1BpQDoGzMABpIsABLJ0MZETxgrmDUYogoGNgBxOSUNPRMLGycPHzUgsLY4kRSBDJyCsp61BpkWjp6diZmFlY2+oaOCUEhol4+fgFBABYArtQSBHig7jAAykroREp4AEwzbtAwADI0yIO4AOxuLeOT07hz22IrIetbYGqnQ2AABEE3ADpKAAIAKsIkOG6PStw9AEZqEg3UzmSxKG4CQpdUE1JQACgAlDdwG4ALRPJ4wCAAdSoCIAbAAGREAbiCAGpMUpsXiEAiAKwk8nfalKIgATxu8JsEAI3kByA8Sl+dTsNy6Iu4YsMNwAvDdhaLbIYCPYSERvEpkAARZACdA9KAIxHI1G3alPJXcADiyhu7HtCpaiqldoRDzAkt+BFwZF0ZgNVnsxWoDDIQaUnrJ90tIs53N5/PQgutACU1twINR+TdNTxs7mFd7pSqHMgAB7IEg9bXwx1KU0osAAXTcl2QvjUmHpfnWwDAD2oQSHI+HblHE/Hg+nk5nrYAvi2l0A",
+            "latestCommitToRightDiffsCompressed": "NobwRA9gNgJgYgSygUwHIEMC2ywC4wDOATgMYD0m6CAdmQFboBu6ZERA5mQQA5E3sAzIlmQB3NgGsuWbigJluyAC4koNBOXTcEZVQmTUlZAMLolcdCSXG1BpQDoGzMABpIsABLJ0MZETxgrmDUYogoGNgBxOSUNPRMLGycPHzUgsLY4kRSBDJyCsp61BpkWjp6diZmFlY2+oaOCUEhol4+fgFBABYArtQSBHig7jAAykroREp4AEwzbtAwADI0yIO4AOxuLeOT07hz22IrIetbYGqnQ2AABEE3ADpKAAIAKsIkOG6PStw9AEZqEg3UzmSxKG4CQpdUE1JQACgAlDdwG4ALRPJ4wCAAdSoCIArAAGREAbiCAGpMUpsXiEAiAGwk8nfalKIgATxu8JsEAI3kByA8Sl+dTsNy6Iu4YsMNwAvDdhaLbIYCPYSERvEpkAARZACdA9KAIxHI1G3alPJXcADiyhu7HtCpaiqldoRDzAkt+BFwZF0ZgNVnsxWoDDIQaUnrJ90tIs53N5/PQgutACU1twINR+TdNTxs7mFd7pSqHMgAB7IEg9bXwx1KU0osAAXTcl2QvjUmHpfnWwDAD2oQSHI+HblHE/Hg+nk5nrYAvi2l0A"
+          }
+        },
+        "checkpointReviewDiffs": [
+          {
+            "repoId": "63b5a5c42e2b955cfb19b709",
+            "checkpoint": 0,
+            "diffs": {
+              "leftBaseAuthor": "Dillon Sellars",
+              "leftBaseSha": "2987daae6ded95448f09db697f1dad74f2c14470",
+              "leftDiffsCompressed": "NoXSA===",
+              "rightBaseAuthor": "Dillon Sellars",
+              "rightBaseSha": "2987daae6ded95448f09db697f1dad74f2c14470",
+              "rightDiffsCompressed": "NobwRA9gNgJgYgSygUwHIEMC2ywC4wDOATgMYD0m6CAdmQFboBu6ZERA5mQQA5E3sAzIlmQB3NgGsuWbigJluyAC4koNBOXTcEZVQmTUlZAMLolcdCSXG1BpQDoGzMABpIsABLJ0MZETxgrmDUYogoGNgBxOSUNPRMLGycPHzUgsLY4kRSBDJyCsp61BpkWjp6diZmFlY2+oaOCUEhol4+fgFBABYArtQSBHig7jAAykroREp4AEwzbtAwADI0yIO4AOxuLeOT07hz22IrIetbYGqnQ2AABEE3ADpKAAIAKsIkOG6PStw9AEZqEg3UzmSxKG4CQpdUE1JQACgAlDdwG4ALRPJ4wCAAdSoCIArAAGREAbiCAGpMUpsXiEAiAGwk8nfalKIgATxu8JsEAI3kByA8Sl+dTsNy6Iu4YsMNwAvDdhaLbIYCPYSERvEpkAARZACdA9KAIxHI1G3alPJXcADiyhu7HtCpaiqldoRDzAkt+BFwZF0ZgNVnsxWoDDIQaUnrJ90tIs53N5/PQgutACU1twINR+TdNTxs7mFd7pSqHMgAB7IEg9bXwx1KU0osAAXTcl2QvjUmHpfnWwDAD2oQSHI+HblHE/Hg+nk5nrYAvi2l0A",
+              "rightReverseDiffsCompressed": "NobwRA9gNgJgYgSygUwHIEMC2ywC4wDOATgMYD0m6CAdmQFboBu6ZERA5mQQA5E3sAzIlmQB3NgGsuWbigJluyAC4koNBOXTcEZVQmTUlZAMLolcdCSXG1BpQDoGzMABpIsABLJ0MZETxgrmDUYogoGNgBxOSUNPRMLGycPHzUgsLY4kRSBDJyCsp61BpkWjp6diZmFlY2+oaOCUEhol4+fgFBABYArtQSBHig7jAAykroREp4AEwzbtAwADI0yIO4AOxuLeOT07hz22IrIetbYGqnQ2AABEE3ADpKAAIAKsIkOG6PStw9AEZqEg3UzmSxKG4CQpdUE1JQACgAlDdwG4ALRPJ4wCAAdSoCIAbAAGREAbiCAGpMUpsXiEAiAKwk8nfalKIgATxu8JsEAI3kByA8Sl+dTsNy6Iu4YsMNwAvDdhaLbIYCPYSERvEpkAARZACdA9KAIxHI1G3alPJXcADiyhu7HtCpaiqldoRDzAkt+BFwZF0ZgNVnsxWoDDIQaUnrJ90tIs53N5/PQgutACU1twINR+TdNTxs7mFd7pSqHMgAB7IEg9bXwx1KU0osAAXTcl2QvjUmHpfnWwDAD2oQSHI+HblHE/Hg+nk5nrYAvi2l0A",
+              "latestCommitSha": "a4e4f7d7f2607c165ec1484b34b7f3b770188507",
+              "rightToLatestCommitDiffsCompressed": "NobwRA9gNgJgYgSygUwHIEMC2ywC4wDOATgMYD0m6CAdmQFboBu6ZERA5mQQA5E3sAzIlmQB3NgGsuWbigJluyAC4koNBOXTcEZVQmTUlZAMLolcdCSXG1BpQDoGzMABpIsABLJ0MZETxgrmDUYogoGNgBxOSUNPRMLGycPHzUgsLY4kRSBDJyCsp61BpkWjp6diZmFlY2+oaOCUEhol4+fgFBABYArtQSBHig7jAAykroREp4AEwzbtAwADI0yIO4AOxuLeOT07hz22IrIetbYGqnQ2AABEE3ADpKAAIAKsIkOG6PStw9AEZqEg3UzmSxKG4CQpdUE1JQACgAlDdwG4ALRPJ4wCAAdSoCIAbAAGREAbiCAGpMUpsXiEAiAKwk8nfalKIgATxu8JsEAI3kByA8Sl+dTsNy6Iu4YsMNwAvDdhaLbIYCPYSERvEpkAARZACdA9KAIxHI1G3alPJXcADiyhu7HtCpaiqldoRDzAkt+BFwZF0ZgNVnsxWoDDIQaUnrJ90tIs53N5/PQgutACU1twINR+TdNTxs7mFd7pSqHMgAB7IEg9bXwx1KU0osAAXTcl2QvjUmHpfnWwDAD2oQSHI+HblHE/Hg+nk5nrYAvi2l0A",
+              "latestCommitToRightDiffsCompressed": "NobwRA9gNgJgYgSygUwHIEMC2ywC4wDOATgMYD0m6CAdmQFboBu6ZERA5mQQA5E3sAzIlmQB3NgGsuWbigJluyAC4koNBOXTcEZVQmTUlZAMLolcdCSXG1BpQDoGzMABpIsABLJ0MZETxgrmDUYogoGNgBxOSUNPRMLGycPHzUgsLY4kRSBDJyCsp61BpkWjp6diZmFlY2+oaOCUEhol4+fgFBABYArtQSBHig7jAAykroREp4AEwzbtAwADI0yIO4AOxuLeOT07hz22IrIetbYGqnQ2AABEE3ADpKAAIAKsIkOG6PStw9AEZqEg3UzmSxKG4CQpdUE1JQACgAlDdwG4ALRPJ4wCAAdSoCIArAAGREAbiCAGpMUpsXiEAiAGwk8nfalKIgATxu8JsEAI3kByA8Sl+dTsNy6Iu4YsMNwAvDdhaLbIYCPYSERvEpkAARZACdA9KAIxHI1G3alPJXcADiyhu7HtCpaiqldoRDzAkt+BFwZF0ZgNVnsxWoDDIQaUnrJ90tIs53N5/PQgutACU1twINR+TdNTxs7mFd7pSqHMgAB7IEg9bXwx1KU0osAAXTcl2QvjUmHpfnWwDAD2oQSHI+HblHE/Hg+nk5nrYAvi2l0A"
+            }
+          }
+        ],
+        "followerIds": [
+          "63b5a5bd2e2b955cfb19b706"
+        ],
+        "permalink": "https://localhost.codestream.us:12079/r/Y7WlvS4rlVz7GbcH/yoEl-1-iRfSKyY64R_x8Ng",
+        "lastActivityAt": {
+          "$numberLong": "1672848956141"
+        }
+      }
+    ],
+    "streams": [
+      {
+        "_id": "63b5a5bd2e2b955cfb19b708",
+        "version": 3,
+        "deactivated": false,
+        "createdAt": {
+          "$numberLong": "1672848829030"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848982143"
+        },
+        "teamId": "63b5a5bd2e2b955cfb19b707",
+        "type": "channel",
+        "name": "general",
+        "isTeamStream": true,
+        "privacy": "public",
+        "creatorId": "636c5273a690126e0febde2f",
+        "nextSeqNum": 3,
+        "sortId": "63b5a6562e2b955cfb19b70c",
+        "mostRecentPostCreatedAt": {
+          "$numberLong": "1672848982136"
+        },
+        "mostRecentPostId": "63b5a6562e2b955cfb19b70c",
+        "numMarkers": 1
+      },
+      {
+        "_id": "63b5a6562e2b955cfb19b70f",
+        "version": 1,
+        "deactivated": false,
+        "createdAt": {
+          "$numberLong": "1672848982140"
+        },
+        "modifiedAt": {
+          "$numberLong": "1672848982140"
+        },
+        "teamId": "63b5a5bd2e2b955cfb19b707",
+        "repoId": "63b5a5c42e2b955cfb19b709",
+        "type": "file",
+        "file": "src/main/java/org/springframework/samples/petclinic/clm/ClmController.java",
+        "privacy": "public",
+        "creatorId": "63b5a5bd2e2b955cfb19b706",
+        "nextSeqNum": 2,
+        "sortId": "63b5a6562e2b955cfb19b70f"
+      }
+    ]
+  }
+}]

@@ -20,8 +20,10 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	after (callback) {
-		this.broadcasterClient.unsubscribeAll();
-		this.broadcasterClient.disconnect();
+		if (this.broadcasterClient) {
+			this.broadcasterClient.unsubscribeAll();
+			this.broadcasterClient.disconnect();
+		}
 		super.after(callback);
 	}
 
