@@ -324,10 +324,7 @@ class LoginHelper {
 		this.isWebmail = WebmailCompanies.includes(domain);
 
 		const ignoreDomain = this.isWebmail;
-		const ignoreInvite = (
-			!this.request.module.oneUserPerOrg &&
-			!this.request.request.headers['x-cs-one-user-per-org']
-		);
+		const ignoreInvite = false;
 
 		if (this.notRealLogin) { return; }
 

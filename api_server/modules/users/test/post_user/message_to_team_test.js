@@ -8,8 +8,7 @@ const Assert = require('assert');
 class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : ''; // ONE_USER_PER_ORG
-		return `members of the team should receive a message with the user when a user is added to the team${oneUserPerOrg}`;
+		return `members of the team should receive a message with the user when a user is added to the team, under one-user-per-org`;
 	}
 
 	// make the data that triggers the message to be received
@@ -29,7 +28,7 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		// do the update, this should trigger a message to the
 		// team channel with the updated post
 		this.updatedAt = Date.now();
-		const expectedVersion = this.oneUserPerOrg ? 8 : 7;
+		const expectedVersion = 8;
 		this.doApiRequest(
 			{
 				method: 'post',

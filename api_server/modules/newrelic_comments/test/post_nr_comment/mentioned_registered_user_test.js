@@ -19,23 +19,10 @@ class MentionedRegisteredUserTest extends MentionsTest {
 				email: user.email
 			};
 			this.expectedResponse.post.mentionedUsers = DeepClone(this.data.mentionedUsers);
-/*
 			Object.assign(this.expectedResponse.post.mentionedUsers[1], {
-				fullName: user.fullName,
-				username: user.username
+				fullName: '',
+				username: EmailUtilities.parseEmail(user.email).name
 			});
-*/
-			if (!this.oneUserPerOrg) { // ONE_USER_PER_ORG
-				Object.assign(this.expectedResponse.post.mentionedUsers[1], {
-					fullName: user.fullName,
-					username: user.username
-				});
-			} else {
-				Object.assign(this.expectedResponse.post.mentionedUsers[1], {
-					fullName: '',
-					username: EmailUtilities.parseEmail(user.email).name
-				});
-			}
 			callback();
 		});
 	}

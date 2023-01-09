@@ -8,8 +8,7 @@ const RandomString = require('randomstring');
 class EligibleJoinCompaniesTest extends CheckSignupTest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : '';
-		return `user should receive eligible companies to join via domain-based and invite, with response to check signup${oneUserPerOrg}`;
+		return `user should receive eligible companies to join via domain-based and invite, with response to check signup, under one-user-per-org paradigm`;
 	}
 
 	setTestOptions (callback) {
@@ -102,10 +101,6 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 
 	// create companies that the confirming user has been invited to
 	createCompaniesAndInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
-
 		BoundAsync.timesSeries(
 			this,
 			2,
@@ -182,9 +177,6 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 
 	// accept the invite for one of the companies the user has been invited to
 	acceptInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove when have fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
 		const companyInfo = this.expectedEligibleJoinCompanies[this.expectedEligibleJoinCompanies.length - 1];
 		companyInfo.memberCount++;
 		this.doApiRequest(

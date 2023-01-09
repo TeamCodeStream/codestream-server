@@ -8,7 +8,6 @@ const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/
 class LogoutTest extends CodeStreamAPITest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
 		return 'should return an empty response after logging out';
 	}
 

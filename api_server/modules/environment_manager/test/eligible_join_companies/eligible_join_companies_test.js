@@ -9,11 +9,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 
 	get description () {
 		// remove this check when we have moved to ONE_USER_PER_ORG
-		if (this.oneUserPerOrg) {
-			return 'should return companies eligible for joining given an email in response to a cross-environment request';
-		} else {
-			return 'should return eligible companies matching a given domain in response to a cross-environment request';
-		}
+		return 'should return companies eligible for joining given an email in response to a cross-environment request';
 	}
 
 	get method () {
@@ -35,16 +31,14 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 		this.expectedEligibleJoinCompanies = [];
 
 		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
-		if (this.oneUserPerOrg) {
-			this.expectedEligibleJoinCompanies.push({
-				id: this.company.id,
-				name: this.company.name,
-				teamId: this.team.id,
-				byInvite: true,
-				memberCount: 2,
-				accessToken: this.currentUser.accessToken
-			});
-		}
+		this.expectedEligibleJoinCompanies.push({
+			id: this.company.id,
+			name: this.company.name,
+			teamId: this.team.id,
+			byInvite: true,
+			memberCount: 2,
+			accessToken: this.currentUser.accessToken
+		});
 
 		BoundAsync.timesSeries(
 			this,
@@ -74,11 +68,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				if (this.oneUserPerOrg) { // remove when we have fully moved to ONE_USER_PER_ORG
-					this.path = '/xenv/eligible-join-companies?email=' + encodeURIComponent(email);
-				} else {
-					this.path = '/xenv/eligible-join-companies?domain=' + encodeURIComponent(domain);
-				}
+				this.path = '/xenv/eligible-join-companies?email=' + encodeURIComponent(email);
 				this.apiRequestOptions = {
 					headers: {
 						'X-CS-Auth-Secret': this.apiConfig.environmentGroupSecrets.requestAuth
@@ -125,10 +115,6 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 
 	// create companies that the confirming user has been invited to
 	createCompaniesAndInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
-
 		BoundAsync.timesSeries(
 			this,
 			2,
@@ -205,9 +191,6 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 
 	// accept the invite for one of the companies the user has been invited to
 	acceptInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove when have fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
 		const companyInfo = this.expectedEligibleJoinCompanies[this.expectedEligibleJoinCompanies.length - 1];
 		companyInfo.memberCount++;
 		this.doApiRequest(

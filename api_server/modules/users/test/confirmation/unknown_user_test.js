@@ -5,8 +5,7 @@ const ConfirmationTest = require('./confirmation_test');
 class UnknownUserTest extends ConfirmationTest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
-		return `should return an error when confirming with an email that does not match an existing unregistered user,${oneUserPerOrg}`;
+		return `should return an error when confirming with an email that does not match an existing unregistered user, under one-user-per-org paradigm`;
 	}
 
 	getExpectedError () {

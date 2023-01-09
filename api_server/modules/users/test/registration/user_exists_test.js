@@ -7,8 +7,7 @@ const Assert = require('assert');
 class UserExistsTest extends RegistrationTest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
-		return `should return the user when registering an email that already exists as an unconfirmed user${oneUserPerOrg}`;
+		return `should return the user when registering an email that already exists as an unconfirmed user, under one-user-per-org paradigm`;
 	}
 
 	// before the test runs...

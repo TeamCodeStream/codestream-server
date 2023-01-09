@@ -8,7 +8,6 @@ class ClearFirstSessionTest extends PostCompanyTest {
 
 	constructor (options) {
 		super(options);
-		this.oneUserPerOrg = true;
 		delete this.teamOptions.creatorIndex;
 	}
 

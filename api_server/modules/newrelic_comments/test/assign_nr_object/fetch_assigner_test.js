@@ -40,11 +40,6 @@ class FetchAssignerTest extends FetchObjectTest {
 	validateFetchedUser (response) {
 		const { user } = response;
 		const creatorId = this.nrAssignmentResponse.codeStreamResponse.post.creatorId;
-		if (!this.oneUserPerOrg) {
-			// under ONE_USER_PER_ORG, we don't maintain the connection between the original faux user and
-			// the user who registers with the same email
-			Assert.equal(user.id, creatorId, 'fetched user is not the assigner');
-		}
 		Assert.equal(user.email, this.requestData.creator.email, 'user\'s email does not match the email of the assigner');
 	}
 }

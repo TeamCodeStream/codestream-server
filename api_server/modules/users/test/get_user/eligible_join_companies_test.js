@@ -26,16 +26,14 @@ class EligibleJoinCompaniesTest extends GetMyselfTest {
 		this.expectedEligibleJoinCompanies = [];
 
 		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
-		if (this.oneUserPerOrg) {
-			this.expectedEligibleJoinCompanies.push({
-				id: this.company.id,
-				name: this.company.name,
-				teamId: this.team.id,
-				byInvite: true,
-				memberCount: 2,
-				accessToken: this.currentUser.accessToken
-			});
-		}
+		this.expectedEligibleJoinCompanies.push({
+			id: this.company.id,
+			name: this.company.name,
+			teamId: this.team.id,
+			byInvite: true,
+			memberCount: 2,
+			accessToken: this.currentUser.accessToken
+		});
 
 		BoundAsync.timesSeries(
 			this,
@@ -105,10 +103,6 @@ class EligibleJoinCompaniesTest extends GetMyselfTest {
 
 	// create companies that the confirming user has been invited to
 	createCompaniesAndInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
-
 		BoundAsync.timesSeries(
 			this,
 			2,
@@ -185,9 +179,6 @@ class EligibleJoinCompaniesTest extends GetMyselfTest {
 
 	// accept the invite for one of the companies the user has been invited to
 	acceptInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove when have fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
 		const companyInfo = this.expectedEligibleJoinCompanies[this.expectedEligibleJoinCompanies.length - 1];
 		companyInfo.memberCount++;
 		this.doApiRequest(

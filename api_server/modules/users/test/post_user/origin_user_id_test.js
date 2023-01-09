@@ -6,11 +6,6 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class OriginUserIdTest extends PostUserTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return 'under one-user-per-org, on inviting a new user, the user\'s originUserId attributes should be set to its id';
 	}

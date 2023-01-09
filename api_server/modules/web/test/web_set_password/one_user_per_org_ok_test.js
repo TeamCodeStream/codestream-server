@@ -6,11 +6,6 @@ const SetPasswordTest = require('./set_password_test');
 
 class OneUserPerOrgOkTest extends SetPasswordTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return super.description + ', under one-user-per-org';
 	}

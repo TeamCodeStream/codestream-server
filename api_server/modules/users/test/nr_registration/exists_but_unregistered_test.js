@@ -12,8 +12,7 @@ class ExistsButUnregisteredTest extends NRRegistrationTest {
 	}
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : '';
-		return `should be ok to register a user using NR API key if a user record exists matching the email, but the user is unregistered${oneUserPerOrg}`;
+		return `should be ok to register a user using NR API key if a user record exists matching the email, but the user is unregistered, under one-user-per-org`;
 	}
 
 	before (callback) {

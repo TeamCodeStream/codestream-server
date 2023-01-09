@@ -8,7 +8,7 @@ class MeAttributesTest extends LoginTest {
 
 	constructor (options) {
 		super(options);
-		this.firstSessionShouldBeUndefined = this.oneUserPerOrg;
+		this.firstSessionShouldBeUndefined = true;
 		this.userOptions.numRegistered = 2;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,

@@ -58,7 +58,7 @@ class CommonInit {
 		const emailKey = email.replace(/\./g, '*');
 		this.data = { email };
 		this.updatedAt = Date.now();
-		const expectedVersion = this.oneUserPerOrg ? 11 : 9;
+		const expectedVersion = 11;
 		this.expectedResponse = {
 			team: {
 				id: this.team.id,

@@ -8,8 +8,7 @@ const RandomString = require('randomstring');
 class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', in one-user-per-org paradigm' : '';
-		return `user should receive eligible companies to join via domain-based and invite with response to email confirmation${oneUserPerOrg}`;
+		return `user should receive eligible companies to join via domain-based and invite with response to email confirmation, in one-user-per-org paradigm`;
 	}
 
 	before (callback) {
@@ -26,15 +25,13 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 		this.expectedEligibleJoinCompanies = [];
 
 		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
-		if (this.oneUserPerOrg) {
-			this.expectedEligibleJoinCompanies.push({
-				id: this.company.id,
-				name: this.company.name,
-				teamId: this.team.id,
-				byInvite: true,
-				memberCount: 2
-			});
-		}
+		this.expectedEligibleJoinCompanies.push({
+			id: this.company.id,
+			name: this.company.name,
+			teamId: this.team.id,
+			byInvite: true,
+			memberCount: 2
+		});
 
 		BoundAsync.timesSeries(
 			this,
@@ -104,10 +101,6 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	// create companies that the confirming user has been invited to
 	createCompaniesAndInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
-
 		BoundAsync.timesSeries(
 			this,
 			2,
