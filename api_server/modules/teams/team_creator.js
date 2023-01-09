@@ -68,15 +68,11 @@ class TeamCreator extends ModelCreator {
 
 	// called before the team is actually saved
 	async preSave () {
-		this.oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.request.headers['x-cs-one-user-per-org']
-		);
 		const teamIds = this.user.get('teamIds') || [];
 
 		// under one-user-per-org, create a duplicate of the creator if they are already on a team
 		// we can remove the oneUserPerOrg part of this check when we have fully moved to ONE_USER_PER_ORG
-		if (this.oneUserPerOrg && teamIds.length > 0) { 
+		if (teamIds.length > 0) { 
 			this.request.log('NOTE: duplicating user under one-user-per-org');
 			await this.duplicateUser();
 		}

@@ -9,8 +9,7 @@ const DetermineCapabilities = require(process.env.CSSVC_BACKEND_ROOT + '/api_ser
 class NRRegistrationTest extends CodeStreamAPITest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : '';
-		return `should return valid user data when registering${oneUserPerOrg}`;
+		return `should return valid user data when registering, under one-user-per-org`;
 	}
 
 	get method () {

@@ -22,9 +22,8 @@ class UnregisteredOnTwoTeamsTest extends RemoveUsersTest {
 
 	// create another team to invite the unregistered user to
 	createOtherTeam (callback) {
-		if (this.oneUserPerOrg) { // test should be deprecated
-			return callback();
-		}
+		// test should be deprecated
+		return callback();
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -44,9 +43,7 @@ class UnregisteredOnTwoTeamsTest extends RemoveUsersTest {
 
 	// invite the user to the other team
 	inviteToOtherTeam (callback) {
-		if (this.oneUserPerOrg) { // test should be deprecated
-			return callback();
-		}
+		// test should be deprecated
 		this.unregisteredUserOnOtherTeam = this.users.find(user => !user.user.isRegistered).user;
 		this.doApiRequest(
 			{
@@ -64,12 +61,8 @@ class UnregisteredOnTwoTeamsTest extends RemoveUsersTest {
 
 	// run the actual test...
 	run (callback) {
-		if (this.oneUserPerOrg) {
-			console.log('NOTE: test should be deprecated, user cannot be on two teams under one-user-per-org');
-			callback();
-		} else {
-			super.run(callback);
-		}
+		console.log('NOTE: test should be deprecated, user cannot be on two teams under one-user-per-org');
+		callback();
 		/*
 		// in running the test, we'll take the unregistered user who was removed from a team (their last team),
 		// and go through a normal sign-up flow ... this should work without a hitch

@@ -4,11 +4,6 @@ const UserCompaniesTest = require('./user_companies_test');
 
 class DeprecatedTest extends UserCompaniesTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return 'should return an error indicating request is deprecated when making a request to fetch foreign companies for a user, this functionality is deprecated for one-user-per-org';
 	}

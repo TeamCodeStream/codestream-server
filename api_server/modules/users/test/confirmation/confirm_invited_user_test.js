@@ -15,11 +15,7 @@ class ConfirmInvitedUserTest extends ConfirmationTest {
 	}
 
 	get description () {
-		if (this.oneUserPerOrg) {  // ONE_USER_PER_ORG
-			return 'when confirming a user that has been invited to a team, as of one-user-per-org implementation, a copy of the originally registered user should be created and confirmed';
-		} else {
-			return 'should be able to confirm a user that has been invited to a team, before one-user-per-org implementation';
-		}
+		return 'when confirming a user that has been invited to a team, as of one-user-per-org implementation, a copy of the originally registered user should be created and confirmed';
 	}
 
 	getUserData () {
@@ -29,11 +25,7 @@ class ConfirmInvitedUserTest extends ConfirmationTest {
 	}
 
 	validateResponse (data) {
-		if (this.oneUserPerOrg) {
-			Assert.notStrictEqual(data.user.id, this.users[1].user.id, 'user returned after confirmation does not match the expected user');
-		} else {
-			Assert.strictEqual(data.user.id, this.users[1].user.id, 'user returned after confirmation is the originally unregsitered user');
-		}
+		Assert.notStrictEqual(data.user.id, this.users[1].user.id, 'user returned after confirmation does not match the expected user');
 		return super.validateResponse(data);
 	}
 }

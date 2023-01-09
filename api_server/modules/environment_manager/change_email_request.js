@@ -19,14 +19,7 @@ class ChangeEmailRequest extends XEnvRequest {
 
 	// process the request...
 	async process () {
-		// remove this check when we fully move to ONE_USER_PER_ORG
-		const oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.headers['x-cs-one-user-per-org']
-		);
-		if (oneUserPerOrg) {
-			throw this.errorHandler.error('deprecated');
-		}
+		throw this.errorHandler.error('deprecated');
 
 		await this.requireAndAllow();
 		await this.getUser();

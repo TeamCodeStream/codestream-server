@@ -149,7 +149,6 @@ class CommonInit {
 
 	// in one-user-per-org, user must accept the invite
 	acceptInvite (callback) {
-		if (!this.oneUserPerOrg) { return callback(); }
 		this.doApiRequest({
 			method: 'put',
 			path: '/join-company/' + this.company.id,

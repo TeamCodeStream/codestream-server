@@ -66,7 +66,7 @@ class CommonInit {
 		}
 		const starredHost = this.host.replace(/\./g, '*').toLowerCase();
 		const encodedHost = encodeURIComponent(starredHost);
-		const expectedVersion = this.oneUserPerOrg ? 7 : 6;
+		const expectedVersion = 7;
 		this.path = `/provider-host/${this.provider}/${this.team.id}/${encodedHost}`;
 		this.modifiedAfter = Date.now();
 		this.expectedData = {

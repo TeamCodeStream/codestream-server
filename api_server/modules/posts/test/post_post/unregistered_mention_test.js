@@ -34,9 +34,6 @@ class UnregisteredMentionTest extends PostPostTest {
 
 	// fetch the user's me-object after accepting
 	fetchUser (callback) {
-		if (!this.oneUserPerOrg) {
-			return callback();
-		}
 		this.doApiRequest(
 			{
 				method: 'get',

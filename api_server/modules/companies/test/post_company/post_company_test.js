@@ -14,11 +14,7 @@ class PostCompanyTest extends CodeStreamAPITest {
 	}
 
 	get description () {
-		if (this.oneUserPerOrg) {
-			return 'should return userId, teamId, and accessToken when creating a new company under one-user-per-org';
-		} else {
-			return 'should return a valid company when creating a new company';
-		}
+		return 'should return userId, teamId, and accessToken when creating a new company under one-user-per-org';
 	}
 
 	getExpectedFields () {
@@ -45,7 +41,7 @@ class PostCompanyTest extends CodeStreamAPITest {
 	/* eslint complexity: 0 */
 	// validate the response to the test request
 	validateResponse (data) {
-		if (this.oneUserPerOrg && this.teamOptions.creatorIndex !== undefined && !this.expectFullResponse) {
+		if (this.teamOptions.creatorIndex !== undefined && !this.expectFullResponse) {
 			return this.validateOneUserPerOrgResponse(data);
 		}
 		

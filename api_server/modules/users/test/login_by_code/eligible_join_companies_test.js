@@ -8,8 +8,7 @@ const RandomString = require('randomstring');
 class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : '';
-		return `user should receive eligible companies to join via domain-based and invite, when logging in by code${oneUserPerOrg}`;
+		return `user should receive eligible companies to join via domain-based and invite, when logging in by code, under one-user-per-org paradigm`;
 	}
 
 	before (callback) {
@@ -27,16 +26,14 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 		this.expectedEligibleJoinCompanies = [];
 
 		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
-		if (this.oneUserPerOrg) {
-			this.expectedEligibleJoinCompanies.push({
-				id: this.company.id,
-				name: this.company.name,
-				teamId: this.team.id,
-				byInvite: true,
-				memberCount: 2,
-				accessToken: this.currentUser.accessToken
-			});
-		}
+		this.expectedEligibleJoinCompanies.push({
+			id: this.company.id,
+			name: this.company.name,
+			teamId: this.team.id,
+			byInvite: true,
+			memberCount: 2,
+			accessToken: this.currentUser.accessToken
+		});
 
 		BoundAsync.times(
 			this,
@@ -106,9 +103,6 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	// create companies that the confirming user has been invited to
 	createCompaniesAndInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
 		BoundAsync.timesSeries(
 			this,
 			2,
@@ -185,9 +179,6 @@ class EligibleJoinCompaniesTest extends InitialDataTest {
 
 	// accept the invite for one of the companies the user has been invited to
 	acceptInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove when have fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
 		const companyInfo = this.expectedEligibleJoinCompanies[this.expectedEligibleJoinCompanies.length - 1];
 		companyInfo.memberCount++;
 		this.doApiRequest(

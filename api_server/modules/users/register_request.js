@@ -179,23 +179,11 @@ class RegisterRequest extends RestfulRequest {
 		}
 
 		// remove this check when ONE_USER_PER_ORG is fully deployed
-		const oneUserPerOrg = this.module.oneUserPerOrg || this.request.headers['x-cs-one-user-per-org'];
-		if (oneUserPerOrg) {
-			this.log('NOTE: Creating user under one-user-per-org paradigm');
-			this.user = await new UserCreator({ 
-				request: this,
-				existingUser: this.user
-			}).createUser(this.request.body);
-		} else {
-			this.userCreator = new OldUserCreator({
-				request: this,
-				teamIds: this.team ? [this.team.id] : undefined,
-				companyIds: this.team ? [this.team.get('companyId')] : undefined,
-				userBeingAddedToTeamId: this.team ? this.team.id : undefined,
-				dontSetInviteCode: true // suppress the default behavior for creating a user on a team
-			});
-			this.user = await this.userCreator.createUser(this.request.body);
-		}
+		this.log('NOTE: Creating user under one-user-per-org paradigm');
+		this.user = await new UserCreator({ 
+			request: this,
+			existingUser: this.user
+		}).createUser(this.request.body);
 	}
 
 	// if a signup token is provided, this allows a client IDE session to identify the user ID that was eventually

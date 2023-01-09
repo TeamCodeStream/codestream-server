@@ -24,8 +24,7 @@ class LoginByCodeTest extends CodeStreamAPITest {
 	}
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
-		return `should return valid user data when logging in by code${oneUserPerOrg}`;
+		return `should return valid user data when logging in by code, under one-user-per-org paradigm`;
 	}
 
 	get method () {

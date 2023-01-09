@@ -66,7 +66,7 @@ class CommonInit {
 			sortOrder: Math.floor(Math.random() * 100)
 		};
 		this.updatedAt = Date.now();
-		const expectedVersion = this.oneUserPerOrg ? 11 : 9;
+		const expectedVersion = 11;
 		this.expectedResponse = {
 			team: {
 				id: this.team.id,

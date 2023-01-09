@@ -4,11 +4,6 @@ const FetchUserTest = require('./fetch_user_test');
 
 class IdRequiredTest extends FetchUserTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-	
 	get description () {
 		return 'should return an error when submitting a request to fetch a user without providing an id, under one-user-per-org';
 	}

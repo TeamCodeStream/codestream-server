@@ -8,7 +8,6 @@ class TeamIdTest extends InitialDataTest {
 
 	constructor (options) {
 		super(options);
-		this.oneUserPerOrg = true;
 		this.dontCheckFirstSession = true;
 	}
 

@@ -20,9 +20,6 @@ class ACLTest extends GetCompaniesTest {
 			this.company.id,
 			this.companyWithoutMe.id
 		];
-		if (!this.oneUserPerOrg) {
-			ids.push(this.companyWithMe.id);
-		}
 		this.path = '/companies?ids=' + ids.join(',');
 		callback();
 	}

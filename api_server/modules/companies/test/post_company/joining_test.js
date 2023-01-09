@@ -8,9 +8,7 @@ class JoiningTest extends PostCompanyTest {
 
 	constructor (options) {
 		super(options);
-		if (this.oneUserPerOrg) {
-			delete this.teamOptions.creatorIndex;
-		}
+		delete this.teamOptions.creatorIndex;
 	}
 	
 	get description () {

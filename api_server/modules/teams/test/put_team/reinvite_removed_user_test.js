@@ -48,20 +48,16 @@ class ReinviteRemovedUserTest extends RemoveUserTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				Assert(response.team.memberIds.includes(this.removedUsers[0].id));
-				if (this.oneUserPerOrg) {
-					// in one-user-per-org, a new user record is created for the invite
-					Assert((response.team.removedMemberIds || []).includes(this.removedUsers[0].id));
-					Assert((response.team.memberIds || []).includes(this.reinviteUserResponse.user.id));
-				} else {
-					Assert(!(response.team.removedMemberIds || []).includes(this.removedUsers[0].id));
-				}
+				// in one-user-per-org, a new user record is created for the invite
+				Assert((response.team.removedMemberIds || []).includes(this.removedUsers[0].id));
+				Assert((response.team.memberIds || []).includes(this.reinviteUserResponse.user.id));
 				callback();
 			}
 		);
 	}
 
 	checkUser (callback) {
-		const userId = this.oneUserPerOrg ? this.reinviteUserResponse.user.id : this.removedUsers[0].id;
+		const userId = this.reinviteUserResponse.user.id;
 		this.doApiRequest(
 			{
 				method: 'get',

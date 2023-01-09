@@ -6,11 +6,6 @@ const Assert = require('assert');
 
 class MultipleOrgTest extends SetPasswordTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return 'when setting a password using the forgot-password flow, the password should be set in all orgs the user belongs to, under one-user-per-org';
 	}
