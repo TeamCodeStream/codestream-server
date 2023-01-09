@@ -6,11 +6,6 @@ const ForgotPasswordTest = require('./forgot_password_test');
 
 class OneUserPerOrgOkTest extends ForgotPasswordTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return super.description + ', under one-user-per-org';
 	}

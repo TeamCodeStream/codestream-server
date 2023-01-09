@@ -10,11 +10,7 @@ class GetCompaniesByIdTest extends GetCompaniesTest {
 
 	setPath (callback) {
 		// i'm in both of these companies, so i should be able to fetch them
-		if (this.oneUserPerOrg) {
-			this.path = `/companies?ids=${this.company.id}`; // only this makes sense in ONE_USER_PER_ORG
-		} else {
-			this.path = `/companies?ids=${this.company.id},${this.companyWithMe.id}`;
-		}
+		this.path = `/companies?ids=${this.company.id}`; // only this makes sense in ONE_USER_PER_ORG
 		callback();
 	}
 }

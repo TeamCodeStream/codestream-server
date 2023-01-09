@@ -88,13 +88,9 @@ class UserAddedToTeamGetsMessageTest extends Aggregation(CodeStreamMessageTest, 
 	run (callback) {
 		// under ONE_USER_PER_ORG, we get no message when the user is added (since they haven't accepted the invite yet)
 		// so pass this test superficially, and remove it when we have fully deployed
-		if (this.oneUserPerOrg) {
-			console.log('NOTE - MESSAGE IS NOT PUBLISHED TO REGISTERED USER ON INVITE UNDER ONE-USER-PER-ORG, PASSING SUPERFICIALLY');
-			this.testDidNotRun = true;
-			return callback();
-		} else {
-			super.run(callback);
-		}
+		console.log('NOTE - MESSAGE IS NOT PUBLISHED TO REGISTERED USER ON INVITE UNDER ONE-USER-PER-ORG, PASSING SUPERFICIALLY');
+		this.testDidNotRun = true;
+		return callback();
 	}
 	
 	// validate the received message

@@ -348,18 +348,8 @@ class Users extends Restful {
 			this.weeklyEmails.schedule();
 		}
 
-		// determine if we are using one-user-per-org, per global setting
-		// this can be deprecated when we have fully moved to the ONE_USER_PER_ORG paradigm
-		const setting = await this.api.data.globals.getOneByQuery(
-			{ tag: 'oneUserPerOrg' }, 
-			{ overrideHintRequired: true }
-		);
-		this.oneUserPerOrg = setting && setting.enabled;
-		if (this.oneUserPerOrg) {
-			this.api.log('NOTE: API Server is running in one-user-per-org mode');
-		} else {
-			this.api.log('NOTE: API Server is NOT running in one-user-per-org-mode');
-		}
+		this.oneUserPerOrg = true;
+		this.api.log('NOTE: API Server is running in one-user-per-org mode');
 	}
 
 	describeErrors () {

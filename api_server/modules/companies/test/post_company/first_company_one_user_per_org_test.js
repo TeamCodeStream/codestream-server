@@ -9,7 +9,6 @@ class FirstCompanyOneUserPerOrgTest extends PostCompanyTest {
 
 	constructor (options) {
 		super(options);
-		this.oneUserPerOrg = true; // ONE_USER_PER_ORG
 		delete this.teamOptions.creatorIndex;
 	}
 

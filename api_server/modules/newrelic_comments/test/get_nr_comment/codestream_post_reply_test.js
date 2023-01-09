@@ -72,17 +72,15 @@ class CodeStreamPostReplyTest extends GetNRCommentTest {
 					seqNum: response.post.seqNum,
 					text: response.post.text
 				});
-				if (this.oneUserPerOrg) {
-					// under ONE_USER_PER_ORG, we can't duplicate the original post as easily,
-					// because the connection between the original faux user poster and the user registering
-					// with the same email isn't maintained
-					this.expectedResponse.post.creatorId = this.users[1].user.id;
-					this.expectedResponse.post.creator.username = this.users[1].user.username;
-					this.expectedResponse.post.userMaps[this.users[1].user.id] =
-						this.nrCommentResponse.post.userMaps[this.nrCommentResponse.post.creatorId];
-					this.expectedResponse.post.userMaps[this.users[1].user.id].username = this.users[1].user.username;
-					delete this.expectedResponse.post.userMaps[this.nrCommentResponse.post.creatorId];
-				}
+				// under ONE_USER_PER_ORG, we can't duplicate the original post as easily,
+				// because the connection between the original faux user poster and the user registering
+				// with the same email isn't maintained
+				this.expectedResponse.post.creatorId = this.users[1].user.id;
+				this.expectedResponse.post.creator.username = this.users[1].user.username;
+				this.expectedResponse.post.userMaps[this.users[1].user.id] =
+					this.nrCommentResponse.post.userMaps[this.nrCommentResponse.post.creatorId];
+				this.expectedResponse.post.userMaps[this.users[1].user.id].username = this.users[1].user.username;
+				delete this.expectedResponse.post.userMaps[this.nrCommentResponse.post.creatorId];
 				callback();
 			}
 		);

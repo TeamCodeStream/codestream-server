@@ -61,7 +61,7 @@ class CommonInit {
 		this.tagId = Object.keys(this.tagsCreated)[1];
 		this.path = `/team-tags/${this.team.id}/${this.tagId}`;
 		this.updatedAt = Date.now();
-		const expectedVersion = this.oneUserPerOrg ? 11 : 9;
+		const expectedVersion = 11;
 		this.expectedResponse = {
 			team: {
 				id: this.team.id,

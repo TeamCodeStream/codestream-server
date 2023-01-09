@@ -44,12 +44,8 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	run (callback) {
-		if (this.oneUserPerOrg) {
-			console.log('NOTE: under one-user-per-org, this method to join a company is being deprecated, this test will pass superficially');
-			callback();
-		} else {
-			super.run(callback);
-		}
+		console.log('NOTE: under one-user-per-org, this method to join a company is being deprecated, this test will pass superficially');
+		callback();
 	}
 	
 	validateMessage (message) {

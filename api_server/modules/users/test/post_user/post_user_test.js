@@ -12,8 +12,7 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org' : ''; // ONE_USER_PER_ORG
-		return `should return the user when creating (inviting) a user${oneUserPerOrg}`;
+		return `should return the user when creating (inviting) a user, under one-user-per-org`;
 	}
 
 	get method () {
@@ -43,16 +42,8 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		const errors = [];
 		(user.teamIds || []).sort();
 		const teamIds = [this.team.id];
-		if (this.existingUserTeam && !this.oneUserPerOrg) { // ONE_USER_PER_ORG
-			teamIds.push(this.existingUserTeam.id);
-			teamIds.sort();
-		}
 		(user.companyIds || []).sort();
 		const companyIds = [this.company.id];
-		if (this.existingUserCompany && !this.oneUserPerOrg) { // ONE_USER_PER_ORG
-			companyIds.push(this.existingUserCompany.id);
-			companyIds.sort();
-		}
 		const expectedUsername = this.getExpectedUsername();
 		const expectedFullName = this.getExpectedFullName();
 		const expectedCreatorId = this.getExpectedCreatorId();
@@ -74,10 +65,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
 		if (!this.existingUserIsRegistered) {
-			if (!this.oneUserPerOrg) {
-				Assert(user.inviteCode, 'user does not have an invite code');
-			}
-			const userWasAlreadyInvited = this.wantExistingUser && (this.existingUserAlreadyOnTeam || (!this.oneUserPerOrg && this.existingUserOnTeam));
+			const userWasAlreadyInvited = this.wantExistingUser && this.existingUserAlreadyOnTeam;
 			const lastInviteType = this.noLastInviteType ?
 				undefined :
 				(this.lastInviteType || (userWasAlreadyInvited ? 'reinvitation' : 'invitation'));
@@ -95,7 +83,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	getExpectedUsername () {
 		// under ONE_USER_PER_ORG, we correctly inherit the username from the original user, even if unregistered
-		if ((this.oneUserPerOrg && this.wantExistingUser) || (!this.oneUserPerOrg && this.existingUserIsRegistered)) {
+		if (this.wantExistingUser) {
 			return this.existingUserData.user.username;
 		}
 		else {
@@ -116,9 +104,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		// NOTE: under one-user-per-org, the user record on an invite is a duplicate, and gets the 
 		// creatorId of the inviter, even if the original user created themselves by registering
 		// we can remove the oneUserPerOrg part of this check when we fully move to ONE_USER_PER_ORG
-		return (this.wantExistingUser && !this.oneUserPerOrg) ?
-			this.existingUserData.user.creatorId :
-			this.currentUser.user.id;
+		return this.currentUser.user.id;
 	}
 }
 

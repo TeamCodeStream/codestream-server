@@ -23,12 +23,6 @@ class ProviderIdentityConnector {
 		if (options.signupToken || options.teamId) {
 			throw this.errorHandler.error('deprecated', { reason: 'provider identity connection with signup token or team ID is no longer supported '});
 		}
-
-		// can assume this is set when we have fully moved to ONE_USER_PER_ORG
-		this.oneUserPerOrg = (
-			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.request.headers['x-cs-one-user-per-org']
-		);
 	}
 
 	// attempt to match the given third-party provider identification information to a
@@ -65,23 +59,19 @@ class ProviderIdentityConnector {
 
 		// under one-user-per-org, match a registered user matching the team provided,
 		// or the first registered user, or a teamless unregistered user
-		if (this.oneUserPerOrg) {
-			let firstRegisteredUser, teamlessUnregisteredUser;
-			const matchingUser = users.find(user => {
-				if (user.get('deactivated')) { return; }
-				const teamIds = user.get('teamIds') || [];
-				if (this.teamId && teamIds.includes(this.teamId)) {
-					return user;
-				} else if (!firstRegisteredUser && user.get('isRegistered')) {
-					firstRegisteredUser = user;
-				} else if (!teamlessUnregisteredUser && !user.get('isRegistered') && teamIds.length === 0) {
-					teamlessUnregisteredUser = user;
-				}
-			});
-			this.user = matchingUser || firstRegisteredUser || teamlessUnregisteredUser;
-		} else {
-			this.user = users[0];
-		}
+		let firstRegisteredUser, teamlessUnregisteredUser;
+		const matchingUser = users.find(user => {
+			if (user.get('deactivated')) { return; }
+			const teamIds = user.get('teamIds') || [];
+			if (this.teamId && teamIds.includes(this.teamId)) {
+				return user;
+			} else if (!firstRegisteredUser && user.get('isRegistered')) {
+				firstRegisteredUser = user;
+			} else if (!teamlessUnregisteredUser && !user.get('isRegistered') && teamIds.length === 0) {
+				teamlessUnregisteredUser = user;
+			}
+		});
+		this.user = matchingUser || firstRegisteredUser || teamlessUnregisteredUser;
 
 		if (this.user) {
 			this.request.log(`Matched user ${this.user.id} by email`);
