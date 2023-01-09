@@ -15,9 +15,7 @@ class OriginTeamPropagates extends JoinMethodTest {
 	}
 
 	createOriginTeam (teamCreator, callback) {
-		if (this.oneUserPerOrg) {
-			return callback();
-		}
+		return callback();
 		const token = teamCreator.users[this.teamOptions.creatorIndex].accessToken;
 		this.companyFactory.createRandomCompany(
 			(error, response) => {
@@ -32,12 +30,7 @@ class OriginTeamPropagates extends JoinMethodTest {
 	}
 
 	validateResponse (data) {
-		if (this.oneUserPerOrg) {
-			console.log('NOTE: under one-user-per-org, originTeam is not set on confirmation, this test can probably be retired');
-		} else {
-			Assert(this.originTeam, 'no origin team');
-			super.validateResponse(data);
-		}
+		console.log('NOTE: under one-user-per-org, originTeam is not set on confirmation, this test can probably be retired');
 	}
 }
 

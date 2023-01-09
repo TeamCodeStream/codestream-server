@@ -20,7 +20,7 @@ class OneUserPerOrgEnabledTest extends JoinCompanyTest {
 	setTestOptions (callback) {
 		super.setTestOptions(error => {
 			if (error) { return callback(error); }
-			this.oneUserPerOrg = false;
+			//this.oneUserPerOrg = false;
 			callback();
 		});
 	}

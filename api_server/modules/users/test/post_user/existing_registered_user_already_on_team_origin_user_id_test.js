@@ -6,11 +6,6 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest extends ExistingRegisteredUserAlreadyOnTeamTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return 'under one-user-per-org, when inviting a user that already exists and is registered and already on the team, the user\'s originUserId should be the same as the existing user';
 	}

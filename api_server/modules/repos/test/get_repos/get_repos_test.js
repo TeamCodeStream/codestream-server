@@ -40,7 +40,7 @@ class GetReposTest extends CodeStreamAPITest {
 			if (error) { return callback(error); }
 			this.foreignTeam = response.team;
 			this.foreignTeamStream = response.teamStream;
-			this.foreignTeamToken = this.oneUserPerOrg ? response.users[1].accessToken : this.users[1].accessToken;
+			this.foreignTeamToken = response.users[1].accessToken;
 			callback();
 		});
 	}

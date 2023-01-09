@@ -28,38 +28,27 @@ class LoginCodeHelper {
 
 	// fetch the user object for the requested email address
 	async getUser () {
-		const oneUserPerOrg = (
-			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.request.headers['x-cs-one-user-per-org']
-		);
 		const users = await this.request.data.users.getByQuery(
 			{ searchableEmail: this.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-		if (!oneUserPerOrg) { // remove when we have fully moved to ONE_USER_PER_ORG
-			if (users.length > 1) {
-				this.request.warn(`Found more than one user matching ${this.email}, but one-user-per-org is not active, this is bad`);
-			}
-			this.user = users[0];
-		} else {
-			// under ONE_USER_PER_ORG, find the first registered user, matching the team, if given
-			this.user = users.find(user => {
-				const teamIds = user.get('teamIds') || [];
-				return (
-					user.get('isRegistered') && 
-					!user.get('deactivated') &&
+		// under ONE_USER_PER_ORG, find the first registered user, matching the team, if given
+		this.user = users.find(user => {
+			const teamIds = user.get('teamIds') || [];
+			return (
+				user.get('isRegistered') && 
+				!user.get('deactivated') &&
+				(
 					(
-						(
-							!this.teamId
-						) ||
-						(
-							teamIds.length === 1 &&
-							teamIds[0] === this.teamId
-						)
+						!this.teamId
+					) ||
+					(
+						teamIds.length === 1 &&
+						teamIds[0] === this.teamId
 					)
-				);
-			});
-		}
+				)
+			);
+		});
 
 		if (!this.user || !this.user.get('isRegistered') || this.user.get('deactivated')) {
 			this.request.log(`User ${this.email} does not exist or is not registered, not generating login code`);

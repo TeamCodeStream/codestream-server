@@ -20,9 +20,6 @@ class ACLTest extends GetTeamsTest {
 			this.team.id,
 			this.teamWithoutMe.id
 		];
-		if (!this.oneUserPerOrg) {
-			ids.push(this.teamWithMe.id);
-		}
 		this.path = '/teams?ids=' + ids.join(',');
 		callback();
 	}

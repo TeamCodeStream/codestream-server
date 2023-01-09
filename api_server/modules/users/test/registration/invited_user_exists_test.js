@@ -14,22 +14,11 @@ class InvitedUserExistsTest extends RegistrationTest {
 	}
 
 	get description () {
-		if (this.oneUserPerOrg) { // ONE_USER_PER_ORG
-			return 'when trying to register as a user that exists, but has been invited to a team, should return a newly created user, under one-user-per-org';
-		} else {
-			return 'when trying to register as a user that exists, and has been invited to a team, should return the existing user, until one-user-per-org is supported';
-		}
+		return 'when trying to register as a user that exists, but has been invited to a team, should return a newly created user, under one-user-per-org';
 	}
 
 	getExpectedFields () {
-		if (this.oneUserPerOrg) { // ONE_USER_PER_ORG
-			return UserTestConstants.EXPECTED_REGISTRATION_RESPONSE;
-		} else {
-			return { user: [
-				...UserTestConstants.EXPECTED_REGISTRATION_FIELDS,
-				...UserTestConstants.EXPECTED_INVITE_FIELDS
-			]};
-		}
+		return UserTestConstants.EXPECTED_REGISTRATION_RESPONSE;
 	}
 
 	// before the test runs...
@@ -58,21 +47,13 @@ class InvitedUserExistsTest extends RegistrationTest {
 				this.data = this.userFactory.getRandomUserData();
 				this.data.email = response.user.email;
 				this.data._confirmationCheat = this.apiConfig.sharedSecrets.confirmationCheat;
-				if (!this.oneUserPerOrg) { // ONE_USER_PER_ORG
-					this.expectedVersion = 2;	// version will be bumped
-				}
 				callback();
 			}
 		)
 	}
 
 	validateResponse (data) {
-		if (this.oneUserPerOrg) { // ONE_USER_PER_ORG
-			Assert.notStrictEqual(data.user.id, this.userId, 'ID of returned user is equal to existing user created, but should be different');
-		} else {
-			this.expectedCreatorId = this.users[0].user.id;
-			Assert.strictEqual(data.user.id, this.userId, 'ID of returned user not equal to existing user created, but should be the same');
-		}
+		Assert.notStrictEqual(data.user.id, this.userId, 'ID of returned user is equal to existing user created, but should be different');
 		return super.validateResponse(data);
 	}
 }

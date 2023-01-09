@@ -18,10 +18,6 @@ class CommonInit {
 	}
 
 	setTestOptions (callback) {
-		// set to use "one-user-per-org" paradigm
-		// this can be removed when we have fully migrated to ONE_USER_PER_ORG
-		this.oneUserPerOrg = true;
-		
 		// create a company and don't make the "current user" a member
 		this.expectedVersion = 3;
 		Object.assign(this.teamOptions, {

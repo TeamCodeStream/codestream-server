@@ -33,7 +33,7 @@ class CommonInit {
 		if (this.hasCodeHosting) {
 			this.providerHostData.hasCodeHosting = true;
 		}
-		const expectedVersion = this.oneUserPerOrg ? 5 : 4;
+		const expectedVersion = 5;
 		this.expectedData = {
 			team: {
 				_id: this.team.id,	// DEPRECATE ME

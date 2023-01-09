@@ -35,11 +35,7 @@ class AccountIsConnectedTest extends InitialDataTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		if (this.oneUserPerOrg) {
-			console.log('NOTE: under one-user-per-org, accountIsConnected is not set on confirmation, this test can probably be retired');
-		} else {
-			Assert.strictEqual(data.accountIsConnected, true, 'accountIsConnected should be true');
-		}
+		console.log('NOTE: under one-user-per-org, accountIsConnected is not set on confirmation, this test can probably be retired');
 		super.validateResponse(data);
 	}
 }

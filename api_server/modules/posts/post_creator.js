@@ -290,34 +290,17 @@ class PostCreator extends ModelCreator {
 			throw this.errorHandler.error('validation', { reason: 'cannot add users to a stream that is not a team stream' });
 		}
 
-		// remove this check when we have fully moved to ONE_USER_PER_ORG implementation
-		if (
-			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.request.headers['x-cs-one-user-per-org']
-		) {
-			this.request.log('NOTE: Inviting user under one-user-per-org paradigm');
-			this.userInviter = new UserInviter({
-				request: this.request,
-				team: this.team,
-				inviteCodeExpiresIn: this._inviteCodeExpiresIn,
-				delayEmail: this._delayEmail,
-				inviteInfo: this.inviteInfo,
-				user: this.user,
-				dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
-				dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
-			});
-		} else {
-			this.userInviter = new OldUserInviter({
-				request: this.request,
-				team: this.team,
-				inviteCodeExpiresIn: this._inviteCodeExpiresIn,
-				delayEmail: this._delayEmail,
-				inviteInfo: this.inviteInfo,
-				user: this.user,
-				dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
-				dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
-			});
-		}
+		this.request.log('NOTE: Inviting user under one-user-per-org paradigm');
+		this.userInviter = new UserInviter({
+			request: this.request,
+			team: this.team,
+			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
+			delayEmail: this._delayEmail,
+			inviteInfo: this.inviteInfo,
+			user: this.user,
+			dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
+			dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
+		});
 
 		const userData = this.addedUsers.map(email => {
 			return { 

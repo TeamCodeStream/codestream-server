@@ -6,11 +6,6 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class LoginTest extends PostCompanyTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return 'should be able to login using the returned access token after creating a company under one-user-per-org';
 	}

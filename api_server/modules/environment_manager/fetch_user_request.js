@@ -10,21 +10,9 @@ class FetchUserRequest extends XEnvRequest {
 
 	// process the request...
 	async process () {
-		// can assume this is true when we have fully moved to ONE_USER_PER_ORG
-		this.oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.headers['x-cs-one-user-per-org']
-		);
-
 		await this.requireAndAllow();
 
 		const { email, id } = this.request.query;
-		if (!this.oneUserPerOrg) { // can remove this check when we have fully moved to ONE_USER_PER_ORG
-			if (!email && !id) {
-				throw this.errorHandler.error('parameterRequired', { info: 'email or id' });
-			}
-		}
-
 		let user;
 		if (id) {
 			user = await this.data.users.getById(id);
@@ -50,19 +38,11 @@ class FetchUserRequest extends XEnvRequest {
 	// require certain parameters, and discard unknown parameters
 	async requireAndAllow () {
 		// under one-user-per-org, only fetch by id is supported
-		if (this.oneUserPerOrg) {
-			await this.requireAllowParameters('query', {
-				required: {
-					string: ['id']
-				}
-			});
-		} else {
-			await this.requireAllowParameters('query', {
-				optional: {
-					string: ['email', 'id']
-				}
-			});
-		}
+		await this.requireAllowParameters('query', {
+			required: {
+				string: ['id']
+			}
+		});
 	}
 }
 

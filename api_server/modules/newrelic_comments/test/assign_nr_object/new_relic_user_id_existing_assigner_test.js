@@ -19,12 +19,8 @@ class NewRelicUserIdExistingAssignerTest extends NewRelicUserIdAssignerTest {
 	}
 
 	before (callback) {
-		if (this.oneUserPerOrg) {
-			console.log('NOTE: under one-user-per-org, no connection with the original faux user and the register is maintained, so this test will pass superifically and should be deprecated');
-			return callback();
-		} else {
-			super.before(callback);
-		}
+		console.log('NOTE: under one-user-per-org, no connection with the original faux user and the register is maintained, so this test will pass superifically and should be deprecated');
+		return callback();
 	}
 
 	inviteAndRegisterFauxUser (callback) {
@@ -33,12 +29,8 @@ class NewRelicUserIdExistingAssignerTest extends NewRelicUserIdAssignerTest {
 	}
 
 	run (callback) {
-		if (this.oneUserPerOrg) {
-			console.log('NOTE: under one-user-per-org, no connection with the original faux user and the register is maintained, so this test will pass superifically and should be deprecated');
-			return callback();
-		} else {
-			super.run(callback);
-		}
+		console.log('NOTE: under one-user-per-org, no connection with the original faux user and the register is maintained, so this test will pass superifically and should be deprecated');
+		return callback();
 	}
 }
 

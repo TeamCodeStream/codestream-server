@@ -22,14 +22,6 @@ class JoinCompanyHelper {
 
 	// authorize the request for the current user
 	async authorize () {
-		// this functionality is not supported if one-user-per-org is not active
-		// remove this check when we are fully migrated to ONE_USER_PER_ORG
-		if (
-			!this.api.modules.modulesByName.users.oneUserPerOrg &&
-			!this.request.request.headers['x-cs-one-user-per-org']
-		) {
-			throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'one-user-per-org not enabled' });
-		}
 		this.request.log('NOTE: join-company request allowed in one-user-per-org paradigm');
 
 		// get the company

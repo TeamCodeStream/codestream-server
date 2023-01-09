@@ -6,11 +6,6 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class ExistingRegisteredUserOriginUserIdTest extends ExistingRegisteredUserTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return 'under one-user-per-org, when inviting a user that already exists and is registered, the user\'s originUserId attributes should be set to the original existing user\'s id';
 	}

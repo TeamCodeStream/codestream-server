@@ -13,8 +13,7 @@ class RegistrationTest extends CodeStreamAPITest {
 	}
 	
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
-		return `should return valid user data when registering${oneUserPerOrg}`;
+		return `should return valid user data when registering, under one-user-per-org paradigm`;
 	}
 
 	get method () {
@@ -68,10 +67,9 @@ class RegistrationTest extends CodeStreamAPITest {
 		Assert.deepEqual(user.providerIdentities, [], 'providerIdentities is not an empty array');
 		this.confirmationCode = user.confirmationCode;
 		delete user.confirmationCode; // this is technically unsanitized, but we "cheat" during the test
-		if (this.oneUserPerOrg) {
-			Assert.strictEqual(user.originUserId, user.id, 'originUserId not set to user.id');
-			Assert(user.copiedFromUserId === undefined, 'copiedFromUserId should not be defined');
-		}
+		Assert.strictEqual(user.originUserId, user.id, 'originUserId not set to user.id');
+		Assert(user.copiedFromUserId === undefined, 'copiedFromUserId should not be defined');
+
 		// verify we got no attributes that clients shouldn't see
 		this.validateSanitized(user, UserTestConstants.UNSANITIZED_ATTRIBUTES_FOR_ME);
 	}

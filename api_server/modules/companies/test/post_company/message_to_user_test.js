@@ -54,12 +54,8 @@ class MessageToUserTest extends CodeStreamMessageTest {
 	}
 
 	run (callback) {
-		if (this.oneUserPerOrg) {
-			console.log('NOTE: under one-user-per-org, no message is sent when a company is created, this test will be deprecated');
-			callback();
-		} else {
-			super.run(callback);
-		}
+		console.log('NOTE: under one-user-per-org, no message is sent when a company is created, this test will be deprecated');
+		callback();
 	}
 
 	// validate the incoming message
