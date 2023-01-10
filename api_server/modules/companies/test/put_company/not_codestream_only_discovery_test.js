@@ -4,6 +4,11 @@ const PutCompanyTest = require('./put_company_test');
 
 class NotCodeStreamOnlyDiscoveryTest extends PutCompanyTest {
 
+	constructor (options) {
+		super(options);
+		this.unifiedIdentityEnabled = true;
+	}
+	
 	get description () {
 		return 'should return an error when trying to update a company that is found to be not codestream-only by checking with New Relic';
 	}

@@ -9,17 +9,17 @@ const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 // checking request.transforms.updateCompanyNoCSOnly 
 
 module.exports = async function (company, request) {
-	// if company is already not marked as codestream only, that's that
-	if (!company.get('codestreamOnly')) {
-		return false;
-	}
-	
 	// if company is not linked to an NR org, we'll assume it's codestream only
 	// this shouldn't really happen under unified identity, once migrated
 	if (!company.get('linkedNROrgId')) { 
 		return true;
 	}
 
+	// if company is already not marked as codestream only, that's that
+	if (!company.get('codestreamOnly')) {
+		return false;
+	}
+	
 	// check with NR to see if we can still set this company as codestream only
 	const options = { request };
 	if (request.request.headers['x-cs-no-newrelic']) {

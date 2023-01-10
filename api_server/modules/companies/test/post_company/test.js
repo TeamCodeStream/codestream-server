@@ -19,7 +19,7 @@ class PostCompanyRequestTester {
 
 	test () {
 		new PostCompanyTest().test();
-		new PostCompanyTest({ oneUserPerOrg: true }).test();
+		new PostCompanyTest({ unifiedIdentityEnabled: true }).test();
 		new NoAttributeTest({ attribute: 'name' }).test();
 		new MessageToUserTest().test();
 		new JoiningTest().test();
@@ -27,6 +27,7 @@ class PostCompanyRequestTester {
 		new SubscriptionTest().test();
 		new LoginTest().test();
 		new FirstCompanyOneUserPerOrgTest().test();
+		new FirstCompanyOneUserPerOrgTest({ unifiedIdentityEnabled: true }).test();
 		new ClearFirstSessionTest().test();
 		new NRUserIdTest().test();
 		new LinkedNROrgIdTest().test();

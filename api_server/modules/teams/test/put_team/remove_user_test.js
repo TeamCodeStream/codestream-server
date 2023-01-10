@@ -6,7 +6,8 @@ const Assert = require('assert');
 class RemoveUserTest extends PutTeamTest {
 
 	get description () {
-		return 'should return the updated team and directive when removing a user from a team';
+		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity': '';
+		return `should return the updated team and directive when removing a user from a team${unifiedIdentity}`;
 	}
    
 	// form the data for the team update

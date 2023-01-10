@@ -70,6 +70,7 @@ describe('inbound emails', function() {
 	new StreamNoMatchTeamTest().test();
 	new OriginatorNotInTeamTest().test();
 	new TrackingTest().test();
+	new TrackingTest({ unifiedIdentityEnabled: true }).test();
 	new TrackingReplyToReviewTest().test();
 	new TrackingReplyToCodeErrorTest().test();
 	new TrackingCodemarkReplyToReviewTest().test();

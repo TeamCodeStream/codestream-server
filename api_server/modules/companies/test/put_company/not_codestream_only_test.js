@@ -5,6 +5,11 @@ const RandomString = require('randomstring');
 
 class NotCodeStreamOnlyTest extends PutCompanyTest {
 
+	constructor (options) {
+		super(options);
+		this.unifiedIdentityEnabled = true;
+	}
+	
 	get description () {
 		return 'should return an error when trying to update a company that is not codestream-only';
 	}

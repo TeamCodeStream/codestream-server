@@ -23,6 +23,7 @@ class UnsubscribeRequestTester {
 		new InvalidTokenTest().test();
 		new NotUnsubscribeTokenTest().test();
 		new TrackingTest().test();
+		new TrackingTest({ unifiedIdentityEnabled: true }).test();
 	}
 }
 
