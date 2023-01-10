@@ -4,6 +4,11 @@ const PostUserTest = require('./post_user_test');
 
 class NotCodeStreamOnlyDiscoveryTest extends PostUserTest {
 
+	constructor (options) {
+		super(options);
+		this.unifiedIdentityEnabled = true;
+	}
+
 	get description () {
 		return 'should return an error when trying to create a user on a team when the team\'s associated org is found to be not codestream-only by checking with New Relic';
 	}

@@ -9,7 +9,8 @@ const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_serv
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'should send a Notification Change event for tracking purposes when user follows email link to unfollow a codemark';
+		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
+		return `should send a Notification Change event for tracking purposes when user follows email link to unfollow a codemark${unifiedIdentity}`;
 	}
 
 	// before the test runs...
@@ -82,13 +83,19 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				},
 				'AB Test': Object.keys(this.testGroupData).map(key => {
 					return `${key}|${this.testGroupData[key]}`;
-				}),
+				})
+			}
+		};
+
+		if (this.unifiedIdentityEnabled) { // remove this check when we fully move to UNIFIED_IDENTITY
+			Object.assign(expectedMessage.properties, {
 				'CodeStream Only': true,
 				'Org Origination': 'CS',
 				'NR User ID': this.currentUser.user.nrUserId,
 				'NR Organization ID': this.company.linkedNROrgId
-			}
-		};
+			});
+		}
+
 		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
 			expectedMessage.properties.Region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
 		}

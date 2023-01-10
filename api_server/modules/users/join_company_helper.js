@@ -193,6 +193,7 @@ class JoinCompanyHelper {
 	// it's more or less functionally the same as signing up
 	async handleIdPSignup () {
 		if (!this.api.services.idp) { return; }
+		if (!this.request.request.headers['x-cs-enable-uid']) { return; }
 		let mockResponse;
 		if (this.request.request.headers['x-cs-no-newrelic']) {
 			mockResponse = true;

@@ -8,7 +8,8 @@ const CommonInit = require('./common_init');
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
-		return 'should send an Unsubscribe event for tracking purposes when user follows email link to unsubscribe from weekly emails';
+		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
+		return `should send an Unsubscribe event for tracking purposes when user follows email link to unsubscribe from weekly emails${unifiedIdentity}`;
 	}
 
 	// before the test runs...
@@ -59,10 +60,14 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				name: this.currentUser.user.fullName,
 				'Join Method': 'Created Team',
 				distinct_id: this.currentUser.user.id,
-				'Email Type': 'Weekly Activity',
-				'NR User ID': this.currentUser.user.nrUserId
+				'Email Type': 'Weekly Activity'
 			}
 		};
+
+		if (this.unifiedIdentityEnabled) {
+			expectedMessage.properties['NR User ID'] = this.currentUser.user.nrUserId;
+		}
+
 		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
 			expectedMessage.properties.Region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
 		}

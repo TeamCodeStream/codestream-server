@@ -4,6 +4,11 @@ const AddAdminTest = require('./add_admin_test');
 
 class NotCodeStreamOnlyDiscoveryAddAdminTest extends AddAdminTest {
 
+	constructor (options) {
+		super(options);
+		this.unifiedIdentityEnabled = true;
+	}
+
 	get description () {
 		return 'should return an error when trying to remove a user from a team when the team\'s associated org is found to be not codestream-only by checking with New Relic';
 	}
