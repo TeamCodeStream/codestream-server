@@ -221,6 +221,11 @@ class APIRequestTest extends GenericTest {
 			// bot to a pubnub channel that we'll listen on
 			requestOptions.headers['X-CS-Test-Bot-Out'] = true;
 		}
+		if (this.unifiedIdentityEnabled) {
+			// this test is assuming Unified Identity is enabled,
+			// we can remove this check when we fully move to UNIFIED_IDENTITY
+			requestOptions.headers['X-CS-Enable-UId'] = true;
+		}
 		requestOptions.headers['X-CS-No-NewRelic'] = true;
 		requestOptions.headers['X-CS-Test-Num'] = `API-${this.testNum}`;	// makes it easy to log requests associated with particular tests
 	}

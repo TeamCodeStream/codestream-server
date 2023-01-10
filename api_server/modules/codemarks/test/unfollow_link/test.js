@@ -36,6 +36,7 @@ class FollowRequestTester {
 		new NotUnfollowTokenTest().test();
 		new UserNotFoundTest().test();
 		new TrackingTest().test();
+		new TrackingTest({ unifiedIdentityEnabled: true }).test();
 	}
 }
 

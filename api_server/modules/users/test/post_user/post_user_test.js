@@ -12,7 +12,8 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return `should return the user when creating (inviting) a user, under one-user-per-org`;
+		const unifiedIdentity = this.unifiedIdentityEnabled ? ' and unified identity' : ''
+		return `should return the user when creating (inviting) a user, under one-user-per-org${unifiedIdentity}`;
 	}
 
 	get method () {

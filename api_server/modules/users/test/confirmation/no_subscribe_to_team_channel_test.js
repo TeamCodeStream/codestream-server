@@ -12,7 +12,6 @@ class NoSubscribeToTeamChannelTest extends ConfirmationTest {
 			creatorIndex: 1,
 			numAdditionalInvites: 2
 		});
-		this.oneUserPerOrg = true;
 	}
 
 	get description () {

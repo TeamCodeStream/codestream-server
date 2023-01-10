@@ -6,6 +6,11 @@ const CommonInit = require('./common_init');
 
 class NotCodeStreamOnlyDiscoveryMessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
+	constructor (options) {
+		super(options);
+		this.unifiedIdentityEnabled = true;
+	}
+
 	get description () {
 		return `members of the team should receive a message with the a company update when an attempt is made to remove a user from an org that is discovered to be no longer codestream-only`;
 	}

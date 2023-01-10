@@ -10,13 +10,7 @@ class RemoveSelfTest extends RemoveUserTest {
 	}
 
 	get description () {
-		return 'per unified identity, must be an admin to remove yourself from a team';
-	}
-
-	getExpectedError () {
-		return {
-			code: 'TEAM-1002'
-		};
+		return 'should be ok to remove yourself from a team (until unified identity kicks in)';
 	}
 
 	// get the users we want to remove from the team

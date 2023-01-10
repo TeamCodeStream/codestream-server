@@ -60,19 +60,13 @@ class PostUserRequestTester {
 
 	postUserTest () {
 		new PostUserTest().test();
-		new PostUserTest({ oneUserPerOrg: true }).test();
+		new PostUserTest({ unifiedIdentityEnabled: true }).test();
 		new ExistingUnregisteredUserTest().test();
-		new ExistingUnregisteredUserTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserTest().test();
-		new ExistingRegisteredUserTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserOnTeamTest().test();
-		new ExistingRegisteredUserOnTeamTest({ oneUserPerOrg: true }).test();
 		new ExistingUnregisteredUserOnTeamTest().test();
-		new ExistingUnregisteredUserOnTeamTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserAlreadyOnTeamTest().test();
-		new ExistingRegisteredUserAlreadyOnTeamTest({ oneUserPerOrg: true }).test();
 		new ExistingUnregisteredUserAlreadyOnTeamTest().test();
-		new ExistingUnregisteredUserAlreadyOnTeamTest({ oneUserPerOrg: true }).test();
 		new OriginTeamPropagatesTest().test();
 		new ACLTest().test();
 		new NoAttributeTest({ attribute: 'teamId'}).test();

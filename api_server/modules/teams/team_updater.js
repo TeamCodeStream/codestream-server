@@ -143,11 +143,10 @@ class TeamUpdater extends ModelUpdater {
 		if (!(this.team.get('adminIds') || []).includes(this.user.id)) {
 			// the one exception is a user removing themselves from a team
 			// per https://issues.newrelic.com/browse/NR-60778 this is no longer true
-			if (true
-				/*
+			if (
+				this.company.get('linkedNROrgId') || 
 				!this.removingUserIds || 
 				this.removingUserIds.find(id => id !== this.user.id)
-				*/
 			) {
 				throw this.errorHandler.error('adminsOnly');
 			}
@@ -190,7 +189,11 @@ class TeamUpdater extends ModelUpdater {
 	// for a user being removed from the team, update their teamIds array
 	async removeUserFromTeam (user) {
 		// first remove the user from New Relic, if this fails, we don't want to proceed
-		if (this.api.services.idp && user.get('nrUserId')) {
+		if (
+			this.api.services.idp &&
+			this.company.get('linkedNROrgId') &&
+			user.get('nrUserId')
+		) {
 			let mockResponse;
 			if (this.request.request.headers['x-cs-no-newrelic']) {
 				mockResponse = true;

@@ -10,7 +10,8 @@ class JoinCompanyTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
 		const by = this.byDomainJoining ? 'domain joining' : 'invite';
-		return `should return user credentials when joining a company by ${by}`;
+		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
+		return `should return user credentials when joining a company by ${by}${unifiedIdentity}`;
 	}
 
 	get method () {
