@@ -11,7 +11,8 @@ const TeamTestConstants = require('../team_test_constants');
 class PutTeamTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get description () {
-		return 'should return the updated team when updating a team';
+		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unifiied identity' : '';
+		return `should return the updated team when updating a team${unifiedIdentity}`;
 	}
 
 	get method () {

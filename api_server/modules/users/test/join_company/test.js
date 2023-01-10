@@ -25,8 +25,12 @@ class JoinCompanyRequestTester {
 	test () {
  		new JoinCompanyTest().test();
 		new JoinCompanyTest({ byDomainJoining: true }).test();
+ 		new JoinCompanyTest({ unifiedIdentityEnabled: true }).test();
+		new JoinCompanyTest({ unifiedIdentityEnabled: true, byDomainJoining: true }).test();
 		new JoinCompanyLoginTest().test();
 		new JoinCompanyLoginTest({ byDomainJoining: true }).test();
+		new JoinCompanyLoginTest({ unifiedIdentityEnabled: true }).test();
+		new JoinCompanyLoginTest({ unifiedIdentityEnabled: true, byDomainJoining: true }).test();
 		//new OneUserPerOrgEnabledTest().test();
 		new CompanyNotFoundTest().test();
 		new CompanyDeactivatedTest().test();
@@ -35,6 +39,8 @@ class JoinCompanyRequestTester {
 		new NoDomainJoiningTest().test();
 		new MessageToTeamTest().test();
 		new MessageToTeamTest({ byDomainJoining: true }).test();
+		new MessageToTeamTest({ unifiedIdentityEnabled: true }).test();
+		new MessageToTeamTest({ unifiedIdentityEnabled: true, byDomainJoining: true }).test();
 		new OriginalUserDeletedTest().test();
 		new OriginalUserDeletedTest({ byDomainJoining: true }).test();
 		new OriginalUserNotDeletedTest().test();

@@ -6,6 +6,11 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class LinkedNROrgIdTest extends PostCompanyTest {
 
+	constructor (options) {
+		super(options);
+		this.unifiedIdentityEnabled = true;
+	}
+	
 	get description () {
 		return 'when a user creates a second company, the company should be given a linked New Relic organization ID';
 	}

@@ -19,6 +19,7 @@ class PutCompanyRequestTester {
 
 	test () {
 		new PutCompanyTest().test();
+		new PutCompanyTest({ unifiedIdentityEnabled: true }).test();
 		new PutCompanyFetchTest().test();
 		new CompanyNotFoundTest().test();
 		//new NoEveryoneTeamTest().test();

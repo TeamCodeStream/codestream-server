@@ -4,6 +4,11 @@ const JoinCompanyTest = require('./join_company_test');
 
 class NotCodeStreamOnlyDiscoveryTest extends JoinCompanyTest {
 
+	constructor (options) {
+		super(options);
+		this.unifiedIdentityEnabled = true;
+	}
+	
 	get description () {
 		return 'should return an error when trying to join a company whose associated org is found to be not codestream-only by checking with New Relic';
 	}

@@ -14,7 +14,8 @@ class PostCompanyTest extends CodeStreamAPITest {
 	}
 
 	get description () {
-		return 'should return userId, teamId, and accessToken when creating a new company under one-user-per-org';
+		const unifiedIdentity = this.unifiedIdentityEnabled ? ', and linked NR info if unified identity is enabled' : '';
+		return `should return userId, teamId, and accessToken when creating a new company under one-user-per-org${unifiedIdentity}`;
 	}
 
 	getExpectedFields () {
@@ -49,7 +50,7 @@ class PostCompanyTest extends CodeStreamAPITest {
 		const team = data.team;
 		const expectedName = this.expectedName || this.data.name;
 		const errors = [];
-		const result = (
+		let result = (
 			((company.id === company._id) || errors.push('id not set to _id')) && 	// DEPRECATE ME
 			((company.name === expectedName) || errors.push('name does not match')) &&
 			((company.deactivated === false) || errors.push('deactivated not false')) &&
@@ -57,13 +58,21 @@ class PostCompanyTest extends CodeStreamAPITest {
 			((company.modifiedAt >= company.createdAt) || errors.push('modifiedAt not greater than or equal to createdAt')) &&
 			((company.creatorId === this.currentUser.user.id) || errors.push('creatorId not equal to current user id')) &&
 			((company.everyoneTeamId === team.id) || errors.push('everyoneTeamId not set to the ID of the everyone team')) &&
-			((typeof company.linkedNROrgId === 'string') || errors.push('linkedNROrgId not set')) &&
 			((team.id === team._id) || errors.push('team.id not set to team._id')) && // DEPRECATE ME
 			((team.name === 'Everyone') || errors.push('team name not set to "Everyone"')) &&
 			((team.isEveryoneTeam === true) || errors.push('team isEveryoneFlag not set')) &&
 			((team.companyId === company.id) || errors.push('team companyId should be set to the company id'))
 		);
+
+		if (this.unifiedIdentityEnabled) {
+			result &&= (
+				((typeof company.linkedNROrgId === 'string') || errors.push('linkedNROrgId not set')) &&
+				((company.codestreamOnly === true) || errors.push('codestreamOnly not set')) &&
+				((company.orgOrigination === 'CS') || errors.push('orgOrigination not set'))
+			);
+		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+
 		Assert.deepStrictEqual(company.teamIds, [team.id], 'teamIds should have single "Everyone" team');
 		this.validateTeamStream(data);
 		this.validateSanitized(company, CompanyTestConstants.UNSANITIZED_ATTRIBUTES);

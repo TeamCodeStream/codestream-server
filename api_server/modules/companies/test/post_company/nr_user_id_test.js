@@ -8,6 +8,11 @@ const Assert = require('assert');
 
 class NRUserIdTest extends FirstCompanyOneUserPerOrgTest {
 
+	constructor (options) {
+		super(options);
+		this.unifiedIdentityEnabled = true;
+	}
+	
 	get description () {
 		return 'when a user creates their first company, they should be provisioned on New Relic, and given a New Relic user id';
 	}

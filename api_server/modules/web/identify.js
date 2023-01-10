@@ -40,7 +40,7 @@ module.exports = function(options) {
 	} else {
 		abTest = '[]';
 	}
-	const codeStreamOnly = !!(company && company.get('codestreamOnly'));
+	const codeStreamOnly = company.get('linkedNROrgId') && !!(company && company.get('codestreamOnly'));
 	const orgOrigination = (company && company.get('orgOrigination')) || '';
 
 	let nrUserId, nrOrgId;
