@@ -187,6 +187,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'logout',
 		requestClass: require('./logout_request')
+	},
+	{
+		method: 'put',
+		path: 'no-auth/check-login',
+		requestClass: require('./check_login_request')
 	}
 ];
 
