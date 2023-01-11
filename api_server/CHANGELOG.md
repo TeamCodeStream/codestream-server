@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.10] - 2023-1-12
+
+### Fixed
+
+- Fixes an issue where users would get disconnected from Jira because of problems with the refresh token
+
 ## [14.0.9] - 2022-12-13
 
 ### Changed
