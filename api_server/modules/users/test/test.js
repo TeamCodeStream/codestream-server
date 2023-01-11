@@ -28,7 +28,7 @@ const GenerateLoginCodeTester = require('./generate_login_code/test');
 const JoinCompanyTester = require('./join_company/test');
 const DeclineInviteTester = require('./decline_invite/test');
 const LogoutRequestTester = require('./logout/test');
-const LogoutRequest = require('../logout_request');
+const CheckLoginRequestTester = require('./check_login/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -71,4 +71,5 @@ describe('user requests', function() {
 	describe('PUT /join-company/:id', JoinCompanyTester.test);
 	describe('PUT /decline-invite/:id', DeclineInviteTester.test);
 	describe('PUT /logout', LogoutRequestTester.test);
+	describe('PUT /no-auth/check-login', CheckLoginRequestTester.test);
 });
