@@ -110,8 +110,7 @@ module.exports = {
 	},
 	'multiRegion': {
 		description: 'Supports multi-region switching',
-		version: '12.0.7',
-		useGlobal: true
+		version: '12.0.7'
 	},
 	'showPreReleaseTos': {
 		description: 'Show pre-release TOS to CLM beta testers',
