@@ -35,6 +35,7 @@ class ProviderRefreshRequest extends RestfulRequest {
 
 		await this.requireAndAllow();	// require certain parameters, discard unknown parameters
 		await this.getTeam();			// get the team the user is auth'd with
+		await this.getExistingProviderInfo(); // get providerInfo for this provider
 		await this.fetchAccessToken();	// fetch the access token from the third-party provider
 		await this.saveToken();			// save the access token for the user
 	}
@@ -45,14 +46,13 @@ class ProviderRefreshRequest extends RestfulRequest {
 			'query',
 			{
 				required: {
-					string: ['refreshToken', 'teamId']
+					string: ['teamId']
 				},
 				optional: {
 					string: ['_mockToken', 'host', 'sharing', 'subId']
 				}
 			}
 		);
-		this.refreshToken = decodeURIComponent(this.request.query.refreshToken);
 		this.sharing = this.request.query.sharing;
 		this.subId = this.request.query.subId;
 	}
@@ -65,6 +65,29 @@ class ProviderRefreshRequest extends RestfulRequest {
 		}
 	}
 
+	async getExistingProviderInfo () {
+		let providerInfoKey, existingProviderInfo;
+		const providerInfo = this.user.get('providerInfo') || {};
+		if (
+			providerInfo[this.provider] &&
+			providerInfo[this.provider].accessToken
+		) {
+			providerInfoKey = `providerInfo.${this.provider}`;
+			existingProviderInfo = providerInfo[this.provider];
+		} else {
+			providerInfoKey = `providerInfo.${this.team.id}.${this.provider}`;
+			if (this.host) {
+				const starredHost = this.host.replace(/\./g, '*');
+				providerInfoKey += `.hosts.${starredHost}`;
+				existingProviderInfo = (providerInfo[this.teamId][this.provider].hosts || {})[starredHost] || {};
+			} else {
+				existingProviderInfo = providerInfo[this.teamId][this.provider];
+			}
+		}
+		this.existingProviderInfo = existingProviderInfo;
+		this.providerInfoKey = providerInfoKey;
+	}
+
 	// perform an exchange of auth code for access token, as needed
 	async fetchAccessToken () {
 		if (!this.serviceAuth.supportsRefresh()) {
@@ -75,8 +98,15 @@ class ProviderRefreshRequest extends RestfulRequest {
 		if (this.request.query.host) {
 			this.host = decodeURIComponent(this.request.query.host).toLowerCase();
 		}
+
+		const refreshToken = this.existingProviderInfo.refreshToken;
+
+		if (!refreshToken) {
+			throw this.errorHandler.error('readAuth', { info: { message: "Missing auth info" } });
+		}
+
 		const options = {
-			refreshToken: this.refreshToken,
+			refreshToken: refreshToken,
 			provider: this.provider,
 			redirectUri,
 			request: this,
@@ -101,43 +131,24 @@ class ProviderRefreshRequest extends RestfulRequest {
 
 		// if the user has credentials above the team level (as in, they used the provider for sign-in),
 		// ignore the team parameter and set the data at that level
-		let providerInfoKey, existingProviderInfo;
-		const providerInfo = this.user.get('providerInfo') || {};
-		if (
-			providerInfo[this.provider] &&
-			providerInfo[this.provider].accessToken
-		) {
-			providerInfoKey = `providerInfo.${this.provider}`;
-			existingProviderInfo = providerInfo[this.provider];
-		} else {
-			providerInfoKey = `providerInfo.${this.team.id}.${this.provider}`;
-			if (this.host) {
-				const starredHost = this.host.replace(/\./g, '*');
-				providerInfoKey += `.hosts.${starredHost}`;
-				existingProviderInfo = (providerInfo[this.teamId][this.provider].hosts || {})[starredHost] || {};
-			}
-			else {
-				existingProviderInfo = providerInfo[this.teamId][this.provider];
-			}
-		}
 
 		const modifiedAt = Date.now();
 		let op;
-		if (this.sharing) {			
+		if (this.sharing) {
 			if (!this.subId)
 				throw this.errorHandler.error('parameterRequired', { info: 'subId' });
 
 			op = { $set: {} };
-			const existingData = (existingProviderInfo.multiple || {})[this.subId];
+			const existingData = (this.existingProviderInfo.multiple || {})[this.subId];
 			const extra = existingData && existingData.extra;
-			op.$set[`${providerInfoKey}.multiple.${this.subId}`] = { ...this.tokenData, extra: extra };
+			op.$set[`${this.providerInfoKey}.multiple.${this.subId}`] = { ...this.tokenData, extra: extra };
 			op.$set.modifiedAt = modifiedAt;
 		}
 		else {
-			const newProviderInfo = Object.assign({}, existingProviderInfo, this.tokenData);
+			const newProviderInfo = Object.assign({}, this.existingProviderInfo, this.tokenData);
 			op = {
 				$set: {
-					[providerInfoKey]: newProviderInfo,
+					[this.providerInfoKey]: newProviderInfo,
 					modifiedAt
 				}
 			};
@@ -200,10 +211,9 @@ class ProviderRefreshRequest extends RestfulRequest {
 			access: 'Access tokens are issued per team, so user must be a member of the team passed with the request',
 			description: 'Given a refresh token issued by a third-party provider, use that refresh token to fetch a new access token from the provider',
 			input: {
-				summary: 'Specify teamId and refreshToken in the query',
+				summary: 'Specify teamId in the query',
 				looksLike: {
 					'teamId*': '<ID of the team for which provider access is required>',
-					'refreshToken*': '<Refresh token as obtained during a previous authorization>'
 				}
 			},
 			returns: {
