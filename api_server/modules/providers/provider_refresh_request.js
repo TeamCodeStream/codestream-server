@@ -66,6 +66,9 @@ class ProviderRefreshRequest extends RestfulRequest {
 	}
 
 	async getExistingProviderInfo () {
+		if (this.request.query.host) {
+			this.host = decodeURIComponent(this.request.query.host).toLowerCase();
+		}
 		let providerInfoKey, existingProviderInfo;
 		const providerInfo = this.user.get('providerInfo') || {};
 		if (
@@ -95,9 +98,6 @@ class ProviderRefreshRequest extends RestfulRequest {
 		}
 		const { authOrigin } = this.api.config.apiServer;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
-		if (this.request.query.host) {
-			this.host = decodeURIComponent(this.request.query.host).toLowerCase();
-		}
 
 		const refreshToken = this.request.query._mockRefreshToken ?
 			this.request.query._mockRefreshToken :
