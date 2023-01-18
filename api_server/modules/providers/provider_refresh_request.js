@@ -49,7 +49,7 @@ class ProviderRefreshRequest extends RestfulRequest {
 					string: ['teamId']
 				},
 				optional: {
-					string: ['_mockToken', 'host', 'sharing', 'subId']
+					string: ['_mockToken', '_mockRefreshToken', 'host', 'sharing', 'subId']
 				}
 			}
 		);
@@ -66,6 +66,9 @@ class ProviderRefreshRequest extends RestfulRequest {
 	}
 
 	async getExistingProviderInfo () {
+		if (this.request.query.host) {
+			this.host = decodeURIComponent(this.request.query.host).toLowerCase();
+		}
 		let providerInfoKey, existingProviderInfo;
 		const providerInfo = this.user.get('providerInfo') || {};
 		if (
@@ -95,11 +98,10 @@ class ProviderRefreshRequest extends RestfulRequest {
 		}
 		const { authOrigin } = this.api.config.apiServer;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
-		if (this.request.query.host) {
-			this.host = decodeURIComponent(this.request.query.host).toLowerCase();
-		}
 
-		const refreshToken = this.existingProviderInfo.refreshToken;
+		const refreshToken = this.request.query._mockRefreshToken ?
+			this.request.query._mockRefreshToken :
+			this.existingProviderInfo.refreshToken;
 
 		if (!refreshToken) {
 			throw this.errorHandler.error('readAuth', { info: { message: "Missing auth info" } });
