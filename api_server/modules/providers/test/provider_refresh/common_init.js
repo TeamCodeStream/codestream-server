@@ -166,7 +166,8 @@ class CommonInit {
 		const parameters = {
 			teamId: this.team.id,
 			refreshToken: this.refreshToken,
-			_mockToken: this.refreshedMockToken
+			_mockToken: this.refreshedMockToken,
+			_mockRefreshToken: 'refreshMe'
 		};
 		if (this.testHost) {
 			parameters.host = this.testHost;
