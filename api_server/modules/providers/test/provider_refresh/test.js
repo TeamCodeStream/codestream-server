@@ -51,7 +51,7 @@ class ProviderRefreshTester {
 			new MessageTest({ provider, testHost }).test();
 		});
 		new ParameterRequiredTest({ provider: 'jira', parameter: 'teamId' }).test();
-		new ParameterRequiredTest({ provider: 'bitbucket', parameter: 'refreshToken' }).test();
+		new ParameterRequiredTest({ provider: 'bitbucket', parameter: 'teamId' }).test();
 		new ACLTest({ provider: 'gitlab' }).test();
 		new UnknownProviderTest({ provider: 'asana' }).test();
 		new TeamNotFoundTest({ provider: 'azuredevops' }).test();
