@@ -96,7 +96,11 @@ class NewRelicIDP extends APIServerModule {
 	// as well as a "login" call thereafter to return an actual token 
 	// the user can use
 	async fullSignup (data, options = {}) {
-		const signupResponse = await this.signupUser(data, options);
+		const signupResponse = await this.signupUser({
+			name: data.name,
+			email: data.email,
+			password: data.password
+		}, options);
 		/*
 		const loginResponse = await this.loginUser(
 			{
@@ -163,7 +167,7 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async getUsersByAuthDomain (domainId, options = {}) {
-		return this._newrelic_idp_call(
+		const result = await this._newrelic_idp_call(
 			'user',
 			'/v1/users',
 			'get',
@@ -171,6 +175,10 @@ class NewRelicIDP extends APIServerModule {
 				authentication_domain_id: domainId
 			},
 			options
+		);
+		return (
+			result &&
+			result.data
 		);
 	}
 
@@ -232,6 +240,22 @@ class NewRelicIDP extends APIServerModule {
 		return !hasEntitlement;
 	}
 
+	// get the auth domains associated with a particular NR org
+	async getAuthDomains (nrOrgId, options) {
+		const result = await this._newrelic_idp_call(
+			'org',
+			`/v0/organizations/${nrOrgId}/authentication_domains`,
+			'get',
+			undefined,
+			options
+		);
+
+		return (
+			result.data &&
+			result.data.map(_ => _.id)
+		);
+
+	}
 	// get the "reporting account" for the given NR org ID
 	async getOrgReportingAccount (nrOrgId, options) {
 		const result = await this._newrelic_idp_call(
@@ -300,6 +324,9 @@ class NewRelicIDP extends APIServerModule {
 			fetchOptions.headers['NewRelic-Signed-Body'] = payloadSignature;
 		}
 
+		if (options.logger && options.verbose) {
+			options.logger.log(`Calling New Relic: ${url}\n`, JSON.stringify(fetchOptions, 0, 5));
+		}
 		const response = await Fetch(url, fetchOptions);
 
 		let json;
@@ -318,6 +345,9 @@ class NewRelicIDP extends APIServerModule {
 			this._throw('apiFailed', `${method.toUpperCase()} ${path}: response not ok (${response.status}): ${message}`, options);
 		}
 
+		if (options.logger && options.verbose) {
+			options.logger.log('Response from New Relic:\n' + JSON.stringify(json, 0, 5));
+		}
 		return json;
 	}
 
@@ -368,7 +398,7 @@ class NewRelicIDP extends APIServerModule {
 			customer_id: 'CC-' + Math.floor(Math.random() * 1000000000),
 			customer_contract_id: UUID(),
 			organization_group_id: UUID(),
-			authenticatin_domain_id: UUID(),
+			authentication_domain_id: UUID(),
 			user_id: Math.floor(Math.random() * 1000000000).toString(),
 			account_id: Math.floor(Math.random() * 100000000)
 		};
@@ -390,7 +420,7 @@ class NewRelicIDP extends APIServerModule {
 					version: 2,
 					name: params.data.attributes.name,
 					timeZone: 'Etc/UTC',
-					authenticationDomainId: params.data.attributes.authenticatin_domain_id,
+					authenticationDomainId: params.data.attributes.authentication_domain_id,
 					activeIdp: 'azureb2c',
 					activeIdpObjectId: idpObjectId,
 					supportedIdps: [
