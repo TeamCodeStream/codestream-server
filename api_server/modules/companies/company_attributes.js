@@ -116,5 +116,10 @@ module.exports = {
 	isNRConnected: {
 		type: 'boolean',
 		description: 'Indicates this company has at least one user who is connected to New Relic'
+	},
+	switchToServerUrl: {
+		type: 'string',
+		maxLength: 100,
+		description: 'Indicates users in this org should switch to a new serverUrl for future requests'
 	}
 };
