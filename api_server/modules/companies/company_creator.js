@@ -147,7 +147,7 @@ class CompanyCreator extends ModelCreator {
 			this.user.id,
 			{
 				$set: {
-					nrUserInfo: nrUserInfo,
+					nrUserInfo: { }, // anything we want to store here?
 					nrUserId: nrUserInfo.user_id
 				},
 				$unset: {
@@ -162,13 +162,14 @@ class CompanyCreator extends ModelCreator {
 		// NOTE - we do this post-save of creating the company to ensure that a failure
 		// here doesn't end up with an orphaned user and organization on New Relic,
 		// better to do it once we're (reasonably) sure things are going to succeed on our end
-		const nrOrgInfo = { ...nrUserInfo };
-		delete nrOrgInfo.user_id;
 		await this.request.data.companies.update(
 			{
 				id: this.model.id,
 				linkedNROrgId: nrUserInfo.organization_id,
-				nrOrgInfo,
+				nrOrgInfo: {
+					authentication_domain_id: nrUserInfo.authentication_domain_id,
+					account_id: nrUserInfo.account_id
+				},
 				codestreamOnly: true,
 				orgOrigination: 'CS'
 			}
