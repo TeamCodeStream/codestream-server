@@ -1,6 +1,6 @@
 {
 	"name": "api-server",
-	"version": "14.0.9",
+	"version": "14.0.10",
 	"dependencies": {
 		"@microsoft/microsoft-graph-client": "3.0.2",
 		"@octokit/rest": "18.12.0",
@@ -78,7 +78,7 @@
 		"nodemon": "2.0.18",
 		"pre-commit": "1.2.2",
 		"randomstring": "1.2.2",
-		"snyk": "1.996.0"
+		"snyk": "1.1064.0"
 	},
 	"overrides": {
 		"handlebars@4.7.7": {

@@ -18,7 +18,8 @@ class CapabilitiesRequest extends RestfulRequest {
 			isOnPrem,
 			isProductionCloud,
 			newRelicLandingServiceUrl,
-			newRelicApiUrl
+			newRelicApiUrl,
+			newRelicSecApiUrl
 		} = this.api.config.sharedGeneral;
 		const environmentGroup = this.api.config.environmentGroup || {};
 
@@ -38,7 +39,8 @@ class CapabilitiesRequest extends RestfulRequest {
 			isOnPrem: isOnPrem,
 			isProductionCloud: isProductionCloud,
 			newRelicLandingServiceUrl: newRelicLandingServiceUrl,
-			newRelicApiUrl: newRelicApiUrl
+			newRelicApiUrl: newRelicApiUrl,
+			newRelicSecApiUrl: newRelicSecApiUrl
 		};
 	}
 

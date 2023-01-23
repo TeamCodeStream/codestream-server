@@ -259,28 +259,52 @@
 			}
 		},
 		"pubnub": {
+			"blueKey": {
+				"publishKey": {
+					"desc": "pubnub publishing key",
+					"env": "CSSVC_PUBNUB_PUBLISH_BLUE_KEY",
+					"required": true
+				},
+				"secretKey": {
+					"desc": "pubnub adminstrative (secret) key",
+					"env": "CSSVC_PUBNUB_BLUE_SECRET",
+					"required": true
+				},
+				"subscribeKey": {
+					"desc": "pubnub subscription key",
+					"env": "CSSVC_PUBNUB_SUBSCRIBE_BLUE_KEY",
+					"required": true
+				}
+			},
+			"greenKey": {
+				"publishKey": {
+					"desc": "pubnub publishing key",
+					"env": "CSSVC_PUBNUB_PUBLISH_GREEN_KEY",
+					"required": true
+				},
+				"secretKey": {
+					"desc": "pubnub adminstrative (secret) key",
+					"env": "CSSVC_PUBNUB_GREEN_SECRET",
+					"required": true
+				},
+				"subscribeKey": {
+					"desc": "pubnub subscription key",
+					"env": "CSSVC_PUBNUB_SUBSCRIBE_GREEN_KEY",
+					"required": true
+				}
+			},
 			"keepAlive": {
 				"default": true,
 				"desc": "use pubnub keep-alives"
 			},
-			"publishKey": {
-				"desc": "pubnub publishing key",
-				"env": "CSSVC_PUBNUB_PUBLISH_KEY",
-				"required": true
-			},
-			"secretKey": {
-				"desc": "pubnub adminstrative (secret) key",
-				"env": "CSSVC_PUBNUB_SECRET",
+			"preferredKeyColor": {
+				"desc": "preferred keyset to use (blue or green)",
+				"env": "CSSVC_PUBNUB_PREFERRED_KEY_COLOR",
 				"required": true
 			},
 			"ssl": {
 				"default": true,
 				"desc": "use SSL for pubnub communications"
-			},
-			"subscribeKey": {
-				"desc": "pubnub subscription key",
-				"env": "CSSVC_PUBNUB_SUBSCRIBE_KEY",
-				"required": true
 			},
 			"uuid": {
 				"default": "CodeStreamServer",
@@ -781,6 +805,11 @@
 			"default": "https://landing.staging-service.newrelic.com",
 			"desc": "service to decide if user has an account in NR1",
 			"env": "CSSVC_NEW_RELIC_LANDING_SERVICE_URL"
+		},
+		"newRelicSecApiUrl": {
+			"default": "https://nrsec-workflow-api.staging-service.newrelic.com",
+			"desc": "NR1 vulnerability mgmt user-facing api",
+			"env": "CSSVC_NEW_RELIC_SEC_API_URL"
 		},
 		"runTimeEnvironment": {
 			"default": "${CSSVC_ENV}",

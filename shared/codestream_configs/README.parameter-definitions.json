@@ -59,11 +59,19 @@
 			"showConfig": "print exported broadcaster configuration data to console [CS_BROADCASTER_SHOW_CFG]"
 		},
 		"pubnub": {
+			"blueKey": {
+				"publishKey": "pubnub publishing key [CSSVC_PUBNUB_PUBLISH_BLUE_KEY]",
+				"secretKey": "pubnub adminstrative (secret) key [CSSVC_PUBNUB_BLUE_SECRET]",
+				"subscribeKey": "pubnub subscription key [CSSVC_PUBNUB_SUBSCRIBE_BLUE_KEY]"
+			},
+			"greenKey": {
+				"publishKey": "pubnub publishing key [CSSVC_PUBNUB_PUBLISH_GREEN_KEY]",
+				"secretKey": "pubnub adminstrative (secret) key [CSSVC_PUBNUB_GREEN_SECRET]",
+				"subscribeKey": "pubnub subscription key [CSSVC_PUBNUB_SUBSCRIBE_GREEN_KEY]"
+			},
 			"keepAlive": "use pubnub keep-alives",
-			"publishKey": "pubnub publishing key [CSSVC_PUBNUB_PUBLISH_KEY]",
-			"secretKey": "pubnub adminstrative (secret) key [CSSVC_PUBNUB_SECRET]",
+			"preferredKeyColor": "preferred keyset to use (blue or green) [CSSVC_PUBNUB_PREFERRED_KEY_COLOR]",
 			"ssl": "use SSL for pubnub communications",
-			"subscribeKey": "pubnub subscription key [CSSVC_PUBNUB_SUBSCRIBE_KEY]",
 			"uuid": "description needed"
 		},
 		"selected": "chosen broadcast engine (pubnub or codestreamBroadcaster) [CSSVC_BROADCAST_ENGINE]"
@@ -263,6 +271,7 @@
 		"isProductionCloud": "identifies customer-facing environments [CSSVC_IS_PRODUCTION_CLOUD]",
 		"newRelicApiUrl": "NR1 user-facing api [CSSVC_NEW_RELIC_API_URL]",
 		"newRelicLandingServiceUrl": "service to decide if user has an account in NR1 [CSSVC_NEW_RELIC_LANDING_SERVICE_URL]",
+		"newRelicSecApiUrl": "NR1 vulnerability mgmt user-facing api [CSSVC_NEW_RELIC_SEC_API_URL]",
 		"runTimeEnvironment": "run-time environment (local, onprem, prod, qa, pd, ...) [CSSVC_ENV]"
 	},
 	"sharedSecrets": {
