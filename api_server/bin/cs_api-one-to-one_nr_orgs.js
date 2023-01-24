@@ -200,14 +200,15 @@ class UniquifyNRCSOrgAssociations {
 				teamIds: company.everyoneTeamId
 			},
 			{
-				hint: UserIndexes.byTeamId
+				hint: UserIndexes.byTeamId,
+				fields: ['deactivated', 'isRegistered']
 			}
 		);
 		return result.filter(_ => !_.deactivated && _.isRegistered).length;
 	}
 
 	async getPostCount (company) {
-		const result = await this.data.posts.getByQuery(
+		return await this.data.posts.countByQuery(
 			{
 				teamId: company.everyoneTeamId
 			},
@@ -215,7 +216,6 @@ class UniquifyNRCSOrgAssociations {
 				hint: PostIndexes.byTeamId
 			}
 		);
-		return result.length;
 	}
 
 	async getMostRecentLogin (company) {
@@ -224,7 +224,8 @@ class UniquifyNRCSOrgAssociations {
 				teamIds: company.everyoneTeamId
 			},
 			{
-				hint: UserIndexes.byTeamId
+				hint: UserIndexes.byTeamId,
+				fields: ['deactivated', 'isRegistered', 'lastLogin']
 			}
 		);
 		const filtered = result.filter(_ => !_.deactivated && _.isRegistered && _.lastLogin);
