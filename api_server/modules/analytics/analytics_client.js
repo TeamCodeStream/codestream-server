@@ -107,6 +107,9 @@ class AnalyticsClient {
 				if (user.get('nrUserId')) {
 					trackObject['NR User ID'] = user.get('nrUserId');
 				}
+				if (user.get('nrUserInfo') && user.get('nrUserInfo').userTier) {
+					trackObject['NR Tier'] = user.get('nrUserInfo').userTier
+				}
 			}
 		}
 

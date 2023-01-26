@@ -43,9 +43,12 @@ module.exports = function(options) {
 	const codeStreamOnly = company.get('linkedNROrgId') && !!(company && company.get('codestreamOnly'));
 	const orgOrigination = (company && company.get('orgOrigination')) || '';
 
-	let nrUserId, nrOrgId;
+	let nrUserId, nrOrgId, nrTier;
 	if (user.get('nrUserId')) {
-		nrOrgId = user.get('nrUserId');
+		nrUserId = user.get('nrUserId');
+	}
+	if (user.get('nrUserInfo') && user.get('nrUserInfo').userTier) {
+		nrTier = user.get('nrUserInfo').userTier;
 	}
 	if (company && company.get('linkedNROrgId')) {
 		nrOrgId = company.get('linkedNROrgId');
@@ -82,6 +85,7 @@ module.exports = function(options) {
 		codeStreamOnly,
 		orgOrigination,
 		nrUserId,
+		nrTier,
 		nrOrgId,
 		region
 	};

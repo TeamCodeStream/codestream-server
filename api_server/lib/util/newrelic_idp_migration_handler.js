@@ -202,10 +202,10 @@ class MigrationHandler {
 	// signup the first user in an org, creating a new org and putting the user in it
 	async signupFirstUser (firstUser, company) {
 		try {
-			let nrUserInfo;
+			let nrInfo;
 			try {
 				const name = firstUser.fullName || firstUser.email.split('@')[0];
-				nrUserInfo = await this.idp.fullSignup({
+				nrInfo = await this.idp.fullSignup({
 					email: firstUser.email,
 					password: PASSWORD_PLACEHOLDER, // this will ultimatey be replaced!
 					name,
@@ -216,23 +216,26 @@ class MigrationHandler {
 				const error = `*** Caught exception calling signup: ${message}`;
 				return this.userError(firstUser, error);
 			}
-			this.logVerbose(`fullSignup response:\n${JSON.stringify(nrUserInfo, 0, 5)}`);
+			this.logVerbose(`fullSignup response:\n${JSON.stringify(nrInfo, 0, 5)}`);
+			const { signupResponse, nrUserInfo } = nrInfo;
 
 			// for some reason, the user_id comes out as a string 
-			if (typeof nrUserInfo.user_id === 'string') {
-				nrUserInfo.user_id = parseInt(nrUserInfo.user_id, 10);
-				if (!nrUserInfo.user_id || isNaN(nrUserInfo.user_id)) {
+			if (typeof nrUserInfo.id === 'string') {
+				nrUserInfo.id = parseInt(nrUserInfo.id, 10);
+				if (!nrUserInfo.id || isNaN(nrUserInfo.id)) {
 					throw new Error('provisioned user had non-numeric ID from New Relic');
 				}
 			}
-				
+
 			// save NR user info obtained from the signup process
 			await this.data.users.applyOpById(
 				firstUser.id,
 				{
 					$set: {
-						nrUserInfo: { }, // anything we want to save here?
-						nrUserId: nrUserInfo.user_id
+						nrUserInfo: { 
+							userTier: nrUserInfo.attributes.userTier
+						},
+						nrUserId: nrUserInfo.id
 					},
 					$unset: {
 						encryptedPasswordTemp: true,
@@ -242,10 +245,8 @@ class MigrationHandler {
 				}
 			);
 
-			// return the org info
-			const nrOrgInfo = { ...nrUserInfo };
-			delete nrOrgInfo.user_id;
-			return nrOrgInfo;
+			// return the signup response
+			return signupResponse;
 		} catch (ex) {
 			const message = ex instanceof Error ? ex.message : JSON.stringify(ex);
 			const stack = ex instanceof Error ? ex.stack : '';
@@ -288,7 +289,9 @@ class MigrationHandler {
 			// save NR user info obtained from the creation process
 			const op = {
 				$set: {
-					nrUserInfo: { }, // anything we want to store here?
+					nrUserInfo: {
+						userTier: nrUserInfo.attributes.userTier
+					},
 					nrUserId: nrUserInfo.id
 				},
 				$unset: {
@@ -319,7 +322,9 @@ class MigrationHandler {
 
 		const op = {
 			$set: {
-				nrUserInfo: { }, // anything we want to store here?
+				nrUserInfo: {
+					userTier: nrUser.attributes.userTier
+				},
 				nrUserId: nrUser.id
 			},
 			$unset: {
