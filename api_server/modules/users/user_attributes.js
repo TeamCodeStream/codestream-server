@@ -382,7 +382,8 @@ module.exports = {
 	nrUserInfo: {
 		type: 'object',
 		description: 'Info associated with the user as returned by New Relic IdP when provisioning',
-		serverOnly: true
+		serverOnly: true,
+		forMe: true
 	},
 	originUserId: {
 		type: 'id',

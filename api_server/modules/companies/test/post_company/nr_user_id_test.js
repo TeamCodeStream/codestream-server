@@ -34,6 +34,7 @@ class NRUserIdTest extends FirstCompanyOneUserPerOrgTest {
 			(error, response) => {
 				if (error) { return callback(error); }
 				Assert.strictEqual(typeof response.user.nrUserId, 'number', 'nrUserId not set');
+				Assert.strictEqual(response.user.nrUserInfo.userTier, 'full_user_tier', 'user tier not set');
 				callback();
 			}
 		)
