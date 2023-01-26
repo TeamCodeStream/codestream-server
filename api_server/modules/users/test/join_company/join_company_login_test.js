@@ -41,6 +41,7 @@ class JoinCompanyLoginTest extends JoinCompanyTest {
 		Assert.strictEqual(data.teams[0].id, this.joinResponse.teamId, 'returned team not equal to the expected team');
 		if (this.unifiedIdentityEnabled) {
 			Assert(typeof data.user.nrUserId === 'number' && data.user.nrUserId, 'nrUserId not set');
+			Assert(typeof data.user.nrUserInfo === 'object' && data.user.nrUserInfo.userTier === 'basic_user_tier', 'user tier not set');
 		}
 	}
 }
