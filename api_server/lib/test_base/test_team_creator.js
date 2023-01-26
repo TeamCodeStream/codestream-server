@@ -106,6 +106,9 @@ class TestTeamCreator {
 					if (response.user && response.user.$set && response.user.$set.nrUserId) {
 						this.users[this.teamOptions.creatorIndex].user.nrUserId = response.user.$set.nrUserId;
 					}
+					if (response.user && response.user.$set && response.user.$set.nrUserInfo) {
+						this.users[this.teamOptions.creatorIndex].user.nrUserInfo = response.user.$set.nrUserInfo;
+					}
 				}
 				callback();
 			},
