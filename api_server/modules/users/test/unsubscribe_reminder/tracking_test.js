@@ -66,6 +66,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 		if (this.unifiedIdentityEnabled) {
 			expectedMessage.properties['NR User ID'] = this.currentUser.user.nrUserId;
+			expectedMessage.properties['NR Tier'] = 'full_user_tier';
 		}
 
 		Assert.deepStrictEqual(data, expectedMessage, 'tracking data not correct');

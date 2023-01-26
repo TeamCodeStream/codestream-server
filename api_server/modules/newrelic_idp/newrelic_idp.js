@@ -96,6 +96,14 @@ class NewRelicIDP extends APIServerModule {
 	// as well as a "login" call thereafter to return an actual token 
 	// the user can use
 	async fullSignup (data, options = {}) {
+		if (options.mockResponse) {
+			options.mockParams = {
+				email: data.email,
+				name: data.name,
+				userTier: 'full_user_tier'
+			};
+		}
+
 		const signupResponse = await this.signupUser({
 			name: data.name,
 			email: data.email,
@@ -115,8 +123,13 @@ class NewRelicIDP extends APIServerModule {
 			await this.changeOrgName(signupResponse.organization_id, data.orgName, options);
 		}
 
+		// the below may not be necessary if the loginResponse, above, returns us the info
+		// we want
+		const userInfo = await this.getUser(signupResponse.user_id, options);
+
 		return {
-			...signupResponse,
+			signupResponse,
+			nrUserInfo: userInfo.data,
 			//token: loginResponse.value
 		};
 	}
@@ -223,6 +236,12 @@ class NewRelicIDP extends APIServerModule {
 	// determine whether an NR org qualifies as "codestream only"
 	// currently, we need to examine whether it has the unlimited_consumption entitlement
 	async isNROrgCodeStreamOnly (nrOrgId, codestreamTeamId, options = {}) {
+		/*
+		// until we can get a valid token back from the signup or login process, we don't have a way to
+		// make the entitlements API call, so return true for now until that blocker is fixed
+		return true;
+		*/
+		
 		// before determining if the org has the unlimited_consumption entitlement,
 		// we need to get its reporting account
 		const accountId = await this.getOrgReportingAccount(nrOrgId, options);
@@ -364,8 +383,11 @@ class NewRelicIDP extends APIServerModule {
 				return this._getMockSignupResponse();
 			}
 		} else if (service === 'user') {
+			let match;
 			if (path === '/v1/users' && method === 'post') {
 				return this._getMockCreateUserResponse(params);
+			} else if (method === 'get' && (match = path.match(/^\/v1\/users\/([0-9]+)$/))) {
+				return this._getMockGetUserResponse(options.mockParams, match[1]);
 			}
 		} else if (service === 'login') {
 			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
@@ -404,8 +426,57 @@ class NewRelicIDP extends APIServerModule {
 		};
 	}
 
+	_getMockGetUserResponse (params = {}, id = null) {
+		id = id || Math.floor(Math.random() * 1000000000).toString();
+		const { 
+			email,
+			name,
+			authenticationDomainId = UUID(),
+			idpObjectId = UUID(),
+			userTier = 'basic_user_tier'
+		} = params;
+		const now = Date.now();
+		return {
+			data: {
+				id,
+				type: 'user',
+				attributes: {
+					email,
+					firstName: name,
+					lastName: '',
+					state: 'active',
+					gravatarEmail: '',
+					version: 2,
+					name,
+					timeZone: 'Etc/UTC',
+					authenticationDomainId,
+					activeIdp: 'azureb2c',
+					activeIdpObjectId: idpObjectId,
+					supportedIdps: [
+						{
+							name: 'azureb2c',
+							idp_object_id: idpObjectId
+						}
+					],
+					userTierId: 1,
+					userTier,
+					lastLogin: 0,
+					lastActive: 0,
+					createdAt: now,
+					updatedAt: now
+				}
+	   		}
+		};
+	}
+
 	_getMockCreateUserResponse (params) {
-		const idpObjectId = UUID();
+		const { email, name, authentication_domain_id } = params.data.attributes;
+		return this._getMockGetUserResponse({
+			email,
+			name,
+			authenticationDomainId: authentication_domain_id
+		});
+		/*
 		const now = Date.now();
 		return {
 			data: {
@@ -438,6 +509,7 @@ class NewRelicIDP extends APIServerModule {
 				}
 	   		}
 		};
+		*/
 	}
 
 	_getMockLoginResponse (params) {

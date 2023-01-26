@@ -66,6 +66,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 		if (this.unifiedIdentityEnabled) {
 			expectedMessage.properties['NR User ID'] = this.currentUser.user.nrUserId;
+			expectedMessage.properties['NR Tier'] = 'full_user_tier';
 		}
 
 		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
