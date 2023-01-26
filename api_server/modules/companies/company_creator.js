@@ -121,7 +121,7 @@ class CompanyCreator extends ModelCreator {
 		}
 
 		const name = this.user.get('fullName') || this.user.get('email').split('@')[0];
-		const nrUserInfo = await this.api.services.idp.fullSignup(
+		const { signupResponse, nrUserInfo } = await this.api.services.idp.fullSignup(
 			{
 				name: name,
 				email: this.user.get('email'),
@@ -135,9 +135,9 @@ class CompanyCreator extends ModelCreator {
 		);
 
 		// for some insane reason, the user_id comes out as a string 
-		if (typeof nrUserInfo.user_id === 'string') {
-			nrUserInfo.user_id = parseInt(nrUserInfo.user_id, 10);
-			if (!nrUserInfo.user_id || isNaN(nrUserInfo.user_id)) {
+		if (typeof nrUserInfo.id === 'string') {
+			nrUserInfo.id = parseInt(nrUserInfo.id, 10);
+			if (!nrUserInfo.id || isNaN(nrUserInfo.id)) {
 				throw this.errorHandler.error('internal', { reason: 'provisioned user had non-numeric ID from New Relic' });
 			}
 		}
@@ -147,8 +147,10 @@ class CompanyCreator extends ModelCreator {
 			this.user.id,
 			{
 				$set: {
-					nrUserInfo: { }, // anything we want to store here?
-					nrUserId: nrUserInfo.user_id
+					nrUserInfo: {
+						userTier: nrUserInfo.attributes.userTier
+					},
+					nrUserId: nrUserInfo.id
 				},
 				$unset: {
 					encryptedPasswordTemp: true,
@@ -165,10 +167,10 @@ class CompanyCreator extends ModelCreator {
 		await this.request.data.companies.update(
 			{
 				id: this.model.id,
-				linkedNROrgId: nrUserInfo.organization_id,
+				linkedNROrgId: signupResponse.organization_id,
 				nrOrgInfo: {
-					authentication_domain_id: nrUserInfo.authentication_domain_id,
-					account_id: nrUserInfo.account_id
+					authentication_domain_id: signupResponse.authentication_domain_id,
+					account_id: signupResponse.account_id
 				},
 				codestreamOnly: true,
 				orgOrigination: 'CS'

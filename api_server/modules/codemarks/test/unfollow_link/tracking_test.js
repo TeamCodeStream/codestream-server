@@ -92,6 +92,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				'CodeStream Only': true,
 				'Org Origination': 'CS',
 				'NR User ID': this.currentUser.user.nrUserId,
+				'NR Tier': 'basic_user_tier',
 				'NR Organization ID': this.company.linkedNROrgId
 			});
 		}

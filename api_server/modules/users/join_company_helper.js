@@ -239,7 +239,9 @@ class JoinCompanyHelper {
 		// save NR user info obtained from the signup process
 		const op = {
 			$set: {
-				nrUserInfo: { }, // anything we want to save here?
+				nrUserInfo: {
+					userTier: nrUserInfo.attributes.userTier
+				},
 				nrUserId: nrUserInfo.id
 			},
 			$unset: {
