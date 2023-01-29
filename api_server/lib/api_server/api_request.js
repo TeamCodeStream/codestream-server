@@ -63,7 +63,9 @@ class APIRequest {
 		// for monitoring, start a new segment (or span?) for every phase
 		if (this.api.services.newrelic) {
 			await new Promise((resolve, reject) => {
-				this.api.services.newrelic.startSegment(phase, true, async () => {
+				const path = this.request.url.split('?')[0];
+				this.api.services.newrelic.startSegment(`Codestream/${this.request.method}/${path}/${phase}`,
+					true, async () => {
 					try {
 						await this[phase]();
 					} catch (eee){
