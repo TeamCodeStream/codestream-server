@@ -3,7 +3,8 @@
 // ultimately processed here
 
 'use strict';
-
+// Make sure newrelic loads before anything else
+require('newrelic');
 const APIServerModules = require('./api_server_modules.js');
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const Express = require('express');

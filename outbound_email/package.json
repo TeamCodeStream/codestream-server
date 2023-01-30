@@ -16,7 +16,7 @@
 		"markdown-it-slack": "1.2.0",
 		"moment-timezone": "0.5.35",
 		"mongodb": "4.5.0",
-		"newrelic": "8.9.1",
+		"newrelic": "9.8.1",
 		"node-fetch": "2.6.7",
 		"nodemailer": "6.7.3",
 		"pubnub": "5.0.1",
