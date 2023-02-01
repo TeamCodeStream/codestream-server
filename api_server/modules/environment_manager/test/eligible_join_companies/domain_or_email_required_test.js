@@ -5,9 +5,7 @@ const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 class DomainOrEmailRequiredTest extends EligibleJoinCompaniesTest {
 
 	get description () {
-		// remove this check and rename the test when we have fully moved to ONE_USER_PER_ORG
-		const parameter = 'email';
-		return `should return an error when submitting a request to fetch cross-environment eligible join companies without providing ${parameter}`;
+		return 'should return an error when submitting a request to fetch cross-environment eligible join companies without providing email';
 	}
 
 	getExpectedError () {

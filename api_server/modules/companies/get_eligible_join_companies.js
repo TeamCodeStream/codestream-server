@@ -23,7 +23,7 @@ const _getEligibleJoinCompaniesByDomain = async (domain, request) => {
 
 // look for any companies the specific user has been invited to (either registered or unregistered)
 const _getEligibleJoinCompaniesByUserInvite = async (user, request) => {
-	// in theory, for ONE_USER_PER_ORG, there should only be (at most) one company for each user record
+	// in theory, for one-user-per-org, there should only be (at most) one company for each user record
 	const companyIds = user.companyIds || [];
 	if (companyIds.length > 0) {
 		return await request.data.companies.getByIds(companyIds);
@@ -66,13 +66,8 @@ const _getEligibleJoinCompaniesByInvite = async (email, request) => {
 	return companies;
 };
 
-module.exports = async function GetEligibleJoinCompanies (domain, request, options = {}) {
-	let email;
-	if (domain.match(/@/)) {
-		// really an email ... remove this check and just accept email when we have fully moved to ONE_USER_PER_ORG
-		email = domain;
-		domain = EmailUtilities.parseEmail(email).domain.toLowerCase();
-	}
+module.exports = async function GetEligibleJoinCompanies (email, request, options = {}) {
+	const domain = EmailUtilities.parseEmail(email).domain.toLowerCase();
 
 	// companies are eligible to be joined either by domain or by invite (or both)
 	const companiesByDomain = !options.ignoreDomain ?

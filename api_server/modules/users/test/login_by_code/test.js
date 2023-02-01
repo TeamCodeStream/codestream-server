@@ -16,7 +16,6 @@ class LoginByCodeTester {
 
 	test () {
 		new LoginByCodeTest().test();
-		new LoginByCodeTest({ oneUserPerOrg: true }).test();
 		new InvalidCodeTest().test();
 		new TooManyAttemptsTest().test();
 		new ExpiredCodeTest().test();
@@ -24,9 +23,7 @@ class LoginByCodeTester {
 		new MissingParameterTest({ parameter: 'loginCode' }).test();
 		new CodeUsableOnceTest().test();
 		new InitialDataTest().test();
-		new InitialDataTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new EligibleJoinCompaniesTest().test();
-		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new TeamIdTest().test();
 		new FindTeamTest().test();
 	}

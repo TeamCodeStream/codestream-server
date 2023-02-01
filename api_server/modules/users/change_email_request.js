@@ -64,13 +64,12 @@ class ChangeEmailRequest extends RestfulRequest {
 
 	// ensure the email that the user is changing to is not already an email in our system
 	async ensureUnique () {
-		// under ONE_USER_PER_ORG, users are only required to be unique within a company
+		// under one-user-per-org, users are only required to be unique within a company
 		const existingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: this.request.body.email.toLowerCase() },
 			{ hint: UserIndexes.bySearchableEmail }
 		);
 
-		// remove this check when we have fully moved to ONE_USER_PER_ORG
 		this.log('NOTE: doing check for uniqueness of email only in org in one-user-per-org'); 
 		const teamIds = this.user.get('teamIds') || [];
 		if (teamIds.length > 1) {

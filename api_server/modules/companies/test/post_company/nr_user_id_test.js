@@ -4,7 +4,6 @@ const FirstCompanyOneUserPerOrgTest = require('./first_company_one_user_per_org_
 const Assert = require('assert');
 
 // we derive this from PostCompanyTest, which tests the behavior when one-user-per-org is not active
-// when we fully move to ONE_USER_PER_ORG, the structure here might need to change
 
 class NRUserIdTest extends FirstCompanyOneUserPerOrgTest {
 

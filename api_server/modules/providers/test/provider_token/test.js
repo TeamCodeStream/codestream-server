@@ -64,13 +64,9 @@ class ProviderTokenRequestTester {
 			new NoIdentityMatchTokenTest({ provider }).test();
 			new NoSignUpTest({ provider }).test();
 			new ExistingUserTest({ provider }).test();
-			new ExistingUserTest({ provider, oneUserPerOrg: true }).test();
 			new ExistingUserTest({ provider, userIsInvited: true }).test();
-			new ExistingUserTest({ provider, userIsInvited: true, oneUserPerOrg: true }).test();
 			new ExistingUserTest({ provider, isRegistered: true }).test();
-			new ExistingUserTest({ provider, oneUserPerOrg: true, isRegistered: true }).test();
 			new ExistingUserTest({ provider, userIsInvited: true, isRegistered: true }).test();
-			new ExistingUserTest({ provider, userIsInvited: true, oneUserPerOrg: true, isRegistered: true }).test();
 		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();

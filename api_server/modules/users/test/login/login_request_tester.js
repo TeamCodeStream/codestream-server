@@ -23,13 +23,11 @@ class LoginRequestTester {
 
 	loginTest () {
 		new LoginTest().test();
-		new LoginTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new NoAttributeTest({ attribute: 'email' }).test();
 		new NoAttributeTest({ attribute: 'password' }).test();
 		new InvalidPasswordTest().test();
 		new InvalidEmailTest().test();
 		new InitialDataTest().test();
-		new InitialDataTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new MeAttributesTest().test();
 		new NoLoginUnregisteredTest().test();
 		new NoPasswordTest().test();
@@ -42,7 +40,6 @@ class LoginRequestTester {
 		new DontUpdateLastLoginFromWebTest().test();
 		new ClearFirstSessionTest().test();
 		new EligibleJoinCompaniesTest().test();
-		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new TeamIdTest().test();
 	}
 }

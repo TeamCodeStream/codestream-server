@@ -4,7 +4,6 @@
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
 const UserCreator = require('./user_creator');
-const OldUserCreator = require('./old_user_creator'); // remove when ONE_USER_PER_ORG is fully deployed
 const ConfirmCode = require('./confirm_code');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
@@ -178,7 +177,6 @@ class RegisterRequest extends RestfulRequest {
 			delete this.request.body.signupToken;	
 		}
 
-		// remove this check when ONE_USER_PER_ORG is fully deployed
 		this.log('NOTE: Creating user under one-user-per-org paradigm');
 		this.user = await new UserCreator({ 
 			request: this,

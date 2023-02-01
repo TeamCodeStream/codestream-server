@@ -93,7 +93,7 @@ class NRCommentRequest extends RestfulRequest {
 			}
 		);
 
-		// under ONE_USER_PER_ORG, a matching user only exists if they are on the same team as
+		// under one-user-per-org, a matching user only exists if they are on the same team as
 		// the owner of the existing code error, if any, or are already a teamless, faux user
 		let user = users.find(u => {
 			const teamIds = u.get('teamIds') || [];
