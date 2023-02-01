@@ -29,8 +29,7 @@ class PostCompanyRequest extends PostRequest {
 			return super.handleResponse();
 		}
 
-		// only return a full response if we are not in one-user-per-org (ONE_USER_PER_ORG),
-		// or this was the user's first company
+		// only return a full response if this was the user's first company
 		if (this.transforms.additionalCompanyResponse) {
 			this.log('NOTE: sending additional company response to POST /companies request');
 			this.responseData = this.transforms.additionalCompanyResponse;
@@ -58,8 +57,6 @@ class PostCompanyRequest extends PostRequest {
 
 	// after we've processed the request....
 	async postProcess () {
-		// only necessary when not in ONE_USER_PER_ORG, once we have moved fully to that, 
-		// this can be completely removed
 		if (!this.transforms.additionalCompanyResponse) {
 			await this.publishUserUpdate();
 		}

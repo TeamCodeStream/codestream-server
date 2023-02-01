@@ -4,7 +4,6 @@
 'use strict';
 
 const UserCreator = require('./user_creator');
-const OldUserCreator = require('./old_user_creator');
 const ConfirmHelper = require('./confirm_helper');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
@@ -136,7 +135,7 @@ class NRRegisterRequest extends RestfulRequest {
 			{ hint: Indexes.bySearchableEmail }
 		);
 
-		// under ONE_USER_PER_ORG, only match a teamless unregistered user
+		// under one-user-per-org, only match a teamless unregistered user
 		// if we find a registered user, throw
 		let registeredUser, teamlessUser;
 		users.forEach(user => {

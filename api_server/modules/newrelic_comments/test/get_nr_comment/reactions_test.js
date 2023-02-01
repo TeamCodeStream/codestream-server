@@ -64,7 +64,7 @@ class ReactionsTest extends GetNRCommentTest {
 				fullName: user0.fullName
 			}
 		});
-		// under ONE_USER_PER_ORG, the connection between the original post author, who became a faux user,
+		// under one-user-per-org, the connection between the original post author, who became a faux user,
 		// and the registered user with the same email, is not maintained, so both must be represented here
 		const user1 = this.users[1].user;
 		Object.assign(this.expectedResponse.post.userMaps, {

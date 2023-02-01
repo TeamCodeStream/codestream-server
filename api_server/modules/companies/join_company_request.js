@@ -6,7 +6,6 @@
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request');
 const TeamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/errors');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
-const OldAddTeamPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/old_add_team_publisher');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 
 class JoinCompanyRequest extends RestfulRequest {
@@ -76,6 +75,8 @@ class JoinCompanyRequest extends RestfulRequest {
 		// publish to the team that the users have been added,
 		// and publish to each user that they've been added to the team
 
+		/*
+		NOTE - deprecated
 		// get the team and user again since the team object has been modified,
 		// this should just fetch from the cache, not from the database
 		await new OldAddTeamPublisher({
@@ -86,6 +87,7 @@ class JoinCompanyRequest extends RestfulRequest {
 			teamUpdate: this.transforms.teamUpdate,
 			userUpdates: this.transforms.userUpdates
 		}).publishAddedUsers();
+		*/
 	}
 
 	// describe this route for help

@@ -9,7 +9,7 @@ class GetTeamsByIdTest extends GetTeamsTest {
 	}
 
 	setPath (callback) {
-		this.path = `/teams?ids=${this.team.id}`; // only this makes sense in ONE_USER_PER_ORG
+		this.path = `/teams?ids=${this.team.id}`; // only this makes sense in one-user-per-org
 		callback();
 	}
 }

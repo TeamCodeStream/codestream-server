@@ -72,7 +72,7 @@ class CodeStreamPostReplyTest extends GetNRCommentTest {
 					seqNum: response.post.seqNum,
 					text: response.post.text
 				});
-				// under ONE_USER_PER_ORG, we can't duplicate the original post as easily,
+				// under one-user-per-org, we can't duplicate the original post as easily,
 				// because the connection between the original faux user poster and the user registering
 				// with the same email isn't maintained
 				this.expectedResponse.post.creatorId = this.users[1].user.id;

@@ -32,7 +32,7 @@ class LoginCodeHelper {
 			{ searchableEmail: this.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-		// under ONE_USER_PER_ORG, find the first registered user, matching the team, if given
+		// under one-user-per-org, find the first registered user, matching the team, if given
 		this.user = users.find(user => {
 			const teamIds = user.get('teamIds') || [];
 			return (
