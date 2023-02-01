@@ -4,7 +4,6 @@
 'use strict';
 
 const XEnvRequest = require('./xenv_request');
-const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules//users/indexes');
 
 class FetchUserRequest extends XEnvRequest {
 
@@ -12,21 +11,8 @@ class FetchUserRequest extends XEnvRequest {
 	async process () {
 		await this.requireAndAllow();
 
-		const { email, id } = this.request.query;
-		let user;
-		if (id) {
-			user = await this.data.users.getById(id);
-		} else {
-			// remove this when we have fully moved to ONE_USER_PER_ORG, fetch by email will be no longer supported
-			user = await this.data.users.getOneByQuery(
-				{
-					searchableEmail: decodeURIComponent(email).toLowerCase()
-				},
-				{
-					hint: UserIndexes.bySearchableEmail
-				}
-			);
-		}
+		const { id } = this.request.query;
+		const user = await this.data.users.getById(id);
 		if (user) {
 			this.responseData = { user: user.attributes };
 		} else if (id) {

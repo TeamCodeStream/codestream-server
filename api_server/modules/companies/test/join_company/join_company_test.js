@@ -1,5 +1,5 @@
 // base class for many tests of the "PUT /companies/join/:id" requests
-// deprecate support for this request when we have fully moved to ONE_USER_PER_ORG
+// NOTE: this request is deprecated as of one-user-per-org
 
 'use strict';
 

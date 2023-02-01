@@ -1,7 +1,7 @@
 // handle the "PUT /xenv/change-email" request, to change a user's email across environments
  
-// NOTE: deprecate this request once we have fully moved to ONE_USER_PER_ORG
-
+// NOTE: this request is deprecated as of one-user-per-org
+ 
 'use strict';
 
 const XEnvRequest = require('./xenv_request');

@@ -4,7 +4,6 @@
 
 const JoinCompanyTest = require('./join_company_test');
 const JoinCompanyLoginTest = require('./join_company_login_test');
-//const OneUserPerOrgEnabledTest = require('./one_user_per_org_enabled_test');
 const CompanyNotFoundTest = require('./company_not_found_test');
 const CompanyDeactivatedTest = require('./company_deactivated_test');
 const ACLTest = require('./acl_test');
@@ -31,7 +30,6 @@ class JoinCompanyRequestTester {
 		new JoinCompanyLoginTest({ byDomainJoining: true }).test();
 		new JoinCompanyLoginTest({ unifiedIdentityEnabled: true }).test();
 		new JoinCompanyLoginTest({ unifiedIdentityEnabled: true, byDomainJoining: true }).test();
-		//new OneUserPerOrgEnabledTest().test();
 		new CompanyNotFoundTest().test();
 		new CompanyDeactivatedTest().test();
 		new ACLTest().test();

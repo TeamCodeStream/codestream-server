@@ -16,16 +16,13 @@ class NRRegistrationRequestTester {
 
 	test () {
 		new NRRegistrationTest().test();
-		new NRRegistrationTest({ oneUserPerOrg: true }).test();
 		new NoApiKeyTest().test();
 		new BadApiKeyTest().test();
 		new AlreadyRegisteredEmailTest().test();
 		//new EuApiTest().test();
 		//new StagingApiTest().test();
 		new ExistsButUnregisteredTest().test();
-		new ExistsButUnregisteredTest({ oneUserPerOrg: true }).test();
 		new ExistsButUnregisteredInvitedTest().test();
-		new ExistsButUnregisteredInvitedTest({ oneUserPerOrg: true }).test();
 		new EligibleJoinCompaniesTest().test();
 	}
 }

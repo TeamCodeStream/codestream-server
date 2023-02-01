@@ -2,13 +2,11 @@
 
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const Assert = require('assert');
-const RandomString = require('randomstring');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 
 	get description () {
-		// remove this check when we have moved to ONE_USER_PER_ORG
 		return 'should return companies eligible for joining given an email in response to a cross-environment request';
 	}
 
@@ -30,7 +28,7 @@ class EligibleJoinCompaniesTest extends CodeStreamAPITest {
 	createEligibleJoinCompanies (callback) {
 		this.expectedEligibleJoinCompanies = [];
 
-		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
+		// in one-user-per-org, the confirming user is already in a company, which gets returned
 		this.expectedEligibleJoinCompanies.push({
 			id: this.company.id,
 			name: this.company.name,

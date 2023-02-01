@@ -22,7 +22,7 @@ class GetCompaniesTest extends CodeStreamAPITest {
 	}
 
 	createTeamWithMe (callback) {
-		return callback(); // under ONE_USER_PER_ORG, this test becomes more trivial
+		return callback(); // under one-user-per-org, this test becomes more trivial
 		new TestTeamCreator({
 			test: this,
 			teamOptions: {

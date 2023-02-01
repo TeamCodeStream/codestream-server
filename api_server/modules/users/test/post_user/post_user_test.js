@@ -83,7 +83,7 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 
 	getExpectedUsername () {
-		// under ONE_USER_PER_ORG, we correctly inherit the username from the original user, even if unregistered
+		// under one-user-per-org, we correctly inherit the username from the original user, even if unregistered
 		if (this.wantExistingUser) {
 			return this.existingUserData.user.username;
 		}
@@ -104,7 +104,6 @@ class PostUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	getExpectedCreatorId () {
 		// NOTE: under one-user-per-org, the user record on an invite is a duplicate, and gets the 
 		// creatorId of the inviter, even if the original user created themselves by registering
-		// we can remove the oneUserPerOrg part of this check when we fully move to ONE_USER_PER_ORG
 		return this.currentUser.user.id;
 	}
 }
