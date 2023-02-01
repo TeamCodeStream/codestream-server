@@ -8,7 +8,6 @@ const RequiredParameterTest = require('./required_parameter_test');
 const InvalidEmailTest = require('./invalid_email_test');
 const UnknownEmailTest = require('./unknown_email_test');
 const NoEmailToUnknownEmailTest = require('./no_email_to_unknown_email_test');
-const OneUserPerOrgOkTest = require('./one_user_per_org_ok_test');
 const UnregisteredUserTest = require('./unregistered_user_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
@@ -20,7 +19,6 @@ class ForgotPasswordRequestTester {
 		new RequiredParameterTest({ parameter: 'email' }).test();
 		new InvalidEmailTest().test();
 		new UnknownEmailTest().test();
-		new OneUserPerOrgOkTest().test(); // remove one we have fully moved to ONE_USER_PER_ORG
 		// these tests must be serialized because for technical reasons the tests
 		// are actually run in their "before" stage, and they will fail due to timeouts
 		// if they are run in parallel

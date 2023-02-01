@@ -75,7 +75,7 @@ class ProviderIdentityConnector {
 
 		if (this.user) {
 			this.request.log(`Matched user ${this.user.id} by email`);
-			if (this.user.get('isRegistered')) { // can remove this check when we have fully moved to ONE_USER_PER_ORG
+			if (this.user.get('isRegistered')) { // can remove this check when we have fully moved to one-user-per-org
 				return;
 			}
 		}

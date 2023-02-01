@@ -11,9 +11,7 @@ class EligibleJoinCompaniesRequestTester {
 
 	test () {
 		new EligibleJoinCompaniesTest().test();
-		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test();
 		new DomainOrEmailRequiredTest().test();
-		new DomainOrEmailRequiredTest({ oneUserPerOrg: true }).test();
 		new NoSecretTest().test();
 		new IncorrectSecretTest().test();
 	}

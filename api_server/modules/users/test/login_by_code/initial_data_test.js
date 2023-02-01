@@ -23,7 +23,7 @@ class InitialDataTest extends LoginByCodeTest {
 	}
 
 	get description () {
-		return `user should receive teams and repos with response to logging in by code', under one-user-per-org paradigm`;
+		return `user should receive teams and repos with response to logging in by code, under one-user-per-org paradigm`;
 	}
 
 	getExpectedFields () {

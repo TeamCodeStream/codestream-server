@@ -13,7 +13,7 @@ const NotEmailTokenTest = require('./not_email_token_test');
 const UserNotFoundTest = require('./user_not_found_test');
 const NoIssuanceTest = require('./no_issuance_test');
 const TokenDeprecatedTest = require('./token_deprecated_test');
-const AlreadyTakenTest = require('./already_taken_test'); // deprecate when we move to ONE_USER_PER_ORG
+const AlreadyTakenTest = require('./already_taken_test');
 const MessageToTeamTest = require('./message_to_team_test');
 
 class ConfirmEmailRequestTester {
@@ -34,10 +34,6 @@ class ConfirmEmailRequestTester {
 		new AlreadyTakenTest({ isRegistered: true }).test();
 		new AlreadyTakenTest({ inSameOrg: true }).test();
 		new AlreadyTakenTest({ isRegistered: true, inSameOrg: true }).test();
-		new AlreadyTakenTest({ oneUserPerOrg: true }).test();
-		new AlreadyTakenTest({ isRegistered: true, oneUserPerOrg: true }).test();
-		new AlreadyTakenTest({ inSameOrg: true, oneUserPerOrg: true }).test();
-		new AlreadyTakenTest({ isRegistered: true, inSameOrg: true, oneUserPerOrg: true }).test();
 		new MessageToTeamTest().test();
 	}
 }

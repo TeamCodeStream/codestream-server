@@ -5,7 +5,6 @@
 
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 const UserInviter = require('./user_inviter');
-const OldUserInviter = require('./old_user_inviter');	 // deprecate when we've moved to the ONE_USER_PER_ORG paradigm
 const IsCodeStreamOnly = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/is_codestream_only');
 
 class PostUserRequest extends PostRequest {
@@ -98,7 +97,6 @@ class PostUserRequest extends PostRequest {
 			return super.handleResponse();
 		}
 
-		// NOTE: this check for fetch shouldn't be necessary once we've fully migrated to ONE_USER_PER_ORG
 		let user = this.transforms.createdUser;
 		this.responseData = { user: user.getSanitizedObject() };
 

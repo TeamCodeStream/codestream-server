@@ -16,11 +16,8 @@ class ChangeEmailRequestTester {
 		new EmailRequiredTest().test();
 		new InvalidEmailTest().test();
 		new AlreadyTakenTest().test();
-		new AlreadyTakenTest({ isRegistered: true }).test(); // first three here will be redundant under ONE_USER_PER_ORG
+		new AlreadyTakenTest({ isRegistered: true }).test();
 		new AlreadyTakenTest({ isRegistered: true, inCompany: true }).test();
-		new AlreadyTakenTest({ oneUserPerOrg: true }).test();
-		new AlreadyTakenTest({ oneUserPerOrg: true, isRegistered: true }).test();
-		new AlreadyTakenTest({ oneUserPerOrg: true, isRegistered: true, inCompany: true }).test();
 	}
 }
 

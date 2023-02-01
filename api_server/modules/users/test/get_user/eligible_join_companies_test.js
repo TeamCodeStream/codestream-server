@@ -25,7 +25,7 @@ class EligibleJoinCompaniesTest extends GetMyselfTest {
 	createEligibleJoinCompanies (callback) {
 		this.expectedEligibleJoinCompanies = [];
 
-		// in ONE_USER_PER_ORG, the confirming user is already in a company, which gets returned
+		// in one-user-per-org, the confirming user is already in a company, which gets returned
 		this.expectedEligibleJoinCompanies.push({
 			id: this.company.id,
 			name: this.company.name,
