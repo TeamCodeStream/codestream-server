@@ -116,7 +116,8 @@ options = arguments.options
 # options.pack('logger', logger)
 rm = dtResources.manager(options=options)
 options.pack('rm', rm)
-globalData['distributionKeyPrefix'] = f"{rm.cloudFrontDistribution('assets', 's3BucketPrefix')}/mstbot"
+if args.distribute:
+	globalData['distributionKeyPrefix'] = f"{rm.cloudFrontDistribution('assets', 's3BucketPrefix')}/mstbot"
 
 if args.env == "pd" and args.use_keydb:
 	args.env = "dev"
