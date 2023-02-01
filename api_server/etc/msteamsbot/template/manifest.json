@@ -80,6 +80,9 @@
     "validDomains": [
         "csaction.codestream.us",
         "www.codestream.com",
-        "*.codestream.us"
+        "*.codestream.us",
+        "csaction.cdstrm.us",
+        "*.cdstrm.us",
+        "*.cdstrm.dev"
     ]
 }
