@@ -28,6 +28,7 @@ class LoginTest extends PostCompanyTest {
 				if (error) { return callback(error); }
 				Assert.strictEqual(response.teams[0].id, this.responseData.teamId, 'team ID in response not equal to originally obtained teamId');
 				Assert.strictEqual(response.user.id, this.responseData.userId, 'user ID in response not equal to originally obtained userId');
+				Assert.strictEqual(response.user.joinMethod, 'Created Team', 'joinMethod not properly set, should be Created Team');
 				callback();
 			}
 		);

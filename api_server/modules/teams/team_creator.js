@@ -107,7 +107,8 @@ class TeamCreator extends ModelCreator {
 	// under one-user-per-org, we create a duplicate user record as the company/team creator
 	async duplicateUser () {
 		const userData = {
-			copiedFromUserId: this.user.id
+			copiedFromUserId: this.user.id,
+			joinMethod: 'Created Team'
 		};
 		const attributesToCopy = Object.keys(UserAttributes).filter(attr => {
 			return UserAttributes[attr].copyOnInvite;
@@ -262,7 +263,8 @@ class TeamCreator extends ModelCreator {
 		return new AddTeamMembers({
 			request: this,
 			addUsers: [this.user],
-			team: this.model
+			team: this.model,
+			joinMethod: 'Created Team'
 		}).addTeamMembers();
 	}
 }
