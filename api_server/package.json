@@ -81,5 +81,8 @@
 		"snyk": "1.1095.0"
 	},
 	"overrides": {
+		"multer-s3@2.10.0": {
+			"file-type": "16.5.4"
+		}
 	}
 }
