@@ -2,30 +2,30 @@
 	"name": "api-server",
 	"version": "14.0.11",
 	"dependencies": {
-		"@microsoft/microsoft-graph-client": "3.0.2",
+		"@microsoft/microsoft-graph-client": "3.0.5",
 		"@octokit/rest": "18.12.0",
 		"@slack/client": "5.0.2",
-		"@slack/web-api": "6.7.1",
-		"amqplib": "0.8.0",
-		"analytics-node": "6.0.0",
+		"@slack/web-api": "6.8.1",
+		"amqplib": "0.10.3",
+		"analytics-node": "6.2.0",
 		"async": "2.6.4",
-		"aws-sdk": "2.1115.0",
+		"aws-sdk": "2.1308.0",
 		"base-64": "1.0.0",
 		"bcrypt": "5.1.0",
-		"body-parser": "1.20.0",
-		"botbuilder": "4.17.1",
+		"body-parser": " 1.20.1",
+		"botbuilder": "4.19.0",
 		"commander": "4.1.1",
 		"compare-versions": "4.1.3",
 		"cookie-parser": "1.4.6",
 		"cors": "2.8.5",
 		"csurf": "1.11.0",
-		"deep-equal": "2.0.5",
+		"deep-equal": "2.2.0",
 		"escape-html": "1.0.3",
-		"express": "4.17.3",
+		"express": "4.18.2",
 		"express-http-proxy": "1.6.3",
 		"express-request-id": "1.4.1",
 		"form-data": "4.0.0",
-		"git-url-parse": "13.0.0",
+		"git-url-parse": "13.1.0",
 		"glob": "7.2.0",
 		"glob-promise": "4.2.2",
 		"graphql-request": "4.2.0",
@@ -37,15 +37,15 @@
 		"markdown-it-emoji-mart": "0.1.1",
 		"markdown-it-slack": "1.2.0",
 		"moment": "2.29.4",
-		"moment-timezone": "0.5.35",
+		"moment-timezone": "0.5.40",
 		"mongodb": "4.5.0",
-		"msal": "1.4.16",
+		"msal": "1.4.17",
 		"multer": "1.4.5-lts.1",
 		"multer-s3": "2.10.0",
 		"newrelic": "9.8.1",
 		"node-fetch": "2.6.7",
 		"node-ipc": "9.2.1",
-		"node-schedule": "2.1.0",
+		"node-schedule": "2.1.1",
 		"oauth": "0.9.15",
 		"path": "0.12.7",
 		"printf": "0.6.1",
@@ -56,7 +56,7 @@
 		"stripe": "8.217.0",
 		"toposort": "2.0.2",
 		"uuid": "8.3.2",
-		"xregexp": "5.1.0"
+		"xregexp": "5.1.1"
 	},
 	"scripts": {
 		"veryclean": "git clean -fXd",
@@ -72,32 +72,14 @@
 		"eslint"
 	],
 	"devDependencies": {
-		"eslint": "8.13.0",
+		"eslint": "8.33.0",
 		"mocha": "9.2.2",
 		"mocha-teamcity-reporter": "4.2.0",
-		"nodemon": "2.0.18",
+		"nodemon": "2.0.20",
 		"pre-commit": "1.2.2",
-		"randomstring": "1.2.2",
-		"snyk": "1.1064.0"
+		"randomstring": "1.2.3",
+		"snyk": "1.1095.0"
 	},
 	"overrides": {
-		"handlebars@4.7.7": {
-			"uglify-js": "3.16.1"
-		},
-		"nodemon@2.0.18": {
-			"update-notifier": "6.0.0"
-		},
-		"degenerator@3.0.1": {
-			"vm2": "3.9.11"
-		},
-		"multer-s3@2.10.0": {
-			"file-type": "16.5.4"
-		},
-		"glob@7.2.0": {
-			"minimatch": "3.0.5"
-		},
-		"adal-node@0.2.3": {
-			"@xmldom/xmldom@": "0.8.3"
-		}
 	}
 }
