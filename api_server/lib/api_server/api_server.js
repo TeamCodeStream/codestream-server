@@ -13,6 +13,7 @@ const HTTP = require('http');
 const AwaitUtils = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const IPCResponse = require('./ipc_response');
 const Constants = require('constants');
+const MessageConsumer = require('../message_consumer')
 
 // The APIServer is instantiated via the cluster wrapper.
 // Options are passed through from the ClusterWrapper() call made in the
@@ -32,6 +33,7 @@ class APIServer {
 		this.services = {};
 		this.integrations = {};
 		this.data = {};
+		this.messageConsumer = new MessageConsumer(this.logger);
 	}
 
 	// start 'er up
@@ -45,6 +47,7 @@ class APIServer {
 		await this.modules.initializeModules();
 		this.makeHelp();
 		await AwaitUtils.callbackWrap(this.listen.bind(this));
+		this.messageConsumer.consume();
 	}
 
 	// set relevant event listeners
