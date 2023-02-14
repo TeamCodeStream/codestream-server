@@ -3,7 +3,7 @@
 
 // FIXME: this should probably be moved to server_utils/mongo/mongo_client or something
 module.exports = function(mongoUrl) {
-	let parsed = mongoUrl.match(/^mongodb:\/\/([^/]+)\/([^?]+?)((\?)(.+))?$/);
+	let parsed = mongoUrl.match(/^mongodb(?:\+srv):\/\/([^/]+)\/([^?]+?)((\?)(.+))?$/);
 	const results = {
 		serversAuthString: parsed[1],
 		user: null,
