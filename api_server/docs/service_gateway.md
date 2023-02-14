@@ -129,3 +129,9 @@ traffic to send to General Purpose Cells". Set this to 100%.
 - After a few minutes, you should be able to connect to CodeStream through 
 Service Gateway. Try it, by setting your CodeStream serverUrl to the external
 hostname of your service.
+
+- If you're running a developer service through Service Gateway, you'll want to 
+override the default public url value that is given in the configuration for a
+developer sandbox. The easiest way to do this is to set an environment variable,
+called CS_API_PUBLIC_URL, to the external host as configured in the Service Gateway
+Configurator. 
