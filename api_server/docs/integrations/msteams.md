@@ -114,21 +114,20 @@ registration.
 
 #### Install Package
 
-1. Now that you have your package (zip file), open & login to MS Teams, then
-   open the App Studio.<br />
-   <image src="images/teams-open-app-source.png" width="400" /><br />
+1. Now that you have your package (zip file), open & login to MS Teams, then go to apps. Click on "Manage your apps."<br />
+  <image src="images/teams-app-list.png" width="400" /><br />   
 
-1. Import your App package (zip file).<br />
-   <image src="images/teams-import-app.png" width="400" /><br />
+1. Import your App package (zip file) as a custom app.<br />
+   <image src="images/teams-upload-custom-app.png" width="400" /><br />
 
-1. Install the app and add it to one of your channels.<br />
-   <image src="images/teams-install-1.png" width="400" /><br />
-   <image src="images/teams-install-2.png" width="400" /><br />
-   <image src="images/teams-install-3.png" width="400" /><br />
+1. Important: Install the app to a team by choosing "Add to team."<br />
+   <image src="images/teams-add-to-team.png" width="400" /><br />
 
-1. In the **Chat** window, you should see your newly added bot. Select that and
-   **connect** by typing `@yourbotname connect`. Here, you're authenticating for
-   the entire team; others should not have to repeat this step.
+1. Select a team / channel <br />
+   <image src="images/teams-select-channel.png" width="400" /><br />
+ 
+
+1. In the **Chat** window, you should see your newly added bot. For testing purposes type `@yourbotname help`. You should see a response from the bot with some help text. To begin using the feal functionality of your new bot, select your bot and **connect** it to a channel by typing `@yourbotname connect`. Here, you're authenticating for the entire team; others should not have to repeat this step.
 
 #### Other Package Commands
 
