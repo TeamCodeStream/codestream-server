@@ -14,6 +14,7 @@ class OnlyAccountIdsTest extends AddNRInfoTest {
 			if (error) { return callback(error); }
 			delete this.data.orgIds;
 			delete this.expectedData.company.$set.nrOrgIds;
+			delete this.expectedData.company.$set.isNRConnected;
 			callback();
 		});
 	}
