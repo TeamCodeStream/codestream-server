@@ -71,7 +71,16 @@ class PopulateNewRelicOrgIds {
 				let orgId = null;
 				for (let user of users) {
 					try {
-						orgId = await this.getOrganizationId(user.providerInfo[company.everyoneTeamId].newrelic.accessToken);
+						const accessToken = (
+							user.providerInfo[company.everyoneTeamId] &&
+							user.providerInfo[company.everyoneTeamId].newrelic &&
+							user.providerInfo[company.everyoneTeamId].newrelic.accessToken
+						) || (
+							user.providerInfo.newrelic &&
+							user.providerInfo.newrelic.accessToken
+						);
+
+						orgId = await this.getOrganizationId(accessToken);
 					} catch (error) {
 						console.warn(error.message);
 					}
@@ -112,9 +121,12 @@ class PopulateNewRelicOrgIds {
 			!_.deactivated &&
 			_.isRegistered &&
 			_.lastLogin &&
-			_.providerInfo &&
-			_.providerInfo[company.everyoneTeamId] &&
-			_.providerInfo[company.everyoneTeamId].newrelic
+			_.providerInfo && ((
+				_.providerInfo[company.everyoneTeamId] &&
+				_.providerInfo[company.everyoneTeamId].newrelic
+			) || (
+				_.providerInfo.newrelic
+			))
 		);
 		result.sort((a, b) => a.lastLogin - b.lastLogin);
 		return result;
