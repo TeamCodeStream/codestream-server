@@ -121,7 +121,7 @@ class CompanyCreator extends ModelCreator {
 		}
 
 		const name = this.user.get('fullName') || this.user.get('email').split('@')[0];
-		const { signupResponse, nrUserInfo } = await this.api.services.idp.fullSignup(
+		const { signupResponse, nrUserInfo, token, setCookie } = await this.api.services.idp.fullSignup(
 			{
 				name: name,
 				email: this.user.get('email'),
@@ -150,7 +150,9 @@ class CompanyCreator extends ModelCreator {
 					nrUserInfo: {
 						userTier: nrUserInfo.attributes.userTier
 					},
-					nrUserId: nrUserInfo.id
+					nrUserId: nrUserInfo.id,
+					[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.accessToken` ]: token,
+					[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.setCookie` ]: setCookie
 				},
 				$unset: {
 					encryptedPasswordTemp: true,
