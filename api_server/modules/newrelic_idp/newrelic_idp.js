@@ -18,7 +18,7 @@ const SERVICE_HOSTS = {
 	'org': 'https://staging-organization-service.nr-ops.net',
 	'graphql': 'https://nerd-graph.staging-service.nr-ops.net'
 };
-
+const SET_COOKIE = 'login_service_staging-login_newrelic_com_oidctokens';
 const PATH_TO_LOGIN = '/idp/azureb2c-cs/redirect?return_to={wherever you want them to go to}';
 const TEMP = 'https://staging-login.newrelic.com/idp/azureb2c-cs/redirect?return_to=https%3A%2F%2Flocalhost.codestream.us%3A12079%2Fno-auth%2Fprovider-token%2Fnewrelic-idp';
 
@@ -30,7 +30,10 @@ class NewRelicIDP extends APIServerModule {
 		// return a function that, when invoked, returns a service structure with the interface to New Relic IDP
 		// as the IDP service
 		return async () => {
-			return { idp: this };
+			return { 
+				idp: this,
+				newrelicidpAuth: this
+			};
 		};
 	}
 
@@ -109,7 +112,6 @@ class NewRelicIDP extends APIServerModule {
 			email: data.email,
 			password: data.password
 		}, options);
-		/*
 		const loginResponse = await this.loginUser(
 			{
 				username: data.email,
@@ -117,8 +119,6 @@ class NewRelicIDP extends APIServerModule {
 			},
 			options
 		);
-		*/
-
 		if (data.orgName) {
 			await this.changeOrgName(signupResponse.organization_id, data.orgName, options);
 		}
@@ -130,7 +130,8 @@ class NewRelicIDP extends APIServerModule {
 		return {
 			signupResponse,
 			nrUserInfo: userInfo.data,
-			//token: loginResponse.value
+			token: encodeURIComponent(loginResponse.newrelic.value),
+			setCookie: SET_COOKIE
 		};
 	}
 
@@ -304,6 +305,18 @@ class NewRelicIDP extends APIServerModule {
 		return result;
 	}
 
+	// get redirect parameters and url to use in the redirect response
+	getRedirectData (options) {
+		const host = SERVICE_HOSTS['login']; // FIXME: should come from config
+		const url = `${host}/idp/azureb2c-cs/redirect`;
+		return { 
+			url,
+			parameters: {
+				return_to: options.redirectUri
+			}
+		};
+	}
+	
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {
 		if (options.mockResponse) {
 			return this._getMockResponse(service, path, method, params, options);
@@ -352,8 +365,17 @@ class NewRelicIDP extends APIServerModule {
 		try {
 			if (path.match(/token/)) {
 				const text = await response.text();
+//console.warn('text:', text);
+				try {
+					json = JSON.parse(text);
+				} catch (e) {
+					console.warn('UNABLE TO PARSE:', e);
+					throw e;
+				}
+			} else {
+				json = await response.json();
 			}
-			json = await response.json();
+//console.warn('json:', JSON.stringify(json, 0, 5));
 		} catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this._throw('apiFailed', `${method.toUpperCase()} ${path}: ${message}`, options);
