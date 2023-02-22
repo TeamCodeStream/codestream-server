@@ -305,18 +305,40 @@ class NewRelicIDP extends APIServerModule {
 		return result;
 	}
 
-	// get redirect parameters and url to use in the redirect response
+	// get redirect parameters and url to use in the redirect response,
+	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
 		const host = SERVICE_HOSTS['login']; // FIXME: should come from config
 		const url = `${host}/idp/azureb2c-cs/redirect`;
 		return { 
 			url,
 			parameters: {
-				return_to: options.redirectUri
+				return_to: `${options.publicApiUrl}/~nrlogin/${options.signupToken}`
 			}
 		};
 	}
 	
+	// match the incoming New Relic identity to a CodeStream identity
+	async getUserIdentity (options) {
+		/*
+		// extract the cookie from the request headers
+		const token = this.extractCookieFromRequest(options.request.request);
+
+		const authorizer = new GithubAuthorizer({ options });
+		return await authorizer.getGithubIdentity(
+			options.accessToken,
+			options.providerInfo
+		);
+		*/
+	}
+	
+	// extract the cookie New Relic sends us in the callback to the New Relic login process
+	extractCookieFromRequest (request) {
+		if (!request.headers || !request.headers.cookie) {
+
+		}
+	}
+
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {
 		if (options.mockResponse) {
 			return this._getMockResponse(service, path, method, params, options);

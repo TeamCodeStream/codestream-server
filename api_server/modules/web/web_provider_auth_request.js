@@ -64,7 +64,7 @@ class WebProviderAuthRequest extends APIRequest {
 		});
 
 		// set up options for initiating a redirect 
-		const { authOrigin, callbackEnvironment } = this.api.config.apiServer;
+		const { authOrigin, publicApiUrl, callbackEnvironment } = this.api.config.apiServer;
 		let state = `${callbackEnvironment}!${code}`;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		const options = {
@@ -74,7 +74,9 @@ class WebProviderAuthRequest extends APIRequest {
 			redirectUri,
 			access: this.request.query.access,
 			sharing: !!this.request.query.sharing,
-			hostUrl: this.hostUrl || payload.hu
+			hostUrl: this.hostUrl || payload.hu,
+			signupToken: payload.st,
+			publicApiUrl
 		};
 		this.log('redirectUri: ' + redirectUri);
 
