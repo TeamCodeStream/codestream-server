@@ -24,6 +24,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: '/~nrlogin/:st',
+		requestClass: require('./provider_token_request')
+	},
+	{
+		method: 'get',
 		path: '/no-auth/provider-token/:provider',
 		requestClass: require('./provider_token_request')
 	},
