@@ -23,6 +23,10 @@ class ProviderTokenRequest extends RestfulRequest {
 	// process the request...
 	async process () {
 		try {
+			if (this.request.path.match(/~nrlogin/)) {
+				this.request.params.provider = 'newrelicidp';
+			}
+
 			// determine the authorization service to use, based on the provider
 			this.isClientToken = this.request.method.toLowerCase() === 'post';
 			this.provider = this.request.params.provider.toLowerCase();
@@ -140,7 +144,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	}
 
 	async extractFromFragmentAsNeeded () {
-		if (!this.serviceAuth.tokenFromFragment()) {
+		if (!this.serviceAuth.tokenFromFragment || !this.serviceAuth.tokenFromFragment()) {
 			return;
 		}
 		const options = {
@@ -165,7 +169,14 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// decode the state token and validate
 	async validateState () {
-		if (this.isClientToken) {
+		// st (signup token) sent in the path comes from New Relic login and is a special case,
+		// i.e., it kind of looks like OAuth but it really isn't
+		if (this.request.params.st) {
+			this.fromNewRelicLogin = true;
+			this.userId = 'anon';
+			this.stateToken = this.request.params.st;
+			return;
+		} else if (this.isClientToken) {
 			this.userId = 'anon';
 			this.stateToken = this.request.body.signup_token;
 			this.noSignup = this.request.body.no_signup;
@@ -259,7 +270,7 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// perform an exchange of auth code for access token, as needed
 	async exchangeAuthCodeForToken () {
-		if (this.isClientToken) {
+		if (this.isClientToken || this.fromNewRelicLogin) {
 			return;
 		}
 		if (this.serviceAuth.usesOauth1()) {
