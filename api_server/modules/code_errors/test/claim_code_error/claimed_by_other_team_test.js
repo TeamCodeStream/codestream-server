@@ -44,7 +44,8 @@ class ClaimedByOtherTeamTest extends ClaimCodeErrorTest {
 		Assert.deepStrictEqual(data, {
 			unauthorized: true,
 			accountId: this.nrCommentResponse.post.accountId,
-			ownedBy: this.otherCompany.name
+			ownedBy: this.otherCompany.name,
+			companyId: this.otherCompany.id
 		}, 'incorrect response');
 	}
 }
