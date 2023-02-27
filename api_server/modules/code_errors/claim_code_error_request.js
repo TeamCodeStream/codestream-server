@@ -89,6 +89,7 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 		await this.getTeamAndCompany();
 		if (this.company) {
 			this.responseData.ownedBy = this.company.get('name');
+			this.responseData.companyId = this.company.id;
 		}
 		return false;
 	}
