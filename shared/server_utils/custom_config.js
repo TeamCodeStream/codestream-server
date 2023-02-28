@@ -461,7 +461,6 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'^\\/nr-comments',
 		'^\\/xenv\\/',
 		'^\\/robots\\.txt$',
-		'^\\/~nrlogin\\/'
 	];
 	// matching these paths means Authorization header is optional, behavior may vary
 	Cfg.apiServer.optionalAuthenticatedPaths = [
@@ -556,5 +555,8 @@ module.exports = function customConfigFunc(nativeCfg) {
 	if (Cfg.sharedSecrets.commentEngineAlt)
 		Cfg.sharedSecrets.commentEngineSecrets.push(Cfg.sharedSecrets.commentEngineAlt);
 
+	// FIXME - this should come from actual config
+	Cfg.sharedGeneral.newRelicMessageQueue = 'https://sqs.us-east-1.amazonaws.com/597411941992/user-org-lifecycle-staging-queue';
+	
 	return Cfg;
 };
