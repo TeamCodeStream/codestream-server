@@ -461,6 +461,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'^\\/nr-comments',
 		'^\\/xenv\\/',
 		'^\\/robots\\.txt$',
+		'^\\/~nrlogin\\/'		
 	];
 	// matching these paths means Authorization header is optional, behavior may vary
 	Cfg.apiServer.optionalAuthenticatedPaths = [
