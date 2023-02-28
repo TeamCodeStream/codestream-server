@@ -122,5 +122,10 @@ module.exports = {
 		description: 'Show vulnerability management tree under Observability',
 		version: '14.0.8',
 		restricted: true
+	},
+	'PDIdev': {
+		description: 'User-level feature flag for PDI devs',
+		version: '14.0.11',
+		userRestricted: true 
 	}
 };
