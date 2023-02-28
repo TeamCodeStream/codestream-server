@@ -51,13 +51,22 @@ class SQSClient {
 
 	// start listening to the specified queue
 	listen (options) {
-		const { name } = options;
-		const queue = this.queues[name];
+		const { name, url, handler } = options;
+		let queue;
+		if (url) {
+			queue = this.queues[name] = {
+				name,
+				url,
+				options
+			};
+		} else {
+			queue = this.queues[name];
+		}
 		if (!queue) {
 			throw `cannot listen to queue ${options.name}, queue has not been created yet`;
 		}
-		queue.handler = options.handler;
-		this._initiatePolling(name);
+		queue.handler = handler;
+		this._initiatePolling(queue.name);
 	}
 
 	// stop listening on the given queue
@@ -147,7 +156,9 @@ class SQSClient {
 
 	// process data for a single message data from the given queue
 	_processMessage (queue, message, callback) {
-		this.log(`Received an SQS message on queue ${queue.name}: ${message.MessageId}:${message.ReceiptHandle}`);
+		if (!queue.options.dontLogRx) {
+			this.log(`Received an SQS message on queue ${queue.name}: ${message.MessageId}:${message.ReceiptHandle}`);
+		}
 		if (message.Body) {
 			let data;
 			try {
