@@ -7,6 +7,7 @@ const Fetch = require('node-fetch');
 const Crypto = require('crypto');
 const UUID = require('uuid').v4;
 const NewRelicAuthorizer = require('./new_relic_authorizer');
+const NewRelicListener = require('./newrelic_listener');
 const RandomString = require('randomstring');
 
 // FIXME: this is for now ... ultimately, these should come from config
@@ -40,6 +41,9 @@ class NewRelicIDP extends APIServerModule {
 	async initialize () {
 		// FIXME: this is for now ... ultimately, these should come from config
 		this.serviceHosts = SERVICE_HOSTS;
+
+		this.listener = new NewRelicListener({ api: this.api });
+		this.listener.listen();
 	}
 
 	async createUserWithPassword (attributes, password, options = {}) {
