@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.11] - 2023-3-1
+
+### Fixed
+
+- Fixes internal telemetry issues
+
 ## [14.0.10] - 2023-1-24
 
 ### Fixed
