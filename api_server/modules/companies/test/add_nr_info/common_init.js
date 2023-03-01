@@ -35,7 +35,8 @@ class CommonInit {
 					modifiedAt: Date.now(), // placeholder
 					version: 2,
 					nrAccountIds: this.data.accountIds,
-					nrOrgIds: this.data.orgIds
+					nrOrgIds: this.data.orgIds,
+					isNRConnected: true
 				},
 				$version: {
 					before: 1,
@@ -46,7 +47,8 @@ class CommonInit {
 		this.path = '/companies/add-nr-info/' + this.company.id;
 		this.expectedCompany = Object.assign({}, this.company, {
 			nrAccountIds: this.data.accountIds,
-			nrOrgIds: this.data.orgIds
+			nrOrgIds: this.data.orgIds,
+			isNRConnected: true
 		});
 		this.expectedCompany.version = 2;
 		this.updatedAt = Date.now();

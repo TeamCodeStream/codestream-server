@@ -10,7 +10,7 @@
     "hjson": "3.2.1",
     "mongodb": "3.5.3",
     "node-ipc": "9.1.1",
-    "socketcluster-server": "16.0.0",
+    "socketcluster-server": "17.3.0",
     "strftime": "0.10.0",
     "uuid": "3.4.0"
   },

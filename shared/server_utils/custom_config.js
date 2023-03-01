@@ -381,6 +381,16 @@ module.exports = function customConfigFunc(nativeCfg) {
 			);
 			process.exit(1);
 		}
+		// for local development sandboxes
+		if (
+			Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl.match(/localhost/) &&
+			process.env.CS_API_PUBLIC_URL
+		) {
+			Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl = Cfg.apiServer.publicApiUrl;
+			console.log(`this appears to be a local sandbox with a publicApiUrl override.`);
+			console.log(`setting environmentGroup publicApiUrl to ${Cfg.environmentGroup[Cfg.sharedGeneral.runTimeEnvironment].publicApiUrl}`);
+		}
+		// verify consistency between the publicApiUrl setting and the environment group
 		if (
 			Cfg.apiServer.publicApiUrl &&
 			Cfg.apiServer.publicApiUrl !=

@@ -40,6 +40,7 @@ class AddNRInfoRequest extends RestfulRequest {
 				throw this.errorHandler.error('invalidParameter', { info: 'orgIds must be a singleton' });
 			}
 			op.$set.nrOrgIds = this.request.body.orgIds;
+			op.$set.isNRConnected = true;
 		}
 
 		this.updateOp = await new ModelSaver({
