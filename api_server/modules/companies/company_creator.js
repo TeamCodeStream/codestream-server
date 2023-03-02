@@ -126,7 +126,7 @@ class CompanyCreator extends ModelCreator {
 				name: name,
 				email: this.user.get('email'),
 				password,
-				orgName: this.user.get('companyName')
+				orgName: this.user.get('companyName') || this.attributes.name
 			},
 			{ 
 				request: this.request,
