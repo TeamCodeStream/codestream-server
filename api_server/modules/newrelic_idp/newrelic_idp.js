@@ -170,7 +170,6 @@ class NewRelicIDP extends APIServerModule {
 			email: data.email,
 			password: data.password
 		}, options);
-
 		const loginResponse = await this.loginUser(
 			{
 				username: data.email,
