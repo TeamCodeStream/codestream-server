@@ -1,5 +1,9 @@
 "use strict";
 
+const CompanyIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/indexes');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const UUID = require('uuid').v4;
+
 class NewRelicListener {
 
 	constructor (options) {
@@ -36,47 +40,189 @@ class NewRelicListener {
 			this.api.warn('Could not parse payload from New Relic message:', ex.message);
 		}
 
+		if (!payload.data || !payload.data.target) return;
 		switch (payload.type) {
 			case "organization.update": 
 				this.onOrganizationUpdate(payload);
 				break;
 
+			/*
 			case "organization.create": 
 				this.onOrganizationCreate(payload);
 				break;
-
-			case "user.create": 
-				this.onUserCreate(payload);
+			*/
+			
+			case "organization.delete":
+				this.onOrganizationDelete(payoad);
 				break;
 
 			case "user.update": 
 				this.onUserUpdate(payload);
 				break;
 
+			/*
+			case "user.create": 
+				this.onUserCreate(payload);
+				break;
+			*/
+
 			case "user.delete":
 				this.onUserDelete(payload);
 				break;
+
+			default:
 		}
 	}
 
-	onOrganizationUpdate (payload) {
-		//this.api.log('ORGANIZATION UPDATE:\n' + JSON.stringify(payload, 0, 5));
+	async onOrganizationUpdate (payload) {
+		// is there a name change? that's all we care about for orgs
+		const { id, name } = payload.data.target;
+		if (!name) return;
+
+		// is this an org we care about?
+		const company = await this.api.data.companies.getOneByQuery(
+			{
+				linkedNROrgId: id
+			},
+			{
+				hint: CompanyIndexes.byLinkedNROrgId
+			}
+		);
+		if (!company) {
+			return;
+		}
+
+		this.api.log(`Processing a New Relic originated org name change: "${company.name}" to "${name}" for company ${company.id}`);
+
+		// update the company with the name change
+		const op = await this.api.data.companies.applyOpById(
+			company.id,
+			{ 
+				$set: {
+					name
+				}
+			},
+			{
+				version: company.version
+			}
+		);
+
+		// send the resulting op out on broadcaster so clients make the update
+		const channel = `team-${company.everyoneTeamId}`;
+		const message = {
+			requestId: UUID(),
+			company: {
+				id: company.id,
+				...op
+			}
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ logger: this.api }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.api.warn(`Could not publish NR-initiated company update message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	onOrganizationCreate (payload) {
-		//this.api.log('ORGANIZATION CREATE:\n' + JSON.stringify(payload, 0, 5));
+	}
+
+	onOrganizationDelete (payload) {
 	}
 
 	onUserCreate (payload) {
-		//this.api.log('USER CREATE:\n' + JSON.stringify(payload, 0, 5));
 	}
 
-	onUserUpdate (payload) {
-		//this.api.log('USER UPDATE:\n' + JSON.stringify(payload, 0, 5));
+	async onUserUpdate (payload) {
+		// we care about name and email changes here, nothing else
+		const { organizationId } = payload.data;
+		const { id, name, email } = payload.data.target;
+		const nrUserId = parseInt(id, 10);
+		if (
+			!organizationId ||
+			!nrUserId ||
+			isNaN(nrUserId) ||
+			(
+				!name &&
+				!email
+			)
+		) {
+			return;
+		}
+
+		// is this an org we care about?
+		const company = await this.api.data.companies.getOneByQuery(
+			{
+				linkedNROrgId: organizationId
+			},
+			{
+				hint: CompanyIndexes.byLinkedNROrgId
+			}
+		);
+		if (!company) {
+			return;
+		}
+
+		// is this a user we care about?
+		const user = await this.api.data.users.getOneByQuery(
+			{
+				nrUserId: nrUserId,
+				teamIds: company.everyoneTeamId
+			},
+			{
+				hint: UserIndexes.byNRUserId
+			}
+		);
+		if (!user) {
+			return;
+		}
+
+		this.api.log(`Processing a New Relic originated user change for user ${user.id}`);
+
+		// update the user with the name and/or email change
+		const op = await this.api.data.users.applyOpById(
+			user.id,
+			{
+				$set: {
+					fullName: name,
+					email,
+					searchableEmail: email.toLowerCase()
+				}
+			},
+			{ 
+				version: user.version
+			}
+		);
+		delete op.$set.searchableEmail;
+
+		// send the resulting op out on broadcaster so clients make the update
+		const channel = `team-${company.everyoneTeamId}`;
+		const message = {
+			requestId: UUID(),
+			user: {
+				id: user.id,
+				...op
+			}
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ logger: this.api }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.api.warn(`Could not publish NR-initiated user update message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 
 	onUserDelete (payload) {
-		//this.api.log('USER DELETE:\n' + JSON.stringify(payload, 0, 5));
 	}
 }
 
