@@ -23,6 +23,7 @@ module.exports = {
 		needsAutoReinvites: 1
 	},
 	byNRUserId: {
+		teamIds: 1,
 		nrUserId: 1
 	}
 };
