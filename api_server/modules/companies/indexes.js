@@ -12,5 +12,8 @@ module.exports = {
 	},
 	byNROrgId: {
 		nrOrgIds: 1
+	},
+	byLinkedNROrgId: {
+		linkedNROrgId: 1
 	}
 };
