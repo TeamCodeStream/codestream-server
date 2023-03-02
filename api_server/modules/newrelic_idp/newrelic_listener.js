@@ -54,11 +54,9 @@ class NewRelicListener {
 			*/
 			
 			case "organization.delete":
-				this.onOrganizationDelete(payload);
-				break;
-
 			case "organization.destroy":
 				//console.warn("ORG DESTROY", payload);
+				this.onOrganizationDelete(payoad);
 				break;
 
 			case "user.update": 
