@@ -1,3 +1,15 @@
+// parse database out of a mongo url
+// here we are superseding earlier mongo url parsing (code comment out below) which parsed out a lot
+// more ... but with DNS-lookup based urls, we don't purport to return any other information besides
+// the database
+function ExtractDbFromMongoUrl (url) {
+	let parsed = url.match(/^mongodb(?:\+srv)?:\/\/([^/]+)\/([^?]+?)((\?)(.+))?$/);
+	if (parsed && parsed[2]) {
+		return parsed[2];
+	}
+}
+
+/*
 
 // a proper mongo url parser
 
@@ -32,3 +44,8 @@ module.exports = function(mongoUrl) {
 	}
 	return results;
 };
+
+*/
+
+module.exports = ExtractDbFromMongoUrl;
+
