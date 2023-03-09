@@ -42,8 +42,10 @@ class NewRelicIDP extends APIServerModule {
 		// FIXME: this is for now ... ultimately, these should come from config
 		this.serviceHosts = SERVICE_HOSTS;
 
-		this.listener = new NewRelicListener({ api: this.api });
-		this.listener.listen();
+		if (this.api) {
+			this.listener = new NewRelicListener({ api: this.api });
+			this.listener.listen();
+		}
 	}
 
 	async createUserWithPassword (attributes, password, options = {}) {
@@ -116,7 +118,7 @@ class NewRelicIDP extends APIServerModule {
 			email: data.email,
 			password: data.password
 		}, options);
-		
+
 		const loginResponse = await this.loginUser(
 			{
 				username: data.email,
@@ -245,8 +247,8 @@ class NewRelicIDP extends APIServerModule {
 		/*
 		// until we can get a valid token back from the signup or login process, we don't have a way to
 		// make the entitlements API call, so return true for now until that blocker is fixed
-		return true;
 		*/
+		return true;
 		
 		// before determining if the org has the unlimited_consumption entitlement,
 		// we need to get its reporting account

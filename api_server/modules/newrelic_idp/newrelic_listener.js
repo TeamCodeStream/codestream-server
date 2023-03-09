@@ -41,6 +41,7 @@ class NewRelicListener {
 		}
 
 		if (!payload.data || !payload.data.target) return;
+		//console.warn('RX', payload.type);
 		switch (payload.type) {
 			case "organization.update": 
 				this.onOrganizationUpdate(payload);
@@ -53,7 +54,7 @@ class NewRelicListener {
 			*/
 			
 			case "organization.delete":
-				this.onOrganizationDelete(payoad);
+				this.onOrganizationDelete(payload);
 				break;
 
 			case "user.update": 
@@ -71,6 +72,8 @@ class NewRelicListener {
 				break;
 
 			default:
+				//console.warn('Ignoring New Relic message of type ' + payload.type);
+				break;
 		}
 	}
 
@@ -88,7 +91,7 @@ class NewRelicListener {
 				hint: CompanyIndexes.byLinkedNROrgId
 			}
 		);
-		if (!company) {
+		if (!company || company.name === name) {
 			return;
 		}
 
@@ -99,7 +102,8 @@ class NewRelicListener {
 			company.id,
 			{ 
 				$set: {
-					name
+					name,
+					modifiedAt: Date.now()
 				}
 			},
 			{
@@ -132,7 +136,49 @@ class NewRelicListener {
 	onOrganizationCreate (payload) {
 	}
 
-	onOrganizationDelete (payload) {
+	async onOrganizationDelete (payload) {
+		//console.warn('ORG DELETE!', payload);
+		// is there a name change? that's all we care about for orgs
+		const { organizationId } = payload.data;
+		if (!organizationId) return;
+
+		// is this an org we care about?
+		const company = await this.api.data.companies.getOneByQuery(
+			{
+				linkedNROrgId: organizationId
+			},
+			{
+				hint: CompanyIndexes.byLinkedNROrgId
+			}
+		);
+		if (!company) {
+			return;
+		}
+
+		this.api.log(`Processing a New Relic originated org deletion for company ${company.id}`);
+
+		/*
+		// send the resulting op out on broadcaster so clients make the update
+		const channel = `team-${company.everyoneTeamId}`;
+		const message = {
+			requestId: UUID(),
+			company: {
+				id: company.id,
+				...op
+			}
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ logger: this.api }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.api.warn(`Could not publish NR-initiated company update message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
+		*/
 	}
 
 	onUserCreate (payload) {
@@ -151,6 +197,89 @@ class NewRelicListener {
 				!name &&
 				!email
 			)
+		) {
+			return;
+		}
+		if (email && email.match(/codestream\.com$/)) {
+			//console.warn('CODESTREAM USER UPDATE:', JSON.stringify(payload, 0, 5));
+		}
+
+		// is this an org we care about?
+		const company = await this.api.data.companies.getOneByQuery(
+			{
+				linkedNROrgId: organizationId
+			},
+			{
+				hint: CompanyIndexes.byLinkedNROrgId
+			}
+		);
+		if (!company) {
+			return;
+		}
+
+		// is this a user we care about?
+		const user = await this.api.data.users.getOneByQuery(
+			{
+				nrUserId: nrUserId,
+				teamIds: company.everyoneTeamId
+			},
+			{
+				hint: UserIndexes.byNRUserId
+			}
+		);
+		if (!user) return;
+		const nameChanging = name && name !== user.fullName;
+		const emailChanging = email && email !== user.email;
+		if (!nameChanging && !emailChanging) return;
+		this.api.log(`Processing a New Relic originated user change for user ${user.id}`);
+
+		// update the user with the name and/or email change
+		const op = await this.api.data.users.applyOpById(
+			user.id,
+			{
+				$set: {
+					fullName: name,
+					email,
+					searchableEmail: email.toLowerCase(),
+					modifiedAt: Date.now()
+				}
+			},
+			{ 
+				version: user.version
+			}
+		);
+		delete op.$set.searchableEmail;
+
+		// send the resulting op out on broadcaster so clients make the update
+		const channel = `team-${company.everyoneTeamId}`;
+		const message = {
+			requestId: UUID(),
+			user: {
+				id: user.id,
+				...op
+			}
+		};
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ logger: this.api }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.api.warn(`Could not publish NR-initiated user update message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	async onUserDelete (payload) {
+		const { organizationId } = payload.data;
+		const { id  } = payload.data.target;
+		const nrUserId = parseInt(id, 10);
+		if (
+			!organizationId ||
+			!nrUserId ||
+			isNaN(nrUserId)
 		) {
 			return;
 		}
@@ -182,16 +311,20 @@ class NewRelicListener {
 			return;
 		}
 
-		this.api.log(`Processing a New Relic originated user change for user ${user.id}`);
+		this.api.log(`Processing a New Relic originated user deletion, user ${user.id}`);
 
-		// update the user with the name and/or email change
+		// update the user with the deactivation
+		const emailParts = user.email.split('@');
+		const now = Date.now();
+		const deactivatedEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;		
 		const op = await this.api.data.users.applyOpById(
 			user.id,
 			{
 				$set: {
-					fullName: name,
-					email,
-					searchableEmail: email.toLowerCase()
+					deactivated: true,
+					email: deactivatedEmail,
+					searchableEmail: deactivatedEmail.toLowerCase(),
+					modifiedAt: now
 				}
 			},
 			{ 
@@ -218,11 +351,8 @@ class NewRelicListener {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.api.warn(`Could not publish NR-initiated user update message to channel ${channel}: ${JSON.stringify(error)}`);
+			this.api.warn(`Could not publish NR-initiated user deletion message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
-	}
-
-	onUserDelete (payload) {
 	}
 }
 
