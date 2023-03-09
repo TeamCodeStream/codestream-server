@@ -640,7 +640,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
-        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async help (context) {
@@ -721,7 +720,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
-        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async helpPersonal (context, userName) {
