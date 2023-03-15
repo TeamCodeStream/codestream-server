@@ -16,6 +16,7 @@ const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/e
 const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
 const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
 const AccessTokenCreator = require('./access_token_creator');
+const IDPSync = require('./idp_sync');
 
 class LoginHelper {
 
@@ -35,6 +36,7 @@ class LoginHelper {
 
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
 
+		await this.handleIDPSync();
 		await awaitParallel([
 			this.getInitialData,
 			//this.getForeignCompanies, // doesn't apply anymore under one-user-per-org
@@ -87,6 +89,18 @@ class LoginHelper {
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.request.warn(`Unable to fetch country code: ${message}`);
+		}
+	}
+
+	// handle sync with the (New Relic) IDP service, as needed
+	async handleIDPSync () {
+		if (!this.request.request.headers['x-cs-enable-uid']) return;
+		this.idpSync = new IDPSync({
+			request: this.request
+		});
+		if (!await this.idpSync.syncUserAndOrg()) {
+			// this means the current user was somehow found to be valid, abort the login
+			throw this.errorHandler.error('idpSyncDenied');
 		}
 	}
 
