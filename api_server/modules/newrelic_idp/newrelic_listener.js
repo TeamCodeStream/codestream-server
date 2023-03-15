@@ -41,7 +41,7 @@ class NewRelicListener {
 		}
 
 		if (!payload.data || !payload.data.target) return;
-		//console.warn('RX', payload.type);
+		//console.warn('RX', payload.data.type);
 		switch (payload.type) {
 			case "organization.update": 
 				this.onOrganizationUpdate(payload);
@@ -55,6 +55,10 @@ class NewRelicListener {
 			
 			case "organization.delete":
 				this.onOrganizationDelete(payload);
+				break;
+
+			case "organization.destroy":
+				//console.warn("ORG DESTROY", payload);
 				break;
 
 			case "user.update": 
@@ -157,27 +161,12 @@ class NewRelicListener {
 
 		this.api.log(`Processing a New Relic originated org deletion for company ${company.id}`);
 
-		/*
-		// send the resulting op out on broadcaster so clients make the update
-		const channel = `team-${company.everyoneTeamId}`;
-		const message = {
-			requestId: UUID(),
-			company: {
-				id: company.id,
-				...op
-			}
-		};
-		try {
-			await this.api.services.broadcaster.publish(
-				message,
-				channel,
-				{ logger: this.api }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.api.warn(`Could not publish NR-initiated company update message to channel ${channel}: ${JSON.stringify(error)}`);
-		}
+		/* Not receiving these messages, so can't test this code reliably
+		return new DeleteCompanyHelper({
+			api: this.api,
+			data: this.api.data,
+			transforms: {}
+		}).deleteCompany(company);
 		*/
 	}
 

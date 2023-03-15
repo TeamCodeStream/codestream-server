@@ -32,18 +32,15 @@ class TeamSubscriptionGranter  {
 	// get the access tokens for each user in the team that is registered
 	async getTokens () {
 		this.tokens = this.members.reduce((tokens, user) => {
-			// using the access token for PubNub subscription is to be DEPRECATED
-			if (user.get('isRegistered')) {
-				tokens.push(user.getAccessToken());
-			}
-			if (user.get('broadcasterToken')) {
-				tokens.push(user.get('broadcasterToken'));
+			const userAttrs = user.attributes || user;
+			if (userAttrs.broadcasterToken) {
+				tokens.push(userAttrs.broadcasterToken);
 			}
 			return tokens;
 		}, []);
 	}
 
-	// grant permissions for each registered user to subscribe to the team channel
+	// grant (or revoke) permissions for each registered user to subscribe to the team channel
 	async grantTeamChannel () {
 		if (this.tokens.length === 0) {
 			return;
