@@ -42,10 +42,12 @@ class NewRelicIDP extends APIServerModule {
 		// FIXME: this is for now ... ultimately, these should come from config
 		this.serviceHosts = SERVICE_HOSTS;
 
+		/*
 		if (this.api) {
 			this.listener = new NewRelicListener({ api: this.api });
 			this.listener.listen();
 		}
+		*/
 	}
 
 	async createUserWithPassword (attributes, password, options = {}) {
@@ -283,8 +285,9 @@ class NewRelicIDP extends APIServerModule {
 		);
 
 	}
-	// get the "reporting account" for the given NR org ID
-	async getOrgReportingAccount (nrOrgId, options) {
+
+	// get the org given an NR org ID
+	async getOrg (nrOrgId, options) {
 		const result = await this._newrelic_idp_call(
 			'org',
 			'/v0/organizations/' + nrOrgId,
@@ -292,12 +295,13 @@ class NewRelicIDP extends APIServerModule {
 			undefined,
 			options
 		);
-
-		return (
-			result.data &&
-			result.data.attributes &&
-			result.data.attributes.reportingAccountId
-		);
+		return result.data && result.data.attributes;
+	}
+	
+	// get the "reporting account" for the given NR org ID
+	async getOrgReportingAccount (nrOrgId, options) {
+		const org = await this.getOrg(nrOrgId, options);
+		return org && org.reportingAccountId;
 	}
 
 	// change an organization name for the given org ID
@@ -564,7 +568,11 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	_getMockLoginResponse (params) {
-		// TODO
+		return {
+			newrelic: {
+				value: RandomString.generate(100) // for now
+			}
+		}
 	}
 
 	_getMockPendingPasswordResponse () {
