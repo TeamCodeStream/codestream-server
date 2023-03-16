@@ -75,19 +75,19 @@ class SubscriptionUpgradeRequest extends WebRequestBase {
 			error: this.request.query.error,
 			segmentKey: this.api.config.telemetry.segment.webToken
 		};
-		this.addIdentifyScript(templateProps);
+		await this.addIdentifyScript(templateProps);
 
 		await super.render('subscription_upgrade', templateProps);
 	}
 
-	addIdentifyScript (props) {
+	async addIdentifyScript (props) {
 		const identifyOptions = {
 			user: this.user,
 			company: this.company,
 			module: this.module,
 			request: this
 		};
-		props.identifyScript = Identify(identifyOptions);
+		props.identifyScript = await Identify(identifyOptions);
 	}
 
 	redirect404 () {

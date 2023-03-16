@@ -1129,7 +1129,7 @@ class PostCreator extends ModelCreator {
 		}
 		trackData['Parent Type'] = parentType;
 
-		this.api.services.analytics.trackWithSuperProperties(
+		return this.api.services.analytics.trackWithSuperProperties(
 			'Reply Created',
 			trackData,
 			{ request, user, team, company }

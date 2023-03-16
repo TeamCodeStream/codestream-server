@@ -25,7 +25,7 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 				frequency: this.plan.interval === 'year' ? 'Annual' : 'Monthly',
 				coupon: this.coupon
 			};
-			this.addIdentifyScript(templateProps);
+			await this.addIdentifyScript(templateProps);
 
 			this.render('subscription_thankyou', templateProps);
 
@@ -41,14 +41,14 @@ class WebSubscriptionThankyouRequest extends WebRequestBase {
 		}
 	}
 
-	addIdentifyScript(props) {
+	async addIdentifyScript(props) {
 		const identifyOptions = {
 			user: this.user,
 			company: this.company,
 			module: this.module,
 			request: this
 		};
-		props.identifyScript = Identify(identifyOptions);
+		props.identifyScript = await Identify(identifyOptions);
 	}
 
 	// validate that the plan paid for matches the number of seats

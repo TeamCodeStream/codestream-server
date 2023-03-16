@@ -444,7 +444,7 @@ class SlackEventsRequest extends RestfulRequest {
 			}
 		}
 
-		this.api.services.analytics.trackWithSuperProperties(
+		return this.api.services.analytics.trackWithSuperProperties(
 			params.event,
 			trackData,
 			{
