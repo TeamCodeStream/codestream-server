@@ -49,6 +49,12 @@ class InitialDataFetcher  {
 		}
 		this.companies = await this.request.data.companies.getByIds(companyIds);
 		this.initialData.companies = await this.request.sanitizeModels(this.companies);
+
+		// there should only really be one of these, per one-user-per-org
+		await Promise.all(this.companies.map(async company => {
+			const sanitizedCompany = this.initialData.companies.find(c => c.id === company.id);
+			sanitizedCompany.memberCount = await company.getCompanyMemberCount(this.request.data);
+		}));
 	}
 	
 	// copy company plan info to their teams ... we've moved plan info from the team to
