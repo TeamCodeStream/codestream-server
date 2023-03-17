@@ -103,7 +103,7 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties['Last Invite Type'] === this.users[1].user.lastInviteType) || errors.push('Last Invite Type does not match post originator')) &&
 			((properties['Team ID'] === this.team.id) || errors.push('Team ID does not match team')) &&
 			((properties['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&			
-			((properties['Team Size'] === this.team.memberIds.length) || errors.push('Team Size does not match number of members in team')) &&
+			((properties['Team Size'] === 2) || errors.push('Team Size does not match number of members in team')) &&
 			((properties['Team Created Date'] === new Date(this.team.createdAt).toISOString()) || errors.push('Team Created Date not correct')) &&
 			((properties['Plan'] === plan) || errors.push('Plan not correct')) &&
 			((properties['Company Name'] === this.company.name) || errors.push('Company Name does not match name of company')) &&

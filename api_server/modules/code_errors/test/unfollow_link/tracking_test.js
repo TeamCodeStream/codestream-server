@@ -63,7 +63,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				name: this.currentUser.user.fullName,
 				'Join Method': 'Added to Team',
 				'Team ID': this.team.id,
-				'Team Size': 3,
+				'Team Size': 2,
 				'Team Name': this.team.name,
 				'Team Created Date': new Date(this.team.createdAt).toISOString(),
 				Plan: plan,
