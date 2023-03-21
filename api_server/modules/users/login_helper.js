@@ -17,6 +17,7 @@ const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server
 const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
 const AccessTokenCreator = require('./access_token_creator');
 const IDPSync = require('./idp_sync');
+const IDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
 
 class LoginHelper {
 
@@ -24,6 +25,7 @@ class LoginHelper {
 		Object.assign(this, options);
 		this.loginType = this.loginType || 'web';
 		this.request.errorHandler.add(VersionErrors);
+		this.request.errorHandler.add(IDPErrors);
 		this.api = this.request.api;
 		this.apiConfig = this.api.config;
 	}
@@ -98,9 +100,12 @@ class LoginHelper {
 		this.idpSync = new IDPSync({
 			request: this.request
 		});
+		if (!this.request.user.get('nrUserId')) {
+			return;
+		}
 		if (!await this.idpSync.syncUserAndOrg()) {
 			// this means the current user was somehow found to be valid, abort the login
-			throw this.errorHandler.error('idpSyncDenied');
+			throw this.request.errorHandler.error('idpSyncDenied');
 		}
 	}
 
