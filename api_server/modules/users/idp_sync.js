@@ -23,10 +23,18 @@ class IDPSync {
 			return false;
 		}
 
-		const nrUserData = await this.request.api.services.idp.getUser(nrUserId, { request: this.request });
+		let nrUserData;
+		try {
+			nrUserData = await this.request.api.services.idp.getUser(nrUserId, { request: this.request });
+		} catch (error) {
+			if (error.message.match(/couldn't find user/i)) {
+				// assume this user has been deleted
+				await this.deactivateUser();
+				return false;
+			}
+		}
+
 		const nrUser = nrUserData.data.attributes;
-console.warn('NR USER:', JSON.stringify(nrUser, 0, 5));
-		// TODO: what if deleted?
 		const attrsToUpdate = {};
 		if (nrUser.name !== user.get('fullName')) {
 			attrsToUpdate.fullName = nrUser.name;
@@ -86,6 +94,21 @@ console.warn('NR USER:', JSON.stringify(nrUser, 0, 5));
 
 		// copy the changes into the current user object
 		Object.assign(this.request.user.attributes, attrs);
+	}
+
+	async deactivateUser () {
+		const { user } = this.request;
+		this.request.log(`Deleting user ${user.id} from IDP sync`);
+
+		// update the user with the deactivation
+		const emailParts = user.get('email').split('@');
+		const now = Date.now();
+		const deactivatedEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;		
+		return this.updateUser({
+			email: deactivatedEmail,
+			searchableEmail: deactivatedEmail.toLowerCase(),
+			deactivated: true
+		});
 	}
 
 	async syncOrg () {
