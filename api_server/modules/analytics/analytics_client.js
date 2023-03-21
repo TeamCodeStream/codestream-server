@@ -57,7 +57,7 @@ class AnalyticsClient {
 	}
 
 	// track an analytics event, extracting super-properties
-	trackWithSuperProperties(event, data, options = {}) {
+	async trackWithSuperProperties(event, data, options = {}) {
 		const { user, team, company, request } = options;
 		// check if user has opted out
 		const preferences = (user && user.get('preferences')) || {};
@@ -102,10 +102,14 @@ class AnalyticsClient {
 		}
 
 		if (team) {
+			let teamSize;
+			if (company) {
+				teamSize = await company.getCompanyMemberCount(request.data);
+			}
 			Object.assign(trackObject, {
 				'Team ID': team.id,
 				'Team Name': team.get('name'),
-				'Team Size': team.getActiveMembers().length,
+				'Team Size': teamSize,
 				'Team Created Date': new Date(team.get('createdAt')).toISOString()
 			});
 		}

@@ -140,7 +140,7 @@ class UnsubscribeEmailRequest extends RestfulRequest {
 		const trackObject = {
 			'Email Type': this.getEmailType()
 		};
-		this.api.services.analytics.trackWithSuperProperties(
+		return this.api.services.analytics.trackWithSuperProperties(
 			'Unsubscribed',
 			trackObject,
 			{

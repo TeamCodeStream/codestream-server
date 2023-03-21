@@ -4,7 +4,7 @@
 
 const Fs = require('fs');
 
-const MongoUrlParser = require('./mongo/mongo_url_parser');
+const ExtractDBFromMongoUrl = require('./mongo/mongo_url_parser');
 
 function parseUrl(url) {
 	let parsed = url.match(/^http(s)?:\/\/([\w\d-.]+)(:(\d+))?\/?/);
@@ -243,7 +243,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 
 	// mongo
 	Object.assign(Cfg.storage.mongo, {
-		database: MongoUrlParser(nativeCfg.storage.mongo.url).database,
+		database: ExtractDBFromMongoUrl(nativeCfg.storage.mongo.url),
 		hintsRequired: true,
 		// we write a separate log file for mongo queries, and for slow
 		// and "really slow" queries so we can look for problems
@@ -291,6 +291,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 			],
 		},
 	});
+
 	// FIXME: this should be added to the config schema
 	Cfg.storage.mongo.tlsOptions = {};
 	if (Cfg.storage.mongo.tlsCAFile && Fs.existsSync(Cfg.storage.mongo.tlsCAFile)) {
@@ -330,6 +331,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		shortcut: { appClientId: 'placeholder' },
 		newrelic: { appClientId: 'placeholder' },
 		circleci: { appClientId: 'placeholder' },
+		jenkins: { appClientId: 'placeholder' },
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
@@ -448,6 +450,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'linear',
 		'newrelic',
 		'circleci',
+		'jenkins',
 	];
 	// matching these paths means Authorization header is not required
 	Cfg.apiServer.unauthenticatedPaths = [
@@ -516,9 +519,10 @@ module.exports = function customConfigFunc(nativeCfg) {
 		Cfg.outboundEmailServer.storage.mongo.url = Cfg.storage.mongo.url;
 		Cfg.outboundEmailServer.storage.mongo.tlsOptions = Cfg.storage.mongo.tlsOptions;
 	}
-	Cfg.outboundEmailServer.storage.mongo.database = MongoUrlParser(
+	Cfg.outboundEmailServer.storage.mongo.database = ExtractDBFromMongoUrl(
 		Cfg.outboundEmailServer.storage.mongo.url
-	).database;
+	);
+
 	Cfg.outboundEmailServer.storage.mongo.tlsOptions = Cfg.storage.mongo.tlsOptions;
 
 	// TODO: consider creating a pubnubUuid prop associated with each service as opposed to overriding the entire structure.

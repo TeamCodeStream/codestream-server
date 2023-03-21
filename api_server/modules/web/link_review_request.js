@@ -344,13 +344,13 @@ class LinkReviewRequest extends WebRequestBase {
 		};
 
 		if (this.request.query.identify) {
-			this.addIdentifyScript(templateProps);
+			await this.addIdentifyScript(templateProps);
 		}
 
 		await super.render('review', templateProps);
 	}
 
-	addIdentifyScript (props) {
+	async addIdentifyScript (props) {
 		const identifyOptions = {
 			provider:
 				ProviderDisplayNames[this.request.query.provider] ||
@@ -361,7 +361,7 @@ class LinkReviewRequest extends WebRequestBase {
 			module: this.module,
 			request: this
 		};
-		props.identifyScript = Identify(identifyOptions);
+		props.identifyScript = await Identify(identifyOptions);
 	}
 
 	formatTime (timeStamp) {

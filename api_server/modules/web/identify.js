@@ -3,9 +3,10 @@
 const Handlebars = require('handlebars');
 
 /* eslint complexity: 0 */
-module.exports = function(options) {
+module.exports = async function(options) {
 
 	const { user, team, company, module, request } = options;
+
 	const userId = user && user.id;
 	const email = user && user.get('email');
 	const joinMethod = user && user.get('joinMethod');
@@ -17,7 +18,7 @@ module.exports = function(options) {
 	const countryCode = user && user.get('countryCode');
 	const teamId = team && team.id;
 	const teamName = team && team.get('name');
-	const teamSize = team && team.getActiveMembers().length;
+	const teamSize = company && (await company.getCompanyMemberCount(request.data));
 	const teamCreatedAt = team && new Date(team.get('createdAt')).toISOString();
 	const reportingGroup = company && company.get('reportingGroup');
 	const companyName = company && company.get('name');

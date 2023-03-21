@@ -208,7 +208,7 @@ class ProviderActionRequest extends RestfulRequest {
 		}
 
 		Object.assign(trackData, info.data);
-		this.api.services.analytics.trackWithSuperProperties(
+		return this.api.services.analytics.trackWithSuperProperties(
 			info.event,
 			trackData,
 			{

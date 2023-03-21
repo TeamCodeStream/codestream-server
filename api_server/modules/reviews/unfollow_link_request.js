@@ -99,7 +99,7 @@ class UnfollowLinkRequest extends UnfollowReviewRequest {
 			Change: 'Review Unfollowed',
 			'Source of Change': 'Email link'
 		};
-		this.api.services.analytics.trackWithSuperProperties(
+		return this.api.services.analytics.trackWithSuperProperties(
 			'Notification Change',
 			trackObject,
 			{

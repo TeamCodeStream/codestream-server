@@ -99,7 +99,7 @@ class UnfollowCodeErrorLinkRequest extends UnfollowCodeErrorRequest {
 			Change: 'Code Error Unfollowed',
 			'Source of Change': 'Email link'
 		};
-		this.api.services.analytics.trackWithSuperProperties(
+		return this.api.services.analytics.trackWithSuperProperties(
 			'Notification Change',
 			trackObject,
 			{

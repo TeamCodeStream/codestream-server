@@ -34,8 +34,9 @@ yes=""
 verbose=""
 force=0
 debug=""
+sortFile=0
 #onpremInstallDir=""
-while getopts "dyvfe:" arg
+while getopts "dyvfe:s" arg
 do
 	case $arg in
 	y) yes=y;;
@@ -44,6 +45,7 @@ do
 	f) force=1;;
 	e) environmentList="$OPTARG";;
 	# o) onpremInstallDir=$OPTARG;;
+	s) sortFile=1;;
 	*) usage;;
 	esac
 done
@@ -71,13 +73,15 @@ schemaVersion=`cat $codestream_configs/parameters.version`
 
 source $codestream_configs/lib/update_funcs.sh
 
-# keep our json files sorted
-for p in `/bin/ls $profiles/*.json $codestream_configs/parameters.json`
-do
-	# echo "sorting $p"
-	[ -n "$verbose" ] && echo $binDir/process-profile $debug --sort-json $p
-	$binDir/process-profile $debug --sort-json $p
-done
+if [ $sortFile -eq 1 ]; then
+	# keep our json files sorted
+	for p in `/bin/ls $profiles/*.json $codestream_configs/parameters.json`
+	do
+		# echo "sorting $p"
+		[ -n "$verbose" ] && echo $binDir/process-profile $debug --sort-json $p
+		$binDir/process-profile $debug --sort-json $p
+	done
+fi
 
 echo "Current schema version is: $schemaVersion"
 # echo -n "Do you want to bump it for these latest writes (y/N)? "; read ans
