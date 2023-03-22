@@ -13,6 +13,7 @@ const NewRelicIDP = require('./newrelic_idp');
 Commander
 	.option('-l, --list <email>', 'List all New Relic / Azure users matching email')
 	.option('-g --get <id>', 'Get New Relic / Azure user matching the given ID')
+	.option('-o --getOrg <id>', 'Get New Relic / Azure org matching the given ID')
 	.option('-a --auth <domain_id>', 'List all New Relic / Azure users under given authentication domain ID')
 	.option('-u --username <username>', 'List all New Relic / Azure users matching a given username')
 	.option('--update <id>', 'Update the attributes of the user, given its ID')
@@ -33,6 +34,9 @@ Commander
 			response = await idp.listUsers(Commander.list);
 		} else if (Commander.get) {
 			response = await idp.getUser(Commander.get);
+		} else if (Commander.getOrg) {
+			response = await idp.getOrg(Commander.getOrg);
+			response = { data: { attributes: response } };
 		} else if (Commander.auth) {
 			response = await idp.getUsersByAuthDomain(Commander.auth);
 		} else if (Commander.username) {
