@@ -26,7 +26,8 @@ const _getEligibleJoinCompaniesByUserInvite = async (user, request) => {
 	// in theory, for one-user-per-org, there should only be (at most) one company for each user record
 	const companyIds = user.companyIds || [];
 	if (companyIds.length > 0) {
-		return await request.data.companies.getByIds(companyIds);
+		const companies = await request.data.companies.getByIds(companyIds);
+		return companies.filter(c => !c.get('deactivated'));
 	} else {
 		return [];
 	}
