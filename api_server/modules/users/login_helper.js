@@ -103,11 +103,13 @@ class LoginHelper {
 		if (!this.request.user.get('nrUserId')) {
 			return;
 		}
-		if (!await this.idpSync.syncUserAndOrg()) {
+		if (!(await this.idpSync.syncUserAndOrg())) {
 			// this means the current user was somehow found to be valid, abort the login
+			this.request.persist();
 			throw this.request.errorHandler.error('idpSyncDenied');
 		}
 	}
+	
 
 	// get the initial data to return in the response, this is a time-saver for the client
 	// so it doesn't have to fetch this data with separate requests

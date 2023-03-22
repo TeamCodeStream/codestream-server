@@ -1,6 +1,7 @@
 "use strict";
 
 const UUID = require('uuid').v4;
+const DeleteCompanyHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/delete_company_helper');
 
 class IDPSync {
 
@@ -10,8 +11,8 @@ class IDPSync {
 
 	async syncUserAndOrg () {
 		return (
-			(await this.syncUser()) &&
-			(await this.syncOrg())
+			(await this.syncOrg()) &&
+			(await this.syncUser())
 		);
 	}
 
@@ -31,6 +32,8 @@ class IDPSync {
 				// assume this user has been deleted
 				await this.deactivateUser();
 				return false;
+			} else {
+				throw error;
 			}
 		}
 
@@ -127,8 +130,25 @@ class IDPSync {
 			return false;
 		}
 
-		const nrOrg = await this.request.api.services.idp.getOrg(nrOrgId, { request: this.request });
-		// TODO: what if deleted?
+		let nrOrg;
+		try {
+			nrOrg = await this.request.api.services.idp.getOrg(nrOrgId, { request: this.request });
+		} catch (error) {
+			// it seems that you can still fetch the org even if it is deleted, so re-throw here, but...
+			throw error;			
+		}
+
+		// fetch the org's auth domain (hopefully just one?), and if there are no users in that auth domain,
+		// we'll assume the org is deleted
+		const authDomains = await this.request.api.services.idp.getAuthDomains(nrOrgId, { request: this.request });
+		if (authDomains.length === 1) {
+			const users = await this.request.api.services.idp.getUsersByAuthDomain(authDomains[0]);
+			if (users.length === 0) {
+				await this.deactivateCompany(company);
+				return false;
+			}
+		}
+
 		const attrsToUpdate = {};
 		if (nrOrg.name !== company.get('name')) {
 			attrsToUpdate.name = nrOrg.name;
@@ -178,6 +198,14 @@ class IDPSync {
 			// this doesn't break the chain, but it is unfortunate...
 			this.request.warn(`Could not publish NR-sync company update message to channel ${channel}: ${JSON.stringify(error)}`);
 		}
+	}
+
+	async deactivateCompany (company) {
+		this.request.log(`Deleting company ${company.id} from IDP sync`);
+		await new DeleteCompanyHelper({
+			request: this.request,
+			transforms: {}
+		}).deleteCompany(company);
 	}
 }
 
