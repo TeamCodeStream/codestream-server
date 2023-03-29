@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.12] - 2023-3-29
+
+### Added
+
+- Add support for mongo URI protocol scheme `mongodb+srv//`
+
 ## [14.0.11] - 2023-3-1
 
 ### Fixed
