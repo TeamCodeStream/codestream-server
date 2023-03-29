@@ -41,10 +41,13 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				// this needs to be run before we access the text as it 
 				// removes the <at>CodeStream</at> part of 
 				TurnContext.removeRecipientMention(context.activity);
-				const text = context.activity.text.trim();
+
+                const action = context.activity.value?.action?.trim();
+                const command = context.activity.text?.trim() 
+                    ?? context.activity.value?.command?.trim();
 
 				// store this for possible error logging later
-				await context.turnState.set('cs_bot_text', text);
+				context.turnState.set('cs_bot_text', JSON.stringify({ action, command }));
 				const didBotWelcomeUser = await this.getState(context, STATE_PROPERTY_WELCOMED_USER, false);
 
 				let teamDetails;
@@ -60,7 +63,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					// if we haven't welcomed this user AND their first command isn't signin, 
 					// AND they're in a personal chat
 					// give them some additional info
-					if (text !== 'signin') {
+					if (command !== 'signin') {
 						const userName = context.activity.from.name;
 						await this.helpPersonal(context, userName);
 						await this.setState(context, STATE_PROPERTY_WELCOMED_USER, true);
@@ -79,10 +82,11 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 				}
 
 				// if this looks like a guid without hypens (aka a signup token...)
-				if (text.match(/^[0-9a-f]{8}[0-9a-f]{4}[0-5][0-9a-f]{3}[089ab][0-9a-f]{3}[0-9a-f]{12}$/i)) {
+				if (action === 'signin') {
+                    const token = context.activity.value?.signInCode?.trim();
 					const result = await context.turnState.get('cs_databaseAdapter').complete({
 						tenantId: channelData.tenant.id,
-						token: text
+						token: token
 					});
 					if (result && result.success) {
 						await this.setState(context, STATE_PROPERTY_CODESTREAM_USER_ID, result.codeStreamUserId);
@@ -93,7 +97,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					}
 				}
 				else {
-					switch (text.toLocaleLowerCase()) {
+					switch (command?.toLocaleLowerCase()) {
 						// start secret commands
 						case 'install':
 							await this.botInstalledPersonal(context);
@@ -188,7 +192,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 							}
 							break;
 						default:
-							await context.sendActivity(`Sorry, I didn't understand '${text}', but thanks for checking out CodeStream. Type 'help' if you need assistance.`);
+							await context.sendActivity(`Sorry, I didn't understand '${command}', but thanks for checking out CodeStream. Type 'help' if you need assistance.`);
 							break;
 							// end commands that work everywhere
 					}
@@ -503,25 +507,29 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 	async signin (context) {
 		let body = [];
 
-		body.push({
-			type: 'TextBlock',
-			text: `Sign in to CodeStream to get started!`,
-			wrap: true,
-		},
-		{
-			type: 'ActionSet',
-			actions: [
-				{
-					type: 'Action.OpenUrl',
-					title: 'Sign in',
-					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`,
-					iconUrl: OPEN_EXTERNAL_LINK_ICON
-				}
-			]
-		});
+		body.push(
+            {
+                type: "Input.Text",
+                label: "Paste your sign-in code from CodeStream. If you don't have one, go to CodeStream, click on your username at the top, select Integrations, and then click on the Microsoft Teams button.",
+                placeholder: "Your sign-in code",
+                id: "signInCode"
+            },
+            {
+                type: 'ActionSet',
+                actions: [
+                    {
+                        type: "Action.Submit",
+                        title: "Sign-in",
+                        id: "submitSignInCode",
+                        data: {
+                            action: "signin"
+                        }
+                    }
+                ]
+            }
+        );
 
 		await this.sendAdaptiveCard(context, body);
-		await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	// provides a way for a user to signup
@@ -570,10 +578,14 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 			type: 'ActionSet',
 			actions: [
 				{
-					type: 'Action.OpenUrl',
+					type: 'Action.Submit',
 					title: 'Sign In',
-					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`,
-					iconUrl: OPEN_EXTERNAL_LINK_ICON
+                    data: {
+                        command: "signin",
+                        msteams: {
+                            type: "messageBack",
+                        }
+                    }
 				}
 			]
 		},
@@ -683,11 +695,15 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		{
 			type: 'ActionSet',
 			actions: [
-				{
-					type: 'Action.OpenUrl',
+                {
+					type: 'Action.Submit',
 					title: 'Sign In',
-					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`,
-					iconUrl: OPEN_EXTERNAL_LINK_ICON
+                    data: {
+                        command: "signin",
+                        msteams: {
+                            type: "messageBack",
+                        }
+                    }
 				}
 			]
 		},
@@ -772,11 +788,15 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		{
 			type: 'ActionSet',
 			actions: [
-				{
-					type: 'Action.OpenUrl',
+                {
+					type: 'Action.Submit',
 					title: 'Sign In',
-					url: `${this.publicApiUrl}/web/login?tenantId=${context.activity.channelData.tenant.id}`,
-					iconUrl: OPEN_EXTERNAL_LINK_ICON
+                    data: {
+                        command: "signin",
+                        msteams: {
+                            type: "messageBack",
+                        }
+                    }
 				}
 			]
 		},
@@ -809,7 +829,6 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 		});
 
 		await this.sendAdaptiveCard(context, body);
-        await context.sendActivity('After signing in, please copy the code shown on your screen and paste it here.');
 	}
 
 	async sendAdaptiveCard(context, body){
