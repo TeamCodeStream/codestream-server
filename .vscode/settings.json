@@ -1,4 +1,5 @@
 {
     "editor.formatOnSave": false,
-    "editor.defaultFormatter": null
+    "editor.defaultFormatter": null,
+    "jira-plugin.workingProject": ""
 }
