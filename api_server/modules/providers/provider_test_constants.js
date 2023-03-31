@@ -213,7 +213,14 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'jenkins',
 		hasBuilds: true,
 		needsConfigure: true
-	}
+	},
+    'trunk*io': {
+        id: 'trunk*io',
+		name: 'trunk',
+		isEnterprise: false,
+		host: 'trunk.io',
+		needsConfigure: false
+    }
 };
 
 const GetStandardProviderHosts = function(config) {

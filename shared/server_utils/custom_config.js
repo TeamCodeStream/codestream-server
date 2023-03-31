@@ -320,6 +320,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		okta: {},
 		slack: {},
 		trello: {},
+        trunk: {},
 		// These providers need appClientId to be defined so the api knows those providers can be configured.
 		// Their respective APIs do not require a client ID so they're not actually used.
 		youtrack: { appClientId: 'placeholder' },
