@@ -127,5 +127,10 @@ module.exports = {
 		description: 'User-level feature flag for PDI devs',
 		version: '14.0.11',
 		userRestricted: true 
+	},
+	'showAnomalies': {
+		description: 'Show anomalous methods management tree under Observability',
+		version: '14.17.1',
+		restricted: true
 	}
 };
