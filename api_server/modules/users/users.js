@@ -210,7 +210,7 @@ const USERS_ADDITIONAL_ROUTES = [
 	},
     {
         method: 'post',
-        path: 'no-auth/msteams-connect-code',
+        path: 'msteams/generate-connect-code',
         requestClass: require('./generate_msteams_connect_code')
     }
 ];

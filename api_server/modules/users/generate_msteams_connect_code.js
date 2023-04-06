@@ -1,61 +1,44 @@
-// handle the "POST /no-auth/msteams-connect-code" request to have a login code sent to
-// user's email address
+// handle the "POST /msteams/generate-connect-code" request to have a signup token sent back to user
 
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
-const LoginCodeHelper = require('./login_code_helper');
+const SignupTokens = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/signup_tokens');
+const UUID = require('uuid').v4;
 
 class GenerateMSTeamsConnectCodeRequest extends RestfulRequest {
 
 	async authorize () {
-		// no pre-authorization needed
+		// no authorization needed, the request always applies to the authenticated user
 	}
 
 	async process () {
-		await this.requireAndAllow(); // require certain parameters, and discard unknown parameters
-		await this.updateUserCode(); // generate and save a login code for the requested email address
+		await this.updateUserSignupToken(); // generate and save a login code for the requested email address
 	}
 
 	async handleResponse () {
-        this.responseData = {
-            connectCode: this.codeData.loginCode
-        };
+		this.responseData = {
+			connectCode: this.connectCode
+		};
 
-        await super.handleResponse();
-	}
-
-	// require certain parameters, and discard unknown parameters
-	async requireAndAllow () {
-		[
-			'_loginCheat',
-			'_delayEmail',
-			'expiresIn'
-		].forEach(parameter => {
-			this[parameter] = this.request.body[parameter];
-			delete this.request.body[parameter];
-		});
-		await this.requireAllowParameters('body', {
-			required: {
-				string: ['email'],
-			},
-			optional: {
-				string: ['teamId']
-			}
-		});
+		await super.handleResponse();
 	}
 
 	// generate and save a login code for the requested email address
-	async updateUserCode () {
-		this.loginCodeHelper = new LoginCodeHelper({
-			request: this,
-			email: this.request.body.email,
-			teamId: this.request.body.teamId,
-			_delayEmail: this._delayEmail,
-			expiresIn: this.expiresIn,
-            target: "msteams"
+	async updateUserSignupToken () {
+		const signupTokens = new SignupTokens({ api: this.api });
+		signupTokens.initialize();
+
+		// replace the hyphens with nothing as it makes copy/pasting easier
+		const tenantToken = UUID().replace(/-/g, '');
+		await signupTokens.insert(tenantToken, this.user.id, {
+			expiresIn: 600000,
+			more: {
+				teamIds: this.user.get('teamIds') || []
+			}
 		});
-		this.codeData = await this.loginCodeHelper.updateUserCode();
+
+		this.connectCode = tenantToken;
 	}
 
 	// describe this route for help
@@ -63,17 +46,8 @@ class GenerateMSTeamsConnectCodeRequest extends RestfulRequest {
 		return {
 			tag: 'connectCode',
 			summary: 'Generates a connect code',
-			access: 'No authorization needed',
+			access: 'Operates on the authenticated user directly',
 			description: 'Generates a code allowing a user to connect their CS account with MSTeams',
-			input: {
-				summary: 'Specify attributes in the body',
-				looksLike: {
-					'email*': '<User\'s email>'
-				},
-			},
-			errors: [
-				'parameterRequired'
-			]
 		};
 	}
 }
