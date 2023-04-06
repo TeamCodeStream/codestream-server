@@ -333,6 +333,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		newrelic: { appClientId: 'placeholder' },
 		circleci: { appClientId: 'placeholder' },
 		jenkins: { appClientId: 'placeholder' },
+		trunk: { appClientId: 'placeholder' },
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
@@ -452,6 +453,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'newrelic',
 		'circleci',
 		'jenkins',
+		'trunk',
 	];
 	// matching these paths means Authorization header is not required
 	Cfg.apiServer.unauthenticatedPaths = [
