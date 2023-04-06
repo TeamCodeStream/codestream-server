@@ -26,12 +26,9 @@ class GenerateMSTeamsConnectCodeRequest extends RestfulRequest {
 
 	// generate and save a login code for the requested email address
 	async updateUserSignupToken () {
-		const signupTokens = new SignupTokens({ api: this.api });
-		signupTokens.initialize();
-
 		// replace the hyphens with nothing as it makes copy/pasting easier
 		const tenantToken = UUID().replace(/-/g, '');
-		await signupTokens.insert(tenantToken, this.user.id, {
+		await this.api.services.signupTokens.insert(tenantToken, this.user.id, {
 			expiresIn: 600000,
 			more: {
 				teamIds: this.user.get('teamIds') || []
