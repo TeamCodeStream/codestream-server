@@ -155,13 +155,22 @@ class MSTeamsDatabaseAdapter {
 			signupTokenService.initialize();
 
 			const signupToken = await signupTokenService.find(data.token);
-			if (!signupToken || signupToken.token !== data.token) {
+			if (!signupToken || signupToken.token !== data.token || signupToken.target !== 'msteams') {
 				this.api.log('Invalid signup token');
 				return {
 					reason: 'generic',
 					success: false
 				};
 			}
+
+			// sync the old token with the new data 
+			// (this will cause any tokens with the same token to be deleted)
+			signupToken.tenantId = data.tenantId;
+			signupTokenService.insert(signupToken.token, signupToken.userId, {
+				expiresAt: signupToken.expiresAt,
+				teamIds: signupToken.teamIds
+			});
+
 			// allow all the teams that this user is part of to use MST
 			// these are stored on the signup token when issued
 			const teams = await this.data.teams.getByIds(signupToken.teamIds);
