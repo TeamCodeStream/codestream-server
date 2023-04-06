@@ -81,9 +81,9 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					teamMembers = await TeamsInfo.getTeamMembers(context);
 				}
 
-				// if this looks like a guid without hypens (aka a signup token...)
+				// if the action is signin, then we assume signInCode was also supplied
 				if (action === 'signin') {
-                    const token = context.activity.value?.signInCode?.trim();
+					const token = context.activity.value?.signInCode?.trim();
 					const result = await context.turnState.get('cs_databaseAdapter').complete({
 						tenantId: channelData.tenant.id,
 						token: token

@@ -207,6 +207,12 @@ const USERS_ADDITIONAL_ROUTES = [
 		path: '/web/join-company/:id',
 		requestClass: require('./web_join_company_request')
 	}
+	},
+    {
+        method: 'post',
+        path: 'no-auth/msteams-connect-code',
+        requestClass: require('./generate_msteams_connect_code')
+    }
 ];
 
 class Users extends Restful {
