@@ -443,6 +443,9 @@ class MongoCollection {
 			query._id = query.id;
 			delete query.id;
 		}
+		if (query._id) {
+			query._id = this.objectIdSafe(query._id);
+		}
 		return await this._runQuery(
 			'updateMany',
 			query,
