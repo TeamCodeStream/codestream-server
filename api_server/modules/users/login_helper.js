@@ -38,7 +38,7 @@ class LoginHelper {
 
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
 
-		await this.handleIDPSync();
+		await this.request.user.handleIDPSync(this.request);
 		await awaitParallel([
 			this.getInitialData,
 			//this.getForeignCompanies, // doesn't apply anymore under one-user-per-org
@@ -93,23 +93,6 @@ class LoginHelper {
 			this.request.warn(`Unable to fetch country code: ${message}`);
 		}
 	}
-
-	// handle sync with the (New Relic) IDP service, as needed
-	async handleIDPSync () {
-		if (!this.request.request.headers['x-cs-enable-uid']) return;
-		this.idpSync = new IDPSync({
-			request: this.request
-		});
-		if (!this.request.user.get('nrUserId')) {
-			return;
-		}
-		if (!(await this.idpSync.syncUserAndOrg())) {
-			// this means the current user was somehow found to be valid, abort the login
-			this.request.persist();
-			throw this.request.errorHandler.error('idpSyncDenied');
-		}
-	}
-	
 
 	// get the initial data to return in the response, this is a time-saver for the client
 	// so it doesn't have to fetch this data with separate requests

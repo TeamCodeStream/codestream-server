@@ -387,15 +387,20 @@ module.exports = {
 	},
 	originUserId: {
 		type: 'id',
-		description: 'when a user is copied by way of invite, retains the ID of the first user record the human user created an account with',
+		description: 'When a user is copied by way of invite, retains the ID of the first user record the human user created an account with',
 		copyOnInvite: true,
 		serverOnly: true,
 		forMe: true
 	},
 	copiedFromUserId: {
 		type: 'id',
-		description: 'when a user is copied by way of invite, retains the ID of the user record this user record was copied from',
+		description: 'When a user is copied by way of invite, retains the ID of the user record this user record was copied from',
 		serverOnly: true,
 		forMe: true
+	},
+	lastIDPSync: {
+		type: 'timestamp',
+		description: 'Indicates when the user was last synced to IdP (identity provider)',
+		serverOnly: true
 	}
 };

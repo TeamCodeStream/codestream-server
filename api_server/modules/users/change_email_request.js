@@ -29,9 +29,29 @@ class ChangeEmailRequest extends RestfulRequest {
 
 		// in an environment where confirmation is not required (on-prem), we just change the user's email
 		if (!this.api.config.apiServer.confirmationNotRequired) {
-			await this.generateToken();		// generate a token for the email
-			await this.saveTokenInfo();		// save the token info
-			await this.sendEmail();			// send the confirmation email
+			// under unified identity, we no longer handle email confirmation ourselves, instead this goes
+			// through New Relic, and we only know about the change when the confirmation process is complete
+			if (
+				this.request.headers['x-cs-enable-uid'] &&
+				this.api.services.idp &&
+				this.request.user.get('nrUserId')
+			) {
+				await this.api.services.idp.updateUser(
+					this.request.user.get('nrUserId'),
+					{ email: this.request.body.email },
+					{ request: this }
+				);
+				
+				// update the user to force an IDP sync on the next request
+				this.data.users.updateDirect(
+					{ id: this.request.user.id },
+					{ $unset: { lastIDPSync: true } }
+				);
+			} else {
+				await this.generateToken();		// generate a token for the email
+				await this.saveTokenInfo();		// save the token info
+				await this.sendEmail();			// send the confirmation email
+			}
 		}
 		else {
 			await this.updateUser();
