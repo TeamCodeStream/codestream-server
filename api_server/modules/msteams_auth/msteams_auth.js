@@ -8,6 +8,7 @@ const OAUTH_CONFIG = {
 	provider: 'msteams',
 	host: 'msteams',
 	hasSharing: true
+	needsConfigure: true
 };
 
 const ROUTES = [];
