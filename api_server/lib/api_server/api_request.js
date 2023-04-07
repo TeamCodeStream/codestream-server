@@ -33,6 +33,8 @@ class APIRequest {
 			'initialize',
 			// a priori authorization of the request (ACL)
 			'authorize',
+			// sync to IDP, as needed
+			'sync',
 			// process the request, this is the meat of it
 			'process',
 			// any changes are written to the database here
@@ -161,6 +163,14 @@ class APIRequest {
 		this.warn(`Default ACL check fails, override authorize() method for this request: ${this.request.method} ${this.request.url}`);
 		this.deauthorize();
 		throw true;
+	}
+
+	// sync user/org information to IDP, as needed
+	// this is a bit hacky, as it's not really a "generic" request phase,
+	// but there's not really another good place to stuff it
+	async sync () {
+		if (!this.request.user) { return; }
+		await this.request.user.handleIDPSync(this);
 	}
 
 	// persist all database changes to the database
