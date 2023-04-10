@@ -5,7 +5,7 @@
 		"@sendgrid/mail": "7.7.0",
 		"amqplib": "0.8.0",
 		"async": "2.6.4",
-		"aws-sdk": "2.1115.0",
+		"aws-sdk": "2.1354.0",
 		"deep-equal": "2.0.5",
 		"highlight.js": "11.5.1",
 		"hjson": "3.2.2",
