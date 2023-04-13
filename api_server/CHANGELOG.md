@@ -1,10 +1,14 @@
 # Change Log
 
-## [14.0.12] - 2023-3-29
+## [14.0.12] - 2023-4-13
 
 ### Added
 
 - Add support for mongo URI protocol scheme `mongodb+srv//`
+
+### Fixed
+
+- Fixes an issue with access to vulnerabilities in CodeStream from organizations based in the EU
 
 ## [14.0.11] - 2023-3-1
 
