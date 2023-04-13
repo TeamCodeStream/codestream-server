@@ -486,8 +486,9 @@ class User extends CodeStreamModel {
 		);
 	}
 
-	async handleIDPSync (request) {
+	async handleIDPSync (request, force = false) {
 		if (!request.request.headers['x-cs-enable-uid']) { return; }
+		if (request.request.headers['x-cs-no-idp-sync']) { return; }
 		if (!this.get('nrUserId')) { return; }
 		if (request.errorHandler) {
 			request.errorHandler.add(IDPErrors);
@@ -495,22 +496,28 @@ class User extends CodeStreamModel {
 
 		// we do an IDP sync every 24 hours
 		const now = Date.now();
-		const oneDay = 24 * 60 * 60 * 1000;
-		const lastIDPSync = this.get('lastIDPSync');
-		if (lastIDPSync && lastIDPSync > Date.now() - oneDay) { return; }
+		if (!force) {
+			const oneDay = 24 * 60 * 60 * 1000;
+			const lastIDPSync = this.get('lastIDPSync');
+			if (lastIDPSync && lastIDPSync > Date.now() - oneDay) { return; }
+			request.log(`Doing IDP sync, last was ${lastIDPSync}`);
+		} else {
+			request.log('Doing forced IDP sync');
+		}
 
-		request.log(`Doing IDP sync, last was ${lastIDPSync}`);
 		this.idpSync = new IDPSync({ request });
 		if (!(await this.idpSync.syncUserAndOrg())) {
 			// this means the current user was somehow found to be invalid, abort the request
-			request.persist();
+			await request.persist();
 			throw request.errorHandler.error('idpSyncDenied');
 		}
 
-		request.data.users.updateDirect(
-			{ id: this.id },
+		this.didIDPSync = true;
+		return request.data.users.updateDirect(
+			{ id: request.data.users.id },
 			{ $set: { lastIDPSync: now } }
 		);
+
 	}
 }
 

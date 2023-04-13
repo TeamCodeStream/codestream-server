@@ -218,7 +218,7 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async updateUser (id, data, options = {}) {
-		const user = await this.getUser(id);
+		const user = await this.getUser(id, options);
 		if (!user) return null;
 		const { attributes } = user.data;
 		data = Object.assign({
@@ -295,6 +295,9 @@ class NewRelicIDP extends APIServerModule {
 			undefined,
 			options
 		);
+		if (options.mockOrg) {
+			Object.assign(result.data.attributes, options.mockOrg);
+		}
 		return result.data && result.data.attributes;
 	}
 	
@@ -440,9 +443,11 @@ class NewRelicIDP extends APIServerModule {
 		} else if (service === 'user') {
 			let match;
 			if (path === '/v1/users' && method === 'post') {
-				return this._getMockCreateUserResponse(params);
+				return this._getMockCreateUserResponse(params, options);
 			} else if (method === 'get' && (match = path.match(/^\/v1\/users\/([0-9]+)$/))) {
-				return this._getMockGetUserResponse(options.mockParams, match[1]);
+				return this._getMockGetUserResponse(options.mockParams, match[1], options);
+			} else if (method === 'get' && path === '/v1/users') {
+				return this._getMockGetUsersResponse(options);
 			}
 		} else if (service === 'login') {
 			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
@@ -457,13 +462,15 @@ class NewRelicIDP extends APIServerModule {
 			}
 		} else if (service === 'org') {
 			let match;
-			if ((match = path.match(/^\/v0\/organizations\/(.+)$/)) && method === 'get') {
+			if ((match = path.match(/^\/v0\/organizations\/(.+)\/authentication_domains$/)) && method === 'get') {
+				return this._getMockAuthDomains(match[1]);
+			} else if ((match = path.match(/^\/v0\/organizations\/(.+)$/)) && method === 'get') {
 				return this._getMockOrgResponse(match[1]);
 			} else if ((match = path.match(/^\/v0\/organizations\/(.+)$/)) && method === 'patch') {
 				return this._getMockOrgPatchResponse(match[1]);
 			}
 		}
-		 
+
 		if (!response) {
 			this._throw('nrIDPInternal', `no IdP mock response for ${service} ${method} ${path}`, options);
 		}
@@ -481,7 +488,7 @@ class NewRelicIDP extends APIServerModule {
 		};
 	}
 
-	_getMockGetUserResponse (params = {}, id = null) {
+	_getMockGetUserResponse (params = {}, id = null, options = {}) {
 		id = id || Math.floor(Math.random() * 1000000000).toString();
 		const { 
 			email,
@@ -491,7 +498,7 @@ class NewRelicIDP extends APIServerModule {
 			userTier = 'basic_user_tier'
 		} = params;
 		const now = Date.now();
-		return {
+		const data = {
 			data: {
 				id,
 				type: 'user',
@@ -520,17 +527,24 @@ class NewRelicIDP extends APIServerModule {
 					createdAt: now,
 					updatedAt: now
 				}
-	   		}
+				}
 		};
+		if (options.mockUser) {
+			Object.assign(data.data.attributes, options.mockUser);
+		}
+		if (options.mockUserDeleted) {
+			throw new Error(`couldn't find user`);
+		}
+		return data;
 	}
 
-	_getMockCreateUserResponse (params) {
+	_getMockCreateUserResponse (params, options = {}) {
 		const { email, name, authentication_domain_id } = params.data.attributes;
 		return this._getMockGetUserResponse({
 			email,
 			name,
 			authenticationDomainId: authentication_domain_id
-		});
+		}, null, options);
 		/*
 		const now = Date.now();
 		return {
@@ -638,6 +652,47 @@ class NewRelicIDP extends APIServerModule {
 	_getMockOrgPatchResponse (orgId) {
 		// for now, just return nothing
 		return {};
+	}
+
+	_getMockAuthDomains (orgId) {
+		return {
+			data: [
+				{
+					id: UUID(),
+					type: 'authenticationDomain',
+					attributes: {
+						authenticationType: 'password',
+						currentSamlConfigurationId: null,
+						currentScimConfigurationId: null,
+						maxBrowserIdleDuration: 1209600,
+						maxBrowserSessionDuration: 2592000,
+						name: 'Default',
+						organizationId: orgId,
+						provisioningType: 'manual',
+						basicFullTierChangeApproval: 'auto_approve',
+						basicCoreTierChangeApproval: 'auto_approve',
+						coreFullTierChangeApproval: 'auto_approve',
+						idpManagedAttributes: [],
+						upgradeMessage: null,
+						upgradeButtonText: null,
+						upgradeButtonTargetUrl: null,
+						hasDefaultUpgradeSettings: true,
+						requiresEmailVerification: true
+					}
+				}
+
+			]
+		};
+	}
+
+	_getMockGetUsersResponse (options = {}) {
+		const mockUsers = [];
+		(options.mockUsers || []).forEach(mockUser => {
+			const params = Object.assign({}, mockUser);
+			mockUser = this._getMockGetUserResponse(params, mockUser.nrUserId);
+			mockUsers.push(mockUser);
+		});
+		return { data: mockUsers.map(mu => mu.data) };
 	}
 
 	_throw (type, message, options = {}) {
