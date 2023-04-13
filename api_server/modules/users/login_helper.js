@@ -16,7 +16,6 @@ const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/e
 const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
 const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
 const AccessTokenCreator = require('./access_token_creator');
-const IDPSync = require('./idp_sync');
 const IDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
 
 class LoginHelper {
@@ -38,7 +37,9 @@ class LoginHelper {
 
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
 
-		await this.request.user.handleIDPSync(this.request);
+		if (!this.request.user.didIDPSync) {
+			await this.request.user.handleIDPSync(this.request, true);
+		} 
 		await awaitParallel([
 			this.getInitialData,
 			//this.getForeignCompanies, // doesn't apply anymore under one-user-per-org

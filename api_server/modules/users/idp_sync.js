@@ -7,6 +7,27 @@ class IDPSync {
 
 	constructor (options) {
 		Object.assign(this, options);
+		this.makeIDPOptions();
+	}
+
+	makeIDPOptions () {
+		this.idpOptions = { request: this.request };
+		if (
+			!this.request ||
+			!this.request.request ||
+			!this.request.request.headers ||
+			!this.request.request.headers['x-cs-no-newrelic']
+		) {
+			return;
+		}
+
+		this.idpOptions.mockResponse = true;
+		const { headers } = this.request.request;
+		if (headers['x-cs-nr-mock-users']) {
+			try {
+				this.idpOptions.mockUsers = JSON.parse(headers['x-cs-nr-mock-users']);
+			} catch (e) {}
+		}
 	}
 
 	async syncUserAndOrg () {
@@ -18,6 +39,7 @@ class IDPSync {
 
 	async syncUser () {
 		const { user } = this.request;
+		const { headers } = this.request.request;
 		const nrUserId = user.get('nrUserId');
 		if (!nrUserId) {
 			this.request.warn(`User ${user.id} has no nrUserId`);
@@ -26,7 +48,24 @@ class IDPSync {
 
 		let nrUserData;
 		try {
-			nrUserData = await this.request.api.services.idp.getUser(nrUserId, { request: this.request });
+			if (this.idpOptions.mockResponse) {
+				if (headers['x-cs-nr-mock-deleted-user']) {
+					Object.assign(this.idpOptions, { mockUserDeleted: true });
+				}
+				this.idpOptions.mockUser = {
+					email: user.get('email'),
+					name: user.get('fullName'),
+					nrUserId: user.get('nrUserId')
+				};
+				let mockUser;
+				if (headers['x-cs-nr-mock-user']) {
+					try {
+						mockUser = JSON.parse(headers['x-cs-nr-mock-user']);
+					} catch (e) {}
+					Object.assign(this.idpOptions.mockUser, mockUser || {});
+				}
+			}
+			nrUserData = await this.request.api.services.idp.getUser(nrUserId, this.idpOptions);
 		} catch (error) {
 			if (error.message.match(/couldn't find user/i)) {
 				// assume this user has been deleted
@@ -116,6 +155,7 @@ class IDPSync {
 
 	async syncOrg () {
 		const { user } = this.request;
+		const { headers } = this.request.request;
 		const companyId = (user.get('companyIds') || [])[0];
 		if (!companyId) {
 			throw this.request.errorHandler.error('notFound', { info: 'companyId' }); // shouldn't happen
@@ -132,7 +172,19 @@ class IDPSync {
 
 		let nrOrg;
 		try {
-			nrOrg = await this.request.api.services.idp.getOrg(nrOrgId, { request: this.request });
+			if (this.idpOptions.mockResponse) {
+				this.idpOptions.mockOrg = {
+					name: company.get('name')
+				};
+				let mockOrg;
+				if (headers['x-cs-nr-mock-org']) {
+					try {
+						mockOrg = JSON.parse(headers['x-cs-nr-mock-org']);
+					} catch (e) {}
+					Object.assign(this.idpOptions.mockOrg, mockOrg || {});
+				}
+			}
+			nrOrg = await this.request.api.services.idp.getOrg(nrOrgId, this.idpOptions);
 		} catch (error) {
 			// it seems that you can still fetch the org even if it is deleted, so re-throw here, but...
 			throw error;			
@@ -140,9 +192,9 @@ class IDPSync {
 
 		// fetch the org's auth domain (hopefully just one?), and if there are no users in that auth domain,
 		// we'll assume the org is deleted
-		const authDomains = await this.request.api.services.idp.getAuthDomains(nrOrgId, { request: this.request });
+		const authDomains = await this.request.api.services.idp.getAuthDomains(nrOrgId, this.idpOptions);
 		if (authDomains.length === 1) {
-			const users = await this.request.api.services.idp.getUsersByAuthDomain(authDomains[0]);
+			const users = await this.request.api.services.idp.getUsersByAuthDomain(authDomains[0], this.idpOptions);
 			if (users.length === 0) {
 				await this.deactivateCompany(company);
 				return false;
@@ -182,7 +234,7 @@ class IDPSync {
 		const channel = `team-${teamId}`;
 		const message = {
 			requestId: UUID(),
-			user: {
+			company: {
 				id: company.id,
 				...op
 			}

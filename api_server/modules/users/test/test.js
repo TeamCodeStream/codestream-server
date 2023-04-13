@@ -29,6 +29,7 @@ const JoinCompanyTester = require('./join_company/test');
 const DeclineInviteTester = require('./decline_invite/test');
 const LogoutRequestTester = require('./logout/test');
 const CheckLoginRequestTester = require('./check_login/test');
+const IDPSyncTester = require('./idp_sync/test');
 
 const userRequestTester = new UserRequestTester();
 
@@ -72,4 +73,5 @@ describe('user requests', function() {
 	describe('PUT /decline-invite/:id', DeclineInviteTester.test);
 	describe('PUT /logout', LogoutRequestTester.test);
 	describe('PUT /no-auth/check-login', CheckLoginRequestTester.test);
+	describe('IDP Sync', IDPSyncTester.test);
 });

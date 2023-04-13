@@ -227,6 +227,9 @@ class APIRequestTest extends GenericTest {
 			requestOptions.headers['X-CS-Enable-UId'] = true;
 		}
 		requestOptions.headers['X-CS-No-NewRelic'] = true;
+		if (!options.testIDPSync) {
+			requestOptions.headers['X-CS-No-IDP-Sync'] = true;
+		}
 		requestOptions.headers['X-CS-Test-Num'] = `API-${this.testNum}`;	// makes it easy to log requests associated with particular tests
 	}
 
