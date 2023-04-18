@@ -55,7 +55,9 @@ codestream_server=$(cd $binDir/../../.. && pwd)
 codestream_configs=$(cd $binDir/.. && pwd)
 [ -z "$profiles" ] && profiles="$codestream_configs/profiles"
 schemaVersion=`cat $codestream_configs/parameters.version`
-[ -d $KM_SECRETS/categories/config ] && outDir=$KM_SECRETS/categories/config || outDir=$KM_SECRETS/config
+# [ -d $KM_SECRETS/categories/config ] && outDir=$KM_SECRETS/categories/config || outDir=$KM_SECRETS/config
+outDir=$KM_SECRETS/categories/config
+[ ! -d $outDir ] && { mkdir $outDir || exit 1; }
 
 # we write templates to the onprem-install repo; this is how we find it
 # if [ -z "$onpremInstallDir" ]; then
