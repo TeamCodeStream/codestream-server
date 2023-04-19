@@ -5,7 +5,7 @@ const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
 const StreamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/indexes');
 
-const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'codemarks', 'reviews', 'markers', 'markerLocations'];
+const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'codemarks', 'reviews', 'codeErrors', 'markers', 'markerLocations'];
 const COLLECTIONS_FOR_TEAM = ['streams', 'posts', 'codemarks', 'reviews', 'codeErrors', 'markers', 'markerLocations'];
 
 class Deleter {
