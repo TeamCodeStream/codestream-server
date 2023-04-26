@@ -112,7 +112,14 @@ class ConfirmHelper {
 			op.$set.passwordHash = this.passwordHash;
 		}
 
-		['email', 'username', 'fullName', 'timeZone'].forEach(attribute => {
+		[
+			'email',
+			'username',
+			'fullName',
+			'timeZone',
+			'providerInfo',
+			'providerIdentities'
+		].forEach(attribute => {
 			if (this.data[attribute]) {
 				op.$set[attribute] = this.data[attribute];
 			}

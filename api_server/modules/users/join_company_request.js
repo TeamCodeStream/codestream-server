@@ -134,8 +134,11 @@ class JoinCompanyRequest extends RestfulRequest {
 				notRealLogin: true
 			}).confirm({
 				email: this.invitedUser.get('email'),
-				username: this.invitedUser.get('username'),
-				fullName: this.invitedUser.get('fullName')
+				username: this.user.get('username'),
+				fullName: this.user.get('fullName'),
+				passwordHash: this.user.get('passwordHash'),
+				providerInfo: this.user.get('providerInfo'),
+				providerIdentities: this.user.get('providerIdentities')
 			});
 		}
 
