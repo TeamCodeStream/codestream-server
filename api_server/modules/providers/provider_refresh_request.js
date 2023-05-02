@@ -28,7 +28,13 @@ class ProviderRefreshRequest extends RestfulRequest {
 	async process () {
 		// get the provider service corresponding to the passed provider
 		this.provider = this.request.params.provider.toLowerCase();
-		this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		if (this.provider === 'newrelic') {
+			// HACK: we leverage existing infrastructure around the "newrelic" provider,
+			// but if we are refreshing, it is really a New Relic IDP issued token
+			this.serviceAuth = this.api.services[`newrelicidpAuth`];
+		} else {
+			this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		}
 		if (!this.serviceAuth) {
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });
 		}
@@ -93,9 +99,14 @@ class ProviderRefreshRequest extends RestfulRequest {
 
 	// perform an exchange of auth code for access token, as needed
 	async fetchAccessToken () {
+		if (this.serviceAuth.customRefreshToken) {
+			this.tokenData = await this.serviceAuth.customRefreshToken(this.existingProviderInfo, { request: this });
+			return;
+		}
 		if (!this.serviceAuth.supportsRefresh()) {
 			throw this.errorHandler.error('readAuth', { reason: 'token refresh not supported by provider' });
-		}
+		} 
+
 		const { authOrigin } = this.api.config.apiServer;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 

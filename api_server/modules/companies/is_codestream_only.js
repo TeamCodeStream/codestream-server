@@ -8,7 +8,7 @@ const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 // the caller should be prepared to broadcast this in the postProcess phase by
 // checking request.transforms.updateCompanyNoCSOnly 
 
-module.exports = async function (company, request) {
+module.exports = async function (company, request, adminUser = null) {
 	// if company is not linked to an NR org, we'll assume it's codestream only
 	// this shouldn't really happen under unified identity, once migrated
 	if (!company.get('linkedNROrgId')) { 
@@ -21,12 +21,13 @@ module.exports = async function (company, request) {
 	}
 	
 	// check with NR to see if we can still set this company as codestream only
-	const options = { request };
+	const options = { request, adminUser };
 	if (request.request.headers['x-cs-no-newrelic']) {
 		options.mockResponse = true;
 		options.mockNoCodeStreamOnly = request.request.headers['x-cs-mock-no-cs-only'] || false;
 		request.log('NOTE: not checking NR for codestream-only status, sending mock response');
 	}
+
 	const stillCodeStreamOnly = await request.api.services.idp.isNROrgCodeStreamOnly(
 		company.get('linkedNROrgId'),
 		company.get('everyoneTeamId'),
