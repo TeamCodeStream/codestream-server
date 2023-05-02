@@ -46,10 +46,12 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 	// the code error (error group) is associated with
 	async authorizeObject () {
 		const { objectId, objectType } = this.request.body;
-		const result = await new NewRelicAuthorizer({
+		const authorizer = new NewRelicAuthorizer({
 			request: this,
 			teamId: this.teamId
-		}).authorizeObject(objectId, objectType);
+		});
+		await authorizer.init();
+		const result = await authorizer.authorizeObject(objectId, objectType);
 		if (result === true) {
 			return true;
 		} else {

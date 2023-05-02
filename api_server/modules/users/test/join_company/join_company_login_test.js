@@ -42,6 +42,7 @@ class JoinCompanyLoginTest extends JoinCompanyTest {
 		if (this.unifiedIdentityEnabled) {
 			Assert(typeof data.user.nrUserId === 'number' && data.user.nrUserId, 'nrUserId not set');
 			Assert(typeof data.user.nrUserInfo === 'object' && data.user.nrUserInfo.userTier === 'basic_user_tier', 'user tier not set');
+			Assert(data.user.nrUserInfo.userTierId === 1, 'user tier not set');
 		}
 	}
 }

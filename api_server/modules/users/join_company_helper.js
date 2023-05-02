@@ -30,19 +30,26 @@ class JoinCompanyHelper {
 			throw this.errorHandler.error('notFound', { info: 'company' });
 		}
 
-		// check whether the company is marked as "codestream-only", and whether its linked NR org
-		// is also "codestream-only", which is the only scenario under which domain joining is possible
-		const codestreamOnly = await IsCodeStreamOnly(this.company, this.request);
-		if (!codestreamOnly) {
-			await this.request.persist();
-			await this.publishCompanyNoCSOnly();
-			throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'membership in this company is managed by New Relic' });
-		}
-
 		// get the company's everyone team
 		this.team = await this.data.teams.getById(this.company.get('everyoneTeamId'));
 		if (!this.team) {
 			throw this.errorHandler.error('notFound', { info: 'team' }); // shouldn't happen
+		}
+
+		// since the user joining won't have a New Relic token (yet), we need to find the creator or
+		// an admin that has one, to do the codestream-only check
+		const admin = await this.findFirstAdminWithNRToken(this.request);
+		if (!admin) {
+			throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'team has no active admin with an NR token and management by New Relic cannot be determined' });
+		}
+
+		// check whether the company is marked as "codestream-only", and whether its linked NR org
+		// is also "codestream-only", which is the only scenario under which domain joining is possible
+		const codestreamOnly = await IsCodeStreamOnly(this.company, this.request, admin);
+		if (!codestreamOnly) {
+			await this.request.persist();
+			await this.publishCompanyNoCSOnly();
+			throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'membership in this company is managed by New Relic' });
 		}
 
 		// get the user record that corresponds to this user's invite
@@ -213,7 +220,7 @@ class JoinCompanyHelper {
 		}
 
 		const name = this.invitedUser.get('fullName') || this.invitedUser.get('email').split('@')[0];
-		const nrUserInfo = await this.api.services.idp.createUserWithPassword(
+		const { nrUserInfo, tokenInfo } = await this.api.services.idp.createUserWithPassword(
 			{
 				name,
 				email: this.invitedUser.get('email'),
@@ -237,12 +244,18 @@ class JoinCompanyHelper {
 		}
 
 		// save NR user info obtained from the signup process
+		const { token, refreshToken, expiresAt } = tokenInfo;
 		const op = {
 			$set: {
 				nrUserInfo: {
-					userTier: nrUserInfo.attributes.userTier
+					userTier: nrUserInfo.attributes.userTier,
+					userTierId: nrUserInfo.attributes.userTierId
 				},
-				nrUserId: nrUserInfo.id
+				nrUserId: nrUserInfo.id,
+				[ `providerInfo.${this.team.id}.newrelic.accessToken` ]: token,
+				[ `providerInfo.${this.team.id}.newrelic.refreshToken` ]: refreshToken,
+				[ `providerInfo.${this.team.id}.newrelic.expiresAt` ]: expiresAt,
+				[ `providerInfo.${this.team.id}.newrelic.bearerToken` ]: true
 			},
 			$unset: {
 				encryptedPasswordTemp: true,
@@ -310,6 +323,39 @@ class JoinCompanyHelper {
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
 			this.request.warn(`Could not publish updated company message to team ${this.company.get('everyoneTeamId')}: ${JSON.stringify(error)}`);
+		}
+	}
+
+	// find the first admin of a team with an NR token
+	async findFirstAdminWithNRToken (request) {
+		const adminIds = this.team.get('adminIds') || [];
+		if (!adminIds.includes(this.team.get('creatorId'))) {
+			adminIds.unshift(this.team.get('creatorId'));
+		}
+
+		let admin, providerInfo;
+		for (let adminId of adminIds) {
+			admin = await this.data.users.getById(adminId);
+			if (admin.get('deactivated')) continue;
+
+			const teamProviderInfo = (
+				admin.get('providerInfo') &&
+				admin.get('providerInfo')[this.team.id] &&
+				admin.get('providerInfo')[this.team.id].newrelic
+			);
+			const userProviderInfo = (
+				admin.get('providerInfo') &&
+				admin.get('providerInfo').newrelic
+			);
+			if (teamProviderInfo && teamProviderInfo.accessToken) {
+				providerInfo = teamProviderInfo;
+			} else if (userProviderInfo && userProviderInfo.accessToken) {
+				providerInfo = userProviderInfo;
+			}
+			if (providerInfo) break;
+		}
+		if (providerInfo) {
+			return admin;
 		}
 	}
 

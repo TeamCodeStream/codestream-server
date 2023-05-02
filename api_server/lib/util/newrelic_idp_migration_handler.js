@@ -233,7 +233,8 @@ class MigrationHandler {
 				{
 					$set: {
 						nrUserInfo: { 
-							userTier: nrUserInfo.attributes.userTier
+							userTier: nrUserInfo.attributes.userTier,
+							userTierId: nrUserInfo.attributes.userTierId
 						},
 						nrUserId: nrUserInfo.id
 					},
@@ -290,7 +291,8 @@ class MigrationHandler {
 			const op = {
 				$set: {
 					nrUserInfo: {
-						userTier: nrUserInfo.attributes.userTier
+						userTier: nrUserInfo.attributes.userTier,
+						userTierId: nrUserInfo.attributes.userTierId
 					},
 					nrUserId: nrUserInfo.id
 				},
@@ -323,7 +325,8 @@ class MigrationHandler {
 		const op = {
 			$set: {
 				nrUserInfo: {
-					userTier: nrUser.attributes.userTier
+					userTier: nrUser.attributes.userTier,
+					userTierId: nrUser.attributes.userTierId
 				},
 				nrUserId: nrUser.id
 			},
