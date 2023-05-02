@@ -173,9 +173,11 @@ class JoinCompanyHelper {
 				user: this.invitedUser,
 				notRealLogin: true
 			}).confirm({
-				passwordHash: this.user.get('passwordHash'),
 				email: this.user.get('email'),
-				username: this.user.get('username')
+				username: this.user.get('username'),
+				passwordHash: this.user.get('passwordHash'),
+				providerInfo: this.user.get('providerInfo'),
+				providerIdentities: this.user.get('providerIdentities')
 			});
 		}
 
