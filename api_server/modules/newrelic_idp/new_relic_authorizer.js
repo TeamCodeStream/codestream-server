@@ -9,10 +9,9 @@ class NewRelicAuthorizer {
 
 	constructor (options) {
 		Object.assign(this, options);
-		this.init();
 	}
 
-	init () {
+	async init () {
 		const secretsList = this.request.api.config.sharedSecrets.commentEngineSecrets;
 		if (!secretsList.length) {
 			throw this.errorHandler.error('readAuth', { reason: 'server is not configured to support the comment engine' });
@@ -35,21 +34,26 @@ class NewRelicAuthorizer {
 				return;
 			}
 		} 
+
 		// get the user's NR access token, non-starter if no access token
-		const { user } = this.request;
-		const token = (
-			(
-				user.get('providerInfo') &&
-				user.get('providerInfo')[this.teamId] &&
-				user.get('providerInfo')[this.teamId].newrelic &&
-				user.get('providerInfo')[this.teamId].newrelic.accessToken
-			) ||
-			(
-				user.get('providerInfo') &&
-				user.get('providerInfo').newrelic &&
-				user.get('providerInfo').newrelic.accessToken
-			)
+		const user = this.adminUser || this.request.user;
+		const teamProviderInfo = (
+			user.get('providerInfo') &&
+			user.get('providerInfo')[this.teamId] &&
+			user.get('providerInfo')[this.teamId].newrelic
 		);
+		const userProviderInfo = (
+			user.get('providerInfo') &&
+			user.get('providerInfo').newrelic
+		);
+		let providerInfo, fromTeam;
+		if (teamProviderInfo && teamProviderInfo.accessToken) {
+			providerInfo = teamProviderInfo;
+			fromTeam = true;
+		} else if (userProviderInfo && userProviderInfo.accessToken) {
+			providerInfo = userProviderInfo;
+		}
+		const token = providerInfo && providerInfo.accessToken;
 		if (!token) {
 			this.request.log(`User ${user.id} has no NR token`);
 			this.checkResponse = {
@@ -63,21 +67,83 @@ class NewRelicAuthorizer {
 			return;
 		}
 
+		// refresh the token as needed
+		await this.refreshTokenAsNeeded(user, providerInfo, fromTeam ? this.teamId : null);
+
+		// Unified Identity tokens are cookies, not api keys
+		const graphQLHeaders = {
+			"Content-Type": "application/json",
+			"NewRelic-Requesting-Services": "CodeStream"
+		};
+		if (providerInfo.setCookie) {
+			graphQLHeaders.Cookie = `${providerInfo.setCookie}=${token};`;
+		} else if (providerInfo.bearerToken) {
+			graphQLHeaders.Authorization = `Bearer ${token}`;
+		} else {
+			graphQLHeaders['Api-Key'] = token;
+		}
+
 		// instantiate graphQL client
 		const baseUrl = this.getGraphQLBaseUrl();
 		this.client = new GraphQLClient(
 			baseUrl,
 			{
-				headers: {
-					"Api-Key": token,
-					"Content-Type": "application/json",
-					"NewRelic-Requesting-Services": "CodeStream"
-				}
+				headers: graphQLHeaders
 			}
 		);
 	}
 
-	// authorize the user to even access this code error: they must have access to the NR account
+	// check for a (nearly) expired token and refresh as needed
+	async refreshTokenAsNeeded (user, providerInfo, teamId) {
+		// refresh only applies to cookies, and we can't refresh if there isn't a refresh token
+		if (!providerInfo.bearerToken || !providerInfo.refreshToken) {
+			return providerInfo;
+		}
+
+		// refresh if token expires less than one minute from now
+		if (!providerInfo.expiresAt || providerInfo.expiresAt > Date.now() + 59 * 60 * 1000) {
+			return providerInfo;
+		}
+
+		// refresh away
+		return this.refreshToken(user, providerInfo, teamId);
+	}
+
+	// refresh user's NR token and return new providerInfo
+	async refreshToken (user, providerInfo, teamId) {
+		const incomingRefreshToken = providerInfo.refreshToken;
+
+		// call out to IDP service to refresh the token
+		const refreshResponse = await this.request.api.services.idp.refreshToken(
+			incomingRefreshToken,
+			{ request: this.request }
+		);
+
+		// save the token
+		const { id_token, refresh_token, expires_in } = refreshResponse;
+		const op = {
+			$set: {
+				[ `providerInfo.${teamId}.newrelic.accessToken` ]: id_token,
+				[ `providerInfo.${teamId}.newrelic.refreshToken` ]: refresh_token,
+				//[ `providerInfo.${this.team.id}.newrelic.setCookie` ]: setCookie,
+				[ `providerInfo.${teamId}.newrelic.bearerToken` ]: true,
+			},
+		};
+		let expiresAt;
+		if (expires_in) {
+			expiresAt = Date.now() + expires_in * 1000;
+			op[`providerInfo.${teamId}.newrelic.expiresAt`] = expiresAt;
+		}
+		await this.request.data.users.applyOpById(user.id, op);
+
+		Object.assign(providerInfo, {
+			accessToken: id_token,
+			refreshToken: refresh_token,
+			expiresAt
+		});
+	}
+
+ 	// authorize the user to even access this code error: they must have access to the NR account
 	// the code error (error group) is associated with
 	async authorizeAccount (accountId) {
 		if (this.checkResponse) {

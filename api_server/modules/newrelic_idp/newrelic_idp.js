@@ -17,11 +17,9 @@ const SERVICE_HOSTS = {
 	'login': 'https://staging-login.newrelic.com',
 	'credentials': 'https://staging-credential-service.nr-ops.net',
 	'org': 'https://staging-organization-service.nr-ops.net',
-	'graphql': 'https://nerd-graph.staging-service.nr-ops.net'
+	'graphql': 'https://nerd-graph.staging-service.nr-ops.net',
+	'idp': 'https://idp-service.staging-service.nr-ops.net'
 };
-const SET_COOKIE = 'login_service_staging-login_newrelic_com_oidctokens';
-const PATH_TO_LOGIN = '/idp/azureb2c-cs/redirect?return_to={wherever you want them to go to}';
-const TEMP = 'https://staging-login.newrelic.com/idp/azureb2c-cs/redirect?return_to=https%3A%2F%2Flocalhost.codestream.us%3A12079%2Fno-auth%2Fprovider-token%2Fnewrelic-idp';
 
 const USER_SERVICE_SECRET = process.env.NEWRELIC_USER_SERVICE_SECRET; // for now, ultimately, this needs to come from config
 
@@ -54,6 +52,19 @@ class NewRelicIDP extends APIServerModule {
 		// first create the actual user
 		const createUserResponse = await this.createUser(attributes, options);
 
+		// this sets the password on azure ... this call should be removed once the credentials
+		// service handles syncing the azure password itself from the code below
+		const idpId = createUserResponse.data.attributes.activeIdpObjectId;
+		await this._newrelic_idp_call(
+			'idp',
+			`/azureb2c/users/${idpId}/password`,
+			'post',
+			{
+				password
+			},
+			options
+		);
+
 		// now create a "pending password" using the credentials service,
 		// since the createUser API doesn't take a password 
 		const pendingPasswordResponse = await this._newrelic_idp_call(
@@ -84,7 +95,30 @@ class NewRelicIDP extends APIServerModule {
 			options
 		);
 
-		return createUserResponse.data;
+		// user needs to be added to the default user group
+		await this.addUserToUserGroup(createUserResponse.data.id, attributes.authentication_domain_id, options);
+
+		// evidently there is some kind of race condition in the Azure B2C API which causes
+		// the refresh token first issued on the login request below to be invalid, unless
+		// we wait a while here ... a fix would be to not wait for this, but do the rest
+		// of the process async and send it up to the user after signup otherwise completes
+		await new Promise(resolve => { setTimeout(resolve, 10000); });
+
+		const loginResponse = await this.loginUser(
+			{
+				username: attributes.email,
+				password
+			},
+			options
+		);
+
+		const nrUserInfo = createUserResponse.data;
+		const tokenInfo = {
+			token: encodeURIComponent(loginResponse.idp.id_token),
+			refreshToken: loginResponse.idp.refresh_token,
+			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000
+		};
+		return { nrUserInfo, tokenInfo };
 	}
 
 	async createUser (attributes, options = {}) {
@@ -121,6 +155,12 @@ class NewRelicIDP extends APIServerModule {
 			password: data.password
 		}, options);
 
+		// evidently there is some kind of race condition in the Azure B2C API which causes
+		// the refresh token first issued on the login request below to be invalid, unless
+		// we wait a while here ... a fix would be to not wait for this, but do the rest
+		// of the process async and send it up to the user after signup otherwise completes
+		await new Promise(resolve => { setTimeout(resolve, 10000); });
+
 		const loginResponse = await this.loginUser(
 			{
 				username: data.email,
@@ -128,19 +168,21 @@ class NewRelicIDP extends APIServerModule {
 			},
 			options
 		);
+
 		if (data.orgName) {
 			await this.changeOrgName(signupResponse.organization_id, data.orgName, options);
 		}
 
-		// the below may not be necessary if the loginResponse, above, returns us the info
-		// we want
+		// get user info so we can get the user's tier info
 		const userInfo = await this.getUser(signupResponse.user_id, options);
 
 		return {
 			signupResponse,
 			nrUserInfo: userInfo.data,
-			token: encodeURIComponent(loginResponse.newrelic.value),
-			setCookie: SET_COOKIE
+			token: loginResponse.idp.id_token,
+			refreshToken: loginResponse.idp.refresh_token,
+			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000,
+			bearerToken: true
 		};
 	}
 
@@ -217,6 +259,45 @@ class NewRelicIDP extends APIServerModule {
 		);
 	}
 
+	async addUserToUserGroup (userId, authDomainId, options = {}) {
+		// fetch groups under this auth domain
+		const groupsResponse = await this._newrelic_idp_call(
+			'user',
+			'/v1/groups',
+			'get',
+			{
+				authentication_domain_id: authDomainId
+			},
+			options
+		);
+
+		// find the "User" group, we can be (more or less) assured that this is the right group,
+		// because user invites only work for CS-only orgs, and in CS-only orgs, no group restructuring
+		// could possibly take place, so it is reasonable to assume we have the default groups here
+		// for a newly created org
+		const group = groupsResponse.data.find(group => group.attributes.displayName === 'User');
+		if (!group) {
+			return; // oh well???
+		}
+
+		// add the given user to this group
+		await this._newrelic_idp_call(
+			'user',
+			'/v1/group_memberships',
+			'post',
+			{
+				data: {
+					type: 'groupMembership',
+					attributes: {
+						group_id: group.id,
+						user_id: userId
+					}
+				}
+			},
+			options
+		);
+	}
+
 	async updateUser (id, data, options = {}) {
 		const user = await this.getUser(id, options);
 		if (!user) return null;
@@ -236,11 +317,13 @@ class NewRelicIDP extends APIServerModule {
 
 	async deleteUser (id, codestreamTeamId, options = {}) {
 		// use the NewRelicAuthorizer, which makes a graphql call to delete the user
-		await new NewRelicAuthorizer({
+		const authorizer = new NewRelicAuthorizer({
 			graphQLHost: SERVICE_HOSTS['graphql'],
 			request: options.request,
 			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
-		}).deleteUser(id, options);
+		});
+		await authorizer.init();
+		return authorizer.deleteUser(id, options);
 	}
 
 	// determine whether an NR org qualifies as "codestream only"
@@ -250,8 +333,9 @@ class NewRelicIDP extends APIServerModule {
 		// until we can get a valid token back from the signup or login process, we don't have a way to
 		// make the entitlements API call, so return true for now until that blocker is fixed
 		*/
-		return true;
-		
+		//return true;
+
+
 		// before determining if the org has the unlimited_consumption entitlement,
 		// we need to get its reporting account
 		const accountId = await this.getOrgReportingAccount(nrOrgId, options);
@@ -261,11 +345,14 @@ class NewRelicIDP extends APIServerModule {
 
 		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
-		const hasEntitlement = await new NewRelicAuthorizer({
+		const authorizer = new NewRelicAuthorizer({
 			graphQLHost: SERVICE_HOSTS['graphql'],
 			request: options.request,
-			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
-		}).nrOrgHasUnlimitedConsumptionEntitlement(accountId, options);
+			teamId: codestreamTeamId, // used to get the user's API key, to make a nerdgraph request
+			adminUser: options.adminUser // grab token or API key from this admin user, instead of the requesting user
+		});
+		await authorizer.init();
+		const hasEntitlement = await authorizer.nrOrgHasUnlimitedConsumptionEntitlement(accountId, options);
 		return !hasEntitlement;
 	}
 
@@ -323,14 +410,20 @@ class NewRelicIDP extends APIServerModule {
 	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
 		const host = SERVICE_HOSTS['login']; // FIXME: should come from config
-		const url = `${host}/idp/azureb2c-cs/redirect`;
-		return { 
+		const whichPath = options.signupToken ? 'cs' : 'cssignup'; //'cssignup' : 'cs';
+		const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
+		const data = { 
 			url,
 			parameters: {
-				return_to: `${options.publicApiUrl}/~nrlogin/${options.signupToken}`
+				return_to: `${options.publicApiUrl}/~nrlogin/${options.signupToken}`,
 			}
 		};
+		if (options.domain) {
+			data.parameters.domain = options.domain;
+		}
+		return data;
 	}
+
 	
 	// match the incoming New Relic identity to a CodeStream identity
 	async getUserIdentity (options) {
@@ -351,6 +444,34 @@ class NewRelicIDP extends APIServerModule {
 		if (!request.headers || !request.headers.cookie) {
 
 		}
+	}
+
+	// refresh a user's token
+	async refreshToken (refreshToken, options) {
+		return this._newrelic_idp_call(
+			'login',
+			'/refresh_token',
+			'post',
+			{
+				provider: 'azureb2c-csropc',
+				refresh_token: refreshToken
+			},
+			options
+		);
+
+	}
+
+	// perform custom refresh of a token per OAuth
+	async customRefreshToken (providerInfo, options = {}) {
+		const result = await this.refreshToken(providerInfo.refreshToken, options);
+		const tokenData = {
+			accessToken: result.id_token,
+            refreshToken: result.refresh_token,
+		};
+		if (result.expires_in) {
+			tokenData.expiresAt = Date.now() + result.expires_in * 1000;
+		}
+		return tokenData;
 	}
 
 	async _newrelic_idp_call (service, path, method = 'get', params = {}, options = {}) {
@@ -382,7 +503,7 @@ class NewRelicIDP extends APIServerModule {
 		const fetchOptions = {
 			method,
 			headers: {
-				'Content-Type': 'application/json'
+				'content-type': 'application/json'
 			}
 		};
 		if (body) {
@@ -399,19 +520,11 @@ class NewRelicIDP extends APIServerModule {
 
 		let json;
 		try {
-			if (path.match(/token/)) {
-				const text = await response.text();
-//console.warn('text:', text);
-				try {
-					json = JSON.parse(text);
-				} catch (e) {
-					console.warn('UNABLE TO PARSE:', e);
-					throw e;
-				}
+			if (response.status === 204) {
+				json = {};
 			} else {
 				json = await response.json();
 			}
-//console.warn('json:', JSON.stringify(json, 0, 5));
 		} catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this._throw('apiFailed', `${method.toUpperCase()} ${path}: ${message}`, options);
@@ -520,7 +633,7 @@ class NewRelicIDP extends APIServerModule {
 							idp_object_id: idpObjectId
 						}
 					],
-					userTierId: 1,
+					userTierId: 0,
 					userTier,
 					lastLogin: 0,
 					lastActive: 0,

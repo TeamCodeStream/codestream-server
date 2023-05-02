@@ -195,10 +195,12 @@ class CodeErrorCreator extends ModelCreator {
 
 		const objectId = this.existingModel ? this.existingModel.get('objectId') : this.attributes.objectId;
 		const objectType = this.existingModel ? this.existingModel.get('objectType') : this.attributes.objectType;
-		const result = await new NewRelicAuthorizer({
+		const authorizer = new NewRelicAuthorizer({
 			request: this.request,
 			teamId: this.attributes.teamId
-		}).authorizeObject(objectId, objectType);
+		});
+		await authorizer.init();
+		const result = await authorizer.authorizeObject(objectId, objectType);
 
 		if (result !== true) {
 			throw this.errorHandler.error('createAuth', { info: result, reason: 'user is not authorized to claim this code error for their team' });
