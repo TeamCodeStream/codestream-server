@@ -410,7 +410,7 @@ class NewRelicIDP extends APIServerModule {
 	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
 		const host = SERVICE_HOSTS['login']; // FIXME: should come from config
-		const whichPath = options.signupToken ? 'cs' : 'cssignup'; //'cssignup' : 'cs';
+		const whichPath = options.noSignup ? 'cs' : 'cssignup';
 		const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
 		const data = { 
 			url,
