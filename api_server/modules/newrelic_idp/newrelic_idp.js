@@ -468,9 +468,8 @@ class NewRelicIDP extends APIServerModule {
 			accessToken: result.id_token,
             refreshToken: result.refresh_token,
 		};
-		if (result.expires_in) {
-			tokenData.expiresAt = Date.now() + result.expires_in * 1000;
-		}
+		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
+		tokenData.expiresAt = Date.now() + result.expires_in * 1000;
 		return tokenData;
 	}
 
