@@ -36,6 +36,16 @@ class BitbucketAuth extends OAuthModule {
 			options.providerInfo
 		);
 	}
+
+	// for SSO providers in the Unified Identity world, we redirect to a New Relic
+	// url that calls through to Azure that calls through to the social provider
+	getRedirectData (options) {
+		if (!options.unifiedIdentityEnabled) {
+			return super.getRedirectData(options);
+		}
+		options.domain = 'bitbucket.org';
+		return this.api.services.idp.getRedirectData(options);
+	}
 }
 
 module.exports = BitbucketAuth;

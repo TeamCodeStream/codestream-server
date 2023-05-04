@@ -76,6 +76,7 @@ class WebProviderAuthRequest extends APIRequest {
 			sharing: !!this.request.query.sharing,
 			hostUrl: this.hostUrl || payload.hu,
 			signupToken: payload.st,
+			noSignup: payload.nosu,
 			publicApiUrl,
 			unifiedIdentityEnabled: this.request.query.enableUId || !!this.request.headers['x-cs-enable-uid']
 		};
