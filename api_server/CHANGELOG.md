@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.13] - 2023-5-8
+
+### Changed
+
+- Undo forced extension update
+
 ## [14.0.12] - 2023-4-13
 
 ### Added
