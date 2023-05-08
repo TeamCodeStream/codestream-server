@@ -44,21 +44,48 @@ class PostPostRequest extends PostRequest {
 	async postProcess () {
 		await super.postProcess();
 
-		if(!!this.request.body.analyze ||  this.request.body){
+		if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
 			await this.analyzeErrorWithGrok();
 		}
 	}
 
-	async analyzeErrorWithGrok() {
-		// add settings / secrets
+	async submitApiCall(request){
 		const apiUrl =
 			"https://nr-generativeai-api.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview";
-		const apiKey = "";
+		const apiKey = ""; // TODO
 
 		if (!apiKey) {
-			throw new ResponseError(ERROR_CHATGPT_INVALID_RESPONSE, JSON.stringify(apiResponse));
+			throw this.errorHandler.error('aiError', { reason: 'ChatGPT: API Key' });
 		}
 
+		const response = await fetch(apiUrl, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"api-key": `${apiKey}`,
+			},
+			body: JSON.stringify(request),
+		});
+	
+		const apiResponse = await response.json();
+
+		if (apiResponse && apiResponse.error) {
+			throw this.errorHandler.error('aiError', { reason: `ChatGPT API Error: ${JSON.stringify(apiResponse)}` });
+		}
+	
+		if (apiResponse && apiResponse.choices && apiResponse.choices.length === 0) {
+			throw this.errorHandler.error('aiError', { reason: `ChatGPT Response Empty: ${JSON.stringify(apiResponse)}` });
+		}
+	
+		const message = apiResponse.choices[0].message;
+		if (!message) {
+			throw this.errorHandler.error('aiError', { reason: `ChatGPT Response; No Message: ${JSON.stringify(apiResponse)}` });
+		}
+
+		return message;
+	}
+	
+	async analyzeErrorWithGrok() {
 		// see if we have a Grok user for this team / company
 		const grokUser = await this.data.users.getByQuery(
 			{
@@ -89,23 +116,41 @@ class PostPostRequest extends PostRequest {
 			})
 		}
 
-		// do we have a pre-existing converation?
-			// find if we have any Grok posts tied to this codeErrorId
-			
-			// true: 
-				// pull all previous messages ordered by created
-				// take on this new posts text
-					// we should only get here if they mentioned Grok to begin with
-			// false: 
-				// prime the pump with the starting prompts
-				// there won't be a message included that we need to worry about
+		// post.codeErrorId
+		// creatorId: grok.Id
+		// text: $ne
+		// order by createdAt
+		const existingConversation = await this.data.posts.getByQuery(
+			{
+				$and: [
+					{ codeErrorId: this.request.body.codeError.id },
+					{ creatorId: grokUser.id },
+					{ text: $ne },
+				]
+			},
+			{
+				fields: ['promptRole', 'text'],
+				sort: {
+					createdAt: 1
+				},
+				noCache: true
+			}
+		);
 
-		// find Grok User
-		// Create Grok pseudo-user in team / org
-		
+		if(existingConversation && existingConversation.length > 0){
+			await this.continueConversation(existingConversation, grokUser);
+		}
+		else {
+			await this.startNewConversation(grokUser);
+		}
+	}
+
+	async startNewConversation(grokUser) {
+		const conversation = [];
+
 		const systemPrompt = {
 			role: "system",
-			prompt: "As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. I will output brief descriptions and the fixed code blocks."
+			content: "As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. I will output brief descriptions and the fixed code blocks."
 		};
 
 		// store identity request
@@ -120,89 +165,104 @@ class PostPostRequest extends PostRequest {
 			creatorId: grokUser.id
 		});
 
+		conversation.push(systemPrompt);
 
-		// conversation cache = hidden posts by Grok for this codeErrorId
-		// order by creation date?
-
-
-	
-		const request = {
+		const response1 = await submitApiCall({
 			messages: conversation,
 			temperature: 0,
-		};
-	
-		const response = await fetch(apiUrl, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"api-key": `${apiKey}`,
-			},
-			body: JSON.stringify(request),
 		});
-	
-		const apiResponse = await response.json();
-
-		if (isChatGptErrorResponse(apiResponse)) {
-			throw new ResponseError(ERROR_CHATGPT_INVALID_RESPONSE, JSON.stringify(apiResponse));
-		}
-	
-		if (isEmpty(apiResponse.choices)) {
-			throw new ResponseError(ERROR_CHATGPT_INVALID_RESPONSE, JSON.stringify(apiResponse));
-		}
-	
-		const message = apiResponse.choices[0].message;
-		if (!message) {
-			throw new ResponseError(ERROR_CHATGPT_INVALID_RESPONSE, JSON.stringify(apiResponse));
-		}
 
 		// store identity response
 		this.creator.createPost({
 			hidden: true,
-			promptRole: message.role,
+			promptRole: response1.role,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
-			text: message.content,
+			text: response1.content,
 			parentPostId: this.request.body.parentPostId,
 			codeError: this.request.body.codeError,
-			creatorId: 42 //Who should this be? Grok?
+			creatorId:  grokUser.id
 		});
 
-		const stackTrace = 'STACK';
-		const analyzePrompt = `Analze this thing, minion.\n\n
+		const analyzePrompt = {
+			role: "user", 
+			content: `Analze this thing, minion.\n\n
 		Here is the codeblock associated with the error: ${this.request.body.codeblock}\n\n
-		Here is the stacktrace for the error: ${stackTrace}`;
+		Here is the stacktrace for the error: STACKTRACE`
+		};
 
 		// store analyze request
 		this.creator.createPost({
 			hidden: true,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
-			text: analyzePrompt,
-			promptRole: "user",
+			text: analyzePrompt.prompt,
+			promptRole: analyzePrompt.role,
 			parentPostId: this.request.body.parentPostId,
 			codeError: this.request.body.codeError,
-			creatorId: 42 //Who should this be? Grok?
+			creatorId: grokUser.id
 		});
 
-		// call Azure AI to analyze
-		const azureAnalyzeResponse = {};
+		conversation.push(analyzePrompt);
 
+		const response2 = await submitApiCall({
+			messages: conversation,
+			temperature: 0,
+		});
+		
 		// store analyze response AS PUBLIC
 		this.creator.createPost({
 			hidden: false,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
-			text: azureAnalyzeResponse,
+			text: response2.content,
+			promptRole: response2.role,
 			parentPostId: this.request.body.parentPostId,
 			codeError: this.request.body.codeError,
-			creatorId: 42 //Who should this be? Grok?
+			creatorId: grokUser.id
 		});
 
 		// PubNub the public response back to clients
-			// Maybe this would happen via postProcess()?
-			// or we need to PostProcess the new PUBLIC GROK response/post?
-			// or if we inception the post create API, automagic.
+	}
 
+	async continueConversation(existingConversation, grokUser){
+		const message = {
+			role: "user",
+			content: this.request.body.text
+		}
+
+		// store identity request
+		this.creator.createPost({
+			hidden: true,
+			promptRole: message.role,
+			streamId: this.request.body.streamId,
+			teamId: this.request.body.teamId,
+			text: message.prompt,
+			parentPostId: this.request.body.parentPostId,
+			codeError: this.request.body.codeError,
+			creatorId: grokUser.id
+		});
+
+		existingConversation.push(message)
+
+		const response = this.submitApiCall({
+			messages: existingConversation,
+			temperature: 0,
+		});
+		
+		// store response AS PUBLIC
+		this.creator.createPost({
+			hidden: false,
+			streamId: this.request.body.streamId,
+			teamId: this.request.body.teamId,
+			text: response.content,
+			promptRole: response.role,
+			parentPostId: this.request.body.parentPostId,
+			codeError: this.request.body.codeError,
+			creatorId: grokUser.id
+		});
+
+		// pubnub the response back to the clients
 	}
 
 	// describe this route for help
