@@ -171,10 +171,11 @@ const STANDARD_PROVIDER_HOSTS = {
 		]
 	},
 	'msteams': {
-        id: 'msteams',
+		id: 'msteams',
 		name: 'msteams',
 		isEnterprise: false,
 		host: 'msteams',
+		hasSharing: true,
 		needsConfigure: false
 	},
 	'okta*com': {
@@ -208,13 +209,13 @@ const STANDARD_PROVIDER_HOSTS = {
 		hasBuilds: true,
 		needsConfigure: true
 	},
-    'trunk*io': {
-        id: 'trunk*io',
+	'trunk*io': {
+		id: 'trunk*io',
 		name: 'trunk',
 		isEnterprise: false,
 		host: 'trunk.io',
 		needsConfigure: false
-    }
+	}
 };
 
 const GetStandardProviderHosts = function(config) {
