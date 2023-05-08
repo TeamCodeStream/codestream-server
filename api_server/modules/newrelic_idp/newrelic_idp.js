@@ -98,12 +98,6 @@ class NewRelicIDP extends APIServerModule {
 		// user needs to be added to the default user group
 		await this.addUserToUserGroup(createUserResponse.data.id, attributes.authentication_domain_id, options);
 
-		// evidently there is some kind of race condition in the Azure B2C API which causes
-		// the refresh token first issued on the login request below to be invalid, unless
-		// we wait a while here ... a fix would be to not wait for this, but do the rest
-		// of the process async and send it up to the user after signup otherwise completes
-		await new Promise(resolve => { setTimeout(resolve, 10000); });
-
 		const loginResponse = await this.loginUser(
 			{
 				username: attributes.email,
@@ -114,11 +108,32 @@ class NewRelicIDP extends APIServerModule {
 
 		const nrUserInfo = createUserResponse.data;
 		const tokenInfo = {
-			token: encodeURIComponent(loginResponse.idp.id_token),
+			token: loginResponse.idp.id_token,
 			refreshToken: loginResponse.idp.refresh_token,
 			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000
 		};
 		return { nrUserInfo, tokenInfo };
+	}
+
+	// evidently there is some kind of race condition in the Azure B2C API which causes
+	// the refresh token first issued on the login request to be invalid, so here we return
+	// a response to the client with a valid access token, but knowing the refresh token
+	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
+	// to allow the race condition to clear
+	async waitForRefreshToken (email, password, options) {
+		await new Promise(resolve => { setTimeout(resolve, 10000); });
+		const loginResponse = await this.loginUser(
+		{
+				username: email,
+				password
+			},
+			options
+		);
+		return {
+			token: loginResponse.idp.id_token,
+			refreshToken: loginResponse.idp.refresh_token,
+			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000
+		};
 	}
 
 	async createUser (attributes, options = {}) {
@@ -154,12 +169,6 @@ class NewRelicIDP extends APIServerModule {
 			email: data.email,
 			password: data.password
 		}, options);
-
-		// evidently there is some kind of race condition in the Azure B2C API which causes
-		// the refresh token first issued on the login request below to be invalid, unless
-		// we wait a while here ... a fix would be to not wait for this, but do the rest
-		// of the process async and send it up to the user after signup otherwise completes
-		await new Promise(resolve => { setTimeout(resolve, 10000); });
 
 		const loginResponse = await this.loginUser(
 			{
@@ -458,7 +467,6 @@ class NewRelicIDP extends APIServerModule {
 			},
 			options
 		);
-
 	}
 
 	// perform custom refresh of a token per OAuth

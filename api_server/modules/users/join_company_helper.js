@@ -9,6 +9,7 @@ const UserDeleter = require('./user_deleter');
 const UserAttributes = require('./user_attributes');
 const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
 const IsCodeStreamOnly = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/is_codestream_only');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class JoinCompanyHelper {
 
@@ -209,10 +210,9 @@ class JoinCompanyHelper {
 			this.request.log('NOTE: not handling IDP signup, sending mock response');
 		}
 
-		let password;
 		const encryptedPassword = this.user.get('encryptedPasswordTemp');
 		if (encryptedPassword) {
-			password = await this.decryptPassword(encryptedPassword)
+			this.password = await this.decryptPassword(encryptedPassword)
 		}
 
 		const nrOrgInfo = this.company.get('nrOrgInfo');
@@ -230,7 +230,7 @@ class JoinCompanyHelper {
 				email_is_verified: true,
 				active: true
 			},
-			password,
+			this.password,
 			{ 
 				request: this,
 				mockResponse
@@ -299,6 +299,60 @@ class JoinCompanyHelper {
 				request: this.request,
 				broadcaster: this.api.services.broadcaster
 			}).publishEligibleJoinCompanies(this.originalEmail);
+		}
+
+		// evidently there is some kind of race condition in the Azure B2C API which causes
+		// the refresh token first issued on the login request to be invalid, so here we return
+		// a response to the client with a valid access token, but knowing the refresh token
+		// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
+		// to allow the race condition to clear
+		await this.updateRefreshToken();
+	}
+
+	// evidently there is some kind of race condition in the Azure B2C API which causes
+	// the refresh token first issued on the login request to be invalid, so here we return
+	// a response to the client with a valid access token, but knowing the refresh token
+	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
+	// to allow the race condition to clear
+	async updateRefreshToken () {
+		const tokenInfo = await this.api.services.idp.waitForRefreshToken(
+			this.invitedUser.get('email'),
+			this.password,
+			{ request: this }
+		);
+
+		// save the new refresh token to the database...
+		const { token, refreshToken, expiresAt } = tokenInfo;
+		const op = { 
+			$set: {
+				[ `providerInfo.${this.team.id}.newrelic.accessToken` ]: token,
+				[ `providerInfo.${this.team.id}.newrelic.refreshToken` ]: refreshToken,
+				[ `providerInfo.${this.team.id}.newrelic.expiresAt` ]: expiresAt
+			}
+		};
+		const updateOp = await new ModelSaver({
+			request: this.request,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
+		await this.request.postProcessPersist();
+
+		// ...and publish a message that it has been updated to the user
+		const message = {
+			requestId: this.request.request.id,
+			user: updateOp
+		};
+		const channel = `user-${this.user.id}`;
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this.request	}
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish refresh token update message to user ${this.user.id}: ${JSON.stringify(error)}`);
 		}
 	}
 
