@@ -159,7 +159,7 @@ class PostPostRequest extends PostRequest {
 			promptRole: systemPrompt.role,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
-			text: systemPrompt.prompt,
+			text: systemPrompt.content,
 			parentPostId: this.request.body.parentPostId,
 			codeError: this.request.body.codeError,
 			creatorId: grokUser.id
@@ -167,7 +167,7 @@ class PostPostRequest extends PostRequest {
 
 		conversation.push(systemPrompt);
 
-		const response1 = await submitApiCall({
+		var response = await submitApiCall({
 			messages: conversation,
 			temperature: 0,
 		});
@@ -175,15 +175,16 @@ class PostPostRequest extends PostRequest {
 		// store identity response
 		this.creator.createPost({
 			hidden: true,
-			promptRole: response1.role,
+			promptRole: response.role,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
-			text: response1.content,
+			text: response.content,
 			parentPostId: this.request.body.parentPostId,
 			codeError: this.request.body.codeError,
 			creatorId:  grokUser.id
 		});
 
+		// TODO: Finalize this prompt
 		const analyzePrompt = {
 			role: "user", 
 			content: `Analze this thing, minion.\n\n
@@ -196,7 +197,7 @@ class PostPostRequest extends PostRequest {
 			hidden: true,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
-			text: analyzePrompt.prompt,
+			text: analyzePrompt.content,
 			promptRole: analyzePrompt.role,
 			parentPostId: this.request.body.parentPostId,
 			codeError: this.request.body.codeError,
@@ -205,7 +206,7 @@ class PostPostRequest extends PostRequest {
 
 		conversation.push(analyzePrompt);
 
-		const response2 = await submitApiCall({
+		response = await submitApiCall({
 			messages: conversation,
 			temperature: 0,
 		});
@@ -215,14 +216,14 @@ class PostPostRequest extends PostRequest {
 			hidden: false,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
-			text: response2.content,
-			promptRole: response2.role,
+			text: response.content,
+			promptRole: response.role,
 			parentPostId: this.request.body.parentPostId,
 			codeError: this.request.body.codeError,
 			creatorId: grokUser.id
 		});
 
-		// PubNub the public response back to clients
+		// TODO PubNub the public response back to clients
 	}
 
 	async continueConversation(existingConversation, grokUser){
@@ -237,7 +238,7 @@ class PostPostRequest extends PostRequest {
 			promptRole: message.role,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
-			text: message.prompt,
+			text: message.content,
 			parentPostId: this.request.body.parentPostId,
 			codeError: this.request.body.codeError,
 			creatorId: grokUser.id
@@ -262,7 +263,7 @@ class PostPostRequest extends PostRequest {
 			creatorId: grokUser.id
 		});
 
-		// pubnub the response back to the clients
+		// TODO pubnub the response back to the clients
 	}
 
 	// describe this route for help
