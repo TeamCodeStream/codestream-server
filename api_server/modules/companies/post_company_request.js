@@ -5,6 +5,7 @@
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 const TeamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/team_creator');
 const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 
 class PostCompanyRequest extends PostRequest {
 
@@ -33,10 +34,12 @@ class PostCompanyRequest extends PostRequest {
 		if (this.transforms.additionalCompanyResponse) {
 			this.log('NOTE: sending additional company response to POST /companies request');
 			this.responseData = this.transforms.additionalCompanyResponse;
+			this.teamId = this.responseData.teamId;
 		} else {
 			if (this.transforms.createdTeam) {
 				this.responseData.team = this.transforms.createdTeam.getSanitizedObject({ request: this });
 				this.responseData.team.companyMemberCount = 1;
+				this.teamId = this.transforms.createdTeam.id;
 			}
 			if (this.transforms.createdTeamStream) {
 				this.responseData.streams = [
@@ -59,6 +62,57 @@ class PostCompanyRequest extends PostRequest {
 	async postProcess () {
 		if (!this.transforms.additionalCompanyResponse) {
 			await this.publishUserUpdate();
+		}
+
+		// evidently there is some kind of race condition in the Azure B2C API which causes
+		// the refresh token first issued on the login request to be invalid, so here we return
+		// a response to the client with a valid access token, but knowing the refresh token
+		// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
+		// to allow the race condition to clear
+		await this.updateRefreshToken();
+	}
+
+	// evidently there is some kind of race condition in the Azure B2C API which causes
+	// the refresh token first issued on the login request to be invalid, so here we return
+	// a response to the client with a valid access token, but knowing the refresh token
+	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
+	// to allow the race condition to clear
+	async updateRefreshToken () {
+		const password = this.creator.password;
+		const tokenInfo = await this.api.services.idp.waitForRefreshToken(this.user.get('email'), password, { request: this });
+
+		// save the new refresh token to the database...
+		const { token, refreshToken, expiresAt } = tokenInfo;
+		const op = { 
+			$set: {
+				[ `providerInfo.${this.teamId}.newrelic.accessToken` ]: token,
+				[ `providerInfo.${this.teamId}.newrelic.refreshToken` ]: refreshToken,
+				[ `providerInfo.${this.teamId}.newrelic.expiresAt` ]: expiresAt
+			}
+		};
+		const updateOp = await new ModelSaver({
+			request: this,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
+		await this.postProcessPersist();
+
+		// ...and publish a message that it has been updated to the user
+		const message = {
+			requestId: this.request.id,
+			user: updateOp
+		};
+		const channel = `user-${this.user.id}`;
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this	}
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish refresh token update message to user ${this.user.id}: ${JSON.stringify(error)}`);
 		}
 	}
 
