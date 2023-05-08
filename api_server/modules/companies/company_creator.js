@@ -133,7 +133,8 @@ class CompanyCreator extends ModelCreator {
 				mockResponse
 			}
 		);
-
+		this.password = password; // save because caller needs to obtain a refresh token later in the process
+	
 		// for some insane reason, the user_id comes out as a string 
 		if (typeof nrUserInfo.id === 'string') {
 			nrUserInfo.id = parseInt(nrUserInfo.id, 10);
