@@ -428,7 +428,7 @@ class NewRelicIDP extends APIServerModule {
 			}
 		};
 		if (options.domain) {
-			data.parameters.domain = options.domain;
+			data.parameters.domain_hint = options.domain;
 		}
 		return data;
 	}
