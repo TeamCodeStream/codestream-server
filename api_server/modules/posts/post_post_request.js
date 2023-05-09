@@ -120,6 +120,8 @@ class PostPostRequest extends PostRequest {
 		// creatorId: grok.Id
 		// text: $ne
 		// order by createdAt
+		// not filtering by hidden here, since there are some Grok posts that are NOT hidden
+		// i.e., the public response for a query, and we need those, too.
 		const existingConversation = await this.data.posts.getByQuery(
 			{
 				$and: [
@@ -184,6 +186,11 @@ class PostPostRequest extends PostRequest {
 			creatorId:  grokUser.id
 		});
 
+		conversation.push({
+			role: response.role,
+			content: response.content
+		});
+		
 		// TODO: Finalize this prompt
 		const analyzePrompt = {
 			role: "user", 
@@ -227,12 +234,23 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async continueConversation(existingConversation, grokUser){
+		const conversation = [];
+		existingConversation.map((p) => {
+			conversation.push({
+				role: p.promptRole,
+				content: p.text
+			})
+		})
+
 		const message = {
 			role: "user",
 			content: this.request.body.text
 		}
 
 		// store identity request
+		// note: even though the post has already been stored, its been stored
+		// as the user who posted it. To make life a bit easier downstream
+		// adding it AGAIN, but as a hidden Grok post.
 		this.creator.createPost({
 			hidden: true,
 			promptRole: message.role,
@@ -244,10 +262,10 @@ class PostPostRequest extends PostRequest {
 			creatorId: grokUser.id
 		});
 
-		existingConversation.push(message)
+		conversation.push(message)
 
 		const response = this.submitApiCall({
-			messages: existingConversation,
+			messages: conversation,
 			temperature: 0,
 		});
 		
