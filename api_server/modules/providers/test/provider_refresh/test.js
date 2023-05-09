@@ -17,8 +17,7 @@ const PROVIDERS = [
 	'jira',
 	'bitbucket',
 	'gitlab',
-	'azuredevops',
-	'msteams'
+	'azuredevops'
 ];
 
 const UNSUPPORTED_PROVIDERS = [

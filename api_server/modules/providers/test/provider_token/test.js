@@ -30,7 +30,6 @@ const PROVIDERS = [
 	'youtrack',
 	'azuredevops',
 	'slack',
-	'msteams'
 ];
 
 const ENTERPRISE_PROVIDERS = {

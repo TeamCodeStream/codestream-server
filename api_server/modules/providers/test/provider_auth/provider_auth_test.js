@@ -141,9 +141,6 @@ class ProviderAuthTest extends CodeStreamAPITest {
 		case 'slack':
 			redirectData = this.getSlackRedirectData();
 			break;
-		case 'msteams':
-			redirectData = this.getMSTeamsRedirectData();
-			break;
 		case 'okta':
 			redirectData = this.getOktaRedirectData();
 			break;
@@ -313,19 +310,6 @@ class ProviderAuthTest extends CodeStreamAPITest {
 			].join(' ')
 		};
 		const url = 'https://slack.com/oauth/v2/authorize';
-		return { url, parameters };
-	}
-
-	getMSTeamsRedirectData () {
-		const parameters = {
-			client_id: this.apiConfig.integrations.msteams.appClientId,
-			redirect_uri: this.redirectUri,
-			response_type: 'code',
-			state: this.state,
-			scope: 'User.Read.All Group.ReadWrite.All offline_access',
-			response_mode: 'query'
-		};
-		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
 		return { url, parameters };
 	}
 
