@@ -50,39 +50,23 @@ environment.
 1. Select your bot's App Registration and go to the **Branding & Properties**
    blade and complete the form.<br />
    <image src="images/azure-app-reg-branding-and-props.png" width="400" /><br />
-1. Select the **Authentication** blade, add the **Web** platform specifying the
-   OAuth redirect URI. The URL should look similar to
-   `https://staging-api.codestream.us/no-auth/provider-token/msteams`<br />
-
-   <image src="images/azure-app-reg-authentication-blade-1.png" width="400" /><br />
-   <image src="images/azure-app-reg-authentication-blade-2.png" width="400" /><br />
-1. Select the **API Permissions** blade and add the necessary scopes. These are
-   **Microsoft Graph** permissions. Source of truth for scopes is in
-   [msteams_auth.js](../../modules/msteams_auth/msteams_auth.js). At the time of
-   this writing, they are:
-   ```
-    'User.Read.All',
-    'Group.ReadWrite.All',
-	'offline_access'
-    ```
-   <image src="images/azure-api-permissions-blade.png" width="400" /><br />
 
 ### Update the API Server Config
 
 1. You'll need four values to add to your CodeStream server config file.
-    * The **botAppId** & **appClientId** is the **Application (client) ID** on
+    * The **appClientId** is the **Application (client) ID** on
       the **Overview blade.
-    * The secret (same for both) needs to be set on the **Certificates &
-      Secrets** blade. The secret that came with the bot is hidden so you'll
-      need to create a new one.
+    * The **appClientSecret** **Certificates & Secrets** blade. The secret 
+      that came with the bot is hidden so you'll need to create a new one.
+      (You can also delete the old one)
    ```
    {
        "integrations": {
-           "cloud": {
-               "appClientId": "<application-cliend-id-from-Overview-blade>",
-               "appClientSecret": "<secret-from-certificates-and-secrets-blade>",
-               "botAppId": "<application-cliend-id-from-Overview-blade>",
-               "botAppPassword": "<secret-from-certificates-and-secrets-blade>",
+           "msteams": {
+               "cloud": {
+                   "appClientId": "<application-cliend-id-from-Overview-blade>",
+                   "appClientSecret": "<secret-from-certificates-and-secrets-blade>"
+		}
            }
        }
    }
