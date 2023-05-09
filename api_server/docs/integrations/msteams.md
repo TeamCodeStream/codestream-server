@@ -1,10 +1,9 @@
-# MS Teams Integration 
+# MS Teams Integration
 
-As a messaging integration, it provides for features beyond OAuth; notably,
-interactive callbacks for login and replies. As such it a bot resource is needed
-on Azure, along with the connector which brings the bot into MS Teams. The
-CodeStream API serves as the bot, providing an endpoint for interactive
-callbacks.
+As a messaging integration, it provides for features for, interactive callbacks
+for login and replies. As such it a bot resource is needed on Azure, along with
+the connector which brings the bot into MS Teams. The CodeStream API serves
+as the bot, providing an endpoint for interactive callbacks.
 
 * [Resource & MST Installation](#create-resources--install)
 * [Bot Development Notes](#developing)
@@ -59,19 +58,19 @@ environment.
     * The **appClientSecret** **Certificates & Secrets** blade. The secret 
       that came with the bot is hidden so you'll need to create a new one.
       (You can also delete the old one)
-   ```
-   {
-       "integrations": {
-           "msteams": {
-               "cloud": {
-                   "appClientId": "<application-cliend-id-from-Overview-blade>",
-                   "appClientSecret": "<secret-from-certificates-and-secrets-blade>"
-		}
-           }
-       }
-   }
-   ```
 
+      ```json
+      {
+         "integrations": {
+            "msteams": {
+               "cloud": {
+                 "appClientId": "<application-cliend-id-from-Overview-blade>",
+                 "appClientSecret": "<secret-from-certificates-and-secrets-blade>"
+               }
+            }
+         }
+      }
+      ```
 
 ### Create & Install the MS Teams App Package
 
@@ -92,8 +91,9 @@ registration.
 
 1. To create an App package (zip file) using the default manifest template
    `$CS_API_TOP/etc/msteamsbot/template/manifest.json`:
-   ```
-   $ cs_api-msteams_bot_app_pkg_creator -e <env> -b <appClientId>
+
+   ```bash
+   cs_api-msteams_bot_app_pkg_creator -e <env> -b <appClientId>
    ```
 
 #### Install Package
@@ -109,35 +109,36 @@ registration.
 
 1. Select a team / channel <br />
    <image src="images/teams-select-channel.png" width="400" /><br />
- 
 
 1. In the **Chat** window, you should see your newly added bot. For testing purposes type `@yourbotname help`. You should see a response from the bot with some help text. To begin using the feal functionality of your new bot, select your bot and **connect** it to a channel by typing `@yourbotname connect`. Here, you're authenticating for the entire team; others should not have to repeat this step.
 
 #### Other Package Commands
 
 1. Create a manifest file only (does not require dev_tools):
-   ```
-   $ cd .../codestream-server/api_server
-   $ node bin/cs_msteams_bot_manifest_creator.js -e <env> -b <bot-application-id>
+
+   ```bash
+   cd .../codestream-server/api_server
+   node bin/cs_msteams_bot_manifest_creator.js -e <env> -b <bot-application-id>
    ```
 
 1. Create App Packages for all managed environments and optionally distribute them
    to our CDN (you must have access to the secrets database and S3 asset
    distribution tree).
+
+   ```bash
+   cs_api-msteams_bot_app_pkg_creator --use-keydb [--distribute]
    ```
-   $ cs_api-msteams_bot_app_pkg_creator --use-keydb [--distribute]
-   ```
+
    Once distributed, you can fetch the packages (except production) with:
    `https://assets.codestream.com/mstbot/codestream-msteamsbot-<env>-<version>.zip`
    For production, use:
    `https://assets.codestream.com/mstbot/codestream-msteamsbot-<version>.zip`
 
-
 ### Additional Publishing Documentation
-https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/publish
 
-https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/prepare/overview
+[https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/publish](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/publish)
 
+[https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/prepare/overview](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/prepare/overview)
 
 ## Developing
 
@@ -145,7 +146,7 @@ Use the App Studio app from within the Teams app to test your app's manifest, as
 well as serve as a UI for editing it. From here, you can attach the bot, as well
 as install it locally for testing
 
-https://aka.ms/InstallTeamsAppStudio
+[https://aka.ms/InstallTeamsAppStudio](https://aka.ms/InstallTeamsAppStudio)
 
 ### Dev logic
 
@@ -156,6 +157,7 @@ the glue that makes it work -- as it follows the notion of it being a
 Teams Organization` from the codemark sharing dropdown.
 
 ### Installing
+
 Upon installing the CodeStream bot, users in the team/channel for which the bot
 was installed to will receive a personal greeting message about what CodeStream
 offers. If the first command a user issues the bot in the personal channel is
@@ -163,11 +165,12 @@ any thing other than `signin` they will get an even more customized/personal
 message telling them to issue the `signin` command to get started.
 
 ### SignIn
+
 A user gets associated with CodeStream by signing into CodeStream via the web by
 issuing the `signin` command from the personal CodeStream bot chat. This
 eventually creates a `signinToken` which is tied to the CS `userId`, CS `teamId`
 and the MS Teams `tenantId`. If a user is on > 1 team, they will be able to able
-to connect all the teams. 
+to connect all the teams.
 
 When a CS team gets associated, we store on `team` an entry in
 `providerIdentities` in the format of `msteams::<tenantId>` and we store info
@@ -178,6 +181,7 @@ A reference to their CodeSteam userId is also stored in msteams_state, the
 key/value store for MST data
 
 ### Connecting
+
 Once a user has signed in, they can connect the bot to any team channel on any
 team in any of the teams for that tenant. Upon connecting, we store a reference
 to the MS Teams team in `msteams_team`, along with the _conversation_ (aka
@@ -189,9 +193,11 @@ an accessToken, as we will be querying teams/conversations that are gathered
 from the MS Teams CodeStream bot.
 
 ## Bot Commands
+
 These are the commands that you can issue the CodeStream bot for msteams
 
-### secret commands
+### Secret Commands
+
 These are unlisted commands. There's nothing "secret" about that, just that
 they're more intended for debugging rather than for a normal MS Teams user
 
@@ -216,8 +222,8 @@ mapped in `msteams_conversations` (slightly descructive as it could affect other
 team members, but it's a way to start "fresh" if a conversation was removed or
 renamed)
 
+### Personal Channels
 
-### personal channels
 These commands can only be used when communicated 1-on-1 with the CodeStream
 bot:
 
@@ -232,6 +238,7 @@ Removes the CodeStream `msteams` provider from the user that ran the command.
 This is the same as using the `Disconnect <Provider>` from the UI.
 
 ### public channels
+
 These commands only work in public channels:
 
 ```connect```
@@ -241,7 +248,8 @@ Adds this channel as a possible target for codemark sharing.
 Removes this channel as a possible target for codemark sharing.
 
 ### any channel
-These commands work anywhere: 
+
+These commands work anywhere:
 
 ```help```
 shows a help screen
@@ -253,6 +261,7 @@ Every other command just else shows a generic message asking the user if they
 need help.
 
 ### CodeStream IDE
+
 When a user begins creating a codemark, we attempt to `GET` all the
 conversations that they've connected via `/msteams_conversations`. We mix in the
 `teamName` from `msteams_teams`. When the codemark is created, we `POST` to
