@@ -170,13 +170,12 @@ const STANDARD_PROVIDER_HOSTS = {
 			'users:read.email',
 		]
 	},
-	'login*microsoft*com': {
-		id: 'login*microsoft*com',
+	'msteams': {
+		id: 'msteams',
+		host: 'msteams',
 		name: 'msteams',
 		isEnterprise: false,
-		host: 'msteams',
-		hasSharing: true,
-		needsConfigure: false
+		hasSharing: true
 	},
 	'okta*com': {
 		id: 'okta*com',
