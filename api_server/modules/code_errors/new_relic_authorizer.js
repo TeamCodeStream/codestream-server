@@ -171,7 +171,7 @@ class NewRelicAuthorizer {
 					unexpectedResponse: true
 				};
 			}
-			if (result.id === errorGroupGuid){
+			if (response.actor.errorsInbox.errorGroup.id === errorGroupGuid) {
 				return true;
 			}
 			else {
