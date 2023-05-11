@@ -94,6 +94,15 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the code error attached to this post, if any'
 	},
+	grokConversation: {
+		type: 'string',
+		maxLength: 10000,
+		description: 'The initial prompts required to prime a conversation with Grok'
+	},
+	forGrok: {
+		type: 'boolean',
+		description: 'Indicates whether a post is required to continue a previous conversation with Grok'
+	},
 	_forNRMigration: {
 		type: 'boolean',
 		serverOnly: true

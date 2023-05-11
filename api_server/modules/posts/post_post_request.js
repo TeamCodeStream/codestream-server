@@ -5,6 +5,8 @@
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 const fetch = require('node-fetch');
 const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_creator');
+const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 
 class PostPostRequest extends PostRequest {
 
@@ -50,6 +52,8 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async submitApiCall(request){
+		// TODO: Split this out to its own module or something
+
 		const apiUrl =
 			"https://nr-generativeai-api.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview";
 		const apiKey = ""; // TODO
@@ -86,161 +90,135 @@ class PostPostRequest extends PostRequest {
 	}
 	
 	async analyzeErrorWithGrok() {
-		// see if we have a Grok user for this team / company
-		const grokUser = await this.data.users.getByQuery(
-			{
-				$and: [
-					{ companyIds: { $elemMatch: { $eq: `${this.company.id}` } } },
-					{ teamIds: { $elemMatch: { $eq: `${this.user.teamId}` } } },
-					{ username: "Grok" }
-				]
-			},
-			{
-				fields: ['_id'],
-				noCache: true
-			}
-		);
+		const grokUserId = this.team.grokUserId;
 
-		const doesGrokUserExist = !!grokUser;
-
-		if(!doesGrokUserExist) {
-			grokUser = this.UserCreator.createUser({
-				teamIds: [this.user.teamId],
-				companyIds: [this.company.id],
-				username: "Grok",
-				preferences: {
-					"emailNotifications": "off"
-				},
-				isRegistered: true,
-				hasReceivedFirstMail: true
-			})
+		//if team already has a grokUserId, then this has to be an existing conversation
+		if(grokUserId) {
+			await this.continueConversation(existingConversation, grokUserId);
 		}
+		else{
+			let grokUser = await this.createGrokUser();
 
-		// post.codeErrorId
-		// creatorId: grok.Id
-		// text: $ne
-		// order by createdAt
-		// not filtering by hidden here, since there are some Grok posts that are NOT hidden
-		// i.e., the public response for a query, and we need those, too.
-		const existingConversation = await this.data.posts.getByQuery(
-			{
-				$and: [
-					{ codeErrorId: this.request.body.codeError.id },
-					{ creatorId: grokUser.id },
-					{ text: $ne },
-				]
-			},
-			{
-				fields: ['promptRole', 'text'],
-				sort: {
-					createdAt: 1
-				},
-				noCache: true
-			}
-		);
-
-		if(existingConversation && existingConversation.length > 0){
-			await this.continueConversation(existingConversation, grokUser);
-		}
-		else {
-			await this.startNewConversation(grokUser);
+			await this.startNewConversation(grokUser.id);
 		}
 	}
 
-	async startNewConversation(grokUser) {
-		const conversation = [];
-
-		const systemPrompt = {
-			role: "system",
-			content: "As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. I will output brief descriptions and the fixed code blocks."
-		};
-
-		// store identity request
-		this.creator.createPost({
-			hidden: true,
-			promptRole: systemPrompt.role,
-			streamId: this.request.body.streamId,
-			teamId: this.request.body.teamId,
-			text: systemPrompt.content,
-			parentPostId: this.request.body.parentPostId,
-			codeError: this.request.body.codeError,
-			creatorId: grokUser.id
+	async createGrokUser() {
+		const userCreator = new UserCreator({
+			request: this.request,
+			team: this.team
 		});
 
-		conversation.push(systemPrompt);
+		let grokUser = await userCreator.createUser({
+			username: "Grok"
+		});
+
+		await new AddTeamMembers({
+			request: this,
+			addUsers: [grokUser],
+			team: team
+		}).addTeamMembers();
+
+		await new ModelSaver({
+			request: this.request,
+			collection: this.data.teams,
+			id: this.team.id
+		}).save({
+			$set: {
+				grokUserId: grokUser.id
+			}
+		});
+		
+		const message = {
+			users: [grokUser]
+		};
+		try {
+			await this.request.api.services.broadcaster.publish(
+				message,
+				'team-' + this.team.id,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			this.request.warn(`Could not publish user message to team ${this.team.id}: ${JSON.stringify(error)}`);
+		}
+
+		return grokUser;
+	}
+
+	async startNewConversation(grokUser) {
+		const codeError = this.data.codeErrors.getById(this.attributes.codeErrorId);
+
+		const stackTrace = codeError.stackTraces.slice(-1).pop().text;
+		const code = this.request.body.codeBlock;
+
+		const conversation = [{
+			role: "system",
+			content: "As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. I will output brief descriptions and the fixed code blocks."
+		},
+		{
+			role: "user", 
+			content: `Analyze this stack trace:\n````${ stackTrace }````\nAnd fix the following code:\n````${ code }````\n`
+		}];
 
 		var response = await submitApiCall({
 			messages: conversation,
 			temperature: 0,
 		});
 
-		// store identity response
-		this.creator.createPost({
-			hidden: true,
-			promptRole: response.role,
-			streamId: this.request.body.streamId,
-			teamId: this.request.body.teamId,
-			text: response.content,
-			parentPostId: this.request.body.parentPostId,
-			codeError: this.request.body.codeError,
-			creatorId:  grokUser.id
-		});
-
 		conversation.push({
 			role: response.role,
 			content: response.content
 		});
-		
-		// TODO: Finalize this prompt
-		const analyzePrompt = {
-			role: "user", 
-			content: `Analze this thing, minion.\n\n
-		Here is the codeblock associated with the error: ${this.request.body.codeblock}\n\n
-		Here is the stacktrace for the error: STACKTRACE`
-		};
 
-		// store analyze request
-		this.creator.createPost({
-			hidden: true,
-			streamId: this.request.body.streamId,
-			teamId: this.request.body.teamId,
-			text: analyzePrompt.content,
-			promptRole: analyzePrompt.role,
-			parentPostId: this.request.body.parentPostId,
-			codeError: this.request.body.codeError,
-			creatorId: grokUser.id
-		});
-
-		conversation.push(analyzePrompt);
-
-		response = await submitApiCall({
-			messages: conversation,
-			temperature: 0,
+		// Update initial post with the current conversation.
+		await new ModelSaver({
+			request: this.request,
+			collection: this.data.posts,
+			id: this.request.body.parentPostId
+		}).save({
+			$set: {
+				grokConversation: conversation
+			}
 		});
 		
 		// store analyze response AS PUBLIC
-		this.creator.createPost({
-			hidden: false,
+		const post = this.creator.createPost({
+			forGrok: true,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
 			text: response.content,
 			promptRole: response.role,
 			parentPostId: this.request.body.parentPostId,
-			codeError: this.request.body.codeError,
+			codeError: this.attributes.codeErrorId,
 			creatorId: grokUser.id
 		});
 
-		// TODO PubNub the public response back to clients
+		const message = {
+			posts: [post]
+		};
+
+		try {
+			await this.request.api.services.broadcaster.publish(
+				message,
+				'team-' + this.team.id,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.request.warn(`Could not publish post message to channel ${channel}: ${JSON.stringify(error)}`);
+		}
 	}
 
-	async continueConversation(existingConversation, grokUser){
+	async continueConversation(grokUser){
 		const conversation = [];
-		existingConversation.map((p) => {
-			conversation.push({
-				role: p.promptRole,
-				content: p.text
-			})
-		})
+		
+		// TODO: Get the previous conversation
+		//   1. From parentPostId where text is empty
+		//			post.grokConversation
+		//
+		//   2. All other posts which have forGrok = true
 
 		const message = {
 			role: "user",
@@ -258,7 +236,7 @@ class PostPostRequest extends PostRequest {
 			teamId: this.request.body.teamId,
 			text: message.content,
 			parentPostId: this.request.body.parentPostId,
-			codeError: this.request.body.codeError,
+			codeError: this.attributes.codeErrorId,
 			creatorId: grokUser.id
 		});
 
@@ -277,7 +255,7 @@ class PostPostRequest extends PostRequest {
 			text: response.content,
 			promptRole: response.role,
 			parentPostId: this.request.body.parentPostId,
-			codeError: this.request.body.codeError,
+			codeError: this.attributes.codeErrorId,
 			creatorId: grokUser.id
 		});
 
