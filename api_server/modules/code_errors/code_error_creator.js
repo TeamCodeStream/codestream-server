@@ -61,7 +61,8 @@ class CodeErrorCreator extends ModelCreator {
 		return {
 			query: {
 				objectId: this.attributes.objectId,
-				objectType: this.attributes.objectType
+				objectType: this.attributes.objectType,
+				deactivated: false
 			},
 			hint: Indexes.byObjectId
 		}
