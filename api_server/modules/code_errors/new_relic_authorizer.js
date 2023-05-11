@@ -25,10 +25,8 @@ class NewRelicAuthorizer {
 				this.mockAccounts = headers['x-cs-mock-account-ids'].split(',').map(accountId => {
 					return { id: accountId };
 				});
-			} else if (headers['x-cs-mock-error-group-ids'] !== undefined) {
-				this.mockErrorGroups = headers['x-cs-mock-error-group-ids'].split(',').map(groupId => {
-					return { id: groupId };
-				});
+			} else if (headers['x-cs-mock-error-group-id'] !== undefined) {
+				this.mockErrorGroup = headers['x-cs-mock-error-group-id'];
 			} else {
 				// secret to override this check, for tests
 				this.request.warn(`Secret provided to override NR account check, this had better be a test!`);
@@ -141,45 +139,42 @@ class NewRelicAuthorizer {
 		try {
 			// we'll do this by directly fetching the error group entity
 			// previously, we parsed out the account ID and checked the user's accounts against the error group's
-			if (this.mockErrorGroups) {
-				response = { actor: { errorsInbox: { errorGroups: { results: this.mockErrorGroups } } } };
+			if (this.mockErrorGroup) {
+				response = { actor: { errorsInbox: { errorGroup: { id: this.mockErrorGroup } } } };
 			} else {
 				const query = gql`
-					query errorGroupById($ids: [ID!]) {
+					query errorGroupById($id: ID!) {
 						actor {
 							errorsInbox {
-								errorGroups(filter: {ids: $ids}) {
-									results {
-										id
-									}
+								errorGroup(id: $id) {
+									id
 								}
 							}
 						}
 					}`;
 				const vars = {
-					ids: [errorGroupGuid]
+					id: errorGroupGuid
 				};
 				response = await this.client.request(query, vars);
 			}
 
 			if (
 				!response ||
-				!response ||
 				!response.actor ||
 				!response.actor.errorsInbox ||
-				!response.actor.errorsInbox.errorGroups ||
-				!response.actor.errorsInbox.errorGroups.results ||
-				!response.actor.errorsInbox.errorGroups.results
+				!response.actor.errorsInbox.errorGroup ||
+				!response.actor.errorsInbox.errorGroup.id
 			) {
-				this.request.warn('Unexpected response fetching error groups: ' + JSON.stringify(response));
+				this.request.warn('Unexpected response fetching error group: ' + JSON.stringify(response));
 				return {
 					unauthorized: true,
 					unexpectedResponse: true
 				};
 			}
-			if (!response.actor.errorsInbox.errorGroups.results.find(result => {
-				return result.id === errorGroupGuid;
-			})) {
+			if (result.id === errorGroupGuid){
+				return true;
+			}
+			else {
 				return { 
 					unauthorized: true,
 					unauthorizedErrorGroup: true
