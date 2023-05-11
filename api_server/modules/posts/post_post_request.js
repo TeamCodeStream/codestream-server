@@ -182,7 +182,7 @@ class PostPostRequest extends PostRequest {
 			}
 		});
 		
-		// store analyze response AS PUBLIC
+		// store Grok response as new Post 
 		const post = this.creator.createPost({
 			forGrok: true,
 			streamId: this.request.body.streamId,
