@@ -170,8 +170,8 @@ const STANDARD_PROVIDER_HOSTS = {
 			'users:read.email',
 		]
 	},
-	'msteams': {
-		id: 'msteams',
+	'login*microsoft*com': {
+		id: 'login*microsoft*com',
 		name: 'msteams',
 		isEnterprise: false,
 		host: 'msteams',
