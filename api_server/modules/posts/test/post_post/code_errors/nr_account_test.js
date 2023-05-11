@@ -22,9 +22,9 @@ class NRAccountTest extends CodeErrorTest {
 	// set the mock account IDs to use for the test
 	setMockAccountIds (callback) {
 		if (this.dontIncludeErrorGroupId) {
-			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = "";	
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Id'] = "";	
 		} else {
-			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = this.data.codeError.objectId;
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Id'] = this.data.codeError.objectId;
 		}
 		/*
 		const codeErrorId = this.data.codeError.accountId;
