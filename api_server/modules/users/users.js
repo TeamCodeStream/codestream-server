@@ -174,7 +174,7 @@ const USERS_ADDITIONAL_ROUTES = [
 		requestClass: require('./join_company_request')
 	},
 
-	// this request will be callable through Service Gateway using a CodeStream-issued
+	// these request will be callable through Service Gateway using a CodeStream-issued
 	// access token
 	{
 		method: 'put',
@@ -184,7 +184,7 @@ const USERS_ADDITIONAL_ROUTES = [
 
 	{
 		method: 'put',
-		path: 'decline-invite/:id',
+		path: 'cs-auth/decline-invite/:id',
 		requestClass: require('./decline_invite_request')
 	},
 	{
@@ -201,6 +201,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'no-auth/check-login',
 		requestClass: require('./check_login_request')
+	},
+	{
+		method: 'get',
+		path: 'nr-exp',
+		requestClass: require('./nr_lookup_experiment_request')
 	}
 ];
 
