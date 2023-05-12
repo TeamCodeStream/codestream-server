@@ -44,7 +44,7 @@ class NRLookupExperimentRequest extends RestfulRequest {
 			} else {
 				query = gql`{
 					actor {
-						account(id: 11188139) {
+						account(id: 313870) {
 							nrqlLookups {
 								fileEndpoint(name: "myLookup") {
 									uri
