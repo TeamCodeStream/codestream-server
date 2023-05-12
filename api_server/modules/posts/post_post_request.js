@@ -43,15 +43,15 @@ class PostPostRequest extends PostRequest {
 		await super.handleResponse();
 	}
 
-	async postProcess () {
-		await super.postProcess();
+	// async postProcess () {
+	// 	await super.postProcess();
 
-		if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
-			await this.analyzeErrorWithGrok();
-		}
-	}
+	// 	if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
+	// 		await this.analyzeErrorWithGrok();
+	// 	}
+	// }
 
-	async submitApiCall(request){
+	async submitConversationToGrok(conversation, temperature = 0){
 		// TODO: Split this out to its own module or something
 
 		const apiUrl =
@@ -61,6 +61,13 @@ class PostPostRequest extends PostRequest {
 		if (!apiKey) {
 			throw this.errorHandler.error('aiError', { reason: 'ChatGPT: API Key' });
 		}
+
+		const request = {
+			messages: conversation,
+			temperature: temperature
+		};
+
+		request.temperature = request.temperature || 0;
 
 		const response = await fetch(apiUrl, {
 			method: "POST",
@@ -149,6 +156,7 @@ class PostPostRequest extends PostRequest {
 	async startNewConversation(grokUser) {
 		const codeError = this.data.codeErrors.getById(this.attributes.codeErrorId);
 
+		// get the last stack trace we have - text is full stack trace
 		const stackTrace = codeError.stackTraces.slice(-1).pop().text;
 		const code = this.request.body.codeBlock;
 
@@ -161,10 +169,7 @@ class PostPostRequest extends PostRequest {
 			content: `Analyze this stack trace:\n````${ stackTrace }````\nAnd fix the following code:\n````${ code }````\n`
 		}];
 
-		var response = await submitApiCall({
-			messages: conversation,
-			temperature: 0,
-		});
+		var response = await submitConversationToGrok(conversation);
 
 		conversation.push({
 			role: response.role,
@@ -242,10 +247,7 @@ class PostPostRequest extends PostRequest {
 
 		conversation.push(message)
 
-		const response = this.submitApiCall({
-			messages: conversation,
-			temperature: 0,
-		});
+		const response = this.submitConversationToGrok(conversation);
 		
 		// store response AS PUBLIC
 		this.creator.createPost({
