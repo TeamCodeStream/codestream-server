@@ -136,5 +136,10 @@ module.exports = {
 		description: 'Indicates the API server is running behind Service Gateway and using login service for auth, governed by a global variable',
 		version: '14.0.11',
 		useGlobal: true
+	},
+	'showGrok': {
+		description: 'Enable Grok AI Error analysis',
+		version: '14.19.1',
+		restricted: true
 	}
 };
