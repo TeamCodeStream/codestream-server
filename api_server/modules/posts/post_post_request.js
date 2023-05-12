@@ -67,8 +67,6 @@ class PostPostRequest extends PostRequest {
 			temperature: temperature
 		};
 
-		request.temperature = request.temperature || 0;
-
 		const response = await fetch(apiUrl, {
 			method: "POST",
 			headers: {

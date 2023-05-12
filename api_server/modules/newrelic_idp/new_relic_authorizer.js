@@ -26,7 +26,7 @@ class NewRelicAuthorizer {
 				this.mockAccounts = headers['x-cs-mock-account-ids'].split(',').map(accountId => {
 					return { id: accountId };
 				});
-			} else if (headers['x-cs-mock-error-group-id'] !== null) {
+			} else if (headers['x-cs-mock-error-group-id'] !== undefined) {
 				this.mockErrorGroup = headers['x-cs-mock-error-group-id'];
 			} else {
 				// secret to override this check, for tests
