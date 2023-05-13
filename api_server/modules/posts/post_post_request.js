@@ -43,13 +43,13 @@ class PostPostRequest extends PostRequest {
 		await super.handleResponse();
 	}
 
-	// async postProcess () {
-	// 	await super.postProcess();
+	async postProcess () {
+		await super.postProcess();
 
-	// 	if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
-	// 		await this.analyzeErrorWithGrok();
-	// 	}
-	// }
+		if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
+			await this.analyzeErrorWithGrok();
+		}
+	}
 
 	async submitConversationToGrok(conversation, temperature = 0){
 		// TODO: Split this out to its own module or something
