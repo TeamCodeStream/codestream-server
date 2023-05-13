@@ -19,6 +19,7 @@ class NewRelicAuthorizer {
 		}
 
 		const { headers } = this.request.request;
+
 		if (secretsList.includes(headers['x-cs-newrelic-secret'])) {
 			if (headers['x-cs-mock-account-ids']) {
 				this.request.warn(`Secret provided to use mock NR account data, this had better be a test!`);
@@ -136,12 +137,12 @@ class NewRelicAuthorizer {
 	// authorize the user to access the given New Relic error group, given by GUID
 	async authorizeErrorGroup (errorGroupGuid) {
 		let response;
-		try {
-			// we'll do this by directly fetching the error group entity
-			// previously, we parsed out the account ID and checked the user's accounts against the error group's
-			if (this.mockErrorGroup) {
-				response = { actor: { errorsInbox: { errorGroup: { id: this.mockErrorGroup } } } };
-			} else {
+		// we'll do this by directly fetching the error group entity
+		// previously, we parsed out the account ID and checked the user's accounts against the error group's
+		if (this.mockErrorGroup) {
+			response = { actor: { errorsInbox: { errorGroup: { id: this.mockErrorGroup } } } };
+		} else {
+			try{
 				const query = gql`
 					query errorGroupById($id: ID!) {
 						actor {
@@ -157,34 +158,35 @@ class NewRelicAuthorizer {
 				};
 				response = await this.client.request(query, vars);
 			}
-
-			if (
-				!response ||
-				!response.actor ||
-				!response.actor.errorsInbox ||
-				!response.actor.errorsInbox.errorGroup ||
-				!response.actor.errorsInbox.errorGroup.id
-			) {
-				this.request.warn('Unexpected response fetching error group: ' + JSON.stringify(response));
-				return {
-					unauthorized: true,
-					unexpectedResponse: true
-				};
-			}
-			if (response.actor.errorsInbox.errorGroup.id === errorGroupGuid) {
-				return true;
-			}
-			else {
+			catch(error){
 				return { 
 					unauthorized: true,
 					unauthorizedErrorGroup: true
 				};
 			}
-		} catch (error) {
-			this.request.warn('Error fetching error group, falling back to account check: ' + error.message);
-			return await this.authorizeObjectAccount(errorGroupGuid, 'errorGroup');
 		}
-		return true;
+
+		if (
+			!response ||
+			!response.actor ||
+			!response.actor.errorsInbox ||
+			!response.actor.errorsInbox.errorGroup
+		) {
+			this.request.warn('Unexpected response fetching error group: ' + JSON.stringify(response));
+			return {
+				unauthorized: true,
+				unexpectedResponse: true
+			};
+		}
+		
+		if (response.actor.errorsInbox.errorGroup.id === errorGroupGuid) {
+			return true;
+		}
+		
+		return { 
+			unauthorized: true,
+			unauthorizedErrorGroup: true
+		};
 	}
 
 	// authorize ths user to access the given New Relic object, according to type
