@@ -63,21 +63,9 @@ class Grok extends APIServerModule {
 			creatorId: grokUser.id
 		});
 
-		const pubnubMessage = {
+		this.broadcast({
 			posts: [post]
-		};
-
-		try {
-			await this.request.api.services.broadcaster.publish(
-				pubnubMessage,
-				'team-' + this.team.id,
-				{ request: this.request }
-			);
-		}
-		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish post message to channel ${channel}: ${JSON.stringify(error)}`);
-		}
+		});
 	}
 
 	async startNewConversation(grokUser) {
@@ -129,14 +117,18 @@ class Grok extends APIServerModule {
 			creatorId: grokUser.id
 		});
 
-		const message = {
+		this.broadcast({
 			posts: [post]
-		};
+		});
+	}
+
+	async broadcast(message){
+		const channel = `team-${this.team.id}`;
 
 		try {
 			await this.request.api.services.broadcaster.publish(
 				message,
-				'team-' + this.team.id,
+				channel,
 				{ request: this.request }
 			);
 		}
@@ -170,43 +162,24 @@ class Grok extends APIServerModule {
 			}
 		});
 		
-		const message = {
+		this.broadcast({
 			users: [grokUser]
-		};
-		
-		try {
-			await this.request.api.services.broadcaster.publish(
-				message,
-				'team-' + this.team.id,
-				{ request: this.request }
-			);
-		}
-		catch (error) {
-			this.request.warn(`Could not publish user message to team ${this.team.id}: ${JSON.stringify(error)}`);
-		}
+		});
 
 		return grokUser;
 	}
 
 	async submitConversationToGrok(conversation, temperature = 0){
-		const apiUrl =
-			"https://nr-generativeai-api.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview";
-		const apiKey = ""; // TODO
-
-		if (!apiKey) {
-			throw this.errorHandler.error('missingAPIKey');
-		}
-
 		const request = {
 			messages: conversation,
 			temperature: temperature
 		};
 
-		const response = await fetch(apiUrl, {
+		const response = await fetch(this.request.api.config.newrelicgrok.apiUrl, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"api-key": `${apiKey}`,
+				"api-key": `${this.request.api.config.newrelicgrok.apiKey}`,
 			},
 			body: JSON.stringify(request),
 		});
