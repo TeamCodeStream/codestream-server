@@ -22,6 +22,7 @@ const SERVICE_HOSTS = {
 };
 
 const USER_SERVICE_SECRET = process.env.NEWRELIC_USER_SERVICE_SECRET; // for now, ultimately, this needs to come from config
+const NEWRELIC_REGION = 'us01'; // for now, ultimately, this needs to come from config
 
 class NewRelicIDP extends APIServerModule {
 
@@ -196,15 +197,14 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async signupUser (data, options = {}) {
+		const region = NEWRELIC_REGION // for now, utimately this should come from config
 		return this._newrelic_idp_call(
 			'signup',
 			'/internal/v1/signups/provision',
 			'post',
 			{ 
 				user: data,
-				account: {
-					region: "us01" // TODO: NEW_RELIC_IDP: deal with EU here???
-				}
+				account: { region }
 			},
 			options
 		);
