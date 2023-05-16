@@ -2,65 +2,80 @@
 
 const fetch = require('node-fetch');
 const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module');
-const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Errors = require('./errors');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
+const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 
 class Grok extends APIServerModule {
 
 	constructor(config) {
 		super(config);
-		this.errorHandler = new ErrorHandler(Errors);
+		this.errorHandler.add(Errors);
 	}
 
 	async analyzeErrorWithGrok() {
-		const grokUserId = this.team.grokUserId;
+		let grokUserId = this.team.grokUserId;
 
-		//if team already has a grokUserId, then this has to be an existing conversation
-		if(grokUserId) {
-			await this.continueConversation(existingConversation, grokUserId);
+		if(!grokUserId) {
+			grokUserId = await this.createGrokUser().id;
 		}
-		else{
-			let grokUser = await this.createGrokUser();
 
-			await this.startNewConversation(grokUser.id);
+		let topmostPost = this.data.posts.getById(this.request.body.parentPostId);
+
+		if(topmostPost.parentPostId !== this.request.body.parentPostId){
+			topmostPost = this.data.posts.getById(topmostPost.parentPostId);
+		}
+
+		const grokPrompt = topmostPost.grokConversation;
+
+		if(grokPrompt){
+			await this.continueConversation(grokPrompt, grokUserId, topmostPost.id);
+		}
+		else {
+			await this.startNewConversation(grokUserId, topmostPost.id);
 		}
 	}
 
-	async continueConversation(grokUser){
-		const conversation = [];
+	async continueConversation(grokPrompt, grokUserId, topmostPostId){
+		const conversation = [grokPrompt];
 		
-		// TODO: Get the previous conversation
-		//   1. From parentPostId where text is empty
-		//			post.grokConversation
-		//
-		//   2. All other posts which have forGrok = true
-
-		const message = {
-			role: "user",
-			content: this.request.body.text
+		const parentPostIds = [this.request.body.parentPostId];
+		if(this.request.body.parentPostId !== topmostPostId){
+			parentPostIds.push(topmostPostId);
 		}
 
-		// TODO - update the users original Post to include `forGrok: true`
+		const posts = await this.data.posts.getByQuery(
+			{
+				parentPostId: { $in: parentPostIds },
+				forGrok: true
+			},
+			{
+				fields: ['text', 'promptRole'],
+				sort: { createdAt: 1},
+				hint: PostIndexes.byParentPostId,
+			}
+		);
 
-		conversation.push(message)
+		posts.map(p => {
+			conversation.push({
+				role: p.promptRole,
+				content: p.text
+			})
+		});
 
 		const response = this.submitConversationToGrok(conversation);
 		
-		const post = await new ModelCreator({
-			request: this.request,
-			collectionName: "posts"
-		}).createModel({
+		const post = await this.postCreator.createModel({
 			forGrok: true,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
 			text: response.content,
 			promptRole: response.role,
-			parentPostId: this.request.body.parentPostId,
-			codeError: this.attributes.codeErrorId,
-			creatorId: grokUser.id
+			parentPostId: topmostPostId,
+			codeError: this.response.initialResponseData.codeError.id,
+			creatorId: grokUserId
 		});
 
 		this.broadcast({
@@ -68,8 +83,9 @@ class Grok extends APIServerModule {
 		});
 	}
 
-	async startNewConversation(grokUser) {
-		const codeError = this.data.codeErrors.getById(this.attributes.codeErrorId);
+	async startNewConversation(grokUserId, topmostPostId) {
+		// if this is truly a new conversation, then a Post and CodeError must have been created, right?
+		const codeError = this.response.initialResponseData.codeError;
 
 		// get the last stack trace we have - text is full stack trace
 		const stackTrace = codeError.stackTraces.slice(-1).pop().text;
@@ -95,7 +111,7 @@ class Grok extends APIServerModule {
 		await new ModelSaver({
 			request: this.request,
 			collection: this.data.posts,
-			id: this.request.body.parentPostId
+			id: topmostPostId
 		}).save({
 			$set: {
 				grokConversation: conversation
@@ -103,18 +119,15 @@ class Grok extends APIServerModule {
 		});
 		
 		// store Grok response as new Post 
-		const post = await new ModelCreator({
-			request: this.request,
-			collectionName: "posts"
-		}).createModel({
+		const post = await this.postCreator.createModel({
 			forGrok: true,
 			streamId: this.request.body.streamId,
 			teamId: this.request.body.teamId,
 			text: response.content,
 			promptRole: response.role,
-			parentPostId: this.request.body.parentPostId,
-			codeError: this.attributes.codeErrorId,
-			creatorId: grokUser.id
+			parentPostId: topmostPostId,
+			codeError: codeError.id,
+			creatorId: grokUserId
 		});
 
 		this.broadcast({

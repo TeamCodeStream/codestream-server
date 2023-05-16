@@ -99,6 +99,11 @@ module.exports = {
 		maxLength: 10000,
 		description: 'The initial prompts required to prime a conversation with Grok'
 	},
+	promptRole: {
+		type: 'string',
+		maxLength: 50,
+		description: 'When submitting conversations (posts) to Grok, what role does each one take on'
+	},
 	forGrok: {
 		type: 'boolean',
 		description: 'Indicates whether a post is required to continue a previous conversation with Grok'
