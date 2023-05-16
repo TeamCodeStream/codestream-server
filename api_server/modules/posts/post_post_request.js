@@ -26,6 +26,15 @@ class PostPostRequest extends PostRequest {
 		this.request.body.teamId = stream.get('teamId');
 	}
 
+	async process() {
+		if(this.request.body.text.match(/\@Grok/gmi)){
+			this.request.body.forGrok = true;
+			this.request.body.promptRole = "user";
+		}
+
+		super.process();
+	}
+
 	/* eslint complexity: 0 */
 	async handleResponse () {
 		if (this.gotError) {
@@ -48,7 +57,8 @@ class PostPostRequest extends PostRequest {
 				data: this.data,
 				request: this.request, 
 				response: this.responseData,
-				team: this.team
+				team: this.team,
+				postCreator: this.creator
 			}).analyzeErrorWithGrok();
 		}
 	}
