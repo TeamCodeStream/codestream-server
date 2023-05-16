@@ -3,7 +3,7 @@
 'use strict';
 
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
-const Grok = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/grok/grok');
+const Grok = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/grok/grok');
 
 class PostPostRequest extends PostRequest {
 

@@ -1,18 +1,18 @@
 'use strict';
 
 const fetch = require('node-fetch');
-const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server_module');
 const Errors = require('./errors');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ModelCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_creator');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 
-class Grok extends APIServerModule {
+class Grok {
 
 	constructor(config) {
-		super(config);
-		this.errorHandler.add(Errors);
+		Object.assign(this, config);
+
+		this.request.errorHandler.add(Errors);
 	}
 
 	async analyzeErrorWithGrok() {
