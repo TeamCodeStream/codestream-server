@@ -9,10 +9,17 @@ const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 
 class Grok {
 
-	constructor(config) {
-		Object.assign(this, config);
+	constructor(options) {
+		Object.assign(this, options);
+		//this.request = options.options.request;
+		//this.request.errorHandler.add(Errors);
 
-		this.request.errorHandler.add(Errors);
+		if(!!this.request.body.analyze){
+			this.promptTracking = 'Unprompted'; 
+		}
+		else if(this.request.body.text.match(/\@Grok/gmi)){
+			this.promptTracking = 'Prompted'; 
+		}
 	}
 
 	async analyzeErrorWithGrok() {
@@ -76,6 +83,9 @@ class Grok {
 			parentPostId: topmostPostId,
 			codeError: this.response.initialResponseData.codeError.id,
 			creatorId: grokUserId
+		},
+		{
+			promptTracking: this.promptTracking
 		});
 
 		this.broadcast({
@@ -128,6 +138,9 @@ class Grok {
 			parentPostId: topmostPostId,
 			codeError: codeError.id,
 			creatorId: grokUserId
+		},
+		{
+			promptTracking: this.promptTracking
 		});
 
 		this.broadcast({

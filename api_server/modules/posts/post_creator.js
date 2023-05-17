@@ -36,7 +36,8 @@ class PostCreator extends ModelCreator {
 	}
 
 	// convenience wrapper
-	async createPost (attributes) {
+	async createPost (attributes, metadata = {}) {
+		this.metadata = metadata;
 		return await this.createModel(attributes);
 	}
 
@@ -49,7 +50,7 @@ class PostCreator extends ModelCreator {
 			optional: {
 				string: ['text', 'parentPostId', '_subscriptionCheat'],
 				object: ['codemark', 'review', 'codeError', 'inviteInfo'],
-				boolean: ['dontSendEmail', '_forNRMigration', '_fromNREngine', 'forGrok'],
+				boolean: ['dontSendEmail', '_forNRMigration', '_fromNREngine', 'analyze'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
 				'array(string)': ['mentionedUserIds', 'addedUsers'],
 				'array(object)': ['files', 'sharedTo']
@@ -1110,6 +1111,11 @@ class PostCreator extends ModelCreator {
 			parentType = 'Post'; // but should never happen
 		}
 		trackData['Parent Type'] = parentType;
+
+		// Was Grok invoked?
+		if(this.metadata && this.metadata.prompTracking){
+			trackData['Grok Post'] = this.metadata.prompTracking;
+		}
 
 		return this.api.services.analytics.trackWithSuperProperties(
 			'Reply Created',
