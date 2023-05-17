@@ -26,14 +26,14 @@ class PostPostRequest extends PostRequest {
 		this.request.body.teamId = stream.get('teamId');
 	}
 
-	async process() {
-		if(this.request.body.text.match(/\@Grok/gmi)){
-			this.request.body.forGrok = true;
-			this.request.body.promptRole = "user";
-		}
+	//async process() {
+		//super.process();
 
-		super.process();
-	}
+		// if(this.request.body.text.match(/\@Grok/gmi)){
+		// 	this.request.body.forGrok = true;
+		// 	this.request.body.promptRole = "user";
+		// }
+	//}
 
 	/* eslint complexity: 0 */
 	async handleResponse () {
@@ -50,17 +50,17 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async postProcess () {
-		await super.postProcess();
+	 	await super.postProcess();
 
-		if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
-			await new Grok({
-				data: this.data,
-				request: this.request, 
-				response: this.responseData,
-				team: this.team,
-				postCreator: this.creator
-			}).analyzeErrorWithGrok();
-		}
+	 	if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
+	 		await new Grok({
+	 			data: this.data,
+	 			request: this.request, 
+	 			response: this.responseData,
+	 			team: this.team,
+	 			postCreator: this.creator
+	 		}).analyzeErrorWithGrok();
+	 	}
 	}
 	
 	// describe this route for help

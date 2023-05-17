@@ -14,10 +14,6 @@ class GetPostRequest extends GetRequest {
 		await this.getMarkers();	// get the markers referenced by this post, if any
 	}
 
-	getQueryOptions () {
-		return {hidden: false};
-	}
-
 	// get the codemark referenced by this post, if any
 	async getCodemark () {
 		const codemarkId = this.model.get('codemarkId');

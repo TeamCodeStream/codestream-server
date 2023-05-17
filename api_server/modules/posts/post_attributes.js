@@ -94,19 +94,9 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the code error attached to this post, if any'
 	},
-	grokConversation: {
-		type: 'string',
-		maxLength: 10000,
-		description: 'The initial prompts required to prime a conversation with Grok'
-	},
-	promptRole: {
-		type: 'string',
-		maxLength: 50,
-		description: 'When submitting conversations (posts) to Grok, what role does each one take on'
-	},
-	forGrok: {
+	analyze: {
 		type: 'boolean',
-		description: 'Indicates whether a post is required to continue a previous conversation with Grok'
+		description: 'Indicates that Grok should be invoked to inspect the associated codeError'
 	},
 	_forNRMigration: {
 		type: 'boolean',

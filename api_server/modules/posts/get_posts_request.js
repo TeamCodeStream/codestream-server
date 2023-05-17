@@ -173,7 +173,7 @@ class GetPostsRequest extends GetManyRequest {
 		const limit = this.limit = this.setLimit();
 		const sort = this.setSort();
 		const hint = this.setHint();
-		return { limit, sort, hint, hidden: false };
+		return { limit, sort, hint };
 	}
 
 	// set the limit to use in the fetch query, according to options passed in
