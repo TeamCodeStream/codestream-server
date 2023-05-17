@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./errors.js');
+module.exports = require('./grok.js');

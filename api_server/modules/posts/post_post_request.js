@@ -3,7 +3,6 @@
 'use strict';
 
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
-const Grok = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/grok/grok');
 
 class PostPostRequest extends PostRequest {
 
@@ -26,15 +25,6 @@ class PostPostRequest extends PostRequest {
 		this.request.body.teamId = stream.get('teamId');
 	}
 
-	//async process() {
-		//super.process();
-
-		// if(this.request.body.text.match(/\@Grok/gmi)){
-		// 	this.request.body.forGrok = true;
-		// 	this.request.body.promptRole = "user";
-		// }
-	//}
-
 	/* eslint complexity: 0 */
 	async handleResponse () {
 		if (this.gotError) {
@@ -50,17 +40,16 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async postProcess () {
-	 	await super.postProcess();
-
 	 	if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
-	 		await new Grok({
-	 			data: this.data,
-	 			request: this.request, 
-	 			response: this.responseData,
-	 			team: this.team,
-	 			postCreator: this.creator
-	 		}).analyzeErrorWithGrok();
+	 		await this.api.services.grok.analyzeErrorWithGrok({
+				request: this.request,
+				errorHandler: this.errorHandler,
+				creator: this.creator,
+				response: this.responseData
+			});
 	 	}
+
+		 await super.postProcess();
 	}
 	
 	// describe this route for help
