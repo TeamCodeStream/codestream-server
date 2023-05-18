@@ -6,7 +6,6 @@ const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_creator');
-const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 
 class GrokClient {
 
@@ -27,43 +26,48 @@ class GrokClient {
 		}
 
 		if(!this.request.body.teamId){
-			//design calls for a Team
+			//design requires a Team
 			return;
 		}
 		
 		this.team = await this.data.teams.getById(this.request.body.teamId);
 
-		let grokUserId = this.team.grokUserId;
+		let grokUserId = this.team.get('grokUserId');
 
 		if(!grokUserId) {
-			grokUserId = await this.createGrokUser().id;
+			let grokUser = await this.createGrokUser();
+
+			if(grokUser){
+				grokUserId = grokUser.get('id');
+			}
 		}
 
-		let topmostPost = this.response.post;
+		let topmostPost = await this.data.posts.getById(this.responseData.post.id);
 
 		if(this.request.body.parentPostId){
 			topmostPost = await this.data.posts.getById(this.request.body.parentPostId);
-		
-			if(topmostPost.parentPostId && topmostPost.parentPostId !== this.request.body.parentPostId){
+
+			if(topmostPost && topmostPost.get('parentPostId') !== this.request.body.parentPostId){
 				topmostPost = await this.data.posts.getById(topmostPost.parentPostId);
 			}
 		}
-		const grokPrompt = topmostPost.grokConversation;
 
-		if(grokPrompt){
-			await this.continueConversation(grokPrompt, grokUserId, topmostPost);
+		const grokConversation = topmostPost.get('grokConversation');
+
+		if(grokConversation){
+			await this.continueConversation(grokConversation, grokUserId, topmostPost);
 		}
 		else {
 			await this.startNewConversation(grokUserId, topmostPost);
 		}
 	}
 
-	async continueConversation(grokPrompt, grokUserId, topmostPost){
-		const conversation = [grokPrompt];
+	async continueConversation(grokConversation, grokUserId, topmostPost){
+		const conversation = [grokConversation];
 		
 		const parentPostIds = [this.request.body.parentPostId];
-		if(this.request.body.parentPostId !== topmostPost.id){
-			parentPostIds.push(topmostPost.id);
+		if(this.request.body.parentPostId !== topmostPost.get('id')){
+			parentPostIds.push(topmostPost.get('id'));
 		}
 
 		const posts = await this.data.posts.getByQuery(
@@ -107,22 +111,10 @@ class GrokClient {
 	}
 
 	async startNewConversation(grokUserId, topmostPost) {
-		let codeError;
-
-		if(topmostPost.codeErrorId){
-			codeError = await this.data.codeErrors.getById(topmostPost.codeErrorId);
-		}
-		else {
-			codeError = await this.data.codeErrors.getByQuery({
-				objectId: topmostPost.id,
-				objectType: 'post'
-			},{
-				hint: CodeErrorIndexes.byObjectId
-			});
-		}
+		const codeError = await this.data.codeErrors.getById(topmostPost.get('codeErrorId'));
 
 		// get the last stack trace we have - text is full stack trace
-		const stackTrace = codeError.stackTraces.slice(-1).pop().text ?? "stack trace";
+		const stackTrace = codeError.get('stackTraces').slice(-1).pop().text ?? "stack trace";
 		const code = this.request.body.codeBlock ?? "code";
 
 		const conversation = [{
@@ -131,7 +123,7 @@ class GrokClient {
 		},
 		{
 			role: "user", 
-			content: `Analyze this stack trace:\n``${ stackTrace }``\nAnd fix the following code:\n``${ code }``\n`
+			content: `Analyze this stack trace:\n"${ stackTrace }"\nAnd fix the following code:\n"${ code }"\n`
 		}];
 
 		var response = await this.submitConversationToGrok(conversation);
@@ -145,7 +137,7 @@ class GrokClient {
 		await new ModelSaver({
 			request: this.request,
 			collection: this.data.posts,
-			id: topmostPost.Id
+			id: topmostPost.get('id')
 		}).save({
 			$set: {
 				grokConversation: conversation
@@ -156,11 +148,11 @@ class GrokClient {
 		const post = await this.creator.createModel({
 			forGrok: true,
 			streamId: this.request.body.streamId,
-			teamId: this.team.id,
+			teamId: this.team.get('id'),
 			text: response.content,
 			promptRole: response.role,
-			parentPostId: topmostPost.Id,
-			codeError: codeError.id,
+			parentPostId: topmostPost.get('id'),
+			codeError: codeError.get('id'),
 			creatorId: grokUserId
 		},
 		{
@@ -173,7 +165,7 @@ class GrokClient {
 	}
 
 	async broadcast(message){
-		const channel = `team-${this.team.id}`;
+		const channel = `team-${this.team.get('id')}`;
 
 		try {
 			await this.request.api.services.broadcaster.publish(
@@ -191,9 +183,9 @@ class GrokClient {
 	async createGrokUser() {
 		const userCreator = new UserCreator({
 			request: this,
-			teamIds: [this.team.id],
-			companyIds: [this.team.companyId],
-			userBeingAddedToTeamId: this.team.id,
+			teamIds: [this.team.get('id')],
+			companyIds: [this.team.get('companyId')],
+			userBeingAddedToTeamId: this.team.get('id'),
 			dontSetInviteType: true,
 			dontSetInviteCode: true,
 			ignoreUsernameOnConflict: true
@@ -202,12 +194,6 @@ class GrokClient {
 		let grokUser = await userCreator.createUser({
 			username: "Grok"
 		});
-
-		console.log(`GROK CREATED - ${grokUser.id}`)
-
-		//grokUser = this.data.users.getById(grokUser.id);
-
-		console.log(`ADDING GROK TO TEAM: ${this.team.id}`)
 
 		await new AddTeamMembers({
 			request: this,
@@ -218,20 +204,16 @@ class GrokClient {
 		await new ModelSaver({
 			request: this,
 			collection: this.data.teams,
-			id: this.team.id
+			id: this.team.get('id')
 		}).save({
 			$set: {
-				grokUserId: grokUser.id
+				grokUserId: grokUser.get('id')
 			}
 		});
-
-		console.log("BROADCASTING");
 
 		await this.broadcast({
 			users: [grokUser]
 		});
-
-		console.log("RETURNING GROK");
 
 		return grokUser;
 	}
@@ -242,11 +224,13 @@ class GrokClient {
 			temperature: temperature
 		};
 
-		const response = await fetch(this.request.api.config.newrelicgrok.apiUrl, {
+		console.log(`CONFIG: ${JSON.stringify(this.api.config.integrations)}`);
+		
+		const response = await fetch(this.api.config.integrations.newrelicgrok.apiUrl, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"api-key": `${this.request.api.config.newrelicgrok.apiKey}`,
+				"api-key": `${this.api.config.integrations.newrelicgrok.apiKey}`,
 			},
 			body: JSON.stringify(request),
 		});

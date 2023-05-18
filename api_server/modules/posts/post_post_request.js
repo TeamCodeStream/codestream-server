@@ -40,16 +40,11 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async postProcess () {
-	 	if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
-	 		await this.api.services.grok.analyzeErrorWithGrok({
-				request: this.request,
-				errorHandler: this.errorHandler,
-				creator: this.creator,
-				response: this.responseData
-			});
-	 	}
+		await super.postProcess();
 
-		 await super.postProcess();
+		if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
+	 		await this.api.services.grok.analyzeErrorWithGrok(this);
+	 	}
 	}
 	
 	// describe this route for help
