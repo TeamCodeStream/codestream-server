@@ -2,10 +2,9 @@
 
 ## [14.0.15] - 2023-5-18
 
-### Fixed
+### Changed
 
-- Fix issue introduced by one-user-per-org related to Jira connection
-- Fix issue related to not being able to open error groups
+- Release bump to support latest API version
 
 ## [14.0.14] - 2023-5-8
 
