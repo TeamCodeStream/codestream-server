@@ -14,10 +14,7 @@ class Grok extends APIServerModule {
 		// segment analytics client as the analytics service
 		return async () => {
 			
-			this.grokClient = new GrokClient({
-				api: this.api,
-				data: this.api.data
-			});
+			this.grokClient = new GrokClient();
 			return { grok: this.grokClient };
 		};
 	}

@@ -454,6 +454,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'shortcut',
 		'linear',
 		'newrelic',
+		'newrelicgrok',
 		'circleci',
 		'jenkins',
 		'trunk',
