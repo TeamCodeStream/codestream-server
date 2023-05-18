@@ -22,9 +22,9 @@ class NRAccountTest extends ClaimCodeErrorTest {
 	// set the mock account IDs to use for the test
 	setMockAccountIds (callback) {
 		if (this.dontIncludeErrorGroupId) {
-			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = "";	
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Id'] = "";	
 		} else {
-			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Ids'] = this.nrCommentResponse.codeStreamResponse.codeError.objectId;
+			this.apiRequestOptions.headers['X-CS-Mock-Error-Group-Id'] = this.nrCommentResponse.codeStreamResponse.codeError.objectId;
 		}
 		// Re-enable below for account-based authorizing
 		/*

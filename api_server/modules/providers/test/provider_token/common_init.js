@@ -239,19 +239,6 @@ class CommonInit {
 		const url = 'https://slack.com/api/oauth.v2.access';
 		return { url, parameters  };
 	}
-
-	getExpectedMSTeamsTestCallData () {
-		const parameters = {
-			code: this.code,
-			grant_type: 'authorization_code',
-			client_id: this.apiConfig.integrations.msteams.appClientId,
-			client_secret: this.apiConfig.integrations.msteams.appClientSecret,
-			redirect_uri: this.redirectUri,
-			state: this.state
-		};
-		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
-		return { url, parameters  };
-	}
 }
 
 module.exports = CommonInit;

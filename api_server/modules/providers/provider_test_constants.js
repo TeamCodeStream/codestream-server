@@ -170,18 +170,12 @@ const STANDARD_PROVIDER_HOSTS = {
 			'users:read.email',
 		]
 	},
-	'login*microsoftonline*com': {
-		id: 'login*microsoftonline*com',
+	'msteams': {
+		id: 'msteams',
+		host: 'msteams',
 		name: 'msteams',
 		isEnterprise: false,
-		host: 'login.microsoftonline.com',
-		apiHost: 'graph.microsoft.com/v1.0',
-		hasSharing: true,
-		scopes: [
-			'User.Read.All',
-			'Group.ReadWrite.All',
-			'offline_access'
-		]
+		hasSharing: true
 	},
 	'okta*com': {
 		id: 'okta*com',
@@ -214,13 +208,13 @@ const STANDARD_PROVIDER_HOSTS = {
 		hasBuilds: true,
 		needsConfigure: true
 	},
-    'trunk*io': {
-        id: 'trunk*io',
+	'trunk*io': {
+		id: 'trunk*io',
 		name: 'trunk',
 		isEnterprise: false,
 		host: 'trunk.io',
 		needsConfigure: false
-    }
+	}
 };
 
 const GetStandardProviderHosts = function(config) {

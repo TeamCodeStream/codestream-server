@@ -176,6 +176,11 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: 'decline-invite/:id',
 		requestClass: require('./decline_invite_request')
+	},
+	{
+		method: 'get',
+		path: 'nr-exp',
+		requestClass: require('./nr_lookup_experiment_request')
 	}
 ];
 

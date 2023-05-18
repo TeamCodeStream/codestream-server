@@ -69,9 +69,6 @@ class ProviderTokenTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		case 'slack':
 			expectedData = this.getExpectedSlackTestCallData();
 			break;
-		case 'msteams':
-			expectedData = this.getExpectedMSTeamsTestCallData();
-			break;
 		case 'okta':
 			expectedData = this.getExpectedOktaTestCallData();
 			break;

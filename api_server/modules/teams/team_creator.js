@@ -16,6 +16,7 @@ const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const ConfirmHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/confirm_helper');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const UserAttributes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_attributes');
+const ObjectId = require('mongodb').ObjectId;
 
 class TeamCreator extends ModelCreator {
 
@@ -124,6 +125,20 @@ class TeamCreator extends ModelCreator {
 				userData[attribute] = value;
 			}
 		});
+
+		// don't duplicate providerInfo data specific to a team, we identity these by checking if
+		// we can create a legitimate mongo ID out of the key
+		if (userData.providerInfo) {
+			userData.providerInfo = DeepClone(userData.providerInfo);
+			Object.keys(userData.providerInfo).forEach(key => {
+				try { 
+					ObjectId(key); 
+					delete userData.providerInfo[key];
+				} catch (e) {
+				}
+			});
+		}
+
 		this.originalUser = this.user;
 		this.transforms.createdUser = this.user = await new UserCreator({ 
 			request: this.request,

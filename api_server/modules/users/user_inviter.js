@@ -10,6 +10,8 @@ const Indexes = require('./indexes');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const UserAttributes = require('./user_attributes');
 const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
+const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
+const ObjectId = require('mongodb').ObjectId;
 
 const REINVITE_REPEATS = 2;
 
@@ -77,6 +79,19 @@ class UserInviter {
 				}
 			});
 			existingUser = undefined;
+
+			// don't duplicate providerInfo data specific to a team, we identity these by checking if
+			// we can create a legitimate mongo ID out of the key
+			if (userData.providerInfo) {
+				userData.providerInfo = DeepClone(userData.providerInfo);
+				Object.keys(userData.providerInfo).forEach(key => {
+					try { 
+						ObjectId(key); 
+						delete userData.providerInfo[key];
+					} catch (e) {
+					}
+				});
+			}
 		}
 		const userCreator = new UserCreator({
 			request: this.request,

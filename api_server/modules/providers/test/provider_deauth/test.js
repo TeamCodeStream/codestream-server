@@ -17,7 +17,6 @@ const PROVIDERS = [
 	'youtrack',
 	'azuredevops',
 	'slack',
-	'msteams'
 	//'okta' TODO
 ];
 

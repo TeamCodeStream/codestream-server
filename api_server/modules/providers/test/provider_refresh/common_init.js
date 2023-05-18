@@ -240,18 +240,6 @@ class CommonInit {
 		const url = 'https://app.vssps.visualstudio.com/oauth2/token';
 		return { url, parameters };
 	}
-
-	getExpectedMSTeamsTestCallData () {
-		const parameters = {
-			refresh_token: this.refreshToken,
-			grant_type: 'refresh_token',
-			client_id: this.apiConfig.integrations.msteams.appClientId,
-			client_secret: this.apiConfig.integrations.msteams.appClientSecret,
-			redirect_uri: this.redirectUri
-		};
-		const url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
-		return { url, parameters };
-	}
 }
 
 module.exports = CommonInit;

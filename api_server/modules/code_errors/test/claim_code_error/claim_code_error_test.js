@@ -48,7 +48,7 @@ class ClaimCodeErrorTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 		}
 		
 		// verify we got back the proper response
-		Assert.deepEqual(data, this.expectedData, 'response data is not correct');
+		Assert.deepEqual(data, this.expectedData, `response data is not correct`);
 
 		// verify the code error in the response has no attributes that should not go to clients
 		this.validateSanitized(data.codeError, CodeErrorTestConstants.UNSANITIZED_ATTRIBUTES);
