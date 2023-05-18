@@ -1,10 +1,11 @@
 # Change Log
 
-## [14.0.12] - 2023-5-17
+## [14.0.12] - 2023-5-18
 
 ### Fixed
 
 - Fix issue introduced by one-user-per-org related to Jira connection
+- Fix issue related to not being able to open error groups
 
 ## [14.0.14] - 2023-5-8
 
