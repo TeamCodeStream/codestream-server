@@ -2,6 +2,7 @@
 
 const fetch = require('node-fetch');
 const Errors = require('./errors');
+const PostCreator = require('../posts/post_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
@@ -42,8 +43,8 @@ class GrokClient {
 
 		if(this.request.body.parentPostId){
 			topmostPost = await this.data.posts.getById(this.request.body.parentPostId);
-
-			if(topmostPost && topmostPost.get('parentPostId') !== this.request.body.parentPostId){
+	
+			if(topmostPost && topmostPost.get('parentPostId') !== undefined && topmostPost.get('parentPostId') !== this.request.body.parentPostId){
 				topmostPost = await this.data.posts.getById(topmostPost.parentPostId);
 			}
 		}
@@ -59,8 +60,9 @@ class GrokClient {
 	}
 
 	async continueConversation(grokConversation, grokUserId, topmostPost){
-		const conversation = [grokConversation];
-		
+		const conversation = grokConversation;
+		const codeError = await this.data.codeErrors.getById(topmostPost.get('codeErrorId'));
+
 		const parentPostIds = [this.request.body.parentPostId];
 		if(this.request.body.parentPostId !== topmostPost.get('id')){
 			parentPostIds.push(topmostPost.get('id'));
@@ -80,21 +82,32 @@ class GrokClient {
 
 		posts.map(p => {
 			conversation.push({
-				role: p.promptRole,
-				content: p.text
+				role: p.get('promptRole'),
+				content: p.get('text')
 			})
+		});
+
+		conversation.push({
+			role: "user",
+			content: this.request.body.text
 		});
 
 		const response = await this.submitConversationToGrok(conversation);
 		
-		const post = await this.creator.createModel({
+		const postCreater = new PostCreator({
+			request: this,
+			team: this.team
+		});
+
+		// store Grok response as new Post 
+		const post = await postCreater.createPost({
 			forGrok: true,
 			streamId: this.request.body.streamId,
-			teamId: this.team.id,
+			teamId: this.team.get('id'),
 			text: response.content,
 			promptRole: response.role,
-			parentPostId: topmostPost.id,
-			codeError: this.response.initialResponseData.codeError.id,
+			parentPostId: topmostPost.get('id'),
+			codeError: codeError.get('id'),
 			creatorId: grokUserId
 		},
 		{
@@ -113,7 +126,7 @@ class GrokClient {
 		const stackTrace = codeError.get('stackTraces').slice(-1).pop().text ?? "stack trace";
 		const code = this.request.body.codeBlock ?? "code";
 
-		const conversation = [{
+		const initialPrompt = [{
 			role: "system",
 			content: "As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. I will output brief descriptions and the fixed code blocks."
 		},
@@ -122,13 +135,6 @@ class GrokClient {
 			content: `Analyze this stack trace:\n"${ stackTrace }"\nAnd fix the following code:\n"${ code }"\n`
 		}];
 
-		var response = await this.submitConversationToGrok(conversation);
-
-		conversation.push({
-			role: response.role,
-			content: response.content
-		});
-
 		// Update initial post with the current conversation.
 		await new ModelSaver({
 			request: this,
@@ -136,12 +142,33 @@ class GrokClient {
 			id: topmostPost.get('id')
 		}).save({
 			$set: {
-				grokConversation: conversation
+				grokConversation: initialPrompt
 			}
 		});
-		
+
+		var response = await this.submitConversationToGrok(initialPrompt);
+
+		// if I don't remap this, after I push the response onto the collection, that one ends
+		// up in the database from the previous call to ModelSaver....weird.
+		const conversation = initialPrompt.map(p => {
+			return {
+				role: p.role,
+				content: p.content
+			}
+		});
+
+		conversation.push({
+			role: response.role,
+			content: response.content
+		});
+
+		const postCreater = new PostCreator({
+			request: this,
+			team: this.team
+		});
+
 		// store Grok response as new Post 
-		const post = await this.creator.createModel({
+		const post = await postCreater.createPost({
 			forGrok: true,
 			streamId: this.request.body.streamId,
 			teamId: this.team.get('id'),
@@ -216,7 +243,7 @@ class GrokClient {
 
 	async submitConversationToGrok(conversation, temperature = 0){
 		const request = {
-			model: "gpt-35-turbo",
+			//model: "gpt-35-turbo",
 			messages: conversation,
 			temperature: temperature
 		};
@@ -225,7 +252,7 @@ class GrokClient {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${this.api.config.integrations.newrelicgrok.apiKey}`,
+				"Api-Key": `${this.api.config.integrations.newrelicgrok.apiKey}`,
 			},
 			body: JSON.stringify(request),
 		});

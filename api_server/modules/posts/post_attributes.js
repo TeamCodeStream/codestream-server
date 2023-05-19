@@ -94,10 +94,6 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the code error attached to this post, if any'
 	},
-	analyze: {
-		type: 'boolean',
-		description: 'Indicates that Grok should be invoked to inspect the associated codeError'
-	},
 	grokConversation: {
 		type: 'arrayOfObjects',
 		description: 'The initial conversation to Grok'
