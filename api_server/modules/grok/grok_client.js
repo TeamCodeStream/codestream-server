@@ -243,7 +243,7 @@ class GrokClient {
 
 	async submitConversationToGrok(conversation, temperature = 0){
 		const request = {
-			//model: "gpt-35-turbo",
+			model: "gpt-35-turbo",
 			messages: conversation,
 			temperature: temperature
 		};
@@ -252,7 +252,7 @@ class GrokClient {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"Api-Key": `${this.api.config.integrations.newrelicgrok.apiKey}`,
+				"Authorization": `Bearer ${this.api.config.integrations.newrelicgrok.apiKey}`,
 			},
 			body: JSON.stringify(request),
 		});
