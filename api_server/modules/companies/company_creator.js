@@ -143,21 +143,42 @@ class CompanyCreator extends ModelCreator {
 			}
 		}
 			
+		const set = {
+			nrUserInfo: {
+				userTier: nrUserInfo.attributes.userTier,
+				userTierId: nrUserInfo.attributes.userTierId
+			},
+			nrUserId: nrUserInfo.id,
+			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.accessToken` ]: token,
+			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.refreshToken` ]: refreshToken,
+			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.expiresAt` ]: expiresAt,
+			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.bearerToken` ]: true
+		};
+		
+		// if we are behind service gateway and using login service auth, we actually set the user's
+		// access token to the NR access token, this will be used for normal requests
+		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
+			{ tag: 'serviceGatewayAuth' }, 
+			{ overrideHintRequired: true }
+		);
+		if (
+			serviceGatewayAuth &&
+			serviceGatewayAuth.enabled
+		) {
+			set.accessTokens = {
+				web: {
+					token,
+					isNRToken: true
+				}
+			};		
+			this.transforms.newAccessToken = token;
+		}
+		
 		// save NR user info obtained from the signup process
 		await this.data.users.applyOpById(
 			this.user.id,
 			{
-				$set: {
-					nrUserInfo: {
-						userTier: nrUserInfo.attributes.userTier,
-						userTierId: nrUserInfo.attributes.userTierId
-					},
-					nrUserId: nrUserInfo.id,
-					[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.accessToken` ]: token,
-					[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.refreshToken` ]: refreshToken,
-					[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.expiresAt` ]: expiresAt,
-					[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.bearerToken` ]: true
-				},
+				$set: set,
 				$unset: {
 					encryptedPasswordTemp: true,
 					companyName: true,

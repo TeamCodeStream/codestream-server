@@ -52,7 +52,8 @@ class ConfirmHelper {
 			loginType: this.loginType,
 			nrAccountId: this.nrAccountId,
 			dontUpdateLastLogin: this.dontUpdateLastLogin,
-			dontSetFirstSession: this.dontSetFirstSession
+			dontSetFirstSession: this.dontSetFirstSession,
+			dontGenerateAccessToken: this.dontGenerateAccessToken
 		});
 		if (this.notRealLogin) {
 			this.responseData = await loginHelper.allowLogin();

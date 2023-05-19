@@ -89,6 +89,7 @@ class JoinCompanyHelper {
 
 	// process the request
 	async process () {
+		await this.checkServiceGatewayAuth();
 		await this.checkUnique();
 		if (!this.invitedUser) {
 			this.invitedUser = await this.duplicateUser();
@@ -112,6 +113,15 @@ class JoinCompanyHelper {
 			this.responseData.broadcasterToken = this.invitedUser.get('broadcasterToken');
 			this.responseData.user.version++;
 		}
+	}
+
+	// check if we are using Service Gateway auth (login service)
+	async checkServiceGatewayAuth () {
+		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
+			{ tag: 'serviceGatewayAuth' }, 
+			{ overrideHintRequired: true }
+		);
+		this.serviceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
 	}
 
 	// check if the joining user's email will be unique in the organization
@@ -172,7 +182,8 @@ class JoinCompanyHelper {
 			this.responseData = await new this.confirmHelperClass({ // avoids a circular require
 				request: this.request,
 				user: this.invitedUser,
-				notRealLogin: true
+				notRealLogin: true,
+				dontGenerateAccessToken: this.serviceGatewayAuth
 			}).confirm({
 				email: this.user.get('email'),
 				username: this.user.get('username'),
@@ -245,20 +256,32 @@ class JoinCompanyHelper {
 			}
 		}
 
-		// save NR user info obtained from the signup process
 		const { token, refreshToken, expiresAt } = tokenInfo;
-		const op = {
-			$set: {
-				nrUserInfo: {
-					userTier: nrUserInfo.attributes.userTier,
-					userTierId: nrUserInfo.attributes.userTierId
-				},
-				nrUserId: nrUserInfo.id,
-				[ `providerInfo.${this.team.id}.newrelic.accessToken` ]: token,
-				[ `providerInfo.${this.team.id}.newrelic.refreshToken` ]: refreshToken,
-				[ `providerInfo.${this.team.id}.newrelic.expiresAt` ]: expiresAt,
-				[ `providerInfo.${this.team.id}.newrelic.bearerToken` ]: true
+		const set = {
+			nrUserInfo: {
+				userTier: nrUserInfo.attributes.userTier,
+				userTierId: nrUserInfo.attributes.userTierId
 			},
+			nrUserId: nrUserInfo.id,
+			[ `providerInfo.${this.team.id}.newrelic.accessToken` ]: token,
+			[ `providerInfo.${this.team.id}.newrelic.refreshToken` ]: refreshToken,
+			[ `providerInfo.${this.team.id}.newrelic.expiresAt` ]: expiresAt,
+			[ `providerInfo.${this.team.id}.newrelic.bearerToken` ]: true
+		};
+
+		// if we are behind service gateway and using login service auth, we actually set the user's
+		// access token to the NR access token, this will be used for normal requests
+		if (this.serviceGatewayAuth) {
+			set['accessTokens.web'] = { 
+				token,
+				isNRToken: true
+			};
+			this.responseData.accessToken = token;
+		}
+
+		// save NR user info obtained from the signup process
+		const op = {
+			$set: set,
 			$unset: {
 				encryptedPasswordTemp: true,
 				joinCompanyId: true,

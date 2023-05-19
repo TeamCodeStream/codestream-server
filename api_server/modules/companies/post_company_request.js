@@ -46,6 +46,9 @@ class PostCompanyRequest extends PostRequest {
 					this.transforms.createdTeamStream.getSanitizedObject({ request: this })
 				]
 			}
+			if (this.transforms.newAccessToken) {
+				this.responseData.accessToken = this.transforms.newAccessToken;
+			}
 		}
 
 		if (this.transforms.userUpdate) {
