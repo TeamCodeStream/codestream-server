@@ -263,7 +263,7 @@ class GrokClient {
 			throw this.errorHandler.error('apiError', { reason: apiResponse.error });
 		}
 	
-		if (apiResponse && apiResponse.choices && apiResponse.choices.length === 0) {
+		if (apiResponse && apiResponse.choices && !apiResponse.choices[0]) {
 			throw this.errorHandler.error('noChoices');
 		}
 	
