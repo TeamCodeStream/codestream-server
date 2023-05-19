@@ -43,7 +43,7 @@ class FillLastPostCreatedAt extends Migration {
 				teamIds: team.id 
 			},
 			{
-				hint: UserIndexes.byTeamId,
+				hint: UserIndexes.byTeamIds,
 				sort: { lastPostCreatedAt: -1 },
 				fields: ['lastPostCreatedAt']
 			}

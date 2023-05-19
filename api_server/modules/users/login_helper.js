@@ -148,15 +148,20 @@ class LoginHelper {
 		// was issued before the min issuance, then we need to generate a new token for this login type
 		try {
 			const currentTokenInfo = this.user.getTokenInfoByType(this.loginType);
+			const isNRToken = currentTokenInfo && currentTokenInfo.isNRToken;
 			const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
 			this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
 			const tokenPayload = (!force && this.accessToken) ? 
 				this.api.services.tokenHandler.verify(this.accessToken) : 
 				null;
 			if (
-				force ||
-				!minIssuance ||
-				minIssuance > (tokenPayload.iat * 1000)
+				!this.dontGenerateAccessToken && 
+				!isNRToken &&
+				(
+					force ||
+					!minIssuance ||
+					minIssuance > (tokenPayload.iat * 1000)
+				)
 			) {
 				const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
 				this.accessToken = token;
