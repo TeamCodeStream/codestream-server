@@ -273,6 +273,7 @@ const GrokUnpromptedAnalysisTest = require('./code_errors/grok_unprompted_analys
 const GrokUnpromptedAnalysisReplyTest = require('./code_errors/grok_unprompted_analysis_reply_test');
 const GrokPromptedAnalysisTest = require('./code_errors/grok_prompted_analysis_test');
 const GrokPromptedAnalysisReplyTest = require('./code_errors/grok_prompted_analysis_reply_test');
+const GrokUnpromptedAnalysisMessageTest = require('./code_errors/grok_unprompted_analysis_message_test');
 
 class PostPostRequestTester {
 
@@ -591,6 +592,7 @@ class PostPostRequestTester {
 		new GrokPromptedAnalysisReplyTest().test();
 		new GrokUnpromptedAnalysisTest().test();
 		new GrokUnpromptedAnalysisReplyTest().test();
+		new GrokUnpromptedAnalysisMessageTest().test();
 	}
 }
 
