@@ -242,6 +242,13 @@ class GrokClient {
 	}
 
 	async submitConversationToGrok(conversation, temperature = 0){
+		if(this.api.config.apiServer.mockMode){
+			return {
+				role: "assistant",
+				content: "Skipped API Call"
+			}
+		}
+		
 		const request = {
 			model: "gpt-35-turbo",
 			messages: conversation,

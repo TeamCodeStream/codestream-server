@@ -6,20 +6,12 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 
-	// run the actual test...
 	run (callback) {
-		// we'll run the update, but also verify the update took by fetching and validating
-		// the team object
 		BoundAsync.series(this, [
 			super.run,
-			this.wait,
 			this.validatePostThreadReplies,
 			this.validateTeam		
 		], callback);
-	}
-
-	wait (callback) {
-		setTimeout(callback, 2500);
 	}
 
 	setTestOptions (callback) {
@@ -38,17 +30,16 @@ class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 			if (error) { return callback(error); }
 			this.data.streamId = this.postData[0].codeError.streamId;
 			this.expectedStreamId = this.postData[0].codeError.streamId;
-			this.data.analyze = true;
+			this.data.analyze = true;	// this makes it 'unprompted'
 			delete this.data.codeError;
 			callback();
 		});
 	}
 
 	get description () {
-		return 'post and code error are set to be analyzed by grok using an unprompted analysis via a reply';
+		return 'grok analysis can begin with a reply to a post/codeError that wasnt already analyzed, if the analyze property is sent';
 	}
 
-	// fetch and validate the team object against the update we made
 	validatePostThreadReplies (callback) {
 		this.doApiRequest({
 		 	method: 'get',
@@ -75,21 +66,20 @@ class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 		});
 	}
 
-		// fetch and validate the team object now has a Grok user
-		validateTeam (callback) {
-			this.doApiRequest({
-					method: 'get',
-					path: `/teams/${this.team.id}`,
-					token: this.token
-			}, (error, response) => {
-				if (error) { 
-					return callback(error); 
-				}
-				Assert(response.team.grokUserId !== undefined);
-	
-				callback();
-			});
-		}
+	validateTeam (callback) {
+		this.doApiRequest({
+				method: 'get',
+				path: `/teams/${this.team.id}`,
+				token: this.token
+		}, (error, response) => {
+			if (error) { 
+				return callback(error); 
+			}
+			Assert(response.team.grokUserId !== undefined);
+
+			callback();
+		});
+	}
 }
 
 module.exports = GrokUnpromptedAnalysisReplyTest;
