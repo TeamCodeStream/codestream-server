@@ -6,22 +6,17 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class GrokUnpromptedAnalysisTest extends CodeErrorTest {
 	get description () {
-		return 'post and code error are set to be analyzed by grok using an unprompted analysis';
+		return 'grok analysis can begin with a post if the analyze property is sent';
 	}
 
-	// run the actual test...
 	run (callback) {
-		// we'll run the update, but also verify the update took by fetching and validating
-		// the team object
 		BoundAsync.series(this, [
 			super.run,
-			this.wait,
 			this.validateTeam,
 			this.validatePostThread		
 		], callback);
 	}
 
-	// form the data for the post we'll create in the test
 	makePostData (callback) {
 		super.makePostData(() => {
 			this.data.analyze = true;	// this makes it 'unprompted'
@@ -29,11 +24,6 @@ class GrokUnpromptedAnalysisTest extends CodeErrorTest {
 		});
 	}
 
-	wait (callback) {
-		setTimeout(callback, 2500);
-	}
-
-	// fetch and validate the team object against the update we made
 	validatePostThread (callback) {
 		this.doApiRequest({
 		 	method: 'get',
@@ -61,7 +51,6 @@ class GrokUnpromptedAnalysisTest extends CodeErrorTest {
 		});
 	}
 
-	// fetch and validate the team object now has a Grok user
 	validateTeam (callback) {
 		this.doApiRequest({
 				method: 'get',

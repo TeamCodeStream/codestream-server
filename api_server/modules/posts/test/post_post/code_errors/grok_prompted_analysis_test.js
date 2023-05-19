@@ -6,22 +6,17 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class GrokPromptedAnalysisTest extends CodeErrorTest {
 	get description () {
-		return 'post and code error are set to be analyzed by grok using a prompted analysis';
+		return 'grok analysis can begin with a post when mentioning @grok';
 	}
 
-	// run the actual test...
 	run (callback) {
-		// we'll run the update, but also verify the update took by fetching and validating
-		// the team object
 		BoundAsync.series(this, [
 			super.run,
-			this.wait,
 			this.validateTeam,
 			this.validatePostThread		
 		], callback);
 	}
 
-	// form the data for the post we'll create in the test
 	makePostData (callback) {
 		super.makePostData(() => {
 			this.data.text += "@grok";	// this makes it 'prompted'
@@ -29,11 +24,6 @@ class GrokPromptedAnalysisTest extends CodeErrorTest {
 		});
 	}
 
-	wait (callback) {
-		setTimeout(callback, 2500);
-	}
-
-	// fetch and validate the team object against the update we made
 	validatePostThread (callback) {
 		this.doApiRequest({
 		 	method: 'get',
@@ -61,7 +51,6 @@ class GrokPromptedAnalysisTest extends CodeErrorTest {
 		});
 	}
 
-	// fetch and validate the team object now has a Grok user
 	validateTeam (callback) {
 		this.doApiRequest({
 				method: 'get',

@@ -5,18 +5,15 @@ const GrokPromptedAnalysisTest = require('./grok_prompted_analysis_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
 class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
+	
 	get description () {
 		return 'grok analysis can continue with a reply to the original post when mentioning @grok';
 	}
 
-	// run the actual test...
 	run (callback) {
-		// we'll run the update, but also verify the update took by fetching and validating
-		// the team object
 		BoundAsync.series(this, [
 			super.run,
 			this.mentionUserInReply,
-			this.wait,
 			this.validatePostThreadReplies		
 		], callback);
 	}
@@ -29,7 +26,7 @@ class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
 				data: {
 					parentPostId: this.data.codeError.postId,
 					streamId: this.expectedStreamId,
-					text: '@grok'
+					text: '@grok'		// this makes it 'prompted'
 				},
 				token: this.token
 			},
@@ -37,7 +34,6 @@ class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
 		);
 	}
 
-	// fetch and validate the team object against the update we made
 	validatePostThreadReplies (callback) {
 		this.doApiRequest({
 		 	method: 'get',
