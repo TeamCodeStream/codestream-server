@@ -36,6 +36,14 @@ const COMPANY_ADDITIONAL_ROUTES = [
 		method: 'post',
 		path: '/companies/add-nr-info/:id',
 		requestClass: require('./add_nr_info_request')
+	},
+
+	// this request will be callable through Service Gateway using a CodeStream-issued
+	// access token
+	{
+		method: 'post',
+		path: 'cs-auth/companies',
+		requestClass: require('./post_company_request')
 	}
 ];
 

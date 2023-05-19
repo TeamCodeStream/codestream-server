@@ -121,5 +121,10 @@ module.exports = {
 		description: 'Show vulnerability management tree under Observability',
 		version: '14.0.8',
 		restricted: true
+	},
+	'serviceGatewayAuth': {
+		description: 'Indicates the API server is running behind Service Gateway and using login service for auth, governed by a global variable',
+		version: '14.0.11',
+		useGlobal: true
 	}
 };
