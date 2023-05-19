@@ -9,10 +9,6 @@ const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 
 class GrokClient {
 
-	constructor(options){
-		Object.assign(this, options);
-	}
-
 	async analyzeErrorWithGrok(config) {
 		Object.assign(this, config);
 
@@ -135,7 +131,7 @@ class GrokClient {
 
 		// Update initial post with the current conversation.
 		await new ModelSaver({
-			request: this.request,
+			request: this,
 			collection: this.data.posts,
 			id: topmostPost.get('id')
 		}).save({
@@ -220,17 +216,16 @@ class GrokClient {
 
 	async submitConversationToGrok(conversation, temperature = 0){
 		const request = {
+			model: "gpt-35-turbo",
 			messages: conversation,
 			temperature: temperature
 		};
 
-		console.log(`CONFIG: ${JSON.stringify(this.api.config.integrations)}`);
-		
 		const response = await fetch(this.api.config.integrations.newrelicgrok.apiUrl, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"api-key": `${this.api.config.integrations.newrelicgrok.apiKey}`,
+				"Authorization": `Bearer ${this.api.config.integrations.newrelicgrok.apiKey}`,
 			},
 			body: JSON.stringify(request),
 		});

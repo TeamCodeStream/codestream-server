@@ -24,7 +24,6 @@ class CodeErrorTest extends PostPostTest {
 
 	addCodeErrorData (callback) {
 		this.data.codeError = this.codeErrorFactory.getRandomCodeErrorData();
-		this.data.analyze = true;
 		callback();
 	}
 

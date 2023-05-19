@@ -98,6 +98,19 @@ module.exports = {
 		type: 'boolean',
 		description: 'Indicates that Grok should be invoked to inspect the associated codeError'
 	},
+	grokConversation: {
+		type: 'arrayOfObjects',
+		description: 'The initial conversation to Grok'
+	},
+	promptRole: {
+		type: 'string',
+		maxLength: 50,
+		description: 'The role that was provided to the prompt in the conversation to Grok'
+	},
+	forGrok: {
+		type: 'boolean',
+		description: 'Whether this post needs to be remembered for future grok usage'
+	},
 	_forNRMigration: {
 		type: 'boolean',
 		serverOnly: true
