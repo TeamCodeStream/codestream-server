@@ -115,7 +115,7 @@ class GrokClient {
 		});
 
 		this.broadcast({
-			post: post
+			post: post.attributes
 		});
 	}
 
@@ -183,7 +183,7 @@ class GrokClient {
 		});
 
 		await this.broadcast({
-			post: post
+			post: post.attributes
 		});
 	}
 
@@ -235,7 +235,7 @@ class GrokClient {
 		});
 
 		await this.broadcast({
-			user: grokUser
+			user: grokUser.attributes
 		});
 
 		return grokUser;
