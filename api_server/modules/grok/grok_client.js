@@ -116,7 +116,7 @@ class GrokClient {
 
 		this.broadcast({
 			post: post.attributes
-		});
+		 });
 	}
 
 	async startNewConversation(grokUserId, topmostPost) {
@@ -214,7 +214,7 @@ class GrokClient {
 			ignoreUsernameOnConflict: true
 		})
 		
-		let grokUser = await userCreator.createUser({
+		const grokUser = await userCreator.createUser({
 			username: "Grok"
 		});
 

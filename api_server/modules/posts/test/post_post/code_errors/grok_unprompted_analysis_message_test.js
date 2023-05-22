@@ -30,19 +30,15 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 	}
 
 	messageReceived(error, message){
+		if(error) {
+			super.messageReceived(error, message);
+		}
+
 		this.messages.push(message);
 		
 		if(this.messages.length === 3){
-			if (this.messageCallback) {
-				this.testLog(`Message ${message.messageId} validated`);
-				this.messageCallback();
-			}
-			else {
-				this.testLog(`Message ${message.messageId} already received`);
-				this.messageAlreadyReceived = true;
-			}
-
-			this.validateMessages()
+			this.messageCallback();
+		 	this.validateMessages()
 		}
 	}
 
@@ -51,16 +47,31 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 	validateMessages () {
 		Assert.equal(this.messages.length, 3);
 
-		const grokUser = this.messages.find(m => m.message && m.message.user && m.message.user.username === "Grok");
-		const parentPost = this.messages.find(m => m.message && m.message.post && m.message.post.parentPostId === undefined);
-		const grokReply = this.messages.find(m => m.message && m.message.post && m.message.post.promptRole !== undefined && m.message.post.promptRole === "assistant");
+		const posts = [];
+		const users = [];
 
+		this.messages.map((m) => {
+			if(m.message && m.message.post){
+				posts.push(m.message.post);
+			}
+		});
+
+		this.messages.map((m) => {
+			if (m.message && m.message.user){
+				users.push(m.message.user);
+			}
+		});
+		
+		const parentPost = posts.find(m => !m.parentPostId);
+		const grokPost = posts.find(m => m.parentPostId && m.parentPostId === parentPost.id);
+		const grokUser = users.find(m => m.username === "Grok");
+		
 		Assert.notEqual(grokUser, undefined, "Grok user was not present in messages");
 		Assert.notEqual(parentPost, undefined, "Parent post was not present in messages");
-		Assert.notEqual(grokReply, undefined, "Grok reply was not present in messages");
+		Assert.notEqual(grokPost, undefined, "Grok reply was not present in messages");
 
-		Assert.equal(grokReply.creatorId, grokUser.id, "Grok reply was not created by Grok user");
-		Assert.equal(parentPost.id, grokReply.parentPostId, "Grok reply was not properly tied to the parent post");
+		Assert.equal(grokPost.creatorId, grokUser.id, "Grok reply was not created by Grok user");
+		Assert.equal(parentPost.id, grokPost.parentPostId, "Grok reply was not properly tied to the parent post");
 		Assert.notEqual(parentPost.codeErrorId, "", "Parent post is not associated with a Code Error");
 
 	}

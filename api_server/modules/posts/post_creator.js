@@ -48,7 +48,7 @@ class PostCreator extends ModelCreator {
 			required: {
 			},
 			optional: {
-				string: ['text', 'parentPostId', '_subscriptionCheat', 'promptRole'],
+				string: ['text', 'parentPostId', '_subscriptionCheat', 'promptRole', 'creatorId'],
 				object: ['codemark', 'review', 'codeError', 'inviteInfo', 'grokConversation'],
 				boolean: ['dontSendEmail', '_forNRMigration', '_fromNREngine', 'analyze', 'forGrok'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
@@ -84,7 +84,7 @@ class PostCreator extends ModelCreator {
 
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
-		this.attributes.creatorId = this.user.id;
+		this.attributes.creatorId = this.attributes.creatorId || this.user.id;	// allow overriding of default user for creation of posts
 		this.attributes.createdAt = this.setCreatedAt || Date.now();
 		if (this.request.isForTesting && this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
