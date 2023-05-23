@@ -146,12 +146,13 @@ class LoginHelper {
 
 		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
 		// was issued before the min issuance, then we need to generate a new token for this login type
+		let isNRToken = false;
 		try {
 			const currentTokenInfo = this.user.getTokenInfoByType(this.loginType);
-			const isNRToken = currentTokenInfo && currentTokenInfo.isNRToken;
+			isNRToken = currentTokenInfo && currentTokenInfo.isNRToken;
 			const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
 			this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
-			const tokenPayload = (!force && this.accessToken) ? 
+			const tokenPayload = (!force && this.accessToken && !isNRToken) ? 
 				this.api.services.tokenHandler.verify(this.accessToken) : 
 				null;
 			if (
@@ -168,12 +169,30 @@ class LoginHelper {
 				set = set || {};
 				set[`accessTokens.${this.loginType}`] = { token, minIssuance };
 			}
+
+			// if this is a New Relic issued access token, it may need to be refreshed
+			if (isNRToken && currentTokenInfo.refreshToken && currentTokenInfo.expiresAt < Date.now() + 120 * 60 * 1000) {
+				this.request.log('User\'s New Relic issued access token is expired, attempting to refresh...');
+				const tokenInfo = await this.refreshNRAccessToken(currentTokenInfo);
+				this.request.log('User\'s New Relic issued access token was successfully refresh');
+				tokenInfo.isNRToken = true;
+				set = set || {};
+				const teamId = (this.user.get('teamIds') || [])[0];
+				set[`accessTokens.${this.loginType}.token`] = tokenInfo.accessToken;
+				set[`accessTokens.${this.loginType}.refreshToken`] = tokenInfo.refreshToken;
+				set[`accessTokens.${this.loginType}.expiresAt`] = tokenInfo.expiresAt;
+				if (teamId) {
+					set[`providerInfo.${teamId}.newrelic.accessToken`] = tokenInfo.accessToken;
+					set[`providerInfo.${teamId}.newrelic.refreshToken`] = tokenInfo.refreshToken;
+					set[`providerInfo.${teamId}.newrelic.expiresAt`] = tokenInfo.expiresAt;
+				}
+			}
 			if (set) {
 				await this.request.data.users.applyOpById(this.user.id, { $set: set });
 			}
 		}
 		catch (error) {
-			if (!force) {
+			if (!force && !isNRToken) {
 				// if token seems invalid, try again but force a new token to be created
 				this.generateAccessToken(true);
 			}
@@ -184,6 +203,11 @@ class LoginHelper {
 		}
 	}
 	
+	// refresh a New Relic issued access token
+	async refreshNRAccessToken (tokenInfo) {
+		return this.request.api.services.idp.customRefreshToken(tokenInfo, { request: this.request });
+	}
+
 	// update the time the user last logged in, except if logging in via the web app
 	async updateLastLogin () {
 		if (this.dontUpdateLastLogin) {

@@ -278,6 +278,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 						'providerInfo.*.accessToken',
 						'providerInfo.*.refreshToken',
 						'accessTokens.*.token',
+						'accessTokens.*.refreshToken',
 						'pubNubToken',
 						'broadcasterToken',
 						'modifiedRepos',
