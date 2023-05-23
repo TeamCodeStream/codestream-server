@@ -9,9 +9,15 @@ class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 	run (callback) {
 		BoundAsync.series(this, [
 			super.run,
+			this.wait,
 			this.validatePostThreadReplies,
 			this.validateTeam		
 		], callback);
+	}
+
+	wait (callback) {
+		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 100 : 1000);
+		setTimeout(callback, time);
 	}
 
 	setTestOptions (callback) {

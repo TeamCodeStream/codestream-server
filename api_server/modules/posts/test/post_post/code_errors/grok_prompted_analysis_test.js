@@ -12,9 +12,15 @@ class GrokPromptedAnalysisTest extends CodeErrorTest {
 	run (callback) {
 		BoundAsync.series(this, [
 			super.run,
+			this.wait,
 			this.validateTeam,
 			this.validatePostThread		
 		], callback);
+	}
+
+	wait (callback) {
+		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 100 : 1000);
+		setTimeout(callback, time);
 	}
 
 	makePostData (callback) {
