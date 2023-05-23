@@ -82,6 +82,7 @@ class PostCompanyRequest extends PostRequest {
 	// to allow the race condition to clear
 	async updateRefreshToken () {
 		const password = this.creator.password;
+		this.request.log('Initiating delayed token refresh for New Relic IDP...');
 		const tokenInfo = await this.api.services.idp.waitForRefreshToken(this.user.get('email'), password, { request: this });
 
 		// save the new refresh token to the database...
@@ -90,7 +91,10 @@ class PostCompanyRequest extends PostRequest {
 			$set: {
 				[ `providerInfo.${this.teamId}.newrelic.accessToken` ]: token,
 				[ `providerInfo.${this.teamId}.newrelic.refreshToken` ]: refreshToken,
-				[ `providerInfo.${this.teamId}.newrelic.expiresAt` ]: expiresAt
+				[ `providerInfo.${this.teamId}.newrelic.expiresAt` ]: expiresAt,
+				[ `accessTokens.web.token`]: token,
+				[ `accessTokens.web.refreshToken`]: refreshToken,
+				[ `accessTokens.web.expiresAt`]: expiresAt
 			}
 		};
 		const updateOp = await new ModelSaver({

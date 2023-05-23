@@ -56,12 +56,12 @@ class NRLookupExperimentRequest extends RestfulRequest {
 			}
 			const headers = {
 				'Api-Key': this.request.body.apiKey,
-				'Content-Type': 'application/json',
+				//'Content-Type': 'application/json',
 				'NewRelic-Requesting-Services': 'CodeStream',
-				'nerd-graph-unsafe-experimental-opt-in': 'NrqlLookups'
+				'nerd-graph-unsafe-experimental-opt-in': 'NrqlLookups',
+				'x-login-context': this.request.headers['service-gateway-login-context']
 			}
 			this.responseData = await request(url, query, {}, headers);
-			
 		} catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);
 			this.warn('Caught error running GraphQL query: ' + message);

@@ -109,9 +109,12 @@ class NewRelicIDP extends APIServerModule {
 
 		const nrUserInfo = createUserResponse.data;
 		const tokenInfo = {
-			token: loginResponse.idp.id_token,
+			token: loginResponse.idp.id_token
+			/*
+			// This is invalid until we do waitForRefreshToken, below
 			refreshToken: loginResponse.idp.refresh_token,
 			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000
+			*/
 		};
 		return { nrUserInfo, tokenInfo };
 	}
@@ -123,6 +126,7 @@ class NewRelicIDP extends APIServerModule {
 	// to allow the race condition to clear
 	async waitForRefreshToken (email, password, options) {
 		await new Promise(resolve => { setTimeout(resolve, 10000); });
+		options.request.log('Doing post-login token refresh through New Relic IDP...');
 		const loginResponse = await this.loginUser(
 		{
 				username: email,
@@ -189,8 +193,11 @@ class NewRelicIDP extends APIServerModule {
 			signupResponse,
 			nrUserInfo: userInfo.data,
 			token: loginResponse.idp.id_token,
+			/*
+			// This is invalid until we do waitForRefreshToken
 			refreshToken: loginResponse.idp.refresh_token,
 			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000,
+			*/
 			bearerToken: true
 		};
 	}
@@ -473,7 +480,7 @@ class NewRelicIDP extends APIServerModule {
 		const result = await this.refreshToken(providerInfo.refreshToken, options);
 		const tokenData = {
 			accessToken: result.id_token,
-            refreshToken: result.refresh_token,
+			refreshToken: result.refresh_token,
 		};
 		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
 		tokenData.expiresAt = Date.now() + result.expires_in * 1000;
