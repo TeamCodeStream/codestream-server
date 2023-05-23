@@ -13,9 +13,15 @@ class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
 	run (callback) {
 		BoundAsync.series(this, [
 			super.run,
+			this.wait,
 			this.mentionUserInReply,
 			this.validatePostThreadReplies		
 		], callback);
+	}
+
+	wait (callback) {
+		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 100 : 1000);
+		setTimeout(callback, time);
 	}
 
 	mentionUserInReply (callback) {

@@ -7,6 +7,7 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 
 	constructor (options) {
 		super(options);
+		this.messageReceiveTimeout = 10000;
 		this.messages = [];
 	}
 
