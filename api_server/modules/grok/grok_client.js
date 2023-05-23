@@ -28,7 +28,7 @@ class GrokClient {
 		}
 		
 		this.team = await this.data.teams.getById(this.request.body.teamId);
-
+		
 		let grokUserId = this.team.get('grokUserId');
 
 		if(!grokUserId) {
@@ -215,7 +215,10 @@ class GrokClient {
 		})
 		
 		const grokUser = await userCreator.createUser({
-			username: "Grok"
+			username: "Grok",
+			avatar: {
+				image: "https://images.codestream.com/icons/grok-green.png"
+			}
 		});
 
 		await new AddTeamMembers({
