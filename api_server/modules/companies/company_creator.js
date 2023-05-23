@@ -168,7 +168,9 @@ class CompanyCreator extends ModelCreator {
 			set.accessTokens = {
 				web: {
 					token,
-					isNRToken: true
+					isNRToken: true,
+					refreshToken,
+					expiresAt
 				}
 			};		
 			this.transforms.newAccessToken = token;

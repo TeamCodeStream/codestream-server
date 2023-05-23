@@ -274,7 +274,9 @@ class JoinCompanyHelper {
 		if (this.serviceGatewayAuth) {
 			set['accessTokens.web'] = { 
 				token,
-				isNRToken: true
+				isNRToken: true,
+				refreshToken,
+				expiresAt
 			};
 			this.responseData.accessToken = token;
 		}
