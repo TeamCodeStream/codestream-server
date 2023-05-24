@@ -75,6 +75,8 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 		Assert.equal(parentPost.id, grokPost.parentPostId, "Grok reply was not properly tied to the parent post");
 		Assert.notEqual(parentPost.codeErrorId, "", "Parent post is not associated with a Code Error");
 
+		Assert(parentPost.grokConversation === undefined, "Parent post should not have a grokConversation");
+		Assert(grokPost.grokConversation === undefined, "Grok reply should not have a grokConversation");
 	}
 }
 
