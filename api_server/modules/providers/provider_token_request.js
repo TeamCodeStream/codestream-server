@@ -270,7 +270,7 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// perform an exchange of auth code for access token, as needed
 	async exchangeAuthCodeForToken () {
-		if (this.isClientToken || this.fromNewRelicLogin) {
+		if (this.isClientToken) {
 			return;
 		}
 		if (this.serviceAuth.usesOauth1()) {
@@ -550,7 +550,8 @@ class ProviderTokenRequest extends RestfulRequest {
 		const redirect = this.tokenPayload && this.tokenPayload.url ?
 			`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :
 			`${host}/auth-complete/${authCompletePage}`;
-		if (this.tokenPayload.url) {
+		// TODO: issue cookie in case of New Relic login
+		if (this.tokenPayload && this.tokenPayload.url) {
 			this.issueCookie();			
 		}
 		this.response.redirect(redirect);

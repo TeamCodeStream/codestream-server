@@ -9,6 +9,7 @@ const UUID = require('uuid').v4;
 const NewRelicAuthorizer = require('./new_relic_authorizer');
 const NewRelicListener = require('./newrelic_listener');
 const RandomString = require('randomstring');
+const JWT = require('jsonwebtoken');
 
 // FIXME: this is for now ... ultimately, these should come from config
 const SERVICE_HOSTS = {
@@ -23,6 +24,8 @@ const SERVICE_HOSTS = {
 
 const USER_SERVICE_SECRET = process.env.NEWRELIC_USER_SERVICE_SECRET; // for now, ultimately, this needs to come from config
 const NEWRELIC_REGION = 'us01'; // for now, ultimately, this needs to come from config
+const NEWRELIC_CLIENT_ID = process.env.NEWRELIC_CLIENT_ID;
+const NEWRELIC_CLIENT_SECRET = process.env.NEWRELIC_CLIENT_SECRET;
 
 class NewRelicIDP extends APIServerModule {
 
@@ -430,7 +433,8 @@ class NewRelicIDP extends APIServerModule {
 		const data = { 
 			url,
 			parameters: {
-				return_to: `${options.publicApiUrl}/~nrlogin/${options.signupToken}`,
+				scheme: `${options.publicApiUrl}/~nrlogin/${options.signupToken}`,
+				response_mode: 'code'
 			}
 		};
 		if (options.domain) {
@@ -439,19 +443,50 @@ class NewRelicIDP extends APIServerModule {
 		return data;
 	}
 
-	
+	// need this to act like an OAuth supporting module
+	usesOauth1 () {
+		return false;
+	}
+
+	// need this to act like an OAuth supporting module
+	exchangeRequired () {
+		return true;
+	}
+
+	// exchange auth code for access token, in the New Relic IDP world, this looks kind of like
+	// OAuth, but really isn't
+	async exchangeAuthCodeForToken (options) {
+		const result = await this._newrelic_idp_call(
+			'login',
+			'/api/v1/tokens',
+			'post',
+			{
+				client_id: NEWRELIC_CLIENT_ID,
+				client_secret: NEWRELIC_CLIENT_SECRET,
+				auth_code: options.code
+			},
+			options
+		);
+		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
+		const expiresAt = Date.now() + result.expires_in * 1000;
+		return {
+			accessToken: result.id_token,
+			refreshToken: result.refresh_token,
+			expiresAt
+		};
+	}
+
 	// match the incoming New Relic identity to a CodeStream identity
 	async getUserIdentity (options) {
-		/*
-		// extract the cookie from the request headers
-		const token = this.extractCookieFromRequest(options.request.request);
+		// decode the token, which is JWT, this will give us the NR User ID
+		const payload = JWT.decode(options.accessToken);
+		return {
+			nrUserId: parseInt(payload.nr_userid, 10)
+		};
+	}
 
-		const authorizer = new GithubAuthorizer({ options });
-		return await authorizer.getGithubIdentity(
-			options.accessToken,
-			options.providerInfo
-		);
-		*/
+	getAuthCompletePage () {
+		return 'newrelic';
 	}
 	
 	// extract the cookie New Relic sends us in the callback to the New Relic login process
