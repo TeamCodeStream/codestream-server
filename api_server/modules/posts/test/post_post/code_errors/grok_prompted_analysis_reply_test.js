@@ -52,7 +52,7 @@ class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
 
 			Assert.equal(response.posts.length, 4);
 
-			const grokReplies = response.posts.filter(p => p.promptRole === "assistant");
+			const grokReplies = response.posts.filter(p => p.forGrok === true);
 
 			Assert.equal(grokReplies.length, 2)
 
