@@ -48,7 +48,7 @@ class PostCreator extends ModelCreator {
 			required: {
 			},
 			optional: {
-				string: ['text', 'parentPostId', '_subscriptionCheat', 'promptRole', 'creatorId'],
+				string: ['text', 'parentPostId', '_subscriptionCheat', 'promptRole', 'creatorId', 'codeBlock'],
 				object: ['codemark', 'review', 'codeError', 'inviteInfo', 'grokConversation'],
 				boolean: ['dontSendEmail', '_forNRMigration', '_fromNREngine', 'analyze', 'forGrok'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
