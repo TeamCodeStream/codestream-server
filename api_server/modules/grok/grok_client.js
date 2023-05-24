@@ -92,7 +92,20 @@ class GrokClient {
 			content: this.request.body.text
 		});
 
-		const response = await this.submitConversationToGrok(conversation);
+		let apiResponse;
+		try{
+			apiResponse = await this.submitConversationToGrok(initialPrompt);
+		}
+		catch(ex){
+			await this.broadcastToUser({
+				grokException: {
+					codeErrorId: codeError.get('id'),
+					topmostPostId: topmostPost.get('id'),
+					errorMessage: ex.message
+				}
+			});
+			return;
+		}
 		
 		const postCreater = new PostCreator({
 			request: this,
@@ -114,7 +127,7 @@ class GrokClient {
 			promptTracking: this.promptTracking
 		});
 
-		this.broadcast({
+		this.broadcastToTeam({
 			post: post.attributes
 		 });
 	}
@@ -146,7 +159,20 @@ class GrokClient {
 			}
 		});
 
-		var response = await this.submitConversationToGrok(initialPrompt);
+		let apiResponse;
+		try{
+			apiResponse = await this.submitConversationToGrok(initialPrompt);
+		}
+		catch(ex){
+			await this.broadcastToUser({
+				grokException: {
+					codeErrorId: codeError.get('id'),
+					topmostPostId: topmostPost.get('id'),
+					errorMessage: ex.message
+				}
+			});
+			return;
+		}
 
 		// if I don't remap this, after I push the response onto the collection, that one ends
 		// up in the database from the previous call to ModelSaver....weird.
@@ -158,8 +184,8 @@ class GrokClient {
 		});
 
 		conversation.push({
-			role: response.role,
-			content: response.content
+			role: apiResponse.role,
+			content: apiResponse.content
 		});
 
 		const postCreater = new PostCreator({
@@ -172,8 +198,8 @@ class GrokClient {
 			forGrok: true,
 			streamId: this.request.body.streamId,
 			teamId: this.team.get('id'),
-			text: response.content,
-			promptRole: response.role,
+			text: apiResponse.content,
+			promptRole: apiResponse.role,
 			parentPostId: topmostPost.get('id'),
 			codeError: codeError.get('id'),
 			creatorId: grokUserId
@@ -182,14 +208,24 @@ class GrokClient {
 			promptTracking: this.promptTracking
 		});
 
-		await this.broadcast({
+		await this.broadcastToTeam({
 			post: post.attributes
 		});
 	}
 
-	async broadcast(message){
+	async broadcastToUser(message){
+		const channel = `user-${this.user.id}`;
+
+		await this.broadcast(message, channel);
+	}
+
+	async broadcastToTeam(message){
 		const channel = `team-${this.team.get('id')}`;
 
+		await this.broadcast(message, channel);
+	}
+
+	async broadcast(message, channel){
 		try {
 			await this.request.api.services.broadcaster.publish(
 				message,
@@ -237,7 +273,7 @@ class GrokClient {
 			}
 		});
 
-		await this.broadcast({
+		await this.broadcastToTeam({
 			user: grokUser.attributes
 		});
 
