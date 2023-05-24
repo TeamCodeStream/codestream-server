@@ -96,12 +96,14 @@ module.exports = {
 	},
 	grokConversation: {
 		type: 'arrayOfObjects',
-		description: 'The initial conversation to Grok'
+		description: 'The initial conversation to Grok',
+		serverOnly: true
 	},
 	promptRole: {
 		type: 'string',
 		maxLength: 50,
-		description: 'The role that was provided to the prompt in the conversation to Grok'
+		description: 'The role that was provided to the prompt in the conversation to Grok',
+		serverOnly: true
 	},
 	forGrok: {
 		type: 'boolean',

@@ -56,15 +56,9 @@ class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 				return callback(error); 
 			}
 
-			const parentPost = response.posts.find(p => p.parentPostId === undefined);
-
-			Assert(
-				parentPost.grokConversation !== undefined && 
-				parentPost.forGrok === undefined);
-
 			Assert.equal(response.posts.length, 3);
 
-			const grokReplies = response.posts.filter(p => p.promptRole === "assistant");
+			const grokReplies = response.posts.filter(p => p.forGrok === true);
 
 			Assert.equal(grokReplies.length, 1)
 

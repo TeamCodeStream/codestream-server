@@ -1,5 +1,6 @@
 'use strict';
 
+const { parentPort } = require('worker_threads');
 const CodeErrorTest = require('./code_error_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
@@ -42,16 +43,12 @@ class GrokPromptedAnalysisTest extends CodeErrorTest {
 			Assert.equal(response.posts.length, 2);
 
 			const parentPost = response.posts.find(p => p.parentPostId === undefined);
-			const reply = response.posts.find(p => p.parentPostId === parentPost.id);
 
-			Assert(
-				parentPost.grokConversation !== undefined && 
-				parentPost.forGrok === undefined);
+			Assert(parentPost !== undefined)
+
+			const reply = response.posts.find(p => p.parentPostId === parentPost.id);
 			
-			Assert(
-				reply.grokConversation === undefined && 
-				reply.forGrok !== undefined && 
-				reply.promptRole === "assistant");
+			Assert(reply !== undefined && reply.forGrok === true);
 
 			callback();
 		});
