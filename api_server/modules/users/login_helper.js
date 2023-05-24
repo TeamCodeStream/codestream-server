@@ -171,7 +171,7 @@ class LoginHelper {
 			}
 
 			// if this is a New Relic issued access token, it may need to be refreshed
-			if (isNRToken && currentTokenInfo.refreshToken && currentTokenInfo.expiresAt < Date.now() + 120 * 60 * 1000) {
+			if (isNRToken && currentTokenInfo.refreshToken && currentTokenInfo.expiresAt < Date.now() + 60 * 1000) {
 				this.request.log('User\'s New Relic issued access token is expired, attempting to refresh...');
 				const tokenInfo = await this.refreshNRAccessToken(currentTokenInfo);
 				this.request.log('User\'s New Relic issued access token was successfully refresh');
@@ -189,6 +189,9 @@ class LoginHelper {
 			}
 			if (set) {
 				await this.request.data.users.applyOpById(this.user.id, { $set: set });
+			}
+			if (isNRToken) {
+				this.accessTokenInfo = currentTokenInfo;
 			}
 		}
 		catch (error) {
@@ -320,6 +323,14 @@ class LoginHelper {
 			this.responseData.pubnubToken = this.pubnubToken;	// token used to subscribe to PubNub channels
 		}
 
+		// if using New Relic issued token, send additional token info
+		if (this.accessTokenInfo && this.accessTokenInfo.isNRToken) {
+			this.responseData.accessTokenInfo = {
+				refreshToken: this.accessTokenInfo.refreshToken,
+				expiresAt: this.accessTokenInfo.expiresAt
+			};
+		}
+		
 		// if using socketcluster for messaging (for on-prem installations), return host info
 		if (this.apiConfig.broadcastEngine.selected === 'codestreamBroadcaster') {
 			const { host, port, ignoreHttps } = this.apiConfig.broadcastEngine.codestreamBroadcaster;

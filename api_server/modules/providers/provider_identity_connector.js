@@ -6,7 +6,6 @@
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const UserCreator = require('../users/user_creator');
 const Indexes = require('../users/indexes');
-const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ConfirmHelper = require('../users/confirm_helper');
 const GitLensReferralLookup = require('../users/gitlens_referral_lookup');
@@ -30,18 +29,22 @@ class ProviderIdentityConnector {
 	async connectIdentity (providerInfo) {
 		this.providerInfo = providerInfo;
 
-		// must have these attributes from the provider or we can't proceed
-		['email', 'userId'].forEach(attribute => {
-			if (!this.providerInfo[attribute]) {
-				throw this.errorHandler.error('parameterRequired', { info: attribute });
-			}
-		});
+		if (!providerInfo.nrUserId) {
+			// must have these attributes from the provider or we can't proceed
+			['email', 'userId'].forEach(attribute => {
+				if (!this.providerInfo[attribute]) {
+					throw this.errorHandler.error('parameterRequired', { info: attribute });
+				}
+			});
 
-		// for usernames, if we couldn't get one, take the first part of the email
-		if (!this.providerInfo.username) {
-			this.providerInfo.username = EmailUtilities.parseEmail(this.providerInfo.email).name;
+			// for usernames, if we couldn't get one, take the first part of the email
+			if (!this.providerInfo.username) {
+				this.providerInfo.username = EmailUtilities.parseEmail(this.providerInfo.email).name;
+			}
+			this.providerInfo.username = this.providerInfo.username.replace(/ /g, '_');
+		} else {
+			this.providerInfo.userId = this.providerInfo.nrUserId;
 		}
-		this.providerInfo.username = this.providerInfo.username.replace(/ /g, '_');
 
 		await this.findUser();
 		await this.createUserAsNeeded();
@@ -52,10 +55,17 @@ class ProviderIdentityConnector {
 	// find the user associated with the passed credentials, first by matching against the 
 	// provider identity extracted from the passed provider info, and then by matching against email
 	async findUser () {
-		const users = await this.data.users.getByQuery(
-			{ searchableEmail: this.providerInfo.email.toLowerCase() },
-			{ hint: Indexes.bySearchableEmail }
-		);
+		// for normal OAuth, match on email, but for New Relic IDP, match on NR User ID
+		const { query, hint } = this.providerInfo.nrUserId ?
+			{
+				query: { nrUserId: this.providerInfo.nrUserId },
+				hint: Indexes.byNRUserId
+			} :
+			{
+				query: { searchableEmail: this.providerInfo.email.toLowerCase() },
+				hint: Indexes.bySearchableEmail
+			};
+		const users = await this.data.users.getByQuery(query, { hint });
 
 		// under one-user-per-org, match a registered user matching the team provided,
 		// or the first registered user, or a teamless unregistered user
@@ -74,8 +84,9 @@ class ProviderIdentityConnector {
 		this.user = matchingUser || firstRegisteredUser || teamlessUnregisteredUser;
 
 		if (this.user) {
-			this.request.log(`Matched user ${this.user.id} by email`);
-			if (this.user.get('isRegistered')) { // can remove this check when we have fully moved to one-user-per-org
+			const by = this.providerInfo.nrUserId ? 'nrUserId' : 'email';
+			this.request.log(`Matched user ${this.user.id} by ${by}`);
+			if (this.user.get('isRegistered')) {
 				return;
 			}
 		}
@@ -106,6 +117,7 @@ class ProviderIdentityConnector {
 				userData[attribute] = this.providerInfo[attribute] || '';
 			}
 		});
+
 		if (this.providerInfo.avatarUrl) {
 			userData.avatar = {
 				image: this.providerInfo.avatarUrl
@@ -136,9 +148,10 @@ class ProviderIdentityConnector {
 		}
 
 		// if existing identities for this provider will be changed, we need to update
-		const identity = `${this.provider}::${this.providerInfo.userId}`;
+		const providerName = this.provider === 'newrelicidp' ? 'newrelic' : this.provider;
+		const identity = `${providerName}::${this.providerInfo.userId}`;
 		const existingIdentities = (this.user.get('providerIdentities') || []).filter(id => {
-			return id.startsWith(`${this.provider}::`);
+			return id.startsWith(`${providerName}::`);
 		});
 		if (existingIdentities.length !== 1 || existingIdentities[0] !== identity) {
 			// identity is already stored, no other identities in use, so no need to update
@@ -152,9 +165,9 @@ class ProviderIdentityConnector {
 		// preserve identities for other providers, but removing any identities for this provider, and replace
 		// with the new identity passed
 		const identities = (this.user.get('providerIdentities') || []).filter(id => {
-			return !id.startsWith(`${this.provider}::`);
+			return !id.startsWith(`${providerName}::`);
 		});
-		identities.push(`${this.provider}::${this.providerInfo.userId}`);
+		identities.push(`${providerName}::${this.providerInfo.userId}`);
 		const op = { 
 			$set: {
 				modifiedAt: Date.now()
@@ -167,14 +180,55 @@ class ProviderIdentityConnector {
 		}, this.tokenData || {});
 		Object.assign(op.$set, {
 			providerIdentities: identities,
-			[`providerInfo.${this.provider}`]: providerInfoData
+			[`providerInfo.${providerName}`]: providerInfoData
 		});
+
+		// check if this was a New Relic IDP signin, in which case the returned token actually becomes
+		// our access token
+		await this.checkIDPSignin(op);
 
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this.request,
 			collection: this.data.users,
 			id: this.user.id
 		}).save(op);
+	}
+
+	// check if this was a New Relic IDP signin, in which case the returned token actually becomes
+	// our access token
+	async checkIDPSignin (op) {
+		// only applies to newrelicidp
+		if (this.provider !== 'newrelicidp') {
+			return;
+		}
+
+		// not relevant if auth through Service Gateway is not enabled
+		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
+			{ tag: 'serviceGatewayAuth' }, 
+			{ overrideHintRequired: true }
+		);
+		const isServiceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
+		if (!isServiceGatewayAuth) {
+			return;
+		}
+
+		this.request.log('This is New Relic IDP signin with Service Gateway auth enabled, storing user access token...');
+		delete op.$set['providerInfo.newrelic'];
+		const teamId = (this.user.get('teamIds') || [])[0];
+		const teamIdStr = teamId ? `${teamId}.` : ''; // this should always be true
+		const rootStr = `providerInfo.${teamIdStr}newrelic`;
+		Object.assign(op.$set, {
+			[ `${rootStr}.accessToken` ]: this.tokenData.accessToken,
+			[ `${rootStr}.bearerToken` ]: true,
+			'accessTokens.web.token': this.tokenData.accessToken,
+			'accessTokens.web.isNRToken' : true
+		});
+		if (this.tokenData.refreshToken) {
+			op.$set[`${rootStr}.refreshToken`] = this.tokenData.refreshToken;
+			op.$set[`${rootStr}.expiresAt`] = this.tokenData.expiresAt;
+			op.$set['accessTokens.web.refreshToken'] = this.tokenData.refreshToken;
+			op.$set['accessTokens.web.expiresAt'] = this.tokenData.expiresAt;
+		}
 	}
 
 	// if we found an existing unregistered user, signing in is like confirmation,
