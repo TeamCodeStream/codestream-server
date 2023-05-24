@@ -123,8 +123,8 @@ class GrokClient {
 		const codeError = await this.data.codeErrors.getById(topmostPost.get('codeErrorId'));
 
 		// get the last stack trace we have - text is full stack trace
-		const stackTrace = codeError.get('stackTraces').slice(-1).pop().text ?? "stack trace";
-		const code = this.request.body.codeBlock ?? "code";
+		const stackTrace = codeError.get('stackTraces').slice(-1).pop().text;
+		const code = this.request.body.codeBlock;
 
 		const initialPrompt = [{
 			role: "system",
