@@ -117,8 +117,8 @@ class GrokClient {
 			forGrok: true,
 			streamId: this.request.body.streamId,
 			teamId: this.team.get('id'),
-			text: response.content,
-			promptRole: response.role,
+			text: apiResponse.content,
+			promptRole: apiResponse.role,
 			parentPostId: topmostPost.get('id'),
 			codeError: codeError.get('id'),
 			creatorId: grokUserId
