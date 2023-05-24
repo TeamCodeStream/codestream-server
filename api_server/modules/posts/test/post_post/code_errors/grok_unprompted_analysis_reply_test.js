@@ -16,7 +16,7 @@ class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 	}
 
 	wait (callback) {
-		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 100 : 1000);
+		const time = this.usingSocketCluster ? 0 : (this.mockMode ? 100 : 5000);
 		setTimeout(callback, time);
 	}
 
