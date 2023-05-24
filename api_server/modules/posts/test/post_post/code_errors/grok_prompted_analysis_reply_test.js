@@ -49,7 +49,6 @@ class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
 			if (error) { 
 				return callback(error); 
 			}
-
 			Assert.equal(response.posts.length, 4);
 
 			const grokReplies = response.posts.filter(p => p.forGrok === true);

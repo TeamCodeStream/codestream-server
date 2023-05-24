@@ -94,7 +94,7 @@ class GrokClient {
 
 		let apiResponse;
 		try{
-			apiResponse = await this.submitConversationToGrok(initialPrompt);
+			apiResponse = await this.submitConversationToGrok(conversation);
 		}
 		catch(ex){
 			await this.broadcastToUser({
