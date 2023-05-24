@@ -60,7 +60,7 @@ class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 
 			const grokReplies = response.posts.filter(p => p.forGrok === true);
 
-			Assert.equal(grokReplies.length, 1)
+			Assert.equal(grokReplies.length, 2)
 
 			callback();
 		});

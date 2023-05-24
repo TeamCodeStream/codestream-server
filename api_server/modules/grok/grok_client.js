@@ -155,7 +155,8 @@ class GrokClient {
 			id: topmostPost.get('id')
 		}).save({
 			$set: {
-				grokConversation: initialPrompt
+				grokConversation: initialPrompt,
+				forGrok: true
 			}
 		});
 
