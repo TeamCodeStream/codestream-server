@@ -11,6 +11,16 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 		this.messages = [];
 	}
 
+	run (callback) {
+		if(!this.mockMode){
+			Assert.equal(true, true, "Test requires Mock Mode!");
+			callback();
+		}
+		else {
+			super.run(callback);
+		}
+	}
+
 	get description () {
 		return 'members of the stream should receive a message when Grok adds its analysis as a post to a channel stream';
 	}
