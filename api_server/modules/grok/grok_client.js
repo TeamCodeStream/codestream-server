@@ -105,7 +105,7 @@ class GrokClient {
 				  errorMessage: message
 			  }
 			});
-			return;
+			throw ex;
 		}
 		
 		const postCreater = new PostCreator({
@@ -167,6 +167,7 @@ class GrokClient {
 		}
 		catch(ex){
 			const message = ex?.reason?.message || ex.message;
+
 			await this.broadcastToUser({
 			  post: {
 				  codeErrorId: codeError.get('id'),
@@ -174,7 +175,8 @@ class GrokClient {
 				  errorMessage: message
 			  }
 			});
-			return;
+			
+			throw ex;
 		}
 
 		// if I don't remap this, after I push the response onto the collection, that one ends

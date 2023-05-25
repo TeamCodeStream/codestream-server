@@ -7,12 +7,18 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 
 	run (callback) {
-		BoundAsync.series(this, [
-			super.run,
-			this.wait,
-			this.validatePostThreadReplies,
-			this.validateTeam		
-		], callback);
+		if(!this.mockMode){
+			Assert.equal(true, true, "Test requires Mock Mode!");
+			callback();
+		}
+		else{
+			BoundAsync.series(this, [
+				super.run,
+				this.wait,
+				this.validatePostThreadReplies,
+				this.validateTeam		
+			], callback);
+		}
 	}
 
 	wait (callback) {

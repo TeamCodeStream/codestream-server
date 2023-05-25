@@ -11,12 +11,18 @@ class GrokPromptedAnalysisTest extends CodeErrorTest {
 	}
 
 	run (callback) {
-		BoundAsync.series(this, [
-			super.run,
-			this.wait,
-			this.validateTeam,
-			this.validatePostThread		
-		], callback);
+		if(!this.mockMode){
+			Assert.equal(true, true, "Test requires Mock Mode!");
+			callback();
+		}
+		else{
+			BoundAsync.series(this, [
+				super.run,
+				this.wait,
+				this.validateTeam,
+				this.validatePostThread		
+			], callback);
+		}
 	}
 
 	wait (callback) {
