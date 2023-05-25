@@ -97,12 +97,13 @@ class GrokClient {
 			apiResponse = await this.submitConversationToGrok(conversation);
 		}
 		catch(ex){
+			const message = ex?.reason?.message || ex.message;
 			await this.broadcastToUser({
-				grokException: {
-					codeErrorId: codeError.get('id'),
-					topmostPostId: topmostPost.get('id'),
-					errorMessage: ex.message
-				}
+			  post: {
+				  codeErrorId: codeError.get('id'),
+				  topmostPostId: topmostPost.get('id'),
+				  errorMessage: message
+			  }
 			});
 			return;
 		}
@@ -165,12 +166,13 @@ class GrokClient {
 			apiResponse = await this.submitConversationToGrok(initialPrompt);
 		}
 		catch(ex){
+			const message = ex?.reason?.message || ex.message;
 			await this.broadcastToUser({
-				grokException: {
-					codeErrorId: codeError.get('id'),
-					topmostPostId: topmostPost.get('id'),
-					errorMessage: ex.message
-				}
+			  post: {
+				  codeErrorId: codeError.get('id'),
+				  topmostPostId: topmostPost.get('id'),
+				  errorMessage: message
+			  }
 			});
 			return;
 		}
