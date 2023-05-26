@@ -96,14 +96,17 @@ class GrokClient {
 		try{
 			apiResponse = await this.submitConversationToGrok(conversation);
 		}
-		catch(ex){
+		catch(ex) {
 			const message = ex?.reason?.message || ex.message;
 			await this.broadcastToUser({
-			  post: {
-				  codeErrorId: codeError.get('id'),
-				  topmostPostId: topmostPost.get('id'),
-				  errorMessage: message
-			  }
+				asyncError: {
+					type: 'grokException',
+					extra: {
+						codeErrorId: codeError.get('id'),
+						topmostPostId: topmostPost.get('id'),
+					},
+					errorMessage: message
+				}
 			});
 			throw ex;
 		}
@@ -113,7 +116,7 @@ class GrokClient {
 			team: this.team
 		});
 
-		// store Grok response as new Post 
+		// store Grok response as new Post
 		const post = await postCreater.createPost({
 			forGrok: true,
 			streamId: this.request.body.streamId,
@@ -146,7 +149,7 @@ class GrokClient {
 		},
 		{
 			role: "user", 
-			content: `Analyze this stack trace:\n"${ stackTrace }"\nAnd fix the following code:\n"${ code }"\n`
+			content: `Analyze this stack trace:\n\`\`\`\n"${ stackTrace }"\n\`\`\`\nAnd fix the following code:\n\`\`\`\n"${ code }"\n\`\`\``
 		}];
 
 		// Update initial post with the current conversation.
@@ -167,15 +170,17 @@ class GrokClient {
 		}
 		catch(ex){
 			const message = ex?.reason?.message || ex.message;
-
 			await this.broadcastToUser({
-			  post: {
-				  codeErrorId: codeError.get('id'),
-				  topmostPostId: topmostPost.get('id'),
-				  errorMessage: message
-			  }
+				asyncError: {
+					type: 'grokException',
+					extra: {
+						codeErrorId: codeError.get('id'),
+						topmostPostId: topmostPost.get('id'),
+					},
+					errorMessage: message
+				}
 			});
-			
+
 			throw ex;
 		}
 
