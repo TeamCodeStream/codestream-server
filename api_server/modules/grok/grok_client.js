@@ -39,7 +39,13 @@ class GrokClient {
 			}
 		}
 
-		let topmostPost = await this.data.posts.getById(this.responseData.post.id);
+		let topmostPost;
+
+		// in the case where we are reinitializing Grok, we won't be creating / returning
+		// a post, so we'll skip this step but fall into the parentPostId check below
+		if(this.responseData && this.responseData.post && this.responseData.post.id){
+			topmostPost = await this.data.posts.getById(this.responseData.post.id);
+		}
 
 		if(this.request.body.parentPostId){
 			topmostPost = await this.data.posts.getById(this.request.body.parentPostId);
@@ -51,11 +57,11 @@ class GrokClient {
 
 		const grokConversation = topmostPost.get('grokConversation');
 
-		if(grokConversation){
-			await this.continueConversation(grokConversation, grokUserId, topmostPost);
+		if(this.reinitializeGrok || !grokConversation){
+			await this.startNewConversation(grokUserId, topmostPost);
 		}
 		else {
-			await this.startNewConversation(grokUserId, topmostPost);
+			await this.continueConversation(grokConversation, grokUserId, topmostPost);
 		}
 	}
 
@@ -152,18 +158,6 @@ class GrokClient {
 			content: `Analyze this stack trace:\n\`\`\`\n"${ stackTrace }"\n\`\`\`\nAnd fix the following code:\n\`\`\`\n"${ code }"\n\`\`\``
 		}];
 
-		// Update initial post with the current conversation.
-		await new ModelSaver({
-			request: this,
-			collection: this.data.posts,
-			id: topmostPost.get('id')
-		}).save({
-			$set: {
-				grokConversation: initialPrompt,
-				forGrok: true
-			}
-		});
-
 		let apiResponse;
 		try{
 			apiResponse = await this.submitConversationToGrok(initialPrompt);
@@ -184,18 +178,16 @@ class GrokClient {
 			throw ex;
 		}
 
-		// if I don't remap this, after I push the response onto the collection, that one ends
-		// up in the database from the previous call to ModelSaver....weird.
-		const conversation = initialPrompt.map(p => {
-			return {
-				role: p.role,
-				content: p.content
+		// Update initial post with the current conversation.
+		await new ModelSaver({
+			request: this,
+			collection: this.data.posts,
+			id: topmostPost.get('id')
+		}).save({
+			$set: {
+				grokConversation: initialPrompt,
+				forGrok: true
 			}
-		});
-
-		conversation.push({
-			role: apiResponse.role,
-			content: apiResponse.content
 		});
 
 		const postCreater = new PostCreator({
@@ -244,8 +236,7 @@ class GrokClient {
 			);
 		}
 		catch (error) {
-			// this doesn't break the chain, but it is unfortunate...
-			this.request.warn(`Could not publish post message to channel ${channel}: ${JSON.stringify(error)}`);
+			this.api.logger.warn(`Could not publish post message to channel ${channel}: ${JSON.stringify(error)}`, this.request.id);
 		}
 	}
 

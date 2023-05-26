@@ -23,11 +23,30 @@ class PostPostRequest extends PostRequest {
 			throw this.errorHandler.error('invalidParameter', { reason: 'teamId does not match the stream' });
 		}
 		this.request.body.teamId = stream.get('teamId');
+
+		// WARNING: If you pass this flag, your post will NOT be saved!
+		//
+		// We have a scenario with Grok where we need to POST a new post and have it
+		// completely reinitialize the Grok conversation, but we want to throw away
+		// the actual post that is coming in. Certain methods will be completely skipped!
+		this.reinitializeGrok = (this.request.body.reinitialize && this.request.body.reinitialize === true) || false;
+	}
+
+	async process(){
+		if(this.reinitializeGrok){
+			return;
+		}
+
+		await super.process();
 	}
 
 	/* eslint complexity: 0 */
 	async handleResponse () {
 		if (this.gotError) {
+			return super.handleResponse();
+		}
+
+		if(this.reinitializeGrok){
 			return super.handleResponse();
 		}
 
@@ -40,10 +59,16 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async postProcess () {
-		await super.postProcess();
+		if(!this.reinitializeGrok){
+			await super.postProcess();
+		}
 
-		if(!!this.request.body.analyze || this.request.body.text.match(/\@Grok/gmi)){
-	 		await this.api.services.grok.analyzeErrorWithGrok(this);
+		if(
+			!!this.request.body.analyze || 
+			this.request.body.text.match(/\@Grok/gmi) || 
+			this.reinitializeGrok){
+	 		
+			return this.api.services.grok.analyzeErrorWithGrok(this);
 	 	}
 	}
 	
