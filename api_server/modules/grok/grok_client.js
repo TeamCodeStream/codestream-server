@@ -39,15 +39,28 @@ class GrokClient {
 			}
 		}
 
+		await this.findTopMostPost();
+
+		const grokConversation = this.topmostPost.get('grokConversation');
+
+		if(this.reinitializeGrok || !grokConversation){
+			await this.startNewConversation(grokUserId);
+		}
+		else {
+			await this.continueConversation(grokConversation, grokUserId);
+		}
+	}
+
+	async findTopMostPost() {
 		let topmostPost;
 
 		// in the case where we are reinitializing Grok, we won't be creating / returning
 		// a post, so we'll skip this step but fall into the parentPostId check below
-		if(this.responseData && this.responseData.post && this.responseData.post.id){
+		if (this.responseData && this.responseData.post && this.responseData.post.id) {
 			topmostPost = await this.data.posts.getById(this.responseData.post.id);
 		}
 
-		if(this.request.body.parentPostId){
+		if (this.request.body.parentPostId) {
 			topmostPost = await this.data.posts.getById(this.request.body.parentPostId);
 			const topmostParentPostId = topmostPost.get('parentPostId');
 	
@@ -56,23 +69,16 @@ class GrokClient {
 			}
 		}
 
-		const grokConversation = topmostPost.get('grokConversation');
-
-		if(this.reinitializeGrok || !grokConversation){
-			await this.startNewConversation(grokUserId, topmostPost);
-		}
-		else {
-			await this.continueConversation(grokConversation, grokUserId, topmostPost);
-		}
+		this.topmostPost = topmostPost;
 	}
 
-	async continueConversation(grokConversation, grokUserId, topmostPost){
+	async continueConversation(grokConversation, grokUserId){
 		const conversation = grokConversation;
-		const codeError = await this.data.codeErrors.getById(topmostPost.get('codeErrorId'));
+		const codeError = await this.data.codeErrors.getById(this.topmostPost.get('codeErrorId'));
 
 		const parentPostIds = [this.request.body.parentPostId];
-		if(this.request.body.parentPostId !== topmostPost.get('id')){
-			parentPostIds.push(topmostPost.get('id'));
+		if(this.request.body.parentPostId !== this.topmostPost.get('id')){
+			parentPostIds.push(this.topmostPost.get('id'));
 		}
 
 		const posts = await this.data.posts.getByQuery(
@@ -110,7 +116,7 @@ class GrokClient {
 					type: 'grokException',
 					extra: {
 						codeErrorId: codeError.get('id'),
-						topmostPostId: topmostPost.get('id'),
+						topmostPostId: this.topmostPost.get('id'),
 					},
 					errorMessage: message
 				}
@@ -130,7 +136,7 @@ class GrokClient {
 			teamId: this.team.get('id'),
 			text: apiResponse.content,
 			promptRole: apiResponse.role,
-			parentPostId: topmostPost.get('id'),
+			parentPostId: this.topmostPost.get('id'),
 			codeError: codeError.get('id'),
 			creatorId: grokUserId
 		},
@@ -143,8 +149,8 @@ class GrokClient {
 		 });
 	}
 
-	async startNewConversation(grokUserId, topmostPost) {
-		const codeError = await this.data.codeErrors.getById(topmostPost.get('codeErrorId'));
+	async startNewConversation(grokUserId) {
+		const codeError = await this.data.codeErrors.getById(this.topmostPost.get('codeErrorId'));
 
 		// get the last stack trace we have - text is full stack trace
 		const stackTrace = codeError.get('stackTraces').slice(-1).pop().text;
@@ -170,7 +176,7 @@ class GrokClient {
 					type: 'grokException',
 					extra: {
 						codeErrorId: codeError.get('id'),
-						topmostPostId: topmostPost.get('id'),
+						topmostPostId: this.topmostPost.get('id'),
 					},
 					errorMessage: message
 				}
@@ -183,7 +189,7 @@ class GrokClient {
 		await new ModelSaver({
 			request: this,
 			collection: this.data.posts,
-			id: topmostPost.get('id')
+			id: this.topmostPost.get('id')
 		}).save({
 			$set: {
 				grokConversation: initialPrompt,
@@ -203,7 +209,7 @@ class GrokClient {
 			teamId: this.team.get('id'),
 			text: apiResponse.content,
 			promptRole: apiResponse.role,
-			parentPostId: topmostPost.get('id'),
+			parentPostId: this.topmostPost.get('id'),
 			codeError: codeError.get('id'),
 			creatorId: grokUserId
 		},
@@ -296,31 +302,57 @@ class GrokClient {
 			temperature: temperature
 		};
 
-		const response = await fetch(this.api.config.integrations.newrelicgrok.apiUrl, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": `Bearer ${this.api.config.integrations.newrelicgrok.apiKey}`,
-			},
-			body: JSON.stringify(request),
-		});
+		let response;
+		try{
+			response = await fetch(this.api.config.integrations.newrelicgrok.apiUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${this.api.config.integrations.newrelicgrok.apiKey}`,
+				},
+				body: JSON.stringify(request),
+			});
+		}
+		catch(err){
+			this.trackErrorAndThrow('apiException', err.message);
+		}
 	
 		const apiResponse = await response.json();
 
 		if (apiResponse && apiResponse.error) {
-			throw this.errorHandler.error('apiError', { reason: apiResponse.error });
+			this.trackErrorAndThrow('apiResponseContainedError', apiResponse.error);
 		}
 	
 		if (apiResponse && apiResponse.choices && !apiResponse.choices[0]) {
-			throw this.errorHandler.error('noChoices');
+			this.trackErrorAndThrow('apiResponseContainedNoChoice');
 		}
 	
 		const message = apiResponse.choices[0].message;
 		if (!message) {
-			throw this.errorHandler.error('choiceNoMessage');
+			this.trackErrorAndThrow('apiResponseContainedNoChoiceMessage');
 		}
 
 		return message;
+	}
+
+	trackErrorAndThrow(errorKey, additionalMessage = '') {
+		const { request, user, team } = this;
+
+		let errorCode = Errors[errorKey].code;
+
+		const trackData = {
+			'Parent ID': this.topmostPost.get('id'),
+			'Code Error ID': this.topmostPost.get('codeErrorId'),
+			'Error Code': errorCode,
+		}
+
+		this.api.services.analytics.trackWithSuperProperties(
+			'Grok Response Failed',
+			trackData,
+			{ request, user, team }
+		);
+
+		throw this.errorHandler.error(errorKey, { reason: additionalMessage });
 	}
 }
 
