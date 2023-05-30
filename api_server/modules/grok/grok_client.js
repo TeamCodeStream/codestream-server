@@ -49,8 +49,9 @@ class GrokClient {
 
 		if(this.request.body.parentPostId){
 			topmostPost = await this.data.posts.getById(this.request.body.parentPostId);
+			const topmostParentPostId = topmostPost.get('parentPostId');
 	
-			if(topmostPost && topmostPost.get('parentPostId') !== undefined && topmostPost.get('parentPostId') !== this.request.body.parentPostId){
+			if(topmostParentPostId && topmostParentPostId !== this.request.body.parentPostId){
 				topmostPost = await this.data.posts.getById(topmostPost.parentPostId);
 			}
 		}
