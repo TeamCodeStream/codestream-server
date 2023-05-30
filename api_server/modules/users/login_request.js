@@ -7,12 +7,16 @@ const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib
 const LoginHelper = require('./login_helper');
 const Errors = require('./errors');
 const LoginCore = require('./login_core');
+const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
+const UserErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/errors');
 
 class LoginRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
 		this.errorHandler.add(Errors);
+		this.errorHandler.add(NewRelicIDPErrors);
+		this.errorHandler.add(UserErrors);
 		this.loginType = this.loginType || 'web';
 	}
 

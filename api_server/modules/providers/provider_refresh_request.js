@@ -99,10 +99,6 @@ class ProviderRefreshRequest extends RestfulRequest {
 
 	// perform an exchange of auth code for access token, as needed
 	async fetchAccessToken () {
-		if (this.serviceAuth.customRefreshToken) {
-			this.tokenData = await this.serviceAuth.customRefreshToken(this.existingProviderInfo, { request: this });
-			return;
-		}
 		if (!this.serviceAuth.supportsRefresh()) {
 			throw this.errorHandler.error('readAuth', { reason: 'token refresh not supported by provider' });
 		} 

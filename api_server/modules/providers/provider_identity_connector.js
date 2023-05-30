@@ -229,6 +229,10 @@ class ProviderIdentityConnector {
 			op.$set['accessTokens.web.refreshToken'] = this.tokenData.refreshToken;
 			op.$set['accessTokens.web.expiresAt'] = this.tokenData.expiresAt;
 		}
+		if (this.tokenData.provider) {
+			op.$set[`${rootStr}.provider`] = this.tokenData.provider;
+			op.$set['accessTokens.web.provider'] = this.tokenData.provider;
+		}
 	}
 
 	// if we found an existing unregistered user, signing in is like confirmation,
