@@ -343,22 +343,31 @@ class JoinCompanyHelper {
 		const tokenInfo = await this.api.services.idp.waitForRefreshToken(
 			this.invitedUser.get('email'),
 			this.password,
-			{ request: this }
+			{ request: this.request }
 		);
 
 		// save the new refresh token to the database...
-		const { token, refreshToken, expiresAt } = tokenInfo;
+		const { token, refreshToken, expiresAt, provider } = tokenInfo;
 		const op = { 
 			$set: {
 				[ `providerInfo.${this.team.id}.newrelic.accessToken` ]: token,
 				[ `providerInfo.${this.team.id}.newrelic.refreshToken` ]: refreshToken,
-				[ `providerInfo.${this.team.id}.newrelic.expiresAt` ]: expiresAt
+				[ `providerInfo.${this.team.id}.newrelic.expiresAt` ]: expiresAt,
+				[ `providerInfo.${this.team.id}.newrelic.provider` ]: provider
 			}
 		};
+		if (this.serviceGatewayAuth) {
+			Object.assign(op.$set, {
+				[ `accessTokens.web.token`]: token,
+				[ `accessTokens.web.refreshToken`]: refreshToken,
+				[ `accessTokens.web.expiresAt`]: expiresAt,
+				[ `accessTokens.web.provider`]: provider
+			});
+		}
 		const updateOp = await new ModelSaver({
 			request: this.request,
 			collection: this.data.users,
-			id: this.user.id
+			id: this.invitedUser.id
 		}).save(op);
 		await this.request.postProcessPersist();
 
@@ -367,7 +376,7 @@ class JoinCompanyHelper {
 			requestId: this.request.request.id,
 			user: updateOp
 		};
-		const channel = `user-${this.user.id}`;
+		const channel = `user-${this.invitedUser.id}`;
 		try {
 			await this.api.services.broadcaster.publish(
 				message,

@@ -140,7 +140,8 @@ class NewRelicIDP extends APIServerModule {
 		return {
 			token: loginResponse.idp.id_token,
 			refreshToken: loginResponse.idp.refresh_token,
-			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000
+			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000,
+			provider: 'azureb2c-csropc'
 		};
 	}
 
@@ -472,6 +473,7 @@ class NewRelicIDP extends APIServerModule {
 		return {
 			accessToken: result.id_token,
 			refreshToken: result.refresh_token,
+			provider: 'azureb2c-cs',
 			expiresAt
 		};
 	}
@@ -497,13 +499,13 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	// refresh a user's token
-	async refreshToken (refreshToken, options) {
+	async refreshToken (refreshToken, provider, options) {
 		return this._newrelic_idp_call(
 			'login',
 			'/refresh_token',
 			'post',
 			{
-				provider: 'azureb2c-csropc',
+				provider,
 				refresh_token: refreshToken
 			},
 			options
@@ -512,13 +514,14 @@ class NewRelicIDP extends APIServerModule {
 
 	// perform custom refresh of a token per OAuth
 	async customRefreshToken (providerInfo, options = {}) {
-		const result = await this.refreshToken(providerInfo.refreshToken, options);
+		const result = await this.refreshToken(providerInfo.refreshToken, providerInfo.provider, options);
 		const tokenData = {
 			accessToken: result.id_token,
 			refreshToken: result.refresh_token,
 		};
 		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
 		tokenData.expiresAt = Date.now() + result.expires_in * 1000;
+		tokenData.provider = providerInfo.provider;
 		return tokenData;
 	}
 
@@ -564,8 +567,8 @@ class NewRelicIDP extends APIServerModule {
 		if (options.logger && options.verbose) {
 			options.logger.log(`Calling New Relic: ${url}\n`, JSON.stringify(fetchOptions, 0, 5));
 		}
-		const response = await Fetch(url, fetchOptions);
 
+		const response = await Fetch(url, fetchOptions);
 		let json;
 		try {
 			if (response.status === 204) {

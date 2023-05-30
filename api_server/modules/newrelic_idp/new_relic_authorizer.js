@@ -4,6 +4,7 @@
 'use strict';
 
 const { GraphQLClient, gql } = require('graphql-request');
+const NRAccessTokenRefresher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/nr_access_token_refresher');
 
 class NewRelicAuthorizer {
 
@@ -46,10 +47,9 @@ class NewRelicAuthorizer {
 			user.get('providerInfo') &&
 			user.get('providerInfo').newrelic
 		);
-		let providerInfo, fromTeam;
+		let providerInfo;
 		if (teamProviderInfo && teamProviderInfo.accessToken) {
 			providerInfo = teamProviderInfo;
-			fromTeam = true;
 		} else if (userProviderInfo && userProviderInfo.accessToken) {
 			providerInfo = userProviderInfo;
 		}
@@ -68,7 +68,7 @@ class NewRelicAuthorizer {
 		}
 
 		// refresh the token as needed
-		await this.refreshTokenAsNeeded(user, providerInfo, fromTeam ? this.teamId : null);
+		await this.refreshTokenAsNeeded(user, providerInfo);
 
 		// Unified Identity tokens are cookies, not api keys
 		const graphQLHeaders = {
@@ -94,53 +94,22 @@ class NewRelicAuthorizer {
 	}
 
 	// check for a (nearly) expired token and refresh as needed
-	async refreshTokenAsNeeded (user, providerInfo, teamId) {
-		// refresh only applies to cookies, and we can't refresh if there isn't a refresh token
-		if (!providerInfo.bearerToken || !providerInfo.refreshToken) {
-			return providerInfo;
+	async refreshTokenAsNeeded (user, providerInfo) {
+		const result = await NRAccessTokenRefresher({
+			request: this.request,
+			tokenInfo: providerInfo
+		});
+		if (!result) {
+			return;
 		}
-
-		// refresh if token expires less than one minute from now
-		if (!providerInfo.expiresAt || providerInfo.expiresAt > Date.now() + 59 * 60 * 1000) {
-			return providerInfo;
-		}
-
-		// refresh away
-		return this.refreshToken(user, providerInfo, teamId);
-	}
-
-	// refresh user's NR token and return new providerInfo
-	async refreshToken (user, providerInfo, teamId) {
-		const incomingRefreshToken = providerInfo.refreshToken;
-
-		// call out to IDP service to refresh the token
-		const refreshResponse = await this.request.api.services.idp.refreshToken(
-			incomingRefreshToken,
-			{ request: this.request }
-		);
-
-		// save the token
-		const { id_token, refresh_token, expires_in } = refreshResponse;
 		const op = {
 			$set: {
-				[ `providerInfo.${teamId}.newrelic.accessToken` ]: id_token,
-				[ `providerInfo.${teamId}.newrelic.refreshToken` ]: refresh_token,
-				//[ `providerInfo.${this.team.id}.newrelic.setCookie` ]: setCookie,
-				[ `providerInfo.${teamId}.newrelic.bearerToken` ]: true,
+				...result.userSet
 			},
 		};
-		let expiresAt;
-		if (expires_in) {
-			expiresAt = Date.now() + expires_in * 1000;
-			op[`providerInfo.${teamId}.newrelic.expiresAt`] = expiresAt;
-		}
 		await this.request.data.users.applyOpById(user.id, op);
 
-		Object.assign(providerInfo, {
-			accessToken: id_token,
-			refreshToken: refresh_token,
-			expiresAt
-		});
+		Object.assign(providerInfo, result.newTokenInfo);
 	}
 
  	// authorize the user to even access this code error: they must have access to the NR account

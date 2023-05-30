@@ -17,6 +17,7 @@ const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server
 const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
 const AccessTokenCreator = require('./access_token_creator');
 const IDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
+const NRAccessTokenRefresher = require('./nr_access_token_refresher');
 
 class LoginHelper {
 
@@ -171,27 +172,22 @@ class LoginHelper {
 			}
 
 			// if this is a New Relic issued access token, it may need to be refreshed
-			if (isNRToken && currentTokenInfo.refreshToken && currentTokenInfo.expiresAt < Date.now() + 60 * 1000) {
-				this.request.log('User\'s New Relic issued access token is expired, attempting to refresh...');
-				const tokenInfo = await this.refreshNRAccessToken(currentTokenInfo);
-				this.request.log('User\'s New Relic issued access token was successfully refresh');
-				tokenInfo.isNRToken = true;
-				set = set || {};
-				const teamId = (this.user.get('teamIds') || [])[0];
-				set[`accessTokens.${this.loginType}.token`] = tokenInfo.accessToken;
-				set[`accessTokens.${this.loginType}.refreshToken`] = tokenInfo.refreshToken;
-				set[`accessTokens.${this.loginType}.expiresAt`] = tokenInfo.expiresAt;
-				if (teamId) {
-					set[`providerInfo.${teamId}.newrelic.accessToken`] = tokenInfo.accessToken;
-					set[`providerInfo.${teamId}.newrelic.refreshToken`] = tokenInfo.refreshToken;
-					set[`providerInfo.${teamId}.newrelic.expiresAt`] = tokenInfo.expiresAt;
+			if (isNRToken) {
+				this.accessTokenInfo = currentTokenInfo;
+ 				const result = await NRAccessTokenRefresher({
+					request: this.request,
+					tokenInfo: currentTokenInfo,
+					loginType: this.loginType
+				});
+				if (result) {
+					set = set || {};
+					Object.assign(set, result.userSet);
+					this.accessTokenInfo = result.newTokenInfo;
+					this.accessTokenInfo.isNRToken = true;
 				}
 			}
 			if (set) {
 				await this.request.data.users.applyOpById(this.user.id, { $set: set });
-			}
-			if (isNRToken) {
-				this.accessTokenInfo = currentTokenInfo;
 			}
 		}
 		catch (error) {
@@ -206,11 +202,6 @@ class LoginHelper {
 		}
 	}
 	
-	// refresh a New Relic issued access token
-	async refreshNRAccessToken (tokenInfo) {
-		return this.request.api.services.idp.customRefreshToken(tokenInfo, { request: this.request });
-	}
-
 	// update the time the user last logged in, except if logging in via the web app
 	async updateLastLogin () {
 		if (this.dontUpdateLastLogin) {
@@ -327,7 +318,9 @@ class LoginHelper {
 		if (this.accessTokenInfo && this.accessTokenInfo.isNRToken) {
 			this.responseData.accessTokenInfo = {
 				refreshToken: this.accessTokenInfo.refreshToken,
-				expiresAt: this.accessTokenInfo.expiresAt
+				expiresAt: this.accessTokenInfo.expiresAt,
+				provider: this.accessTokenInfo.provider,
+				isNRToken: true
 			};
 		}
 		
