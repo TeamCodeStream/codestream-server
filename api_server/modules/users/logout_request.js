@@ -19,8 +19,6 @@ class LogoutRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
-		/*
-		Disabled for now, until we can turn login completely over to New Relic
 		// delete the user's access token
 		return this.data.users.applyOpById(
 			this.user.id,
@@ -30,7 +28,6 @@ class LogoutRequest extends RestfulRequest {
 				}
 			}
 		);
-		*/
 	}
 
 	// after the response is returned
