@@ -1,5 +1,13 @@
 # Change Log
 
+## [14.0.16] - 2023-5-31
+
+### Changed
+
+- Force extension upgrade to v14.21
+
+### Fixed
+
 ## [14.0.15] - 2023-5-18
 
 ### Fixed
