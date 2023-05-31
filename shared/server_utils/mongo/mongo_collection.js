@@ -443,7 +443,7 @@ class MongoCollection {
 			query._id = query.id;
 			delete query.id;
 		}
-		if (query._id) {
+		if (typeof query._id === 'string') {
 			query._id = this.objectIdSafe(query._id);
 		}
 		return await this._runQuery(

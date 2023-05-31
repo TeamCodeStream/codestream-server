@@ -279,6 +279,11 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async addUserToUserGroup (userId, authDomainId, options = {}) {
+		if (options.mockResponse) {
+			// punt on this for now, not really relevant in test mode
+			return;
+		}
+
 		// fetch groups under this auth domain
 		const groupsResponse = await this._newrelic_idp_call(
 			'user',
@@ -612,6 +617,8 @@ class NewRelicIDP extends APIServerModule {
 				return this._getMockGetUserResponse(options.mockParams, match[1], options);
 			} else if (method === 'get' && path === '/v1/users') {
 				return this._getMockGetUsersResponse(options);
+			} else if (method === 'get' && path === '/v1/groups') {
+				return this._getMockGroupsResponse(options);
 			}
 		} else if (service === 'login') {
 			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
@@ -632,6 +639,11 @@ class NewRelicIDP extends APIServerModule {
 				return this._getMockOrgResponse(match[1]);
 			} else if ((match = path.match(/^\/v0\/organizations\/(.+)$/)) && method === 'patch') {
 				return this._getMockOrgPatchResponse(match[1]);
+			}
+		} else if (service === 'idp') {
+			let match;
+			if (match = path.match(/^\/azureb2c\/users\/(.+)\/password$/) && method === 'post') {
+				return this._getMockPasswordResponse();
 			}
 		}
 
@@ -747,8 +759,10 @@ class NewRelicIDP extends APIServerModule {
 
 	_getMockLoginResponse (params) {
 		return {
-			newrelic: {
-				value: RandomString.generate(100) // for now
+			idp: {
+				id_token: RandomString.generate(100),
+				refresh_token: RandomString.generate(100),
+				expires_in: 3600
 			}
 		}
 	}
@@ -857,6 +871,10 @@ class NewRelicIDP extends APIServerModule {
 			mockUsers.push(mockUser);
 		});
 		return { data: mockUsers.map(mu => mu.data) };
+	}
+
+	_getMockPasswordResponse (options = {}) {
+		return {};
 	}
 
 	_throw (type, message, options = {}) {

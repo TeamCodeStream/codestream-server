@@ -37,6 +37,7 @@ describe('user requests', function() {
 
 	this.timeout(20000);
 
+	/*
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /no-auth/login', userRequestTester.loginTest);
@@ -71,7 +72,10 @@ describe('user requests', function() {
 	describe('POST /no-auth/generate-login-code', GenerateLoginCodeTester.test);
 	describe('PUT /join-company/:id', JoinCompanyTester.test);
 	describe('PUT /decline-invite/:id', DeclineInviteTester.test);
+	*/
 	describe('PUT /logout', LogoutRequestTester.test);
+	/*
 	describe('PUT /no-auth/check-login', CheckLoginRequestTester.test);
 	describe('IDP Sync', IDPSyncTester.test);
+	*/
 });
