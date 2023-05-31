@@ -39,9 +39,12 @@ class JoinCompanyHelper {
 
 		// since the user joining won't have a New Relic token (yet), we need to find the creator or
 		// an admin that has one, to do the codestream-only check
-		const admin = await this.findFirstAdminWithNRToken(this.request);
-		if (!admin) {
-			throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'team has no active admin with an NR token and management by New Relic cannot be determined' });
+		let admin;
+		if (!this.request.request.headers['x-cs-no-newrelic']) {
+			admin = await this.findFirstAdminWithNRToken(this.request);
+			if (!admin) {
+				throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'team has no active admin with an NR token and management by New Relic cannot be determined' });
+			}
 		}
 
 		// check whether the company is marked as "codestream-only", and whether its linked NR org
@@ -340,6 +343,10 @@ class JoinCompanyHelper {
 	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
 	// to allow the race condition to clear
 	async updateRefreshToken () {
+		if (this.request.request.headers['x-cs-no-newrelic']) {
+			return;
+		}
+
 		const tokenInfo = await this.api.services.idp.waitForRefreshToken(
 			this.invitedUser.get('email'),
 			this.password,
