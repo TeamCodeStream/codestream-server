@@ -8,12 +8,14 @@ const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/uti
 const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
+const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
 
 class ProviderTokenRequest extends RestfulRequest {
 
 	constructor (options) {
 		super(options);
 		this.errorHandler = this.module.errorHandler;
+		this.errorHandler.add(NewRelicIDPErrors);
 	}
 
 	async authorize () {
