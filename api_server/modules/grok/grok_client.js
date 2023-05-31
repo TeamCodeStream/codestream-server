@@ -89,6 +89,8 @@ class GrokClient {
 			{
 				fields: ['text', 'promptRole'],
 				sort: { createdAt: 1},
+				limit: 18,						// 20 is the max number of posts we can send to Grok, 
+												// so 18 from here plus the 2 stored in grokConversation
 				hint: PostIndexes.byParentPostId,
 			}
 		);
