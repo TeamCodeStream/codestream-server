@@ -8,7 +8,7 @@ const MessageToUserTest = require('./message_to_user_test');
 class LogoutRequestTester {
 
 	test () {
- //		new LogoutTest().test();
+ 		new LogoutTest().test();
 		new MessageToUserTest().test();
 	}
 }
