@@ -81,10 +81,10 @@ class PostCompanyRequest extends PostRequest {
 	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
 	// to allow the race condition to clear
 	async updateRefreshToken () {
-		if (this.request.headers['x-cs-no-newrelic']) {
+		if (this.request.headers['x-cs-no-newrelic'] || !this.request.headers['x-cs-enable-uid']) {
 			return;
 		}
-		
+
 		const password = this.creator.password;
 		this.log('Initiating delayed token refresh for New Relic IDP...');
 		const tokenInfo = await this.api.services.idp.waitForRefreshToken(this.user.get('email'), password, { request: this });
