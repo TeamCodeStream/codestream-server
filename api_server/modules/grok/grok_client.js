@@ -96,15 +96,21 @@ class GrokClient {
 			},
 			{
 				fields: ['text', 'promptRole'],
-				sort: { createdAt: 1},
-				limit: 17,						// 20 is the max number of posts we can send to Grok, 
-												// so 17 from here plus the 2 stored in grokConversation,
-												// plus the new one we're about to send = 20
 				hint: PostIndexes.byParentPostId,
 			}
 		);
 
-		posts.forEach(p => {
+		// sort by createdAt, oldest first
+		posts.sort((a, b) => {
+			return a.get('createdAt') - b.get('createdAt');
+		})
+
+		// 20 is the max number of posts we can send to Grok, 
+		// so 17 from here plus the 2 stored in grokConversation,
+		// plus the new one we're about to send = 20
+		const limitedPosts = posts.slice(0, 17);
+
+		limitedPosts.forEach(p => {
 			conversation.push({
 				role: p.get('promptRole'),
 				content: p.get('text')
