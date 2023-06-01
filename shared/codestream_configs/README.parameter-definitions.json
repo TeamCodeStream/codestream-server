@@ -199,6 +199,22 @@
 				"webviewAppId": "NR1 App ID for webview telemetry [CSSVC_NEWRELIC_WEBVIEW_APP_ID]"
 			}
 		},
+		"newRelicIdentity": {
+			"<appProvider>": {
+				"signupServiceHost": "NR Signup Service Host [CSSVC_NEWRELIC_IDENTITY_SIGNUP_SERVICE_HOST]",
+				"userServceHost": "NR User Service Host [CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_HOST]",
+				"loginServiceHost": "NR Login Service Host [CSSVC_NEWRELIC_IDENTITY_LOGIN_SERVICE_HOST]",
+				"credentialsServiceHost": "NR Credentials Service Host [CSSVC_NEWRELIC_IDENTITY_CREDENTIALS_SERVICE_HOST]",
+				"orgServiceHost": "NR Org Service Host [CSSVC_NEWRELIC_IDENTITY_ORG_SERVICE_HOST]",
+				"graphQLHost": "NR GraphQL Host [CSSVC_NEWRELIC_IDENTITY_GRAPHQL_HOST]",
+				"idpServiceHost": "NR IdP Service Host [CSSVC_NEWRELIC_IDENTITY_IDP_SERVICE_HOST]",
+				"newRelicClientId": "NR Client Id [CSSVC_NEWRELIC_IDENTITY_CLIENT_ID]",
+				"newRelicClientSecret": "NR Client Secret [CSSVC_NEWRELIC_IDENTITY_CLIENT_SECRET]",
+				"userServiceSecret": "NR User Service Secret [CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_SECRET]",
+				"newRelicRegion": "NR Region [CSSVC_NEWRELIC_IDENTITY_REGION]",
+				"passwordKey": "NR Password Key (we maintain for short lived encryption) [CSSVC_NEWRELIC_IDENTITY_PASSWORD_KEY]",
+			}
+		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": "Okta API client Id",
