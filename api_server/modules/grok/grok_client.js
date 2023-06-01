@@ -29,13 +29,17 @@ class GrokClient {
 		
 		this.team = await this.data.teams.getById(this.request.body.teamId);
 		
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'team' });
+		}
+
 		let grokUserId = this.team.get('grokUserId');
 
 		if(!grokUserId) {
 			let grokUser = await this.createGrokUser();
 
 			if(grokUser){
-				grokUserId = grokUser.get('id');
+				grokUserId = grokUser.id;
 			}
 		}
 
@@ -76,6 +80,10 @@ class GrokClient {
 		const conversation = grokConversation;
 		const codeError = await this.data.codeErrors.getById(this.topmostPost.get('codeErrorId'));
 
+		if (!codeError) {
+			throw this.errorHandler.error('notFound', { info: 'codeError' });
+		}
+
 		const parentPostIds = [this.request.body.parentPostId];
 		if(this.request.body.parentPostId !== this.topmostPost.get('id')){
 			parentPostIds.push(this.topmostPost.get('id'));
@@ -96,7 +104,7 @@ class GrokClient {
 			}
 		);
 
-		posts.map(p => {
+		posts.forEach(p => {
 			conversation.push({
 				role: p.get('promptRole'),
 				content: p.get('text')
@@ -127,24 +135,24 @@ class GrokClient {
 			throw ex;
 		}
 		
-		const postCreater = new PostCreator({
+		const postCreator = new PostCreator({
 			request: this,
 			team: this.team
 		});
 
 		// store Grok response as new Post
-		const post = await postCreater.createPost({
+		const post = await postCreator.createPost({
 			forGrok: true,
 			streamId: this.request.body.streamId,
 			teamId: this.team.get('id'),
 			text: apiResponse.content,
 			promptRole: apiResponse.role,
 			parentPostId: this.topmostPost.get('id'),
-			codeError: codeError.get('id'),
-			creatorId: grokUserId
+			codeError: codeError.get('id')
 		},
 		{
-			promptTracking: this.promptTracking
+			promptTracking: this.promptTracking,
+			overrideCreatorId: grokUserId
 		});
 
 		this.broadcastToTeam({
@@ -154,9 +162,12 @@ class GrokClient {
 
 	async startNewConversation(grokUserId) {
 		const codeError = await this.data.codeErrors.getById(this.topmostPost.get('codeErrorId'));
+		if (!codeError) {
+			throw this.errorHandler.error('notFound', { info: 'codeError' });
+		}
 
 		// get the last stack trace we have - text is full stack trace
-		const stackTrace = codeError.get('stackTraces').slice(-1).pop().text;
+		const stackTrace = (codeError.get('stackTraces') || []).slice(-1).pop().text;
 		const code = this.request.body.codeBlock;
 
 		const initialPrompt = [{
@@ -200,24 +211,24 @@ class GrokClient {
 			}
 		});
 
-		const postCreater = new PostCreator({
+		const postCreator = new PostCreator({
 			request: this,
 			team: this.team
 		});
 
 		// store Grok response as new Post 
-		const post = await postCreater.createPost({
+		const post = await postCreator.createPost({
 			forGrok: true,
 			streamId: this.request.body.streamId,
 			teamId: this.team.get('id'),
 			text: apiResponse.content,
 			promptRole: apiResponse.role,
 			parentPostId: this.topmostPost.get('id'),
-			codeError: codeError.get('id'),
-			creatorId: grokUserId
+			codeError: codeError.get('id')
 		},
 		{
-			promptTracking: this.promptTracking
+			promptTracking: this.promptTracking,
+			overrideCreatorId: grokUserId
 		});
 
 		await this.broadcastToTeam({

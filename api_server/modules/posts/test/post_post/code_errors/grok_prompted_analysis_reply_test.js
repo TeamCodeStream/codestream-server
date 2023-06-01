@@ -12,8 +12,8 @@ class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
 
 	run (callback) {
 		if(!this.mockMode){
-			Assert.equal(true, true, "Test requires Mock Mode!");
-			callback();
+			console.warn('NOTE - THIS TEST CAN MUST BE RUN IN MOCK MODE, PASSING SUPERFICIALLY');
+			return callback();
 		}
 		else{
 			BoundAsync.series(this, [

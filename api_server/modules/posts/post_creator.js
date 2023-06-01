@@ -84,7 +84,7 @@ class PostCreator extends ModelCreator {
 
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
-		this.attributes.creatorId = this.attributes.creatorId || this.user.id;	// allow overriding of default user for creation of posts
+		this.attributes.creatorId = this.metadata.overrideCreatorId || this.user.id;	// allow overriding of default user for creation of posts
 		this.attributes.createdAt = this.setCreatedAt || Date.now();
 		if (this.request.isForTesting && this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
