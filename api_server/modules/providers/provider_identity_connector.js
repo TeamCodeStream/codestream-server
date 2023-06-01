@@ -208,30 +208,31 @@ class ProviderIdentityConnector {
 			{ overrideHintRequired: true }
 		);
 		const isServiceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
-		if (!isServiceGatewayAuth) {
-			return;
-		}
 
 		this.request.log('This is New Relic IDP signin with Service Gateway auth enabled, storing user access token...');
 		delete op.$set['providerInfo.newrelic'];
 		const teamId = (this.user.get('teamIds') || [])[0];
 		const teamIdStr = teamId ? `${teamId}.` : ''; // this should always be true
 		const rootStr = `providerInfo.${teamIdStr}newrelic`;
-		Object.assign(op.$set, {
-			[ `${rootStr}.accessToken` ]: this.tokenData.accessToken,
-			[ `${rootStr}.bearerToken` ]: true,
-			'accessTokens.web.token': this.tokenData.accessToken,
-			'accessTokens.web.isNRToken' : true
-		});
+		op.$set[`${rootStr}.accessToken`] = this.tokenData.accessToken;
+		op.$set[`${rootStr}.bearerToken`] = true;
+		if (isServiceGatewayAuth) {
+			op.$set['accessTokens.web.token'] = this.tokenData.accessToken;
+			op.$set['accessTokens.web.isNRToken'] = true;
+		}
 		if (this.tokenData.refreshToken) {
 			op.$set[`${rootStr}.refreshToken`] = this.tokenData.refreshToken;
 			op.$set[`${rootStr}.expiresAt`] = this.tokenData.expiresAt;
-			op.$set['accessTokens.web.refreshToken'] = this.tokenData.refreshToken;
-			op.$set['accessTokens.web.expiresAt'] = this.tokenData.expiresAt;
+			if (isServiceGatewayAuth) {
+				op.$set['accessTokens.web.refreshToken'] = this.tokenData.refreshToken;
+				op.$set['accessTokens.web.expiresAt'] = this.tokenData.expiresAt;
+			}
 		}
 		if (this.tokenData.provider) {
 			op.$set[`${rootStr}.provider`] = this.tokenData.provider;
-			op.$set['accessTokens.web.provider'] = this.tokenData.provider;
+			if (isServiceGatewayAuth) {
+				op.$set['accessTokens.web.provider'] = this.tokenData.provider;
+			}
 		}
 	}
 
