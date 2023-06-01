@@ -622,6 +622,70 @@
 				}
 			}
 		},
+		"newrelicgrok":{
+			"<appProvider>": {
+				"apiUrl": {
+					"desc": "API Url for New Relic Grok Requests (through Azure OpenAI)",
+					"env": "CSSVC_NEWRELICGROK_API_URL"
+				},
+				"apiKey": {
+					"desc": "API Key for New Relic Grok Requests (through Azure OpenAI)",
+					"env": "CSSVC_NEWRELICGROK_API_KEY"
+				}
+			}
+		},
+		"newRelicIdentity": {
+			"<appProvider>": {
+				"signupServiceHost": {
+					"desc": "NR Signup Service Host",
+					"env": "CSSVC_NEWRELIC_IDENTITY_SIGNUP_SERVICE_HOST"
+				},
+				"userServceHost": {
+					"desc": "NR User Service Host",
+					"env": "CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_HOST"
+				},
+				"loginServiceHost": {
+					"desc": "NR Login Service Host",
+					"env": "CSSVC_NEWRELIC_IDENTITY_LOGIN_SERVICE_HOST"
+				},
+				"credentialsServiceHost": {
+					"desc": "NR Credentials Service Host",
+					"env": "CSSVC_NEWRELIC_IDENTITY_CREDENTIALS_SERVICE_HOST"
+				},
+				"orgServiceHost": {
+					"desc": "NR Org Service Host",
+					"env": "CSSVC_NEWRELIC_IDENTITY_ORG_SERVICE_HOST"
+				},
+				"graphQLHost": {
+					"desc": "NR GraphQL Host",
+					"env": "CSSVC_NEWRELIC_IDENTITY_GRAPHQL_HOST"
+				},
+				"idpServiceHost": {
+					"desc": "NR IdP Service Host",
+					"env": "CSSVC_NEWRELIC_IDENTITY_IDP_SERVICE_HOST"
+				},
+				"newRelicClientId": {
+					"desc": "NR Client Id",
+					"env": "CSSVC_NEWRELIC_IDENTITY_CLIENT_ID"
+				},
+				"newRelicClientSecret": {
+					"desc": "NR Client Secret",
+					"env": "CSSVC_NEWRELIC_IDENTITY_CLIENT_SECRET"
+				},
+				"userServiceSecret": {
+					"desc": "NR User Service Secret",
+					"env": "CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_SECRET"
+				},
+				"newRelicRegion": {
+					"desc": "NR Region",
+					"env": "CSSVC_NEWRELIC_IDENTITY_REGION"
+				},
+				"passwordKey": {
+					"desc": "NR Password Key (we maintain for short lived encryption)",
+					"env": "CSSVC_NEWRELIC_IDENTITY_PASSWORD_KEY"
+				},
+			}
+		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": {
