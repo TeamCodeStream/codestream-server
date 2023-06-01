@@ -189,6 +189,22 @@
 				"disabled": "disable integration"
 			}
 		},
+		"newRelicIdentity": {
+			"<appProvider>": {
+				"credentialsServiceHost": "NR Credentials Service Host [CSSVC_NEWRELIC_IDENTITY_CREDENTIALS_SERVICE_HOST]",
+				"graphQLHost": "NR GraphQL Host [CSSVC_NEWRELIC_IDENTITY_GRAPHQL_HOST]",
+				"idpServiceHost": "NR IdP Service Host [CSSVC_NEWRELIC_IDENTITY_IDP_SERVICE_HOST]",
+				"loginServiceHost": "NR Login Service Host [CSSVC_NEWRELIC_IDENTITY_LOGIN_SERVICE_HOST]",
+				"newRelicClientId": "NR Client Id [CSSVC_NEWRELIC_IDENTITY_CLIENT_ID]",
+				"newRelicClientSecret": "NR Client Secret [CSSVC_NEWRELIC_IDENTITY_CLIENT_SECRET]",
+				"newRelicRegion": "NR Region [CSSVC_NEWRELIC_IDENTITY_REGION]",
+				"orgServiceHost": "NR Org Service Host [CSSVC_NEWRELIC_IDENTITY_ORG_SERVICE_HOST]",
+				"passwordKey": "NR Password Key (we maintain for short lived encryption) [CSSVC_NEWRELIC_IDENTITY_PASSWORD_KEY]",
+				"signupServiceHost": "NR Signup Service Host [CSSVC_NEWRELIC_IDENTITY_SIGNUP_SERVICE_HOST]",
+				"userServceHost": "NR User Service Host [CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_HOST]",
+				"userServiceSecret": "NR User Service Secret [CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_SECRET]"
+			}
+		},
 		"newrelic": {
 			"<appProvider>": {
 				"accountNumber": "NR1 Account Number for webview telemetry [CSSVC_NEWRELIC_WEBVIEW_ACCOUNT_NUMBER]",
@@ -197,6 +213,12 @@
 				"telemetryEndpoint": "Host endpoint passed to APM tracing library [CSSVC_NEWRELIC_TELEMETRY_ENDPOINT]",
 				"webviewAgentId": "NR1 Agent ID for webview telemetry [CSSVC_NEWRELIC_WEBVIEW_AGENT_ID]",
 				"webviewAppId": "NR1 App ID for webview telemetry [CSSVC_NEWRELIC_WEBVIEW_APP_ID]"
+			}
+		},
+		"newrelicgrok": {
+			"<appProvider>": {
+				"apiKey": "API Key for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_API_KEY]",
+				"apiUrl": "API Url for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_API_URL]"
 			}
 		},
 		"okta": {
