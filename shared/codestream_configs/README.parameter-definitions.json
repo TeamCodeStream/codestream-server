@@ -199,6 +199,12 @@
 				"webviewAppId": "NR1 App ID for webview telemetry [CSSVC_NEWRELIC_WEBVIEW_APP_ID]"
 			}
 		},
+		"newrelicgrok": {
+			"<appProvider>": {
+				"apiKey": "API Key for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_API_KEY]",
+				"apiUrl": "API Url for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_API_URL]"
+			}
+		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": "Okta API client Id",

@@ -622,6 +622,18 @@
 				}
 			}
 		},
+		"newrelicgrok":{
+			"<appProvider>": {
+				"apiUrl": {
+					"desc": "API Url for New Relic Grok Requests (through Azure OpenAI)",
+					"env": "CSSVC_NEWRELICGROK_API_URL"
+				},
+				"apiKey": {
+					"desc": "API Key for New Relic Grok Requests (through Azure OpenAI)",
+					"env": "CSSVC_NEWRELICGROK_API_KEY"
+				}
+			}
+		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": {
