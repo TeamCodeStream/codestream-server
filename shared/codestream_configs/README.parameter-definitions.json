@@ -201,7 +201,7 @@
 				"orgServiceHost": "NR Org Service Host [CSSVC_NEWRELIC_IDENTITY_ORG_SERVICE_HOST]",
 				"passwordKey": "NR Password Key (we maintain for short lived encryption) [CSSVC_NEWRELIC_IDENTITY_PASSWORD_KEY]",
 				"signupServiceHost": "NR Signup Service Host [CSSVC_NEWRELIC_IDENTITY_SIGNUP_SERVICE_HOST]",
-				"userServceHost": "NR User Service Host [CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_HOST]",
+				"userServiceHost": "NR User Service Host [CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_HOST]",
 				"userServiceSecret": "NR User Service Secret [CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_SECRET]"
 			}
 		},
