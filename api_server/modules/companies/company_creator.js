@@ -121,7 +121,14 @@ class CompanyCreator extends ModelCreator {
 		}
 
 		const name = this.user.get('fullName') || this.user.get('email').split('@')[0];
-		const { signupResponse, nrUserInfo, token, refreshToken, expiresAt } = await this.api.services.idp.fullSignup(
+		const {
+			signupResponse,
+			nrUserInfo,
+			token,
+			refreshToken,
+			expiresAt,
+			generatedPassword
+		} = await this.api.services.idp.fullSignup(
 			{
 				name: name,
 				email: this.user.get('email'),
@@ -133,7 +140,7 @@ class CompanyCreator extends ModelCreator {
 				mockResponse
 			}
 		);
-		this.password = password; // save because caller needs to obtain a refresh token later in the process
+		this.password = generatedPassword || password; // save because caller needs to obtain a refresh token later in the process
 	
 		// for some insane reason, the user_id comes out as a string 
 		if (typeof nrUserInfo.id === 'string') {

@@ -41,7 +41,7 @@ class ProviderIdentityConnector {
 			if (!this.providerInfo.username) {
 				this.providerInfo.username = EmailUtilities.parseEmail(this.providerInfo.email).name;
 			}
-			this.providerInfo.username = this.providerInfo.username.replace(/ /g, '_');
+			this.providerInfo.username = this.providerInfo.username.replace(/[^A-Za-z0-9-._]/g, '_');
 		} else {
 			this.providerInfo.userId = this.providerInfo.nrUserId;
 		}
@@ -135,6 +135,11 @@ class ProviderIdentityConnector {
 	// might need to update the user object, either because we had to create it before we had to create or team,
 	// or because we found an existing user object, and its identity information from the provider has changed
 	async setUserProviderInfo () {
+		if (this.provider === 'newrelicidp') {
+			// under New Relic IDP, we fill out the provider info at the org create or join step
+			return;
+		}
+
 		let mustUpdate = false;
 
 		// if the key provider info (userId or accessToken) has changed, we need to update
@@ -183,9 +188,11 @@ class ProviderIdentityConnector {
 			[`providerInfo.${providerName}`]: providerInfoData
 		});
 
-		// check if this was a New Relic IDP signin, in which case the returned token actually becomes
+		// check if this was a New Relic IDP sign-up, in which case the returned token actually becomes
 		// our access token
-		await this.checkIDPSignin(op);
+		// FIXME - i think we eliminate this? ... we don't actually want this access token until
+		// the user decides on org creation or join
+		//await this.checkIDPSignup(op);
 
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this.request,
@@ -194,9 +201,11 @@ class ProviderIdentityConnector {
 		}).save(op);
 	}
 
+	// FIXME - i think we eliminate this? ... we don't actually want this access token until
+	// the user decides on org creation or join
 	// check if this was a New Relic IDP signin, in which case the returned token actually becomes
 	// our access token
-	async checkIDPSignin (op) {
+	async checkIDPSignup (op) {
 		// only applies to newrelicidp
 		if (this.provider !== 'newrelicidp') {
 			return;
@@ -208,8 +217,10 @@ class ProviderIdentityConnector {
 			{ overrideHintRequired: true }
 		);
 		const isServiceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
+		if (isServiceGatewayAuth) {
+			this.request.log('This is New Relic IDP signin with Service Gateway auth enabled, storing user access token...');
+		}
 
-		this.request.log('This is New Relic IDP signin with Service Gateway auth enabled, storing user access token...');
 		delete op.$set['providerInfo.newrelic'];
 		const teamId = (this.user.get('teamIds') || [])[0];
 		const teamIdStr = teamId ? `${teamId}.` : ''; // this should always be true

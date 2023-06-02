@@ -156,6 +156,15 @@ class NewRelicIDP extends APIServerModule {
 	// as well as a "login" call thereafter to return an actual token 
 	// the user can use
 	async fullSignup (data, options = {}) {
+
+let passwordGenerated = false;
+if (!data.password) {
+	// FIXME ... this is temporary, until we have a place to go to finish this signup flow
+	// in the case of social signup
+	data.password = RandomString.generate(20);
+	passwordGenerated = true;
+}
+
 		if (options.mockResponse) {
 			options.mockParams = {
 				email: data.email,
@@ -169,6 +178,7 @@ class NewRelicIDP extends APIServerModule {
 			email: data.email,
 			password: data.password
 		}, options);
+
 		const loginResponse = await this.loginUser(
 			{
 				username: data.email,
@@ -193,7 +203,8 @@ class NewRelicIDP extends APIServerModule {
 			refreshToken: loginResponse.idp.refresh_token,
 			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000,
 			*/
-			bearerToken: true
+			bearerToken: true,
+			generatedPassword: passwordGenerated && data.password
 		};
 	}
 
@@ -481,9 +492,15 @@ class NewRelicIDP extends APIServerModule {
 	async getUserIdentity (options) {
 		// decode the token, which is JWT, this will give us the NR User ID
 		const payload = JWT.decode(options.accessToken);
-		return {
-			nrUserId: parseInt(payload.nr_userid, 10)
-		};
+		if (payload.nr_userid) {
+			// this came from username/password sign-in
+			return {
+				nrUserId: parseInt(payload.nr_userid, 10)
+			};
+		} else {
+			payload.userId = payload.oid; // this identifies the user's ID in the underlying social provider
+			return payload;
+		}
 	}
 
 	getAuthCompletePage () {
@@ -568,10 +585,12 @@ class NewRelicIDP extends APIServerModule {
 		}
 
 		const response = await Fetch(url, fetchOptions);
-		let json;
+		let json, text;
 		try {
 			if (response.status === 204) {
 				json = {};
+			} else if (response.status >= 300) {
+				text = await response.text();
 			} else {
 				json = await response.json();
 			}
@@ -581,7 +600,7 @@ class NewRelicIDP extends APIServerModule {
 		}
 
 		if (!response.ok) {
-			const message = json ? JSON.stringify(json) : '???';
+			const message = json ? JSON.stringify(json) : text;
 			this._throw('apiFailed', `${method.toUpperCase()} ${path}: response not ok (${response.status}): ${message}`, options);
 		}
 
