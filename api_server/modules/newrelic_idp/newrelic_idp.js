@@ -28,7 +28,7 @@ class NewRelicIDP extends APIServerModule {
 		const identityConfig = this.api.config.integrations.newRelicIdentity;
 		this.serviceHosts = {
 			'signup': identityConfig.signupServiceHost,
-			'user': identityConfig.userServceHost,
+			'user': identityConfig.userServiceHost,
 			'login': identityConfig.loginServiceHost,
 			'credentials': identityConfig.credentialsServiceHost,
 			'org': identityConfig.orgServiceHost,
