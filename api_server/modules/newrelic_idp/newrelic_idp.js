@@ -493,11 +493,13 @@ if (!data.password) {
 		// decode the token, which is JWT, this will give us the NR User ID
 		const payload = JWT.decode(options.accessToken);
 		if (payload.nr_userid) {
-			// this came from username/password sign-in
+			// this came from New Relic sign-in (which, under the hood, could have been username/password OR social)
 			return {
 				nrUserId: parseInt(payload.nr_userid, 10)
 			};
 		} else {
+			// this came from social sign-up
+			payload.wasNRSocialSignup = true;
 			payload.userId = payload.oid; // this identifies the user's ID in the underlying social provider
 			return payload;
 		}
