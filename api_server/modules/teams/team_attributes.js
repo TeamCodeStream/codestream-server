@@ -118,5 +118,6 @@ module.exports = {
 	grokUserId: {
 		type: 'id',
 		description: 'The ID of the Grok user that is applicable only to this team',
+		serverOnly: true
 	}
 };

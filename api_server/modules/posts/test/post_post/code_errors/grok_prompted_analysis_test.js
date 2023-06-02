@@ -19,7 +19,6 @@ class GrokPromptedAnalysisTest extends CodeErrorTest {
 			BoundAsync.series(this, [
 				super.run,
 				this.wait,
-				this.validateTeam,
 				this.validatePostThread		
 			], callback);
 		}
@@ -55,21 +54,6 @@ class GrokPromptedAnalysisTest extends CodeErrorTest {
 			const reply = response.posts.find(p => p.parentPostId === parentPost.id);
 			
 			Assert(reply !== undefined && reply.forGrok === true);
-
-			callback();
-		});
-	}
-
-	validateTeam (callback) {
-		this.doApiRequest({
-				method: 'get',
-				path: `/teams/${this.team.id}`,
-				token: this.token
-		}, (error, response) => {
-			if (error) { 
-				return callback(error); 
-			}
-			Assert(response.team.grokUserId !== undefined);
 
 			callback();
 		});
