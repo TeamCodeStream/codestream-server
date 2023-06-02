@@ -7,25 +7,9 @@ const Fetch = require('node-fetch');
 const Crypto = require('crypto');
 const UUID = require('uuid').v4;
 const NewRelicAuthorizer = require('./new_relic_authorizer');
-const NewRelicListener = require('./newrelic_listener');
+//const NewRelicListener = require('./newrelic_listener');
 const RandomString = require('randomstring');
 const JWT = require('jsonwebtoken');
-
-// FIXME: this is for now ... ultimately, these should come from config
-const SERVICE_HOSTS = {
-	'signup': 'https://signup-processor.staging-service.newrelic.com',
-	'user': 'https://staging-user-service.nr-ops.net',
-	'login': 'https://staging-login.newrelic.com',
-	'credentials': 'https://staging-credential-service.nr-ops.net',
-	'org': 'https://staging-organization-service.nr-ops.net',
-	'graphql': 'https://nerd-graph.staging-service.nr-ops.net',
-	'idp': 'https://idp-service.staging-service.nr-ops.net'
-};
-
-const USER_SERVICE_SECRET = process.env.NEWRELIC_USER_SERVICE_SECRET; // for now, ultimately, this needs to come from config
-const NEWRELIC_REGION = 'us01'; // for now, ultimately, this needs to come from config
-const NEWRELIC_CLIENT_ID = process.env.NEWRELIC_CLIENT_ID;
-const NEWRELIC_CLIENT_SECRET = process.env.NEWRELIC_CLIENT_SECRET;
 
 class NewRelicIDP extends APIServerModule {
 
@@ -41,9 +25,16 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async initialize () {
-		// FIXME: this is for now ... ultimately, these should come from config
-		this.serviceHosts = SERVICE_HOSTS;
-
+		const identityConfig = this.api.config.integrations.newRelicIdentity;
+		this.serviceHosts = {
+			'signup': identityConfig.signupServiceHost,
+			'user': identityConfig.userServceHost,
+			'login': identityConfig.loginServiceHost,
+			'credentials': identityConfig.credentialsServiceHost,
+			'org': identityConfig.orgServiceHost,
+			'idp': identityConfig.idpServiceHost,
+			'graphql': identityConfig.graphQLHost
+		};
 		/*
 		if (this.api) {
 			this.listener = new NewRelicListener({ api: this.api });
@@ -207,7 +198,7 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async signupUser (data, options = {}) {
-		const region = NEWRELIC_REGION // for now, utimately this should come from config
+		const region = this.api.config.integrations.newRelicIdentity.newRelicRegion;
 		return this._newrelic_idp_call(
 			'signup',
 			'/internal/v1/signups/provision',
@@ -341,8 +332,9 @@ class NewRelicIDP extends APIServerModule {
 
 	async deleteUser (id, codestreamTeamId, options = {}) {
 		// use the NewRelicAuthorizer, which makes a graphql call to delete the user
+		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
-			graphQLHost: SERVICE_HOSTS['graphql'],
+			graphQLHost,
 			request: options.request,
 			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
 		});
@@ -369,8 +361,9 @@ class NewRelicIDP extends APIServerModule {
 
 		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
+		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
-			graphQLHost: SERVICE_HOSTS['graphql'],
+			graphQLHost,
 			request: options.request,
 			teamId: codestreamTeamId, // used to get the user's API key, to make a nerdgraph request
 			adminUser: options.adminUser // grab token or API key from this admin user, instead of the requesting user
@@ -433,7 +426,7 @@ class NewRelicIDP extends APIServerModule {
 	// get redirect parameters and url to use in the redirect response,
 	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
-		const host = SERVICE_HOSTS['login']; // FIXME: should come from config
+		const host = this.serviceHosts.login;
 		const whichPath = options.noSignup ? 'cs' : 'cssignup';
 		const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
 		const data = { 
@@ -462,13 +455,14 @@ class NewRelicIDP extends APIServerModule {
 	// exchange auth code for access token, in the New Relic IDP world, this looks kind of like
 	// OAuth, but really isn't
 	async exchangeAuthCodeForToken (options) {
+		const { newRelicClientId, newRelicClientSecret } = this.api.config.integrations.newRelicIdentity;
 		const result = await this._newrelic_idp_call(
 			'login',
 			'/api/v1/tokens',
 			'post',
 			{
-				client_id: NEWRELIC_CLIENT_ID,
-				client_secret: NEWRELIC_CLIENT_SECRET,
+				client_id: newRelicClientId,
+				client_secret: newRelicClientSecret,
 				auth_code: options.code
 			},
 			options
@@ -598,7 +592,8 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	_signPayload (data, options = {}) {
-		return Crypto.createHmac('sha256', USER_SERVICE_SECRET)
+		const secret = this.api.config.integrations.newRelicIdentity.userServiceSecret;
+		return Crypto.createHmac('sha256', secret)
 			.update(JSON.stringify(data))
 			.digest('hex');
 	}

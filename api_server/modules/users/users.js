@@ -261,8 +261,8 @@ class Users extends Restful {
 			this.api.log('Initializing signup token service...');
 			this.signupTokens = new SignupTokens({ api: this.api });
 
-			// FIXME: make a dedicated config value for this
-			this.passwordEncrypt = new PasswordEncrypt(process.env.CS_API_PASSWORD_KEY);
+			// used to temporarily encrypt passwords before hashing, during the New Relic IDP auth flow
+			this.passwordEncrypt = new PasswordEncrypt(this.api.config.integrations.newRelicIdentity.passwordKey);
 			
 			return { 
 				signupTokens: this.signupTokens,
