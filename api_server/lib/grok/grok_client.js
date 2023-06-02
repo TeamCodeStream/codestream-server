@@ -2,7 +2,7 @@
 
 const fetch = require('node-fetch');
 const Errors = require('./errors');
-const PostCreator = require('../posts/post_creator');
+const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
@@ -10,8 +10,9 @@ const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 
 class GrokClient {
 
-	async analyzeErrorWithGrok(config) {
-		Object.assign(this, config);
+	async analyzeErrorWithGrok(options) {
+		Object.assign(this, options);
+		['request', 'data', 'api', 'errorHandler', 'responseData'].forEach(x => this[x] = this.postRequest[x]);
 
 		this.errorHandler.add(Errors);
 
@@ -142,7 +143,7 @@ class GrokClient {
 		}
 		
 		const postCreator = new PostCreator({
-			request: this,
+			request: this.postRequest,
 			team: this.team
 		});
 
@@ -207,7 +208,7 @@ class GrokClient {
 
 		// Update initial post with the current conversation.
 		await new ModelSaver({
-			request: this,
+			request: this.postRequest,
 			collection: this.data.posts,
 			id: this.topmostPost.get('id')
 		}).save({
@@ -218,7 +219,7 @@ class GrokClient {
 		});
 
 		const postCreator = new PostCreator({
-			request: this,
+			request: this.postRequest,
 			team: this.team
 		});
 
@@ -256,20 +257,20 @@ class GrokClient {
 
 	async broadcast(message, channel){
 		try {
-			await this.request.api.services.broadcaster.publish(
+			await this.api.services.broadcaster.publish(
 				message,
 				channel,
-				{ request: this.request }
+				{ request: this.postRequest }
 			);
 		}
 		catch (error) {
-			this.api.logger.warn(`Could not publish post message to channel ${channel}: ${JSON.stringify(error)}`, this.request.id);
+			this.api.logger.warn(`Could not publish post message to channel ${channel}: ${JSON.stringify(error)}`, this.postRequest.id);
 		}
 	}
 
 	async createGrokUser() {
 		const userCreator = new UserCreator({
-			request: this,
+			request: this.postRequest,
 			teamIds: [this.team.get('id')],
 			companyIds: [this.team.get('companyId')],
 			userBeingAddedToTeamId: this.team.get('id'),
@@ -286,13 +287,13 @@ class GrokClient {
 		});
 
 		await new AddTeamMembers({
-			request: this,
+			request: this.postRequest,
 			addUsers: [grokUser],
 			team: this.team
 		}).addTeamMembers();
 
 		await new ModelSaver({
-			request: this,
+			request: this.postRequest,
 			collection: this.data.teams,
 			id: this.team.get('id')
 		}).save({
@@ -356,7 +357,7 @@ class GrokClient {
 	}
 
 	trackErrorAndThrow(errorKey, additionalMessage = '') {
-		const { request, user, team } = this;
+		const { postRequest, user, team } = this;
 
 		let errorCode = Errors[errorKey].code;
 
@@ -369,7 +370,7 @@ class GrokClient {
 		this.api.services.analytics.trackWithSuperProperties(
 			'Grok Response Failed',
 			trackData,
-			{ request, user, team }
+			{ postRequest, user, team }
 		);
 
 		throw this.errorHandler.error(errorKey, { reason: additionalMessage });

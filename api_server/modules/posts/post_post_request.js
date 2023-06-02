@@ -2,6 +2,7 @@
 
 'use strict';
 
+const GrokClient = require("../../lib/grok/grok_client");
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 
 class PostPostRequest extends PostRequest {
@@ -63,13 +64,16 @@ class PostPostRequest extends PostRequest {
 			await super.postProcess();
 		}
 
-		if(
-			!!this.request.body.analyze || 
+		if(!!this.request.body.analyze || 
 			this.request.body.text.match(/\@Grok/gmi) || 
 			this.reinitializeGrok){
 	 		
-			return this.api.services.grok.analyzeErrorWithGrok(this);
-	 	}
+			return new GrokClient().analyzeErrorWithGrok(
+				{
+					postRequest: this
+				}
+			);
+		}
 	}
 	
 	// describe this route for help

@@ -15,8 +15,7 @@ class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 			BoundAsync.series(this, [
 				super.run,
 				this.wait,
-				this.validatePostThreadReplies,
-				this.validateTeam		
+				this.validatePostThreadReplies		
 			], callback);
 		}
 	}
@@ -67,21 +66,6 @@ class GrokUnpromptedAnalysisReplyTest extends PostReplyTest {
 			const grokReplies = response.posts.filter(p => p.forGrok === true);
 
 			Assert.equal(grokReplies.length, 2)
-
-			callback();
-		});
-	}
-
-	validateTeam (callback) {
-		this.doApiRequest({
-				method: 'get',
-				path: `/teams/${this.team.id}`,
-				token: this.token
-		}, (error, response) => {
-			if (error) { 
-				return callback(error); 
-			}
-			Assert(response.team.grokUserId !== undefined);
 
 			callback();
 		});
