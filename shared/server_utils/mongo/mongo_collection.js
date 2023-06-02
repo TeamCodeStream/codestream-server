@@ -444,7 +444,13 @@ class MongoCollection {
 			delete query.id;
 		}
 		if (typeof query._id === 'string') {
+			const idOrig = query._id;
 			query._id = this.objectIdSafe(query._id);
+			if (!query._id) {
+				// if it didn't turn into a mongo ID object, it's meant to be a string
+				// i learned this the real hard way
+				query._id = idOrig;
+			}
 		}
 		return await this._runQuery(
 			'updateMany',
