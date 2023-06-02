@@ -640,7 +640,7 @@
 					"desc": "NR Signup Service Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_SIGNUP_SERVICE_HOST"
 				},
-				"userServceHost": {
+				"userServiceHost": {
 					"desc": "NR User Service Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_HOST"
 				},
