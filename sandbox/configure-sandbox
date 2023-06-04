@@ -25,7 +25,7 @@ abort_on_fail=1
 # environment is set
 
 cd $CSBE_TOP
-[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox" && exit 0
+[ ! -d .git ] && echo "nothing to configure for a pre-built asset sandbox ($CSBE_TOP/.git not found)" && exit 0
 
 # Install git submodules
 [ -f .gitmodules ] && echo "Updating submodules" && git submodule update --init --recursive
