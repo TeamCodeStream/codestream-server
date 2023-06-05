@@ -38,8 +38,8 @@ class LoginHelper {
 
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
 
-		if (!this.request.user.didIDPSync) {
-			await this.request.user.handleIDPSync(this.request, true);
+		if (!this.user.didIDPSync) {
+			await this.user.handleIDPSync(this.request, true);
 		} 
 		await awaitParallel([
 			this.getInitialData,
