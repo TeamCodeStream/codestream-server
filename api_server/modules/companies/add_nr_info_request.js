@@ -9,6 +9,9 @@ class AddNRInfoRequest extends RestfulRequest {
 
 	// authorize the request for the current user
 	async authorize () {
+		// quietly do nothing, deprecate this call after Unified Identity
+		return;
+
 		throw this.errorHandler.error('deprecated');
 		
 		// get the company
@@ -26,6 +29,9 @@ class AddNRInfoRequest extends RestfulRequest {
 
 	// process the request
 	async process () {
+		// quietly do nothing, deprecate this call after Unified Identity
+		return;
+
 		if (!this.request.body.accountIds && !this.request.body.orgIds) {
 			throw this.errorHandler.error('parameterRequired', { info: 'accountIds or orgIds' });
 		}
@@ -69,6 +75,9 @@ class AddNRInfoRequest extends RestfulRequest {
 
 	// after the join is complete and response returned...
 	async postProcess () {
+		// quietly do nothing, deprecate this call after Unified Identity
+		return;
+
 		const teamId = this.company.get('everyoneTeamId') || (this.company.get('teamIds') || [])[0];
 		if (!teamId) { return; }
 		// publish to the everyone team for the company
