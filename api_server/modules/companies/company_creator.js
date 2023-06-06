@@ -28,7 +28,7 @@ class CompanyCreator extends ModelCreator {
 	// these attributes are required or optional to create a company document,
 	// others will be ignored
 	getRequiredAndOptionalAttributes () {
-		return {
+		const requiredAllowedAttributes = {
 			required: {
 				string: ['name']
 			},
@@ -36,6 +36,17 @@ class CompanyCreator extends ModelCreator {
 				'array(string)': ['domainJoining']
 			}
 		};
+		
+		if (this.nrOrgInfoOK) {
+			// this means info associated with the New Relic org is being passed from the caller
+			// (not the user doing a POST /companies request, which we don't want to allow)
+			Object.assign(requiredAllowedAttributes.optional, {
+				string: ['linkedNROrgId', 'orgOrigination'],
+				boolean: ['codestreamOnly']
+			});
+		}
+
+		return requiredAllowedAttributes;
 	}
 
 	// validate attributes for the company we are creating
@@ -106,6 +117,7 @@ class CompanyCreator extends ModelCreator {
 	// (i.e. NewRelic/Azure) ... even if the user is creating a second org to be a member of, 
 	// under one-user-per-org, it's more or less functionally the same as signing up
 	async handleIdPSignup () {
+		if (!this.skipIDPSignup) { return; }
 		if (!this.api.services.idp) { return; }
 		if (!this.request.request.headers['x-cs-enable-uid']) { return; }
 		let mockResponse;

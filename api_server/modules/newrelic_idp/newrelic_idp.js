@@ -494,8 +494,14 @@ if (!data.password) {
 		const payload = JWT.decode(options.accessToken);
 		if (payload.nr_userid) {
 			// this came from New Relic sign-in (which, under the hood, could have been username/password OR social)
+			// we need to org name
+			const org = await this.getOrg(payload.nr_orgid, options);
 			return {
-				nrUserId: parseInt(payload.nr_userid, 10)
+				nrUserId: parseInt(payload.nr_userid, 10),
+				nrOrgId: payload.nr_orgid,
+				email: payload.email,
+				fullName: payload.name,
+				companyName: org.name
 			};
 		} else {
 			// this came from social sign-up

@@ -5,10 +5,14 @@
 
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const UserCreator = require('../users/user_creator');
-const Indexes = require('../users/indexes');
+const UserIndexes = require('../users/indexes');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const ConfirmHelper = require('../users/confirm_helper');
 const GitLensReferralLookup = require('../users/gitlens_referral_lookup');
+const CompanyIndexes = require('../companies/indexes');
+const CompanyCreator = require('../companies/company_creator');
+const TeamCreator = require('../teams/team_creator');
+const AddTeamMembers = require('../teams/add_team_members');
 
 class ProviderIdentityConnector {
 
@@ -28,7 +32,6 @@ class ProviderIdentityConnector {
 	// CodeStream user, create the user as needed and requested
 	async connectIdentity (providerInfo) {
 		this.providerInfo = providerInfo;
-
 		if (!providerInfo.nrUserId) {
 			// must have these attributes from the provider or we can't proceed
 			['email', 'userId'].forEach(attribute => {
@@ -48,6 +51,7 @@ class ProviderIdentityConnector {
 
 		await this.findUser();
 		await this.createUserAsNeeded();
+		await this.createOrJoinCompany();
 		await this.setUserProviderInfo();
 		await this.confirmUserAsNeeded();
 	}
@@ -59,11 +63,11 @@ class ProviderIdentityConnector {
 		const { query, hint } = this.providerInfo.nrUserId ?
 			{
 				query: { nrUserId: this.providerInfo.nrUserId },
-				hint: Indexes.byNRUserId
+				hint: UserIndexes.byNRUserId
 			} :
 			{
 				query: { searchableEmail: this.providerInfo.email.toLowerCase() },
-				hint: Indexes.bySearchableEmail
+				hint: UserIndexes.bySearchableEmail
 			};
 		const users = await this.data.users.getByQuery(query, { hint });
 
@@ -130,6 +134,59 @@ class ProviderIdentityConnector {
 		}
 
 		this.user = this.createdUser = await this.userCreator.createUser(userData);
+	}
+
+	// add the user to a team (company/org) as needed
+	// this only applies to New Relic login (which ultimately will be all we have)
+	async createOrJoinCompany () {
+		// outside of New Relic context, users are not automatically put in an org
+		if (!this.providerInfo.nrOrgId) {
+			return;
+		}
+
+		// look up the org
+		this.company = await this.request.data.companies.getOneByQuery(
+			{ 
+				linkedNROrgId: this.providerInfo.nrOrgId,
+				deactivated:false
+			}, {
+				hint: CompanyIndexes.byLinkedNROrgId
+			}
+		);
+		if (!this.company || this.company.get('deactivated')) {
+			this.request.log(`New Relic user ${this.providerInfo.nrUserId} has no match for company ${this.providerInfo.nrOrgId}, will create...`);
+			await this.createCompanyForNROrg();
+		} else {
+			this.request.log(`New Relic user's org ID of ${this.providerInfo.nrOrgId} matches company ${this.company.id}, joining user to that org...`);
+		}
+		this.team = await this.request.data.teams.getById(this.company.get('everyoneTeamId'));
+		if (!this.team) {
+			throw this.errorHandler.error('notFound', { info: 'everyone team' }); // shouldn't happen
+		}
+
+		// add the current user to the everyone team for the company
+		await new AddTeamMembers({
+			request: this.request,
+			addUsers: [this.user],
+			team: this.team
+		}).addTeamMembers();
+	}
+
+	// create a CodeStream company corresponding to the NR org this user is coming from
+	async createCompanyForNROrg () {
+		this.request.user = this.user;
+		this.request.teamCreatorClass = TeamCreator; // HACK - this avoids a circular require
+		this.company = await new CompanyCreator({
+			request: this.request,
+			user: this.user,
+			skipIDPSignup: true,
+			nrOrgInfoOK: true
+		}).createCompany({
+			name: this.providerInfo.companyName,
+			linkedNROrgId: this.providerInfo.nrOrgId,
+			codestreamOnly: false,
+			orgOrigination: 'NR'
+		});
 	}
 
 	// might need to update the user object, either because we had to create it before we had to create or team,
@@ -216,7 +273,7 @@ class ProviderIdentityConnector {
 		}
 
 		delete op.$set['providerInfo.newrelic'];
-		const teamId = (this.user.get('teamIds') || [])[0];
+		const teamId = this.team ? this.team.id : (this.user.get('teamIds') || [])[0];
 		const teamIdStr = teamId ? `${teamId}.` : ''; // this should always be true
 		const rootStr = `providerInfo.${teamIdStr}newrelic`;
 		op.$set[`${rootStr}.accessToken`] = this.tokenData.accessToken;
