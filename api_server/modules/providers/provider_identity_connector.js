@@ -192,9 +192,24 @@ class ProviderIdentityConnector {
 	// might need to update the user object, either because we had to create it before we had to create or team,
 	// or because we found an existing user object, and its identity information from the provider has changed
 	async setUserProviderInfo () {
-		if (this.providerInfo.wasNRSocialSignup) {
+		if (this.providerInfo.idp && this.providerInfo.idpAccessToken) {
+			// user signed up via social on New Relic, so we have their social access token now
+			const idpProvider = this.providerInfo.idp.split('.')[0]; // without the .com or .org
+			const idpRootStr = `providerInfo.${idpProvider}`;
+			const op = {
+				$set: {
+					modifiedAt: Date.now(),
+					[`${idpRootStr}.accessToken`]: this.providerInfo.idpAccessToken
+				}
+			};
+			this.transforms.userUpdate = await new ModelSaver({
+				request: this.request,
+				collection: this.data.users,
+				id: this.user.id
+			}).save(op);
 			return;
 		}
+
 		let mustUpdate = false;
 
 		// if the key provider info (userId or accessToken) has changed, we need to update
