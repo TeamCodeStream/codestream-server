@@ -226,7 +226,7 @@ class JoinCompanyHelper {
 
 		const encryptedPassword = this.user.get('encryptedPasswordTemp');
 		if (encryptedPassword) {
-			this.password = await this.decryptPassword(encryptedPassword)
+			this.password = await this.decryptPassword(encryptedPassword);
 		}
 
 		const nrOrgInfo = this.company.get('nrOrgInfo');
@@ -343,7 +343,7 @@ class JoinCompanyHelper {
 	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
 	// to allow the race condition to clear
 	async updateRefreshToken () {
-		if (this.request.headers['x-cs-no-newrelic'] || !this.request.headers['x-cs-enable-uid']) {
+		if (this.request.request.headers['x-cs-no-newrelic'] || !this.request.request.headers['x-cs-enable-uid']) {
 			return;
 		}
 

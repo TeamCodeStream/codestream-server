@@ -9,9 +9,11 @@ class AddNRInfoRequest extends RestfulRequest {
 
 	// authorize the request for the current user
 	async authorize () {
-		// quietly do nothing, deprecate this call after Unified Identity
-		return;
-
+		if (!this.request.headers['x-cs-enable-uid']) {
+			// quietly do nothing, deprecate this call after Unified Identity
+			return;
+		}
+		
 		throw this.errorHandler.error('deprecated');
 		
 		// get the company

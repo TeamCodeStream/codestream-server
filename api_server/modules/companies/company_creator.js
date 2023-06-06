@@ -117,7 +117,7 @@ class CompanyCreator extends ModelCreator {
 	// (i.e. NewRelic/Azure) ... even if the user is creating a second org to be a member of, 
 	// under one-user-per-org, it's more or less functionally the same as signing up
 	async handleIdPSignup () {
-		if (!this.skipIDPSignup) { return; }
+		if (this.skipIDPSignup) { return; }
 		if (!this.api.services.idp) { return; }
 		if (!this.request.request.headers['x-cs-enable-uid']) { return; }
 		let mockResponse;

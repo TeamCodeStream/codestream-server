@@ -4,6 +4,7 @@
 'use strict';
 
 const DeprecatedTest = require('./deprecated_test');
+const DeprecatedEmptyTest = require('./deprecated_empty_test');
 /*
 const AddNRInfoTest = require('./add_nr_info_test');
 const FetchTest = require('./fetch_test');
@@ -20,6 +21,7 @@ class CompanyTestGroupRequestTester {
 
 	test () {
 		new DeprecatedTest().test();
+		new DeprecatedEmptyTest().test();
 		/*
 		new AddNRInfoTest().test();
 		new FetchTest().test();
