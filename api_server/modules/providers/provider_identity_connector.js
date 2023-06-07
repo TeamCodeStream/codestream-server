@@ -200,7 +200,8 @@ class ProviderIdentityConnector {
 		};
 
 		// if the key provider info (userId or accessToken) has changed, we need to update
-		if (this.tokenData.accessToken && this.providerInfo.userId) {
+		const token = (this.tokenData && this.tokenData.accessToken) || this.providerInfo.accessToken;
+		if (token && this.providerInfo.userId) {
 
 			// if existing identities for this provider will be changed, we need to update
 			const providerName = this.provider === 'newrelicidp' ? 'newrelic' : this.provider;
@@ -224,11 +225,11 @@ class ProviderIdentityConnector {
 				if (
 					!teamlessProviderInfo ||
 					teamlessProviderInfo.userId !== this.providerInfo.userId ||
-					teamlessProviderInfo.accessToken !== this.providerInfo.accessToken
+					teamlessProviderInfo.accessToken !== token
 				) {
 					const providerInfoData = Object.assign({
 						userId: this.providerInfo.userId,
-						accessToken: this.providerInfo.accessToken,
+						accessToken: token,
 						hostUrl: this.providerInfo.hostUrl
 					}, this.tokenData || {});
 					op.$set[`providerInfo.${providerName}`] = providerInfoData;
