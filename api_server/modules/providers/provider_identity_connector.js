@@ -140,7 +140,7 @@ class ProviderIdentityConnector {
 	// this only applies to New Relic login (which ultimately will be all we have)
 	async createOrJoinCompany () {
 		// outside of New Relic context, users are not automatically put in an org
-		if (!this.providerInfo.nrOrgId) {
+		if (!this.providerInfo.nrUserId || !this.providerInfo.nrOrgId) {
 			return;
 		}
 
@@ -192,88 +192,83 @@ class ProviderIdentityConnector {
 	// might need to update the user object, either because we had to create it before we had to create or team,
 	// or because we found an existing user object, and its identity information from the provider has changed
 	async setUserProviderInfo () {
-		if (this.providerInfo.idp && this.providerInfo.idpAccessToken) {
-			// user signed up via social on New Relic, so we have their social access token now
-			const idpProvider = this.providerInfo.idp.split('.')[0]; // without the .com or .org
-			const idpRootStr = `providerInfo.${idpProvider}`;
-			const op = {
-				$set: {
-					modifiedAt: Date.now(),
-					[`${idpRootStr}.accessToken`]: this.providerInfo.idpAccessToken
-				}
-			};
-			this.transforms.userUpdate = await new ModelSaver({
-				request: this.request,
-				collection: this.data.users,
-				id: this.user.id
-			}).save(op);
-			return;
-		}
-
 		let mustUpdate = false;
+		const op = { 
+			$set: {
+				modifiedAt: Date.now()
+			}
+		};
 
 		// if the key provider info (userId or accessToken) has changed, we need to update
-		const teamlessProviderInfo = this.user.getProviderInfo(this.provider);
-		if (
-			!teamlessProviderInfo ||
-			teamlessProviderInfo.userId !== this.providerInfo.userId ||
-			teamlessProviderInfo.accessToken !== this.providerInfo.accessToken
-		) {
-			mustUpdate = true;
+		if (this.tokenData.accessToken && this.providerInfo.userId) {
+
+			// if existing identities for this provider will be changed, we need to update
+			const providerName = this.provider === 'newrelicidp' ? 'newrelic' : this.provider;
+			const identity = `${providerName}::${this.providerInfo.userId}`;
+			const existingIdentities = (this.user.get('providerIdentities') || []).filter(id => {
+				return id.startsWith(`${providerName}::`);
+			});
+			let identities = [];
+			if (existingIdentities.length !== 1 || existingIdentities[0] !== identity) {
+				identities = (this.user.get('providerIdentities') || []).filter(id => {
+					return !id.startsWith(`${providerName}::`);
+				});
+				identities.push(`${providerName}::${this.providerInfo.userId}`);
+				op.$set.providerIdentities = identities;
+				mustUpdate = true;
+			}
+
+			// in the case of New Relic IDP, we wait until the user joins an org
+			if (this.provider !== 'newrelicidp') {
+				const teamlessProviderInfo = this.user.getProviderInfo(this.provider);
+				if (
+					!teamlessProviderInfo ||
+					teamlessProviderInfo.userId !== this.providerInfo.userId ||
+					teamlessProviderInfo.accessToken !== this.providerInfo.accessToken
+				) {
+					const providerInfoData = Object.assign({
+						userId: this.providerInfo.userId,
+						accessToken: this.providerInfo.accessToken,
+						hostUrl: this.providerInfo.hostUrl
+					}, this.tokenData || {});
+					op.$set[`providerInfo.${providerName}`] = providerInfoData;
+					mustUpdate = true;
+				}
+			}
 		}
 
-		// if existing identities for this provider will be changed, we need to update
-		const providerName = this.provider === 'newrelicidp' ? 'newrelic' : this.provider;
-		const identity = `${providerName}::${this.providerInfo.userId}`;
-		const existingIdentities = (this.user.get('providerIdentities') || []).filter(id => {
-			return id.startsWith(`${providerName}::`);
-		});
-		if (existingIdentities.length !== 1 || existingIdentities[0] !== identity) {
-			// identity is already stored, no other identities in use, so no need to update
+		// check if user signed up via social on New Relic, so we have their social access token now
+		if (this.providerInfo.idp && this.providerInfo.idpAccessToken) {
+			const idpProvider = this.providerInfo.idp.split('.')[0]; // without the .com or .org
+			op.$set[`providerInfo.${idpProvider}.accessToken`] = this.providerInfo.idpAccessToken;
 			mustUpdate = true;
 		}
 
 		if (!mustUpdate) {
 			return;
 		}
-
-		// preserve identities for other providers, but removing any identities for this provider, and replace
-		// with the new identity passed
-		const identities = (this.user.get('providerIdentities') || []).filter(id => {
-			return !id.startsWith(`${providerName}::`);
-		});
-		identities.push(`${providerName}::${this.providerInfo.userId}`);
-		const op = { 
-			$set: {
-				modifiedAt: Date.now()
-			}
-		};
-		const providerInfoData = Object.assign({
-			userId: this.providerInfo.userId,
-			accessToken: this.providerInfo.accessToken,
-			hostUrl: this.providerInfo.hostUrl
-		}, this.tokenData || {});
-		Object.assign(op.$set, {
-			providerIdentities: identities,
-			[`providerInfo.${providerName}`]: providerInfoData
-		});
-
+		
 		// check if this was a New Relic IDP sign-up, in which case the returned token actually becomes
 		// our access token
 		await this.checkIDPSignin(op);
 
-		this.transforms.userUpdate = await new ModelSaver({
-			request: this.request,
-			collection: this.data.users,
-			id: this.user.id
-		}).save(op);
+		// perform the update
+		if (mustUpdate) {
+			this.transforms.userUpdate = await new ModelSaver({
+				request: this.request,
+				collection: this.data.users,
+				id: this.user.id
+			}).save(op);
+		}
 	}
 
 	// check if this was a New Relic IDP signin, in which case the returned token actually becomes
 	// our access token
 	async checkIDPSignin (op) {
-		// only applies to newrelicidp
-		if (this.provider !== 'newrelicidp') {
+		const teamId = this.team ? this.team.id : (this.user.get('teamIds') || [])[0];
+
+		// only applies to newrelicidp, and if the user is joining or has joined an org
+		if (this.provider !== 'newrelicidp' || !teamId) {
 			return;
 		}
 
@@ -288,9 +283,7 @@ class ProviderIdentityConnector {
 		}
 
 		delete op.$set['providerInfo.newrelic'];
-		const teamId = this.team ? this.team.id : (this.user.get('teamIds') || [])[0];
-		const teamIdStr = teamId ? `${teamId}.` : ''; // this should always be true
-		const rootStr = `providerInfo.${teamIdStr}newrelic`;
+		const rootStr = `providerInfo.${teamId}.newrelic`;
 		op.$set[`${rootStr}.accessToken`] = this.tokenData.accessToken;
 		op.$set[`${rootStr}.bearerToken`] = true;
 		if (isServiceGatewayAuth) {

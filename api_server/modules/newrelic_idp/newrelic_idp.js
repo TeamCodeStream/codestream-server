@@ -492,28 +492,20 @@ if (!data.password) {
 	async getUserIdentity (options) {
 		// decode the token, which is JWT, this will give us the NR User ID
 		const payload = JWT.decode(options.accessToken);
-		if (payload.nr_userid) {
-			// this came from New Relic sign-in (which, under the hood, could have been username/password OR social)
-			// we need the org name to create our org with
+		const identityInfo = {
+			email: payload.email,
+			fullName: payload.name,
+			nrUserId: payload.nr_userid,
+			nrOrgId: payload.nr_orgid,
+			idp: payload.idp,
+			idpAccessToken: payload.idp_access_token,
+			userId: payload.oid
+		};
+		if (payload.nr_orgid) {
 			const org = await this.getOrg(payload.nr_orgid, options);
-			return {
-				nrUserId: parseInt(payload.nr_userid, 10),
-				nrOrgId: payload.nr_orgid,
-				email: payload.email,
-				fullName: payload.name,
-				companyName: org.name
-			};
-		} else {
-			// this came from New Relic social sign-up, we have access token info for the social provider at this point,
-			// but not for New Relic ... that will come later, when user chooses whether to create or join a company
-			return {
-				userId: payload.oid,
-				idp: payload.idp,
-				idpAccessToken: payload.idp_access_token,
-				fullName: payload.name,
-				email: payload.email
-			};
+			identityInfo.companyName = org.name;
 		}
+		return identityInfo;
 	}
 
 	getAuthCompletePage () {
