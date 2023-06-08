@@ -625,7 +625,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			environmentGroup[switchToGroup[region][runTimeEnvironment]]
 		) {
 			this.redirectHost = environmentGroup[switchToGroup[region][runTimeEnvironment]].publicApiUrl;
-			this.redirectUrl = this.redirectHost + '?' + Object.keys(this.request.query).map(param => {
+			this.redirectUrl = `${this.redirectHost}${this.request.path}?` + Object.keys(this.request.query).map(param => {
 				return `${param}=${this.request.query[param]}`;
 			}).join('&');
 			this.log(`New Relic region is ${region}, switching to host ${this.redirectHost}...`);
