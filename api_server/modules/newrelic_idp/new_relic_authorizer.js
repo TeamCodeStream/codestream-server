@@ -37,25 +37,29 @@ class NewRelicAuthorizer {
 		} 
 
 		// get the user's NR access token, non-starter if no access token
+		let token = this.accessToken;
 		const user = this.adminUser || this.request.user;
-		const teamProviderInfo = (
-			user.get('providerInfo') &&
-			user.get('providerInfo')[this.teamId] &&
-			user.get('providerInfo')[this.teamId].newrelic
-		);
-		const userProviderInfo = (
-			user.get('providerInfo') &&
-			user.get('providerInfo').newrelic
-		);
 		let providerInfo;
-		if (teamProviderInfo && teamProviderInfo.accessToken) {
-			providerInfo = teamProviderInfo;
-		} else if (userProviderInfo && userProviderInfo.accessToken) {
-			providerInfo = userProviderInfo;
-		}
-		const token = providerInfo && providerInfo.accessToken;
 		if (!token) {
-			this.request.log(`User ${user.id} has no NR token`);
+			const teamProviderInfo = (
+				user.get('providerInfo') &&
+				user.get('providerInfo')[this.teamId] &&
+				user.get('providerInfo')[this.teamId].newrelic
+			);
+			const userProviderInfo = (
+				user.get('providerInfo') &&
+				user.get('providerInfo').newrelic
+			);
+			if (teamProviderInfo && teamProviderInfo.accessToken) {
+				providerInfo = teamProviderInfo;
+			} else if (userProviderInfo && userProviderInfo.accessToken) {
+				providerInfo = userProviderInfo;
+			}
+			token = providerInfo && providerInfo.accessToken;
+		}
+		if (!token) {
+			const userId = user ? user.id : '???';
+			this.request.log(`User ${userId} has no NR token`);
 			this.checkResponse = {
 				needNRToken: true
 			};
@@ -68,16 +72,18 @@ class NewRelicAuthorizer {
 		}
 
 		// refresh the token as needed
-		await this.refreshTokenAsNeeded(user, providerInfo);
+		if (user && providerInfo) {
+			await this.refreshTokenAsNeeded(user, providerInfo);
+		}
 
 		// Unified Identity tokens are cookies, not api keys
 		const graphQLHeaders = {
 			"Content-Type": "application/json",
 			"NewRelic-Requesting-Services": "CodeStream"
 		};
-		if (providerInfo.setCookie) {
+		if (providerInfo && providerInfo.setCookie) {
 			graphQLHeaders.Cookie = `${providerInfo.setCookie}=${token};`;
-		} else if (providerInfo.bearerToken) {
+		} else if (this.accessToken || providerInfo.bearerToken) {
 			graphQLHeaders.Authorization = `Bearer ${token}`;
 		} else {
 			graphQLHeaders['Api-Key'] = token;
@@ -182,7 +188,7 @@ class NewRelicAuthorizer {
 		if (this.mockErrorGroup) {
 			response = { actor: { errorsInbox: { errorGroup: { id: this.mockErrorGroup } } } };
 		} else {
-			try{
+			try {
 				const query = gql`
 					query errorGroupById($id: ID!) {
 						actor {
@@ -343,6 +349,29 @@ mutation {
 		}
 		const split = parsed.split(/\|/);
 		return parseInt(split[0], 10);
+	}
+
+	// return the region of the given account
+	async regionFromAccountId (accountId) {
+		let response;
+		try {
+			const query = gql`
+{
+	currentUser {
+		account(id: ${accountId}) {
+			region {
+				code
+			}
+		}
+	}
+}
+`;
+			response = await this.client.request(query);
+		}
+		catch (error) {
+			throw error;
+		}
+		return response.currentUser?.account?.region?.code;
 	}
 
 	// get the base URL for New Relic GraphQL client

@@ -353,6 +353,19 @@ if (!data.password) {
 		return authorizer.deleteUser(id, options);
 	}
 
+	// return the region code associated with a particular account
+	async regionFromAccountId (accountId, accessToken, options = {}) {
+		// use the NewRelicAuthorizer, which makes a graphql call 
+		const graphQLHost = this.serviceHosts['graphql'];
+		const authorizer = new NewRelicAuthorizer({
+			graphQLHost,
+			request: options.request,
+			accessToken
+		});
+		await authorizer.init();
+		return authorizer.regionFromAccountId(accountId);
+	}
+
 	// determine whether an NR org qualifies as "codestream only"
 	// currently, we need to examine whether it has the unlimited_consumption entitlement
 	async isNROrgCodeStreamOnly (nrOrgId, codestreamTeamId, options = {}) {
@@ -503,9 +516,16 @@ if (!data.password) {
 		};
 		if (payload.nr_orgid) {
 			const org = await this.getOrg(payload.nr_orgid, options);
-			identityInfo.companyName = org.name;
+			// unfortunately it seems we need to wait a bit before the token that was issued by Azure/New Relic
+			// can be used for a NerdGraph call, hopefully 1 second is enough...
+			return new Promise(async resolve => {
+				setTimeout(async () => {
+					identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options);
+					identityInfo.companyName = org.name;
+					resolve(identityInfo);
+				}, 1000);
+			});
 		}
-		return identityInfo;
 	}
 
 	getAuthCompletePage () {

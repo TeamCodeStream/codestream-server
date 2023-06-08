@@ -480,6 +480,12 @@ class ProviderTokenRequest extends RestfulRequest {
 			request: this
 		});
 
+		// check if we need to redirect to another region
+		if (await this.handleRegion()) {
+			// we're redirecting to a new region host, abort further processing
+			return;
+		}
+
 		// now attempt to match the identifying info with an existing user
 		await this.matchUser(this.userIdentity);
 	}
@@ -502,7 +508,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;
 		this.team = this.connector.team;
-
+		
 		// set signup status
 		if (this.connector.createdTeam) {
 			this.signupStatus = 'teamCreated';
@@ -536,7 +542,8 @@ class ProviderTokenRequest extends RestfulRequest {
 					provider: this.provider,
 					providerAccess: this.providerAccess,
 					teamId: this.team && this.team.id,
-					sharing: this.sharing
+					sharing: this.sharing,
+					switchToServerUrl: this.redirectHost
 				}
 			}
 		);
@@ -547,15 +554,20 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (this.isClientToken) {
 			return;
 		}
-		const host = this.api.config.apiServer.marketingSiteUrl;
-		const authCompletePage = this.serviceAuth.getAuthCompletePage();
-		const redirect = this.tokenPayload && this.tokenPayload.url ?
-			`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :
-			`${host}/auth-complete/${authCompletePage}`;
-		// TODO: issue cookie in case of New Relic login
-		if (this.tokenPayload && this.tokenPayload.url) {
-			this.issueCookie();			
+
+		let redirect = this.redirectUrl;
+		if (!redirect) {
+			const host = this.api.config.apiServer.marketingSiteUrl;
+			const authCompletePage = this.serviceAuth.getAuthCompletePage();
+			redirect = this.tokenPayload && this.tokenPayload.url ?
+				`${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}` :
+				`${host}/auth-complete/${authCompletePage}`;
+			// TODO: issue cookie in case of New Relic login
+			if (this.tokenPayload && this.tokenPayload.url) {
+				this.issueCookie();			
+			}
 		}
+
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
@@ -572,6 +584,53 @@ class ProviderTokenRequest extends RestfulRequest {
 			secure: true,
 			signed: true
 		});
+	}
+
+	// for New Relic IDP login, look at the region, and if it doens't match our region,
+	// redirect to the server in the proper region, let "them" handle this
+	async handleRegion () {
+		const { environmentGroup, sharedGeneral } = this.api.config;
+		const { runTimeEnvironment, isProductionCloud } = sharedGeneral;
+
+		// only applies to New Relic IDP
+		if (this.provider !== 'newrelicidp') { return; }
+
+		// since New Relic staging has no EU, we'll "simulate" by looking for emails
+		// matching a certain pattern
+		let { region, email } = this.userIdentity;
+		if (!isProductionCloud) { 
+			if (email.match(/\/+testus/)) {
+				region = 'us01';
+			} else if (email.match(/\+testeu/)) {
+				region = 'eu01';
+			}
+		}
+		if (!region || !environmentGroup) { return; }
+
+		// switch to a different host as needed
+		const switchToGroup = {
+			'us01': {
+				'eu1': 'us1',
+				'pd2': 'pd',
+				'local2': 'local1'
+			},
+			'eu01': {
+				'us1': 'eu1',
+				'pd': 'pd2',
+				'local1': 'local2'
+			}
+		};
+		if (switchToGroup[region] &&
+			switchToGroup[region][runTimeEnvironment] &&
+			environmentGroup[switchToGroup[region][runTimeEnvironment]]
+		) {
+			this.redirectHost = environmentGroup[switchToGroup[region][runTimeEnvironment]].publicApiUrl;
+			this.redirectUrl = this.redirectHost + '?' + Object.keys(this.request.query).map(param => {
+				return `${param}=${this.request.query[param]}`;
+			}).join('&');
+			this.log(`New Relic region is ${region}, switching to host ${this.redirectHost}...`);
+			return true;
+		}
 	}
 
 	// after a response is returned....
