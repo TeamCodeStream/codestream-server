@@ -60,8 +60,7 @@ class CheckSignupRequest extends RestfulRequest {
 		);
 		if (!this.signupToken) {
 			throw this.errorHandler.error('tokenNotFound');
-		}
-		else if (this.signupToken.error) {
+		} else if (this.signupToken.error) {
 			if (this.signupToken.sharing) {
 				throw this.errorHandler.errorByCode(this.signupToken.error, {
 					providerError: this.signupToken.providerError,
@@ -74,8 +73,9 @@ class CheckSignupRequest extends RestfulRequest {
 					provider: this.signupToken.provider
 				});
 			}
-		}
-		else if (this.signupToken.expired) {
+		} else if (this.signupToken.switchToServerUrl) {
+			throw this.errorHandler.error('switchToServerUrl', { url: this.signupToken.switchToServerUrl });
+		} else if (this.signupToken.expired) {
 			throw this.errorHandler.error('tokenExpired');
 		}
 	}
