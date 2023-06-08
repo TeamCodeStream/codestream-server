@@ -62,7 +62,7 @@ class ProviderIdentityConnector {
 		// for normal OAuth, match on email, but for New Relic IDP, match on NR User ID
 		const { query, hint } = this.providerInfo.nrUserId ?
 			{
-				query: { nrUserId: this.providerInfo.nrUserId },
+				query: { nrUserId: parseInt(this.providerInfo.nrUserId, 10) },
 				hint: UserIndexes.byNRUserId
 			} :
 			{
