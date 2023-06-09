@@ -44,7 +44,11 @@ class GrokClient {
 			}
 		}
 
-		await this.findTopMostPost();
+		this.topmostPost = await this.findTopMostPost();
+
+		if (!this.topmostPost) {
+			throw this.errorHandler.error('notFound', { info: 'topmostPost' });
+		}
 
 		const grokConversation = this.topmostPost.get('grokConversation');
 
@@ -74,7 +78,7 @@ class GrokClient {
 			}
 		}
 
-		this.topmostPost = topmostPost;
+		return topmostPost;
 	}
 
 	async continueConversation(grokConversation, grokUserId){
@@ -96,7 +100,6 @@ class GrokClient {
 				forGrok: true
 			},
 			{
-				fields: ['text', 'promptRole'],
 				hint: PostIndexes.byParentPostId,
 			}
 		);
@@ -207,7 +210,7 @@ class GrokClient {
 		}
 
 		// Update initial post with the current conversation.
-		await new ModelSaver({
+		const updatedPost = await new ModelSaver({
 			request: this.postRequest,
 			collection: this.data.posts,
 			id: this.topmostPost.get('id')
@@ -217,6 +220,8 @@ class GrokClient {
 				forGrok: true
 			}
 		});
+
+		this.postRequest.postProcessPersist();
 
 		const postCreator = new PostCreator({
 			request: this.postRequest,
@@ -238,8 +243,14 @@ class GrokClient {
 			overrideCreatorId: grokUserId
 		});
 
+		// client does NOT need this and it could be enormous; save those bytes
+		delete updatedPost.$set.grokConversation;
+
 		await this.broadcastToTeam({
-			post: post.attributes
+			posts: [
+				post.attributes,
+				updatedPost
+			]
 		});
 	}
 

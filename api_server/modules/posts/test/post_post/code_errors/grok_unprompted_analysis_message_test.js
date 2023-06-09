@@ -65,21 +65,27 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 			if(m.message && m.message.post){
 				posts.push(m.message.post);
 			}
-		});
 
-		this.messages.map((m) => {
-			if (m.message && m.message.user){
+			if(m.message && m.message.user){
 				users.push(m.message.user);
 			}
+
+			if(m.message && m.message.posts){
+				m.message.posts.map((im) => {
+					posts.push(im);
+				});
+			}
 		});
-		
+
 		const parentPost = posts.find(m => !m.parentPostId);
+		const parentPostUpdate = posts.find(m => m.$set != undefined);
 		const grokPost = posts.find(m => m.parentPostId && m.parentPostId === parentPost.id);
 		const grokUser = users.find(m => m.username === "Grok");
 		
 		Assert.notEqual(grokUser, undefined, "Grok user was not present in messages");
 		Assert.notEqual(parentPost, undefined, "Parent post was not present in messages");
 		Assert.notEqual(grokPost, undefined, "Grok reply was not present in messages");
+		Assert.notEqual(parentPostUpdate, undefined, "Parent post update was not present in messages");
 
 		Assert.equal(grokPost.creatorId, grokUser.id, "Grok reply was not created by Grok user");
 		Assert.equal(parentPost.id, grokPost.parentPostId, "Grok reply was not properly tied to the parent post");
