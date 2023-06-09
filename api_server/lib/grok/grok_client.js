@@ -166,8 +166,8 @@ class GrokClient {
 		});
 
 		this.broadcastToTeam({
-			post: post.attributes
-		 });
+			post: post.getSanitizedObject({ request: this.postRequest })
+		});
 	}
 
 	async startNewConversation(grokUserId) {
@@ -248,7 +248,7 @@ class GrokClient {
 
 		await this.broadcastToTeam({
 			posts: [
-				post.attributes,
+				post.getSanitizedObject({ request: this.postRequest }),
 				updatedPost
 			]
 		});
@@ -314,7 +314,7 @@ class GrokClient {
 		});
 
 		await this.broadcastToTeam({
-			user: grokUser.attributes
+			user: grokUser.getSanitizedObject({ request: this.postRequest })
 		});
 
 		return grokUser;
