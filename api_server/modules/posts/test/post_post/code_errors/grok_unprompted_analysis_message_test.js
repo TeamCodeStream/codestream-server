@@ -54,12 +54,13 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 	}
 
 	// validate the message received against expectations
-	// EXPECTING THREE MESSAGES
+	// EXPECTING THREE MESSAGES, BUT WITH MULTIPLE CHANGES
 	validateMessages () {
 		Assert.equal(this.messages.length, 3);
 
 		const posts = [];
 		const users = [];
+		const teams = []
 
 		this.messages.map((m) => {
 			if(m.message && m.message.post){
@@ -75,17 +76,23 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 					posts.push(im);
 				});
 			}
+
+			if(m.message && m.message.team){
+				teams.push(m.message.team);
+			}
 		});
 
 		const parentPost = posts.find(m => !m.parentPostId);
 		const parentPostUpdate = posts.find(m => m.$set != undefined);
 		const grokPost = posts.find(m => m.parentPostId && m.parentPostId === parentPost.id);
 		const grokUser = users.find(m => m.username === "Grok");
-		
+		const teamUpdate = teams.find(m => m.$set != undefined && m.$set.grokUserId === grokUser.id);
+
 		Assert.notEqual(grokUser, undefined, "Grok user was not present in messages");
 		Assert.notEqual(parentPost, undefined, "Parent post was not present in messages");
 		Assert.notEqual(grokPost, undefined, "Grok reply was not present in messages");
 		Assert.notEqual(parentPostUpdate, undefined, "Parent post update was not present in messages");
+		Assert.notEqual(teamUpdate, undefined, "Team update was not present in messages");
 
 		Assert.equal(grokPost.creatorId, grokUser.id, "Grok reply was not created by Grok user");
 		Assert.equal(parentPost.id, grokPost.parentPostId, "Grok reply was not properly tied to the parent post");
