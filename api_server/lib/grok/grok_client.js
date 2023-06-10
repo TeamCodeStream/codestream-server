@@ -313,8 +313,11 @@ class GrokClient {
 			}
 		});
 
+		this.postRequest.postProcessPersist();
+
 		await this.broadcastToTeam({
-			user: grokUser.getSanitizedObject({ request: this.postRequest })
+			user: grokUser.getSanitizedObject({ request: this.postRequest }),
+			team: this.postRequest.transforms.teamUpdate
 		});
 
 		return grokUser;
