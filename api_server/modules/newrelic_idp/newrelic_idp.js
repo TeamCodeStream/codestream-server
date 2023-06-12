@@ -46,7 +46,11 @@ class NewRelicIDP extends APIServerModule {
 	async createUserWithPassword (attributes, password, options = {}) {
 		// first create the actual user
 		const createUserResponse = await this.createUser(attributes, options);
-
+if (!password) {
+	// FIXME ... this is temporary, until we have a place to go to finish this signup flow
+	// in the case of social signup
+	password = RandomString.generate(20);
+}
 		// this sets the password on azure ... this call should be removed once the credentials
 		// service handles syncing the azure password itself from the code below
 		const idpId = createUserResponse.data.attributes.activeIdpObjectId;
@@ -143,6 +147,7 @@ class NewRelicIDP extends APIServerModule {
 				attributes
 			}
 		}
+		
 		return this._newrelic_idp_call(
 			'user',
 			'/v1/users',
@@ -516,16 +521,24 @@ if (!data.password) {
 		};
 		if (payload.nr_orgid) {
 			const org = await this.getOrg(payload.nr_orgid, options);
+			identityInfo.companyName = org.name;
 			// unfortunately it seems we need to wait a bit before the token that was issued by Azure/New Relic
 			// can be used for a NerdGraph call, hopefully 1 second is enough...
-			return new Promise(async resolve => {
-				setTimeout(async () => {
-					identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options);
-					identityInfo.companyName = org.name;
-					resolve(identityInfo);
-				}, 1000);
-			});
+			let done = false;
+			for (let i = 0; i < 10 && !done; i++) {
+				done = await new Promise(async resolve => {
+					setTimeout(async () => {
+						try {
+							identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options);
+						} catch (ex) {
+							resolve(false);
+						}
+						resolve(true);
+					}, 200);
+				});
+			}
 		}
+		return identityInfo;
 	}
 
 	getAuthCompletePage () {

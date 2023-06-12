@@ -182,6 +182,10 @@ class JoinCompanyHelper {
 				accessToken
 			};
 		} else {
+			// only copy providerInfo if we are not doing New Relic IdP, if we are, the provider credentials
+			// will be set separately
+			const providerInfo = this.request.request.headers['x-cs-enable-uid'] ? undefined : this.user.get('providerInfo');
+			const providerIdentities = this.request.request.headers['x-cs-enable-uid'] ? undefined : this.user.get('providerIdentities');
 			this.responseData = await new this.confirmHelperClass({ // avoids a circular require
 				request: this.request,
 				user: this.invitedUser,
@@ -191,8 +195,8 @@ class JoinCompanyHelper {
 				email: this.user.get('email'),
 				username: this.user.get('username'),
 				passwordHash: this.user.get('passwordHash'),
-				providerInfo: this.user.get('providerInfo'),
-				providerIdentities: this.user.get('providerIdentities')
+				providerInfo,
+				providerIdentities
 			});
 		}
 
@@ -266,10 +270,23 @@ class JoinCompanyHelper {
 				userTierId: nrUserInfo.attributes.userTierId
 			},
 			nrUserId: nrUserInfo.id,
+			/*
 			[ `providerInfo.${this.team.id}.newrelic.accessToken` ]: token,
 			[ `providerInfo.${this.team.id}.newrelic.refreshToken` ]: refreshToken,
 			[ `providerInfo.${this.team.id}.newrelic.expiresAt` ]: expiresAt,
 			[ `providerInfo.${this.team.id}.newrelic.bearerToken` ]: true
+			*/
+		};
+
+		// make sure we copy (teamless) providerInfo from the original user
+		set.providerInfo = this.user.get('providerInfo') || {};
+		set.providerInfo[this.team.id] = {
+			newrelic: {
+				accessToken: token,
+				refreshToken,
+				expiresAt,
+				bearerToken: true
+			}
 		};
 
 		// if we are behind service gateway and using login service auth, we actually set the user's

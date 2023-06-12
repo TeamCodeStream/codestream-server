@@ -156,6 +156,9 @@ class ProviderIdentityConnector {
 		if (!this.company || this.company.get('deactivated')) {
 			this.request.log(`New Relic user ${this.providerInfo.nrUserId} has no match for company ${this.providerInfo.nrOrgId}, will create...`);
 			await this.createCompanyForNROrg();
+		} else if (this.company.id === (this.user.get('companyIds') || [])[0]) {
+			this.request.log(`New Relic user's org ID of ${this.providerInfo.nrOrgId} matches company ${this.company.id}, and user is already in that company, proceeding with login...`);
+			return;
 		} else {
 			this.request.log(`New Relic user's org ID of ${this.providerInfo.nrOrgId} matches company ${this.company.id}, joining user to that org...`);
 		}
@@ -245,14 +248,16 @@ class ProviderIdentityConnector {
 			mustUpdate = true;
 		}
 
+		// check if this was a New Relic IDP sign-up, in which case the returned token actually becomes
+		// our access token
+		if (await this.checkIDPSignin(op)) {
+			mustUpdate = true;
+		}
+
 		if (!mustUpdate) {
 			return;
 		}
 		
-		// check if this was a New Relic IDP sign-up, in which case the returned token actually becomes
-		// our access token
-		await this.checkIDPSignin(op);
-
 		// perform the update
 		if (mustUpdate) {
 			this.transforms.userUpdate = await new ModelSaver({
@@ -266,7 +271,7 @@ class ProviderIdentityConnector {
 	// check if this was a New Relic IDP signin, in which case the returned token actually becomes
 	// our access token
 	async checkIDPSignin (op) {
-		const teamId = this.team ? this.team.id : (this.user.get('teamIds') || [])[0];
+		const teamId = this.company ? this.company.get('everyoneTeamId') : (this.user.get('teamIds') || [])[0];
 
 		// only applies to newrelicidp, and if the user is joining or has joined an org
 		if (this.provider !== 'newrelicidp' || !teamId) {
@@ -305,6 +310,7 @@ class ProviderIdentityConnector {
 				op.$set['accessTokens.web.provider'] = this.tokenData.provider;
 			}
 		}
+		return true;
 	}
 
 	// if we found an existing unregistered user, signing in is like confirmation,
