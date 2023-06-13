@@ -176,8 +176,21 @@ class GrokClient {
 			throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
 
-		// get the last stack trace we have - text is full stack trace
-		const stackTrace = (codeError.get('stackTraces') || []).slice(-1).pop().text;
+		// get the last stack trace we have - text is full stack trace, split it into lines
+		const stackTraceLines = (codeError.get('stackTraces') || [])
+			.slice(-1)
+			.pop()
+			.text
+			.split(/\r?\n/);
+		
+		// limit to 30 lines
+		const totalStackTraceLines = Math.min(stackTraceLines.length, 30);
+
+		// join the first 30 lines back together
+		const stackTrace = stackTraceLines
+			.slice(0, totalStackTraceLines)
+			.join('\n');
+
 		const code = this.request.body.codeBlock;
 
 		const initialPrompt = [{
