@@ -208,9 +208,9 @@ const USERS_ADDITIONAL_ROUTES = [
 		requestClass: require('./check_login_request')
 	},
 	{
-		method: 'get',
-		path: 'nr-exp',
-		requestClass: require('./nr_lookup_experiment_request')
+		method: 'put',
+		path: '/web/join-company/:id',
+		requestClass: require('./web_join_company_request')
 	}
 ];
 

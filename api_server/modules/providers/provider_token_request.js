@@ -210,7 +210,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				throw this.errorHandler.error('tokenInvalid', { reason: message });
 			}
 		}
-		if (this.tokenPayload.type !== 'pauth') {
+		if (this.tokenPayload.type !== 'pauth' && this.tokenPayload.type !== 'rauth') {
 			throw this.errorHandler.error('tokenInvalid', { reason: 'not a provider authorization token' });
 		}
 
@@ -554,6 +554,12 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (this.isClientToken) {
 			return;
 		}
+		/*
+		if (this.connector && this.connector.createdUser) {
+			this.issueCookie();			
+			return this.redirectToDomainPicker(this.connector.createdUser);
+		}
+		*/
 
 		let redirect = this.redirectUrl;
 		if (!redirect) {
@@ -569,6 +575,21 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 
 		this.response.redirect(redirect);
+		this.responseHandled = true;
+	}
+
+	// redirect to the api-web domain picker page, as the final step of social signup
+	redirectToDomainPicker (user) {
+		// generate a new short-lived state token with the created user's ID embedded
+		this.tokenPayload.uid = user.id;
+		const state = this.api.services.tokenHandler.generate(
+			this.tokenPayload,
+			'dpck',
+			{ expiresAt: Date.now() + 60 * 1000 }
+		);
+
+		const url = `/web/domain-picker/${this.provider}?t=${state}`;
+		this.response.redirect(url);
 		this.responseHandled = true;
 	}
 

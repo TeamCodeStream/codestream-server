@@ -237,6 +237,11 @@ const ROUTES = [
 		method: 'get',
 		path: 'web/unsubscribe-weekly-error',
 		requestClass: require('./web_unsubscribe_weekly_error_request')
+	},
+	{
+		method: 'get',
+		path: 'web/domain-picker/:provider',
+		requestClass: require('./domain_picker_request')
 	}
 ];
 
