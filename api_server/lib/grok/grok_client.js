@@ -12,7 +12,7 @@ class GrokClient {
 
 	async analyzeErrorWithGrok(options) {
 		Object.assign(this, options);
-		['request', 'data', 'api', 'errorHandler', 'responseData'].forEach(x => this[x] = this.postRequest[x]);
+		['request', 'data', 'api', 'errorHandler', 'responseData', 'user'].forEach(x => this[x] = this.postRequest[x]);
 
 		this.errorHandler.add(Errors);
 
