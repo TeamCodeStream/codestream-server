@@ -4,8 +4,8 @@ const fetch = require('node-fetch');
 const Errors = require('./errors');
 const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
-const AddTeamMembers = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/add_team_members');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
+const TeamIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/indexes');
 const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_creator');
 
 class GrokClient {
@@ -328,7 +328,7 @@ class GrokClient {
 			}
 		};
 
-		const teamTransform = await new ModelSaver({
+		await new ModelSaver({
 			request: this.postRequest,
 			collection: this.data.teams,
 			id: teamId
@@ -336,9 +336,11 @@ class GrokClient {
 
 		await this.postRequest.postProcessPersist();
 		
+		this.team = await this.data.teams.getById(teamId);
+
 		await this.broadcastToTeam({
 			user: grokUser.getSanitizedObject({ request: this.postRequest }),
-			team: teamTransform
+			team: this.team.getSanitizedObject({ request: this.postRequest })
 		});
 
 		return grokUser;
