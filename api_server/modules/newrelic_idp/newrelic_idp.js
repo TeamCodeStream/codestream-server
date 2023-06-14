@@ -551,6 +551,8 @@ console.warn('******************************************************************
 			idpAccessToken: payload.idp_access_token,
 			userId: payload.oid
 		};
+
+		// extract company name and region as needed
 		if (payload.nr_orgid) {
 			const org = await this.getOrg(payload.nr_orgid, options);
 			identityInfo.companyName = org.name;
@@ -569,6 +571,16 @@ console.warn('******************************************************************
 					}, 200);
 				});
 			}
+		}
+		
+		// extract user ID and info as needed
+		if (payload.nr_userid) {
+			const userInfo = await this.getUser(payload.nr_userid, options);
+			identityInfo.nrUserId = parseInt(payload.nr_userid, 10);
+			identityInfo.nrUserInfo = {
+				userTierId: userInfo.data?.attributes?.userTierId,
+				userTier: userInfo.data?.attributes?.userTier
+			};
 		}
 		return identityInfo;
 	}

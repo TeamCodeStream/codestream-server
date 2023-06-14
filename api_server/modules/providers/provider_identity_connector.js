@@ -120,7 +120,7 @@ console.warn('******************************************************************
 			_pubnubUuid: this._pubnubUuid,
 			providerIdentities: [`${this.provider}::${this.providerInfo.userId}`]
 		};
-		['email', 'username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn'].forEach(attribute => {
+		['email', 'username', 'fullName', 'timeZone', 'phoneNumber', 'iWorkOn', 'nrUserId', 'nrUserInfo'].forEach(attribute => {
 			if (this.providerInfo[attribute]) {
 				userData[attribute] = this.providerInfo[attribute] || '';
 			}
