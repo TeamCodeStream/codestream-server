@@ -26,6 +26,9 @@ class ProviderTokenRequest extends RestfulRequest {
 	async process () {
 		try {
 			if (this.request.path.match(/~nrlogin/)) {
+console.warn('************************************************************************************************');
+console.warn('~nrlogin called from New Relic IDP');
+console.warn('************************************************************************************************');
 				this.request.params.provider = 'newrelicidp';
 			}
 
@@ -54,7 +57,13 @@ class ProviderTokenRequest extends RestfulRequest {
 				await this.getUser();				// get the user initiating the auth request
 				await this.getTeam();				// get the team the user is authed with
 			}
+console.warn('************************************************************************************************');
+console.warn('Exchanging auth code for ID token...');
+console.warn('************************************************************************************************');
 			await this.exchangeAuthCodeForToken();	// exchange the given auth code for an access token, as needed
+console.warn('************************************************************************************************');
+console.warn('Obtained NR ID token');
+console.warn('************************************************************************************************');
 			if (this.userId === 'anon') {
 				await this.matchOrCreateUser();
 				await this.saveSignupToken();
@@ -505,9 +514,17 @@ class ProviderTokenRequest extends RestfulRequest {
 			hostUrl: this.hostUrl,
 			machineId: this.machineId
 		});
+console.warn('************************************************************************************************');
+console.warn('Connecting user identity:', userIdentity);
+console.warn('************************************************************************************************');
+		
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;
 		this.team = this.connector.team;
+		
+console.warn('************************************************************************************************');
+console.warn('Connected user identity');
+console.warn('************************************************************************************************');
 		
 		// set signup status
 		if (this.connector.createdTeam) {
@@ -524,6 +541,19 @@ class ProviderTokenRequest extends RestfulRequest {
 	// if a signup token is provided, this allows a client session to identify the user ID that was eventually
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
+		if (
+			this.connector && 
+			this.connector.wasIDPSocialSignup
+		) {
+console.warn('************************************************************************************************');
+console.warn('Was IDP social signup, not saving signup token');
+console.warn('************************************************************************************************');
+			return;
+		}
+console.warn('************************************************************************************************');
+console.warn('Saving signup token...');
+console.warn('************************************************************************************************');
+		
 		const token = (this.tokenPayload && this.tokenPayload.st) || this.stateToken;
 		let expiresIn = this.request.query && this.request.query.expires_in;
 		if (expiresIn) {
@@ -554,12 +584,18 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (this.isClientToken) {
 			return;
 		}
-		/*
-		if (this.connector && this.connector.createdUser) {
+
+		if (
+			this.connector &&
+			this.connector.wasIDPSocialSignup &&
+			this.connector.createdUser
+		) {
+console.warn('************************************************************************************************');
+console.warn('Was IDP social signup, redirecting to web-based domain picker...');
+console.warn('************************************************************************************************');
 			this.issueCookie();			
 			return this.redirectToDomainPicker(this.connector.createdUser);
 		}
-		*/
 
 		let redirect = this.redirectUrl;
 		if (!redirect) {
@@ -574,6 +610,10 @@ class ProviderTokenRequest extends RestfulRequest {
 			}
 		}
 
+console.warn('************************************************************************************************');
+console.warn('Provider token request redirecting to:', redirect);
+console.warn('************************************************************************************************');
+		
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}
@@ -581,9 +621,12 @@ class ProviderTokenRequest extends RestfulRequest {
 	// redirect to the api-web domain picker page, as the final step of social signup
 	redirectToDomainPicker (user) {
 		// generate a new short-lived state token with the created user's ID embedded
-		this.tokenPayload.uid = user.id;
+		const payload = {
+			uid: user.id,
+			st: this.stateToken
+		};
 		const state = this.api.services.tokenHandler.generate(
-			this.tokenPayload,
+			payload,
 			'dpck',
 			{ expiresAt: Date.now() + 60 * 1000 }
 		);

@@ -30,46 +30,56 @@
 		{{#if byInvite.length}}
 			<div class="row">
 				<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-					<h2>Organizations you've been invited to.</h2>
+					<h5>Organizations you've been invited to</h5>
 					{{#each byInvite}}
-						<div>
-							{{name}}
-						</div>
-						<div>
-							{{memberCount}} members
-						</div>
-						<div class="form-group">
-							<button class="btn" onclick="join('{{id}}');">
-								<span class="copy">Join</span>
-							</button>
-						</div>
+						<table>
+							<tr>
+								<td width="90%">{{name}}</td>
+								<td rowspan="2">
+									<div class="form-group">
+										<button class="btn" onclick="join('{{id}}');">
+											<span class="copy">Join</span>
+										</button>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>{{memberCount}} members</td>
+							</tr>
+						</table>
 					{{/each}}
 				</div>
 			</div>
+			<br/>
 		{{/if}}
 		{{#if byDomain.length}}
 			<div class="row">
 				<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-					<h2>Organizations you can join based on email domain.</h2>
+					<h5>Organizations you can join based on email domain</h5>
 					{{#each byDomain}}
-						<div>
-							{{name}}
-						</div>
-						<div>
-							{{memberCount}} members
-						</div>
-						<div class="form-group">
-							<button class="btn" onclick="join('{{id}}');">
-								<span class="copy">Join</span>
-							</button>
-						</div>
+						<table>
+							<tr>
+								<td width="90%">{{name}}</td>
+								<td rowspan="2">
+									<div class="form-group">
+										<button class="btn" onclick="join('{{id}}');">
+											<span class="copy">Join</span>
+										</button>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>{{memberCount}} members</td>
+							</tr>
+						</table>
 					{{/each}}
 				</div>
 			</div>
 		{{/if}}
+		<br/>
 		<div class="row">
 			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-				<h3>Or, you can <a href="#" onclick="create();">create your own organization</a>.</h3>
+				<h5>Or, you can <a href="#" onclick="create();">create your own organization</a>.</h5>
 			</div>
 		</div>
 	</div>
@@ -83,6 +93,7 @@
 			var req = new XMLHttpRequest();
 			req.open('PUT', `/web/join-company/${id}`);
 			req.setRequestHeader('Content-Type', 'application/json');
+			req.setRequestHeader('X-CS-Enable-UId', 1);			
 			req.onload = () => {
 				if (req.status >= 200 && req.status < 300) {
 					const response = JSON.parse(req.responseText);
@@ -101,6 +112,7 @@
 			var req = new XMLHttpRequest();
 			req.open('POST', '/web/companies');
 			req.setRequestHeader('Content-Type', 'application/json');
+			req.setRequestHeader('X-CS-Enable-UId', 1);
 			req.onload = () => {
 				if (req.status >= 200 && req.status < 300) {
 					const response = JSON.parse(req.responseText);

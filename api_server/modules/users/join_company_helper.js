@@ -254,6 +254,7 @@ class JoinCompanyHelper {
 				mockResponse
 			}
 		);
+		this.password = this.password || tokenInfo.generatedPassword;
 
 		// for some insane reason, the ID comes out as a string 
 		if (typeof nrUserInfo.id === 'string') {
@@ -310,6 +311,10 @@ class JoinCompanyHelper {
 				originalEmail: true
 			}
 		};
+console.warn('************************************************************************************************');
+console.warn('Setting user token info after handling IDP signup:', JSON.stringify(op, 0, 5));
+console.warn('************************************************************************************************');
+			
 		await this.data.users.applyOpById(this.invitedUser.id, op);
 	}
 
@@ -364,6 +369,7 @@ class JoinCompanyHelper {
 			return;
 		}
 
+console.warn('WAITING FOR REFRESH TOKEN WITH PASSWORD:', this.password);
 		const tokenInfo = await this.api.services.idp.waitForRefreshToken(
 			this.invitedUser.get('email'),
 			this.password,

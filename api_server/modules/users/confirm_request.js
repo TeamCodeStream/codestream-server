@@ -184,6 +184,9 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	async handleResponse () {
+console.warn('************************************************************************************************');
+console.warn('User has been confirmed');
+console.warn('************************************************************************************************');
 		if (this.gotError) {
 			return await super.handleResponse();
 		}

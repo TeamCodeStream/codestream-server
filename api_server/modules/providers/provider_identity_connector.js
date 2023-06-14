@@ -107,6 +107,10 @@ class ProviderIdentityConnector {
 		if (this.user) {
 			return;
 		}
+console.warn('************************************************************************************************');
+console.warn('Provider identity connector creating a new user...');
+console.warn('************************************************************************************************');
+		
 		this.request.log('No match to user, will create...');
 		this.userCreator = new UserCreator({
 			request: this.request
@@ -167,6 +171,10 @@ class ProviderIdentityConnector {
 			throw this.errorHandler.error('notFound', { info: 'everyone team' }); // shouldn't happen
 		}
 
+console.warn('************************************************************************************************');
+console.warn('Joining user to existing CS company for NR org...');
+console.warn('************************************************************************************************');
+		
 		// add the current user to the everyone team for the company
 		await new AddTeamMembers({
 			request: this.request,
@@ -177,6 +185,10 @@ class ProviderIdentityConnector {
 
 	// create a CodeStream company corresponding to the NR org this user is coming from
 	async createCompanyForNROrg () {
+console.warn('************************************************************************************************');
+console.warn('Creating a CS company for NR org...');
+console.warn('************************************************************************************************');
+		
 		this.request.user = this.user;
 		this.request.teamCreatorClass = TeamCreator; // HACK - this avoids a circular require
 		this.company = await new CompanyCreator({
@@ -245,6 +257,9 @@ class ProviderIdentityConnector {
 		if (this.providerInfo.idp && this.providerInfo.idpAccessToken) {
 			const idpProvider = this.providerInfo.idp.split('.')[0]; // without the .com or .org
 			op.$set[`providerInfo.${idpProvider}.accessToken`] = this.providerInfo.idpAccessToken;
+			if (!this.providerInfo.nrUserId) {
+				this.wasIDPSocialSignup = true;
+			}
 			mustUpdate = true;
 		}
 
@@ -259,13 +274,14 @@ class ProviderIdentityConnector {
 		}
 		
 		// perform the update
-		if (mustUpdate) {
-			this.transforms.userUpdate = await new ModelSaver({
-				request: this.request,
-				collection: this.data.users,
-				id: this.user.id
-			}).save(op);
-		}
+console.warn('************************************************************************************************');
+console.warn('Provider identity connecting updating providerInfo:', JSON.stringify(op, 0, 5));
+console.warn('************************************************************************************************');
+		this.transforms.userUpdate = await new ModelSaver({
+			request: this.request,
+			collection: this.data.users,
+			id: this.user.id
+		}).save(op);
 	}
 
 	// check if this was a New Relic IDP signin, in which case the returned token actually becomes
@@ -310,6 +326,10 @@ class ProviderIdentityConnector {
 				op.$set['accessTokens.web.provider'] = this.tokenData.provider;
 			}
 		}
+console.warn('************************************************************************************************');
+console.warn('User provider info was adjusted for IDP signin', JSON.stringify(op, 0, 5));
+console.warn('************************************************************************************************');
+		
 		return true;
 	}
 

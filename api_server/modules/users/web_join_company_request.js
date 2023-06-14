@@ -18,6 +18,10 @@ class WebJoinCompanyRequest extends JoinCompanyRequest {
 
 		await super.process();
 
+console.warn('************************************************************************************************');
+console.warn('Saving signup token after doing web-based join-company');
+console.warn('************************************************************************************************');
+		
 		await this.api.services.signupTokens.insert(
 			this.signupToken,
 			this.responseData.userId,

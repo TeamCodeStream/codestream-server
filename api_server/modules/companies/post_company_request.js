@@ -20,6 +20,9 @@ class PostCompanyRequest extends PostRequest {
 
 	// process the request
 	async process () {
+console.warn('************************************************************************************************');
+console.warn('POST /companies called');
+console.warn('************************************************************************************************');
 		this.teamCreatorClass = TeamCreator; // this avoids a circular require
 		return super.process();
 	}
@@ -58,6 +61,9 @@ class PostCompanyRequest extends PostRequest {
 			}
 		}
 
+console.warn('************************************************************************************************');
+console.warn('CS company was created, response data:', JSON.stringify(this.responseData, 0, 5));
+console.warn('************************************************************************************************');
 		return super.handleResponse();
 	}
 

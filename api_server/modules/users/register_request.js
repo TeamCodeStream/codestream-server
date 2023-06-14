@@ -202,6 +202,9 @@ class RegisterRequest extends RestfulRequest {
 
 	// handle the response to the request
 	async handleResponse () {
+console.warn('************************************************************************************************');
+console.warn('User signs up with email/password');
+console.warn('************************************************************************************************');
 		if (this.gotError) {
 			return super.handleResponse();
 		}

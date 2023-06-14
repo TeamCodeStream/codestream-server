@@ -31,6 +31,10 @@ class CheckSignupRequest extends RestfulRequest {
 			await this.getUser();			// get the user associated with the email in the token
 			await this.doLogin();			// perform login functions for this user, now that we've verified the token
 			await this.removeSignupToken();	// remove the signup token we found
+console.warn('************************************************************************************************');
+console.warn('Check signup response:', JSON.stringify(this.responseData, 0, 5));
+console.warn('************************************************************************************************');
+			
 		}
 		catch (error) {
 			await this.removeSignupToken();

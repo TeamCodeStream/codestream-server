@@ -44,13 +44,28 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async createUserWithPassword (attributes, password, options = {}) {
+console.warn('************************************************************************************************');
+console.warn('Creating user using NR create user API...');
+console.warn('************************************************************************************************');
+		
 		// first create the actual user
 		const createUserResponse = await this.createUser(attributes, options);
+let passwordGenerated = false;
 if (!password) {
 	// FIXME ... this is temporary, until we have a place to go to finish this signup flow
 	// in the case of social signup
+console.warn('************************************************************************************************');
+console.warn('NR createUser has no password, generating one...');
+console.warn('************************************************************************************************');
+	
 	password = RandomString.generate(20);
+	passwordGenerated = true;
 }
+
+console.warn('************************************************************************************************');
+console.warn('Setting user password on Azure/NR...');
+console.warn('************************************************************************************************');
+
 		// this sets the password on azure ... this call should be removed once the credentials
 		// service handles syncing the azure password itself from the code below
 		const idpId = createUserResponse.data.attributes.activeIdpObjectId;
@@ -97,6 +112,10 @@ if (!password) {
 		// user needs to be added to the default user group
 		await this.addUserToUserGroup(createUserResponse.data.id, attributes.authentication_domain_id, options);
 
+console.warn('************************************************************************************************');
+console.warn('Calling NR login service with email/password to get ID token...');
+console.warn('************************************************************************************************');
+		
 		const loginResponse = await this.loginUser(
 			{
 				username: attributes.email,
@@ -107,12 +126,13 @@ if (!password) {
 
 		const nrUserInfo = createUserResponse.data;
 		const tokenInfo = {
-			token: loginResponse.idp.id_token
+			token: loginResponse.idp.id_token,
 			/*
 			// This is invalid until we do waitForRefreshToken, below
 			refreshToken: loginResponse.idp.refresh_token,
 			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000
 			*/
+			generatedPassword: passwordGenerated && password
 		};
 		return { nrUserInfo, tokenInfo };
 	}
@@ -125,6 +145,9 @@ if (!password) {
 	async waitForRefreshToken (email, password, options) {
 		await new Promise(resolve => { setTimeout(resolve, 10000); });
 		options.request.log('Doing post-login token refresh through New Relic IDP...');
+console.warn('************************************************************************************************');
+console.warn('Doing delayed NR login, for refresh token...');
+console.warn('************************************************************************************************');
 		const loginResponse = await this.loginUser(
 		{
 				username: email,
@@ -166,6 +189,9 @@ let passwordGenerated = false;
 if (!data.password) {
 	// FIXME ... this is temporary, until we have a place to go to finish this signup flow
 	// in the case of social signup
+console.warn('************************************************************************************************');
+console.warn('No password provided to fullSignup, generating random...');
+console.warn('************************************************************************************************');
 	data.password = RandomString.generate(20);
 	passwordGenerated = true;
 }
@@ -178,12 +204,18 @@ if (!data.password) {
 			};
 		}
 
+console.warn('************************************************************************************************');
+console.warn('Signing up user with NR provision API...');
+console.warn('************************************************************************************************');
 		const signupResponse = await this.signupUser({
 			name: data.name,
 			email: data.email,
 			password: data.password
 		}, options);
 
+console.warn('************************************************************************************************');
+console.warn('Logging user in using login service, with email and password...');
+console.warn('************************************************************************************************');
 		const loginResponse = await this.loginUser(
 			{
 				username: data.email,

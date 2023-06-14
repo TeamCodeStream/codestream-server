@@ -30,8 +30,14 @@ class JoinCompanyRequest extends RestfulRequest {
 
 	// process the request
 	async process () {
+console.warn('************************************************************************************************');
+console.warn('User joining CS company...');
+console.warn('************************************************************************************************');
 		await this.helper.process();
 		this.responseData = this.helper.responseData;
+console.warn('************************************************************************************************');
+console.warn('Returning from join company request, response data:', JSON.stringify(this.responseData, 0, 5));
+console.warn('************************************************************************************************');
 	}
 
 	// after the join is complete and response returned...

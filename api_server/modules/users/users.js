@@ -193,11 +193,6 @@ const USERS_ADDITIONAL_ROUTES = [
 		requestClass: require('./decline_invite_request')
 	},
 	{
-		method: 'get',
-		path: 'nr-exp',
-		requestClass: require('./nr_lookup_experiment_request')
-	},
-	{
 		method: 'put',
 		path: 'logout',
 		requestClass: require('./logout_request')
