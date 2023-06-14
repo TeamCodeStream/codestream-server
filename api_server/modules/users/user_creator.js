@@ -50,8 +50,8 @@ class UserCreator extends ModelCreator {
 					'joinCompanyId',
 					'originalEmail'
 				],
-				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
-				object: ['preferences', 'avatar', 'providerInfo'],
+				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil', 'nrUserId'],
+				object: ['preferences', 'avatar', 'providerInfo', 'nrUserInfo'],
 				'array(string)': ['providerIdentities']
 			}
 		};
