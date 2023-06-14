@@ -234,7 +234,7 @@ class GrokClient {
 			}
 		});
 
-		this.postRequest.postProcessPersist();
+		await this.postRequest.postProcessPersist();
 
 		const postCreator = new PostCreator({
 			request: this.postRequest,
@@ -293,11 +293,13 @@ class GrokClient {
 	}
 
 	async createGrokUser() {
+		const teamId = this.team.get('id');
+
 		const userCreator = new UserCreator({
 			request: this.postRequest,
-			teamIds: [this.team.get('id')],
+			teamIds: [teamId],
 			companyIds: [this.team.get('companyId')],
-			userBeingAddedToTeamId: this.team.get('id'),
+			userBeingAddedToTeamId: teamId,
 			dontSetInviteType: true,
 			dontSetInviteCode: true,
 			ignoreUsernameOnConflict: true
@@ -310,27 +312,33 @@ class GrokClient {
 			}
 		});
 
-		await new AddTeamMembers({
-			request: this.postRequest,
-			addUsers: [grokUser],
-			team: this.team
-		}).addTeamMembers();
+		const grokUserId = grokUser.get('id');
 
-		await new ModelSaver({
-			request: this.postRequest,
-			collection: this.data.teams,
-			id: this.team.get('id')
-		}).save({
+		const teamUpdate = {
+			$addToSet: { 
+				memberIds: [grokUserId],
+			},
+			$pull: {
+				removedMemberIds: [grokUserId],
+				foreignMemberIds: [grokUserId]
+			},
 			$set: {
+				modifiedAt: Date.now(),
 				grokUserId: grokUser.get('id')
 			}
-		});
+		};
 
-		this.postRequest.postProcessPersist();
+		const teamTransform = await new ModelSaver({
+			request: this.postRequest,
+			collection: this.data.teams,
+			id: teamId
+		}).save(teamUpdate);
 
+		await this.postRequest.postProcessPersist();
+		
 		await this.broadcastToTeam({
 			user: grokUser.getSanitizedObject({ request: this.postRequest }),
-			team: this.postRequest.transforms.teamUpdate
+			team: teamTransform
 		});
 
 		return grokUser;

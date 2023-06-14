@@ -48,6 +48,11 @@ class PostPostRequest extends PostRequest {
 		}
 
 		if(this.reinitializeGrok){
+			if(!this.request.body.parentPostId){
+				throw this.errorHandler.error('parameterRequired', { reason: 'parentPostId is required for Grok reinitialization' });
+			}
+			// Need to return the parent post so that the client has one to work with.
+			this.responseData.post = await this.data.posts.getById(this.request.body.parentPostId);
 			return super.handleResponse();
 		}
 
