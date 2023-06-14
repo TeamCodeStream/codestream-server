@@ -30,19 +30,29 @@ class GrokUnpromptedAnalysisReinitializeTest extends GrokUnpromptedAnalysisTest 
 	}
 
 	makeCallToReinitialize (callback) {
+		const parentPostId = this.data.codeError.postId;
+
 		this.doApiRequest(
 			{
 				method: 'post',
 				path: '/posts',
 				data: {
-					parentPostId: this.data.codeError.postId,
+					parentPostId: parentPostId,
 					streamId: this.expectedStreamId,
 					reinitialize: true,
 					text: 'reinitialize grok'
 				},
 				token: this.token
 			},
-			callback
+			(error, response) => {
+				if (error) { 
+					return callback(error); 
+				}
+
+				Assert(response.post.id === parentPostId, `post id in response does not match parent post id: ${response.post.id} !== ${parentPostId}`);
+
+				callback();
+			}
 		);
 	}
 
