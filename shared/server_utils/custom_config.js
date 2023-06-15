@@ -313,6 +313,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		asana: {},
 		bitbucket: {},
 		azuredevops: {},
+		fossa: {},
 		github: {},
 		gitlab: {},
 		jira: {},
@@ -328,6 +329,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		// Their respective APIs do not require a client ID so they're not actually used.
 		youtrack: { appClientId: 'placeholder' },
 		bitbucket_server: { appClientId: 'placeholder' },
+		fossa: { appClientId: 'placeholder' },
 		github_enterprise: { appClientId: 'placeholder' },
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
@@ -439,6 +441,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'azuredevops',
 		'bitbucket',
 		'bitbucket_server',
+		'fossa',
 		'github',
 		'github_enterprise',
 		'gitlab',
