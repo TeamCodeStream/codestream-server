@@ -51,8 +51,16 @@ class PostPostRequest extends PostRequest {
 			if(!this.request.body.parentPostId){
 				throw this.errorHandler.error('parameterRequired', { reason: 'parentPostId is required for Grok reinitialization' });
 			}
-			// Need to return the parent post so that the client has one to work with.
-			this.responseData.post = await this.data.posts.getById(this.request.body.parentPostId);
+
+			const post = await this.data.posts.getById(this.request.body.parentPostId);
+			const codeError = await this.data.codeErrors.getById(post.get('codeErrorId'));
+
+			// When we force a reinitialization on a Code Error with Grok, we need to return
+			// the original Parent Post and the Code Error associated with it. The client 
+			// doesn't know how to handle the response without them.
+			this.responseData.post = post.getSanitizedObject({ request: this.request });
+			this.responseData.codeError = codeError.getSanitizedObject({ request: this.request });
+			
 			return super.handleResponse();
 		}
 

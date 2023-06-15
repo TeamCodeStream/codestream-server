@@ -50,6 +50,7 @@ class GrokUnpromptedAnalysisReinitializeTest extends GrokUnpromptedAnalysisTest 
 				}
 
 				Assert(response.post.id === parentPostId, `post id in response does not match parent post id: ${response.post.id} !== ${parentPostId}`);
+				Assert(response.codeError.id === response.post.codeErrorId, `code error id in response does not match post code error id: ${response.codeError.id} !== ${response.post.codeErrorId}`)
 
 				callback();
 			}
