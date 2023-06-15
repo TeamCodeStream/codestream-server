@@ -76,12 +76,10 @@ class TokenAuthenticator {
 		else {
 			token =	this.tokenFromHeader(this.request);
 		}
+		this.identityIsOptional = !!this.pathIsOptionalAuth(this.request);
 
-
-		if (!token) {
-			if (!this.pathIsOptionalAuth(this.request)) {
-				throw this.errorHandler.error('missingAuthorization');
-			}
+		if (!token && !this.identityIsOptional) {
+			throw this.errorHandler.error('missingAuthorization');
 		}
 		this.token = token;
 	}
@@ -133,14 +131,20 @@ class TokenAuthenticator {
 		}
 
 		if (!user || user.deactivated) {
-			throw this.errorHandler.error('userNotFound');
+			if (!this.identityIsOptional) {
+				throw this.errorHandler.error('userNotFound');
+			} else {
+				this.api.log(`User claim found but user was ${user ? 'not found' : 'deactivated'}, but identity is optional, request will proceed`);
+			}
 		}
-		if (this.userClass) {
-			// make a model out of the user attributes
-			this.request.user = new this.userClass(user);
-		}
-		else {
-			this.request.user = user;
+		if (user) {
+			if (this.userClass) {
+				// make a model out of the user attributes
+				this.request.user = new this.userClass(user);
+			}
+			else {
+				this.request.user = user;
+			}
 		}
 		this.request.authPayload = this.payload;
 	}

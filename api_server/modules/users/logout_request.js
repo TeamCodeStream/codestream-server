@@ -19,6 +19,7 @@ class LogoutRequest extends RestfulRequest {
 
 	// process the request....
 	async process () {
+		if (!this.user) { return;}
 		// delete the user's access token
 		return this.data.users.applyOpById(
 			this.user.id,

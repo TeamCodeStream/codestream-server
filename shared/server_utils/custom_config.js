@@ -476,6 +476,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'^\\/web\\/',
 		'^\\/open\\/',
 		'^\\/e\\/',
+		'^\\/logout$'
 	];
 	// matching these paths means cookie authentication is required
 	Cfg.apiServer.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/r\\/', '^\\/web\\/', '^\\/e\\/'];
