@@ -214,6 +214,13 @@ const STANDARD_PROVIDER_HOSTS = {
 		isEnterprise: false,
 		host: 'trunk.io',
 		needsConfigure: false
+	},
+	"fossa*com": {
+		id:'fossa*com',
+		name: 'fossa',
+		isEnterprise: false,
+		host: 'fossa.com',
+		needsConfigure: true
 	}
 };
 
