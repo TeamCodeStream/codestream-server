@@ -589,6 +589,10 @@ console.warn('******************************************************************
 		return 'newrelic';
 	}
 	
+	supportsRefresh () {
+		return true;
+	}
+	
 	// extract the cookie New Relic sends us in the callback to the New Relic login process
 	extractCookieFromRequest (request) {
 		if (!request.headers || !request.headers.cookie) {

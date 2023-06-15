@@ -22,7 +22,7 @@ module.exports = async (options) => {
 
 	// if we are behind service gateway and using login service auth, we actually set the user's
 	// access token to the refreshed NR access token, this will be used for normal requests
-	const serviceGatewayAuthResult = await this.request.api.data.globals.getOneByQuery(
+	const serviceGatewayAuthResult = await request.api.data.globals.getOneByQuery(
 		{ tag: 'serviceGatewayAuth' }, 
 		{ overrideHintRequired: true }
 	);
