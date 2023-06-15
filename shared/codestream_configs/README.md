@@ -85,4 +85,3 @@ An empty block indicates that the defaults should be used from the schema.
     "defaultEnv": {}
 }
 ```
-
