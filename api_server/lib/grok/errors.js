@@ -20,5 +20,10 @@ module.exports = {
 		code: 'GROK-1003',
 		message: 'Choice Contained No Message',
 		description: 'The response from Grok was successful and contained a choice, but it did not have a message'
+	},
+	'apiResponseNotJson': {	
+		code: 'GROK-1004',
+		message: 'The API Response from AIR was not JSON',
+		description: 'The response from Grok was successful, but the response was not JSON'
 	}
 };

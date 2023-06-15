@@ -190,6 +190,10 @@ class GrokClient {
 			.slice(0, totalStackTraceLines)
 			.join('\n');
 
+		if (!stackTrace) {
+			throw this.errorHandler.error('notFound', { info: 'stackTrace' });
+		}
+
 		const code = this.request.body.codeBlock;
 
 		const initialPrompt = [{
@@ -359,6 +363,8 @@ class GrokClient {
 			temperature: temperature
 		};
 
+		this.api.logger.log(`Submitting conversation to Grok: ${JSON.stringify(request)}`, this.postRequest.id);
+		
 		let response;
 		try{
 			response = await fetch(this.api.config.integrations.newrelicgrok.apiUrl, {
@@ -374,22 +380,28 @@ class GrokClient {
 			this.trackErrorAndThrow('apiException', err.message);
 		}
 	
-		const apiResponse = await response.json();
+		try {
+			const apiResponse = await response.json();
 
-		if (apiResponse && apiResponse.error) {
-			this.trackErrorAndThrow('apiResponseContainedError', apiResponse.error);
-		}
-	
-		if (apiResponse && apiResponse.choices && !apiResponse.choices[0]) {
-			this.trackErrorAndThrow('apiResponseContainedNoChoice');
-		}
-	
-		const message = apiResponse.choices[0].message;
-		if (!message) {
-			this.trackErrorAndThrow('apiResponseContainedNoChoiceMessage');
-		}
+			if (apiResponse && apiResponse.error) {
+				this.trackErrorAndThrow('apiResponseContainedError', apiResponse.error);
+			}
+		
+			if (apiResponse && apiResponse.choices && !apiResponse.choices[0]) {
+				this.trackErrorAndThrow('apiResponseContainedNoChoice');
+			}
+		
+			const message = apiResponse.choices[0].message;
+			if (!message) {
+				this.trackErrorAndThrow('apiResponseContainedNoChoiceMessage');
+			}
 
-		return message;
+			return message;
+		}
+		catch (err) {
+			const errMessage = `Error parsing Grok response: ${err.message}; Response was: ${response}`;
+			this.trackErrorAndThrow('apiResponseNotJson', errMessage);
+		}
 	}
 
 	trackErrorAndThrow(errorKey, additionalMessage = '') {
