@@ -73,7 +73,7 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async postProcess () {
-		if(!this.reinitializeGrok){
+		if(!this.reinitializeGrok || this.gotError){
 			await super.postProcess();
 		}
 
