@@ -1,0 +1,6 @@
+SB_TYPE=cs_mailout
+SB_PREFIX=CS_OUTBOUND_EMAIL
+GIT_ORIGIN=git@github.com:teamcodestream/codestream-server
+SB_REPO_ROOT=codestream-server
+SB_PROJECT_PATH=codestream-server/outbound_email
+#SB_DEPS=a:b:c
