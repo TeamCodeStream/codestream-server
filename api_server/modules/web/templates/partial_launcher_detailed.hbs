@@ -323,21 +323,21 @@ window.CODESTREAM.openEditor = function(ide) {
 		var protocol;
 		var route;
 		if (type === 'codemark') {
-			route = { controller: 'codemark', action: 'open', id: options.id };
+			route = { controller: 'codemark', action: 'open', id: options.id, query: [] };
 			if (options.repoId) {
-				route.query = [{key: 'repoId', value: options.repoId}];
-				if (options.teamId) {
-					route.query.push({key: 'teamId', value: options.teamId});
-				}
-				if (options.teamName) {
-					route.query.push({key: 'teamName', value: encodeURIComponent(options.teamName)});
-				}
-				if (options.companyName) {
-					route.query.push({key: 'companyName', value: encodeURIComponent(options.companyName)});
-				}
-				if (options.isLink === 'true') {
-					route.query.push({key: 'isLink', value: 'true' });
-				}
+				route.query.push({key: 'repoId', value: options.repoId});
+			}
+			if (options.teamId) {
+				route.query.push({key: 'teamId', value: options.teamId});
+			}
+			if (options.teamName) {
+				route.query.push({key: 'teamName', value: encodeURIComponent(options.teamName)});
+			}
+			if (options.companyName) {
+				route.query.push({key: 'companyName', value: encodeURIComponent(options.companyName)});
+			}
+			if (options.isLink === 'true') {
+				route.query.push({key: 'isLink', value: 'true' });
 			}
 		}
 		else if (type ==='codeerror') {

@@ -151,27 +151,27 @@ const ROUTES = [
 	{ 
 		method: 'get',
 		path: 'r/:teamId/:id',
-		requestClass: require('./link_review_request')
+		requestClass: require('./review_ide_redirect_request')
 	},
 	{ 
 		method: 'get',
 		path: 'e/:teamId/:id',
-		requestClass: require('./link_codeerror_request')
+		requestClass: require('./codeerror_ide_redirect_request')
 	},
 	{
 		method: 'get',
 		path: 'c/:teamId/:id',
-		requestClass: require('./link_codemark_request')
+		requestClass: require('./codemark_ide_redirect_request')
 	},
 	{
 		method: 'get',
 		path: 'p/:teamId/:id',
-		requestClass: require('./link_codemark_request')
+		requestClass: require('./codemark_ide_redirect_request')
 	},
 	{
 		method: 'get',
 		path: 'open/:type',
-		requestClass: require('./link_newrelic_request')
+		requestClass: require('./newrelic_ide_redirect_request')
 	},
 	{
 		method: 'get',
