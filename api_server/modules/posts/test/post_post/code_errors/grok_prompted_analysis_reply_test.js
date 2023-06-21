@@ -12,7 +12,7 @@ class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
 
 	run (callback) {
 		if(!this.mockMode){
-			console.warn('NOTE - THIS TEST CAN MUST BE RUN IN MOCK MODE, PASSING SUPERFICIALLY');
+			console.warn('NOTE - THIS TEST MUST BE RUN IN MOCK MODE, PASSING SUPERFICIALLY');
 			return callback();
 		}
 		else{
