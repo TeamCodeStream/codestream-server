@@ -14,9 +14,11 @@ const FS = require('fs');
 
 Commander
 	.option('-t, --time <timestamp>', 'If last activity was before this timestamp, deactivate the team')
+	.option('--created, --created', 'Treat the timestamp as a createdAt date, ignore activity considerations')
 	.option('--dryrun, --dryrun', 'Do a dry run, don\'t actually deactivate any teams')
 	.option('--numposts, --numposts <numposts>', 'Don\'t deactivate teams whose post count exceeds this value')
 	.option('--emails, --emails <emails>', 'Output list of emails of deactivated users to this file')
+	.option('--ignore, --ignore <ignore>', 'Ignore the org IDs given in this file')
 	.option('--throttle, --throttle <throttle>', 'Throttle deactivations by this time interval')
 	.parse(process.argv);
 
@@ -41,6 +43,7 @@ class InactiveTeamDeactivator {
 
 	async go () {
 		await this.openMongoClient();
+		await this.openIgnoreFile();
 		await this.openEmailFile();
 		await this.doDeactivate();
 		await this.finish();
@@ -57,6 +60,14 @@ class InactiveTeamDeactivator {
 		catch (error) {
 			throw `unable to open mongo client: ${JSON.stringify(error)}`;
 		}
+	}
+
+	// read in file of company IDs to ignore
+	async openIgnoreFile () {
+		if (!this.ignoreFile) { return; }
+		const contents = FS.readFileSync(this.ignoreFile, 'utf8').replace(/\r\n/g, '\n');
+		this.ignoreCompanyIds = contents.split('\n');
+		console.log(`Will ignore ${this.ignoreCompanyIds.length} company IDs...`);
 	}
 
 	// open an output stream to write emails to, representing all users deactivated
@@ -98,6 +109,19 @@ class InactiveTeamDeactivator {
 	// check for activity for a single team, and deactivate as needed 
 	async checkAndDeactivateTeam (team) {
 		console.log(`Checking team ${team.id}...`);
+
+		if (this.ignoreCompanyIds && this.ignoreCompanyIds.includes(team.companyId)) {
+			console.log(`Ignoring team ${team.id} which is in the ignore list`);
+			await Wait(this.throttle / 10);
+			return;
+		}
+
+		if (this.created) {
+			// if the created flag is set, just deactivate any team
+			// (the createdAt timestamp has already been applied)
+			return this.deactivateTeam(team);
+		}
+
 		const users = await this.data.users.getByQuery(
 			{
 				deactivated: false,
@@ -175,7 +199,9 @@ class InactiveTeamDeactivator {
 		const options = {
 			time,
 			emailsOutputFile: Commander.emails,
-			dryrun: Commander.dryrun
+			ignoreFile: Commander.ignore,
+			dryrun: Commander.dryrun,
+			created: Commander.created
 		}
 
 		if (Commander.throttle) {
