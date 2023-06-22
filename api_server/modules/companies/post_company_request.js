@@ -20,9 +20,7 @@ class PostCompanyRequest extends PostRequest {
 
 	// process the request
 	async process () {
-console.warn('************************************************************************************************');
-console.warn('POST /companies called');
-console.warn('************************************************************************************************');
+		this.log('NEWRELIC IDP TRACK: POST /companies called');
 		this.teamCreatorClass = TeamCreator; // this avoids a circular require
 		return super.process();
 	}
@@ -61,9 +59,7 @@ console.warn('******************************************************************
 			}
 		}
 
-console.warn('************************************************************************************************');
-console.warn('CS company was created, response data:', JSON.stringify(this.responseData, 0, 5));
-console.warn('************************************************************************************************');
+		this.log('NEWRELIC IDP TRACK: CS company was created');
 		return super.handleResponse();
 	}
 

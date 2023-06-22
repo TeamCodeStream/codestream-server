@@ -26,9 +26,7 @@ class ProviderTokenRequest extends RestfulRequest {
 	async process () {
 		try {
 			if (this.request.path.match(/~nrlogin/)) {
-console.warn('************************************************************************************************');
-console.warn('~nrlogin called from New Relic IDP');
-console.warn('************************************************************************************************');
+			this.log('NEWRELIC IDP TRACK: ~nrlogin called from New Relic IDP');
 				this.request.params.provider = 'newrelicidp';
 			}
 
@@ -57,13 +55,9 @@ console.warn('******************************************************************
 				await this.getUser();				// get the user initiating the auth request
 				await this.getTeam();				// get the team the user is authed with
 			}
-console.warn('************************************************************************************************');
-console.warn('Exchanging auth code for ID token...');
-console.warn('************************************************************************************************');
+			this.log('NEWRELIC IDP TRACK: Exchanging auth code for ID token...');
 			await this.exchangeAuthCodeForToken();	// exchange the given auth code for an access token, as needed
-console.warn('************************************************************************************************');
-console.warn('Obtained NR ID token');
-console.warn('************************************************************************************************');
+			this.log('NEWRELIC IDP TRACK: Obtained NR ID token');
 			if (this.userId === 'anon') {
 				await this.matchOrCreateUser();
 				await this.saveSignupToken();
@@ -514,17 +508,12 @@ console.warn('******************************************************************
 			hostUrl: this.hostUrl,
 			machineId: this.machineId
 		});
-console.warn('************************************************************************************************');
-console.warn('Connecting user identity:', userIdentity);
-console.warn('************************************************************************************************');
-		
+		this.log('NEWRELIC IDP TRACK: Connecting user identity: ' + JSON.stringify(userIdentity, 0, 5));
+	
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;
 		this.team = this.connector.team;
-		
-console.warn('************************************************************************************************');
-console.warn('Connected user identity');
-console.warn('************************************************************************************************');
+		this.log('NEWRELIC IDP TRACK: Connected user identity');
 		
 		// set signup status
 		if (this.connector.createdTeam) {
@@ -545,14 +534,10 @@ console.warn('******************************************************************
 			this.connector && 
 			this.connector.wasIDPSocialSignup
 		) {
-console.warn('************************************************************************************************');
-console.warn('Was IDP social signup, not saving signup token');
-console.warn('************************************************************************************************');
+			this.log('NEWRELIC IDP TRACK: Was IDP social signup, not saving signup token');
 			return;
 		}
-console.warn('************************************************************************************************');
-console.warn('Saving signup token...');
-console.warn('************************************************************************************************');
+		this.log('NEWRELIC IDP TRACK: Saving signup token...');
 		
 		const token = (this.tokenPayload && this.tokenPayload.st) || this.stateToken;
 		let expiresIn = this.request.query && this.request.query.expires_in;
@@ -590,9 +575,7 @@ console.warn('******************************************************************
 			this.connector.wasIDPSocialSignup &&
 			this.connector.createdUser
 		) {
-console.warn('************************************************************************************************');
-console.warn('Was IDP social signup, redirecting to web-based domain picker...');
-console.warn('************************************************************************************************');
+			this.log('NEWRELIC IDP TRACK: Was IDP social signup, redirecting to web-based domain picker...');
 			this.issueCookie();			
 			return this.redirectToDomainPicker(this.connector.createdUser);
 		}
@@ -610,10 +593,7 @@ console.warn('******************************************************************
 			}
 		}
 
-console.warn('************************************************************************************************');
-console.warn('Provider token request redirecting to:', redirect);
-console.warn('************************************************************************************************');
-		
+		this.log('NEWRELIC IDP TRACK: Provider token request redirecting to: ' + redirect);
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}

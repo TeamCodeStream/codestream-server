@@ -311,10 +311,7 @@ class JoinCompanyHelper {
 				originalEmail: true
 			}
 		};
-console.warn('************************************************************************************************');
-console.warn('Setting user token info after handling IDP signup:', JSON.stringify(op, 0, 5));
-console.warn('************************************************************************************************');
-			
+		this.request.log('NEWRELIC IDP TRACK: Setting user token info after handling IDP signup');
 		await this.data.users.applyOpById(this.invitedUser.id, op);
 	}
 
@@ -369,7 +366,7 @@ console.warn('******************************************************************
 			return;
 		}
 
-console.warn('WAITING FOR REFRESH TOKEN WITH PASSWORD:', this.password);
+		this.request.log('NEWRELIC IDP TRACK: Waiting for refresh token...');
 		const tokenInfo = await this.api.services.idp.waitForRefreshToken(
 			this.invitedUser.get('email'),
 			this.password,

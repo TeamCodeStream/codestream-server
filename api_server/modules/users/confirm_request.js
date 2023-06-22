@@ -184,9 +184,7 @@ class ConfirmRequest extends RestfulRequest {
 	}
 
 	async handleResponse () {
-console.warn('************************************************************************************************');
-console.warn('User has been confirmed');
-console.warn('************************************************************************************************');
+		this.log('NEWRELIC IDP TRACK: User has been confirmed');
 		if (this.gotError) {
 			return await super.handleResponse();
 		}

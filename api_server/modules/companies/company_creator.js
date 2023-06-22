@@ -196,9 +196,7 @@ class CompanyCreator extends ModelCreator {
 		}
 		
 		// save NR user info obtained from the signup process
-console.warn('************************************************************************************************');
-console.warn('Saving providerInfo from IDP signup:', JSON.stringify(set, 0, 5));
-console.warn('************************************************************************************************');
+		this.request.log('NEWRELIC IDP TRACK: Saving providerInfo from IDP signup');
 		await this.data.users.applyOpById(
 			this.user.id,
 			{

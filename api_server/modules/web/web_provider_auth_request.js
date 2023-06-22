@@ -96,9 +96,7 @@ class WebProviderAuthRequest extends APIRequest {
 				.join('&');
 			const redirectTo = `${url}?${query}`;
 			this.log('Redirect to: ' + redirectTo);
-console.warn('************************************************************************************************');
-console.warn('Web provider auth redirecting to:', redirectTo);
-console.warn('************************************************************************************************');
+			this.log('NEWRELIC IDP TRACK: Web provider auth redirecting to: ' + redirectTo);
 			
 			this.response.redirect(redirectTo);
 			this.responseHandled = true;

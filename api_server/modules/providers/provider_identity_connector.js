@@ -107,10 +107,7 @@ class ProviderIdentityConnector {
 		if (this.user) {
 			return;
 		}
-console.warn('************************************************************************************************');
-console.warn('Provider identity connector creating a new user...');
-console.warn('************************************************************************************************');
-		
+		this.request.log('NEWRELIC IDP TRACK: Provider identity connector creating a new user...');
 		this.request.log('No match to user, will create...');
 		this.userCreator = new UserCreator({
 			request: this.request
@@ -171,9 +168,7 @@ console.warn('******************************************************************
 			throw this.errorHandler.error('notFound', { info: 'everyone team' }); // shouldn't happen
 		}
 
-console.warn('************************************************************************************************');
-console.warn('Joining user to existing CS company for NR org...');
-console.warn('************************************************************************************************');
+		this.request.log('NEWRELIC IDP TRACK: Joining user to existing CS company for NR org...');
 		
 		// add the current user to the everyone team for the company
 		await new AddTeamMembers({
@@ -185,10 +180,7 @@ console.warn('******************************************************************
 
 	// create a CodeStream company corresponding to the NR org this user is coming from
 	async createCompanyForNROrg () {
-console.warn('************************************************************************************************');
-console.warn('Creating a CS company for NR org...');
-console.warn('************************************************************************************************');
-		
+		this.request.log('NEWRELIC IDP TRACK: Creating a CS company for NR org...');
 		this.request.user = this.user;
 		this.request.teamCreatorClass = TeamCreator; // HACK - this avoids a circular require
 		this.company = await new CompanyCreator({
@@ -274,9 +266,7 @@ console.warn('******************************************************************
 		}
 		
 		// perform the update
-console.warn('************************************************************************************************');
-console.warn('Provider identity connecting updating providerInfo:', JSON.stringify(op, 0, 5));
-console.warn('************************************************************************************************');
+		this.request.log('NEWRELIC IDP TRACK: Provider identity connecting updating providerInfo');
 		this.transforms.userUpdate = await new ModelSaver({
 			request: this.request,
 			collection: this.data.users,
@@ -326,10 +316,7 @@ console.warn('******************************************************************
 				op.$set['accessTokens.web.provider'] = this.tokenData.provider;
 			}
 		}
-console.warn('************************************************************************************************');
-console.warn('User provider info was adjusted for IDP signin', JSON.stringify(op, 0, 5));
-console.warn('************************************************************************************************');
-		
+		this.request.log('NEWRELIC IDP TRACK: User provider info was adjusted for IDP signin');
 		return true;
 	}
 

@@ -202,9 +202,7 @@ class RegisterRequest extends RestfulRequest {
 
 	// handle the response to the request
 	async handleResponse () {
-console.warn('************************************************************************************************');
-console.warn('User signs up with email/password');
-console.warn('************************************************************************************************');
+		this.log('NEWRELIC IDP TRACK: User signs up with email/password');
 		if (this.gotError) {
 			return super.handleResponse();
 		}

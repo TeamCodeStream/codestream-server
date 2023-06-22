@@ -44,9 +44,7 @@ class NewRelicIDP extends APIServerModule {
 	}
 
 	async createUserWithPassword (attributes, password, options = {}) {
-console.warn('************************************************************************************************');
-console.warn('Creating user using NR create user API...');
-console.warn('************************************************************************************************');
+		if (options.request) options.request.log('NEWRELIC IDP TRACK: Creating user using NR create user API...');
 		
 		// first create the actual user
 		const createUserResponse = await this.createUser(attributes, options);
@@ -54,17 +52,11 @@ let passwordGenerated = false;
 if (!password) {
 	// FIXME ... this is temporary, until we have a place to go to finish this signup flow
 	// in the case of social signup
-console.warn('************************************************************************************************');
-console.warn('NR createUser has no password, generating one...');
-console.warn('************************************************************************************************');
-	
+	if (options.request) options.request.log('NEWRELIC IDP TRACK: NR createUser has no password, generating one...');
 	password = RandomString.generate(20);
 	passwordGenerated = true;
 }
-
-console.warn('************************************************************************************************');
-console.warn('Setting user password on Azure/NR...');
-console.warn('************************************************************************************************');
+		if (options.request) options.request.log('NEWRELIC IDP TRACK: Setting user password on Azure/NR...');
 
 		// this sets the password on azure ... this call should be removed once the credentials
 		// service handles syncing the azure password itself from the code below
@@ -111,10 +103,7 @@ console.warn('******************************************************************
 
 		// user needs to be added to the default user group
 		await this.addUserToUserGroup(createUserResponse.data.id, attributes.authentication_domain_id, options);
-
-console.warn('************************************************************************************************');
-console.warn('Calling NR login service with email/password to get ID token...');
-console.warn('************************************************************************************************');
+			if (options.request) options.request.log('NEWRELIC IDP TRACK: Calling NR login service with email/password to get ID token...');
 		
 		const loginResponse = await this.loginUser(
 			{
@@ -144,10 +133,8 @@ console.warn('******************************************************************
 	// to allow the race condition to clear
 	async waitForRefreshToken (email, password, options) {
 		await new Promise(resolve => { setTimeout(resolve, 10000); });
-		options.request.log('Doing post-login token refresh through New Relic IDP...');
-console.warn('************************************************************************************************');
-console.warn('Doing delayed NR login, for refresh token...');
-console.warn('************************************************************************************************');
+		options.request.log('Doing post-login token refresh through New Relic IDP...');		
+		options.request.log('NEWRELIC IDP TRACK: Doing delayed NR login, for refresh token...');
 		const loginResponse = await this.loginUser(
 		{
 				username: email,
@@ -189,9 +176,7 @@ let passwordGenerated = false;
 if (!data.password) {
 	// FIXME ... this is temporary, until we have a place to go to finish this signup flow
 	// in the case of social signup
-console.warn('************************************************************************************************');
-console.warn('No password provided to fullSignup, generating random...');
-console.warn('************************************************************************************************');
+	if (options.request) options.request.log('NEWRELIC IDP TRACK: No password provided to fullSignup, generating random...');
 	data.password = RandomString.generate(20);
 	passwordGenerated = true;
 }
@@ -204,18 +189,14 @@ console.warn('******************************************************************
 			};
 		}
 
-console.warn('************************************************************************************************');
-console.warn('Signing up user with NR provision API...');
-console.warn('************************************************************************************************');
+		if (options.request) options.request.log('NEWRELIC IDP TRACK: Signing up user with NR provision API...');
 		const signupResponse = await this.signupUser({
 			name: data.name,
 			email: data.email,
 			password: data.password
 		}, options);
 
-console.warn('************************************************************************************************');
-console.warn('Logging user in using login service, with email and password...');
-console.warn('************************************************************************************************');
+		if (options.request) options.request.log('NEWRELIC IDP TRACK: Logging user in using login service, with email and password...');
 		const loginResponse = await this.loginUser(
 			{
 				username: data.email,
