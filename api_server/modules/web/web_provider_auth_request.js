@@ -36,7 +36,6 @@ class WebProviderAuthRequest extends APIRequest {
 		};
 		const payloadMappings = {
 			teamId: 'teamId',
-			url: 'url',
 			signupToken: 'st',
 			access: 'access',
 			inviteCode: 'ic',
