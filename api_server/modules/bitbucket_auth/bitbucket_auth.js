@@ -43,7 +43,7 @@ class BitbucketAuth extends OAuthModule {
 		if (!options.unifiedIdentityEnabled) {
 			return super.getRedirectData(options);
 		}
-		options.domain = 'bitbucket.org';
+		options.domain = 'bitbucket.com';
 		return this.api.services.idp.getRedirectData(options);
 	}
 }
