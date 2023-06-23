@@ -110,9 +110,7 @@ class DomainPickerRequest extends WebRequestBase {
 		// get redirect url for when selection is complete, this re-auths against the provider
 		// so we can (finally) get an IdP token
 		//const redirectUri = this.getReauthRedirectUri();
-		const host = this.api.config.apiServer.marketingSiteUrl;
-		const authCompletePage = this.serviceAuth.getAuthCompletePage();
-		const redirectUri = `${host}/auth-complete/${authCompletePage}`;
+		const redirectUri = '/web/signed-in';
 
 		const byInvite = this.eligibleJoinCompanies.filter(ejc => ejc.byInvite);
 		const byDomain = this.eligibleJoinCompanies.filter(ejc => ejc.byDomain);
@@ -133,9 +131,7 @@ class DomainPickerRequest extends WebRequestBase {
 
 	// send the redirect response for final auth complete
 	async sendResponse () {
-		const host = this.api.config.apiServer.marketingSiteUrl;
-		const authCompletePage = this.serviceAuth.getAuthCompletePage();
-		const redirect = `${host}/auth-complete/${authCompletePage}`;
+		const redirect = '/web/signed-in';
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}

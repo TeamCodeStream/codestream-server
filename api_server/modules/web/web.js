@@ -125,6 +125,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/signed-in',
+		requestClass: require('./web_signed_in_request')
+	},
+	{
+		method: 'get',
 		path: 'web/provider-auth/:provider',
 		requestClass: require('./web_provider_auth_request')
 	},
