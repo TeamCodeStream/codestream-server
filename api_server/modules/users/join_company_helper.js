@@ -41,15 +41,19 @@ class JoinCompanyHelper {
 		// an admin that has one, to do the codestream-only check
 		let admin;
 		if (!this.request.request.headers['x-cs-no-newrelic'] && this.request.request.headers['x-cs-enable-uid']) {
+			this.request.log('NEWRELIC IDP TRACK: Request to join, checking for an admin that can check for CS-only status');
 			admin = await this.findFirstAdminWithNRToken(this.request);
 			if (!admin) {
 				throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'team has no active admin with an NR token and management by New Relic cannot be determined' });
 			}
+			this.request.log('NEWRELIC IDP TRACK: Found admin ' + admin.id);
 		}
 
 		// check whether the company is marked as "codestream-only", and whether its linked NR org
 		// is also "codestream-only", which is the only scenario under which domain joining is possible
+		this.request.log('NEWRELIC IDP TRACK: Checking if this org is CS Only');
 		const codestreamOnly = await IsCodeStreamOnly(this.company, this.request, admin);
+		this.request.log('NEWRELIC IDP TRACK: CS only? ' + codestreamOnly);
 		if (!codestreamOnly) {
 			await this.request.persist();
 			await this.publishCompanyNoCSOnly();
@@ -250,7 +254,7 @@ class JoinCompanyHelper {
 			},
 			this.password,
 			{ 
-				request: this,
+				request: this.request,
 				mockResponse
 			}
 		);

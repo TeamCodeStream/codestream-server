@@ -525,15 +525,31 @@ class ProviderTokenRequest extends RestfulRequest {
 		else {
 			this.signupStatus = 'signedIn';
 		}
+
+		// a "social user" was created if NewRelic IDP used social for signup, and
+		// a user was created in that process, or a registered user was found with
+		// no team, meaning a signup that was aborted earlier
+		if (
+			this.connector.wasIDPSocialSignup &&
+			(
+				this.connector.createdUser ||
+				(
+					// treat a registered, but teamless, user as an aborted sign-up
+					this.user &&
+					(this.user.get('teamIds') || []).length === 0
+				) 
+			)
+		) {
+			this.log('NEWRELIC IDP TRACK: This was a social signup, and created a user, or found an unregistered teamless user');
+			this.socialUserCreated = true;
+		}
 	}
 
 	// if a signup token is provided, this allows a client session to identify the user ID that was eventually
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
-		if (
-			this.connector && 
-			this.connector.wasIDPSocialSignup
-		) {
+
+		if (this.socialUserCreated) {
 			this.log('NEWRELIC IDP TRACK: Was IDP social signup, not saving signup token');
 			return;
 		}
@@ -570,14 +586,10 @@ class ProviderTokenRequest extends RestfulRequest {
 			return;
 		}
 
-		if (
-			this.connector &&
-			this.connector.wasIDPSocialSignup &&
-			this.connector.createdUser
-		) {
+		if (this.socialUserCreated) {
 			this.log('NEWRELIC IDP TRACK: Was IDP social signup, redirecting to web-based domain picker...');
 			this.issueCookie();			
-			return this.redirectToDomainPicker(this.connector.createdUser);
+			return this.redirectToDomainPicker(this.connector.createdUser || this.user);
 		}
 
 		let redirect = this.redirectUrl;

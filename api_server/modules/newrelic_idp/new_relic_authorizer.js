@@ -73,7 +73,10 @@ class NewRelicAuthorizer {
 
 		// refresh the token as needed
 		if (user && providerInfo) {
-			await this.refreshTokenAsNeeded(user, providerInfo);
+			const newTokenInfo = await this.refreshTokenAsNeeded(user, providerInfo);
+			if (newTokenInfo) {
+				token = newTokenInfo.accessToken;
+			}
 		}
 
 		// Unified Identity tokens are cookies, not api keys
@@ -116,6 +119,7 @@ class NewRelicAuthorizer {
 		await this.request.data.users.applyOpById(user.id, op);
 
 		Object.assign(providerInfo, result.newTokenInfo);
+		return result.newTokenInfo;
 	}
 
  	// authorize the user to even access this code error: they must have access to the NR account

@@ -403,6 +403,7 @@ if (!data.password) {
 
 		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
+		options.request.log('NEWRELIC IDP TRACK: Checking if this org has the unlimited consumption entitlement...');
 		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
 			graphQLHost,
@@ -412,6 +413,7 @@ if (!data.password) {
 		});
 		await authorizer.init();
 		const hasEntitlement = await authorizer.nrOrgHasUnlimitedConsumptionEntitlement(accountId, options);
+		options.request.log('NEWRELIC IDP TRACK: hasEntitlement=' + hasEntitlement);
 		return !hasEntitlement;
 	}
 

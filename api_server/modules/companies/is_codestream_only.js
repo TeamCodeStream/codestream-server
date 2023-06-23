@@ -12,11 +12,13 @@ module.exports = async function (company, request, adminUser = null) {
 	// if company is not linked to an NR org, we'll assume it's codestream only
 	// this shouldn't really happen under unified identity, once migrated
 	if (!company.get('linkedNROrgId')) { 
+		request.log('NEWRELIC IDP TRACK: Company is not linked to an NR org, so is CS only');
 		return true;
 	}
 
 	// if company is already not marked as codestream only, that's that
 	if (!company.get('codestreamOnly')) {
+		request.log('NEWRELIC IDP TRACK: Company is already marked as codestreamOnly, so is not CS only');
 		return false;
 	}
 	
@@ -28,11 +30,13 @@ module.exports = async function (company, request, adminUser = null) {
 		request.log('NOTE: not checking NR for codestream-only status, sending mock response');
 	}
 
+	request.log('NEWRELIC IDP TRACK: Checking with IdP service if org is still CS only');
 	const stillCodeStreamOnly = await request.api.services.idp.isNROrgCodeStreamOnly(
 		company.get('linkedNROrgId'),
 		company.get('everyoneTeamId'),
 		options
 	);
+	request.log('NEWRELIC IDP TRACK: stillCodeStreamOnly=' + stillCodeStreamOnly);
 	if (stillCodeStreamOnly) {
 		return true;
 	}
