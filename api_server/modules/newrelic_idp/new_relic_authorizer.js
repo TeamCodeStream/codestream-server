@@ -84,16 +84,17 @@ class NewRelicAuthorizer {
 			"Content-Type": "application/json",
 			"NewRelic-Requesting-Services": "CodeStream"
 		};
-		if (providerInfo && providerInfo.setCookie) {
-			graphQLHeaders.Cookie = `${providerInfo.setCookie}=${token};`;
-		} else if (this.accessToken || providerInfo.bearerToken) {
+		let graphQLHost;
+		if (this.accessToken || providerInfo.bearerToken) {
+			graphQLHost= this.request.api.config.integrations.newRelicIdentity.graphQLHost; 
 			graphQLHeaders.Authorization = `Bearer ${token}`;
 		} else {
+			graphQLHost= this.request.api.config.sharedGeneral.newRelicApiUrl;
 			graphQLHeaders['Api-Key'] = token;
 		}
+		const baseUrl = `${graphQLHost}/graphql`;
 
 		// instantiate graphQL client
-		const baseUrl = this.getGraphQLBaseUrl();
 		this.client = new GraphQLClient(
 			baseUrl,
 			{
@@ -376,12 +377,6 @@ mutation {
 			throw error;
 		}
 		return response.currentUser?.account?.region?.code;
-	}
-
-	// get the base URL for New Relic GraphQL client
-	getGraphQLBaseUrl () {
-		const host = this.graphQLHost || this.request.api.config.sharedGeneral.newRelicApiUrl || 'https://api.newrelic.com';
-		return `${host}/graphql`;
 	}
 }
 

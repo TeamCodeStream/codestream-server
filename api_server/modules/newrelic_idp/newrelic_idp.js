@@ -364,9 +364,7 @@ if (!data.password) {
 
 	async deleteUser (id, codestreamTeamId, options = {}) {
 		// use the NewRelicAuthorizer, which makes a graphql call to delete the user
-		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
-			graphQLHost,
 			request: options.request,
 			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
 		});
@@ -377,9 +375,7 @@ if (!data.password) {
 	// return the region code associated with a particular account
 	async regionFromAccountId (accountId, accessToken, options = {}) {
 		// use the NewRelicAuthorizer, which makes a graphql call 
-		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
-			graphQLHost,
 			request: options.request,
 			accessToken
 		});
@@ -407,9 +403,7 @@ if (!data.password) {
 		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
 		options.request.log('NEWRELIC IDP TRACK: Checking if this org has the unlimited consumption entitlement...');
-		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
-			graphQLHost,
 			request: options.request,
 			teamId: codestreamTeamId, // used to get the user's API key, to make a nerdgraph request
 			adminUser: options.adminUser // grab token or API key from this admin user, instead of the requesting user
