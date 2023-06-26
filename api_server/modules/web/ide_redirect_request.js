@@ -2,6 +2,7 @@
 
 'use strict';
 const WebRequestBase = require('./web_request_base');
+const CodemarkLinkIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_link_indexes');
 
 class IdeRedirectRequest extends WebRequestBase {
 
@@ -33,6 +34,23 @@ class IdeRedirectRequest extends WebRequestBase {
 			segmentKey: this.api.config.telemetry.segment.webToken,
 			src: decodeURIComponent(this.request.query.src || ''),
 		}
+	}
+
+	getTeamId () {
+		return this.decodeLinkId(this.request.params.teamId);
+	}
+
+	async getEntityId (teamId, key) {
+		const linkId = this.decodeLinkId(this.request.params.id, 2);
+		const codemarkLink = await this.data.codemarkLinks.getOneByQuery(
+			{ teamId: teamId, _id: linkId },
+			{ hint: CodemarkLinkIndexes.byTeamId }
+		)
+		if (!codemarkLink) {
+			this.warn('User requested a codemark link that was not found');
+			return this.redirect404(this.teamId);
+		}
+		return codemarkLink.get(key);
 	}
 
 	renderRedirect () {
