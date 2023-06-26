@@ -97,15 +97,15 @@
 
 		join = function(id, type) {
 			console.log(`Joining company, id=${id} type=${type}`);
-			var invitedOrgsDiv;
+			var joinOrgsDiv;
 			if (type === 'invite') {
-				invitedOrgsDiv = document.getElementById('invited-orgs');
+				joinOrgsDiv = document.getElementById('invited-orgs');
 			} else {
-				invitedOrgsDiv = document.getElementById('domain-orgs');
+				joinOrgsDiv = document.getElementById('domain-orgs');
 			}
-			invitedOrgsDiv.innerHTML = 'Joining Organization...';
-			invitedOrgsDiv.style.marginTop = '20px';
-			invitedOrgsDiv.style.textAlign = 'center';
+			joinOrgsDiv.innerHTML = 'Joining Organization...';
+			joinOrgsDiv.style.marginTop = '20px';
+			joinOrgsDiv.style.textAlign = 'center';
 			const body = {
 				_csrf: '{{csrf}}',
 				signupToken: '{{signupToken}}'
@@ -127,8 +127,8 @@
 				if (req.status >= 300) { 
 					const response = JSON.parse(req.responseText);
 					let errorMessage = response.message || "Unknown Error";
-					invitedOrgsDiv.innerHTML = `${errorMessage}`;
-					invitedOrgsDiv.style.color = 'red';
+					joinOrgsDiv.innerHTML = `${errorMessage}`;
+					joinOrgsDiv.style.color = 'red';
 				}
 			};
 			req.send(JSON.stringify(body));
@@ -136,8 +136,8 @@
 
 		create = function() {
 			console.log(`Creating company, name="{{companyName}}"`);
-			var invitedOrgsDiv = document.getElementById('create-org');
-			invitedOrgsDiv.innerHTML = 'Creating Organization...';
+			var createOrgDiv = document.getElementById('create-org');
+			createOrgDiv.innerHTML = 'Creating Organization...';
 			const body = {
 				name: '{{companyName}}',
 				signupToken: '{{signupToken}}',
@@ -159,8 +159,8 @@
 				if (req.status >= 300) {
 					const response = JSON.parse(req.responseText);
 					let errorMessage = response.message || "Unknown Error";
-					invitedOrgsDiv.innerHTML = `${errorMessage}`;
-					invitedOrgsDiv.style.color = 'red';
+					createOrgDiv.innerHTML = `${errorMessage}`;
+					createOrgDiv.style.color = 'red';
 				}
 			};
 			req.send(JSON.stringify(body));
