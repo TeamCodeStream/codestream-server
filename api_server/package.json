@@ -83,6 +83,9 @@
 	"overrides": {
 		"multer-s3@2.10.0": {
 			"file-type": "16.5.4"
+		},
+		"degenerator@3.0.1": {
+			"vm2": "3.9.18"
 		}
 	}
 }
