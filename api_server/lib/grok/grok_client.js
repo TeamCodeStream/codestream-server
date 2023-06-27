@@ -149,7 +149,7 @@ class GrokClient {
 		// store Grok response as new Post
 		const post = await postCreator.createPost({
 			forGrok: true,
-			streamId: this.request.body.streamId,
+			streamId: codeError.get('streamId'),
 			teamId: this.team.get('id'),
 			text: apiResponse.content,
 			promptRole: apiResponse.role,
@@ -243,7 +243,7 @@ class GrokClient {
 		// store Grok response as new Post 
 		const post = await postCreator.createPost({
 			forGrok: true,
-			streamId: this.request.body.streamId,
+			streamId: codeError.get('streamId'),
 			teamId: this.team.get('id'),
 			text: apiResponse.content,
 			promptRole: apiResponse.role,
