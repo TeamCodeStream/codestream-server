@@ -574,7 +574,7 @@ if (!data.password) {
 			} else if (payload.idp && payload.idp === 'gitlab.com') {
 				idpInfo = await this.getGitLabIdentityInfo(payload.idp_access_token, options);
 			} else if (payload.idp && payload.idp === 'bitbucket.org') {
-				idpInfo = await this.getBitbucketIdentityInfo( ayload.idp_access_token, options);
+				idpInfo = await this.getBitbucketIdentityInfo(payload.idp_access_token, options);
 			}
 			delete idpInfo.accessToken;
 			const showInfo = { ...idpInfo };
