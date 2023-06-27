@@ -125,7 +125,8 @@ class DomainPickerRequest extends WebRequestBase {
 			signupToken: this.payload.st,
 			csrf,
 			segmentKey: this.api.config.telemetry.segment.webToken,
-			redirectUri
+			redirectUri,
+			provider: this.provider
 		};
 
 		await super.render('domain_picker', templateProps);

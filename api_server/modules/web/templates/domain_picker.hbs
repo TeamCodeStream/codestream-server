@@ -29,7 +29,7 @@
 		</div>
 		{{#if byInvite.length}}
 			<div class="row">
-				<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+				<div id="invited-orgs" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
 					<h5>Organizations you've been invited to</h5>
 					{{#each byInvite}}
 						<table>
@@ -37,7 +37,7 @@
 								<td width="90%">{{name}}</td>
 								<td rowspan="2">
 									<div class="form-group">
-										<button class="btn" onclick="join('{{id}}');">
+										<button class="btn" onclick="join('{{id}}', 'invite');">
 											<span class="copy">Join</span>
 										</button>
 									</div>
@@ -54,7 +54,7 @@
 		{{/if}}
 		{{#if byDomain.length}}
 			<div class="row">
-				<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+				<div id="domain-orgs" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
 					<h5>Organizations you can join based on email domain</h5>
 					{{#each byDomain}}
 						<table>
@@ -62,7 +62,7 @@
 								<td width="90%">{{name}}</td>
 								<td rowspan="2">
 									<div class="form-group">
-										<button class="btn" onclick="join('{{id}}');">
+										<button class="btn" onclick="join('{{id}}', 'domain');">
 											<span class="copy">Join</span>
 										</button>
 									</div>
@@ -77,15 +77,35 @@
 			</div>
 		{{/if}}
 		<br/>
-		<div class="row">
-			<div class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+		<div  class="row">
+			<div id="create-org" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
 				<h5>Or, you can <a href="#" onclick="create();">create your own organization</a>.</h5>
 			</div>
 		</div>
 	</div>
 	<script>
-		join = function(id) {
-			console.log(`Joining company, id=${id}`);
+
+		window.onload = function() {
+			const hasDomain = {{byDomain.length}} > 0;
+			const hasInvite = {{byInvite.length}} > 0;
+			analytics.track("New Organization Created", {
+				"Domain Orgs": hasDomain,
+				"Invited Orgs": hasInvite,
+				"Auth Provider": {{provider}},
+			});
+		}
+
+		join = function(id, type) {
+			console.log(`Joining company, id=${id} type=${type}`);
+			var joinOrgsDiv;
+			if (type === 'invite') {
+				joinOrgsDiv = document.getElementById('invited-orgs');
+			} else {
+				joinOrgsDiv = document.getElementById('domain-orgs');
+			}
+			joinOrgsDiv.innerHTML = 'Joining Organization...';
+			joinOrgsDiv.style.marginTop = '20px';
+			joinOrgsDiv.style.textAlign = 'center';
 			const body = {
 				_csrf: '{{csrf}}',
 				signupToken: '{{signupToken}}'
@@ -96,14 +116,28 @@
 			req.setRequestHeader('X-CS-Enable-UId', 1);			
 			req.onload = () => {
 				if (req.status >= 200 && req.status < 300) {
+					analytics.track("Joined Organization", {
+						"Availability": type,
+						"Location": "Signup",
+						"Auth Provider": {{provider}},
+					});
 					const response = JSON.parse(req.responseText);
 					window.location.href = "{{redirectUri}}";
+				}
+				if (req.status >= 300) { 
+					const response = JSON.parse(req.responseText);
+					let errorMessage = response.message || "Unknown Error";
+					joinOrgsDiv.innerHTML = `${errorMessage}`;
+					joinOrgsDiv.style.color = 'red';
 				}
 			};
 			req.send(JSON.stringify(body));
 		};
+
 		create = function() {
 			console.log(`Creating company, name="{{companyName}}"`);
+			var createOrgDiv = document.getElementById('create-org');
+			createOrgDiv.innerHTML = 'Creating Organization...';
 			const body = {
 				name: '{{companyName}}',
 				signupToken: '{{signupToken}}',
@@ -115,12 +149,24 @@
 			req.setRequestHeader('X-CS-Enable-UId', 1);
 			req.onload = () => {
 				if (req.status >= 200 && req.status < 300) {
+					analytics.track("New Organization Created", {
+						"Domain Joining": "Not Available",
+						"Auth Provider": {{provider}},
+					});
 					const response = JSON.parse(req.responseText);
 					window.location.href = "{{redirectUri}}";
-				} 
+				}
+				if (req.status >= 300) {
+					const response = JSON.parse(req.responseText);
+					let errorMessage = response.message || "Unknown Error";
+					createOrgDiv.innerHTML = `${errorMessage}`;
+					createOrgDiv.style.color = 'red';
+				}
 			};
 			req.send(JSON.stringify(body));
 		};
+
+
 	</script>
 </body>
 
