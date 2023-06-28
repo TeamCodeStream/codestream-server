@@ -27,63 +27,78 @@
 				<h1>Join your teammates on CodeStream</h1>
 			</div>
 		</div>
-		{{#if byInvite.length}}
-			<div class="row">
-				<div id="invited-orgs" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-					<h5>Organizations you've been invited to</h5>
-					{{#each byInvite}}
-						<table>
-							<tr>
-								<td width="90%">{{name}}</td>
-								<td rowspan="2">
-									<div class="form-group">
-										<button class="btn" onclick="join('{{id}}', 'invite');">
-											<span class="copy">Join</span>
-										</button>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>{{memberCount}} members</td>
-							</tr>
-						</table>
-					{{/each}}
+		<div id="organizations">
+			{{#if byInvite.length}}
+				<div class="row">
+					<div id="invited-orgs" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+						<h5>Organizations you've been invited to</h5>
+						{{#each byInvite}}
+							<table>
+								<tr>
+									<td width="90%">{{name}}</td>
+									<td rowspan="2">
+										<div class="form-group">
+											<button class="btn" onclick="join('{{id}}');">
+												<span class="copy">Join</span>
+											</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>{{memberCount}} members</td>
+								</tr>
+							</table>
+						{{/each}}
+					</div>
 				</div>
-			</div>
+				<br/>
+			{{/if}}
+			{{#if byDomain.length}}
+				<div class="row">
+					<div id="domain-orgs" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+						<h5>Organizations you can join based on email domain</h5>
+						{{#each byDomain}}
+							<table>
+								<tr>
+									<td width="90%">{{name}}</td>
+									<td rowspan="2">
+										<div class="form-group">
+											<button class="btn" onclick="join('{{id}}');">
+												<span class="copy">Join</span>
+											</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>{{memberCount}} members</td>
+								</tr>
+							</table>
+						{{/each}}
+					</div>
+				</div>
+			{{/if}}
 			<br/>
-		{{/if}}
-		{{#if byDomain.length}}
-			<div class="row">
-				<div id="domain-orgs" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-					<h5>Organizations you can join based on email domain</h5>
-					{{#each byDomain}}
-						<table>
-							<tr>
-								<td width="90%">{{name}}</td>
-								<td rowspan="2">
-									<div class="form-group">
-										<button class="btn" onclick="join('{{id}}', 'domain');">
-											<span class="copy">Join</span>
-										</button>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td>{{memberCount}} members</td>
-							</tr>
-						</table>
-					{{/each}}
+			<div  class="row">
+				<div id="create-org" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+					<h5>Or, you can <a href="#" onclick="create();">create your own organization</a>.</h5>
 				</div>
-			</div>
-		{{/if}}
-		<br/>
-		<div  class="row">
-			<div id="create-org" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-				<h5>Or, you can <a href="#" onclick="create();">create your own organization</a>.</h5>
 			</div>
 		</div>
+		<div style="display: none" id="loading-organizations">
+			<div class="loading-container">
+				<div class="loader"></div>
+				<div id="organization-type"></div>
+			</div>
+		</div>
+
 	</div>
 	<script>
+
+		var currentURL = window.location.href;
+		var currentPath = window.location.pathname;
+		var newURL = currentURL.split('?')[0];
+		var newPath = "/web/signed-in";
+		newURL = newURL.replace(currentPath, newPath);
 
 		window.onload = function() {
 			const hasDomain = {{byDomain.length}} > 0;
@@ -91,25 +106,25 @@
 			analytics.track("New Organization Created", {
 				"Domain Orgs": hasDomain,
 				"Invited Orgs": hasInvite,
-				"Auth Provider": {{provider}},
-			});
+				"Auth Provider": "{{provider}}",
+			});		
 		}
 
-		join = function(id, type) {
+		join = function(id) {
 			console.log(`Joining company, id=${id} type=${type}`);
-			var joinOrgsDiv;
-			if (type === 'invite') {
-				joinOrgsDiv = document.getElementById('invited-orgs');
-			} else {
-				joinOrgsDiv = document.getElementById('domain-orgs');
-			}
-			joinOrgsDiv.innerHTML = 'Joining Organization...';
-			joinOrgsDiv.style.marginTop = '20px';
-			joinOrgsDiv.style.textAlign = 'center';
+
+			var orgDiv = document.getElementById('organizations');
+			orgDiv.style.display = "none";
+			var loadingOrgDiv = document.getElementById('loading-organizations');
+			loadingOrgDiv.style.display = "block";
+			var orgType = document.getElementById('organization-type');
+			orgType.innerHTML = 'Joining Organization...';
+
 			const body = {
 				_csrf: '{{csrf}}',
 				signupToken: '{{signupToken}}'
 			};
+
 			var req = new XMLHttpRequest();
 			req.open('PUT', `/web/join-company/${id}`);
 			req.setRequestHeader('Content-Type', 'application/json');
@@ -119,16 +134,16 @@
 					analytics.track("Joined Organization", {
 						"Availability": type,
 						"Location": "Signup",
-						"Auth Provider": {{provider}},
+						"Auth Provider": "{{provider}}",
 					});
 					const response = JSON.parse(req.responseText);
-					window.location.href = "{{redirectUri}}";
+					window.location.href = newURL;
 				}
 				if (req.status >= 300) { 
 					const response = JSON.parse(req.responseText);
 					let errorMessage = response.message || "Unknown Error";
-					joinOrgsDiv.innerHTML = `${errorMessage}`;
-					joinOrgsDiv.style.color = 'red';
+					orgType.innerHTML = `${errorMessage}`;
+					orgType.style.color = 'red';
 				}
 			};
 			req.send(JSON.stringify(body));
@@ -136,13 +151,20 @@
 
 		create = function() {
 			console.log(`Creating company, name="{{companyName}}"`);
-			var createOrgDiv = document.getElementById('create-org');
-			createOrgDiv.innerHTML = 'Creating Organization...';
+
+			var orgDiv = document.getElementById('organizations');
+			orgDiv.style.display = "none";
+			var loadingOrgDiv = document.getElementById('loading-organizations');
+			loadingOrgDiv.style.display = "block";
+			var orgType = document.getElementById('organization-type');
+			orgType.innerHTML = 'Creating Organization...';
+
 			const body = {
 				name: '{{companyName}}',
 				signupToken: '{{signupToken}}',
 				_csrf: '{{csrf}}'
 			};
+
 			var req = new XMLHttpRequest();
 			req.open('POST', '/web/companies');
 			req.setRequestHeader('Content-Type', 'application/json');
@@ -151,22 +173,20 @@
 				if (req.status >= 200 && req.status < 300) {
 					analytics.track("New Organization Created", {
 						"Domain Joining": "Not Available",
-						"Auth Provider": {{provider}},
+						"Auth Provider": "{{provider}}",
 					});
 					const response = JSON.parse(req.responseText);
-					window.location.href = "{{redirectUri}}";
+					window.location.href = newURL;
 				}
 				if (req.status >= 300) {
 					const response = JSON.parse(req.responseText);
 					let errorMessage = response.message || "Unknown Error";
-					createOrgDiv.innerHTML = `${errorMessage}`;
-					createOrgDiv.style.color = 'red';
+					orgType.innerHTML = `${errorMessage}`;
+					orgType.style.color = 'red';
 				}
 			};
 			req.send(JSON.stringify(body));
 		};
-
-
 	</script>
 </body>
 

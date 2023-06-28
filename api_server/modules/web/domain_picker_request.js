@@ -112,7 +112,7 @@ class DomainPickerRequest extends WebRequestBase {
 		//const redirectUri = this.getReauthRedirectUri();
 		const host = this.api.config.apiServer.marketingSiteUrl;
 		const authCompletePage = this.serviceAuth.getAuthCompletePage();
-		const redirectUri = `${host}/auth-complete/${authCompletePage}`;
+		const redirectUri = `${host}/web/signed-in `;
 
 		const byInvite = this.eligibleJoinCompanies.filter(ejc => ejc.byInvite);
 		const byDomain = this.eligibleJoinCompanies.filter(ejc => ejc.byDomain);
