@@ -38,7 +38,7 @@
 									<td width="90%">{{name}}</td>
 									<td rowspan="2">
 										<div class="form-group">
-											<button class="btn" onclick="join('{{id}}');">
+											<button class="btn" onclick="join('{{id}}', 'invite');">
 												<span class="copy">Join</span>
 											</button>
 										</div>
@@ -63,7 +63,7 @@
 									<td width="90%">{{name}}</td>
 									<td rowspan="2">
 										<div class="form-group">
-											<button class="btn" onclick="join('{{id}}');">
+											<button class="btn" onclick="join('{{id}}', 'domain');">
 												<span class="copy">Join</span>
 											</button>
 										</div>
@@ -110,7 +110,7 @@
 			});		
 		}
 
-		join = function(id) {
+		join = function(id, type) {
 			console.log(`Joining company, id=${id} type=${type}`);
 
 			var orgDiv = document.getElementById('organizations');
