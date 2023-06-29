@@ -24,7 +24,8 @@
 				analytics.track("NR1 Redirect Page Viewed", {
 					Source: "{{src}}",
 					"New to CodeStream": "{{newToCodeStream}}",
-					"Error Group ID": "{{errorGroupGuid}}"
+					"Error Group ID": "{{errorGroupGuid}}",
+					Content: "{{analyticsContentType}}"
 				});
 			}
 		}();
@@ -32,14 +33,15 @@
 	<script>		 
 		window.CODESTREAM = window.CODESTREAM || {};
 		window.CODESTREAM.page = {
-			type: "errorsinbox",
-			what: "Error",
+			type: "{{pageType}}",
+			what: "{{pageWhat}}",
 			data: {
-				id: '{{codemarkId}}',
+				id: '{{entityId}}',
 				repoId: '{{uniqueRepoId}}',
 				file: '{{uniqueFileName}}',
 				teamId: '{{teamId}}',
 				teamName: '{{teamName}}',
+				companyName: '{{companyName}}',
 				isLink: '{{isLink}}'
 			}
 		}	 
