@@ -111,7 +111,6 @@ class DomainPickerRequest extends WebRequestBase {
 		// so we can (finally) get an IdP token
 		//const redirectUri = this.getReauthRedirectUri();
 		const redirectUri = '/web/signed-in';
-
 		const byInvite = this.eligibleJoinCompanies.filter(ejc => ejc.byInvite);
 		const byDomain = this.eligibleJoinCompanies.filter(ejc => ejc.byDomain);
 		const companyName = this.isWebmail ? 'My Organization' : this.domain;
@@ -123,7 +122,8 @@ class DomainPickerRequest extends WebRequestBase {
 			signupToken: this.payload.st,
 			csrf,
 			segmentKey: this.api.config.telemetry.segment.webToken,
-			redirectUri
+			redirectUri,
+			provider: this.provider
 		};
 
 		await super.render('domain_picker', templateProps);

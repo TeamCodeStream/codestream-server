@@ -10,6 +10,9 @@ const NewRelicAuthorizer = require('./new_relic_authorizer');
 //const NewRelicListener = require('./newrelic_listener');
 const RandomString = require('randomstring');
 const JWT = require('jsonwebtoken');
+const GithubAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/github_auth/github_authorizer');
+const GitlabAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/gitlab_auth/gitlab_authorizer');
+const BitbucketAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/bitbucket_auth/bitbucket_authorizer');
 
 class NewRelicIDP extends APIServerModule {
 
@@ -53,7 +56,7 @@ if (!password) {
 	// FIXME ... this is temporary, until we have a place to go to finish this signup flow
 	// in the case of social signup
 	if (options.request) options.request.log('NEWRELIC IDP TRACK: NR createUser has no password, generating one...');
-	password = RandomString.generate(20);
+	password = RandomString.generate(20) + '1!';
 	passwordGenerated = true;
 }
 		if (options.request) options.request.log('NEWRELIC IDP TRACK: Setting user password on Azure/NR...');
@@ -177,7 +180,7 @@ if (!data.password) {
 	// FIXME ... this is temporary, until we have a place to go to finish this signup flow
 	// in the case of social signup
 	if (options.request) options.request.log('NEWRELIC IDP TRACK: No password provided to fullSignup, generating random...');
-	data.password = RandomString.generate(20);
+	data.password = RandomString.generate(20) + '1!';
 	passwordGenerated = true;
 }
 
@@ -361,9 +364,7 @@ if (!data.password) {
 
 	async deleteUser (id, codestreamTeamId, options = {}) {
 		// use the NewRelicAuthorizer, which makes a graphql call to delete the user
-		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
-			graphQLHost,
 			request: options.request,
 			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
 		});
@@ -374,9 +375,7 @@ if (!data.password) {
 	// return the region code associated with a particular account
 	async regionFromAccountId (accountId, accessToken, options = {}) {
 		// use the NewRelicAuthorizer, which makes a graphql call 
-		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
-			graphQLHost,
 			request: options.request,
 			accessToken
 		});
@@ -404,9 +403,7 @@ if (!data.password) {
 		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
 		options.request.log('NEWRELIC IDP TRACK: Checking if this org has the unlimited consumption entitlement...');
-		const graphQLHost = this.serviceHosts['graphql'];
 		const authorizer = new NewRelicAuthorizer({
-			graphQLHost,
 			request: options.request,
 			teamId: codestreamTeamId, // used to get the user's API key, to make a nerdgraph request
 			adminUser: options.adminUser // grab token or API key from this admin user, instead of the requesting user
@@ -525,6 +522,10 @@ if (!data.password) {
 	async getUserIdentity (options) {
 		// decode the token, which is JWT, this will give us the NR User ID
 		const payload = JWT.decode(options.accessToken);
+		const showPayload = { ...payload };
+		if (showPayload.idp_access_token) showPayload.idp_access_token = '<redacted>';
+		if (showPayload.idp_refresh_token) showPayload.idp_refresh_token = '<redacted>';
+		options.request.log('NEWRELIC IDP TRACK: ID token payload: ' + JSON.stringify(showPayload, 0, 5));
 		const identityInfo = {
 			email: payload.email,
 			fullName: payload.name,
@@ -565,9 +566,44 @@ if (!data.password) {
 				userTier: userInfo.data?.attributes?.userTier
 			};
 		}
+
+		if (payload.idp && payload.idp_access_token) {
+			let idpInfo;
+			if (payload.idp && payload.idp === 'github.com') {
+				idpInfo = await this.getGitHubIdentityInfo(payload.idp_access_token, options);
+			} else if (payload.idp && payload.idp === 'gitlab.com') {
+				idpInfo = await this.getGitLabIdentityInfo(payload.idp_access_token, options);
+			} else if (payload.idp && payload.idp === 'bitbucket.org') {
+				idpInfo = await this.getBitbucketIdentityInfo(payload.idp_access_token, options);
+			}
+			delete idpInfo.accessToken;
+			const showInfo = { ...idpInfo };
+			if (showInfo.accessToken) showInfo.accessToken = '<redacted>';
+			options.request.log('Additional identity info: ' + JSON.stringify(showInfo, 0, 5));
+			Object.assign(identityInfo, idpInfo);
+		}
+
 		return identityInfo;
 	}
 
+	async getGitHubIdentityInfo (token, options) {
+		options.request.log('Getting additional identitying info from Github...');
+		const authorizer = new GithubAuthorizer({ options: { request: options.request } });
+		return authorizer.getGithubIdentity(token);
+	}
+	
+	async getGitLabIdentityInfo (token, options) {
+		options.request.log('NEWRELIC IDP TRACK: Getting additional identitying info from Gitlab...');
+		const authorizer = new GitlabAuthorizer({ options: { request: options.request } });
+		return authorizer.getGitlabIdentity(token);
+	}
+	
+	async getBitbucketIdentityInfo (token, options) {
+		options.request.log('NEWRELIC IDP TRACK: Getting additional identitying info from Bitbucket...');
+		const authorizer = new BitbucketAuthorizer({ options: { request: options.request } });
+		return authorizer.getBitbucketIdentity(token);
+	}
+	
 	getAuthCompletePage () {
 		return 'newrelic';
 	}

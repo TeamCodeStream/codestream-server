@@ -578,6 +578,36 @@ hr {
 	border-top-right-radius: 0;
 }
 
+/* Loading spinner css */
+
+.loader {
+	border: 2px solid #f3f3f3;
+	border-radius: 50%;
+	border-top: 2px solid #3498db;
+	width: 12px;
+	height: 12px;
+	-webkit-animation: spin 2s linear infinite; /* Safari */
+	animation: spin 2s linear infinite;
+	margin-right: 5px;
+}
+  
+/* Safari-specific loading spinner css */
+@-webkit-keyframes spin {
+	0% { -webkit-transform: rotate(0deg); }
+	100% { -webkit-transform: rotate(360deg); }
+}
+  
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+.loading-container {
+	display: flex; 
+	justify-content: center; 
+	align-items: center
+}
+
 #notification-title {
 	color: black !important;
 	font-weight: bold;
