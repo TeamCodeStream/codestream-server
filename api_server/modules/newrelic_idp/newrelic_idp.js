@@ -27,8 +27,12 @@ class NewRelicIDP extends APIServerModule {
 		};
 	}
 
-	async initialize () {
-		const identityConfig = this.api.config.integrations.newRelicIdentity;
+	async initialize (config = null) {
+		this.apiConfig = config || (this.api && this.api.config);
+		if (!this.apiConfig) {
+			throw new Error('no config provided');
+		}
+		const identityConfig = this.apiConfig.integrations.newRelicIdentity;
 		this.serviceHosts = {
 			'signup': identityConfig.signupServiceHost,
 			'user': identityConfig.userServiceHost,
@@ -230,7 +234,7 @@ if (!data.password) {
 	}
 
 	async signupUser (data, options = {}) {
-		const region = this.api.config.integrations.newRelicIdentity.newRelicRegion;
+		const region = this.apiConfig.integrations.newRelicIdentity.newRelicRegion;
 		return this._newrelic_idp_call(
 			'signup',
 			'/internal/v1/signups/provision',
@@ -289,6 +293,15 @@ if (!data.password) {
 		);
 	}
 
+	async getUsersByOrg (orgId, options = {}) {
+		const authDomains = await this.getAuthDomains(orgId, options);
+		let users = [];
+		await Promise.all(authDomains.map(async authDomainId => {
+			const authDomainUsers = await this.getUsersByAuthDomain(authDomainId, options);
+			users = [...users, ...authDomainUsers];
+		}));
+		return users;
+	}
 	async getUsersByUsername (username, options = {}) {
 		return this._newrelic_idp_call(
 			'user',
@@ -431,8 +444,19 @@ if (!data.password) {
 
 	}
 
+	// get a single auth domain, by ID
+	async getAuthDomain (authDomainId, options = {}) {
+		return this._newrelic_idp_call(
+			'org',
+			`/v0/authentication_domains/${authDomainId}`,
+			'get',
+			undefined,
+			options
+		);
+	}
+
 	// get the org given an NR org ID
-	async getOrg (nrOrgId, options) {
+	async getOrg (nrOrgId, options = {}) {
 		const result = await this._newrelic_idp_call(
 			'org',
 			'/v0/organizations/' + nrOrgId,
@@ -496,7 +520,7 @@ if (!data.password) {
 	// exchange auth code for access token, in the New Relic IDP world, this looks kind of like
 	// OAuth, but really isn't
 	async exchangeAuthCodeForToken (options) {
-		const { newRelicClientId, newRelicClientSecret } = this.api.config.integrations.newRelicIdentity;
+		const { newRelicClientId, newRelicClientSecret } = this.apiConfig.integrations.newRelicIdentity;
 		const result = await this._newrelic_idp_call(
 			'login',
 			'/api/v1/tokens',
@@ -716,7 +740,7 @@ if (!data.password) {
 	}
 
 	_signPayload (data, options = {}) {
-		const secret = this.api.config.integrations.newRelicIdentity.userServiceSecret;
+		const secret = this.apiConfig.integrations.newRelicIdentity.userServiceSecret;
 		return Crypto.createHmac('sha256', secret)
 			.update(JSON.stringify(data))
 			.digest('hex');

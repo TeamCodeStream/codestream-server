@@ -7,15 +7,17 @@
 const Commander = require('commander');
 const NewRelicIDP = require('./newrelic_idp');
 
-//const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
+const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 //const FS = require('fs');
 
 Commander
 	.option('-l, --list <email>', 'List all New Relic / Azure users matching email')
 	.option('-g --get <id>', 'Get New Relic / Azure user matching the given ID')
 	.option('-o --getOrg <id>', 'Get New Relic / Azure org matching the given ID')
-	.option('-a --auth <domain_id>', 'List all New Relic / Azure users under given authentication domain ID')
 	.option('-u --username <username>', 'List all New Relic / Azure users matching a given username')
+	.option('-a --getAuthDomain <id>', 'Get a New Relic auth domain')
+	.option('--auth <domain_id>', 'List all New Relic / Azure users under given authentication domain ID')
+	.option('--org <org_id>', 'List all New Relic / Azure users in the given org')
 	.option('--update <id>', 'Update the attributes of the user, given its ID')
 	.option('--org-name <id>', 'Update the attributes of the org, given its ID')
 	.option('--data <data>', 'The data to use when updating user attributes, in json')
@@ -27,7 +29,9 @@ Commander
 	const idp = new NewRelicIDP();
 
 	try {
-		await idp.initialize();
+		await ApiConfig.loadPreferredConfig();
+		const config = await ApiConfig.getPreferredConfig();
+		await idp.initialize(config);
 
 		let response;
 		if (Commander.list) {
@@ -37,8 +41,12 @@ Commander
 		} else if (Commander.getOrg) {
 			response = await idp.getOrg(Commander.getOrg);
 			response = { data: { attributes: response } };
+		} else if (Commander.getAuthDomain) {
+			response = await idp.getAuthDomain(Commander.getAuthDomain);
 		} else if (Commander.auth) {
 			response = await idp.getUsersByAuthDomain(Commander.auth);
+		} else if (Commander.org) {
+			response = await idp.getUsersByOrg(Commander.org);
 		} else if (Commander.username) {
 			response = await idp.getUsersByUsername(Commander.username);
 		} else if (Commander.update && Commander.data) {
@@ -55,7 +63,7 @@ Commander
 		} else if (Commander.delete) {
 			response = await idp.deleteUser(Commander.delete);
 		}
-		console.log(JSON.stringify(response && response.data, undefined, 5));
+		console.log(JSON.stringify((response && response.data) || response, undefined, 5));
 	}
 	catch (error) {
 		console.error(error);

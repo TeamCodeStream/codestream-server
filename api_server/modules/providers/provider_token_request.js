@@ -668,14 +668,17 @@ class ProviderTokenRequest extends RestfulRequest {
 		// since New Relic staging has no EU, we'll "simulate" by looking for emails
 		// matching a certain pattern
 		let { region, email } = this.userIdentity;
+		let enforceRegion;
 		if (!isProductionCloud) { 
 			if (email.match(/\/+testus/)) {
-				region = 'us01';
+				enforceRegion = 'us01';
 			} else if (email.match(/\+testeu/)) {
-				region = 'eu01';
+				enforceRegion = 'eu01';
 			}
+		} else {
+			enforceRegin = region;
 		}
-		if (!region || !environmentGroup) { return; }
+		if (!enforceRegion || !environmentGroup) { return; }
 
 		// switch to a different host as needed
 		const switchToGroup = {
@@ -690,15 +693,15 @@ class ProviderTokenRequest extends RestfulRequest {
 				'local1': 'local2'
 			}
 		};
-		if (switchToGroup[region] &&
-			switchToGroup[region][runTimeEnvironment] &&
-			environmentGroup[switchToGroup[region][runTimeEnvironment]]
+		if (switchToGroup[enforceRegin] &&
+			switchToGroup[enforceRegin][runTimeEnvironment] &&
+			environmentGroup[switchToGroup[enforceRegin][runTimeEnvironment]]
 		) {
-			this.redirectHost = environmentGroup[switchToGroup[region][runTimeEnvironment]].publicApiUrl;
+			this.redirectHost = environmentGroup[switchToGroup[enforceRegin][runTimeEnvironment]].publicApiUrl;
 			this.redirectUrl = `${this.redirectHost}${this.request.path}?` + Object.keys(this.request.query).map(param => {
 				return `${param}=${this.request.query[param]}`;
 			}).join('&');
-			this.log(`New Relic region is ${region}, switching to host ${this.redirectHost}...`);
+			this.log(`New Relic region is ${enforceRegin}, switching to host ${this.redirectHost}...`);
 			return true;
 		}
 	}
