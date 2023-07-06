@@ -196,10 +196,10 @@ class GrokClient {
 
 		const code = this.request.body.codeBlock;
 
-		const content = `Analyze this stack trace:\n\`\`\`\n"${ stackTrace }"` 
+		let content = `Analyze this stack trace:\n\`\`\`\n${ stackTrace }\n\`\`\`\n`
 		
 		if(code){
-			content += `\n\`\`\`\nAnd fix the following code:\n\`\`\`\n"${ code }"\n\`\`\``;
+			content += `\nAnd fix the following code:\n\`\`\`\n"${ code }"\n\`\`\``;
 		}
 
 		const initialPrompt = [{
