@@ -77,7 +77,9 @@ class WebProviderAuthRequest extends APIRequest {
 			signupToken: payload.st,
 			noSignup: payload.nosu,
 			publicApiUrl,
-			unifiedIdentityEnabled: this.request.query.enableUId || !!this.request.headers['x-cs-enable-uid']
+			unifiedIdentityEnabled: this.request.query.enableUId || !!this.request.headers['x-cs-enable-uid'],
+			joinCompanyId: this.request.query.joinCompanyId,
+			anonUserId: this.request.query.anonUserId
 		};
 		this.log('redirectUri: ' + redirectUri);
 

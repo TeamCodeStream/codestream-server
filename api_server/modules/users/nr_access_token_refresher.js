@@ -42,7 +42,7 @@ module.exports = async (options) => {
 	
 	let user = request.user;
 	if (!user) {
-		const identity = await request.api.services.idp.getUserIdentity({ accessToken: newTokenInfo.accessToken });
+		const identity = await request.api.services.idp.getUserIdentity({ accessToken: newTokenInfo.accessToken, request });
 		user = await request.data.users.getOneByQuery(
 			{
 				nrUserId: identity.nrUserId

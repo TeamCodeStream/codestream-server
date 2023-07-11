@@ -47,7 +47,7 @@ class JoinCompanyHelper {
 				throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'team has no active admin with an NR token and management by New Relic cannot be determined' });
 			}
 			this.request.log('NEWRELIC IDP TRACK: Found admin ' + admin.id);
-		}
+		} 
 
 		// check whether the company is marked as "codestream-only", and whether its linked NR org
 		// is also "codestream-only", which is the only scenario under which domain joining is possible
@@ -219,7 +219,7 @@ class JoinCompanyHelper {
 			joinMethod: this.joinMethod
 		}).addTeamMembers();
 	}
-
+	
 	// upon joining company creation is where we first register the user with our third-party Identity Provider
 	// (i.e. NewRelic/Azure) ... even if the user is joining a second org, under one-user-per-org,
 	// it's more or less functionally the same as signing up
@@ -284,15 +284,17 @@ class JoinCompanyHelper {
 		};
 
 		// make sure we copy (teamless) providerInfo from the original user
-		set.providerInfo = this.user.get('providerInfo') || {};
-		set.providerInfo[this.team.id] = {
-			newrelic: {
-				accessToken: token,
-				refreshToken,
-				expiresAt,
-				bearerToken: true
-			}
-		};
+		if (!this.dontSaveProviderInfo) {
+			set.providerInfo = this.user.get('providerInfo') || {};
+			set.providerInfo[this.team.id] = {
+				newrelic: {
+					accessToken: token,
+					refreshToken,
+					expiresAt,
+					bearerToken: true
+				}
+			};
+		}
 
 		// if we are behind service gateway and using login service auth, we actually set the user's
 		// access token to the NR access token, this will be used for normal requests

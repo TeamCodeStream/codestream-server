@@ -13,6 +13,7 @@ const CompanyIndexes = require('../companies/indexes');
 const CompanyCreator = require('../companies/company_creator');
 const TeamCreator = require('../teams/team_creator');
 const AddTeamMembers = require('../teams/add_team_members');
+const JoinCompanyHelper = require('../users/join_company_helper');
 
 class ProviderIdentityConnector {
 
@@ -71,13 +72,22 @@ class ProviderIdentityConnector {
 			};
 		const users = await this.data.users.getByQuery(query, { hint });
 
+		// if user is explicitly joining a company, need to get the team to find the invited user record
+		if (this.joinCompanyId) {
+			this.request.log(`NEWRELIC IDP TRACK: Social signup user is now joining existing company ${this.joinCompanyId}...`);
+			this.company = await this.data.companies.getById(this.joinCompanyId);
+			if (this.company && !this.company.get('deactivated')) {
+				this.teamId = this.company.get('everyoneTeamId');
+			}
+		}
+
 		// under one-user-per-org, match a registered user matching the team provided,
 		// or the first registered user, or a teamless unregistered user
 		let firstRegisteredUser, teamlessUnregisteredUser;
 		const matchingUser = users.find(user => {
 			if (user.get('deactivated')) { return; }
 			const teamIds = user.get('teamIds') || [];
-			if (this.teamId && teamIds.includes(this.teamId)) {
+			if (this.teamId && teamIds.includes(this.teamId) && !user.get('isRegistered')) {
 				return user;
 			} else if (!firstRegisteredUser && user.get('isRegistered')) {
 				firstRegisteredUser = user;
@@ -85,10 +95,13 @@ class ProviderIdentityConnector {
 				teamlessUnregisteredUser = user;
 			}
 		});
-		this.user = matchingUser || firstRegisteredUser || teamlessUnregisteredUser;
 
+		this.user = matchingUser || firstRegisteredUser || teamlessUnregisteredUser;
 		if (this.user) {
-			const by = this.providerInfo.nrUserId ? 'nrUserId' : 'email';
+			let by = this.providerInfo.nrUserId ? 'nrUserId' : 'email';
+			if (this.teamId) {
+				by += ` and teamId ${this.teamId}`;
+			}
 			this.request.log(`Matched user ${this.user.id} by ${by}`);
 			if (this.user.get('isRegistered')) {
 				return;
@@ -140,13 +153,29 @@ class ProviderIdentityConnector {
 	// add the user to a team (company/org) as needed
 	// this only applies to New Relic login (which ultimately will be all we have)
 	async createOrJoinCompany () {
-		// outside of New Relic context, users are not automatically put in an org
+		// if explicitly joining a company, get the JoinCompanyHelper to help us
+		if (this.joinCompanyId) {
+			this.request.log(`User is explicitly joining company ${this.joinCompanyId}...`);
+			const helper = new JoinCompanyHelper({
+				request: this.request,
+				user: this.user,
+				companyId: this.joinCompanyId,
+				confirmHelperClass: ConfirmHelper, // this avoids a circular require
+				dontSaveProviderInfo: true
+			});
+			await helper.authorize();
+			await helper.process();
+			this.team = helper.team;
+			return;
+		}
+
+		// otherwise, outside of New Relic context, users are not automatically put in an org
 		if (!this.providerInfo.nrUserId || !this.providerInfo.nrOrgId) {
 			return;
 		}
 
 		// look up the org
-		this.company = await this.request.data.companies.getOneByQuery(
+		this.company = this.company || await this.request.data.companies.getOneByQuery(
 			{ 
 				linkedNROrgId: this.providerInfo.nrOrgId,
 				deactivated:false

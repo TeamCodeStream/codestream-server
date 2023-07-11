@@ -494,10 +494,18 @@ if (!data.password) {
 		const host = this.serviceHosts.login;
 		const whichPath = options.noSignup ? 'cs' : 'cssignup';
 		const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
+		let signupToken = options.signupToken;
+		if (options.joinCompanyId) {
+			signupToken += `.JCID-${options.joinCompanyId}`;
+		}
+		if (options.anonUserId) {
+			signupToken += `.AUID-${options.anonUserId}`;
+		}
+
 		const data = { 
 			url,
 			parameters: {
-				scheme: `${options.publicApiUrl}/~nrlogin/${options.signupToken}`,
+				scheme: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
 				response_mode: 'code'
 			}
 		};
@@ -534,12 +542,17 @@ if (!data.password) {
 		);
 		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
 		const expiresAt = Date.now() + result.expires_in * 1000;
-		return {
+		const tokenInfo = {
 			accessToken: result.id_token,
 			refreshToken: result.refresh_token,
 			provider: 'azureb2c-cs',
 			expiresAt
 		};
+		const showTokenInfo = { ...tokenInfo };
+		showTokenInfo.accessToken = '<redacted>' + tokenInfo.accessToken.slice(-6);
+		showTokenInfo.refreshToken = '<redacted>' + tokenInfo.refreshToken.slice(-6);
+		options.request.log(`NEWRELIC IDP TRACK: Token info from exchange: ${JSON.stringify(showTokenInfo)}`);
+		return tokenInfo;
 	}
 
 	// match the incoming New Relic identity to a CodeStream identity
@@ -547,8 +560,12 @@ if (!data.password) {
 		// decode the token, which is JWT, this will give us the NR User ID
 		const payload = JWT.decode(options.accessToken);
 		const showPayload = { ...payload };
-		if (showPayload.idp_access_token) showPayload.idp_access_token = '<redacted>';
-		if (showPayload.idp_refresh_token) showPayload.idp_refresh_token = '<redacted>';
+		if (showPayload.idp_access_token) {
+			showPayload.idp_access_token = '<redacted>' + payload.idp_access_token.slice(-7);
+		}
+		if (showPayload.idp_refresh_token) {
+			showPayload.idp_refresh_token = '<redacted>' + payload.idp_access_token.slice(-7);
+		}
 		options.request.log('NEWRELIC IDP TRACK: ID token payload: ' + JSON.stringify(showPayload, 0, 5));
 		const identityInfo = {
 			email: payload.email,
@@ -602,7 +619,6 @@ if (!data.password) {
 			}
 			delete idpInfo.accessToken;
 			const showInfo = { ...idpInfo };
-			if (showInfo.accessToken) showInfo.accessToken = '<redacted>';
 			options.request.log('Additional identity info: ' + JSON.stringify(showInfo, 0, 5));
 			Object.assign(identityInfo, idpInfo);
 		}

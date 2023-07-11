@@ -26,8 +26,9 @@ class ProviderTokenRequest extends RestfulRequest {
 	async process () {
 		try {
 			if (this.request.path.match(/~nrlogin/)) {
-			this.log('NEWRELIC IDP TRACK: ~nrlogin called from New Relic IDP');
+				this.log('NEWRELIC IDP TRACK: ~nrlogin called from New Relic IDP');
 				this.request.params.provider = 'newrelicidp';
+				this.request.headers['x-cs-enable-uid'] = '1'; // request can only come from Unified Identity, and we need this to trigger additional code
 			}
 
 			// determine the authorization service to use, based on the provider
@@ -177,9 +178,20 @@ class ProviderTokenRequest extends RestfulRequest {
 		// st (signup token) sent in the path comes from New Relic login and is a special case,
 		// i.e., it kind of looks like OAuth but it really isn't
 		if (this.request.params.st) {
+			const parts = this.request.params.st.split('.');
+			this.stateToken = parts[0];
+			for (let i = 1; i < parts.length; i++) {
+				const subParts = parts[i].split('-');
+				if (subParts[0] === 'JCID') {
+					this.joinCompanyId = subParts[1];
+					this.log(`Join company ID of ${this.joinCompanyId} found in signup token`);
+				} else if (subParts[0] === 'AUID') {
+					this.anonUserId = subParts[1];
+					this.log(`Anon user ID of ${this.anonUserId} found in signup token`);
+				}
+			}
 			this.fromNewRelicLogin = true;
 			this.userId = 'anon';
-			this.stateToken = this.request.params.st;
 			return;
 		} else if (this.isClientToken) {
 			this.userId = 'anon';
@@ -473,7 +485,6 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('identityMatchingNotSupported');
 		}
 
-
 		this.userIdentity = await this.serviceAuth.getUserIdentity({
 			accessToken: token,
 			apiConfig: this.api.config[this.provider],
@@ -489,7 +500,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		if (this.provider === 'newrelicidp') {
 			const showUserIdentity = { ...this.userIdentity };
-			if (showUserIdentity.idpAccessToken) showUserIdentity.idpAccessToken = '<redacted>';
+			if (showUserIdentity.idpAccessToken) {
+				showUserIdentity.idpAccessToken = '<redacted>' + this.userIdentity.idpAccessToken.slice(-7);
+			}
 			this.log('NEWRELIC IDP TRACK: User identity: ' + JSON.stringify(showUserIdentity, 0, 5));
 		}
 
@@ -516,10 +529,13 @@ class ProviderTokenRequest extends RestfulRequest {
 			okToCreateUser: this.userId === 'anon' && !this.noSignup,
 			tokenData: this.tokenData,
 			hostUrl: this.hostUrl,
-			machineId: this.machineId
+			machineId: this.machineId,
+			joinCompanyId: this.joinCompanyId
 		});
 		const showIdentity = { ...userIdentity };
-		if (showIdentity.idpAccessToken) showIdentity.idpAccessToken = '<redacted>';
+		if (showIdentity.idpAccessToken){
+			showIdentity.idpAccessToken = '<redacted>' + userIdentity.idpAccessToken.slice(-7);
+		}
 		this.log('NEWRELIC IDP TRACK: Connecting user identity: ' + JSON.stringify(showIdentity, 0, 5));
 	
 		await this.connector.connectIdentity(userIdentity);
@@ -631,6 +647,9 @@ class ProviderTokenRequest extends RestfulRequest {
 			uid: user.id,
 			st: this.stateToken
 		};
+		if (this.anonUserId) {
+			payload.auid = this.anonUserId;
+		}
 		const state = this.api.services.tokenHandler.generate(
 			payload,
 			'dpck',

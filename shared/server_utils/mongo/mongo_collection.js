@@ -716,7 +716,19 @@ class MongoCollection {
 			}
 		}
 		else if (typeof obj[field] === 'string') {
-			obj[field] = '*'.repeat(obj[field].length);
+			const len = obj[field].length;
+			let lastPart, charRepeat;
+			if (len > 14) {
+				lastPart = obj[field].slice(-7);
+				charRepeat = len - 7;
+			} else if (len > 10) {
+				lastPart = obj[field].slice(-4);
+				charRepeat = len - 4;
+			} else {
+				lastPart = '';
+				charRepeat = len;
+			}
+			obj[field] = '*'.repeat(charRepeat) + lastPart;
 		}
 		else if (typeof obj[field] === 'object') {
 			obj[field] = {'*': '*'};
