@@ -637,7 +637,12 @@ class ProviderTokenRequest extends RestfulRequest {
 			{ expiresAt: Date.now() + 60 * 1000 }
 		);
 
-		const url = `/web/domain-picker/${this.provider}?t=${state}`;
+		let originalProvider = '';
+		if (user && user.attributes && user.attributes.providerInfo && Object.keys(user.attributes.providerInfo).length > 0) {
+			originalProvider = Object.keys(user.attributes.providerInfo)[0];
+		}
+
+		const url = `/web/domain-picker/${this.provider}?t=${state}&p=${originalProvider}`;
 		this.response.redirect(url);
 		this.responseHandled = true;
 	}
