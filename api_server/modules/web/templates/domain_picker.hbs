@@ -103,10 +103,10 @@
 		window.onload = function() {
 			const hasDomain = {{byDomain.length}} > 0;
 			const hasInvite = {{byInvite.length}} > 0;
-			analytics.track("New Organization Created", {
+			analytics.track("Organization Options Presented", {
 				"Domain Orgs": hasDomain,
 				"Invited Orgs": hasInvite,
-				"Auth Provider": "{{provider}}",
+				"Auth Provider": "{{originalProvider}}",
 			});		
 		}
 
@@ -134,7 +134,7 @@
 					analytics.track("Joined Organization", {
 						"Availability": type,
 						"Location": "Signup",
-						"Auth Provider": "{{provider}}",
+						"Auth Provider": "{{originalProvider}}",
 					});
 					const response = JSON.parse(req.responseText);
 					window.location.href = newURL;
@@ -173,7 +173,7 @@
 				if (req.status >= 200 && req.status < 300) {
 					analytics.track("New Organization Created", {
 						"Domain Joining": "Not Available",
-						"Auth Provider": "{{provider}}",
+						"Auth Provider": "{{originalProvider}}",
 					});
 					const response = JSON.parse(req.responseText);
 					window.location.href = newURL;

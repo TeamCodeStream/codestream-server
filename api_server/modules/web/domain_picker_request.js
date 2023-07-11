@@ -48,10 +48,14 @@ class DomainPickerRequest extends WebRequestBase {
 			{
 				required: {
 					string: ['t']
+				},
+				optional: {
+					string: ['p']
 				}
 			}
 		);
 		this.token = this.request.query.t;
+		this.originalProvider = this.request.query.p || ''; 
 		this.provider = this.request.params.provider.toLowerCase();
 		this.serviceAuth = this.api.services[`${this.provider}Auth`];
 		if (!this.serviceAuth) {
@@ -123,7 +127,8 @@ class DomainPickerRequest extends WebRequestBase {
 			csrf,
 			segmentKey: this.api.config.telemetry.segment.webToken,
 			redirectUri,
-			provider: this.provider
+			provider: this.provider, 
+		 	originalProvider: this.originalProvider
 		};
 
 		await super.render('domain_picker', templateProps);
