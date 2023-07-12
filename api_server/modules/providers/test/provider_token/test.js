@@ -19,6 +19,7 @@ const BadProviderIdentityMatchTest = require('./bad_provider_identity_match_test
 const NoIdentityMatchTokenTest = require('./no_identity_match_token_test');
 const NoSignUpTest = require('./no_signup_test');
 const ExistingUserTest = require('./existing_user_test');
+const AlreadyRegisteredTest = require('./already_registered_test');
 
 const PROVIDERS = [
 	'trello',
@@ -65,8 +66,11 @@ class ProviderTokenRequestTester {
 			new NoSignUpTest({ provider }).test();
 			new ExistingUserTest({ provider }).test();
 			new ExistingUserTest({ provider, userIsInvited: true }).test();
-			new ExistingUserTest({ provider, isRegistered: true }).test();
-			new ExistingUserTest({ provider, userIsInvited: true, isRegistered: true }).test();
+			// These are disabled per NR-123475, replaced by AlreadyRegisteredTest
+			//new ExistingUserTest({ provider, isRegistered: true }).test();
+			//new ExistingUserTest({ provider, userIsInvited: true, isRegistered: true }).test();
+			new AlreadyRegisteredTest({ provider }).test();
+			new AlreadyRegisteredTest({ provider, userIsInvited: true }).test();
 		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();
