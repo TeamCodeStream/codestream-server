@@ -29,6 +29,17 @@ class EligibleJoinCompaniesTest extends CheckSignupTest {
 		], callback);
 	}
 
+	// get parameter to use in the provider-auth request that kicks the authentication off
+	// here we will actually simulate the process, not actually redirecting to the third-party
+	// provider's permissions page
+	getProviderAuthParameters () {
+		// we're not actually doing a simulated sign-up in this case, but a simulated sign IN
+		// (a signup will now fail, per NR-123475)
+		const params = super.getProviderAuthParameters();
+		params.noSignup = true;
+		return params;
+	}
+
 	// create companies that the confirming user is not a member of, but that they are
 	// eligible to join via domain-based joining or code host joining
 	createEligibleJoinCompanies (callback) {
