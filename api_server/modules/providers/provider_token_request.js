@@ -93,6 +93,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				let url = `/web/error?state=${this.request.query.state}&code=${this.errorCode}&provider=${this.provider}`;
 				this.response.redirect(url);
 			}
+			delete this.user;
 			await this.saveSignupToken();
 			this.responseHandled = true;
 		}
@@ -576,7 +577,6 @@ class ProviderTokenRequest extends RestfulRequest {
 	// if a signup token is provided, this allows a client session to identify the user ID that was eventually
 	// signed up as it originated from the IDE
 	async saveSignupToken () {
-
 		if (this.socialUserCreated) {
 			this.log('NEWRELIC IDP TRACK: Was IDP social signup, not saving signup token');
 			return;
