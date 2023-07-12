@@ -189,6 +189,9 @@ class ProviderTokenRequest extends RestfulRequest {
 				} else if (subParts[0] === 'AUID') {
 					this.anonUserId = subParts[1];
 					this.log(`Anon user ID of ${this.anonUserId} found in signup token`);
+				} else if (subParts[0] === 'NOSU') {
+					this.noSignup = true;
+					this.log('No signup directive found in signup token');
 				}
 			}
 			this.fromNewRelicLogin = true;
