@@ -181,7 +181,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			const parts = this.request.params.st.split('.');
 			this.stateToken = parts[0];
 			for (let i = 1; i < parts.length; i++) {
-				const subParts = parts[i].split('=');
+				const subParts = parts[i].split('~');
 				if (subParts[0] === 'JCID') {
 					this.joinCompanyId = subParts[1];
 					this.log(`Join company ID of ${this.joinCompanyId} found in signup token`);
