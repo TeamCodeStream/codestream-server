@@ -199,7 +199,13 @@ class TeamUpdater extends ModelUpdater {
 				mockResponse = true;
 				this.request.log('NOTE: not removing user on New Relic, sending mock response instead');
 			}
-			await this.api.services.idp.deleteUser(user.get('nrUserId'), this.team.id, { request: this.request, mockResponse });
+
+			try {
+				await this.api.services.idp.deleteUser(user.get('nrUserId'), this.team.id, { request: this.request, mockResponse });
+			}
+			catch (ex) {
+				this.request.warn('Unable to delete user on NR side, will still delete on CS side but quietly ignore the NR-side failure: ' + ex.message);
+			}
 		}
 
 		const originalEmail = user.get('email');
