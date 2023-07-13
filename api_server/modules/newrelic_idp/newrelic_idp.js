@@ -502,7 +502,7 @@ if (!data.password) {
 			signupToken += `.AUID~${options.anonUserId}`;
 		}
 		if (options.noSignup) {
-			signupToken += '.NOSU-1';
+			signupToken += '.NOSU~1';
 		}
 
 		const data = { 
