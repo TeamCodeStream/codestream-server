@@ -66,11 +66,12 @@ class ProviderTokenRequestTester {
 			new NoSignUpTest({ provider }).test();
 			new ExistingUserTest({ provider }).test();
 			new ExistingUserTest({ provider, userIsInvited: true }).test();
+			// COLIN FML
 			// These are disabled per NR-123475, replaced by AlreadyRegisteredTest
-			//new ExistingUserTest({ provider, isRegistered: true }).test();
-			//new ExistingUserTest({ provider, userIsInvited: true, isRegistered: true }).test();
-			new AlreadyRegisteredTest({ provider }).test();
-			new AlreadyRegisteredTest({ provider, userIsInvited: true }).test();
+			new ExistingUserTest({ provider, isRegistered: true }).test();
+			new ExistingUserTest({ provider, userIsInvited: true, isRegistered: true }).test();
+			//new AlreadyRegisteredTest({ provider }).test();
+			//new AlreadyRegisteredTest({ provider, userIsInvited: true }).test();
 		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();
