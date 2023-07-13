@@ -496,10 +496,10 @@ if (!data.password) {
 		const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
 		let signupToken = options.signupToken;
 		if (options.joinCompanyId) {
-			signupToken += `.JCID-${options.joinCompanyId}`;
+			signupToken += `.JCID~${options.joinCompanyId}`;
 		}
 		if (options.anonUserId) {
-			signupToken += `.AUID-${options.anonUserId}`;
+			signupToken += `.AUID~${options.anonUserId}`;
 		}
 		if (options.noSignup) {
 			signupToken += '.NOSU-1';
