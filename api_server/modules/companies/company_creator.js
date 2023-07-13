@@ -171,7 +171,8 @@ class CompanyCreator extends ModelCreator {
 			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.accessToken` ]: token,
 			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.refreshToken` ]: refreshToken,
 			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.expiresAt` ]: expiresAt,
-			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.bearerToken` ]: true
+			[ `providerInfo.${this.attributes.everyoneTeamId}.newrelic.bearerToken` ]: true,
+			[ 'preferences.hasDoneNRLogin' ]: true
 		};
 		
 		// if we are behind service gateway and using login service auth, we actually set the user's

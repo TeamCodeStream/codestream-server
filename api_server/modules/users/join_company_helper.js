@@ -281,6 +281,7 @@ class JoinCompanyHelper {
 			[ `providerInfo.${this.team.id}.newrelic.expiresAt` ]: expiresAt,
 			[ `providerInfo.${this.team.id}.newrelic.bearerToken` ]: true
 			*/
+			[ 'preferences.hasDoneNRLogin' ]: true
 		};
 
 		// make sure we copy (teamless) providerInfo from the original user

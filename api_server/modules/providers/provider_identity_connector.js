@@ -350,6 +350,13 @@ class ProviderIdentityConnector {
 				op.$set['accessTokens.web.provider'] = this.tokenData.provider;
 			}
 		}
+
+		const preferences = this.user.get('preferences') || {};
+		if (!preferences.hasDoneNRLogin) {
+			this.request.log('User logging in under New Relic login for first time, setting hasDoneNRLogin preference');
+			op.$set['preferences.hasDoneNRLogin'] = true;
+		}
+
 		this.request.log('NEWRELIC IDP TRACK: User provider info was adjusted for IDP signin');
 		return true;
 	}
