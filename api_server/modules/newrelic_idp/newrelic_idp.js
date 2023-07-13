@@ -501,6 +501,9 @@ if (!data.password) {
 		if (options.anonUserId) {
 			signupToken += `.AUID-${options.anonUserId}`;
 		}
+		if (options.noSignup) {
+			signupToken += '.NOSU-1';
+		}
 
 		const data = { 
 			url,

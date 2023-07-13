@@ -104,13 +104,11 @@ class ProviderIdentityConnector {
 			}
 			this.request.log(`Matched user ${this.user.id} by ${by}`);
 			if (this.user.get('isRegistered')) {
-				/*
-				if (this.okToCreateUser) {
-					// if there is already a matching registered user, associated with any team,
+				if (this.okToCreateUser && this.wasNRCodeHostSignOn) {
+					// if there is already a matching registered user, and user signed on using code host (social),
 					// don't allow a sign-up to proceed
 					throw this.errorHandler.error('alreadyRegistered');
 				}
-				*/
 				return;
 			}
 		}

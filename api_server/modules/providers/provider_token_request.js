@@ -527,10 +527,14 @@ class ProviderTokenRequest extends RestfulRequest {
 			this.tokenData.data = this.tokenData.data || {};
 			Object.assign(this.tokenData.data, this.request.body.data);
 		}
+		const wasNREmailSignOn = this.provider === 'newrelicidp' && !this.userIdentity.idpAccessToken;
+		const wasNRCodeHostSignOn = this.provider === 'newrelicidp' && this.userIdentity.idpAccessToken;
+		const okToCreateUser = this.userId === 'anon' && (!this.noSignup || wasNREmailSignOn);
 		this.connector = new ProviderIdentityConnector({
 			request: this,
 			provider: this.provider,
-			okToCreateUser: this.userId === 'anon' && !this.noSignup,
+			okToCreateUser,
+			wasNRCodeHostSignOn,
 			tokenData: this.tokenData,
 			hostUrl: this.hostUrl,
 			machineId: this.machineId,
