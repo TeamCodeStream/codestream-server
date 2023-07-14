@@ -12,13 +12,29 @@
 				analytics.page();
 				// Set anonUserId in segment
 				const anonUserId = "{{anonymousUserId}}";
-				if (anonUserId) window.segmentAnonymousId = anonUserId;
+				window.segmentAnonymousId = anonUserId;
+				analytics.setAnonymousId(anonUserId);
+				window.analytics.identify("{{userId}}", {});
+
+				analytics.track("Organization Options Presented 01", {
+					"Auth Provider": "{{originalProvider}}",
+				});		
+				debugger;
 			}
 		}();
 	</script>
 </head>
 
 <body>
+	{{{identifyScript}}}
+	<script>
+		const anonUserId = "{{anonymousUserId}}";
+		window.segmentAnonymousId = anonUserId;
+		analytics.setAnonymousId(anonUserId);
+		window.analytics.track('Page Viewed', { 'Page Name': 'domain_picker' });
+		analytics.setAnonymousId(anonUserId);
+	</script>
+
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 		<a class="navbar-brand" href="https://codestream.com">
 			<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />

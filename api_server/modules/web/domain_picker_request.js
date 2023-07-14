@@ -14,6 +14,7 @@ const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_ut
 const WebErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/errors');
 const UserErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/errors');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const Identify = require('./identify');
 
 class DomainPickerRequest extends WebRequestBase {
 
@@ -37,6 +38,9 @@ class DomainPickerRequest extends WebRequestBase {
 		if (await this.getEligibleJoinCompanies())  {
 			await this.showDomainPicker();	// show the domain picker
 		}  else {
+
+			// await this.showDomainPicker();	// show the domain picker
+
 			await this.sendResponse();			// redirect to final auth complete
 		}
 	}
@@ -129,8 +133,11 @@ class DomainPickerRequest extends WebRequestBase {
 			redirectUri,
 			provider: this.provider, 
 		 	originalProvider: this.originalProvider,
-			anonymousUserId: this.payload.auid
+			anonymousUserId: this.payload.auid,
+			userId: this.user.get('id')
 		};
+
+		// await this.addIdentifyScript(templateProps);
 
 		await super.render('domain_picker', templateProps);
 	}
@@ -175,6 +182,16 @@ class DomainPickerRequest extends WebRequestBase {
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
 		return `${url}?${query}`;
+	}
+
+	async addIdentifyScript(props) {
+		const identifyOptions = {
+			user: this.user,
+			request: this
+		};
+		props.identifyScript = await Identify(identifyOptions);
+		const test = 1;
+
 	}
 }
 
