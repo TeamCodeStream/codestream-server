@@ -41,7 +41,7 @@ module.exports = async function(options) {
 	} else {
 		abTest = '[]';
 	}
-	const codeStreamOnly = company.get('linkedNROrgId') && !!(company && company.get('codestreamOnly'));
+	const codeStreamOnly = company && company.get('linkedNROrgId') && !!(company && company.get('codestreamOnly'));
 	const orgOrigination = (company && company.get('orgOrigination')) || '';
 
 	let nrUserId, nrOrgId, nrTier;
