@@ -15,11 +15,6 @@
 				window.segmentAnonymousId = anonUserId;
 				analytics.setAnonymousId(anonUserId);
 				window.analytics.identify("{{userId}}", {});
-
-				analytics.track("Organization Options Presented 01", {
-					"Auth Provider": "{{originalProvider}}",
-				});		
-				debugger;
 			}
 		}();
 	</script>
@@ -30,8 +25,6 @@
 	<script>
 		const anonUserId = "{{anonymousUserId}}";
 		window.segmentAnonymousId = anonUserId;
-		analytics.setAnonymousId(anonUserId);
-		window.analytics.track('Page Viewed', { 'Page Name': 'domain_picker' });
 		analytics.setAnonymousId(anonUserId);
 	</script>
 
