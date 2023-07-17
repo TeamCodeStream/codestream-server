@@ -583,10 +583,18 @@ if (!data.password) {
 		if (payload.idp_access_token_expires_in) {
 			identityInfo.expiresAt = Date.now() + (payload.idp_access_token_expires_in - 60) * 1000;
 		}
+
+		// the refresh token we get from New Relic is stringified JSON
 		if (identityInfo.idpRefreshToken && identityInfo.idpRefreshToken.startsWith('{')) {
-			// HACK ... New Relic returns a munged string here, with extra garbage surrounding the actual refresh token
-			// this fudge won't be needed once that is fixed
-			identityInfo.idpRefreshToken = identityInfo.idpRefreshToken.match(/[A-Za-z0-9]{2,}/)[0];
+			let parsedRefreshToken;
+			try {
+				parsedRefreshToken = JSON.parse(identityInfo.idpRefreshToken);
+				if (parsedRefreshToken.r) {
+					identityInfo.idpRefreshToken = parsedRefreshToken.r;
+				}
+			}
+			catch (ex) {
+			}
 		}
 
 		// extract company name and region as needed
