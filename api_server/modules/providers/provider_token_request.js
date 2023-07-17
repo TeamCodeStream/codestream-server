@@ -541,7 +541,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			joinCompanyId: this.joinCompanyId
 		});
 		const showIdentity = { ...userIdentity };
-		if (showIdentity.idpAccessToken){
+		if (showIdentity.idpAccessToken) {
 			showIdentity.idpAccessToken = '<redacted>' + userIdentity.idpAccessToken.slice(-7);
 		}
 		this.log('NEWRELIC IDP TRACK: Connecting user identity: ' + JSON.stringify(showIdentity, 0, 5));

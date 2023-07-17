@@ -567,7 +567,7 @@ if (!data.password) {
 			showPayload.idp_access_token = '<redacted>' + payload.idp_access_token.slice(-7);
 		}
 		if (showPayload.idp_refresh_token) {
-			showPayload.idp_refresh_token = '<redacted>' + payload.idp_access_token.slice(-7);
+			showPayload.idp_refresh_token = '<redacted>' + payload.idp_refresh_token.slice(-7);
 		}
 		options.request.log('NEWRELIC IDP TRACK: ID token payload: ' + JSON.stringify(showPayload, 0, 5));
 		const identityInfo = {
@@ -577,8 +577,17 @@ if (!data.password) {
 			nrOrgId: payload.nr_orgid,
 			idp: payload.idp,
 			idpAccessToken: payload.idp_access_token,
+			idpRefreshToken: payload.idp_refresh_token,
 			userId: payload.oid
 		};
+		if (payload.idp_access_token_expires_in) {
+			identityInfo.expiresAt = Date.now() + (payload.idp_access_token_expires_in - 60) * 1000;
+		}
+		if (identityInfo.idpRefreshToken && identityInfo.idpRefreshToken.startsWith('{')) {
+			// HACK ... New Relic returns a munged string here, with extra garbage surrounding the actual refresh token
+			// this fudge won't be needed once that is fixed
+			identityInfo.idpRefreshToken = identityInfo.idpRefreshToken.match(/[A-Za-z0-9]{2,}/)[0];
+		}
 
 		// extract company name and region as needed
 		if (payload.nr_orgid) {

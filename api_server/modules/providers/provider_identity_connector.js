@@ -283,6 +283,12 @@ class ProviderIdentityConnector {
 		if (this.providerInfo.idp && this.providerInfo.idpAccessToken) {
 			const idpProvider = this.providerInfo.idp.split('.')[0]; // without the .com or .org
 			op.$set[`providerInfo.${idpProvider}.accessToken`] = this.providerInfo.idpAccessToken;
+			if (this.providerInfo.idpRefreshToken) {
+				op.$set[`providerInfo.${idpProvider}.refreshToken`] = this.providerInfo.idpRefreshToken;
+			}
+			if (this.providerInfo.expiresAt) {
+				op.$set[`providerInfo.${idpProvider}.expiresAt`] = this.providerInfo.expiresAt;
+			}
 			if (!this.providerInfo.nrUserId) {
 				this.wasIDPSocialSignup = true;
 			}
