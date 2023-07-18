@@ -148,6 +148,9 @@
 						"Auth Provider": "{{originalProvider}}",
 					});
 					const response = JSON.parse(req.responseText);
+					if (response && response.userId) {
+						window.analytics.identify(response.userId, {});
+					}
 					window.location.href = newURL;
 				}
 				if (req.status >= 300) { 
