@@ -58,7 +58,17 @@ class DomainPickerRequest extends WebRequestBase {
 			}
 		);
 		this.token = this.request.query.t;
-		this.originalProvider = this.request.query.p || ''; 
+
+		const providerMapping = {
+			'gitlab': 'GitLab',
+			'bitbucket': 'Bitbucket',
+			'github': 'GitHub',
+			'newrelic': 'New Relic'
+		};
+		const rawOriginalProvider = this.request.query.p || '';
+		const lowerCaseProvider = rawOriginalProvider.toLowerCase();
+		this.originalProvider = providerMapping[lowerCaseProvider] || '';
+
 		this.provider = this.request.params.provider.toLowerCase();
 		this.serviceAuth = this.api.services[`${this.provider}Auth`];
 		if (!this.serviceAuth) {

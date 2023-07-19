@@ -150,6 +150,7 @@
 					const response = JSON.parse(req.responseText);
 					if (response && response.userId) {
 						window.analytics.identify(response.userId, {});
+						analytics.identify(response.userId, {});
 					}
 					window.location.href = newURL;
 				}
