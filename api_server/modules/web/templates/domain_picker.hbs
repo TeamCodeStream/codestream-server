@@ -14,7 +14,7 @@
 				const anonUserId = "{{anonymousUserId}}";
 				window.segmentAnonymousId = anonUserId;
 				analytics.setAnonymousId(anonUserId);
-				window.analytics.identify("{{userId}}", {});
+				debugger;
 			}
 		}();
 	</script>
@@ -149,11 +149,7 @@
 					});
 					const response = JSON.parse(req.responseText);
 					if (response && response.userId) {
-						debugger;
 						const anonUserId = "{{anonymousUserId}}";
-						window.analytics.identify(response.userId, {}, {
-							anonymousId: anonUserId
-						});
 						analytics.identify(response.userId, {}, {
 							anonymousId: anonUserId
 						});
@@ -197,6 +193,10 @@
 						"Auth Provider": "{{originalProvider}}",
 					});
 					const response = JSON.parse(req.responseText);
+					const anonUserId = "{{anonymousUserId}}";
+					analytics.identify("{{userId}}", {}, {
+						anonymousId: anonUserId
+					});
 					window.location.href = newURL;
 				}
 				if (req.status >= 300) {
