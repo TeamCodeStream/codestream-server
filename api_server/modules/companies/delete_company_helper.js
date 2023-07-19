@@ -97,19 +97,24 @@ class DeleteCompanyHelper {
 	// deactivate a single user
 	async deactivateUser (user) {
 		const now = Date.now();
-		const emailParts = user.email.split('@');
-		const email = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
 		const op = {
 			$set: {
 				deactivated: true,
-				email,
-				searchableEmail: email.toLowerCase(),
 				modifiedAt: now
 			},
 			$unset: {
 				passwordEncryptedTemp: true
 			}
 		};
+
+		if(user.email){
+			const emailParts = user.email.split('@');
+			const email = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
+
+			op.$set.email = email;
+			op.$set.searchableEmail = email.toLowerCase();
+		}
+
 		return this.applyOp(this.data.users, user, op);
 	}
 
