@@ -97,7 +97,7 @@ class MigrationHandler {
 				}
 			);
 
-			// migrate each (registered)  user in the everyone team of the company
+			// migrate each (registered) user in the everyone team of the company
 			let numUserErrors = 0;
 			let numUsersExisting = 0;
 			this.logVerbose(`Found ${users.length} users`);
@@ -273,6 +273,7 @@ class MigrationHandler {
 					PASSWORD_PLACEHOLDER, // this will ultimately be replaced!
 					this.idpOptions
 				);
+				if (nrUserInfo.nrUserInfo) nrUserInfo = nrUserInfo.nrUserInfo;
 			} catch (ex) {
 				const message = ex instanceof Error ? ex.message : JSON.stringify(ex);
 				const stack = ex instanceof Error ? ex.stack : '';

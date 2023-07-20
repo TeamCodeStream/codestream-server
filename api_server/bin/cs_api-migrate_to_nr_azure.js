@@ -51,7 +51,8 @@ class Migrator {
 			logger: logQueries ? console : undefined
 		});
 		try {
-			await this.mongoClient.openMongoClient({ ...ApiConfig.getPreferredConfig().storage.mongo });
+			this.config = ApiConfig.getPreferredConfig();
+			await this.mongoClient.openMongoClient({ ...this.config.storage.mongo });
 			this.data = this.mongoClient.mongoCollections;
 		}
 		catch (error) {
@@ -63,7 +64,7 @@ class Migrator {
 	// step through the companies that have not yet been migrated, and migrate them
 	async doMigrations () {
 		this.idp = new NewRelicIDP();
-		await this.idp.initialize();
+		await this.idp.initialize(this.config);
 		this.migrationHandler = new NewRelicIDPMigrationHandler({
 			data: this.data,
 			logger: console,
