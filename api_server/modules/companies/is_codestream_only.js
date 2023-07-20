@@ -31,6 +31,9 @@ module.exports = async function (company, request, adminUser = null) {
 	}
 
 	request.log('NEWRELIC IDP TRACK: Checking with IdP service if org is still CS only');
+	if (adminUser) {
+		request.log(`NEWRELIC IDP TRACK: adminUser is ${adminUser.id}`);
+	}
 	const stillCodeStreamOnly = await request.api.services.idp.isNROrgCodeStreamOnly(
 		company.get('linkedNROrgId'),
 		company.get('everyoneTeamId'),

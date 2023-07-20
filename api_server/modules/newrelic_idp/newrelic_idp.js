@@ -412,7 +412,7 @@ if (!data.password) {
 		if (!accountId) {
 			this._throw('nrIDPInternal', `could not get reporting account for NR Org ID ${nrOrgId}`, options);
 		}
-
+		options.request.log(`NEWRELIC IDP TRACK: accountId=${accountId}`);
 		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
 		options.request.log('NEWRELIC IDP TRACK: Checking if this org has the unlimited consumption entitlement...');
