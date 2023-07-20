@@ -11,7 +11,7 @@ class GrokClient {
 
 	async analyzeErrorWithGrok(options) {
 		Object.assign(this, options);
-		['request', 'data', 'api', 'errorHandler', 'responseData', 'user'].forEach(x => this[x] = this.postRequest[x]);
+		['request', 'data', 'api', 'errorHandler', 'responseData', 'user', 'company'].forEach(x => this[x] = this.postRequest[x]);
 
 		this.errorHandler.add(Errors);
 
@@ -157,13 +157,14 @@ class GrokClient {
 			codeError: codeError.get('id')
 		},
 		{
-			promptTracking: this.promptTracking,
 			overrideCreatorId: grokUserId
 		});
 
-		this.broadcastToTeam({
+		await this.broadcastToTeam({
 			post: post.getSanitizedObject({ request: this.postRequest })
 		});
+
+		await this.trackPost(codeError);
 	}
 
 	async startNewConversation(grokUserId) {
@@ -251,7 +252,6 @@ class GrokClient {
 			codeError: codeError.get('id')
 		},
 		{
-			promptTracking: this.promptTracking,
 			overrideCreatorId: grokUserId
 		});
 
@@ -264,6 +264,8 @@ class GrokClient {
 				updatedPost
 			]
 		});
+
+		await this.trackPost(codeError);
 	}
 
 	async broadcastToUser(message){
@@ -433,6 +435,24 @@ class GrokClient {
 				errorMessage: message
 			}
 		});
+	}
+
+	async trackPost (codeError) {
+		const { request, user, team, company } = this;
+
+		const codeErrorId = codeError.get('id');
+
+		const trackData = {
+			'Parent ID': codeErrorId,
+			'Parent Type': 'Error',
+			'Grok Post': this.promptTracking,
+		};
+		
+		return this.api.services.analytics.trackWithSuperProperties(
+			'Reply Created',
+			trackData,
+			{ request, user, team, company }
+		);
 	}
 }
 

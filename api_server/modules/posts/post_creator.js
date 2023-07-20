@@ -1112,11 +1112,6 @@ class PostCreator extends ModelCreator {
 		}
 		trackData['Parent Type'] = parentType;
 
-		// Was Grok invoked?
-		if(this.metadata && this.metadata.prompTracking){
-			trackData['Grok Post'] = this.metadata.prompTracking;
-		}
-
 		return this.api.services.analytics.trackWithSuperProperties(
 			'Reply Created',
 			trackData,
