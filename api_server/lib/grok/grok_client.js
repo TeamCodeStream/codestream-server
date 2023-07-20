@@ -137,7 +137,7 @@ class GrokClient {
 		}
 		catch(ex) {
 			const message = ex?.reason?.message || ex.message;
-			await logAndDispatch(message, codeError);
+			await this.logExceptionAndDispatch(message, codeError);
 			throw ex;
 		}
 		
@@ -190,7 +190,7 @@ class GrokClient {
 			.join('\n');
 
 		if (!stackTrace) {
-			await logAndDispatch("Unable to locate an associated Stack Trace", codeError);
+			await this.logExceptionAndDispatch("Unable to locate an associated Stack Trace", codeError);
 			throw this.errorHandler.error('notFound', { info: 'stackTrace' });
 		}
 
@@ -217,7 +217,7 @@ class GrokClient {
 		}
 		catch(ex){
 			const message = ex?.reason?.message || ex.message;
-			await logAndDispatch(message, codeError);
+			await this.logExceptionAndDispatch(message, codeError);
 			throw ex;
 		}
 
