@@ -395,7 +395,7 @@ class GrokClient {
 	}
 
 	async trackErrorAndThrow(errorKey, data) {
-		const { request, user, team } = this;
+		const { postRequest, user, team, company } = this;
 
 		let errorCode = Errors[errorKey].code;
 
@@ -408,7 +408,7 @@ class GrokClient {
 		await this.api.services.analytics.trackWithSuperProperties(
 			'Grok Response Failed',
 			trackData,
-			{ request, user, team }
+			{ request: postRequest, user, team, company }
 		);
 
 		throw this.errorHandler.error(errorKey, { ...data, ...trackData });
@@ -438,7 +438,7 @@ class GrokClient {
 	}
 
 	async trackPost (codeError) {
-		const { request, user, team, company } = this;
+		const { postRequest, user, team, company } = this;
 
 		const codeErrorId = codeError.get('id');
 
@@ -451,7 +451,7 @@ class GrokClient {
 		return this.api.services.analytics.trackWithSuperProperties(
 			'Reply Created',
 			trackData,
-			{ request, user, team, company }
+			{ request: postRequest, user, team, company }
 		);
 	}
 }
