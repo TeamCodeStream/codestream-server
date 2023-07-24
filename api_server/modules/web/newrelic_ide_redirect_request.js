@@ -72,6 +72,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			ides: ides,
 			csrf: this.request.csrfToken(),
 			src: decodeURIComponent(this.parsedPayload.src || ''),
+			showVideo: true,
 			...lastOrigin
 		};
 		result.isDefaultJetBrains = result.lastOrigin && result.lastOrigin.moniker.indexOf('jb-') === 0;
