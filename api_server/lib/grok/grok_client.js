@@ -448,7 +448,7 @@ class GrokClient {
 			'Grok Post': this.promptTracking,
 		};
 		
-		return this.api.services.analytics.trackWithSuperProperties(
+		await this.api.services.analytics.trackWithSuperProperties(
 			'Reply Created',
 			trackData,
 			{ request: postRequest, user, team, company }
