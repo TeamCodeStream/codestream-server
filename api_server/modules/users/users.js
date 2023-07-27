@@ -206,11 +206,6 @@ const USERS_ADDITIONAL_ROUTES = [
 		method: 'put',
 		path: '/web/join-company/:id',
 		requestClass: require('./web_join_company_request')
-	},
-	{
-		method: 'post',
-		path: 'msteams/generate-connect-code',
-		requestClass: require('./generate_msteams_connect_code')
 	}
 ];
 

@@ -313,13 +313,16 @@ module.exports = function customConfigFunc(nativeCfg) {
 		asana: {},
 		bitbucket: {},
 		azuredevops: {},
+		fossa: {},
 		github: {},
 		gitlab: {},
 		jira: {},
 		linear: {},
+		msteams: {},
 		okta: {},
 		slack: {},
 		trello: {},
+        trunk: {},
 		newrelicgrok: {},
 		newRelicIdentity: {},
 		// These providers need appClientId to be defined so the api knows those providers can be configured.
@@ -336,7 +339,6 @@ module.exports = function customConfigFunc(nativeCfg) {
 		circleci: { appClientId: 'placeholder' },
 		jenkins: { appClientId: 'placeholder' },
 		trunk: { appClientId: 'placeholder' },
-		msteams: { appClientId: 'placeholder' },
 	};
 	// THIS WILL OVERWRITE CONFIG DATA IF >1 REPEATING BLOCK (installation) EXISTS FOR A GIVEN PROVIDER
 	// The plan is to remove the repeating blocks from the schema.
