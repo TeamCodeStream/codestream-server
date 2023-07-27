@@ -529,7 +529,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		const wasNREmailSignOn = this.provider === 'newrelicidp' && !this.userIdentity.idpAccessToken;
 		const wasNRCodeHostSignOn = this.provider === 'newrelicidp' && this.userIdentity.idpAccessToken;
-		const okToCreateUser = this.userId === 'anon' && (!this.noSignup || wasNREmailSignOn);
+		const okToCreateUser = this.userId === 'anon' && (!this.noSignup || wasNREmailSignOn || wasNRCodeHostSignOn);
 		this.connector = new ProviderIdentityConnector({
 			request: this,
 			provider: this.provider,
@@ -550,15 +550,13 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.user = this.connector.user;
 		this.team = this.connector.team;
 		this.log('NEWRELIC IDP TRACK: Connected user identity');
-		
+
 		// set signup status
 		if (this.connector.createdTeam) {
 			this.signupStatus = 'teamCreated';
-		}
-		else if (this.connector.createdUser) {
+		} else if (this.connector.createdUser) {
 			this.signupStatus = 'userCreated';
-		}
-		else {
+		} else {
 			this.signupStatus = 'signedIn';
 		}
 

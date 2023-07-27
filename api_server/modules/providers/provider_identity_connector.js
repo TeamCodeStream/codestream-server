@@ -228,6 +228,7 @@ class ProviderIdentityConnector {
 			codestreamOnly: false,
 			orgOrigination: 'NR'
 		});
+		this.createdTeam = this.transforms.createdTeam;
 	}
 
 	// might need to update the user object, either because we had to create it before we had to create or team,
