@@ -20,7 +20,13 @@
 				}
 				// Set anonID in segment, also will pass it in URI to IDE to set it there for consistency
 				const anonId = window.getCookie('ajs_anonymous_id');
-				if (anonId) window.segmentAnonymousId = JSON.parse(decodeURIComponent(anonId));
+				if (anonId) {
+					try {
+						window.segmentAnonymousId = JSON.parse(decodeURIComponent(anonId));
+					} catch {
+						window.segmentAnonymousId = decodeURIComponent(anonId);
+					}
+				}
 				analytics.track("NR1 Redirect Page Viewed", {
 					Source: "{{src}}",
 					"New to CodeStream": "{{newToCodeStream}}",
