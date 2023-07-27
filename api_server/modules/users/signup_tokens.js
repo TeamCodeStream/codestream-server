@@ -42,15 +42,8 @@ class SignupTokens {
 		else if (typeof options.secureExpiresIn === 'number') {
 			expiresIn = options.secureExpiresIn;
 		}
-
-        if(typeof options.expiresAt === 'number'){
-            tokenData.expiresAt = options.expiresAt;
-        }
-        else{
-            tokenData.expiresAt = Date.now() + expiresIn;
-        }
-
-        if (typeof options.more === 'object') {
+		tokenData.expiresAt = Date.now() + expiresIn;
+		if (typeof options.more === 'object') {
 			Object.assign(tokenData, options.more);
 		}
 		if (options.isInviteCode) {

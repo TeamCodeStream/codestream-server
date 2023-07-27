@@ -7,8 +7,7 @@ const OAuthModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/oa
 const OAUTH_CONFIG = {
 	provider: 'msteams',
 	host: 'msteams',
-	hasSharing: true,
-	needsConfigure: true
+	hasSharing: true
 };
 
 const ROUTES = [];
