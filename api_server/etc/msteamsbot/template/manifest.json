@@ -76,14 +76,5 @@
     "permissions": [
         "identity",
         "messageTeamMembers"
-    ],
-    "validDomains": [
-        "csaction.codestream.us",
-        "www.codestream.com",
-        "*.codestream.us",
-        "csaction.cdstrm.us",
-        "*.cdstrm.us",
-        "*.cdstrm.dev",
-        "*.*.newrelic.com"
     ]
 }
