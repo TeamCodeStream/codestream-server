@@ -162,6 +162,7 @@ class MSTeamsDatabaseAdapter {
 					success: false
 				};
 			}
+
 			// allow all the teams that this user is part of to use MST
 			// these are stored on the signup token when issued
 			const teams = await this.data.teams.getByIds(signupToken.teamIds);

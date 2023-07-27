@@ -175,6 +175,7 @@ const STANDARD_PROVIDER_HOSTS = {
 		host: 'msteams',
 		name: 'msteams',
 		isEnterprise: false,
+		needsConfigure: true,
 		hasSharing: true
 	},
 	'okta*com': {
