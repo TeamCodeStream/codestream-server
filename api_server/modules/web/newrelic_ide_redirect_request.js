@@ -7,7 +7,6 @@ const { defaultCookieName, ides} = require('./config');
 class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 
 	async prepareTemplateProps () {
-		super.prepareTemplateProps();
 		this.parsedPayload = {};
 		if (this.request.query && this.request.query.payload) {
 			try {
@@ -18,13 +17,23 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 				this.api.logger.warn(ex);
 			}
 		}
-		this.templateProps.pageType = 'errorsinbox';
-		this.templateProps.pageWhat = 'ErrorsInbox';
-		this.templateProps.analyticsContentType = 'Error';
-		this.templateProps.launchIde = this.parsedPayload.ide === '' ? 'default' : this.parsedPayload.ide;
-		this.templateProps.queryString = { ide: this.parsedPayload.ide === '' ? 'default' : this.parsedPayload.ide };
-		this.templateProps.errorGroupGuid = this.parsedPayload.errorGroupGuid;
-		this.templateProps.newToCodeStream = this.parsedPayload.partial_launcher_model.isMru ? "false" : "true";
+		const launcherModel = this.createLauncherModel('');
+		this.templateProps = {
+			pageType: 'errorsinbox',
+			pageWhat: 'ErrorsInbox',
+			analyticsContentType: 'Error',
+			launchIde: this.parsedPayload.ide === '' ? 'default' : this.parsedPayload.ide,
+			queryString: { ide: this.parsedPayload.ide === '' ? 'default' : this.parsedPayload.ide },
+			errorGroupGuid: this.parsedPayload.errorGroupGuid,
+			newToCodeStream: launcherModel.isMru ? "false" : "true",
+			icons: {},
+			partial_launcher_model: launcherModel,
+			partial_title_model: {},
+			segmentKey: this.api.config.telemetry.segment.webToken,
+			src: decodeURIComponent(this.parsedPayload.src || ''),
+		}
+
+		return true;
 	}
 
 	createLauncherModel (repoId) {
