@@ -8,7 +8,7 @@ class FirstCompanyOneUserPerOrgTest extends PostCompanyTest {
 
 	constructor (options) {
 		super(options);
-		delete this.teamOptions.creatorIndex;
+		delete this.teamOptions.creatorIndex; // this suppresses creation of default test company
 	}
 
 	get description () {

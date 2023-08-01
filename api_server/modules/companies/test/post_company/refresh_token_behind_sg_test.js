@@ -26,7 +26,7 @@ class RefreshTokenBehindSGTest extends RefreshTokenTest {
 		// message should include CodeStream access token, identical to the New Relic access token
 		const expectedUser = this.message.user.$set;
 		const user = message.message.user.$set;
-		const teamId = this.loginResponse.teams[0].id;
+		const teamId = this.loginResponse ? this.loginResponse.teams[0].id : this.createCompanyResponse.team.id;
 		const nrKey = `providerInfo.${teamId}.newrelic`;
 		const csKey = 'accessTokens.web';
 		Assert.strictEqual(user[`${csKey}.token`], user[`${nrKey}.accessToken`], 'CodeStream access token not equal to New Relic access token');

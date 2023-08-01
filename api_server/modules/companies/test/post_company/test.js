@@ -16,6 +16,10 @@ const LinkedNROrgIdTest = require('./linked_nr_org_id_test');
 const CompanyNameFromRegistrationTest = require('./company_name_from_registration_test');
 const RefreshTokenTest = require('./refresh_token_test');
 const RefreshTokenBehindSGTest = require('./refresh_token_behind_sg_test');
+const FirstCompanyRefreshTokenTest = require('./first_company_refresh_token_test');
+const FirstCompanyRefreshTokenBehindSGTest = require('./first_company_refresh_token_behind_sg_test');
+
+const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class PostCompanyRequestTester {
 
@@ -35,8 +39,14 @@ class PostCompanyRequestTester {
 		new LinkedNROrgIdTest().test();
 		new CompanyNameFromRegistrationTest().test();
 		// TODO: wrong type validations
-		new RefreshTokenTest().test();
-		new RefreshTokenBehindSGTest().test();
+		// serialize these tests because they are time-dependent, and fail on the
+		// default setup-then-run methodology
+		SerializeTests([
+			RefreshTokenTest,
+			RefreshTokenBehindSGTest,
+			FirstCompanyRefreshTokenTest,
+			FirstCompanyRefreshTokenBehindSGTest
+		]);
 	}
 }
 

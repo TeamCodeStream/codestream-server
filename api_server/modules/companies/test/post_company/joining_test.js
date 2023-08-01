@@ -12,7 +12,7 @@ class JoiningTest extends PostCompanyTest {
 	}
 	
 	get description () {
-		return 'should be able to attach join settings to allow domain and cost host based joining when creating a company';
+		return 'should be able to attach join settings to allow domain joining when creating a company';
 	}
 
 	// make the data to use when issuing the request

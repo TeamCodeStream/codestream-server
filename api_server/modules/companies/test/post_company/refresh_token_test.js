@@ -35,8 +35,16 @@ class RefreshTokenTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		// before the refresh token is issued anyway
 		this.createCompany(error => {
 			if (error) { return callback(error); }
-			const expectedVersion = 2;
-			const { teamId, userId } = this.createCompanyResponse;
+			let teamId, userId, expectedVersion;
+			if (this.createCompanyResponse.userId) {
+				teamId = this.createCompanyResponse.teamId;
+				userId = this.createCompanyResponse.userId;
+				expectedVersion = 2;
+			} else {
+				teamId = this.createCompanyResponse.team.id;
+				userId = this.createCompanyResponse.user.id;
+				expectedVersion = 4;
+			}
 			this.message = {
 				user: {
 					id: userId,
@@ -60,6 +68,9 @@ class RefreshTokenTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// login the user with the company creator, we need this so we have their broadcaster token
 	loginUser (callback) {
+		if (!this.createCompanyResponse.userId) {
+			return callback();
+		}
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -78,7 +89,13 @@ class RefreshTokenTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	// set the name of the channel we expect to receive a message on
 	setChannelName (callback) {
-		this.channelName = `user-${this.createCompanyResponse.userId}`;
+		let userId;
+		if (this.createCompanyResponse.userId) {
+			userId = this.createCompanyResponse.userId;
+		} else {
+			userId = this.createCompanyResponse.user.id;
+		}
+		this.channelName = `user-${userId}`;
 		callback();
 	}
 
@@ -92,7 +109,7 @@ class RefreshTokenTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	validateMessage (message) {
 		const expectedUser = this.message.user.$set;
 		const user = message.message.user.$set;
-		const teamId = this.loginResponse.teams[0].id;
+		const teamId = this.loginResponse ? this.loginResponse.teams[0].id : this.createCompanyResponse.team.id;
 		const key = `providerInfo.${teamId}.newrelic`;
 		Assert.strictEqual(typeof user[`${key}.accessToken`], 'string', 'accessToken not set');
 		expectedUser[`${key}.accessToken`] = user[`${key}.accessToken`];
