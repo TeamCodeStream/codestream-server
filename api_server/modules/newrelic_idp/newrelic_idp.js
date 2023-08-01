@@ -139,7 +139,9 @@ if (!password) {
 	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
 	// to allow the race condition to clear
 	async waitForRefreshToken (email, password, options) {
-		await new Promise(resolve => { setTimeout(resolve, 10000); });
+		const wait = options.request.request.headers['x-cs-no-newrelic'] ? 1000 : 10000;
+		await new Promise(resolve => { setTimeout(resolve, wait); });
+		const now = Date.now();
 		options.request.log('Doing post-login token refresh through New Relic IDP...');		
 		options.request.log('NEWRELIC IDP TRACK: Doing delayed NR login, for refresh token...');
 		const loginResponse = await this.loginUser(
@@ -413,6 +415,7 @@ if (!data.password) {
 			this._throw('nrIDPInternal', `could not get reporting account for NR Org ID ${nrOrgId}`, options);
 		}
 		options.request.log(`NEWRELIC IDP TRACK: accountId=${accountId}`);
+		
 		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
 		options.request.log('NEWRELIC IDP TRACK: Checking if this org has the unlimited consumption entitlement...');

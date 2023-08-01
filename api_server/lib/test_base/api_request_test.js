@@ -226,6 +226,15 @@ class APIRequestTest extends GenericTest {
 			// we can remove this check when we fully move to UNIFIED_IDENTITY
 			requestOptions.headers['X-CS-Enable-UId'] = true;
 		}
+		if (this.serviceGatewayEnabled) {
+			// this test is assuming CodeStream is running behind Service Gateway,
+			// which basically means that access tokens are New Relic/Azure issue, not CodeStream
+			// this is DANGEROUS, since CS behind SG is mostly WIDE OPEN, so this needs
+			// to be a shared secret here ... once we are up and running behind SG and that is
+			// the only supported configuration, relying solely on SG for authn and authz, we
+			// don't have to be scared of this secret
+			requestOptions.headers['X-CS-SG-Test-Secret'] = this.apiConfig.sharedSecrets.subscriptionCheat;
+		}
 		requestOptions.headers['X-CS-No-NewRelic'] = true;
 		if (!options.testIDPSync) {
 			requestOptions.headers['X-CS-No-IDP-Sync'] = true;

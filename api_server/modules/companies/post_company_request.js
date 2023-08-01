@@ -36,7 +36,9 @@ class PostCompanyRequest extends PostRequest {
 			this.log('NOTE: sending additional company response to POST /companies request');
 			this.responseData = this.transforms.additionalCompanyResponse;
 			this.teamId = this.responseData.teamId;
+			this.userId = this.responseData.userId;
 		} else {
+			this.userId = this.user.id;
 			if (this.transforms.createdTeam) {
 				this.responseData.team = this.transforms.createdTeam.getSanitizedObject({ request: this });
 				this.responseData.team.companyMemberCount = 1;
@@ -83,21 +85,33 @@ class PostCompanyRequest extends PostRequest {
 	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
 	// to allow the race condition to clear
 	async updateRefreshToken () {
-		if (this.request.headers['x-cs-no-newrelic'] || !this.request.headers['x-cs-enable-uid']) {
+		if (!this.request.headers['x-cs-enable-uid']) {
 			return;
 		}
 
 		const password = this.creator.password;
 		this.log('Initiating delayed token refresh for New Relic IDP...');
-		const tokenInfo = await this.api.services.idp.waitForRefreshToken(this.user.get('email'), password, { request: this });
+		const tokenInfo = await this.api.services.idp.waitForRefreshToken(
+			this.user.get('email'),
+			password,
+			{
+				request: this,
+				mockResponse: !!this.request.headers['x-cs-no-newrelic']
+			}
+		);
 
 		// check if we are using Service Gateway auth (login service),
 		// if so, we use the NR token as our actual access token
-		let serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
-			{ tag: 'serviceGatewayAuth' }, 
-			{ overrideHintRequired: true }
-		);
-		serviceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
+		let serviceGatewayAuth;
+		if (this.request.headers['x-cs-sg-test-secret'] === this.api.config.sharedSecrets.subscriptionCheat) {
+			serviceGatewayAuth = true;
+		} else {
+			serviceGatewayAuth = await this.api.data.globals.getOneByQuery( 
+				{ tag: 'serviceGatewayAuth' }, 
+				{ overrideHintRequired: true }
+			);
+			serviceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
+		}
 
 		// save the new access token to the database...
 		const { token, refreshToken, expiresAt, provider } = tokenInfo;
@@ -123,7 +137,7 @@ class PostCompanyRequest extends PostRequest {
 		const updateOp = await new ModelSaver({
 			request: this,
 			collection: this.data.users,
-			id: this.user.id
+			id: this.userId
 		}).save(op);
 		await this.postProcessPersist();
 
@@ -132,7 +146,7 @@ class PostCompanyRequest extends PostRequest {
 			requestId: this.request.id,
 			user: updateOp
 		};
-		const channel = `user-${this.user.id}`;
+		const channel = `user-${this.userId}`;
 		try {
 			await this.api.services.broadcaster.publish(
 				message,
@@ -142,7 +156,7 @@ class PostCompanyRequest extends PostRequest {
 		}
 		catch (error) {
 			// this doesn't break the chain, but it is unfortunate...
-			this.warn(`Could not publish refresh token update message to user ${this.user.id}: ${JSON.stringify(error)}`);
+			this.warn(`Could not publish refresh token update message to user ${this.userId}: ${JSON.stringify(error)}`);
 		}
 	}
 

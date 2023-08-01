@@ -6,7 +6,7 @@ const Assert = require('assert');
 class DeprecatedEmptyTest extends AddNRInfoTest {
 
 	get description () {
-		return 'should return an empty response because endpoint will be deprecated, when attempting to add NR info for a comapny, as of one-user-per-org';
+		return 'should return an empty response because endpoint will be deprecated, when attempting to add NR info for a company, as of one-user-per-org';
 	}
 
 	validateResponse (data) {

@@ -11,7 +11,7 @@ class DeprecatedTest extends AddNRInfoTest {
 	}
 	
 	get description () {
-		return 'should return an error indicating endpoint is deprecated when attempting to add NR info for a comapny, as of one-user-per-org';
+		return 'should return an error indicating endpoint is deprecated when attempting to add NR info for a company, as of one-user-per-org';
 	}
 
 	getExpectedError () {

@@ -1,13 +1,14 @@
 // provide a base class for many of the tests of the "POST /companies" request to create a company
 'use strict';
 
+const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/aggregation');
 const Assert = require('assert');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
+const CommonInit = require('./common_init');
 const CompanyTestConstants = require('../company_test_constants');
-const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const TeamTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/teams/test/team_test_constants');
 
-class PostCompanyTest extends CodeStreamAPITest {
+class PostCompanyTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	get method () {
 		return 'post';
@@ -22,21 +23,8 @@ class PostCompanyTest extends CodeStreamAPITest {
 		return CompanyTestConstants.EXPECTED_COMPANY_RESPONSE;
 	}
 
-	// before the test runs...
 	before (callback) {
-		BoundAsync.series(this, [
-			super.before,
-			this.makeCompanyData
-		], callback);
-	}
-
-	// make the data to use when issuing the request
-	makeCompanyData (callback) {
-		this.data = {
-			name: this.companyFactory.randomName()
-		};
-		this.path = '/companies';
-		callback();
+		this.init(callback);
 	}
 
 	/* eslint complexity: 0 */
