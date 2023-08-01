@@ -141,5 +141,10 @@ module.exports = {
 		description: 'Enable Grok AI Error analysis',
 		version: '14.19.1',
 		restricted: true
+	},
+	'showCodeAnalyzers': {
+		description: 'Enable code analysis',
+		version: '14.24.1',
+		restricted: true
 	}
 };
