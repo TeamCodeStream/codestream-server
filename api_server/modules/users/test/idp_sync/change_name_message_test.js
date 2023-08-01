@@ -22,7 +22,7 @@ class ChangeNameMessageTest extends Aggregation(CodeStreamMessageTest, CommonIni
 		this.data = {
 			name: this.userFactory.randomFullName()
 		};
-		const expectedVersion = 6;
+		const expectedVersion = 7;
 		this.message = {
 			user: {
 				id: this.currentUser.user.id,
