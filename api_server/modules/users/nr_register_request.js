@@ -68,7 +68,9 @@ class NRRegisterRequest extends RestfulRequest {
 				const headers = {
 					'Api-Key': this.request.body.apiKey,
 					'Content-Type': 'application/json',
-					'NewRelic-Requesting-Services': 'CodeStream'
+					'NewRelic-Requesting-Services': 'CodeStream',
+					"X-Query-Source-Capability-Id": "CODESTREAM",
+					"X-Query-Source-Component-Id": "codestream|server"
 				}
 				response = await request(url, query, {}, headers);
 			}

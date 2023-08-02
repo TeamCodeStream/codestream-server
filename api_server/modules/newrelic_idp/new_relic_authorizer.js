@@ -82,7 +82,9 @@ class NewRelicAuthorizer {
 		// Unified Identity tokens are cookies, not api keys
 		const graphQLHeaders = {
 			"Content-Type": "application/json",
-			"NewRelic-Requesting-Services": "CodeStream"
+			"NewRelic-Requesting-Services": "CodeStream",
+			"X-Query-Source-Capability-Id": "CODESTREAM",
+			"X-Query-Source-Component-Id": "codestream|server"
 		};
 		let graphQLHost;
 		if (this.accessToken || providerInfo.bearerToken) {

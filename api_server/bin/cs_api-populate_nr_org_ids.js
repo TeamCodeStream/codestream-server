@@ -146,7 +146,9 @@ class PopulateNewRelicOrgIds {
 		const headers = {
 			'Api-Key': apiKey,
 			'Content-Type': 'application/json',
-			'NewRelic-Requesting-Services': 'CodeStream'
+			'NewRelic-Requesting-Services': 'CodeStream',
+			"X-Query-Source-Capability-Id": "CODESTREAM",
+			"X-Query-Source-Component-Id": "codestream|server"
 		};
 		const response = await request(url, query, {}, headers);
 		if (response && response.actor && response.actor.organization && response.actor.organization.id) {
