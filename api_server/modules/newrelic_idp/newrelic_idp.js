@@ -139,7 +139,8 @@ if (!password) {
 	// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
 	// to allow the race condition to clear
 	async waitForRefreshToken (email, password, options) {
-		const wait = options.request.request.headers['x-cs-no-newrelic'] ? 1000 : 10000;
+		const mockMode = options.request.api.config.apiServer.mockMode;
+		const wait = options.request.request.headers['x-cs-no-newrelic'] ? (mockMode ? 1000 : 7500) : 10000;
 		await new Promise(resolve => { setTimeout(resolve, wait); });
 		const now = Date.now();
 		options.request.log('Doing post-login token refresh through New Relic IDP...');		
