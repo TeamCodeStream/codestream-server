@@ -84,7 +84,7 @@ class NewRelicAuthorizer {
 			"Content-Type": "application/json",
 			"NewRelic-Requesting-Services": "CodeStream",
 			"X-Query-Source-Capability-Id": "CODESTREAM",
-			"X-Query-Source-Component-Id": "codestream|server"
+			"X-Query-Source-Component-Id": "codestream.api"
 		};
 		let graphQLHost;
 		if (this.accessToken || providerInfo.bearerToken) {

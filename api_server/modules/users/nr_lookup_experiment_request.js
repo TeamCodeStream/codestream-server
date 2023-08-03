@@ -61,7 +61,7 @@ class NRLookupExperimentRequest extends RestfulRequest {
 				'nerd-graph-unsafe-experimental-opt-in': 'NrqlLookups',
 				'x-login-context': this.request.headers['service-gateway-login-context'],
 				"X-Query-Source-Capability-Id": "CODESTREAM",
-				"X-Query-Source-Component-Id": "codestream|server"
+				"X-Query-Source-Component-Id": "codestream.api"
 			}
 			this.responseData = await request(url, query, {}, headers);
 		} catch (error) {
