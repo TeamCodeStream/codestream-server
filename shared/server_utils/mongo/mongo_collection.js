@@ -403,7 +403,9 @@ class MongoCollection {
 				break;
 			}
 			const refetchedDocument = await this.getById(id, { version: 1 });
-			if (refetchedDocument.version === version) {
+			if (!refetchedDocument) {
+				throw this.errorHandler.error('updateVersionNoDocument');
+			} else if (refetchedDocument.version === version) {
 				throw this.errorHandler.error('updateFailureNoVersion');
 			}
 			version = refetchedDocument.version;

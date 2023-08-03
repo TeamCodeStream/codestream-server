@@ -27,5 +27,10 @@ module.exports = {
 		code: 'MDTA-1004',
 		description: 'Failed to update document after refetching for version and several retries',
 		internal: true
+	},
+	'updateVersionNoDocument': {
+		code: 'MDTA-1005',
+		description: 'Failed to update document with version because document not found',
+		internal: true
 	}
 };
