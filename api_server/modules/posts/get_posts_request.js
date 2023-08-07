@@ -82,8 +82,8 @@ class GetPostsRequest extends GetManyRequest {
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
 	buildQuery () {
-		const query = {};
-		
+		const query = { deactivated: false };
+
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
 			const value = decodeURIComponent(this.request.query[parameter]);
@@ -315,7 +315,7 @@ class GetPostsRequest extends GetManyRequest {
 		if (replies.length === 0) { return; }
 		this.responseData.posts.push(...replies.map(reply => reply.getSanitizedObject({ request: true })));
 
-		// need to sort them if we found nested replies, since they are promised sorted but 
+		// need to sort them if we found nested replies, since they are promised sorted but
 		// the database layer couldn't sort them since they were fetched separately
 		this.responseData.posts.sort((a, b) => {
 			if (this.byId) {

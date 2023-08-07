@@ -1,7 +1,7 @@
 'use strict';
 
 const fetch = require('node-fetch');
-const { Client } = require('undici');
+const {Client} = require('undici');
 const Errors = require('./errors');
 const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
@@ -10,38 +10,37 @@ const UserCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 
 class GrokClient {
 
-	async analyzeErrorWithGrok(options) {
+	async analyzeErrorWithGrok (options) {
 		Object.assign(this, options);
 		['request', 'data', 'api', 'errorHandler', 'responseData', 'user', 'company'].forEach(x => this[x] = this.postRequest[x]);
 
 		this.errorHandler.add(Errors);
 
-		if(!!this.request.body.analyze){
-			this.promptTracking = 'Unprompted'; 
-		}
-		else if(this.request.body.text.match(/\@Grok/gmi)){
-			this.promptTracking = 'Prompted'; 
+		if (!!this.request.body.analyze) {
+			this.promptTracking = 'Unprompted';
+		} else if (this.request.body.text.match(/@Grok/gmi)) {
+			this.promptTracking = 'Prompted';
 		}
 
-		if(!this.request.body.teamId){
+		if (!this.request.body.teamId) {
 			//design requires a Team
 			return;
 		}
-		
+
 		this.team = await this.data.teams.getById(this.request.body.teamId);
-		
+
 		if (!this.team) {
 			// We need to find a way to send this issue back down so
 			// the clients know there was an issue - otherwise, infinite spin.
-			throw this.errorHandler.error('notFound', { info: 'team' });
+			throw this.errorHandler.error('notFound', {info: 'team'});
 		}
 
 		let grokUserId = this.team.get('grokUserId');
 
-		if(!grokUserId) {
+		if (!grokUserId) {
 			let grokUser = await this.createGrokUser();
 
-			if(grokUser){
+			if (grokUser) {
 				grokUserId = grokUser.id;
 			}
 		}
@@ -51,28 +50,27 @@ class GrokClient {
 		if (!this.topmostPost) {
 			// We need to find a way to send this issue back down so
 			// the clients know there was an issue - otherwise, infinite spin.
-			throw this.errorHandler.error('notFound', { info: 'topmostPost' });
+			throw this.errorHandler.error('notFound', {info: 'topmostPost'});
 		}
 
 		this.codeError = await this.data.codeErrors.getById(this.topmostPost.get('codeErrorId'));
-		
+
 		if (!this.codeError) {
 			// We need to find a way to send this issue back down so
 			// the clients know there was an issue - otherwise, infinite spin.
-			throw this.errorHandler.error('notFound', { info: 'codeError' });
+			throw this.errorHandler.error('notFound', {info: 'codeError'});
 		}
 
 		const grokConversation = this.topmostPost.get('grokConversation');
 
-		if(this.reinitializeGrok || !grokConversation){
+		if (this.reinitializeGrok || !grokConversation) {
 			await this.startNewConversation(grokUserId);
-		}
-		else {
+		} else {
 			await this.continueConversation(grokConversation, grokUserId);
 		}
 	}
 
-	async findTopMostPost() {
+	async findTopMostPost () {
 		let topmostPost;
 
 		// in the case where we are reinitializing Grok, we won't be creating / returning
@@ -84,8 +82,8 @@ class GrokClient {
 		if (this.request.body.parentPostId) {
 			topmostPost = await this.data.posts.getById(this.request.body.parentPostId);
 			const topmostParentPostId = topmostPost.get('parentPostId');
-	
-			if(topmostParentPostId && topmostParentPostId !== this.request.body.parentPostId){
+
+			if (topmostParentPostId && topmostParentPostId !== this.request.body.parentPostId) {
 				topmostPost = await this.data.posts.getById(topmostPost.parentPostId);
 			}
 		}
@@ -93,18 +91,19 @@ class GrokClient {
 		return topmostPost;
 	}
 
-	async continueConversation(grokConversation, grokUserId){
+	async continueConversation (grokConversation, grokUserId) {
 		const conversation = grokConversation;
-		
+
 		const parentPostIds = [this.request.body.parentPostId];
-		if(this.request.body.parentPostId !== this.topmostPost.get('id')){
+		if (this.request.body.parentPostId !== this.topmostPost.get('id')) {
 			parentPostIds.push(this.topmostPost.get('id'));
 		}
 
 		const posts = await this.data.posts.getByQuery(
 			{
-				parentPostId: { $in: parentPostIds },
-				forGrok: true
+				parentPostId: {$in: parentPostIds},
+				forGrok: true,
+				deactivated: false,
 			},
 			{
 				hint: PostIndexes.byParentPostId,
@@ -114,9 +113,9 @@ class GrokClient {
 		// sort by createdAt, oldest first
 		posts.sort((a, b) => {
 			return a.get('createdAt') - b.get('createdAt');
-		})
+		});
 
-		// 20 is the max number of posts we can send to Grok, 
+		// 20 is the max number of posts we can send to Grok,
 		// so 17 from here plus the 2 stored in grokConversation,
 		// plus the new one we're about to send = 20
 		const limitedPosts = posts.slice(0, 17);
@@ -125,60 +124,83 @@ class GrokClient {
 			conversation.push({
 				role: p.get('promptRole'),
 				content: p.get('text')
-			})
+			});
 		});
 
 		conversation.push({
-			role: "user",
+			role: 'user',
 			content: this.request.body.text
 		});
 
-		let apiResponse;
-		try{
-			// NOTE: This call will ultimately stream chunks back to client through pubnub.
-			// The 'apiResponse' here is the full response, not just individual chunks.
-			apiResponse = await this.submitConversationToGrok(conversation);
-		}
-		catch(ex) {
-			const message = ex?.reason?.message || ex.message;
-			await this.logExceptionAndDispatch(message, codeError);
-			throw ex;
-		}
-		
 		const postCreator = new PostCreator({
 			request: this.postRequest,
 			team: this.team
 		});
 
-		// store Grok response as new Post
-		const post = await postCreator.createPost({
-			forGrok: true,
-			streamId: this.codeError.get('streamId'),
-			teamId: this.team.get('id'),
-			text: apiResponse.content,
-			promptRole: apiResponse.role,
-			parentPostId: this.topmostPost.get('id'),
-			codeError: this.codeError.get('id')
-		},
-		{
-			overrideCreatorId: grokUserId
+		// Store Grok response as new Post - text will be populated via streaming -> pubnub
+		const grokResponsePost = await postCreator.createPost({
+				forGrok: true,
+				streamId: this.codeError.get('streamId'),
+				teamId: this.team.get('id'),
+				text: '',
+				promptRole: 'system',
+				parentPostId: this.topmostPost.get('id'),
+				codeError: this.codeError.get('id')
+			},
+			{
+				overrideCreatorId: grokUserId
+			});
+
+		await this.broadcastToUser({
+			posts: [
+				grokResponsePost.getSanitizedObject({request: this.postRequest})
+			]
 		});
 
+		let apiResponse;
+		try {
+			// NOTE: This call will ultimately stream chunks back to client through pubnub.
+			// The 'apiResponse' here is the full response, not just individual chunks.
+			apiResponse = await this.submitConversationToGrok(grokResponsePost, conversation, grokUserId);
+		} catch (ex) {
+			const message = ex?.reason?.message || ex.message;
+			await this.logExceptionAndDispatch(message, codeError);
+			throw ex;
+		}
+
+		// TODO this or PostUpdater?
+		// Update the grok response post with final content from streaming response
+		await new ModelSaver({
+			request: this.postRequest,
+			collection: this.data.posts,
+			id: grokResponsePost.id,
+		}).save({
+			$set: {
+				text: apiResponse.content,
+			}
+		});
+
+		await this.postRequest.postProcessPersist();
+
+		const updatedGrokPost = await this.data.posts.getById(grokResponsePost.id, {ignoreCache: true});
+		const sanitizedGrokPost = updatedGrokPost.getSanitizedObject({request: this.postRequest});
+		// TODO fix hack version increment
+		sanitizedGrokPost.version = sanitizedGrokPost.version + 1;
 		await this.broadcastToTeam({
-			post: post.getSanitizedObject({ request: this.postRequest })
+			post: sanitizedGrokPost
 		});
 
 		await this.trackPost();
 	}
 
-	async startNewConversation(grokUserId) {
+	async startNewConversation (grokUserId) {
 		// get the last stack trace we have - text is full stack trace, split it into lines
 		const stackTraceLines = (this.codeError.get('stackTraces') || [])
 			.slice(-1)
 			.pop()
 			.text
 			.split(/\r?\n/);
-		
+
 		// limit to 30 lines
 		const totalStackTraceLines = Math.min(stackTraceLines.length, 30);
 
@@ -188,41 +210,65 @@ class GrokClient {
 			.join('\n');
 
 		if (!stackTrace) {
-			await this.logExceptionAndDispatch("Unable to locate an associated Stack Trace");
-			throw this.errorHandler.error('notFound', { info: 'stackTrace' });
+			await this.logExceptionAndDispatch('Unable to locate an associated Stack Trace');
+			throw this.errorHandler.error('notFound', {info: 'stackTrace'});
 		}
 
 		const code = this.request.body.codeBlock;
 
-		let content = `Analyze this stack trace:\n\`\`\`\n${ stackTrace }\n\`\`\`\n`
-		
-		if(code){
-			content += `\nAnd fix the following code:\n\`\`\`\n"${ code }"\n\`\`\``;
+		let content = `Analyze this stack trace:\n\`\`\`\n${stackTrace}\n\`\`\`\n`;
+
+		if (code) {
+			content += `\nAnd fix the following code:\n\`\`\`\n"${code}"\n\`\`\``;
 		}
 
 		const initialPrompt = [{
-			role: "system",
-			content: "As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. I will output brief descriptions and the fixed code blocks."
+			role: 'system',
+			content: 'As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. I will output brief descriptions and the fixed code blocks.'
 		},
-		{
-			role: "user", 
-			content: content
-		}];
+			{
+				role: 'user',
+				content: content
+			}];
+
+		const postCreator = new PostCreator({
+			request: this.postRequest,
+			team: this.team
+		});
+
+		// Store Grok response as new Post - text will be populated via streaming -> pubnub
+		const grokResponsePost = await postCreator.createPost({
+				forGrok: true,
+				streamId: this.codeError.get('streamId'),
+				teamId: this.team.get('id'),
+				text: '',
+				promptRole: 'system',
+				parentPostId: this.topmostPost.get('id'),
+				codeError: this.codeError.get('id')
+			},
+			{
+				overrideCreatorId: grokUserId
+			});
+
+		await this.broadcastToUser({
+			posts: [
+				grokResponsePost.getSanitizedObject({request: this.postRequest})
+			]
+		});
 
 		let apiResponse;
-		try{
+		try {
 
 			// NOTE: This call will ultimately stream chunks back to client through pubnub.
 			// The 'apiResponse' here is the full response, not just individual chunks.
-			apiResponse = await this.submitConversationToGrok(initialPrompt);
-		}
-		catch(ex){
+			apiResponse = await this.submitConversationToGrok(grokResponsePost, initialPrompt, grokUserId);
+		} catch (ex) {
 			const message = ex?.reason?.message || ex.message;
 			await this.logExceptionAndDispatch(message, this.codeError);
 			throw ex;
 		}
 
-		// Update initial post with the current conversation.
+		// Update initial parent post with the current conversation.
 		const updatedPost = await new ModelSaver({
 			request: this.postRequest,
 			collection: this.data.posts,
@@ -234,33 +280,31 @@ class GrokClient {
 			}
 		});
 
+		// TODO this or PostUpdater?
+		// Update the grok response post with final content from streaming response
+		await new ModelSaver({
+			request: this.postRequest,
+			collection: this.data.posts,
+			id: grokResponsePost.id,
+		}).save({
+			$set: {
+				text: apiResponse.content,
+			}
+		});
+
 		await this.postRequest.postProcessPersist();
 
-		const postCreator = new PostCreator({
-			request: this.postRequest,
-			team: this.team
-		});
-
-		// store Grok response as new Post 
-		const post = await postCreator.createPost({
-			forGrok: true,
-			streamId: this.codeError.get('streamId'),
-			teamId: this.team.get('id'),
-			text: apiResponse.content,
-			promptRole: apiResponse.role,
-			parentPostId: this.topmostPost.get('id'),
-			codeError: this.codeError.get('id')
-		},
-		{
-			overrideCreatorId: grokUserId
-		});
+		const updatedGrokPost = await this.data.posts.getById(grokResponsePost.id, {ignoreCache: true});
 
 		// client does NOT need this and it could be enormous; save those bytes
 		delete updatedPost.$set.grokConversation;
 
+		const sanitizedGrokPost = updatedGrokPost.getSanitizedObject({request: this.postRequest});
+		// TODO fix hack version increment
+		sanitizedGrokPost.version = sanitizedGrokPost.version + 1;
 		await this.broadcastToTeam({
 			posts: [
-				post.getSanitizedObject({ request: this.postRequest }),
+				sanitizedGrokPost,
 				updatedPost
 			]
 		});
@@ -268,32 +312,31 @@ class GrokClient {
 		await this.trackPost();
 	}
 
-	async broadcastToUser(message){
+	async broadcastToUser (message) {
 		const channel = `user-${this.user.id}`;
 
 		await this.broadcast(message, channel);
 	}
 
-	async broadcastToTeam(message){
+	async broadcastToTeam (message) {
 		const channel = `team-${this.team.get('id')}`;
 
 		await this.broadcast(message, channel);
 	}
 
-	async broadcast(message, channel){
+	async broadcast (message, channel) {
 		try {
 			await this.api.services.broadcaster.publish(
 				message,
 				channel,
-				{ request: this.postRequest }
+				{request: this.postRequest}
 			);
-		}
-		catch (error) {
+		} catch (error) {
 			this.api.logger.warn(`Could not publish post message to channel ${channel}: ${JSON.stringify(error)}`, this.postRequest.id);
 		}
 	}
 
-	async createGrokUser() {
+	async createGrokUser () {
 		const teamId = this.team.get('id');
 
 		const userCreator = new UserCreator({
@@ -304,19 +347,19 @@ class GrokClient {
 			dontSetInviteType: true,
 			dontSetInviteCode: true,
 			ignoreUsernameOnConflict: true
-		})
-		
+		});
+
 		const grokUser = await userCreator.createUser({
-			username: "Grok",
+			username: 'Grok',
 			avatar: {
-				image: "https://images.codestream.com/icons/grok-green.png"
+				image: 'https://images.codestream.com/icons/grok-green.png'
 			}
 		});
 
 		const grokUserId = grokUser.get('id');
 
 		const teamUpdate = {
-			$addToSet: { 
+			$addToSet: {
 				memberIds: [grokUserId],
 			},
 			$pull: {
@@ -336,27 +379,27 @@ class GrokClient {
 		}).save(teamUpdate);
 
 		await this.postRequest.postProcessPersist();
-		
+
 		this.team = await this.data.teams.getById(teamId);
 
 		await this.broadcastToTeam({
-			user: grokUser.getSanitizedObject({ request: this.postRequest }),
-			team: this.team.getSanitizedObject({ request: this.postRequest })
+			user: grokUser.getSanitizedObject({request: this.postRequest}),
+			team: this.team.getSanitizedObject({request: this.postRequest})
 		});
 
 		return grokUser;
 	}
 
-	async submitConversationToGrok(conversation, temperature = 0){
-		if(this.api.config.apiServer.mockMode){
+	async submitConversationToGrok (post, conversation, grokUserId, temperature = 0) {
+		if (this.api.config.apiServer.mockMode) {
 			return {
-				role: "assistant",
-				content: "Skipped API Call"
-			}
+				role: 'assistant',
+				content: 'Skipped API Call'
+			};
 		}
-		
+
 		const request = {
-			model: "gpt-35-turbo",
+			model: 'gpt-35-turbo',
 			messages: conversation,
 			temperature: temperature,
 			stream: true
@@ -366,84 +409,140 @@ class GrokClient {
 		let responseRole = '';
 
 		const client = new Client('https://nerd-completion.staging-service.nr-ops.net');
-	  
+
 		try {
-			const { statusCode, body } = await client.request({
+			const {statusCode, body} = await client.request({
 				method: 'POST',
 				path: '/v1/chat/completions',
 				headers: {
-					"Content-Type": "application/json",
-					"Authorization": `Bearer NC-Y29kZXN0cmVhbXx0ZXN0aW5nfDQ1YzM2YmI1LTcwMTUtNDZkNi1hYjc5LWU4YTY2OTJlYjY2Ng==`// ${this.api.config.integrations.newrelicgrok.apiKey}`,
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${this.api.config.integrations.newrelicgrok.apiKey}`
 				},
 				body: JSON.stringify(request),
 			});
 
 			if (statusCode !== 200) {
-				await this.trackErrorAndThrow('apiException', {request, statusCode, message: `Request failed with status code: ${statusCode}`});
+				await this.trackErrorAndThrow('apiException', {
+					request,
+					statusCode,
+					message: `Request failed with status code: ${statusCode}`
+				});
 			}
-	  
+
+			// Chunks can be incomplete (probably a bug we can work around it)
+			let buffer = '';
+
 			for await (const chunk of body) {
 				if (!chunk) {
 					continue;
 				}
 
-				const rows = chunk.toString().split('\n');
-				
-				for(const row of rows)
-				{
-					if(!row){
+				const chunkString = chunk.toString();
+				buffer = buffer ? buffer + chunkString : chunkString;
+
+				// Server-sent events spec ends a series of events with two newlines
+				if (!buffer.endsWith('\n\n')) {
+					continue;
+				}
+
+				const rows = buffer.split('\n');
+
+				// We have the full event in rows now, we can clear buffer for next chunk
+				buffer = '';
+
+				const broadcastEvents = [];
+
+				for (let row of rows) {
+					// row = row.replace(/\n/g, "").trim();
+					if (!row) {
 						continue;
 					}
 
-					const line = row.replace(/data: /, "")?.trim();;
-					
-					if (!line || line === "[DONE]") {
+					const line = row.replace(/data: /, '')?.trim();
+
+					if (!line || line === '[DONE]') {
 						continue;
 					}
-					
-					const chonk = JSON.parse(line);
+
+					let chonk = undefined;
+					try {
+						chonk = JSON.parse(line);
+					} catch (err) {
+						this.api.logger.warn(`Could not parse JSON from Grok: "${line}"" \n${chunkString}`);
+						continue;
+					}
+
+					if (!chonk || !chonk.choices || !chonk.choices[0]) {
+						continue;
+					}
 
 					const role = chonk.choices[0].delta?.role;
 
-					if(role){
+					if (role) {
 						responseRole = role;
 						continue;
 					}
 
 					const content = chonk.choices[0].delta?.content;
-					
+
 					if (content) {
 						responseContent += content;
 
-						await this.broadcastToUser({
-							grokStream: {
-								content: {
-									content: content,
-									role: responseRole
-								},
-								extra: {
-									topmostPostId: this.topmostPost.get('id'),
-									codeErrorId: this.codeError.get('id')
-								}
+						// Queue up the broadcast events for this chunk of messages but don't send yet
+						broadcastEvents.push({
+							content: {
+								content: content,
+								role: responseRole
+							},
+							extra: {
+								topmostPostId: this.topmostPost.get('id'),
+								codeErrorId: this.codeError.get('id'),
+								postId: post.get('id'),
+								streamId: post.get('streamId')
 							}
 						});
 					}
 				}
+				// Now that we have all the events processed for this chunk we can send them in 1 pubnub broadcast
+				await this.broadcastToUser({grokStream: broadcastEvents});
 			}
+
+			// Broadcast done event
+			await this.broadcastToUser({
+				grokStream: {
+					extra: {
+						topmostPostId: this.topmostPost.get('id'),
+						codeErrorId: this.codeError.get('id'),
+						postId: post.get('id'),
+						streamId: post.get('streamId'),
+						done: true
+					}
+				}
+			});
 
 			return {
 				content: responseContent,
 				role: responseRole
-			}
+			};
 		} catch (err) {
-			await this.trackErrorAndThrow('apiException', {request, message: `Error parsing Grok response: ${err.message}`});
+			await this.trackErrorAndThrow('apiException', {
+				request,
+				message: `Error parsing Grok response: ${err.message}`
+			});
+			await this.broadcastToUser({
+				grokStream: {
+					extra: {
+						done: true
+					}
+				}
+			});
 		} finally {
 			client.close();
 		}
 	}
 
-	async trackErrorAndThrow(errorKey, data) {
-		const { postRequest, user, team, company } = this;
+	async trackErrorAndThrow (errorKey, data) {
+		const {postRequest, user, team, company} = this;
 
 		let errorCode = Errors[errorKey].code;
 
@@ -451,25 +550,25 @@ class GrokClient {
 			'Parent ID': this.topmostPost.get('id'),
 			'Code Error ID': this.topmostPost.get('codeErrorId'),
 			'Error Code': errorCode,
-		}
+		};
 
 		await this.api.services.analytics.trackWithSuperProperties(
 			'Grok Response Failed',
 			trackData,
-			{ request: postRequest, user, team, company }
+			{request: postRequest, user, team, company}
 		);
 
-		throw this.errorHandler.error(errorKey, { ...data, ...trackData });
+		throw this.errorHandler.error(errorKey, {...data, ...trackData});
 	}
 
-	async logExceptionAndDispatch(message){
+	async logExceptionAndDispatch (message) {
 		const topmostPostId = this.topmostPost.get('id');
 		const codeErrorId = this.codeError.get('id');
 
 		const trackData = {
 			'Parent ID': topmostPostId,
 			'Code Error ID': codeErrorId
-		}
+		};
 
 		await this.postRequest.reportError({message, logSummary: JSON.stringify(trackData)});
 
@@ -486,7 +585,7 @@ class GrokClient {
 	}
 
 	async trackPost () {
-		const { postRequest, user, team, company } = this;
+		const {postRequest, user, team, company} = this;
 
 		const codeErrorId = this.codeError.get('id');
 
@@ -495,11 +594,11 @@ class GrokClient {
 			'Parent Type': 'Error',
 			'Grok Post': this.promptTracking,
 		};
-		
+
 		await this.api.services.analytics.trackWithSuperProperties(
 			'Reply Created',
 			trackData,
-			{ request: postRequest, user, team, company }
+			{request: postRequest, user, team, company}
 		);
 	}
 }
