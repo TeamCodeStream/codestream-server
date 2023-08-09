@@ -1,7 +1,6 @@
 'use strict';
 
-const fetch = require('node-fetch');
-const {Client} = require('undici');
+const { Client } = require('undici');
 const Errors = require('./errors');
 const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
@@ -32,7 +31,7 @@ class GrokClient {
 		if (!this.team) {
 			// We need to find a way to send this issue back down so
 			// the clients know there was an issue - otherwise, infinite spin.
-			throw this.errorHandler.error('notFound', {info: 'team'});
+			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
 
 		let grokUserId = this.team.get('grokUserId');
@@ -50,7 +49,7 @@ class GrokClient {
 		if (!this.topmostPost) {
 			// We need to find a way to send this issue back down so
 			// the clients know there was an issue - otherwise, infinite spin.
-			throw this.errorHandler.error('notFound', {info: 'topmostPost'});
+			throw this.errorHandler.error('notFound', { info: 'topmostPost' });
 		}
 
 		this.codeError = await this.data.codeErrors.getById(this.topmostPost.get('codeErrorId'));
@@ -58,7 +57,7 @@ class GrokClient {
 		if (!this.codeError) {
 			// We need to find a way to send this issue back down so
 			// the clients know there was an issue - otherwise, infinite spin.
-			throw this.errorHandler.error('notFound', {info: 'codeError'});
+			throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
 
 		const grokConversation = this.topmostPost.get('grokConversation');
@@ -101,7 +100,7 @@ class GrokClient {
 
 		const posts = await this.data.posts.getByQuery(
 			{
-				parentPostId: {$in: parentPostIds},
+				parentPostId: { $in: parentPostIds },
 				forGrok: true,
 				deactivated: false,
 			},
@@ -153,7 +152,7 @@ class GrokClient {
 
 		await this.broadcastToUser({
 			posts: [
-				grokResponsePost.getSanitizedObject({request: this.postRequest})
+				grokResponsePost.getSanitizedObject({ request: this.postRequest })
 			]
 		});
 
@@ -182,8 +181,8 @@ class GrokClient {
 
 		await this.postRequest.postProcessPersist();
 
-		const updatedGrokPost = await this.data.posts.getById(grokResponsePost.id, {ignoreCache: true});
-		const sanitizedGrokPost = updatedGrokPost.getSanitizedObject({request: this.postRequest});
+		const updatedGrokPost = await this.data.posts.getById(grokResponsePost.id, { ignoreCache: true });
+		const sanitizedGrokPost = updatedGrokPost.getSanitizedObject({ request: this.postRequest });
 		// TODO fix hack version increment
 		sanitizedGrokPost.version = sanitizedGrokPost.version + 1;
 		await this.broadcastToTeam({
@@ -211,7 +210,7 @@ class GrokClient {
 
 		if (!stackTrace) {
 			await this.logExceptionAndDispatch('Unable to locate an associated Stack Trace');
-			throw this.errorHandler.error('notFound', {info: 'stackTrace'});
+			throw this.errorHandler.error('notFound', { info: 'stackTrace' });
 		}
 
 		const code = this.request.body.codeBlock;
@@ -252,7 +251,7 @@ class GrokClient {
 
 		await this.broadcastToUser({
 			posts: [
-				grokResponsePost.getSanitizedObject({request: this.postRequest})
+				grokResponsePost.getSanitizedObject({ request: this.postRequest })
 			]
 		});
 
@@ -294,12 +293,12 @@ class GrokClient {
 
 		await this.postRequest.postProcessPersist();
 
-		const updatedGrokPost = await this.data.posts.getById(grokResponsePost.id, {ignoreCache: true});
+		const updatedGrokPost = await this.data.posts.getById(grokResponsePost.id, { ignoreCache: true });
 
 		// client does NOT need this and it could be enormous; save those bytes
 		delete updatedPost.$set.grokConversation;
 
-		const sanitizedGrokPost = updatedGrokPost.getSanitizedObject({request: this.postRequest});
+		const sanitizedGrokPost = updatedGrokPost.getSanitizedObject({ request: this.postRequest });
 		// TODO fix hack version increment
 		sanitizedGrokPost.version = sanitizedGrokPost.version + 1;
 		await this.broadcastToTeam({
@@ -329,7 +328,7 @@ class GrokClient {
 			await this.api.services.broadcaster.publish(
 				message,
 				channel,
-				{request: this.postRequest}
+				{ request: this.postRequest }
 			);
 		} catch (error) {
 			this.api.logger.warn(`Could not publish post message to channel ${channel}: ${JSON.stringify(error)}`, this.postRequest.id);
@@ -383,8 +382,8 @@ class GrokClient {
 		this.team = await this.data.teams.getById(teamId);
 
 		await this.broadcastToTeam({
-			user: grokUser.getSanitizedObject({request: this.postRequest}),
-			team: this.team.getSanitizedObject({request: this.postRequest})
+			user: grokUser.getSanitizedObject({ request: this.postRequest }),
+			team: this.team.getSanitizedObject({ request: this.postRequest })
 		});
 
 		return grokUser;
@@ -408,12 +407,14 @@ class GrokClient {
 		let responseContent = '';
 		let responseRole = '';
 
-		const client = new Client('https://nerd-completion.staging-service.nr-ops.net');
+		const { origin, pathname } = new URL(this.api.config.integrations.newrelicgrok.apiUrl);
+
+		const client = new Client(origin);
 
 		try {
-			const {statusCode, body} = await client.request({
+			const { statusCode, body } = await client.request({
 				method: 'POST',
-				path: '/v1/chat/completions',
+				path: pathname,
 				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${this.api.config.integrations.newrelicgrok.apiKey}`
@@ -504,7 +505,7 @@ class GrokClient {
 					}
 				}
 				// Now that we have all the events processed for this chunk we can send them in 1 pubnub broadcast
-				await this.broadcastToUser({grokStream: broadcastEvents});
+				await this.broadcastToUser({ grokStream: broadcastEvents });
 			}
 
 			// Broadcast done event
@@ -542,7 +543,7 @@ class GrokClient {
 	}
 
 	async trackErrorAndThrow (errorKey, data) {
-		const {postRequest, user, team, company} = this;
+		const { postRequest, user, team, company } = this;
 
 		let errorCode = Errors[errorKey].code;
 
@@ -555,10 +556,10 @@ class GrokClient {
 		await this.api.services.analytics.trackWithSuperProperties(
 			'Grok Response Failed',
 			trackData,
-			{request: postRequest, user, team, company}
+			{ request: postRequest, user, team, company }
 		);
 
-		throw this.errorHandler.error(errorKey, {...data, ...trackData});
+		throw this.errorHandler.error(errorKey, { ...data, ...trackData });
 	}
 
 	async logExceptionAndDispatch (message) {
@@ -570,7 +571,7 @@ class GrokClient {
 			'Code Error ID': codeErrorId
 		};
 
-		await this.postRequest.reportError({message, logSummary: JSON.stringify(trackData)});
+		await this.postRequest.reportError({ message, logSummary: JSON.stringify(trackData) });
 
 		await this.broadcastToUser({
 			asyncError: {
@@ -585,7 +586,7 @@ class GrokClient {
 	}
 
 	async trackPost () {
-		const {postRequest, user, team, company} = this;
+		const { postRequest, user, team, company } = this;
 
 		const codeErrorId = this.codeError.get('id');
 
@@ -598,7 +599,7 @@ class GrokClient {
 		await this.api.services.analytics.trackWithSuperProperties(
 			'Reply Created',
 			trackData,
-			{request: postRequest, user, team, company}
+			{ request: postRequest, user, team, company }
 		);
 	}
 }

@@ -56,11 +56,11 @@ class PostPostRequest extends PostRequest {
 			const codeError = await this.data.codeErrors.getById(post.get('codeErrorId'));
 
 			// When we force a reinitialization on a Code Error with Grok, we need to return
-			// the original Parent Post and the Code Error associated with it. The client 
+			// the original Parent Post and the Code Error associated with it. The client
 			// doesn't know how to handle the response without them.
 			this.responseData.post = post.getSanitizedObject({ request: this.request });
 			this.responseData.codeError = codeError.getSanitizedObject({ request: this.request });
-			
+
 			return super.handleResponse();
 		}
 
@@ -77,10 +77,10 @@ class PostPostRequest extends PostRequest {
 			await super.postProcess();
 		}
 
-		if(!!this.request.body.analyze || 
-			this.request.body.text.match(/\@Grok/gmi) || 
+		if(!!this.request.body.analyze ||
+			this.request.body.text.match(/@Grok/gmi) ||
 			this.reinitializeGrok){
-	 		
+
 			return new GrokClient().analyzeErrorWithGrok(
 				{
 					postRequest: this
@@ -88,7 +88,7 @@ class PostPostRequest extends PostRequest {
 			);
 		}
 	}
-	
+
 	// describe this route for help
 	static describe (module) {
 		const description = PostRequest.describe(module);
