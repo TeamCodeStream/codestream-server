@@ -150,6 +150,8 @@ class GrokClient {
 				overrideCreatorId: grokUserId
 			});
 
+		await this.postRequest.postProcessPersist();
+
 		await this.broadcastToUser({
 			posts: [
 				grokResponsePost.getSanitizedObject({ request: this.postRequest })
@@ -163,7 +165,9 @@ class GrokClient {
 			apiResponse = await this.submitConversationToGrok(grokResponsePost, conversation, grokUserId);
 		} catch (ex) {
 			const message = ex?.reason?.message || ex.message;
-			await this.logExceptionAndDispatch(message, codeError);
+			const postId = grokResponsePost.get('id');
+			const streamId = grokResponsePost.get('streamId');
+			await this.logExceptionAndDispatch(message, postId, streamId);
 			throw ex;
 		}
 
@@ -181,10 +185,7 @@ class GrokClient {
 
 		await this.postRequest.postProcessPersist();
 
-		const updatedGrokPost = await this.data.posts.getById(grokResponsePost.id, { ignoreCache: true });
-		const sanitizedGrokPost = updatedGrokPost.getSanitizedObject({ request: this.postRequest });
-		// TODO fix hack version increment
-		sanitizedGrokPost.version = sanitizedGrokPost.version + 1;
+		const sanitizedGrokPost = grokResponsePost.getSanitizedObject({ request: this.postRequest });
 		await this.broadcastToTeam({
 			post: sanitizedGrokPost
 		});
@@ -249,6 +250,8 @@ class GrokClient {
 				overrideCreatorId: grokUserId
 			});
 
+		await this.postRequest.postProcessPersist();
+
 		await this.broadcastToUser({
 			posts: [
 				grokResponsePost.getSanitizedObject({ request: this.postRequest })
@@ -263,7 +266,9 @@ class GrokClient {
 			apiResponse = await this.submitConversationToGrok(grokResponsePost, initialPrompt, grokUserId);
 		} catch (ex) {
 			const message = ex?.reason?.message || ex.message;
-			await this.logExceptionAndDispatch(message, this.codeError);
+			const postId = grokResponsePost.get('id');
+			const streamId = grokResponsePost.get('streamId');
+			await this.logExceptionAndDispatch(message, postId, streamId);
 			throw ex;
 		}
 
@@ -293,14 +298,10 @@ class GrokClient {
 
 		await this.postRequest.postProcessPersist();
 
-		const updatedGrokPost = await this.data.posts.getById(grokResponsePost.id, { ignoreCache: true });
-
 		// client does NOT need this and it could be enormous; save those bytes
 		delete updatedPost.$set.grokConversation;
 
-		const sanitizedGrokPost = updatedGrokPost.getSanitizedObject({ request: this.postRequest });
-		// TODO fix hack version increment
-		sanitizedGrokPost.version = sanitizedGrokPost.version + 1;
+		const sanitizedGrokPost = grokResponsePost.getSanitizedObject({ request: this.postRequest });
 		await this.broadcastToTeam({
 			posts: [
 				sanitizedGrokPost,
@@ -528,7 +529,7 @@ class GrokClient {
 		} catch (err) {
 			await this.trackErrorAndThrow('apiException', {
 				request,
-				message: `Error parsing Grok response: ${err.message}`
+				message: `Error getting Grok response: ${err.message}`
 			});
 			await this.broadcastToUser({
 				grokStream: {
@@ -562,7 +563,7 @@ class GrokClient {
 		throw this.errorHandler.error(errorKey, { ...data, ...trackData });
 	}
 
-	async logExceptionAndDispatch (message) {
+	async logExceptionAndDispatch (message, postId, streamId) {
 		const topmostPostId = this.topmostPost.get('id');
 		const codeErrorId = this.codeError.get('id');
 
@@ -579,6 +580,8 @@ class GrokClient {
 				extra: {
 					codeErrorId: codeErrorId,
 					topmostPostId: topmostPostId,
+					postId: postId,
+					streamId: streamId,
 				},
 				errorMessage: message
 			}
