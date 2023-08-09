@@ -7,42 +7,20 @@
  */
 exports.config = {
   host: 'staging-collector.newrelic.com',
-  /**
-   * Array of application names.
-   */
-  app_name: ['api'],
-  /**
-   * Your New Relic license key.
-   */
+
+  app_name: ['api-apm-test-calvin'],
+
   license_key: `${process.env.CSSVC_NEWRELIC_LICENSE_KEY}`,
-  /**
-   * This setting controls distributed tracing.
-   * Distributed tracing lets you see the path that a request takes through your
-   * distributed system. Enabling distributed tracing changes the behavior of some
-   * New Relic features, so carefully consult the transition guide before you enable
-   * this feature: https://docs.newrelic.com/docs/transition-guide-distributed-tracing
-   * Default is false.
-   */
-  distributed_tracing: {
-    /**
-     * Enables/disables distributed tracing.
-     *
-     * @env NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
-     */
+
+  logging: {
+    enabled: false,
+  },
+
+  code_level_metrics: {
     enabled: true
   },
-  logging: {
-    /**
-     * Level at which to log. 'trace' is most useful to New Relic when diagnosing
-     * issues with the agent, 'info' and higher will impose the least overhead on
-     * production applications.
-     */
-    level: 'info',
-    filepath: `${process.env.CS_API_LOGS}/newrelic_agent.log`
-  },
-  error_collector: {
-    ignore_status_codes: "403"
-  },
+
+  ignore_status_codes: [403,404],
   /**
    * When true, all request headers except for those listed in attributes.exclude
    * will be captured for all traces, unless otherwise specified in a destination's
