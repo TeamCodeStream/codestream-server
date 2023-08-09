@@ -4,7 +4,6 @@
 
 const ObjectId = require('mongodb').ObjectId;
 const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
-const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
 const Indexes = require('./indexes');
 
 class GetCodeErrorsRequest extends GetManyRequest {

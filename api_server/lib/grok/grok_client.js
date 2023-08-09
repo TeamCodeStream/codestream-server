@@ -216,7 +216,9 @@ class GrokClient {
 
 		const code = this.request.body.codeBlock;
 
-		let content = `Analyze this stack trace:\n\`\`\`\n${stackTrace}\n\`\`\`\n`;
+		const errorText = `${this.codeError.get('title')} ${this.codeError.get('text')}`;
+
+		let content = `Analyze this stack trace:\n\`\`\`\n${errorText}\n${stackTrace}\n\`\`\`\n`;
 
 		if (code) {
 			content += `\nAnd fix the following code:\n\`\`\`\n"${code}"\n\`\`\``;
