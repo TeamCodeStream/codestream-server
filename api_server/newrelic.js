@@ -13,7 +13,7 @@ exports.config = {
 	license_key: `${process.env.CSSVC_NEWRELIC_LICENSE_KEY}`,
 
 	logging: {
-		enabled: false,
+		filepath: `${process.env.CS_API_LOGS}/newrelic_agent.log`
 	},
 
 	code_level_metrics: {
