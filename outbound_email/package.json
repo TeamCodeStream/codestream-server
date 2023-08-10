@@ -2,6 +2,7 @@
 	"name": "outbound-email",
 	"version": "14.0.18",
 	"dependencies": {
+		"@newrelic/pino-enricher": "1.1.1",
 		"@sendgrid/mail": "7.7.0",
 		"amqplib": "0.8.0",
 		"async": "2.6.4",
@@ -19,6 +20,7 @@
 		"newrelic": "10.4.1",
 		"node-fetch": "2.6.7",
 		"nodemailer": "6.7.3",
+		"pino": "8.15.0",
 		"pubnub": "7.3.0",
 		"socketcluster-client": "16.0.4",
 		"strftime": "0.10.1",
