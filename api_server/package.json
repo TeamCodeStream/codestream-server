@@ -57,6 +57,7 @@
 		"strftime": "0.10.1",
 		"stripe": "8.217.0",
 		"toposort": "2.0.2",
+		"undici": "5.23.0",
 		"uuid": "8.3.2",
 		"xregexp": "5.1.1"
 	},
