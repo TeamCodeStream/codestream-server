@@ -521,13 +521,6 @@ class FileHandler {
 			'Content-Length': Buffer.byteLength(payload)
 		};
 
-		// adds distribute trace headers to the request, so we can monitor a trace
-		// from inbound email to api 
-		const transaction = NewRelic.getTransaction();
-		if (transaction) {
-			transaction.insertDistributedTraceHeaders(headers);
-		}
-
 		const requestOptions = {
 			hostname: urlObject.hostname,
 			port: urlObject.port,
@@ -582,7 +575,7 @@ class FileHandler {
 				}
 			);
 		}
-		
+
 		NewRelic.noticeError(error);
 		this.warn(`Processing of ${this.baseName} failed: ${error}`);
 	}

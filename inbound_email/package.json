@@ -2,6 +2,7 @@
 	"name": "inbound-email",
 	"version": "14.0.19",
 	"dependencies": {
+		"@newrelic/pino-enricher": "1.1.1",
 		"async": "2.6.4",
 		"commander": "8.3.0",
 		"hjson": "3.2.2",
@@ -9,6 +10,7 @@
 		"mailparser": "3.4.0",
 		"mongodb": "4.5.0",
 		"newrelic": "10.4.1",
+		"pino": "8.15.0",
 		"pubnub": "7.3.0",
 		"randomstring": "1.2.2",
 		"strftime": "0.10.1",
