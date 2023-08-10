@@ -20,7 +20,9 @@ exports.config = {
 		enabled: true
 	},
 
-	ignore_status_codes: [403,404],
+	error_collector: {
+		ignore_status_codes: [403,404]
+	},
 	/**
 	 * When true, all request headers except for those listed in attributes.exclude
 	 * will be captured for all traces, unless otherwise specified in a destination's
