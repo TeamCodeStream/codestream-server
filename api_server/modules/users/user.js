@@ -8,6 +8,8 @@ const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const UserAttributes = require('./user_attributes');
 const Path = require('path');
+const IDPSync = require('./idp_sync');
+const IDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
 
 class User extends CodeStreamModel {
 
@@ -482,6 +484,40 @@ class User extends CodeStreamModel {
 		(
 			providerInfo[provider]
 		);
+	}
+
+	async handleIDPSync (request, force = false) {
+		if (!request.request.headers['x-cs-enable-uid']) { return; }
+		if (request.request.headers['x-cs-no-idp-sync']) { return; }
+		if (!this.get('nrUserId')) { return; }
+		if (request.errorHandler) {
+			request.errorHandler.add(IDPErrors);
+		}
+
+		// we do an IDP sync every 24 hours
+		const now = Date.now();
+		if (!force) {
+			const oneDay = 24 * 60 * 60 * 1000;
+			const lastIDPSync = this.get('lastIDPSync');
+			if (lastIDPSync && lastIDPSync > Date.now() - oneDay) { return; }
+			request.log(`Doing IDP sync, last was ${lastIDPSync}`);
+		} else {
+			request.log('Doing forced IDP sync');
+		}
+
+		this.idpSync = new IDPSync({ request });
+		if (!(await this.idpSync.syncUserAndOrg())) {
+			// this means the current user was somehow found to be invalid, abort the request
+			await request.persist();
+			throw request.errorHandler.error('idpSyncDenied');
+		}
+
+		this.didIDPSync = true;
+		return request.data.users.updateDirect(
+			{ id: request.data.users.id },
+			{ $set: { lastIDPSync: now } }
+		);
+
 	}
 }
 

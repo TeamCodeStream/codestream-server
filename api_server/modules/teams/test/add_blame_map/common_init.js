@@ -61,7 +61,7 @@ class CommonInit {
 			userId: this.users[2].user.id
 		};
 		this.updatedAt = Date.now();
-		const expectedVersion = this.oneUserPerOrg ? 10 : 8;
+		const expectedVersion = 10;
 		this.expectedResponse = {
 			team: {
 				id: this.team.id,

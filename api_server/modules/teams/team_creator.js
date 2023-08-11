@@ -69,15 +69,10 @@ class TeamCreator extends ModelCreator {
 
 	// called before the team is actually saved
 	async preSave () {
-		this.oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.request.headers['x-cs-one-user-per-org']
-		);
 		const teamIds = this.user.get('teamIds') || [];
 
 		// under one-user-per-org, create a duplicate of the creator if they are already on a team
-		// we can remove the oneUserPerOrg part of this check when we have fully moved to ONE_USER_PER_ORG
-		if (this.oneUserPerOrg && teamIds.length > 0) { 
+		if (teamIds.length > 0) { 
 			this.request.log('NOTE: duplicating user under one-user-per-org');
 			await this.duplicateUser();
 		}
@@ -97,7 +92,7 @@ class TeamCreator extends ModelCreator {
 		});
 
 		// set some analytics, based on whether this is the user's first team
-		const originalUser = this.originalUser || this.user; // ONE_USER_PER_ORG
+		const originalUser = this.originalUser || this.user;
 		const firstTeamForUser = (originalUser.get('teamIds') || []).length === 0;
 		this.attributes.primaryReferral = firstTeamForUser ? 'external' : 'internal';
 
@@ -183,7 +178,6 @@ class TeamCreator extends ModelCreator {
 		if (this.originalUser) {
 			// under one-user-per-org, if this wasn't the user's first team/company, 
 			// the duplicated user needs to be confirmed, and added to the everyone team
-			// this conditional check can be removed once we have fully moved to ONE_USER_PER_ORG
 			await this.confirmUser();
 			await this.addUserToTeam();
 		}
@@ -191,7 +185,6 @@ class TeamCreator extends ModelCreator {
 
 	// update a user to indicate they have been added to a new team
 	async updateUser () {
-		// remove this method when we have fully moved to ONE_USER_PER_ORG, as user is always duplicated
 		if (this.originalUser) { return; } 
 
 		// add the team's ID to the user's teamIds array, and the company ID to the companyIds array
@@ -199,9 +192,6 @@ class TeamCreator extends ModelCreator {
 			$addToSet: {
 				companyIds: this.attributes.companyId,
 				teamIds: this.model.id
-			},
-			$unset: {
-				companyName: true
 			},
 			$set: {
 				modifiedAt: Date.now()
@@ -216,7 +206,6 @@ class TeamCreator extends ModelCreator {
 	}
 
 	// update the joinMethod attribute for the user, if this is their first team
-	// i _think_ this method can be deprecated when we have fully moved to ONE_USER_PER_ORG
 	updateUserJoinMethod (user, op) {
 		// join method only applies if this is the user's first team
 		const teamIds = user.get('teamIds') || [];

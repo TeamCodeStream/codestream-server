@@ -6,6 +6,7 @@
 
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Errors = require('./errors');
+const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
 class TokenAuthenticator {
 
@@ -45,6 +46,20 @@ class TokenAuthenticator {
 
 	// get the authentication token from any number of places
 	async getToken () {
+		// no token required if we are authorized to operate as if behind service gateway,
+		// and service gateway user ID is detected
+		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
+			{ tag: 'serviceGatewayAuth' }, 
+			{ overrideHintRequired: true }
+		);
+		if (
+			serviceGatewayAuth &&
+			serviceGatewayAuth.enabled &&
+			this.request.headers['service-gateway-user-id']
+		) {
+			return;
+		}
+
 		if (this.pathIsNoAuth(this.request)) {
 			// e.g. '/no-auth/path' ... no authentication required
 			return true;
@@ -61,12 +76,10 @@ class TokenAuthenticator {
 		else {
 			token =	this.tokenFromHeader(this.request);
 		}
+		this.identityIsOptional = !!this.pathIsOptionalAuth(this.request);
 
-
-		if (!token) {
-			if (!this.pathIsOptionalAuth(this.request)) {
-				throw this.errorHandler.error('missingAuthorization');
-			}
+		if (!token && !this.identityIsOptional) {
+			throw this.errorHandler.error('missingAuthorization');
 		}
 		this.token = token;
 	}
@@ -85,39 +98,60 @@ class TokenAuthenticator {
 
 	// get the user associated with this token payload
 	async getUser () {
-		if (!this.payload) { return; }
-		const userId = this.payload.uid || this.payload.userId;
-		if (!userId) {
-			throw this.errorHandler.error('noUserId');
+		let func, query, hint;
+
+		// if we have a service gateway user ID header, get the user based on that
+		if (this.request.headers['service-gateway-user-id']) {
+			func = 'getOneByQuery';
+			query = { nrUserId: parseInt(this.request.headers['service-gateway-user-id'], 10) };
+			hint = UserIndexes.byNRUserId;
+			this.userByNR = true;
+		} else {
+			if (!this.payload) { return; }
+			const userId = this.payload.uid || this.payload.userId;
+			if (!userId) {
+				throw this.errorHandler.error('noUserId');
+			}
+			func = 'getById';
+			query = userId;
 		}
+
 		let user;
 		try {
-			user = await this.api.data.users.getById(
-				userId,
+			user = await this.api.data.users[func](
+				query,
 				{
-					requestId: this.request.id
+					requestId: this.request.id,
+					hint
 				}
 			);
 		}
 		catch (error) {
 			throw this.errorHandler.error('internal', { reason: error });
 		}
+
 		if (!user || user.deactivated) {
-			throw this.errorHandler.error('userNotFound');
+			if (!this.identityIsOptional) {
+				throw this.errorHandler.error('userNotFound');
+			} else {
+				this.api.log(`User claim found but user was ${user ? 'not found' : 'deactivated'}, but identity is optional, request will proceed`);
+			}
 		}
-		if (this.userClass) {
-			// make a model out of the user attributes
-			this.request.user = new this.userClass(user);
-		}
-		else {
-			this.request.user = user;
+		if (user) {
+			if (this.userClass) {
+				// make a model out of the user attributes
+				this.request.user = new this.userClass(user);
+			}
+			else {
+				this.request.user = user;
+			}
 		}
 		this.request.authPayload = this.payload;
 	}
 
 	// now that we have the user, validate the token against issuance data for the user
 	async validateToken () {
-		if (!this.request.user) { return; }
+		if (!this.request.user || this.userByNR) { return; }
 		if (
 			this.userClass &&
 			typeof this.request.user.validateTokenPayload === 'function'

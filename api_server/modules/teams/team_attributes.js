@@ -114,5 +114,10 @@ module.exports = {
 	isEveryoneTeam: {
 		type: 'boolean',
 		description: 'For company-centric paradigm, indicates that this is the one and only team for the company'
+	},
+	grokUserId: {
+		type: 'id',
+		description: 'The ID of the Grok user that is applicable only to this team',
+		serverOnly: true
 	}
 };

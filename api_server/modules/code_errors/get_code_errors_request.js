@@ -2,6 +2,7 @@
 
 'use strict';
 
+const ObjectId = require('mongodb').ObjectId;
 const GetManyRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/get_many_request');
 const Indexes = require('./indexes');
 
@@ -29,7 +30,7 @@ class GetCodeErrorsRequest extends GetManyRequest {
 
 	// build the database query to use to fetch the code errors
 	buildQuery () {
-		const query = { teamId: this.teamId };
+		const query = { teamId: this.teamId, deactivated: false };
 		const indexAttribute = 'lastActivityAt';
 		let { before, after, inclusive } = this.request.query;
 		inclusive = inclusive !== undefined;
@@ -72,14 +73,24 @@ class GetCodeErrorsRequest extends GetManyRequest {
 
 	// get the posts pointing to the fetched code errors, as needed
 	async getPosts () {
-		const postIds = this.models.map(codeError => codeError.get('postId'));
+		const postIds = this.models.map(codeError => ObjectId(codeError.get('postId')));
 		if (postIds.length === 0) {
 			return;
 		}
-		this.posts = await this.data.posts.getByIds(postIds);
+		this.posts = await this.data.posts.getByQuery(
+			{
+				_id: { $in: postIds },
+				deactivated: false
+			},
+			{
+				hint: {
+					_id: 1,
+				}
+			}
+		);
 		this.responseData.posts = this.posts.map(post => post.getSanitizedObject({ request: this }));
 	}
-	
+
 	// describe this route for help
 	static describe (module) {
 		const description = GetManyRequest.describe(module);

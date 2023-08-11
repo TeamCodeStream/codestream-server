@@ -123,6 +123,8 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 		let listeningUser;
 		if (this.listeningUserIndex !== undefined) {
 			listeningUser = this.users[this.listeningUserIndex];
+		} else if (this.listeningUser) {
+			listeningUser = this.listeningUser;
 		} else {
 			listeningUser = this.currentUser;
 		}
@@ -221,6 +223,8 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			let listeningUser;
 			if (this.listeningUserIndex !== undefined) {
 				listeningUser = this.users[this.listeningUserIndex];
+			} else if (this.listeningUser) {
+				listeningUser = this.listeningUser;
 			} else {
 				listeningUser = this.currentUser;
 			}

@@ -16,7 +16,6 @@ const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mod
 const Errors = require('./errors');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const UserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_inviter');
-const OldUserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/old_user_inviter');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
 
@@ -37,7 +36,8 @@ class PostCreator extends ModelCreator {
 	}
 
 	// convenience wrapper
-	async createPost (attributes) {
+	async createPost (attributes, metadata = {}) {
+		this.metadata = metadata;
 		return await this.createModel(attributes);
 	}
 
@@ -48,9 +48,9 @@ class PostCreator extends ModelCreator {
 			required: {
 			},
 			optional: {
-				string: ['text', 'parentPostId', '_subscriptionCheat'],
-				object: ['codemark', 'review', 'codeError', 'inviteInfo'],
-				boolean: ['dontSendEmail', '_forNRMigration', '_fromNREngine'],
+				string: ['text', 'parentPostId', '_subscriptionCheat', 'promptRole', 'creatorId', 'codeBlock'],
+				object: ['codemark', 'review', 'codeError', 'inviteInfo', 'grokConversation'],
+				boolean: ['dontSendEmail', '_forNRMigration', '_fromNREngine', 'analyze', 'forGrok'],
 				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
 				'array(string)': ['mentionedUserIds', 'addedUsers'],
 				'array(object)': ['files', 'sharedTo']
@@ -84,7 +84,7 @@ class PostCreator extends ModelCreator {
 
 		this.attributes.origin = this.origin || this.request.request.headers['x-cs-plugin-ide'] || '';
 		this.attributes.originDetail = this.originDetail || this.request.request.headers['x-cs-plugin-ide-detail'] || '';
-		this.attributes.creatorId = this.user.id;
+		this.attributes.creatorId = (this.metadata && this.metadata.overrideCreatorId) || this.user.id;	// allow overriding of default user for creation of posts
 		this.attributes.createdAt = this.setCreatedAt || Date.now();
 		if (this.request.isForTesting && this.request.isForTesting()) { // special for-testing header for easy wiping of test data
 			this.attributes._forTesting = true;
@@ -290,34 +290,17 @@ class PostCreator extends ModelCreator {
 			throw this.errorHandler.error('validation', { reason: 'cannot add users to a stream that is not a team stream' });
 		}
 
-		// remove this check when we have fully moved to ONE_USER_PER_ORG implementation
-		if (
-			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.request.headers['x-cs-one-user-per-org']
-		) {
-			this.request.log('NOTE: Inviting user under one-user-per-org paradigm');
-			this.userInviter = new UserInviter({
-				request: this.request,
-				team: this.team,
-				inviteCodeExpiresIn: this._inviteCodeExpiresIn,
-				delayEmail: this._delayEmail,
-				inviteInfo: this.inviteInfo,
-				user: this.user,
-				dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
-				dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
-			});
-		} else {
-			this.userInviter = new OldUserInviter({
-				request: this.request,
-				team: this.team,
-				inviteCodeExpiresIn: this._inviteCodeExpiresIn,
-				delayEmail: this._delayEmail,
-				inviteInfo: this.inviteInfo,
-				user: this.user,
-				dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
-				dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
-			});
-		}
+		this.request.log('NOTE: Inviting user under one-user-per-org paradigm');
+		this.userInviter = new UserInviter({
+			request: this.request,
+			team: this.team,
+			inviteCodeExpiresIn: this._inviteCodeExpiresIn,
+			delayEmail: this._delayEmail,
+			inviteInfo: this.inviteInfo,
+			user: this.user,
+			dontSendInviteEmail: true, // we don't send invite emails when users are invited this way, they get extra copy in their notification email instead
+			dontPublishToInviter: true // we don't need to publish messages to the inviter, they will be published as the creator of the post instead
+		});
 
 		const userData = this.addedUsers.map(email => {
 			return { 

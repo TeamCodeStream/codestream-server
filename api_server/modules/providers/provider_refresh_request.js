@@ -4,6 +4,7 @@
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const NRAccessTokenRefresher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/nr_access_token_refresher');
 
 class ProviderRefreshRequest extends RestfulRequest {
 
@@ -28,7 +29,13 @@ class ProviderRefreshRequest extends RestfulRequest {
 	async process () {
 		// get the provider service corresponding to the passed provider
 		this.provider = this.request.params.provider.toLowerCase();
-		this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		if (this.provider === 'newrelic') {
+			// HACK: we leverage existing infrastructure around the "newrelic" provider,
+			// but if we are refreshing, it is really a New Relic IDP issued token
+			this.serviceAuth = this.api.services['newrelicidpAuth'];
+		} else {
+			this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		}
 		if (!this.serviceAuth) {
 			throw this.errorHandler.error('unknownProvider', { info: this.provider });
 		}
@@ -95,7 +102,8 @@ class ProviderRefreshRequest extends RestfulRequest {
 	async fetchAccessToken () {
 		if (!this.serviceAuth.supportsRefresh()) {
 			throw this.errorHandler.error('readAuth', { reason: 'token refresh not supported by provider' });
-		}
+		} 
+
 		const { authOrigin } = this.api.config.apiServer;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 
@@ -117,7 +125,15 @@ class ProviderRefreshRequest extends RestfulRequest {
 			host: this.host
 		};
 		try {
-			this.tokenData = await this.serviceAuth.refreshToken(options);
+			if (this.provider === 'newrelic') {
+				this.tokenData = await NRAccessTokenRefresher({
+					tokenInfo: this.existingProviderInfo,
+					request: this,
+					force: true
+				});
+			} else {
+				this.tokenData = await this.serviceAuth.refreshToken(options);
+			}
 		}
 		catch (error) {
 			throw this.errorHandler.error('readAuth', { info: error });
@@ -127,7 +143,7 @@ class ProviderRefreshRequest extends RestfulRequest {
 
 	// save the provided token for the user
 	async saveToken () {
-		if (!this.tokenData || !this.tokenData.accessToken) {
+		if (!this.tokenData || (!this.tokenData.accessToken && !this.tokenData.userSet)) {
 			throw this.errorHandler.error('readAuth', { reason: 'token not returned from provider' });
 		}
 
@@ -136,24 +152,33 @@ class ProviderRefreshRequest extends RestfulRequest {
 
 		const modifiedAt = Date.now();
 		let op;
-		if (this.sharing) {
-			if (!this.subId)
-				throw this.errorHandler.error('parameterRequired', { info: 'subId' });
-
-			op = { $set: {} };
-			const existingData = (this.existingProviderInfo.multiple || {})[this.subId];
-			const extra = existingData && existingData.extra;
-			op.$set[`${this.providerInfoKey}.multiple.${this.subId}`] = { ...this.tokenData, extra: extra };
-			op.$set.modifiedAt = modifiedAt;
-		}
-		else {
-			const newProviderInfo = Object.assign({}, this.existingProviderInfo, this.tokenData);
+		if (this.tokenData.userSet) {
 			op = {
 				$set: {
-					[this.providerInfoKey]: newProviderInfo,
+					...this.tokenData.userSet,
 					modifiedAt
 				}
 			};
+		} else {
+			if (this.sharing) {
+				if (!this.subId)
+					throw this.errorHandler.error('parameterRequired', { info: 'subId' });
+
+				op = { $set: {} };
+				const existingData = (this.existingProviderInfo.multiple || {})[this.subId];
+				const extra = existingData && existingData.extra;
+				op.$set[`${this.providerInfoKey}.multiple.${this.subId}`] = { ...this.tokenData, extra: extra };
+				op.$set.modifiedAt = modifiedAt;
+			}
+			else {
+				const newProviderInfo = Object.assign({}, this.existingProviderInfo, this.tokenData);
+				op = {
+					$set: {
+						[this.providerInfoKey]: newProviderInfo,
+						modifiedAt
+					}
+				};
+			}
 		}
 
 		this.transforms.userUpdate = await new ModelSaver({

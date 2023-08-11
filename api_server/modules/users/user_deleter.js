@@ -31,12 +31,19 @@ class UserDeleter extends ModelDeleter {
 		// change the user's email to indicate this is a deactivated user
 		super.setOpForDelete();
 		const email = this.userToDelete.get('email');
-		const emailParts = email.split('@');
-		const now = Date.now();
-		const deactivatedEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;		
-		this.deleteOp.$set.email = deactivatedEmail;
-		this.deleteOp.$set.searchableEmail = deactivatedEmail.toLowerCase();
+		if (email && email.includes('@')) {
+			const now = Date.now();
+			const emailParts = email.split('@');
+			const deactivatedEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
+			this.deleteOp.$set.email = deactivatedEmail;
+			this.deleteOp.$set.searchableEmail = deactivatedEmail.toLowerCase();
+		}
 		this.deleteOp.$set.modifiedAt = Date.now();
+		if (this.userToDelete.get('encryptedPasswordTemp')) {
+			this.deleteOp.$unset = {
+				encryptedPasswordTemp: true
+			};
+		}
 	}
 }
 

@@ -36,6 +36,16 @@ class GitlabAuth extends OAuthModule {
 			options.providerInfo
 		);
 	}
+
+	// for SSO providers in the Unified Identity world, we redirect to a New Relic
+	// url that calls through to Azure that calls through to the social provider
+	getRedirectData (options) {
+		if (!options.unifiedIdentityEnabled) {
+			return super.getRedirectData(options);
+		}
+		options.domain = 'gitlab.com';
+		return this.api.services.idp.getRedirectData(options);
+	}
 }
 
 module.exports = GitlabAuth;

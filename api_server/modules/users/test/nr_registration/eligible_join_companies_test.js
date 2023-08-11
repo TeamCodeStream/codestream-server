@@ -8,8 +8,7 @@ const RandomString = require('randomstring');
 class EligibleJoinCompaniesTest extends NRRegistrationTest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : '';
-		return `user should receive eligible companies to join via domain-based and invite, when logging in${oneUserPerOrg}`;
+		return `user should receive eligible companies to join via domain-based and invite, when logging in, under one-user-per-org paradigm`;
 	}
 
 	before (callback) {
@@ -45,10 +44,6 @@ class EligibleJoinCompaniesTest extends NRRegistrationTest {
 					domainJoining: [
 						this.companyFactory.randomDomain(),
 						domain
-					],
-					codeHostJoining: [
-						`github.com/${RandomString.generate(10)}`,
-						`gitlab.com/${RandomString.generate(10)}`
 					]
 				},
 				token: this.users[1].accessToken
@@ -64,7 +59,6 @@ class EligibleJoinCompaniesTest extends NRRegistrationTest {
 						teamId: response.company.everyoneTeamId,
 						byDomain: domain.toLowerCase(),
 						domainJoining: response.company.domainJoining,
-						codeHostJoining: response.company.codeHostJoining,
 						memberCount: 1
 					});
 					callback();
@@ -89,7 +83,6 @@ class EligibleJoinCompaniesTest extends NRRegistrationTest {
 				teamId: company.everyoneTeamId,
 				byDomain: domain.toLowerCase(),
 				domainJoining: company.domainJoining,
-				codeHostJoining: company.codeHostJoining,
 				memberCount: 1
 			});
 			callback();
@@ -98,10 +91,6 @@ class EligibleJoinCompaniesTest extends NRRegistrationTest {
 
 	// create companies that the confirming user has been invited to
 	createCompaniesAndInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove this check when we are fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
-
 		BoundAsync.timesSeries(
 			this,
 			2,
@@ -178,9 +167,6 @@ class EligibleJoinCompaniesTest extends NRRegistrationTest {
 
 	// accept the invite for one of the companies the user has been invited to
 	acceptInvite (callback) {
-		if (!this.oneUserPerOrg) { // remove when have fully moved to ONE_USER_PER_ORG
-			return callback();
-		}
 		const companyInfo = this.expectedEligibleJoinCompanies[this.expectedEligibleJoinCompanies.length - 1];
 		companyInfo.memberCount++;
 		this.doApiRequest(

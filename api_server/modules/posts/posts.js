@@ -80,7 +80,7 @@ class Posts extends Restful {
 	async initialize () {
 		// create a queue for handling messages concerning triggering the interval
 		// timer for email notifications
-		if (!this.api.services.queueService) { return; }
+		if (this.api.serverOptions.config.apiServer.dontWantAWS || !this.api.services.queueService) { return; }
 		if (!this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName) { return; }
 		this.api.log(`Creating queue ${this.api.config.queuingEngine[this.api.config.queuingEngine.selected].outboundEmailQueueName}...`);
 		await TryIndefinitely(async () => {

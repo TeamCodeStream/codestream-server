@@ -22,9 +22,7 @@ class GetCompaniesTest extends CodeStreamAPITest {
 	}
 
 	createTeamWithMe (callback) {
-		if (this.oneUserPerOrg) {
-			return callback(); // under ONE_USER_PER_ORG, this test becomes more trivial
-		}
+		return callback(); // under one-user-per-org, this test becomes more trivial
 		new TestTeamCreator({
 			test: this,
 			teamOptions: {
@@ -63,7 +61,7 @@ class GetCompaniesTest extends CodeStreamAPITest {
 	// validate we got only companies i am in, meaning the company from the team i created,
 	// and the other companies that were created with me as part of the team
 	validateResponse (data) {
-		const myCompanies = this.oneUserPerOrg ? [this.company] : [this.company, this.companyWithMe];
+		const myCompanies = [this.company];
 		this.validateMatchingObjects(myCompanies, data.companies, 'companies');
 		this.validateSanitizedObjects(data.companies, CompanyTestConstants.UNSANITIZED_ATTRIBUTES);
 	}

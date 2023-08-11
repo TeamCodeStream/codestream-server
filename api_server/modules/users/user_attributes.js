@@ -64,6 +64,11 @@ module.exports = {
 		serverOnly: true,
 		copyOnInvite: true
 	},
+	encryptedPasswordTemp: {
+		type: 'string',
+		maxLength: 100,
+		serverOnly: true
+	},
 	confirmationCode: {
 		type: 'string',
 		maxLength: 6,
@@ -275,6 +280,18 @@ module.exports = {
 		maxLength: 100,
 		description: 'Temporary holding place for the company name, until the user actually creates a team'
 	},
+	joinCompanyId: {
+		type: 'string',
+		serverOnly: true,
+		maxLength: 100,
+		description: 'Temporary holding place for the company a user is in the process of joining'
+	},
+	originalEmail: {
+		type: 'string',
+		serverOnly: true,
+		maxLength: 256,
+		description: 'Temporary holding place for the original email a user was invited with when in the process of accepting an invite (their email might actually change)'
+	},
 	externalUserId: {
 		type: 'string',
 		maxLength: 100,
@@ -362,17 +379,28 @@ module.exports = {
 		type: 'number',
 		description: 'User ID of this user on New Relic'
 	},
+	nrUserInfo: {
+		type: 'object',
+		description: 'Info associated with the user as returned by New Relic IdP when provisioning',
+		serverOnly: true,
+		forMe: true
+	},
 	originUserId: {
 		type: 'id',
-		description: 'when a user is copied by way of invite, retains the ID of the first user record the human user created an account with',
+		description: 'When a user is copied by way of invite, retains the ID of the first user record the human user created an account with',
 		copyOnInvite: true,
 		serverOnly: true,
 		forMe: true
 	},
 	copiedFromUserId: {
 		type: 'id',
-		description: 'when a user is copied by way of invite, retains the ID of the user record this user record was copied from',
+		description: 'When a user is copied by way of invite, retains the ID of the user record this user record was copied from',
 		serverOnly: true,
 		forMe: true
+	},
+	lastIDPSync: {
+		type: 'timestamp',
+		description: 'Indicates when the user was last synced to IdP (identity provider)',
+		serverOnly: true
 	}
 };

@@ -20,7 +20,7 @@ module.exports = async options => {
 			delete capabilities[key];
 		}
 		
-		// remove capabilities that aare turned on by a global variable 
+		// remove capabilities that are turned on by a global variable 
 		if (capability.useGlobal) {
 			const global = request && await request.api.data.globals.getOneByQuery(
 				{ tag: key }, 

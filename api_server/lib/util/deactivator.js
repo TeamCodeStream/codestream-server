@@ -335,13 +335,15 @@ class Deleter {
 				if (this.emailsOutputStream) {
 					await this.emailsOutputStream.write(`${user.email}\n`);
 				}
-				const emailParts = user.email.split('@');
-				const now = Date.now();
-				const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
-				await this.mongoClient.mongoCollections.users.updateDirect(
-					{ id: this.mongoClient.mongoCollections.users.objectIdSafe(user.id) },
-					{ $set: { deactivated: true, email: newEmail, searchableEmail: newEmail.toLowerCase() } }
-				);
+				if (user.email) {
+					const emailParts = user.email.split('@');
+					const now = Date.now();
+					const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
+					await this.mongoClient.mongoCollections.users.updateDirect(
+						{ id: this.mongoClient.mongoCollections.users.objectIdSafe(user.id) },
+						{ $set: { deactivated: true, email: newEmail, searchableEmail: newEmail.toLowerCase() } }
+					);
+				}
 			}));
 		}
 		catch (error) {

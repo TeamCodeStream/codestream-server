@@ -34,7 +34,7 @@ class CommonInit {
 		this.updatedAt = Date.now();
 		const expectedData = { ...this.data };
 		delete expectedData.id;
-		const expectedVersion = this.oneUserPerOrg ? 8 : 6;
+		const expectedVersion = 8;
 		this.expectedResponse = {
 			team: {
 				id: this.team.id,

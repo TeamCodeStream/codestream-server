@@ -5,6 +5,7 @@
 const PutRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/put_request');
 const EligibleJoinCompaniesPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/eligible_join_companies_publisher');
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
+const IsCodeStreamOnly = require('./is_codestream_only');
 
 class PutCompanyRequest extends PutRequest {
 
@@ -27,6 +28,15 @@ class PutCompanyRequest extends PutRequest {
 
 		if (!(this.everyoneTeam.get('adminIds') || []).includes(this.request.user.id)) {
 			throw this.errorHandler.error('updateAuth', { reason: 'only admins can update this company' });
+		}
+
+		// under unified identitiy, companies can only be updated if they are "codestream only",
+		// here we not only check if the flag is present, but we double-check with New Relic
+		const codestreamOnly = await IsCodeStreamOnly(this.company, this);
+		if (!codestreamOnly) {
+			await this.persist();
+			await this.publishCompanyNoCSOnly();
+			throw this.errorHandler.error('updateAuth', { reason: 'this company/org is managed by New Relic and can not be updated' });
 		}
 	}
 
@@ -86,6 +96,32 @@ class PutCompanyRequest extends PutRequest {
 		}));
 	}
 
+	// if the company object has changed (because it was found to no longer be "codestream only"),
+	// publish the change to the team channel
+	async publishCompanyNoCSOnly () {
+		if (!this.transforms.updateCompanyNoCSOnly) {
+			return;
+		}
+
+		// publish the change to all users on the "everyone" team
+		const channel = 'team-' + this.everyoneTeam.id;
+		const message = {
+			company: this.transforms.updateCompanyNoCSOnly,
+			requestId: this.request.id
+		};;
+		try {
+			await this.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish updated company message to team ${this.everyoneTeam.id}: ${JSON.stringify(error)}`);
+		}
+	}
+
 	// describe this route for help
 	static describe (module) {
 		const description = PutRequest.describe(module);
@@ -94,8 +130,7 @@ class PutCompanyRequest extends PutRequest {
 			summary: description.input,
 			looksLike: {
 				'name': '<Updated name of the company>',
-				'domainJoining': '<Updated array of domains allowed for domain-based joining',
-				'codeHostJoining': '<Updated array of code hosts allowed for code host-based joining'
+				'domainJoining': '<Updated array of domains allowed for domain-based joining'
 			}
 		};
 		description.publishes = {

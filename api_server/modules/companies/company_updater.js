@@ -25,13 +25,36 @@ class CompanyUpdater extends ModelUpdater {
 	getAllowedAttributes () {
 		return {
 			string: ['name'],
-			'array(string)': ['domainJoining', 'codeHostJoining']
+			'array(string)': ['domainJoining']
 		};
 	}
 
 	// validate the input attributes
 	validateAttributes () {
 		return CompanyValidations.validateAttributes(this.attributes);
+	}
+
+	// before the actual save
+	async preSave () {
+		// if changing name, change on New Relic IDP as well
+		if (
+			this.attributes.name &&
+			this.request.api.services.idp &&
+			this.request.company.get('linkedNROrgId')
+		) {
+			let mockResponse;
+			if (this.request.request.headers['x-cs-no-newrelic']) {
+				mockResponse = true;
+				this.request.log('NOTE: not changing org name on New Relic, sending mock response instead');
+			}
+		
+			await this.request.api.services.idp.changeOrgName(
+				this.request.company.get('linkedNROrgId'),
+				this.attributes.name,
+				{ request: this.request, mockResponse }
+			);
+		}
+		return super.preSave();
 	}
 }
 

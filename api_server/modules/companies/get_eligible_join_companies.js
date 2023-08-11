@@ -6,7 +6,7 @@ const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 
 // look for any companies with domain-based joining that match the domain of the user's email
 const _getEligibleJoinCompaniesByDomain = async (domain, request) => {
-	const companies = await request.data.companies.getByQuery(
+	let companies = await request.data.companies.getByQuery(
 		{
 			domainJoining: domain,
 			deactivated: false
@@ -15,6 +15,7 @@ const _getEligibleJoinCompaniesByDomain = async (domain, request) => {
 			hint: Indexes.byDomainJoining 
 		}
 	);
+
 	return companies.map(company => { 
 		return { company, domain };
 	});
@@ -22,10 +23,11 @@ const _getEligibleJoinCompaniesByDomain = async (domain, request) => {
 
 // look for any companies the specific user has been invited to (either registered or unregistered)
 const _getEligibleJoinCompaniesByUserInvite = async (user, request) => {
-	// in theory, for ONE_USER_PER_ORG, there should only be (at most) one company for each user record
+	// in theory, for one-user-per-org, there should only be (at most) one company for each user record
 	const companyIds = user.companyIds || [];
 	if (companyIds.length > 0) {
-		return await request.data.companies.getByIds(companyIds);
+		const companies = await request.data.companies.getByIds(companyIds);
+		return companies.filter(c => !c.get('deactivated'));
 	} else {
 		return [];
 	}
@@ -51,7 +53,10 @@ const _getEligibleJoinCompaniesByInvite = async (email, request) => {
 	// each user record should, in theory, have only one company
 	const companies = [];
 	await Promise.all(users.map(async user => {
-		if (!user.externalUserId) {  // suppress "faux" users, i.e., users created by virtue of a slack reply
+		// suppress "faux" users, i.e., users created by virtue of a slack reply, and registered users with
+		// no access token, which indicates a revoked token by virtue of logging out
+		const revokedToken = user.isRegistered && !((user.accessTokens || {}).web || {}).token;
+		if (!revokedToken && !user.externalUserId) {
 			const companiesByUser = await _getEligibleJoinCompaniesByUserInvite(user, request);
 			companies.push.apply(companies, companiesByUser.map(company => { 
 				return { company, user };
@@ -62,13 +67,8 @@ const _getEligibleJoinCompaniesByInvite = async (email, request) => {
 	return companies;
 };
 
-module.exports = async function GetEligibleJoinCompanies (domain, request, options = {}) {
-	let email;
-	if (domain.match(/@/)) {
-		// really an email ... remove this check and just accept email when we have fully moved to ONE_USER_PER_ORG
-		email = domain;
-		domain = EmailUtilities.parseEmail(email).domain.toLowerCase();
-	}
+module.exports = async function GetEligibleJoinCompanies (email, request, options = {}) {
+	const domain = EmailUtilities.parseEmail(email).domain.toLowerCase();
 
 	// companies are eligible to be joined either by domain or by invite (or both)
 	const companiesByDomain = !options.ignoreDomain ?
@@ -99,7 +99,6 @@ module.exports = async function GetEligibleJoinCompanies (domain, request, optio
 			teamId: company.get('everyoneTeamId'),
 			name: company.get('name'),
 			domainJoining: user ? undefined : company.get('domainJoining') || [],
-			codeHostJoining: user ? undefined : company.get('codeHostJoining') || [],
 			memberCount
 		};
 		if (user) {

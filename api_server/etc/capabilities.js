@@ -110,8 +110,7 @@ module.exports = {
 	},
 	'multiRegion': {
 		description: 'Supports multi-region switching',
-		version: '12.0.7',
-		useGlobal: true
+		version: '12.0.7'
 	},
 	'showPreReleaseTos': {
 		description: 'Show pre-release TOS to CLM beta testers',
@@ -131,6 +130,21 @@ module.exports = {
 	'showAnomalies': {
 		description: 'Show anomalous methods management tree under Observability',
 		version: '14.17.1',
+		restricted: true
+	},
+	'serviceGatewayAuth': {
+		description: 'Indicates the API server is running behind Service Gateway and using login service for auth, governed by a global variable',
+		version: '14.0.11',
+		useGlobal: true
+	},
+	'showGrok': {
+		description: 'Enable Grok AI Error analysis',
+		version: '14.19.1',
+		restricted: true
+	},
+	'showCodeAnalyzers': {
+		description: 'Enable code analysis',
+		version: '14.24.1',
 		restricted: true
 	}
 };

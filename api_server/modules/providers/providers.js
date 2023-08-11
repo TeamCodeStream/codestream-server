@@ -24,6 +24,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: '/~nrlogin/:st',
+		requestClass: require('./provider_token_request')
+	},
+	{
+		method: 'get',
 		path: '/no-auth/provider-token/:provider',
 		requestClass: require('./provider_token_request')
 	},
@@ -46,6 +51,11 @@ const ROUTES = [
 		method: 'get',
 		path: '/provider-refresh/:provider',
 		requestClass: require('./provider_refresh_request')
+	},
+	{
+		method: 'put',
+		path: '/no-auth/provider-refresh/newrelic',
+		requestClass: require('./newrelic_refresh_request')
 	},
 	{
 		method: 'put',

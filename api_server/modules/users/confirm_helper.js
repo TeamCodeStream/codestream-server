@@ -5,6 +5,7 @@
 const LoginHelper = require('./login_helper');
 const PasswordHasher = require('./password_hasher');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const JoinCompanyHelper = require('./join_company_helper');
 
 class ConfirmHelper {
 
@@ -17,9 +18,12 @@ class ConfirmHelper {
 		this.data = data;
 		await this.hashPassword();			// hash the provided password, if given
 		await this.updateUser();			// update the user's database record
+		await this.joinCompany();			// automatically join a company if requested
 		await this.doLogin();				// proceed with the actual login
-		if (!this.dontConfirmInOtherEnvironments) { // fully remove this when we move to ONE_USER_PER_ORG
-			await this.confirmInOtherEnvironments();	// confirm the user in other "environments" 
+		if (this.user.get('companyName')) {
+			// this indicates the user is in the process of creating a new org,
+			// we want the client to skip the join-company step and force creating one
+			this.responseData.forceCreateCompany = true;
 		}
 		return this.responseData;
 	}
@@ -48,7 +52,8 @@ class ConfirmHelper {
 			loginType: this.loginType,
 			nrAccountId: this.nrAccountId,
 			dontUpdateLastLogin: this.dontUpdateLastLogin,
-			dontSetFirstSession: this.dontSetFirstSession
+			dontSetFirstSession: this.dontSetFirstSession,
+			dontGenerateAccessToken: this.dontGenerateAccessToken
 		});
 		if (this.notRealLogin) {
 			this.responseData = await loginHelper.allowLogin();
@@ -151,57 +156,27 @@ class ConfirmHelper {
 		}).save(op);
 	}
 
-	// users who have been invited in other "environments" (i.e. regions), get confirmed
-	// in those environments as well
-	async confirmInOtherEnvironments () {
-		// remove this check (and the whole method) when we fully move to ONE_USER_PER_ORG
-		const oneUserPerOrg = (
-			this.request.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.request.headers['x-cs-one-user-per-org']
-		);
-		if (oneUserPerOrg) {
-			return;
+	// the confirming user is in the process of joining a company
+	async joinCompany () {
+		if (!this.user.get('joinCompanyId')) { return; }
+		this.joinCompanyHelper = new JoinCompanyHelper({
+			request: this.request,
+			user: this.user,
+			inviteOnly: true,
+			alreadyConfirmed: true,
+			originalEmail: this.user.get('originalEmail'),
+			companyId: this.user.get('joinCompanyId'),
+			confirmHelperClass: ConfirmHelper // this avoids a circular require
+		});
+		await this.joinCompanyHelper.authorize();
+		await this.joinCompanyHelper.process();
+		this.user = this.request.user = this.request.request.user = this.joinCompanyHelper.invitedUser;
+	}
+
+	async postProcess () {
+		if (this.joinCompanyHelper) {
+			return this.joinCompanyHelper.postProcess();
 		}
-
-		const { environmentManager } = this.request.api.services;
-		if (!environmentManager) { return; }
-		if (this.request.request.headers['x-cs-block-xenv']) {
-			this.request.log('Not confirming user cross-environment, blocked by header');
-			return;
-		}
-		const usersConfirmed = await environmentManager.confirmInAllEnvironments(this.user);
-
-		// if the user was confirmed in any other environment, and was not invited in this one
-		// (which means they are not yet on any teams), then deactivate the account created here
-		// and send the first confirmed user response we got back to the client, along with 
-		// information indicating they must switch environments
-		if (usersConfirmed.length > 0 && (this.user.get('teamIds') || []).length === 0) {
-			const hostInfo = usersConfirmed.map(userConfirmed => { 
-				const { response, host } = userConfirmed;
-				return `ID=${response.user.id}@${host.name}:${host.publicApiUrl}`;
-			}).join(',');
-
-			const firstUserConfirmed = usersConfirmed[0];
-			const { response, host } = firstUserConfirmed;
-			this.responseData = response;
-			this.responseData.setEnvironment = {
-				environment: host.shortName,
-				publicApiUrl: host.publicApiUrl
-			};
-
-			// deactivate the confirmed user in this environment
-			this.request.log(`Deactivating confirmed user ${this.user.id}:${this.user.get('email')} because that user was invited to other hosts: ${hostInfo}`);
-			const now = Date.now();
-			const emailParts = this.user.get('email').split('@');
-			const newEmail = `${emailParts[0]}-deactivated${now}@${emailParts[1]}`;
-			await this.request.data.users.update({
-				id: this.user.id,
-				deactivated: true,
-				email: newEmail,
-				searchableEmail: newEmail.toLowerCase()
-			});
-		}
-
 	}
 }
 

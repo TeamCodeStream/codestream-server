@@ -27,7 +27,7 @@ const COMPANY_ADDITIONAL_ROUTES = [
 		requestClass: require('./put_company_test_group_request')
 	},
 	{
-		// deprecate this request when we have fully moved to ONE_USER_PER_ORG
+		// NOTE: this request is deprecated as of one-user-per-org
 		method: 'put',
 		path: '/companies/join/:id',
 		requestClass: require('./join_company_request')
@@ -36,6 +36,19 @@ const COMPANY_ADDITIONAL_ROUTES = [
 		method: 'post',
 		path: '/companies/add-nr-info/:id',
 		requestClass: require('./add_nr_info_request')
+	},
+	{
+		method: 'post',
+		path: '/web/companies',
+		requestClass: require('./web_post_company_request')
+	},
+
+	// this request will be callable through Service Gateway using a CodeStream-issued
+	// access token
+	{
+		method: 'post',
+		path: 'cs-auth/companies',
+		requestClass: require('./post_company_request')
 	}
 ];
 

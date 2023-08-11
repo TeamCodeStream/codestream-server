@@ -88,11 +88,6 @@ module.exports = {
 		maxLength: 100,
 		description: 'Array of domains recognized by this company for which users with those domains in their emails can automatically join'
 	},
-	codeHostJoining: {
-		type: 'arrayOfStrings',
-		maxLength: 100,
-		description: 'Array of strings indicating ability to join this company based on GitHub/GitLab/Bitbucket affiliation, in the form "host/org", eg. "github.com/acme"'
-	},
 	isBeingMigratedToCompanyCentric: {
 		type: 'boolean',
 		description: 'Indicates migration to the "company-centric" paradigm is currently in progress for this company',
@@ -121,5 +116,24 @@ module.exports = {
 		type: 'string',
 		maxLength: 100,
 		description: 'Indicates users in this org should switch to a new serverUrl for future requests'
+	},
+	linkedNROrgId: {
+		type: 'string',
+		maxLength: 40,
+		description: 'New Relic organization ID associated with this company'
+	},
+	nrOrgInfo: {
+		type: 'object',
+		description: 'Info associated with the company as returned by New Relic IdP when provisioning the first user',
+		serverOnly: true
+	},
+	codestreamOnly: {
+		type: 'boolean',
+		description: 'Indicates this is a "CodeStream" only org from the perspective of New Relic IdP, CodeStream admins can administer',
+	},
+	orgOrigination: {
+		type: 'string',
+		maxLength: '2',
+		description: 'When set to CS, indicates the org was not created to pair with an existing NR org'
 	}
 };

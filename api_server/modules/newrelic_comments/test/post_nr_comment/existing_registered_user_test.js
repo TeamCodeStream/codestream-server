@@ -18,14 +18,7 @@ class ExistingRegisteredUserTest extends CreateNRCommentTest {
 			const { user } = this.users[0];
 			this.data.creator.email = user.email;
 			this.expectedResponse.post.creator.email = user.email;
-			if (!this.oneUserPerOrg) { // ONE_USER_PER_ORG
-				Object.assign(this.expectedResponse.post.creator, {
-					fullName: user.fullName,
-					username: user.username
-				});
-			} else {
-				this.expectedResponse.post.creator.username = EmailUtilities.parseEmail(user.email).name;
-			}
+			this.expectedResponse.post.creator.username = EmailUtilities.parseEmail(user.email).name;
 			this.expectedResponse.post.userMaps.placeholder = { ...this.expectedResponse.post.creator };
 			callback();
 		});
@@ -58,12 +51,8 @@ class ExistingRegisteredUserTest extends CreateNRCommentTest {
 			}, 
 			(error, response) => {
 				if (error) { return callback(error); }
-				if (this.oneUserPerOrg) { // ONE_USER_PER_ORG
-					Assert(response.post.creatorId !== this.users[0].user.id, 'creator of the post should not be equal to original user, faux user should have been created');
-					this.expectedCreatorId = response.post.creatorId;
-				} else {
-					Assert.equal(response.post.creatorId, this.users[0].user.id, 'creator of the post is not equal to the correct user');
-				}
+				Assert(response.post.creatorId !== this.users[0].user.id, 'creator of the post should not be equal to original user, faux user should have been created');
+				this.expectedCreatorId = response.post.creatorId;
 				callback();
 			}
 		);

@@ -221,10 +221,23 @@ class APIRequestTest extends GenericTest {
 			// bot to a pubnub channel that we'll listen on
 			requestOptions.headers['X-CS-Test-Bot-Out'] = true;
 		}
-		if (options.oneUserPerOrg || this.oneUserPerOrg) {
-			// we're testing under "one-user-per-org" paradigm
-			// this can be removed when we have fully migrated to ONE_USER_PER_ORG
-			requestOptions.headers['X-CS-One-User-Per-Org'] = true;
+		if (this.unifiedIdentityEnabled) {
+			// this test is assuming Unified Identity is enabled,
+			// we can remove this check when we fully move to UNIFIED_IDENTITY
+			requestOptions.headers['X-CS-Enable-UId'] = true;
+		}
+		if (this.serviceGatewayEnabled) {
+			// this test is assuming CodeStream is running behind Service Gateway,
+			// which basically means that access tokens are New Relic/Azure issue, not CodeStream
+			// this is DANGEROUS, since CS behind SG is mostly WIDE OPEN, so this needs
+			// to be a shared secret here ... once we are up and running behind SG and that is
+			// the only supported configuration, relying solely on SG for authn and authz, we
+			// don't have to be scared of this secret
+			requestOptions.headers['X-CS-SG-Test-Secret'] = this.apiConfig.sharedSecrets.subscriptionCheat;
+		}
+		requestOptions.headers['X-CS-No-NewRelic'] = true;
+		if (!options.testIDPSync) {
+			requestOptions.headers['X-CS-No-IDP-Sync'] = true;
 		}
 		requestOptions.headers['X-CS-Test-Num'] = `API-${this.testNum}`;	// makes it easy to log requests associated with particular tests
 	}

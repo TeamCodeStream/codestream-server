@@ -37,7 +37,7 @@ class MultiTeamTest extends TeamLookupTest {
 			this.secondTeamCreator = response.users[0];
 			this.secondTeam = response.team;
 			this.secondRepo = response.repos[0];
-			this.secondTeamToken = this.oneUserPerOrg ? testTeamCreator.teamOptions.creatorToken : this.users[1].accessToken
+			this.secondTeamToken = testTeamCreator.teamOptions.creatorToken;
 			callback();
 		});
 	}
@@ -65,7 +65,7 @@ class MultiTeamTest extends TeamLookupTest {
 			});
 			Assert.strictEqual(data[1].repo.id, this.secondRepo.id, 'returned repo should match the second repo');
 			Assert.strictEqual(data[1].team.id, this.secondTeam.id, 'returned team should match the second team');
-			const expectedAdminIds = this.oneUserPerOrg ? [this.secondTeam.adminIds[0]] : [this.users[1].user.id];
+			const expectedAdminIds = [this.secondTeam.adminIds[0]];
 			Assert.deepStrictEqual(data[1].admins.map(a => a.id), expectedAdminIds, 'returned admins should match the team creator');
 		}
 		super.validateResponse(data);

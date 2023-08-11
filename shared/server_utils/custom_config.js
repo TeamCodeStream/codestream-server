@@ -278,6 +278,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 						'providerInfo.*.accessToken',
 						'providerInfo.*.refreshToken',
 						'accessTokens.*.token',
+						'accessTokens.*.refreshToken',
 						'pubNubToken',
 						'broadcasterToken',
 						'modifiedRepos',
@@ -312,6 +313,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		asana: {},
 		bitbucket: {},
 		azuredevops: {},
+		fossa: {},
 		github: {},
 		gitlab: {},
 		jira: {},
@@ -321,10 +323,13 @@ module.exports = function customConfigFunc(nativeCfg) {
 		slack: {},
 		trello: {},
         trunk: {},
+		newrelicgrok: {},
+		newRelicIdentity: {},
 		// These providers need appClientId to be defined so the api knows those providers can be configured.
 		// Their respective APIs do not require a client ID so they're not actually used.
 		youtrack: { appClientId: 'placeholder' },
 		bitbucket_server: { appClientId: 'placeholder' },
+		fossa: { appClientId: 'placeholder' },
 		github_enterprise: { appClientId: 'placeholder' },
 		gitlab_enterprise: { appClientId: 'placeholder' },
 		jiraserver: { appClientId: 'placeholder' },
@@ -436,6 +441,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'azuredevops',
 		'bitbucket',
 		'bitbucket_server',
+		'fossa',
 		'github',
 		'github_enterprise',
 		'gitlab',
@@ -451,6 +457,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'shortcut',
 		'linear',
 		'newrelic',
+		'newrelicgrok',
 		'circleci',
 		'jenkins',
 		'trunk',
@@ -461,6 +468,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'^\\/nr-comments',
 		'^\\/xenv\\/',
 		'^\\/robots\\.txt$',
+		'^\\/~nrlogin\\/'		
 	];
 	// matching these paths means Authorization header is optional, behavior may vary
 	Cfg.apiServer.optionalAuthenticatedPaths = [
@@ -471,6 +479,7 @@ module.exports = function customConfigFunc(nativeCfg) {
 		'^\\/web\\/',
 		'^\\/open\\/',
 		'^\\/e\\/',
+		'^\\/logout$'
 	];
 	// matching these paths means cookie authentication is required
 	Cfg.apiServer.cookieAuthenticatedPaths = ['^\\/c\\/', '^\\/r\\/', '^\\/web\\/', '^\\/e\\/'];
@@ -555,5 +564,8 @@ module.exports = function customConfigFunc(nativeCfg) {
 	if (Cfg.sharedSecrets.commentEngineAlt)
 		Cfg.sharedSecrets.commentEngineSecrets.push(Cfg.sharedSecrets.commentEngineAlt);
 
+	// FIXME - this should come from actual config
+	Cfg.sharedGeneral.newRelicMessageQueue = 'https://sqs.us-east-1.amazonaws.com/597411941992/user-org-lifecycle-staging-queue';
+	
 	return Cfg;
 };

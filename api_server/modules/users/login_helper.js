@@ -16,6 +16,8 @@ const WebmailCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/e
 const NewRelicOrgIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes');
 const GetEligibleJoinCompanies = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/get_eligible_join_companies');
 const AccessTokenCreator = require('./access_token_creator');
+const IDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
+const NRAccessTokenRefresher = require('./nr_access_token_refresher');
 
 class LoginHelper {
 
@@ -23,6 +25,7 @@ class LoginHelper {
 		Object.assign(this, options);
 		this.loginType = this.loginType || 'web';
 		this.request.errorHandler.add(VersionErrors);
+		this.request.errorHandler.add(IDPErrors);
 		this.api = this.request.api;
 		this.apiConfig = this.api.config;
 	}
@@ -35,6 +38,9 @@ class LoginHelper {
 
 		this.getCountryCode(); // NOTE - no await here, this is not part of the actual request flow
 
+		if (!this.user.didIDPSync) {
+			await this.user.handleIDPSync(this.request, true);
+		} 
 		await awaitParallel([
 			this.getInitialData,
 			//this.getForeignCompanies, // doesn't apply anymore under one-user-per-org
@@ -141,29 +147,51 @@ class LoginHelper {
 
 		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
 		// was issued before the min issuance, then we need to generate a new token for this login type
+		let isNRToken = false;
 		try {
 			const currentTokenInfo = this.user.getTokenInfoByType(this.loginType);
+			isNRToken = currentTokenInfo && currentTokenInfo.isNRToken;
 			const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
 			this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
-			const tokenPayload = (!force && this.accessToken) ? 
+			const tokenPayload = (!force && this.accessToken && !isNRToken) ? 
 				this.api.services.tokenHandler.verify(this.accessToken) : 
 				null;
 			if (
-				force ||
-				!minIssuance ||
-				minIssuance > (tokenPayload.iat * 1000)
+				!this.dontGenerateAccessToken && 
+				!isNRToken &&
+				(
+					force ||
+					!minIssuance ||
+					minIssuance > (tokenPayload.iat * 1000)
+				)
 			) {
 				const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
 				this.accessToken = token;
 				set = set || {};
 				set[`accessTokens.${this.loginType}`] = { token, minIssuance };
 			}
+
+			// if this is a New Relic issued access token, it may need to be refreshed
+			if (isNRToken) {
+				this.accessTokenInfo = currentTokenInfo;
+ 				const result = await NRAccessTokenRefresher({
+					request: this.request,
+					tokenInfo: currentTokenInfo,
+					loginType: this.loginType
+				});
+				if (result) {
+					set = set || {};
+					Object.assign(set, result.userSet);
+					this.accessTokenInfo = result.newTokenInfo;
+					this.accessTokenInfo.isNRToken = true;
+				}
+			}
 			if (set) {
 				await this.request.data.users.applyOpById(this.user.id, { $set: set });
 			}
 		}
 		catch (error) {
-			if (!force) {
+			if (!force && !isNRToken) {
 				// if token seems invalid, try again but force a new token to be created
 				this.generateAccessToken(true);
 			}
@@ -286,6 +314,16 @@ class LoginHelper {
 			this.responseData.pubnubToken = this.pubnubToken;	// token used to subscribe to PubNub channels
 		}
 
+		// if using New Relic issued token, send additional token info
+		if (this.accessTokenInfo && this.accessTokenInfo.isNRToken) {
+			this.responseData.accessTokenInfo = {
+				refreshToken: this.accessTokenInfo.refreshToken,
+				expiresAt: this.accessTokenInfo.expiresAt,
+				provider: this.accessTokenInfo.provider,
+				isNRToken: true
+			};
+		}
+		
 		// if using socketcluster for messaging (for on-prem installations), return host info
 		if (this.apiConfig.broadcastEngine.selected === 'codestreamBroadcaster') {
 			const { host, port, ignoreHttps } = this.apiConfig.broadcastEngine.codestreamBroadcaster;
@@ -324,10 +362,7 @@ class LoginHelper {
 		this.isWebmail = WebmailCompanies.includes(domain);
 
 		const ignoreDomain = this.isWebmail;
-		const ignoreInvite = (
-			!this.request.module.oneUserPerOrg &&
-			!this.request.request.headers['x-cs-one-user-per-org']
-		);
+		const ignoreInvite = false;
 
 		if (this.notRealLogin) { return; }
 

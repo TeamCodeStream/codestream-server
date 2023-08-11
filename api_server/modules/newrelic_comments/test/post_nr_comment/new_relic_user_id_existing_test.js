@@ -12,7 +12,7 @@ class NewRelicUserIdExistingTest extends NewRelicUserIdTest {
 		// use an existing registered as the creator of the comment
 		super.makeNRCommentData(error => {
 			if (error) { return callback(error); }
-			if (this.oneUserPerOrg) { return callback(); }
+			return callback();
 			const { user } = this.users[0];
 			this.data.creator.email = user.email;
 			Object.assign(this.expectedResponse.post.creator, {
@@ -25,18 +25,12 @@ class NewRelicUserIdExistingTest extends NewRelicUserIdTest {
 	}
 
 	inviteAndRegisterFauxUser (callback) {
-		if (this.oneUserPerOrg) { return super.inviteAndRegisterFauxUser(callback); }
-		// override base class
-		callback();
+		return super.inviteAndRegisterFauxUser(callback);
 	}
 
 	run (callback) {
-		if (this.oneUserPerOrg) {
-			console.log('NOTE: under one-user-per-org, no connection with the original faux user and the register is maintained, so this test will pass superifically and should be deprecated');
-			return callback();
-		} else {
-			super.run(callback);
-		}
+		console.log('NOTE: under one-user-per-org, no connection with the original faux user and the register is maintained, so this test will pass superifically and should be deprecated');
+		return callback();
 	}
 }
 

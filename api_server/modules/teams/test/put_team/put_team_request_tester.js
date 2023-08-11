@@ -34,16 +34,26 @@ const TeamSubscriptionRevokedTest = require('./team_subscription_revoked_test');
 const RemovalMessageToUserTest = require('./removal_message_to_user_test');
 const UninvitedUserCanRegisterTest = require('./uninvited_user_can_register_test');
 const RemoveSelfTest = require('./remove_self_test');
+const RemoveSelfUnifiedIdentityTest = require('./remove_self_unified_identity_test');
 const RemoveUserMessageToTeamTest = require('./remove_user_message_to_team_test');
 const ReinviteRemovedUserTest = require('./reinvite_removed_user_test');
 const RemovedUsersNotInCompanyMemberCountTest = require('./removed_users_not_in_company_member_count_test');
-const UnregisteredOnTwoTeamsTest = require('./unregistered_on_two_teams_test');
 const MessageToInviteeTest = require('./message_to_invitee_test');
+const NotCodeStreamOnlyTest = require('./not_codestream_only_test');
+const NotCodeStreamOnlyDiscoveryTest = require('./not_codestream_only_discovery_test');
+const NotCodeStreamOnlyDiscoveryMessageTest = require('./not_codestream_only_discovery_message_test');
+const NotCodeStreamOnlyAddAdminTest = require('./not_codestream_only_add_admin_test');
+const NotCodeStreamOnlyDiscoveryAddAdminTest = require('./not_codestream_only_discovery_add_admin_test');
+const NotCodeStreamOnlyDiscoveryMessageAddAdminTest = require('./not_codestream_only_discovery_message_add_admin_test');
+const NotCodeStreamOnlyRemoveAdminTest = require('./not_codestream_only_remove_admin_test');
+const NotCodeStreamOnlyDiscoveryRemoveAdminTest = require('./not_codestream_only_discovery_remove_admin_test');
+const NotCodeStreamOnlyDiscoveryMessageRemoveAdminTest = require('./not_codestream_only_discovery_message_remove_admin_test');
 
 class PutTeamRequestTester {
 
 	putTeamTest () {
 		new PutTeamTest().test();
+		new PutTeamTest({ unifiedIdentityEnabled: true }).test();
 		new PutTeamFetchTest().test();
 		new ACLTest().test();
 		new TeamNotFoundTest().test();
@@ -53,6 +63,7 @@ class PutTeamRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'integrations' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'primaryReferral' }).test();
 		new RemoveUserTest().test();
+		new RemoveUserTest({ unifiedIdentityEnabled: true }).test();
 		new RemoveUsersTest().test();
 		new RemoveAdminTest().test();
 		new RemoveAdminsTest().test();
@@ -78,11 +89,20 @@ class PutTeamRequestTester {
 		new RemovalMessageToUserTest().test();
 		new UninvitedUserCanRegisterTest().test();
 		new RemoveSelfTest().test();
+		new RemoveSelfUnifiedIdentityTest().test();
 		new RemoveUserMessageToTeamTest().test();
 		new ReinviteRemovedUserTest().test();
 		new RemovedUsersNotInCompanyMemberCountTest().test();
-		new UnregisteredOnTwoTeamsTest().test();
 		new MessageToInviteeTest().test();
+		new NotCodeStreamOnlyTest().test();
+		new NotCodeStreamOnlyDiscoveryTest().test();
+		new NotCodeStreamOnlyDiscoveryMessageTest().test();
+		new NotCodeStreamOnlyAddAdminTest().test();
+		new NotCodeStreamOnlyDiscoveryAddAdminTest().test();
+		new NotCodeStreamOnlyDiscoveryMessageAddAdminTest().test();
+		new NotCodeStreamOnlyRemoveAdminTest().test();
+		new NotCodeStreamOnlyDiscoveryRemoveAdminTest().test();
+		new NotCodeStreamOnlyDiscoveryMessageRemoveAdminTest().test();
 	}
 }
 

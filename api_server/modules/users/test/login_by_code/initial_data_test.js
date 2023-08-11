@@ -9,7 +9,7 @@ class InitialDataTest extends LoginByCodeTest {
 
 	constructor (options) {
 		super(options);
-		this.firstSessionShouldBeUndefined = this.oneUserPerOrg;
+		this.firstSessionShouldBeUndefined = true;
 		this.userOptions.numRegistered = 2;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,
@@ -23,8 +23,7 @@ class InitialDataTest extends LoginByCodeTest {
 	}
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
-		return `user should receive teams and repos with response to logging in by code${oneUserPerOrg}`;
+		return `user should receive teams and repos with response to logging in by code, under one-user-per-org paradigm`;
 	}
 
 	getExpectedFields () {

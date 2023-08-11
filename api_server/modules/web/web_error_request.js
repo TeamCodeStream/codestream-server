@@ -67,6 +67,12 @@ class WebErrorRequest extends WebRequestBase {
 				title: 'No primary email found',
 				body: 'Using GitLab for authentication requires that your primary GitLab email address be public. In GitLab, go to Preferences > Profile and then in the Main Settings section make sure you have an email address selected for “Public email”.'
 			};
+
+		case 'USRC-1006':
+			return {
+				title: 'Already signed up',
+				body: 'You are already signed up for CodeStream. Please return to your IDE and sign into CodeStream with your New Relic account.'
+			};
 		}
 	}
 }

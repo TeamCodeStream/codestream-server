@@ -82,21 +82,33 @@ class AnalyticsClient {
 			if (user.get('lastPostCreatedAt')) {
 				trackObject['Date of Last Post'] = new Date(user.get('lastPostCreatedAt')).toISOString();
 			}
-			if (user.get('providerInfo')) {
- 				const providerInfo = user.get('providerInfo');
-				const data = (
-					team &&
-					providerInfo[team.id] &&
-					providerInfo[team.id].newrelic &&
-					providerInfo[team.id].newrelic.data
-				);
-				if (data) {
-					if (data.userId) {
-						trackObject['NR User ID'] = data.userId;
-					} 
-					if (data.orgIds && data.orgIds.length) {
-						trackObject['NR Organization ID'] = data.orgIds[0];
+
+
+			if (!request.request.headers['x-cs-enable-uid']) {
+				// handle pre unified identity analytics, remove when we fully move to UNIFIED_IDENTITY
+				if (user.get('providerInfo')) {
+					const providerInfo = user.get('providerInfo');
+					const data = (
+						team &&
+						providerInfo[team.id] &&
+						providerInfo[team.id].newrelic &&
+						providerInfo[team.id].newrelic.data
+					);
+					if (data) {
+						if (data.userId) {
+							trackObject['NR User ID'] = data.userId;
+						} 
+						if (data.orgIds && data.orgIds.length) {
+							trackObject['NR Organization ID'] = data.orgIds[0];
+						}
 					}
+				}
+			} else {
+				if (user.get('nrUserId')) {
+					trackObject['NR User ID'] = user.get('nrUserId');
+				}
+				if (user.get('nrUserInfo') && user.get('nrUserInfo').userTier) {
+					trackObject['NR Tier'] = user.get('nrUserInfo').userTier
 				}
 			}
 		}
@@ -119,6 +131,10 @@ class AnalyticsClient {
 			trackObject['Company ID'] = company.id;
 			trackObject['Plan'] = company.get('plan');
 			trackObject['Reporting Group'] = company.get('reportingGroup') || '';
+			if (request.request.headers['x-cs-enable-uid']) { // remove check when we move to UNIFIED_IDENTITY
+				trackObject['CodeStream Only'] = !!company.get('codestreamOnly');
+				trackObject['Org Origination'] = company.get('orgOrigination');
+			}
 			trackObject.company = {
 				id: company.id,
 				name: company.get('name'),
@@ -136,7 +152,11 @@ class AnalyticsClient {
 					return `${key}|${company.get('testGroups')[key]}`;
 				});
 			}
-			trackObject['NR Connected Org'] = !!company.get('isNRConnected');
+
+			// remove the header check for x-cs-enable-uid when we fully move to UNIFIED_IDENTITY
+			if (request.request.headers['x-cs-enable-uid'] && company.get('linkedNROrgId')) {
+				trackObject['NR Organization ID'] = company.get('linkedNROrgId');
+			}
 		}
 
 		// translate the runtime environment into a region, if possible

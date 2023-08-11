@@ -2,6 +2,7 @@
 
 'use strict';
 
+const GrokClient = require("../../lib/grok/grok_client");
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 
 class PostPostRequest extends PostRequest {
@@ -23,6 +24,21 @@ class PostPostRequest extends PostRequest {
 			throw this.errorHandler.error('invalidParameter', { reason: 'teamId does not match the stream' });
 		}
 		this.request.body.teamId = stream.get('teamId');
+
+		// WARNING: If you pass this flag, your post will NOT be saved!
+		//
+		// We have a scenario with Grok where we need to POST a new post and have it
+		// completely reinitialize the Grok conversation, but we want to throw away
+		// the actual post that is coming in. Certain methods will be completely skipped!
+		this.reinitializeGrok = (this.request.body.reinitialize && this.request.body.reinitialize === true) || false;
+	}
+
+	async process(){
+		if(this.reinitializeGrok){
+			return;
+		}
+
+		await super.process();
 	}
 
 	/* eslint complexity: 0 */
@@ -31,11 +47,46 @@ class PostPostRequest extends PostRequest {
 			return super.handleResponse();
 		}
 
+		if(this.reinitializeGrok){
+			if(!this.request.body.parentPostId){
+				throw this.errorHandler.error('parameterRequired', { reason: 'parentPostId is required for Grok reinitialization' });
+			}
+
+			const post = await this.data.posts.getById(this.request.body.parentPostId);
+			const codeError = await this.data.codeErrors.getById(post.get('codeErrorId'));
+
+			// When we force a reinitialization on a Code Error with Grok, we need to return
+			// the original Parent Post and the Code Error associated with it. The client
+			// doesn't know how to handle the response without them.
+			this.responseData.post = post.getSanitizedObject({ request: this.request });
+			this.responseData.codeError = codeError.getSanitizedObject({ request: this.request });
+
+			return super.handleResponse();
+		}
+
 		this.responseData = this.creator.makeResponseData({
 			transforms: this.transforms,
 			initialResponseData: this.responseData
 		});
+
 		await super.handleResponse();
+	}
+
+	async postProcess () {
+		if(!this.reinitializeGrok || this.gotError){
+			await super.postProcess();
+		}
+
+		if(!!this.request.body.analyze ||
+			this.request.body.text.match(/@Grok/gmi) ||
+			this.reinitializeGrok){
+
+			return new GrokClient().analyzeErrorWithGrok(
+				{
+					postRequest: this
+				}
+			);
+		}
 	}
 
 	// describe this route for help
@@ -54,7 +105,9 @@ class PostPostRequest extends PostRequest {
 				'codeError': '<Single @@code error@codeError@@ object, for creating a code error referenced by the post>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
 				'reviewCheckpoint': '<Checkpoint number of the review this post is associated with>',
-				'addedUsers': '<Array of emails representing non-team users being implicitly invited and mentioned>'
+				'addedUsers': '<Array of emails representing non-team users being implicitly invited and mentioned>',
+				'analyze':'<Boolean to indicate whether to have Grok analyze the codeError>',
+				'codeBlock':'<String representing a code block associated with an error >'
 			}
 		};
 		description.returns.summary = 'A post object, plus additional objects that may have been created on-the-fly, marker objects and marker locations for any markers';

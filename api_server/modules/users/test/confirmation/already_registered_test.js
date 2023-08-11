@@ -1,13 +1,12 @@
 'use strict';
 
-var BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-var ConfirmationTest = require('./confirmation_test');
+const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const ConfirmationTest = require('./confirmation_test');
 
 class AlreadyRegisteredTest extends ConfirmationTest {
 
 	get description () {
-		const oneUserPerOrg = this.oneUserPerOrg ? ', under one-user-per-org paradigm' : ''; // ONE_USER_PER_ORG
-		return `should return an error when confirming a registration with an email that has already been confirmed${oneUserPerOrg}`;
+		return `should return an error when confirming a registration with an email that has already been confirmed, under one-user-per-org paradigm`;
 	}
 
 	getExpectedFields () {

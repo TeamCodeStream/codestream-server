@@ -2,7 +2,7 @@
 # Common routines for codestream-server sandboxes
 
 # Defaults values
-[ -n "$CSBE_NODE_VER" ] && _defaultNodeVersion=$CSBE_NODE_VER || { _defaultNodeVersion=16.15.1 && echo "CSBE_NODE_VER not defined. THIS IS BAD"; }
+[ -n "$CSBE_NODE_VER" ] && _defaultNodeVersion=$CSBE_NODE_VER || _defaultNodeVersion=`cat $CSSVC_BACKEND_ROOT/sandbox/node-version`
 
 [ -z "$CSBE_API_DEFAULT_PORT" ] && export CSBE_API_DEFAULT_PORT=12079
 
@@ -85,6 +85,8 @@ function sbcfg_initialize {
 	export PATH=$sbTop/node_modules/.bin:$PATH
 	export NODE_PATH=$sbTop/node_modules:$NODE_PATH
 	export PATH=$sbTop/bin:$PATH
+	env | grep NODE_VER
+	env | grep REPO_ROOT
 
 	# ---- CORE VARIABLES
 	[ -z "$sbLogs" ] && sbcfg_set_var "${sbPrefix}_LOGS" $sbRoot/log

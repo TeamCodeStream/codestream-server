@@ -15,12 +15,6 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 	}
 
 	async authorize () {
-		// remove this check when we fully move to ONE_USER_PER_ORG
-		this.oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.headers['x-cs-one-user-per-org']
-		);
-
 		await this.xenvRequireAndAllow();
 
 		// in the authorization phase, we'll fetch the user across environments, and make a copy 
@@ -74,11 +68,7 @@ class XEnvJoinCompanyRequest extends JoinCompanyRequest {
 		// under one-user-per-org, we expect an existing record for the invited user,
 		// so look for that, and if found, make that the user record we work with
 		// otherwise, we assume joining by domain
-		let invitedUser;
-		if (this.oneUserPerOrg) {
-			invitedUser = await this.tryFindInvitedUser();
-		}
-
+		let invitedUser = await this.tryFindInvitedUser();
 		if (!invitedUser) {
 			const collidingUser = await this.data.users.getById(this.user.id);
 			if (collidingUser) {

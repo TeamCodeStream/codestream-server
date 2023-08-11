@@ -21,13 +21,6 @@ class ExistingRegisteredAssignerTest extends AssignNRObjectTest {
 	}
 
 	validateResponse (data) {
-		if (!this.oneUserPerOrg) {
-			// under ONE_USER_PER_ORG, we don't maintain the connection between the original faux user and
-			// the user who registers with the same email
-			const registeredUserId = this.users[0].user.id;
-			const assignmentCreatorId = data.codeStreamResponse.post.creatorId;
-			Assert.equal(assignmentCreatorId, registeredUserId, 'creator of the code error (by virtue of assigning someone to it) is not the same as the registered user');
-		}
 		delete data.codeStreamResponse;
 		super.validateResponse(data);
 	}

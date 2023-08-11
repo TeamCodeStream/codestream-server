@@ -9,7 +9,8 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 	get description () {
 		const which = this.byDomainJoining ? 'by domain joining' : 'by invite under one-user-per-org';
-		return `when a user joins a company ${which}, other members of the team should get a message that the user has been added`;
+		const unifiedIdentity = this.unifiedIentityEnabled ? ', under unified identity' : '';
+		return `when a user joins a company ${which}, other members of the team should get a message that the user has been added${unifiedIdentity}`;
 	}
 
 	// make the data that triggers the message to be received
@@ -98,6 +99,11 @@ class MessageToTeamTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			Assert(actualUser[attribute] >= this.joinedAfter, `user ${attribute} is not greater than or equal to when the user joined`);
 			expectedUser[attribute] = actualUser[attribute];
 		});
+
+		if (this.unifiedIdentityEnabled) {
+			Assert(typeof actualUser.nrUserId === 'number' && actualUser.nrUserId, 'nrUserId not set');
+			expectedUser.nrUserId = actualUser.nrUserId;
+		}
 
 		return super.validateMessage(message);
 	}

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>CodeStream</title>
+	{{> partial_html_head partial_html_head_model}}
+		 <script type="text/javascript">
+		!function () {
+			var analytics = window.analytics = window.analytics || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
+				analytics.invoked = !0; analytics.methods = ["anonymousId", "setAnonymousId", "trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "once", "off", "on"]; analytics.factory = function (t) { return function () { var e = Array.prototype.slice.call(arguments); e.unshift(t); analytics.push(e); return analytics } }; for (var t = 0; t < analytics.methods.length; t++) { var e = analytics.methods[t]; analytics[e] = analytics.factory(e) } analytics.load = function (t, e) { var n = document.createElement("script"); n.type = "text/javascript"; n.async = !0; n.src = "https://cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js"; var a = document.getElementsByTagName("script")[0]; a.parentNode.insertBefore(n, a); analytics._loadOptions = e }; analytics.SNIPPET_VERSION = "4.1.0";
+				analytics.load("{{segmentKey}}");
+				analytics.page();
+				// Set anonUserId in segment
+				const anonUserId = "{{anonymousUserId}}";
+				window.segmentAnonymousId = anonUserId;
+				analytics.setAnonymousId(anonUserId);
+			}
+		}();
+	</script>
+</head>
+
+<body>
+	<script>
+		const anonUserId = "{{anonymousUserId}}";
+		window.segmentAnonymousId = anonUserId;
+		analytics.setAnonymousId(anonUserId);
+	</script>
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="https://codestream.com">
+			<img alt="CodeStream" class="logo" src="https://images.codestream.com/logos/cs-banner-1764x272.png" />
+		</a>
+	</nav>
+	<div class="container mt-5">
+		<div class="row">
+			<div class="col-sm-6 offset-sm-3">
+				<h1>Join your teammates on CodeStream</h1>
+			</div>
+		</div>
+		<div id="organizations">
+			{{#if byInvite.length}}
+				<div class="row">
+					<div id="invited-orgs" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+						<h5>Organizations you've been invited to</h5>
+						{{#each byInvite}}
+							<table>
+								<tr>
+									<td width="90%">{{name}}</td>
+									<td rowspan="2">
+										<div class="form-group">
+											<button class="btn" onclick="join('{{id}}', 'invite');">
+												<span class="copy">Join</span>
+											</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>{{memberCount}} members</td>
+								</tr>
+							</table>
+						{{/each}}
+					</div>
+				</div>
+				<br/>
+			{{/if}}
+			{{#if byDomain.length}}
+				<div class="row">
+					<div id="domain-orgs" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+						<h5>Organizations you can join based on email domain</h5>
+						{{#each byDomain}}
+							<table>
+								<tr>
+									<td width="90%">{{name}}</td>
+									<td rowspan="2">
+										<div class="form-group">
+											<button class="btn" onclick="join('{{id}}', 'domain');">
+												<span class="copy">Join</span>
+											</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>{{memberCount}} members</td>
+								</tr>
+							</table>
+						{{/each}}
+					</div>
+				</div>
+			{{/if}}
+			<br/>
+			<div  class="row">
+				<div id="create-org" class="col-sm-6 offset-sm-3 col-xs-6 offset-xs-3 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+					<h5>Or, you can <a href="#" onclick="create();">create your own organization</a>.</h5>
+				</div>
+			</div>
+		</div>
+		<div style="display: none" id="loading-organizations">
+			<div class="loading-container">
+				<div class="loader"></div>
+				<div id="organization-type"></div>
+			</div>
+		</div>
+
+	</div>
+	<script>
+
+		var currentURL = window.location.href;
+		var currentPath = window.location.pathname;
+		var newURL = currentURL.split('?')[0];
+		var newPath = "/web/signed-in";
+		newURL = newURL.replace(currentPath, newPath);
+
+		window.onload = function() {
+			const hasDomain = {{byDomain.length}} > 0;
+			const hasInvite = {{byInvite.length}} > 0;
+			analytics.track("Organization Options Presented", {
+				"Domain Orgs": hasDomain,
+				"Invited Orgs": hasInvite,
+				"Auth Provider": "{{originalProvider}}",
+			});		
+		}
+
+		join = function(id, type) {
+			console.log(`Joining company, id=${id} type=${type}`);
+
+			var orgDiv = document.getElementById('organizations');
+			orgDiv.style.display = "none";
+			var loadingOrgDiv = document.getElementById('loading-organizations');
+			loadingOrgDiv.style.display = "block";
+			var orgType = document.getElementById('organization-type');
+			orgType.innerHTML = 'Joining Organization...';
+
+			const body = {
+				_csrf: '{{csrf}}',
+				signupToken: '{{signupToken}}'
+			};
+
+			var req = new XMLHttpRequest();
+			req.open('PUT', `/web/join-company/${id}`);
+			req.setRequestHeader('Content-Type', 'application/json');
+			req.setRequestHeader('X-CS-Enable-UId', 1);			
+			req.onload = () => {
+				if (req.status >= 200 && req.status < 300) {
+					analytics.track("Joined Organization", {
+						"Availability": type,
+						"Location": "Signup",
+						"Auth Provider": "{{originalProvider}}",
+					});
+					const response = JSON.parse(req.responseText);
+					if (response && response.userId) {
+						const anonUserId = "{{anonymousUserId}}";
+						analytics.identify(response.userId, {}, {
+							anonymousId: anonUserId
+						});
+					}
+					window.location.href = newURL;
+				}
+				if (req.status >= 300) { 
+					const response = JSON.parse(req.responseText);
+					let errorMessage = response.message || "Unknown Error";
+					orgType.innerHTML = `${errorMessage}`;
+					orgType.style.color = 'red';
+				}
+			};
+			req.send(JSON.stringify(body));
+		};
+
+		create = function() {
+			console.log(`Creating company, name="{{companyName}}"`);
+
+			var orgDiv = document.getElementById('organizations');
+			orgDiv.style.display = "none";
+			var loadingOrgDiv = document.getElementById('loading-organizations');
+			loadingOrgDiv.style.display = "block";
+			var orgType = document.getElementById('organization-type');
+			orgType.innerHTML = 'Creating Organization...';
+
+			const body = {
+				name: '{{companyName}}',
+				signupToken: '{{signupToken}}',
+				_csrf: '{{csrf}}'
+			};
+
+			var req = new XMLHttpRequest();
+			req.open('POST', '/web/companies');
+			req.setRequestHeader('Content-Type', 'application/json');
+			req.setRequestHeader('X-CS-Enable-UId', 1);
+			req.onload = () => {
+				if (req.status >= 200 && req.status < 300) {
+					analytics.track("New Organization Created", {
+						"Domain Joining": "Not Available",
+						"Auth Provider": "{{originalProvider}}",
+					});
+					const response = JSON.parse(req.responseText);
+					const anonUserId = "{{anonymousUserId}}";
+					analytics.identify("{{userId}}", {}, {
+						anonymousId: anonUserId
+					});
+					window.location.href = newURL;
+				}
+				if (req.status >= 300) {
+					const response = JSON.parse(req.responseText);
+					let errorMessage = response.message || "Unknown Error";
+					orgType.innerHTML = `${errorMessage}`;
+					orgType.style.color = 'red';
+				}
+			};
+			req.send(JSON.stringify(body));
+		};
+	</script>
+</body>
+
+</html>

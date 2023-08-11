@@ -4,7 +4,6 @@
 'use strict';
 
 const UserCreator = require('./user_creator');
-const OldUserCreator = require('./old_user_creator');
 const ConfirmHelper = require('./confirm_helper');
 const Indexes = require('./indexes');
 const Errors = require('./errors');
@@ -69,7 +68,9 @@ class NRRegisterRequest extends RestfulRequest {
 				const headers = {
 					'Api-Key': this.request.body.apiKey,
 					'Content-Type': 'application/json',
-					'NewRelic-Requesting-Services': 'CodeStream'
+					'NewRelic-Requesting-Services': 'CodeStream',
+					"X-Query-Source-Capability-Id": "CODESTREAM",
+					"X-Query-Source-Component-Id": "codestream.api"
 				}
 				response = await request(url, query, {}, headers);
 			}
@@ -131,34 +132,25 @@ class NRRegisterRequest extends RestfulRequest {
 
 	// check if a user already exists for the email address
 	async getExistingUser () {
-		// remove this check when we fully move to ONE_USER_PER_ORG
-		const oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.headers['x-cs-one-user-per-org']
-		);
-
 		const users = await this.data.users.getByQuery(
 			{ searchableEmail: this.userData.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
-		if (oneUserPerOrg) {
-			// under ONE_USER_PER_ORG, only match a teamless unregistered user
-			// if we find a registered user, throw
-			let registeredUser, teamlessUser;
-			users.forEach(user => {
-				const teamIds = user.get('teamIds') || [];
-				if (user.get('deactivated')) {
-					return;
-				} else if (user.get('isRegistered')) {
-					registeredUser = user;
-				} else if (teamIds.length === 0) {
-					teamlessUser = user;
-				}
-			});
-			this.user = registeredUser || teamlessUser;
-		} else {
-			this.user = users[0];
-		}
+
+		// under one-user-per-org, only match a teamless unregistered user
+		// if we find a registered user, throw
+		let registeredUser, teamlessUser;
+		users.forEach(user => {
+			const teamIds = user.get('teamIds') || [];
+			if (user.get('deactivated')) {
+				return;
+			} else if (user.get('isRegistered')) {
+				registeredUser = user;
+			} else if (teamIds.length === 0) {
+				teamlessUser = user;
+			}
+		});
+		this.user = registeredUser || teamlessUser;
 
 		if (this.user && this.user.get('isRegistered')) {
 			throw this.errorHandler.error('alreadyRegistered', { info: this.userData.email });
@@ -167,20 +159,12 @@ class NRRegisterRequest extends RestfulRequest {
 
 	// create the user in the database
 	async saveUser () {
-		const oneUserPerOrg = this.module.oneUserPerOrg || this.request.headers['x-cs-one-user-per-org'];
-		if (oneUserPerOrg) { // remove this check (actually the else) when we fully move to ONE_USER_PER_ORG
-			this.log('NOTE: Creating user under one-user-per-org paradigm');
-			this.userCreator = new UserCreator({
-				request: this,
-				nrUserId: this.nrUserId,
-				existingUser: this.user
-			});
-		} else {
-			this.userCreator = new OldUserCreator({
-				request: this,
-				nrUserId: this.nrUserId
-			});
-		}
+		this.log('NOTE: Creating user under one-user-per-org paradigm');
+		this.userCreator = new UserCreator({
+			request: this,
+			nrUserId: this.nrUserId,
+			existingUser: this.user
+		});
 		this.user = await this.userCreator.createUser(this.userData);
 	}
 

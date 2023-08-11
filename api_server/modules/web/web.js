@@ -40,6 +40,10 @@ const STANDARD_PAGES = [
 	{
 		route: 'web/unsubscribe-reminder-complete',
 		template: 'unsubscribe_reminder_complete'
+	},
+	{
+		route: 'web/signed-out',
+		template: 'signed_out'
 	}
 ];
 
@@ -121,6 +125,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/signed-in',
+		requestClass: require('./web_signed_in_request')
+	},
+	{
+		method: 'get',
 		path: 'web/provider-auth/:provider',
 		requestClass: require('./web_provider_auth_request')
 	},
@@ -147,27 +156,27 @@ const ROUTES = [
 	{ 
 		method: 'get',
 		path: 'r/:teamId/:id',
-		requestClass: require('./link_review_request')
+		requestClass: require('./review_ide_redirect_request')
 	},
 	{ 
 		method: 'get',
 		path: 'e/:teamId/:id',
-		requestClass: require('./link_codeerror_request')
+		requestClass: require('./codeerror_ide_redirect_request')
 	},
 	{
 		method: 'get',
 		path: 'c/:teamId/:id',
-		requestClass: require('./link_codemark_request')
+		requestClass: require('./codemark_ide_redirect_request')
 	},
 	{
 		method: 'get',
 		path: 'p/:teamId/:id',
-		requestClass: require('./link_codemark_request')
+		requestClass: require('./codemark_ide_redirect_request')
 	},
 	{
 		method: 'get',
 		path: 'open/:type',
-		requestClass: require('./link_newrelic_request')
+		requestClass: require('./newrelic_ide_redirect_request')
 	},
 	{
 		method: 'get',
@@ -233,6 +242,11 @@ const ROUTES = [
 		method: 'get',
 		path: 'web/unsubscribe-weekly-error',
 		requestClass: require('./web_unsubscribe_weekly_error_request')
+	},
+	{
+		method: 'get',
+		path: 'web/domain-picker/:provider',
+		requestClass: require('./domain_picker_request')
 	}
 ];
 

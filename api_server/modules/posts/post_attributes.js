@@ -94,6 +94,21 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the code error attached to this post, if any'
 	},
+	grokConversation: {
+		type: 'arrayOfObjects',
+		description: 'The initial conversation to Grok',
+		serverOnly: true
+	},
+	promptRole: {
+		type: 'string',
+		maxLength: 50,
+		description: 'The role that was provided to the prompt in the conversation to Grok',
+		serverOnly: true
+	},
+	forGrok: {
+		type: 'boolean',
+		description: 'Whether this post needs to be remembered for future grok usage'
+	},
 	_forNRMigration: {
 		type: 'boolean',
 		serverOnly: true

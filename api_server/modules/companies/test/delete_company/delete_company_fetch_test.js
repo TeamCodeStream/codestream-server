@@ -6,7 +6,7 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 class DeleteCompanyFetchTest extends DeleteCompanyTest {
 
 	get description () {
-		return 'should properly deactivate a company when deleted, checked by fetching the company';
+		return 'should properly deactivate a company when deleted, checked by trying to fetch the company and failing';
 	}
 
 	get method () {
@@ -19,7 +19,7 @@ class DeleteCompanyFetchTest extends DeleteCompanyTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'AUTH-1004'
 		};
 	}
 

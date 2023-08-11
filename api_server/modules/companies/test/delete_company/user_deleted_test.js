@@ -1,12 +1,12 @@
 'use strict';
 
-const DeleteCompanyTest = require('./delete_company_test');
+const DeleteCompanyFetchTest = require('./delete_company_fetch_test');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 
-class UserDeletedTest extends DeleteCompanyTest {
+class UserDeletedTest extends DeleteCompanyFetchTest {
 
 	get description () {
-		return 'should deactivate the orphaned users when company deleted';
+		return 'should deactivate the orphaned users when company deleted, checked by trying to fetch a user';
 	}
 
 	get method () {
@@ -15,7 +15,7 @@ class UserDeletedTest extends DeleteCompanyTest {
 
 	getExpectedError () {
 		return {
-			code: 'RAPI-1009'
+			code: 'AUTH-1004'
 		};
 	}
 
@@ -23,7 +23,7 @@ class UserDeletedTest extends DeleteCompanyTest {
 	before (callback) {
 		BoundAsync.series(this, [
 			super.before,	// do the usual test prep
-			this.deleteCompany	// perform the actual deletion
+			this.changePath
 		], callback);
 	}
 

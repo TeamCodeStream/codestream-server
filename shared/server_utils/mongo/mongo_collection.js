@@ -403,7 +403,9 @@ class MongoCollection {
 				break;
 			}
 			const refetchedDocument = await this.getById(id, { version: 1 });
-			if (refetchedDocument.version === version) {
+			if (!refetchedDocument) {
+				throw this.errorHandler.error('updateVersionNoDocument');
+			} else if (refetchedDocument.version === version) {
 				throw this.errorHandler.error('updateFailureNoVersion');
 			}
 			version = refetchedDocument.version;
@@ -442,6 +444,15 @@ class MongoCollection {
 			query = Object.assign({}, query);
 			query._id = query.id;
 			delete query.id;
+		}
+		if (typeof query._id === 'string') {
+			const idOrig = query._id;
+			query._id = this.objectIdSafe(query._id);
+			if (!query._id) {
+				// if it didn't turn into a mongo ID object, it's meant to be a string
+				// i learned this the real hard way
+				query._id = idOrig;
+			}
 		}
 		return await this._runQuery(
 			'updateMany',
@@ -707,7 +718,19 @@ class MongoCollection {
 			}
 		}
 		else if (typeof obj[field] === 'string') {
-			obj[field] = '*'.repeat(obj[field].length);
+			const len = obj[field].length;
+			let lastPart, charRepeat;
+			if (len > 14) {
+				lastPart = obj[field].slice(-7);
+				charRepeat = len - 7;
+			} else if (len > 10) {
+				lastPart = obj[field].slice(-4);
+				charRepeat = len - 4;
+			} else {
+				lastPart = '';
+				charRepeat = len;
+			}
+			obj[field] = '*'.repeat(charRepeat) + lastPart;
 		}
 		else if (typeof obj[field] === 'object') {
 			obj[field] = {'*': '*'};

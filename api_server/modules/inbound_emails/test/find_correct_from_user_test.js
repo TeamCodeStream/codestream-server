@@ -5,11 +5,6 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 
 class FindCorrectFromUserTest extends InboundEmailTest {
 
-	constructor (options) {
-		super(options);
-		this.oneUserPerOrg = true;
-	}
-
 	get description () {
 		return 'in one-user-per-org, should find the correct sender among multiple emails matching the from email on an inbound email request';
 	}

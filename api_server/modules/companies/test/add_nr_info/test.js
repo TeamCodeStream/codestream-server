@@ -3,6 +3,9 @@
 
 'use strict';
 
+const DeprecatedTest = require('./deprecated_test');
+const DeprecatedEmptyTest = require('./deprecated_empty_test');
+/*
 const AddNRInfoTest = require('./add_nr_info_test');
 const FetchTest = require('./fetch_test');
 const MessageTest = require('./message_test');
@@ -12,10 +15,14 @@ const OnlyAccountIdsTest = require('./only_account_ids_test');
 const OnlyOrgIdsTest = require('./only_org_ids_test');
 const AddToExistingTest = require('./add_to_existing_test');
 const AddToExistingFetchTest = require('./add_to_existing_fetch_test');
+*/
 
 class CompanyTestGroupRequestTester {
 
 	test () {
+		new DeprecatedTest().test();
+		new DeprecatedEmptyTest().test();
+		/*
 		new AddNRInfoTest().test();
 		new FetchTest().test();
 		new MessageTest().test();
@@ -25,6 +32,7 @@ class CompanyTestGroupRequestTester {
 		new OnlyOrgIdsTest().test();
 		new AddToExistingTest().test();
 		new AddToExistingFetchTest().test();
+		*/
 	}
 }
 

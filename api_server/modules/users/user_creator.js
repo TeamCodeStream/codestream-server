@@ -45,10 +45,13 @@ class UserCreator extends ModelCreator {
 					'joinMethod',
 					'originUserId',
 					'copiedFromUserId',
-					'countryCode'
+					'countryCode',
+					'companyName',
+					'joinCompanyId',
+					'originalEmail'
 				],
-				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil'],
-				object: ['preferences', 'avatar', 'providerInfo'],
+				number: ['confirmationAttempts', 'confirmationCodeExpiresAt', 'confirmationCodeUsableUntil', 'nrUserId'],
+				object: ['preferences', 'avatar', 'providerInfo', 'nrUserInfo'],
 				'array(string)': ['providerIdentities']
 			}
 		};
@@ -78,6 +81,7 @@ class UserCreator extends ModelCreator {
 		if (error) {
 			return { password: error };
 		}
+		this.attributes.password = this.attributes.password.normalize();
 	}
 
 	// validate the given username
@@ -209,7 +213,19 @@ class UserCreator extends ModelCreator {
 			errorHandler: this.errorHandler,
 			password: this.attributes.password
 		}).hashPassword();
+
+		// save a two-way encrypted password for later retrieval, when we need to 
+		// create a user account on NewRelic/Azure IDP
+		this.request.log('NEWRELIC IDP TRACK: Encrypting password...');
+		this.attributes.encryptedPasswordTemp = await this.encryptPassword(this.attributes.password);
+
 		delete this.attributes.password;
+	}
+
+	// encrypt the user's password using two-way encryption, for later retrieval,
+	// when we need to create a user account on NewRelic/Azure IDP
+	async encryptPassword (password) {
+		return this.request.api.services.passwordEncrypt.encryptPassword(password);
 	}
 
 	// after the user object is saved...

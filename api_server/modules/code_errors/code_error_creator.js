@@ -9,7 +9,7 @@ const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/m
 const Indexes = require('./indexes');
 const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
-const NewRelicAuthorizer = require('./new_relic_authorizer');
+const NewRelicAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/new_relic_authorizer');
 
 class CodeErrorCreator extends ModelCreator {
 
@@ -61,7 +61,8 @@ class CodeErrorCreator extends ModelCreator {
 		return {
 			query: {
 				objectId: this.attributes.objectId,
-				objectType: this.attributes.objectType
+				objectType: this.attributes.objectType,
+				deactivated: false
 			},
 			hint: Indexes.byObjectId
 		}
@@ -195,10 +196,12 @@ class CodeErrorCreator extends ModelCreator {
 
 		const objectId = this.existingModel ? this.existingModel.get('objectId') : this.attributes.objectId;
 		const objectType = this.existingModel ? this.existingModel.get('objectType') : this.attributes.objectType;
-		const result = await new NewRelicAuthorizer({
+		const authorizer = new NewRelicAuthorizer({
 			request: this.request,
 			teamId: this.attributes.teamId
-		}).authorizeObject(objectId, objectType);
+		});
+		await authorizer.init();
+		const result = await authorizer.authorizeObject(objectId, objectType);
 
 		if (result !== true) {
 			throw this.errorHandler.error('createAuth', { info: result, reason: 'user is not authorized to claim this code error for their team' });

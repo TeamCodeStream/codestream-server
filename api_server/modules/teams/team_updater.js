@@ -6,6 +6,7 @@ const ModelUpdater = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/u
 const Team = require('./team');
 const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/array_utilities');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
+const IsCodeStreamOnly = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/companies/is_codestream_only');
 
 class TeamUpdater extends ModelUpdater {
 
@@ -84,7 +85,7 @@ class TeamUpdater extends ModelUpdater {
 				this.removingUserIds = finalDirective.$addToSet.removedMemberIds;
 				this.attributes.$pull = { adminIds: finalDirective.$addToSet.removedMemberIds };
 			}
-		}
+		} 
 	}
 
 	// before the team info gets saved...
@@ -124,10 +125,26 @@ class TeamUpdater extends ModelUpdater {
 			return;
 		}
 
+		// with unified identity, membership changes can only be made for orgs that are "codestream-only
+		this.company = await this.data.companies.getById(this.team.get('companyId'));
+		if (!this.company) {
+			throw this.errorHandler.error('notFound', { info: 'parent company' }); // should never happen
+		}
+		const codestreamOnly = await IsCodeStreamOnly(this.company, this.request);
+		if (!codestreamOnly) {
+			// immediately abort, save the change in company to non-codestream only,
+			// and publish corresponding message
+			await this.request.persist();
+			await this.publishCompanyNoCSOnly();
+			throw this.errorHandler.error('notAuthorizedToAdmin', { reason: 'membership in this company is managed by New Relic' });
+		}
+
 		// only admins can perform these operations
 		if (!(this.team.get('adminIds') || []).includes(this.user.id)) {
 			// the one exception is a user removing themselves from a team
+			// per https://issues.newrelic.com/browse/NR-60778 this is no longer true
 			if (
+				this.company.get('linkedNROrgId') || 
 				!this.removingUserIds || 
 				this.removingUserIds.find(id => id !== this.user.id)
 			) {
@@ -171,6 +188,26 @@ class TeamUpdater extends ModelUpdater {
 
 	// for a user being removed from the team, update their teamIds array
 	async removeUserFromTeam (user) {
+		// first remove the user from New Relic, if this fails, we don't want to proceed
+		if (
+			this.api.services.idp &&
+			this.company.get('linkedNROrgId') &&
+			user.get('nrUserId')
+		) {
+			let mockResponse;
+			if (this.request.request.headers['x-cs-no-newrelic']) {
+				mockResponse = true;
+				this.request.log('NOTE: not removing user on New Relic, sending mock response instead');
+			}
+
+			try {
+				await this.api.services.idp.deleteUser(user.get('nrUserId'), this.team.id, { request: this.request, mockResponse });
+			}
+			catch (ex) {
+				this.request.warn('Unable to delete user on NR side, will still delete on CS side but quietly ignore the NR-side failure: ' + ex.message);
+			}
+		}
+
 		const originalEmail = user.get('email');
 		const op = {
 			$pull: {
@@ -205,6 +242,32 @@ class TeamUpdater extends ModelUpdater {
 		}).save(op);
 		this.transforms.userUpdates.push(updateOp);
 		this.transforms.removedUserEmails[user.id] = originalEmail;
+	}
+
+	// if the company object has changed (because it was found to no longer be "codestream only"),
+	// publish the change to the team channel
+	async publishCompanyNoCSOnly () {
+		if (!this.request.transforms.updateCompanyNoCSOnly) {
+			return;
+		}
+
+		// publish the change to all users on the "everyone" team
+		const channel = 'team-' + this.team.id;
+		const message = {
+			company: this.transforms.updateCompanyNoCSOnly,
+			requestId: this.request.request.id
+		};;
+		try {
+			await this.request.api.services.broadcaster.publish(
+				message,
+				channel,
+				{ request: this.request }
+			);
+		}
+		catch (error) {
+			// this doesn't break the chain, but it is unfortunate...
+			this.warn(`Could not publish updated company message to team ${this.team.id}: ${JSON.stringify(error)}`);
+		}
 	}
 }
 

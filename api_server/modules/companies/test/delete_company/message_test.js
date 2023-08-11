@@ -4,6 +4,7 @@ const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 const CommonInit = require('./common_init');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const Assert = require('assert');
 
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -38,18 +39,18 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	setExpectedMessage (callback) {
-		const expectedVersion = this.currentUser.user.version + (this.oneUserPerOrg ? 3 : 4);
+		const expectedVersion = this.currentUser.user.version + 3;
 		this.message = {
 			user: {
 				_id: this.currentUser.user.id,	// DEPRECATE ME
 				id: this.currentUser.user.id,
-				$pull: {
-					companyIds: this.company.id,
-					teamIds: this.team.id
-				},
 				$set: {
-					version: expectedVersion + 1,
-					modifiedAt: Date.now() // placeholder
+					deactivated: true,
+					modifiedAt: Date.now(), // placeholder
+					version: expectedVersion + 1
+				},
+				$unset: {
+					passwordEncryptedTemp: true
 				},
 				$version: {
 					before: expectedVersion,
@@ -75,7 +76,12 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	validateMessage (message) {
-		// we don't get this value any other way
+		const gotEmail = message.message.user.$set.email;
+		const emailParts = this.currentUser.user.email.split('@');
+		const regex = new RegExp(`^${emailParts[0]}-deactivated([0-9]+)@${emailParts[1]}$`);
+		const match = gotEmail.match(regex);
+		Assert(match && match[1]);
+		this.message.user.$set.email = message.message.user.$set.email;
 		this.message.user.$set.modifiedAt = message.message.user.$set.modifiedAt;
 		return super.validateMessage(message);
 	}

@@ -9,10 +9,9 @@ class AlreadyTakenTest extends ConfirmEmailTest {
 	get description () {
 		const which = this.isRegistered ? 'registered' : 'unregistered';
 		const inSameOrg = this.inSameOrg ? ' in the same org' : '';
-		const oneUserPerOrg = this.oneUserPerOrg ? 'under one-user-per-org, ' : '';
-		this.shouldFail = !this.oneUserPerOrg || this.inSameOrg;
+		this.shouldFail = this.inSameOrg;
 		const behavior = this.shouldFail ? 'redirect to an error page' : 'change the user\'s email';
-		return `${oneUserPerOrg}should ${behavior} when sending a confirm change of email request for an email already taken by a ${which} user${inSameOrg}`;
+		return `under one-user-per-org, should ${behavior} when sending a confirm change of email request for an email already taken by a ${which} user${inSameOrg}`;
 	}
 
 	init (callback) {
@@ -77,7 +76,7 @@ class AlreadyTakenTest extends ConfirmEmailTest {
 	}
 
 	acceptInvite (callback) {
-		if (!this.inSameOrg || !this.oneUserPerOrg || !this.isRegistered) {
+		if (!this.inSameOrg || !this.isRegistered) {
 			return callback();
 		}
 		this.doApiRequest(

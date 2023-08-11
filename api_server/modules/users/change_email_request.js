@@ -29,9 +29,29 @@ class ChangeEmailRequest extends RestfulRequest {
 
 		// in an environment where confirmation is not required (on-prem), we just change the user's email
 		if (!this.api.config.apiServer.confirmationNotRequired) {
-			await this.generateToken();		// generate a token for the email
-			await this.saveTokenInfo();		// save the token info
-			await this.sendEmail();			// send the confirmation email
+			// under unified identity, we no longer handle email confirmation ourselves, instead this goes
+			// through New Relic, and we only know about the change when the confirmation process is complete
+			if (
+				this.request.headers['x-cs-enable-uid'] &&
+				this.api.services.idp &&
+				this.request.user.get('nrUserId')
+			) {
+				await this.api.services.idp.updateUser(
+					this.request.user.get('nrUserId'),
+					{ email: this.request.body.email },
+					{ request: this }
+				);
+				
+				// update the user to force an IDP sync on the next request
+				this.data.users.updateDirect(
+					{ id: this.request.user.id },
+					{ $unset: { lastIDPSync: true } }
+				);
+			} else {
+				await this.generateToken();		// generate a token for the email
+				await this.saveTokenInfo();		// save the token info
+				await this.sendEmail();			// send the confirmation email
+			}
 		}
 		else {
 			await this.updateUser();
@@ -64,36 +84,26 @@ class ChangeEmailRequest extends RestfulRequest {
 
 	// ensure the email that the user is changing to is not already an email in our system
 	async ensureUnique () {
-		// under ONE_USER_PER_ORG, users are only required to be unique within a company
-		const oneUserPerOrg = (
-			this.api.modules.modulesByName.users.oneUserPerOrg ||
-			this.request.headers['x-cs-one-user-per-org']
-		);
-
+		// under one-user-per-org, users are only required to be unique within a company
 		const existingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: this.request.body.email.toLowerCase() },
 			{ hint: UserIndexes.bySearchableEmail }
 		);
 
-		// remove this check when we have fully moved to ONE_USER_PER_ORG
-		if (oneUserPerOrg) {
-			this.log('NOTE: doing check for uniqueness of email only in org in one-user-per-org'); 
-			const teamIds = this.user.get('teamIds') || [];
-			if (teamIds.length > 1) {
-				// this shouldn't happen under one-user-per-org, but it's just a safeguard
-				throw this.errorHandler.error('internal', { reason: 'user changing email in one-user-per-org, but belongs to more than one org' });
-			}
+		this.log('NOTE: doing check for uniqueness of email only in org in one-user-per-org'); 
+		const teamIds = this.user.get('teamIds') || [];
+		if (teamIds.length > 1) {
+			// this shouldn't happen under one-user-per-org, but it's just a safeguard
+			throw this.errorHandler.error('internal', { reason: 'user changing email in one-user-per-org, but belongs to more than one org' });
+		}
 
-			const teamId = teamIds[0];
-			if (teamId && existingUsers.find(user => {
-				return (
-					!user.get('deactivated') &&
-					(user.get('teamIds') || []).includes(teamId)
-				);			
-			})) {
-				throw this.errorHandler.error('emailTaken', { info: this.request.body.email });
-			}
-		} else if (existingUsers.length > 0) {
+		const teamId = teamIds[0];
+		if (teamId && existingUsers.find(user => {
+			return (
+				!user.get('deactivated') &&
+				(user.get('teamIds') || []).includes(teamId)
+			);			
+		})) {
 			throw this.errorHandler.error('emailTaken', { info: this.request.body.email });
 		}
 	}

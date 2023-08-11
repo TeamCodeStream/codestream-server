@@ -8,7 +8,7 @@ const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
-const NewRelicAuthorizer = require('./new_relic_authorizer');
+const NewRelicAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/new_relic_authorizer');
 
 class ClaimCodeErrorRequest extends RestfulRequest {
 
@@ -46,10 +46,12 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 	// the code error (error group) is associated with
 	async authorizeObject () {
 		const { objectId, objectType } = this.request.body;
-		const result = await new NewRelicAuthorizer({
+		const authorizer = new NewRelicAuthorizer({
 			request: this,
 			teamId: this.teamId
-		}).authorizeObject(objectId, objectType);
+		});
+		await authorizer.init();
+		const result = await authorizer.authorizeObject(objectId, objectType);
 		if (result === true) {
 			return true;
 		} else {
@@ -62,7 +64,7 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 	async getCodeError () {
 		const { objectId, objectType } = this.request.body;
 		this.codeError = await this.data.codeErrors.getOneByQuery(
-			{ objectId, objectType },
+			{ objectId, objectType, deactivated: false },
 			{ hint: Indexes.byObjectId }
 		);
 		if (!this.codeError) {

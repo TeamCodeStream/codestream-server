@@ -44,7 +44,7 @@ class NewUsersMessageToTeamTest extends Aggregation(CodeStreamMessageTest, Commo
 		// do the update, this should trigger a message to the
 		// team channel with the added users
 		this.updatedAt = Date.now();
-		const expectedVersion = this.oneUserPerOrg ? 5 : 4;
+		const expectedVersion = 5;
 		this.doApiRequest(
 			{
 				method: 'post',

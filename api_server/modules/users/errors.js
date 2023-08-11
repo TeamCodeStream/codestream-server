@@ -162,5 +162,15 @@ module.exports = {
 		code: 'USRC-1030',
 		message: 'Login code doesn\'t match',
 		description: 'The provided login code doesn\'t match the expected login code for the user'
+	},
+	'idpSyncDenied': {
+		code: 'USRC-1031',
+		message: 'This account was not authorized by the IDP',
+		description: 'Credentials were valid for CodeStream, but the IDP rejected the user or its org as valid during sync'
+	},
+	'switchToServerUrl': {
+		code: 'USRC-1032',
+		message: 'Client must switch to using a different server URL',
+		description: 'The client is directed to switch to using a different server URL, the URL is given in the error info'
 	}
 };

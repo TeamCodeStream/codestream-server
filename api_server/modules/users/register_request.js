@@ -4,7 +4,6 @@
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
 const UserCreator = require('./user_creator');
-const OldUserCreator = require('./old_user_creator'); // remove when ONE_USER_PER_ORG is fully deployed
 const ConfirmCode = require('./confirm_code');
 const Errors = require('./errors');
 const AuthErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/authenticator/errors');
@@ -76,7 +75,7 @@ class RegisterRequest extends RestfulRequest {
 					string: ['email', 'password', 'username']
 				},
 				optional: {
-					string: ['fullName', 'timeZone', 'companyName', '_pubnubUuid'],
+					string: ['fullName', 'timeZone', 'companyName', 'joinCompanyId', 'originalEmail', '_pubnubUuid'],
 					number: ['timeout', 'reuseTimeout'],
 					object: ['preferences']
 				}
@@ -105,22 +104,30 @@ class RegisterRequest extends RestfulRequest {
 	async getExistingUser () {
 		// find any registered user (which triggers an already-registered email),
 		// or any unregistered user that has not been invited to a team
+		// exception: if the user has companyName, they are in the process of creating a new org,
+		// or: if the user has joinCompanyId, they are in the process of joining an org,
+		// then we allow to proceed
 		const matchingUsers = await this.data.users.getByQuery(
 			{ searchableEmail: this.request.body.email.toLowerCase() },
 			{ hint: Indexes.bySearchableEmail }
 		);
 
 		let uninvitedUser;
-		this.user = matchingUsers.find(user => {
+		let registeredUser;
+		matchingUsers.find(user => {
 			if (user.get('deactivated')) {
 				return false;
-			} else if (user.get('isRegistered')) {
-				return true;
-			} else if ((user.get('teamIds') || []).length === 0) {
+			} else if (
+				user.get('isRegistered') &&
+				!this.request.body.companyName &&
+				!this.request.body.joinCompanyId
+			) {
+				registeredUser = user;
+			} else if (!user.get('isRegistered') && (user.get('teamIds') || []).length === 0) {
 				uninvitedUser = user;
 			}
 		});
-		this.user = this.user || uninvitedUser;
+		this.user = registeredUser || uninvitedUser;
 
 		// short-circuit the flow if the user is already registered
 		return this.user && this.user.get('isRegistered');
@@ -170,24 +177,11 @@ class RegisterRequest extends RestfulRequest {
 			delete this.request.body.signupToken;	
 		}
 
-		// remove this check when ONE_USER_PER_ORG is fully deployed
-		const oneUserPerOrg = this.module.oneUserPerOrg || this.request.headers['x-cs-one-user-per-org'];
-		if (oneUserPerOrg) {
-			this.log('NOTE: Creating user under one-user-per-org paradigm');
-			this.user = await new UserCreator({ 
-				request: this,
-				existingUser: this.user
-			}).createUser(this.request.body);
-		} else {
-			this.userCreator = new OldUserCreator({
-				request: this,
-				teamIds: this.team ? [this.team.id] : undefined,
-				companyIds: this.team ? [this.team.get('companyId')] : undefined,
-				userBeingAddedToTeamId: this.team ? this.team.id : undefined,
-				dontSetInviteCode: true // suppress the default behavior for creating a user on a team
-			});
-			this.user = await this.userCreator.createUser(this.request.body);
-		}
+		this.log('NOTE: Creating user under one-user-per-org paradigm');
+		this.user = await new UserCreator({ 
+			request: this,
+			existingUser: this.user
+		}).createUser(this.request.body);
 	}
 
 	// if a signup token is provided, this allows a client IDE session to identify the user ID that was eventually
@@ -208,6 +202,7 @@ class RegisterRequest extends RestfulRequest {
 
 	// handle the response to the request
 	async handleResponse () {
+		this.log('NEWRELIC IDP TRACK: User signs up with email/password');
 		if (this.gotError) {
 			return super.handleResponse();
 		}

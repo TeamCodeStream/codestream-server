@@ -10,14 +10,6 @@ const _validateDomainJoining = function(domains) {
 	}
 };
 
-const _validateCodeHostJoining = function(hosts) {
-	for (const host of hosts) {
-		if (typeof host !== 'string' || !host) {
-			return { codeHostJoining: 'invalid code host'};
-		}
-	}
-};
-
 module.exports = {
 
 	validateAttributes: (attributes) => {
@@ -31,19 +23,7 @@ module.exports = {
 				return error;
 			}
 		}
-
-		// validate the code hosts
-		if (attributes.codeHostJoining) {
-			attributes.codeHostJoining = attributes.codeHostJoining.map(host => {
-				return host.toLowerCase().trim();
-			});
-			const error = _validateCodeHostJoining(attributes.codeHostJoining);
-			if (error) {
-				return error;
-			}
-		}
 	},
 
-	validateDomainJoining: _validateDomainJoining,
-	validateCodeHostJoining: _validateCodeHostJoining
+	validateDomainJoining: _validateDomainJoining
 };

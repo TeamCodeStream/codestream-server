@@ -4,6 +4,8 @@
 const RegistrationTest = require('./registration_test');
 const NoAttributeTest = require('./no_attribute_test');
 const UserExistsTest = require('./user_exists_test');
+const UserExistsCompanyNameTest = require('./user_exists_company_name_test');
+const UserExistsJoinCompanyIdTest = require('./user_exists_join_company_id_test');
 const InvitedUserExistsTest = require('./invited_user_exists_test');
 const BadEmailTest = require('./bad_email_test');
 const BadUsernameTest = require('./bad_username_test');
@@ -13,7 +15,11 @@ const BadPasswordTest = require('./bad_password_test');
 //const UserMessageToTeamTest = require('./user_message_to_team_test');
 const ConfirmationEmailTest = require('./confirmation_email_test');
 const AlreadyRegisteredEmailTest = require('./already_registered_email_test');
-const AlreadyRegisteredOneUserPerOrgTest = require('./already_registered_one_user_per_org_test'); // ONE_USER_PER_ORG
+const AlreadyRegisteredOneUserPerOrgTest = require('./already_registered_one_user_per_org_test'); 
+const AlreadyRegisteredCompanyNameTest = require('./already_registered_company_name_test');
+const AlreadyRegisteredOnATeamCompanyNameTest = require('./already_registered_on_a_team_company_name_test');
+const AlreadyRegisteredJoinCompanyIdTest = require('./already_registered_join_company_id_test');
+const AlreadyRegisteredOnATeamJoinCompanyIdTest = require('./already_registered_on_a_team_join_company_id_test');
 const PreferencesTest = require('./preferences_test');
 const SpecialCharactersUsernameTest = require('./special_characters_username_test');
 const ReuseConfirmationCodeTest = require('./reuse_confirmation_code_test');
@@ -48,16 +54,15 @@ class RegistrationRequestTester {
 
 	registrationTest () {
 		new RegistrationTest().test();
-		new RegistrationTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new NoAttributeTest({ attribute: 'password' }).test();
 		new NoAttributeTest({ attribute: 'username' }).test();
 		new BadEmailTest().test();
 		new BadUsernameTest().test();
 		new BadPasswordTest().test();
 		new UserExistsTest().test();
-		new UserExistsTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
+		new UserExistsCompanyNameTest().test();
+		new UserExistsJoinCompanyIdTest().test();
 		new InvitedUserExistsTest().test();
-		new InvitedUserExistsTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		//new ConflictingUsernameTest().test();
 		//new NoCodestreamUsernameTest().test();
 		//new UserMessageToTeamTest().test();
@@ -68,9 +73,13 @@ class RegistrationRequestTester {
 		SerializeTests([
 			ConfirmationEmailTest,
 			AlreadyRegisteredEmailTest,
-			AlreadyRegisteredOneUserPerOrgTest, // ONE_USER_PER_ORG
+			AlreadyRegisteredOneUserPerOrgTest,
 			//RepoBasedSignupConfirmationEmailTest
 		]);
+		new AlreadyRegisteredCompanyNameTest().test();
+		new AlreadyRegisteredOnATeamCompanyNameTest().test();
+		new AlreadyRegisteredJoinCompanyIdTest().test();
+		new AlreadyRegisteredOnATeamJoinCompanyIdTest().test();
 		new PreferencesTest().test();
 		new ReuseConfirmationCodeTest().test();
 		new NewCodeAfterReusabilityWindowTest().test();

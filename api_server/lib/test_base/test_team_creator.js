@@ -10,8 +10,7 @@ class TestTeamCreator {
 
 	create (callback) {
 		this.users = [];
-		// remove this check when we are fully migrated to ONE_USER_PER_ORG
-		const series = this.test.oneUserPerOrg ? [
+		BoundAsync.series(this, [
 			this.createUnregisteredUsers,
 			this.confirmTeamCreator,
 			this.preCreateTeam,
@@ -20,16 +19,7 @@ class TestTeamCreator {
 			this.confirmUsers,
 			this.acceptInvites,
 			this.createRepos
-		] : [
-			this.createRegisteredUsers,
-			this.createUnregisteredUsers,
-			this.preCreateTeam,
-			this.createTeam,
-			this.inviteUsers,
-			this.createRepos
-		];
-
-		BoundAsync.series(this, series, error => {
+		], error => {
 			if (error) { return callback(error); }
 			callback(null, {
 				team: this.team,
@@ -48,45 +38,10 @@ class TestTeamCreator {
 		});
 	}
 
-	// NOTE: remove when we have migrated to ONE_USER_PER_ORG
-	createRegisteredUsers (callback) {
-		BoundAsync.timesSeries(
-			this,
-			this.userOptions.numRegistered || 0,
-			this.createRegisteredUser,
-			callback
-		);
-	}
-
-	// NOTE: remove when we have migrated to ONE_USER_PER_ORG
-	createRegisteredUser (n, callback) {
-		const data = this.test.userFactory.getRandomUserData();
-		data._confirmationCheat = this.test.apiConfig.sharedSecrets.confirmationCheat;
-		Object.assign(data, (this.userOptions.userData || [])[n] || {});
-		this.test.userFactory.createUser(
-			data,
-			(error, userData) => {
-				if (error) { return callback(error); }
-				userData.password = data.password;
-				this.users.push(userData);
-				if (n === this.userOptions.currentUserIndex) {
-					this.currentUser = userData;
-					this.token = userData.accessToken;
-				}
-				callback();
-			}
-		);
-	}
-		
 	createUnregisteredUsers (callback) {
-		let numUsers;
-		if (this.test.oneUserPerOrg) { // remove this check when we are fully migrated to ONE_USER_PER_ORG
-			numUsers =
-				(this.userOptions.numRegistered || 0) +
-				(this.userOptions.numUnregistered || 0);
-		} else {
-			numUsers = this.userOptions.numUnregistered || 0;
-		}
+		let numUsers =
+			(this.userOptions.numRegistered || 0) +
+			(this.userOptions.numUnregistered || 0);
 		BoundAsync.timesSeries(
 			this,
 			numUsers,
@@ -98,12 +53,7 @@ class TestTeamCreator {
 	createUnregisteredUser (n, callback) {
 		const data = this.test.userFactory.getRandomUserData();
 		data._confirmationCheat = this.test.apiConfig.sharedSecrets.confirmationCheat;
-		let userIndex;
-		if (this.test.oneUserPerOrg) { // remove this check when we are fully migrated to ONE_USER_PER_ORG
-			userIndex = n;
-		} else {
-			userIndex = this.userOptions.numRegistered + n;
-		}
+		let userIndex = n;
 		Object.assign(data, (this.userOptions.userData && this.userOptions.userData[userIndex]) || {});
 		if (this.userOptions.cheatOnSubscription) {
 			data._subscriptionCheat = this.test.apiConfig.sharedSecrets.subscriptionCheat;
@@ -153,6 +103,12 @@ class TestTeamCreator {
 						teamIds: this.team.id,
 						companyIds: this.company.id
 					});
+					if (response.user && response.user.$set && response.user.$set.nrUserId) {
+						this.users[this.teamOptions.creatorIndex].user.nrUserId = response.user.$set.nrUserId;
+					}
+					if (response.user && response.user.$set && response.user.$set.nrUserInfo) {
+						this.users[this.teamOptions.creatorIndex].user.nrUserInfo = response.user.$set.nrUserInfo;
+					}
 				}
 				callback();
 			},

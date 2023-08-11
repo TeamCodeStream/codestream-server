@@ -43,7 +43,7 @@ class NumUsersInvitedTest extends Aggregation(CodeStreamMessageTest, CommonInit)
 	generateMessage (callback) {
 		// do the update, this should trigger a message to the user channel 
 		this.postCreatedAfter = Date.now();
-		const expectedVersion = this.oneUserPerOrg ? 3 : 4;
+		const expectedVersion = 3;
 		this.doApiRequest(
 			{
 				method: 'post',

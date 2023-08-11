@@ -5,7 +5,6 @@
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const DeepClone = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/deep_clone');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
-const RandomString = require('randomstring');
 
 class CommonInit {
 
@@ -26,11 +25,9 @@ class CommonInit {
 	makeCompanyData (callback) {
 		this.data = {
 			name: this.companyFactory.randomName(),
-			domainJoining: [this.companyFactory.randomDomain(), this.companyFactory.randomDomain()],
-			codeHostJoining: [ `github.com/${RandomString.generate(12)}`, `gitlab.com/${RandomString.generate(12)}` ]
+			domainJoining: [this.companyFactory.randomDomain(), this.companyFactory.randomDomain()]
 		};
 		const domainJoiningLowerCase = this.data.domainJoining.map(domain => domain.toLowerCase());
-		const codeHostJoiningLowerCase = this.data.codeHostJoining.map(host => host.toLowerCase());
 		this.expectedData = {
 			company: {
 				_id: this.company.id,	// DEPRECATE ME
@@ -39,8 +36,7 @@ class CommonInit {
 					version: this.expectedVersion,
 					modifiedAt: Date.now()	// placeholder
 				}, {
-					domainJoining: domainJoiningLowerCase,
-					codeHostJoining: codeHostJoiningLowerCase
+					domainJoining: domainJoiningLowerCase
 				}),
 				$version: {
 					before: this.expectedVersion - 1,

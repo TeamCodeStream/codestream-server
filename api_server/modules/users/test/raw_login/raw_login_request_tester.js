@@ -15,9 +15,7 @@ class RawLoginRequestTester {
 
 	rawLoginTest () {
 		new LoginTest().test();
-		new LoginTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new InitialDataTest().test();
-		new InitialDataTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new MeAttributesTest().test();
 		new ExpiredTokenTest().test();
 		new TokenIsValidTest().test();
@@ -25,7 +23,6 @@ class RawLoginRequestTester {
 		new SubscriptionTest({ which: 'team' }).test();
 		//new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new EligibleJoinCompaniesTest().test();
-		new EligibleJoinCompaniesTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new ClearFirstSessionTest().test();
 	}
 }

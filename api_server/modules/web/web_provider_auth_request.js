@@ -63,7 +63,7 @@ class WebProviderAuthRequest extends APIRequest {
 		});
 
 		// set up options for initiating a redirect 
-		const { authOrigin, callbackEnvironment } = this.api.config.apiServer;
+		const { authOrigin, publicApiUrl, callbackEnvironment } = this.api.config.apiServer;
 		let state = `${callbackEnvironment}!${code}`;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
 		const options = {
@@ -73,7 +73,13 @@ class WebProviderAuthRequest extends APIRequest {
 			redirectUri,
 			access: this.request.query.access,
 			sharing: !!this.request.query.sharing,
-			hostUrl: this.hostUrl || payload.hu
+			hostUrl: this.hostUrl || payload.hu,
+			signupToken: payload.st,
+			noSignup: payload.nosu,
+			publicApiUrl,
+			unifiedIdentityEnabled: this.request.query.enableUId || !!this.request.headers['x-cs-enable-uid'],
+			joinCompanyId: this.request.query.joinCompanyId,
+			anonUserId: this.request.query.anonUserId
 		};
 		this.log('redirectUri: ' + redirectUri);
 
@@ -91,6 +97,8 @@ class WebProviderAuthRequest extends APIRequest {
 				.join('&');
 			const redirectTo = `${url}?${query}`;
 			this.log('Redirect to: ' + redirectTo);
+			this.log('NEWRELIC IDP TRACK: Web provider auth redirecting to: ' + redirectTo);
+			
 			this.response.redirect(redirectTo);
 			this.responseHandled = true;
 		}

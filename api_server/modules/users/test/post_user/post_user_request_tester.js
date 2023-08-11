@@ -9,16 +9,12 @@ const ExistingRegisteredUserOnTeamTest = require('./existing_registered_user_on_
 const ExistingUnregisteredUserOnTeamTest = require('./existing_unregistered_user_on_team_test');
 const ExistingRegisteredUserAlreadyOnTeamTest = require('./existing_registered_user_already_on_team_test');
 const ExistingUnregisteredUserAlreadyOnTeamTest = require('./existing_unregistered_user_already_on_team_test');
-const OriginTeamPropagatesTest = require('./origin_team_propagates_test');
 const ACLTest = require('./acl_test');
 const NoAttributeTest = require('./no_attribute_test');
 const TeamNotFoundTest = require('./team_not_found_test');
 const MessageToTeamTest = require('./message_to_team_test');
 const ExistingUnregisteredUserMessageToTeamTest = require('./existing_unregistered_user_message_to_team_test');
 const ExistingRegisteredUserMessageToTeamTest = require('./existing_registered_user_message_to_team_test');
-const UserAddedToTeamGetsMessageTest = require('./user_added_to_team_gets_message_test');
-const UnregisteredInviteTest = require('./unregistered_invite_test');
-const DontSendEmailTest = require('./dont_send_email_test');
 const InviteEmailTest = require('./invite_email_test');
 const ExistingUnregisteredInviteEmailTest = require('./existing_unregistered_invite_email_test');
 const ExistingRegisteredInviteEmailTest = require('./existing_registered_invite_email_test');
@@ -50,6 +46,9 @@ const ExistingRegisteredUserOnTeamOriginUserIdTest = require('./existing_registe
 const ExistingUnregisteredUserOnTeamOriginUserIdTest = require('./existing_unregistered_user_on_team_origin_user_id_test');
 const ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest = require('./existing_registered_user_already_on_team_origin_user_id_test');
 const MessageToUserTest = require('./message_to_user_test');
+const NotCodeStreamOnlyTest = require('./not_codestream_only_test');
+const NotCodeStreamOnlyDiscoveryTest = require('./not_codestream_only_discovery_test');
+const NotCodeStreamOnlyDiscoveryMessageTest = require('./not_codestream_only_discovery_message_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -57,33 +56,20 @@ class PostUserRequestTester {
 
 	postUserTest () {
 		new PostUserTest().test();
-		new PostUserTest({ oneUserPerOrg: true }).test();
+		new PostUserTest({ unifiedIdentityEnabled: true }).test();
 		new ExistingUnregisteredUserTest().test();
-		new ExistingUnregisteredUserTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserTest().test();
-		new ExistingRegisteredUserTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserOnTeamTest().test();
-		new ExistingRegisteredUserOnTeamTest({ oneUserPerOrg: true }).test();
 		new ExistingUnregisteredUserOnTeamTest().test();
-		new ExistingUnregisteredUserOnTeamTest({ oneUserPerOrg: true }).test();
 		new ExistingRegisteredUserAlreadyOnTeamTest().test();
-		new ExistingRegisteredUserAlreadyOnTeamTest({ oneUserPerOrg: true }).test();
 		new ExistingUnregisteredUserAlreadyOnTeamTest().test();
-		new ExistingUnregisteredUserAlreadyOnTeamTest({ oneUserPerOrg: true }).test();
-		new OriginTeamPropagatesTest().test();
 		new ACLTest().test();
 		new NoAttributeTest({ attribute: 'teamId'}).test();
 		new NoAttributeTest({ attribute: 'email'}).test();
 		new TeamNotFoundTest().test();
 		new MessageToTeamTest().test();
-		new MessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new ExistingUnregisteredUserMessageToTeamTest().test();
-		new ExistingUnregisteredUserMessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
 		new ExistingRegisteredUserMessageToTeamTest().test();
-		new ExistingRegisteredUserMessageToTeamTest({ oneUserPerOrg: true }).test(); // ONE_USER_PER_ORG
-		new UserAddedToTeamGetsMessageTest().test();
-		new UnregisteredInviteTest().test();
-		new DontSendEmailTest().test();
 		// these tests must be serialized because for technical reasons the tests
 		// are actually run in their "before" stage, and they will fail due to timeouts
 		// if they are run in parallel
@@ -119,6 +105,9 @@ class PostUserRequestTester {
 		new ExistingUnregisteredUserOnTeamOriginUserIdTest().test();
 		new ExistingRegisteredUserAlreadyOnTeamOriginUserIdTest().test();
 		new MessageToUserTest().test();
+		new NotCodeStreamOnlyTest().test();
+		new NotCodeStreamOnlyDiscoveryTest().test();
+		new NotCodeStreamOnlyDiscoveryMessageTest().test();
 	}
 }
 

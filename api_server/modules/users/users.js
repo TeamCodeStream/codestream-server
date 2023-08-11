@@ -12,6 +12,7 @@ const Errors = require('./errors');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const Reinviter = require('./reinviter');
 const WeeklyEmails = require('./weekly_emails');
+const PasswordEncrypt = require('./password_encrypt');
 
 const DEPENDENCIES = [
 	'authenticator'	// need the user
@@ -177,10 +178,34 @@ const USERS_ADDITIONAL_ROUTES = [
 		path: 'decline-invite/:id',
 		requestClass: require('./decline_invite_request')
 	},
+	
+	// these request will be callable through Service Gateway using a CodeStream-issued
+	// access token
 	{
-		method: 'get',
-		path: 'nr-exp',
-		requestClass: require('./nr_lookup_experiment_request')
+		method: 'put',
+		path: 'cs-auth/join-company/:id',
+		requestClass: require('./join_company_request')
+	},
+
+	{
+		method: 'put',
+		path: 'cs-auth/decline-invite/:id',
+		requestClass: require('./decline_invite_request')
+	},
+	{
+		method: 'put',
+		path: 'logout',
+		requestClass: require('./logout_request')
+	},
+	{
+		method: 'put',
+		path: 'no-auth/check-login',
+		requestClass: require('./check_login_request')
+	},
+	{
+		method: 'put',
+		path: '/web/join-company/:id',
+		requestClass: require('./web_join_company_request')
 	}
 ];
 
@@ -230,7 +255,14 @@ class Users extends Restful {
 		return async () => {
 			this.api.log('Initializing signup token service...');
 			this.signupTokens = new SignupTokens({ api: this.api });
-			return { signupTokens: this.signupTokens };
+
+			// used to temporarily encrypt passwords before hashing, during the New Relic IDP auth flow
+			this.passwordEncrypt = new PasswordEncrypt(this.api.config.integrations.newRelicIdentity.passwordKey);
+			
+			return { 
+				signupTokens: this.signupTokens,
+				passwordEncrypt: this.passwordEncrypt
+			};
 		};
 	}
 
@@ -291,6 +323,21 @@ class Users extends Restful {
 				};
 			}
 
+			// look for a temporary encrypted password older than 10 minutes, and delete
+			if (
+				request.user &&
+				request.user.get('encryptedPasswordTemp')
+			) {
+				const [ , , time ] = request.user.get('encryptedPasswordTemp').split('.');
+				const timestamp = parseInt(time, 10);
+				if (timestamp < Date.now() - 10 * 60 * 60 * 1000) {
+					// note: no need to await here
+					this.api.data.users.updateDirect(
+						{ _id: this.api.data.users.objectIdSafe(request.user.id) },
+						{ $unset: { encryptedPasswordTemp: true } }
+					);
+				}
+			}
 			next();
 		};
 	}
@@ -320,18 +367,8 @@ class Users extends Restful {
 			this.weeklyEmails.schedule();
 		}
 
-		// determine if we are using one-user-per-org, per global setting
-		// this can be deprecated when we have fully moved to the ONE_USER_PER_ORG paradigm
-		const setting = await this.api.data.globals.getOneByQuery(
-			{ tag: 'oneUserPerOrg' }, 
-			{ overrideHintRequired: true }
-		);
-		this.oneUserPerOrg = setting && setting.enabled;
-		if (this.oneUserPerOrg) {
-			this.api.log('NOTE: API Server is running in one-user-per-org mode');
-		} else {
-			this.api.log('NOTE: API Server is NOT running in one-user-per-org-mode');
-		}
+		this.oneUserPerOrg = true;
+		this.api.log('NOTE: API Server is running in one-user-per-org mode');
 	}
 
 	describeErrors () {

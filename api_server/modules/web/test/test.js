@@ -7,16 +7,10 @@
 
 const SimpleWebTest = require('./simple_web_test');
 const PermalinkTest = require('./permalink_test');
-const PrivatePermalinkLoginTest = require('./private_permalink_login_test');
-const PrivatePermalinkTest = require('./private_permalink_test');
-const ACLTest = require('./acl_test');
+const PrivatePermalinkNoAuthTest = require('./private_permalink_noauth_test');
 const CodemarkLinkNotFoundTest = require('./codemark_link_not_found_test');
 const InvalidTeamTest = require('./invalid_team_test');
-const ForgePublicPermalinkTest = require('./forge_public_permalink_test');
-const ForgeAlreadyPublicPermalinkTest = require('./forge_already_public_permalink_test');
-const IdentifyScriptTest = require('./identify_script_test');
 //const UrlButtonsTest = require('./url_buttons_test');
-const WhitespaceReplaceTest = require('./whitespace_replace_test');
 //const TypedCodemarkPermalinkTest = require('./typed_codemark_permalink_test');
 const ConfirmEmailRequestTester = require('./confirm_email/test');
 const WebSetPasswordRequestTester = require('./web_set_password/test');
@@ -49,18 +43,12 @@ describe('web', function() {
 		new SimpleWebTest(test).test();
 	});
 	new PermalinkTest().test();
-	new PrivatePermalinkLoginTest().test();
-	new PrivatePermalinkTest().test();
-	new ACLTest().test();
+	new PrivatePermalinkNoAuthTest().test();
 	new CodemarkLinkNotFoundTest({ permalinkType: 'public' }).test();
 	new CodemarkLinkNotFoundTest({ permalinkType: 'private' }).test();
 	new InvalidTeamTest({ permalinkType: 'public' }).test();
 	new InvalidTeamTest({ permalinkType: 'private', wantSignin: true }).test();
-	new ForgePublicPermalinkTest().test();
-	new ForgeAlreadyPublicPermalinkTest().test();
-	new IdentifyScriptTest().test();
 	//new UrlButtonsTest().test();
-	new WhitespaceReplaceTest().test();
 
 	describe('launcher tests', require('./launcher_test'));
 

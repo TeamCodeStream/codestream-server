@@ -9,7 +9,8 @@ class JoinCompanyLoginTest extends JoinCompanyTest {
 
 	get description () {
 		const by = this.byDomainJoining ? 'domain joining' : 'invite';
-		return `should be able to login after joining a company by ${by}`;
+		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
+		return `should be able to login after joining a company by ${by}${unifiedIdentity}`;
 	}
 
 	get method () {
@@ -38,6 +39,11 @@ class JoinCompanyLoginTest extends JoinCompanyTest {
 		Assert.strictEqual(data.user.id, this.joinResponse.userId, 'returned user not equal to the joined user');
 		Assert.strictEqual(data.teams.length, 1, '1 and only 1 team should be returned');
 		Assert.strictEqual(data.teams[0].id, this.joinResponse.teamId, 'returned team not equal to the expected team');
+		if (this.unifiedIdentityEnabled) {
+			Assert(typeof data.user.nrUserId === 'number' && data.user.nrUserId, 'nrUserId not set');
+			Assert(typeof data.user.nrUserInfo === 'object' && data.user.nrUserInfo.userTier === 'basic_user_tier', 'user tier not set');
+			Assert(data.user.nrUserInfo.userTierId === 0, 'user tier not set');
+		}
 	}
 }
 
