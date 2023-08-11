@@ -1,10 +1,24 @@
 # Change Log
 
+
 ## [14.0.19] - 2023-8-14
 
 ### Added
 
 - Adds backend support for New Relic's generative AI assistant, Grok
+
+## [14.0.18] - 2023-6-27
+
+### Changed
+
+- Fix for NR-128382
+
+## [14.0.17] - 2023-6-21
+
+### Changed
+
+- Release bump to support latest build
+
 
 ## [14.0.16] - 2023-5-31
 

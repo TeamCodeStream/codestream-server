@@ -6,6 +6,12 @@
 
 - Release bump to support latest API version
 
+## [14.0.17] - 2023-6-21
+
+### Changed
+
+- Release bump to support latest build
+
 ## [14.0.16] - 2023-5-31
 
 ### Changed
