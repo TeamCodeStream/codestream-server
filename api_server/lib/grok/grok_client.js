@@ -414,6 +414,8 @@ class GrokClient {
 
 		const client = new Client(origin);
 
+		let sequence = 0;
+
 		try {
 			const { statusCode, body } = await client.request({
 				method: 'POST',
@@ -494,6 +496,7 @@ class GrokClient {
 
 						// Queue up the broadcast events for this chunk of messages but don't send yet
 						broadcastEvents.push({
+							sequence: sequence++,
 							content: {
 								content: content,
 								role: responseRole
@@ -535,6 +538,7 @@ class GrokClient {
 			});
 			await this.broadcastToUser({
 				grokStream: {
+					sequence: sequence++,
 					extra: {
 						done: true
 					}
