@@ -7,7 +7,7 @@
 
 
 const OutboundEmailServerConfig = require(process.env.CSSVC_BACKEND_ROOT + '/outbound_email/src/config');
-const SimpleFileLogger = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/simple_file_logger');
+const NewRelicLogger = require('../../shared/server_utils/newrelic_logger');
 const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/cluster_wrapper');
 
 // start up the master, this will launch workers to really get down to work
@@ -15,8 +15,7 @@ const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 	const Config = await OutboundEmailServerConfig.loadPreferredConfig({ wait: true });
 
 	// establish our logger
-	const Logger = new SimpleFileLogger(Config.outboundEmailServer.logger);
-	await Logger.initialize(); // so we can write to the log immediately
+	const Logger = new NewRelicLogger();
 	OutboundEmailServerConfig.logger = Logger;
 
 	// invoke a node cluster master with our configurations provided
