@@ -82,7 +82,7 @@ class GetPostsRequest extends GetManyRequest {
 
 	// build the query to use for fetching posts (used by the base class GetManyRequest)
 	buildQuery () {
-		const query = { deactivated: false };
+		const query = {};
 
 		// process each parameter in turn
 		for (let parameter in this.request.query || {}) {
