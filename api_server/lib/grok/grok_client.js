@@ -456,7 +456,7 @@ class GrokClient {
 				// We have the full event in rows now, we can clear buffer for next chunk
 				buffer = '';
 
-				const broadcastEvents = [];
+				let broadcastContent = "";
 
 				for (let row of rows) {
 					// row = row.replace(/\n/g, "").trim();
@@ -484,34 +484,34 @@ class GrokClient {
 
 					const role = chonk.choices[0].delta?.role;
 
-					if (role) {
+					if (role && !responseRole) {
 						responseRole = role;
-						continue;
 					}
 
 					const content = chonk.choices[0].delta?.content;
 
 					if (content) {
+						// Collect the totality of all the content for the entire stream to persist to mongo
+						// for final version if post
 						responseContent += content;
-
-						// Queue up the broadcast events for this chunk of messages but don't send yet
-						broadcastEvents.push({
-							sequence: sequence++,
-							content: {
-								content: content,
-								role: responseRole
-							},
-							extra: {
-								topmostPostId: this.topmostPost.get('id'),
-								codeErrorId: this.codeError.get('id'),
-								postId: post.get('id'),
-								streamId: post.get('streamId')
-							}
-						});
+						// Gather the content from all the server events in this chunk
+						broadcastContent = broadcastContent + content;
 					}
 				}
 				// Now that we have all the events processed for this chunk we can send them in 1 pubnub broadcast
-				await this.broadcastToUser({ grokStream: broadcastEvents });
+				await this.broadcastToUser({ grokStream: {
+					sequence: sequence++,
+					content: {
+						content: broadcastContent,
+						role: responseRole,
+					},
+					extra: {
+						topmostPostId: this.topmostPost.get('id'),
+						codeErrorId: this.codeError.get('id'),
+						postId: post.get('id'),
+						streamId: post.get('streamId'),
+					}
+					} });
 			}
 
 			// Broadcast done event
