@@ -24,20 +24,25 @@ class MatchReposRequest extends RestfulRequest {
 			throw this.errorHandler.error('notFound', { info: this.team }); // shouldn't happen
 		}
 
-		const repoMatcher = new RepoMatcher({
-			request: this,
-			team,
-			findOnly: this.request.method.toLowerCase() === 'get'
-		});
-		this.repoIds = [];
-		for (let repo of this.request.body.repos) {
-			const matchedRepo = await repoMatcher.findOrCreateRepo({
-				remotes: repo.remotes || [],
-				knownCommitHashes: repo.knownCommitHashes || []
+		try {
+			const repoMatcher = new RepoMatcher({
+				request: this,
+				team,
+				findOnly: this.request.method.toLowerCase() === 'get'
 			});
-			if (matchedRepo) {
-				this.repoIds.push(matchedRepo.id);
+			this.repoIds = [];
+			for (let repo of this.request.body.repos) {
+				const matchedRepo = await repoMatcher.findOrCreateRepo({
+					remotes: repo.remotes || [],
+					knownCommitHashes: repo.knownCommitHashes || []
+				});
+				if (matchedRepo) {
+					this.repoIds.push(matchedRepo.id);
+				}
 			}
+		}
+		catch(error) {
+			throw this.errorHandler.error('invalidParameter', { info: error.message });
 		}
 	}
 
