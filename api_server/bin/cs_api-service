@@ -36,7 +36,7 @@ function startup {
 		$CS_API_TOP/bin/api_server.js $server_args
 	else
 		echo "`date`: cs_api-service is starting the API"
-		nohup $CS_API_TOP/bin/api_server.js $server_args 2>&1 /dev/null &
+		nohup $CS_API_TOP/bin/api_server.js $server_args </dev/null >/dev/null 2>&1 &
 		sleep 1
 		service_status $CS_API_TOP/bin/api_server.js
 	fi

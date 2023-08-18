@@ -18,9 +18,9 @@ case "$1" in
 	start)
 		# start the service here
 		cd $CS_OUTBOUND_EMAIL_TOP
-		echo 'nohup bin/outbound_email_server.js --one_worker 2>&1 /dev/null &'
+		echo 'nohup bin/outbound_email_server.js --one_worker </dev/null >/dev/null 2>&1 &'
 		echo "Logs are in New Relic Staging"
-		nohup bin/outbound_email_server.js --one_worker 2>&1 /dev/null &		# service_status $service_name
+		nohup bin/outbound_email_server.js --one_worker </dev/null >/dev/null 2>&1 &		# service_status $service_name
 		ec=$?
 		;;
 	stop)
