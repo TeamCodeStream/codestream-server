@@ -81,7 +81,7 @@ class CommonInit {
 			},
 			{
 				createdAt: Date.now(),
-				providerId: 'msteams',
+				providerId: 'login*microsoft*com',
 				teamId: RandomString.generate(10),
 				teamName: RandomString.generate(10),
 				channelId: RandomString.generate(10),
@@ -94,7 +94,7 @@ class CommonInit {
 	getShareIdentifiers (sharedTo) {
 		const providerMap = {
 			'slack*com': 'slack',
-			'msteams': 'msteams'
+			'login*microsoft*com': 'msteams'
 		};
 		return sharedTo.map(dest => [
 			providerMap[dest.providerId],

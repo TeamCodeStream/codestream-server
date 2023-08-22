@@ -9,7 +9,7 @@
 // load configurations
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const ModuleDirectory = process.env.CSSVC_BACKEND_ROOT + '/api_server/modules';
-const NewRelicLogger = require('../../shared/server_utils/newrelic_logger');
+const SimpleFileLogger = require('../../shared/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/cluster_wrapper');
 const StringifySortReplacer = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/stringify_sort_replacer');
 const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server');
@@ -71,7 +71,7 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	const Config = await ApiConfig.loadPreferredConfig({ wait: true });
 
 	// establish our logger
-	const Logger = new NewRelicLogger();
+	const Logger = new SimpleFileLogger(Config.apiServer.logger);
 	ApiConfig.logger = Logger;
 
 	// onprem support data (service versions, docker registry info, on-prem version)

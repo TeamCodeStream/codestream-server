@@ -1,12 +1,16 @@
 // provides a logger class that supports a new log file every day, and automatically
 // deletes log files older than a certain interval ago
+// also sends log entries to New Relic through APM agent
 
 'use strict';
 
+require('newrelic');
 const Strftime = require('strftime');
 const Path = require('path');
 const FS = require('fs');
 const { callbackWrap } = require('./await_utils');
+const nrPino = require('@newrelic/pino-enricher')
+const pino = require('pino')
 
 class SimpleFileLogger {
 	constructor(options) {
@@ -44,6 +48,8 @@ class SimpleFileLogger {
 
 		// what is my timezone offset? we'll assume it never changes
 		this.timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+
+		this.newRelicLogger = pino(nrPino());
 	}
 
 	setLoggerId(loggerId) {
@@ -127,24 +133,29 @@ class SimpleFileLogger {
 
 	critical(text, requestId, customLogProperties) {
 		this.log(text, requestId, 'critical', customLogProperties);
+		this.newRelicLogger.fatal({...customLogProperties, requestId, json}, text);
 	}
 
 	error(text, requestId, customLogProperties) {
 		this.log(text, requestId, 'error', customLogProperties);
+		this.newRelicLogger.error({...customLogProperties, requestId, json}, text);
 	}
 
 	warn(text, requestId, customLogProperties) {
 		this.log(text, requestId, 'warn', customLogProperties);
+		this.newRelicLogger.warn({...customLogProperties, requestId, json}, text);
 	}
 
 	debug(text, requestId, customLogProperties) {
 		if (this.debugOk) {
 			this.log(text, requestId, 'debug', customLogProperties);
+			this.newRelicLogger.debug({...customLogProperties, requestId, json}, text);
 		}
 	}
 
 	info(text, requestId, customLogProperties) {
 		this.log(text, requestId, 'info', customLogProperties);
+		this.newRelicLogger.info({...customLogProperties, requestId, json}, text);
 	}
 
 	// after initialization, we're assured of a log file to write to

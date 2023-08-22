@@ -46,7 +46,7 @@ class Post extends CodeStreamModel {
 	static getShareIdentifiers (sharedTo) {
 		const providerMap = {
 			'slack*com': 'slack',
-			'msteams': 'msteams'
+			'login*microsoft*com': 'msteams'
 		};
 		return sharedTo.map(dest => [
 			providerMap[dest.providerId],
