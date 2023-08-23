@@ -7,7 +7,7 @@ const StructuredConfigMongo = require('./structured_config_mongo');
 class StructuredConfigFactory {
 	create(options={}) {
 		if(options.mongoUrl) {
-			if (options.mongoUrl.startsWith('mongodb://')) {
+			if (options.mongoUrl.startsWith('mongodb://') || options.mongoUrl.startsWith('mongodb+srv://')) {
 				return new StructuredConfigMongo(options);
 			}
 			else if (options.mongoUrl.startsWith('file://')) {
