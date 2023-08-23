@@ -9,7 +9,7 @@
 // load configurations
 const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/config');
 const ModuleDirectory = process.env.CSSVC_BACKEND_ROOT + '/api_server/modules';
-const SimpleFileLogger = require('../../shared/server_utils/simple_file_logger');
+const SimpleFileLogger = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/simple_file_logger');
 const ClusterWrapper = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/cluster_wrapper');
 const StringifySortReplacer = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/stringify_sort_replacer');
 const ServerClass = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_server');
