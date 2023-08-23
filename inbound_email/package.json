@@ -1,6 +1,6 @@
 {
 	"name": "inbound-email",
-	"version": "14.0.19",
+	"version": "14.0.20",
 	"dependencies": {
 		"@newrelic/pino-enricher": "1.1.1",
 		"async": "2.6.4",

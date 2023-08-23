@@ -39,7 +39,15 @@ class RepoMatcher {
 
 		const remotes = (repoInfo.remotes || [])
 			.filter(remote => typeof remote === 'string')
-			.map(remote => NormalizeURL(remote));
+			.map(remote => {
+				try{
+					return NormalizeURL(remote);
+				}
+				catch(err){
+					this.request.warn(`Unable to normalize remote url: ${remote}`, err);				
+				}
+			})
+			.filter(remote => !!remote);
 		const knownCommitHashes = (repoInfo.knownCommitHashes || [])
 			.filter(commitHash => typeof commitHash === 'string')
 			.map(commitHash => commitHash.toLowerCase());

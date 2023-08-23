@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.20] - 2023-8-24
+
+### Added
+
+- Adds backend support for new method of authentication with MS Teams
+
 ## [14.0.19] - 2023-8-15
 
 ### Added
