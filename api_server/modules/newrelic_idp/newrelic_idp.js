@@ -140,7 +140,7 @@ if (!password) {
 	// to allow the race condition to clear
 	async waitForRefreshToken (email, password, options) {
 		const mockMode = options.request.api.config.apiServer.mockMode;
-		const wait = options.request.request.headers['x-cs-no-newrelic'] ? (mockMode ? 1000 : 7500) : 10000;
+		const wait = options.request.request.headers['x-cs-no-newrelic'] ? (mockMode ? 1500 : 7500) : 10000;
 		await new Promise(resolve => { setTimeout(resolve, wait); });
 		const now = Date.now();
 		options.request.log('Doing post-login token refresh through New Relic IDP...');		
@@ -207,6 +207,9 @@ if (!data.password) {
 		}, options);
 
 		if (options.request) options.request.log('NEWRELIC IDP TRACK: Logging user in using login service, with email and password...');
+		if (options.mockResponse) {
+			options.mockNRUserId = signupResponse.user_id;
+		}
 		const loginResponse = await this.loginUser(
 			{
 				username: data.email,
@@ -805,7 +808,7 @@ if (!data.password) {
 			}
 		} else if (service === 'login') {
 			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
-				return this._getMockLoginResponse(params);
+				return this._getMockLoginResponse(params, options);
 			}
 		} else if (service === 'credentials') {
 			let match;
@@ -838,17 +841,17 @@ if (!data.password) {
 	_getMockSignupResponse () {
 		return 	{
 			organization_id: UUID(),
-			customer_id: 'CC-' + Math.floor(Math.random() * 1000000000),
+			customer_id: 'CC-' + this._getMockNRUserId(),
 			customer_contract_id: UUID(),
 			organization_group_id: UUID(),
 			authentication_domain_id: UUID(),
-			user_id: Math.floor(Math.random() * 1000000000).toString(),
-			account_id: Math.floor(Math.random() * 100000000)
+			user_id: this._getMockNRUserId().toString(),
+			account_id: this._getMockNRUserId()
 		};
 	}
 
 	_getMockGetUserResponse (params = {}, id = null, options = {}) {
-		id = id || Math.floor(Math.random() * 1000000000).toString();
+		id = id || this._getMockNRUserId().toString();
 		const { 
 			email,
 			name,
@@ -940,11 +943,13 @@ if (!data.password) {
 		*/
 	}
 
-	_getMockLoginResponse (params) {
+	_getMockLoginResponse (params, options = {}) {
+console.warn('MOCK LOGIN PARAMS:', params);
+		const nrUserId = options.mockNRUserId || options.request.request.headers['x-cs-mock-nr-user-id'] || this._getMockNRUserId();
 		return {
 			idp: {
-				id_token: RandomString.generate(100),
-				refresh_token: RandomString.generate(100),
+				id_token: 'MNR-' + nrUserId + '-' + RandomString.generate(100),
+				refresh_token: 'MNRR-' + nrUserId + '-' + RandomString.generate(100),
 				expires_in: 3600
 			}
 		}
@@ -980,7 +985,7 @@ if (!data.password) {
 	}
 
 	_getMockOrgResponse (orgId) {
-		const accountId = Math.floor(Math.random() * 100000000);
+		const accountId = this._getMockNRUserId();
 		return {
 			data: {
 				id: orgId,
@@ -994,7 +999,7 @@ if (!data.password) {
 					customerContractId: UUID(),
 					createdAt: Date.now() - 24 * 60 * 60 * 1000,
 					deleteable: false,
-					customer_id: 'CC-' + Math.floor(Math.random() * 1000000000)
+					customer_id: 'CC-' + this._getMockNRUserId()
 				},
 				relationships: {
 					accounts: {
@@ -1058,6 +1063,10 @@ if (!data.password) {
 
 	_getMockPasswordResponse (options = {}) {
 		return {};
+	}
+
+	_getMockNRUserId () {
+		return Math.floor(Math.random() * 1000000000);
 	}
 
 	_throw (type, message, options = {}) {

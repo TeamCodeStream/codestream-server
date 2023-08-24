@@ -147,15 +147,19 @@ class LoginHelper {
 
 		// look for a new-style token (with min issuance), if it doesn't exist, or our current token
 		// was issued before the min issuance, then we need to generate a new token for this login type
+console.warn('****************** DOING LOGIN!!!!!!!!!!!! ******************', this.user.id);
 		let isNRToken = false;
 		try {
 			const currentTokenInfo = this.user.getTokenInfoByType(this.loginType);
+console.warn('currentTokenInfo:', currentTokenInfo);
 			isNRToken = currentTokenInfo && currentTokenInfo.isNRToken;
 			const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
 			this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
+console.warn('force=' + force);
 			const tokenPayload = (!force && this.accessToken && !isNRToken) ? 
 				this.api.services.tokenHandler.verify(this.accessToken) : 
 				null;
+console.warn('tokeNpayload:', tokenPayload);
 			if (
 				!this.dontGenerateAccessToken && 
 				!isNRToken &&
@@ -165,6 +169,7 @@ class LoginHelper {
 					minIssuance > (tokenPayload.iat * 1000)
 				)
 			) {
+console.warn('CREATING A NEW ACCESS TOKEN!!!!');
 				const { token, minIssuance } = AccessTokenCreator(this.request, this.user.id);
 				this.accessToken = token;
 				set = set || {};
@@ -173,12 +178,14 @@ class LoginHelper {
 
 			// if this is a New Relic issued access token, it may need to be refreshed
 			if (isNRToken) {
+console.warn('IS AN NR TOKEN');
 				this.accessTokenInfo = currentTokenInfo;
  				const result = await NRAccessTokenRefresher({
 					request: this.request,
 					tokenInfo: currentTokenInfo,
 					loginType: this.loginType
 				});
+console.warn('REFRESH RESULT:', result);
 				if (result) {
 					set = set || {};
 					Object.assign(set, result.userSet);

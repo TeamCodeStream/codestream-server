@@ -234,6 +234,10 @@ class APIRequestTest extends GenericTest {
 			// the only supported configuration, relying solely on SG for authn and authz, we
 			// don't have to be scared of this secret
 			requestOptions.headers['X-CS-SG-Test-Secret'] = this.apiConfig.sharedSecrets.subscriptionCheat;
+			if (options.token && options.token.startsWith('MNR-')) {
+				const nrUserId = options.token.split('-')[1];
+				requestOptions.headers['Service-Gateway-User-Id'] = nrUserId;
+			}
 		}
 		requestOptions.headers['X-CS-No-NewRelic'] = true;
 		if (!options.testIDPSync) {

@@ -102,17 +102,6 @@ class PostCompanyRequest extends PostRequest {
 
 		// check if we are using Service Gateway auth (login service),
 		// if so, we use the NR token as our actual access token
-		let serviceGatewayAuth;
-		if (this.request.headers['x-cs-sg-test-secret'] === this.api.config.sharedSecrets.subscriptionCheat) {
-			serviceGatewayAuth = true;
-		} else {
-			serviceGatewayAuth = await this.api.data.globals.getOneByQuery( 
-				{ tag: 'serviceGatewayAuth' }, 
-				{ overrideHintRequired: true }
-			);
-			serviceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
-		}
-
 		// save the new access token to the database...
 		const { token, refreshToken, expiresAt, provider } = tokenInfo;
 		const op = { 
@@ -125,7 +114,7 @@ class PostCompanyRequest extends PostRequest {
 		};
 
 		// also save as our actual access token if service gateway auth is active
-		if (serviceGatewayAuth) {
+		if (this.request.serviceGatewayAuth) {
 			Object.assign(op.$set, {
 				[ `accessTokens.web.token`]: token,
 				[ `accessTokens.web.refreshToken`]: refreshToken,

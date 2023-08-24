@@ -25,6 +25,7 @@ class CommonInit {
 
 	// perform the actual company creation 
 	createCompany (callback) {
+console.warn('CREATING COMPANY...');
 		this.doApiRequest(
 			{
 				method: 'post',
@@ -35,6 +36,7 @@ class CommonInit {
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.createCompanyResponse = response;
+console.warn('CC RESPONSE:', JSON.stringify(this.createCompanyResponse, 0, 5));
 				delete this.data;	// don't need this anymore
 				callback();
 			}

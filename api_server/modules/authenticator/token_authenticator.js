@@ -46,20 +46,29 @@ class TokenAuthenticator {
 
 	// get the authentication token from any number of places
 	async getToken () {
-		// no token required if we are authorized to operate as if behind service gateway,
-		// and service gateway user ID is detected
-		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
-			{ tag: 'serviceGatewayAuth' }, 
-			{ overrideHintRequired: true }
-		);
-		if (
-			serviceGatewayAuth &&
-			serviceGatewayAuth.enabled &&
-			this.request.headers['service-gateway-user-id']
-		) {
-			return;
+		// check if we are using Service Gateway auth (login service),
+		// if so, we use the NR token as our actual access token
+		if (this.request.headers['x-cs-sg-test-secret'] === this.api.config.sharedSecrets.subscriptionCheat) {
+			this.request.serviceGatewayAuth = true;
+		} else {
+			const serviceGatewayAuth = await this.api.data.globals.getOneByQuery( 
+				{ tag: 'serviceGatewayAuth' }, 
+				{ overrideHintRequired: true }
+			);
+			this.request.serviceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
 		}
 
+console.warn('HEADERS ARE:', JSON.stringify(this.request.headers, 0, 5));
+		// no token required if we are authorized to operate as if behind service gateway,
+		// and service gateway user ID is detected
+		if (
+			this.request.serviceGatewayAuth &&
+			this.request.headers['service-gateway-user-id']
+		) {
+console.warn('*********** HAVE SG USER ID ***********');
+			return;
+		}
+console.warn('************* NO SG USER ID **************');
 		if (this.pathIsNoAuth(this.request)) {
 			// e.g. '/no-auth/path' ... no authentication required
 			return true;
@@ -75,6 +84,7 @@ class TokenAuthenticator {
 		// otherwise look for a Bearer token
 		else {
 			token =	this.tokenFromHeader(this.request);
+console.warn('**************** TOKEN FROM HEADER IS:', token);
 		}
 		this.identityIsOptional = !!this.pathIsOptionalAuth(this.request);
 
@@ -118,6 +128,7 @@ class TokenAuthenticator {
 
 		let user;
 		try {
+console.warn('GETTING USER BY QUERY:', query);
 			user = await this.api.data.users[func](
 				query,
 				{
@@ -129,6 +140,7 @@ class TokenAuthenticator {
 		catch (error) {
 			throw this.errorHandler.error('internal', { reason: error });
 		}
+console.warn('GOT USER:', user);
 
 		if (!user || user.deactivated) {
 			if (!this.identityIsOptional) {

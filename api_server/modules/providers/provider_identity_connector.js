@@ -325,35 +325,25 @@ class ProviderIdentityConnector {
 			return;
 		}
 
-		// not relevant if auth through Service Gateway is not enabled
-		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
-			{ tag: 'serviceGatewayAuth' }, 
-			{ overrideHintRequired: true }
-		);
-		const isServiceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
-		if (isServiceGatewayAuth) {
-			this.request.log('This is New Relic IDP signin with Service Gateway auth enabled, storing user access token...');
-		}
-
 		delete op.$set['providerInfo.newrelic'];
 		const rootStr = `providerInfo.${teamId}.newrelic`;
 		op.$set[`${rootStr}.accessToken`] = this.tokenData.accessToken;
 		op.$set[`${rootStr}.bearerToken`] = true;
-		if (isServiceGatewayAuth) {
+		if (this.request.request.serviceGatewayAuth) {
 			op.$set['accessTokens.web.token'] = this.tokenData.accessToken;
 			op.$set['accessTokens.web.isNRToken'] = true;
 		}
 		if (this.tokenData.refreshToken) {
 			op.$set[`${rootStr}.refreshToken`] = this.tokenData.refreshToken;
 			op.$set[`${rootStr}.expiresAt`] = this.tokenData.expiresAt;
-			if (isServiceGatewayAuth) {
+			if (this.request.request.serviceGatewayAuth) {
 				op.$set['accessTokens.web.refreshToken'] = this.tokenData.refreshToken;
 				op.$set['accessTokens.web.expiresAt'] = this.tokenData.expiresAt;
 			}
 		}
 		if (this.tokenData.provider) {
 			op.$set[`${rootStr}.provider`] = this.tokenData.provider;
-			if (isServiceGatewayAuth) {
+			if (this.request.request.serviceGatewayAuth) {
 				op.$set['accessTokens.web.provider'] = this.tokenData.provider;
 			}
 		}
