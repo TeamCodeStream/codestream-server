@@ -11,7 +11,8 @@ const SubscriptionTest = require('./subscription_test');
 const LoginTest = require('./login_test');
 const FirstCompanyOneUserPerOrgTest = require('./first_company_one_user_per_org_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
-const NRUserIdTest = require('./nr_user_id_test');
+const IDPSignupTest = require('./idp_signup_test');
+const IDPSignupBehindSGTest = require('./idp_signup_behind_sg_test');
 const LinkedNROrgIdTest = require('./linked_nr_org_id_test');
 const CompanyNameFromRegistrationTest = require('./company_name_from_registration_test');
 const RefreshTokenTest = require('./refresh_token_test');
@@ -39,7 +40,8 @@ class PostCompanyRequestTester {
 		new FirstCompanyOneUserPerOrgTest().test();
 		new FirstCompanyOneUserPerOrgTest({ unifiedIdentityEnabled: true }).test();
 		new ClearFirstSessionTest().test();
-		new NRUserIdTest().test();
+		new IDPSignupTest().test();
+		new IDPSignupBehindSGTest().test();
 		new LinkedNROrgIdTest().test();
 		new CompanyNameFromRegistrationTest().test();
 		// serialize these tests because they are time-dependent, and fail on the

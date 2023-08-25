@@ -46,7 +46,10 @@ class LinkedNROrgIdTest extends PostCompanyTest {
 			},
 			(error, response) => {
 				if (error) { return callback(error); }
-				Assert.strictEqual(typeof response.company.linkedNROrgId, 'string', 'linkedNROrgId not set');
+				const { company } = response;
+				Assert.strictEqual(typeof company.linkedNROrgId, 'string', 'linkedNROrgId not set');
+				Assert.strictEqual(company.codestreamOnly, true, 'codestreamOnly flag not set');
+				Assert.strictEqual(company.orgOrigination, 'CS', 'orgOrigination is incorrect');
 				callback();
 			}
 		)
