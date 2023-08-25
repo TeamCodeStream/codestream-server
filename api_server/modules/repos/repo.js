@@ -18,7 +18,12 @@ class Repo extends CodeStreamModel {
 	async preSave (options) {
 		// enforce normalization of the URL
 		if (this.attributes.url) {
-			this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
+			try{
+				this.attributes.normalizedUrl = NormalizeURL(this.attributes.url);
+			}
+			catch(err){
+				this.request.warn(`Unable to normalize remote url: ${remote}`, err);				
+			}
 		}
 		// enforce lowercase on all IDs and the first commit hash
 		this.lowerCase('firstCommitHash');
