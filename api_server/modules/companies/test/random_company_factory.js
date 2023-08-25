@@ -31,11 +31,20 @@ class RandomCompanyFactory {
 	}
 
 	getCompanyInfoThroughLogin (accessToken, callback) {
-		this.apiRequester.doApiRequest({
+		const apiRequest = {
 			method: 'put',
 			path: '/login',
 			token: accessToken
-		}, (error, response) => {
+		};
+		if (accessToken.startsWith('MNR-')) {
+			const nrUserId = accessToken.split('-')[1];
+			apiRequest.requestOptions = {
+				headers: {
+					'x-cs-mock-nr-user-id': nrUserId
+				}
+			};
+		}
+		this.apiRequester.doApiRequest(apiRequest, (error, response) => {
 			if (error) { return callback(error); }
 			const info = {
 				company: response.companies[0],
