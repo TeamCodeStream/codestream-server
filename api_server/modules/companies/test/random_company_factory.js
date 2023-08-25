@@ -12,7 +12,6 @@ class RandomCompanyFactory {
 
 	// create the company by submitting a request to the server
 	createCompany (data, token, callback) {
-console.warn('CREATING THE TEST COMPANY...');
 		this.apiRequester.doApiRequest({
 			method: 'post',
 			path: '/companies',
@@ -32,7 +31,6 @@ console.warn('CREATING THE TEST COMPANY...');
 	}
 
 	getCompanyInfoThroughLogin (accessToken, callback) {
-console.warn('GETTING COMPANY INFO THROUGH LOGIN, token=' + accessToken);
 		const apiRequest = {
 			method: 'put',
 			path: '/login',
@@ -45,7 +43,6 @@ console.warn('GETTING COMPANY INFO THROUGH LOGIN, token=' + accessToken);
 					'x-cs-mock-nr-user-id': nrUserId
 				}
 			};
-console.warn('EXTRACTED:', nrUserId);
 		}
 		this.apiRequester.doApiRequest(apiRequest, (error, response) => {
 			if (error) { return callback(error); }

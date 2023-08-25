@@ -944,7 +944,6 @@ if (!data.password) {
 	}
 
 	_getMockLoginResponse (params, options = {}) {
-console.warn('MOCK LOGIN PARAMS:', params);
 		const nrUserId = options.mockNRUserId || options.request.request.headers['x-cs-mock-nr-user-id'] || this._getMockNRUserId();
 		return {
 			idp: {

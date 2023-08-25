@@ -58,17 +58,14 @@ class TokenAuthenticator {
 			this.request.serviceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
 		}
 
-console.warn('HEADERS ARE:', JSON.stringify(this.request.headers, 0, 5));
 		// no token required if we are authorized to operate as if behind service gateway,
 		// and service gateway user ID is detected
 		if (
 			this.request.serviceGatewayAuth &&
 			this.request.headers['service-gateway-user-id']
 		) {
-console.warn('*********** HAVE SG USER ID ***********');
 			return;
 		}
-console.warn('************* NO SG USER ID **************');
 		if (this.pathIsNoAuth(this.request)) {
 			// e.g. '/no-auth/path' ... no authentication required
 			return true;
@@ -84,7 +81,6 @@ console.warn('************* NO SG USER ID **************');
 		// otherwise look for a Bearer token
 		else {
 			token =	this.tokenFromHeader(this.request);
-console.warn('**************** TOKEN FROM HEADER IS:', token);
 		}
 		this.identityIsOptional = !!this.pathIsOptionalAuth(this.request);
 
@@ -128,7 +124,6 @@ console.warn('**************** TOKEN FROM HEADER IS:', token);
 
 		let user;
 		try {
-console.warn('GETTING USER BY QUERY:', query);
 			user = await this.api.data.users[func](
 				query,
 				{
@@ -140,7 +135,6 @@ console.warn('GETTING USER BY QUERY:', query);
 		catch (error) {
 			throw this.errorHandler.error('internal', { reason: error });
 		}
-console.warn('GOT USER:', user);
 
 		if (!user || user.deactivated) {
 			if (!this.identityIsOptional) {

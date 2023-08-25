@@ -33,14 +33,11 @@ class RefreshTokenFetchTest extends PostCompanyTest {
 	// wait a bit for the IDP signup process to complete, since that happens post-response
 	// since this will be a mock resonse, we shouldn't have to wait long
 	waitForIDPSignup (callback) {
-console.warn('CC TOKEN:', this.createCompanyResponse.userId ? this.createCompanyResponse.accessToken : this.token);
 		setTimeout(callback, 1000);
 	}
 
 	// login the user for the company just created
 	loginUser (callback) {
-console.warn('********* LOGGING IN USER...');
-console.warn('CC RESP:', JSON.stringify(this.createCompanyResponse, 0, 5));
 		let token, nrUserId;
 		if (this.createCompanyResponse.accessToken) {
 			token = this.createCompanyResponse.accessToken;
@@ -49,8 +46,6 @@ console.warn('CC RESP:', JSON.stringify(this.createCompanyResponse, 0, 5));
 			token = this.token;
 			nrUserId = this.currentUser.user.nrUserId;
 		}
-console.warn('DID SET TOKEN TO ', token);
-console.warn('DID SET NR USER ID TO', nrUserId);
 		this.doApiRequest(
 			{
 				method: 'put',
@@ -65,7 +60,6 @@ console.warn('DID SET NR USER ID TO', nrUserId);
 			(error, response) => {
 				if (error) { return callback(error); }
 				this.loginResponse = response;
-console.warn('LOGIN TOKEN:', response.accessToken);
 				callback();
 			}
 		);
@@ -82,8 +76,6 @@ console.warn('LOGIN TOKEN:', response.accessToken);
 		const teamId = this.createCompanyResponse.teamId || this.createCompanyResponse.team.id;
 		const originalProviderInfo = this.loginResponse.user.providerInfo[teamId].newrelic;
 		const providerInfo = data.user.providerInfo[teamId].newrelic;
-console.warn('ORIG NEW RELIC TOKEN:', originalProviderInfo.accessToken);
-console.warn('NEW NEW RELIC TOKEN:', providerInfo.accessToken);
 		Assert.notStrictEqual(providerInfo.accessToken, originalProviderInfo.accessToken, 'access token on fetch is the same as the one originally issued');
 	}
 }

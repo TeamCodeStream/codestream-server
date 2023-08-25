@@ -21,13 +21,13 @@ const FirstCompanyRefreshTokenBehindSGTest = require('./first_company_refresh_to
 const RefreshTokenFetchTest = require('./refresh_token_fetch_test');
 const FirstCompanyRefreshTokenFetchTest = require('./first_company_refresh_token_fetch_test');
 const RefreshTokenBehindSGFetchTest = require('./refresh_token_behind_sg_fetch_test');
+const FirstCompanyRefreshTokenBehindSGFetchTest = require('./first_company_refresh_token_behind_sg_fetch_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class PostCompanyRequestTester {
 
 	test () {
-		/*
 		new PostCompanyTest().test();
 		new PostCompanyTest({ unifiedIdentityEnabled: true }).test();
 		new NoAttributeTest({ attribute: 'name' }).test();
@@ -42,22 +42,17 @@ class PostCompanyRequestTester {
 		new NRUserIdTest().test();
 		new LinkedNROrgIdTest().test();
 		new CompanyNameFromRegistrationTest().test();
-		// TODO: wrong type validations
 		// serialize these tests because they are time-dependent, and fail on the
 		// default setup-then-run methodology
-		*/
 		SerializeTests([
-			/*
 			RefreshTokenTest,
 			RefreshTokenBehindSGTest,
 			FirstCompanyRefreshTokenTest,
 			FirstCompanyRefreshTokenBehindSGTest,
 			RefreshTokenFetchTest,
+			RefreshTokenBehindSGFetchTest,
 			FirstCompanyRefreshTokenFetchTest,
-			*/
-			RefreshTokenBehindSGFetchTest
-			/*
-			*/
+			FirstCompanyRefreshTokenBehindSGFetchTest
 		]);
 	}
 }

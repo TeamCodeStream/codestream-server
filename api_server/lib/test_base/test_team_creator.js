@@ -89,7 +89,6 @@ class TestTeamCreator {
 			return callback();
 		}
 		const token = this.teamOptions.creatorToken || this.users[this.teamOptions.creatorIndex].accessToken;
-console.warn('CREATING RANDOM COMPANY...');
 		this.test.companyFactory.createRandomCompany(
 			(error, response) => {
 				if (error) { return callback(error); }
