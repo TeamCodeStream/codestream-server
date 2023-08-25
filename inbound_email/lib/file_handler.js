@@ -257,6 +257,7 @@ class FileHandler {
 			!this.headers.get('from')
 		) {
 			// could not read an email from this file
+			this.dontNoticeError = true; // suppress notifying New Relic of this error
 			this.fullyReadReject('email rejected because it does not conform to expected format');
 		}
 		else {
@@ -277,6 +278,7 @@ class FileHandler {
 		// ignoring all others
 		const approvedTos = this.getApprovedTos(candidateTos);
 		if (!approvedTos.length) {
+			this.dontNoticeError = true; // suppress notifying New Relic of this error
 			throw 'email rejected because no CodeStream recipients found';
 		}
 		this.to = approvedTos;
@@ -479,6 +481,7 @@ class FileHandler {
 	async sendToApiServer () {
 		if (!this.text && this.attachmentData.length === 0) {
 			// nothing to post, ignore
+			this.dontNoticeError = true; // suppress notifying New Relic of this error
 			throw 'email rejected because no text and no attachments';
 		}
 
@@ -576,7 +579,9 @@ class FileHandler {
 			);
 		}
 
-		NewRelic.noticeError(error);
+		if (!this.dontNoticeError) {
+			NewRelic.noticeError(error);
+		}
 		this.warn(`Processing of ${this.baseName} failed: ${error}`);
 	}
 
