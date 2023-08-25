@@ -51,13 +51,21 @@ class RepoCreator extends ModelCreator {
 		// enforce URL normalization and company identifier on all passed remotes
 		let normalizedRemotes = [];
 		await Promise.all(this.attributes.remotes.map(async remote => {
-			const normalizedUrl = NormalizeURL(remote);
-			normalizedRemotes.push({
-				url: remote,
-				normalizedUrl,
-				companyIdentifier: ExtractCompanyIdentifier.getCompanyIdentifier(normalizedUrl)
-			});
+			try{
+				const normalizedUrl = NormalizeURL(remote);
+
+				normalizedRemotes.push({
+					url: remote,
+					normalizedUrl,
+					companyIdentifier: ExtractCompanyIdentifier.getCompanyIdentifier(normalizedUrl)
+				});
+	
+			}
+			catch(err){
+				this.request.warn(`Unable to normalize remote url: ${remote}`, err);				
+			}
 		}));
+
 		this.attributes.remotes = normalizedRemotes;
 	}
 
