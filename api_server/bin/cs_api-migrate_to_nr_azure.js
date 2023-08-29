@@ -15,6 +15,7 @@ const NewRelicIDP = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 Commander
 	.option('--dryrun', 'Do a dry run, meaning don\'t actually write anything to our database, but report on numbers')
 	.option('--throttle <throttle>', 'Throttle processing each user by this amount of time')
+	.option('--company <company>', 'Migrate only this company')
 	.option('--verbose', 'Verbose logging output')
 	.parse(process.argv);
 
@@ -74,17 +75,18 @@ class Migrator {
 			idp: this.idp
 		});
 
-		const result = await this.data.companies.getByQuery(
+		const query = this.company ? 
 			{
+				_id: this.data.companies.objectIdSafe(this.company)
+			} : {
 				linkedNROrgId: { $exists: false },
 				deactivated: false
-			},
-			{
-				stream: true,
-				overrideHintRequired: true,
-				sort: { _id: 1 }
-			}
-		);
+			};
+		const result = await this.data.companies.getByQuery(query, {
+			stream: true,
+			overrideHintRequired: true,
+			sort: { _id: 1 }
+		});
 
 		let company;
 		let totalUsersMigrated = 0;
@@ -134,7 +136,8 @@ class Migrator {
 		await new Migrator().go({ 
 			dryrun: !!Commander.dryrun,
 			throttle,
-			verbose: !!Commander.verbose
+			verbose: !!Commander.verbose,
+			company: Commander.company
 		});
 	}
 	catch (error) {
