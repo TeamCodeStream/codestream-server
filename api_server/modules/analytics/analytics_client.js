@@ -131,10 +131,12 @@ class AnalyticsClient {
 			trackObject['Company ID'] = company.id;
 			trackObject['Plan'] = company.get('plan');
 			trackObject['Reporting Group'] = company.get('reportingGroup') || '';
+			/* Remove these per NR-156469
 			if (request.request.headers['x-cs-enable-uid']) { // remove check when we move to UNIFIED_IDENTITY
 				trackObject['CodeStream Only'] = !!company.get('codestreamOnly');
 				trackObject['Org Origination'] = company.get('orgOrigination');
 			}
+			*/
 			trackObject.company = {
 				id: company.id,
 				name: company.get('name'),
