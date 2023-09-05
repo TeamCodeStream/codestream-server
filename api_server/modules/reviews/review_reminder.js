@@ -11,6 +11,8 @@ class ReviewReminder {
 
 	// schedule jobs to look for reviews which need reminders
 	schedule () {
+		this.api.log('NOTE: Review reminders disabled');
+		return;
 		// stagger each worker's schedule to occur at a random time every hour
 		const randomMinutes = Math.floor(Math.random() * 60);
 		const randomSeconds = Math.floor(Math.random() * 60);
