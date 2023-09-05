@@ -93,6 +93,10 @@ class WeeklyEmailPerUserHandler {
 		if (this.teamData.reviews) {
 			return;
 		}
+		this.teamData.reviews = [];
+		return;
+
+		// reviews in weekly emails disabled per NR-155518
 		this.teamData.reviews = await this.data.reviews.getByQuery(
 			{
 				teamId: this.teamData.team.id,
@@ -258,6 +262,7 @@ class WeeklyEmailPerUserHandler {
 		this.userData.myReviews = [];
 		this.userData.newReviews = [];
 		this.userData.closedReviews = [];
+		/* no more review-related posts in emails, per NR-155518
 		this.teamData.reviews.forEach(review => {
 			review.post = this.teamData.posts.find(post => post.id === review.postId);
 			if (this.postHasDeactivatedAncestor(review.post)) { return; }
@@ -284,6 +289,7 @@ class WeeklyEmailPerUserHandler {
 				}
 			}
 		});
+		*/
 		this.haveContent = this.haveContent || (
 			this.userData.closedReviews.length > 0 ||
 			this.userData.myReviews.length > 0 ||
@@ -369,6 +375,11 @@ class WeeklyEmailPerUserHandler {
 		return this.teamData.posts.reduce((accum, post) => {
 			const ancestorPost = post.grandparentPost || post.parentPost;
 			const ancestorItem = ancestorPost && (ancestorPost.codemark || ancestorPost.review);
+
+			// we now eliminate anything having to do with feedback requests (i.e. reviews)
+			if (post.reviewId || (ancestorPost && ancestorPost.reviewId)) {
+				return accum;
+			}
 
 			// first see if the post qualifies at all
 			if (
