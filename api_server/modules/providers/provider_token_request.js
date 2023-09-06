@@ -673,10 +673,14 @@ class ProviderTokenRequest extends RestfulRequest {
 
 	// issue a cookie for web login
 	issueCookie () {
-		const token =
-			(this.user.get('accessTokens') || {}) &&
-			(this.user.get('accessTokens').web || {}) &&
-			this.user.get('accessTokens').web.token;
+		let token;
+		if (
+			this.user.get('accessTokens') &&
+			this.user.get('accessTokens').web &&
+			this.user.get('accessTokens').web.token
+		) {
+			token = this.user.get('accessTokens').web.token;
+		}
 		if (!token) { return; }
 
 		this.response.cookie(this.api.config.apiServer.identityCookie, token, {

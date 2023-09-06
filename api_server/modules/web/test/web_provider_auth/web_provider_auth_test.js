@@ -127,8 +127,18 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		return payload;
 	}
 
+	extractCookie () {
+		let cookie = this.httpResponse.headers['set-cookie'];
+		if (cookie instanceof Array) {
+			cookie = cookie.find(c => c.startsWith(`t-${this.provider}=`));
+		}
+		return (cookie || '').trim();
+	}
+
 	validateCookie () {
-		Assert.strictEqual(this.httpResponse.headers['set-cookie'].trim(), `t-${this.provider}=s:${this.realState};`);
+		const cookie = this.extractCookie();
+		const re = `^t-${this.provider}=s(:|%3A)${this.realState}`;
+		Assert(cookie.match(new RegExp(re)), 'cookie not found or does not match');
 	}
 
 	getGithubRedirectData () {

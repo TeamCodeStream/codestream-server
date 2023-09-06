@@ -16,8 +16,10 @@ class NewRelicIDPAuthTest extends WebProviderAuthTest {
 
 	validateState (data) {
 		// we get no incoming state with New Relic IDP, instead we parse the cookie that gets set
-		const cookie = this.httpResponse.headers['set-cookie'].trim();
-		this.realState = cookie.split('=')[1].split(':')[1].split(';')[0];
+		const cookie = this.extractCookie();
+		this.realState = decodeURIComponent(cookie.split('=')[1]).split(':')[1].split(';')[0];
+		const parts = this.realState.split('.');
+		this.realState = parts.slice(0, parts.length-1).join('.');
 		this.validateRealState();
 	}
 }
