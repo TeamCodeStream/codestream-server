@@ -10,7 +10,7 @@ function interpolate(template, context=null) {
 	if (!template || typeof(template) != 'string' ) {
 		return template;
 	}
-	const TokenSanitizeRegex = /\$\{(?:\W*)?(\w*?)(?:[\W\d]*)\}/g;
+	const TokenSanitizeRegex = /\$\{(?:\W*)?(\w*)[\W\d]*}/g;
 	if (context === undefined) {
 		return template.replace(TokenSanitizeRegex, '');
 	}
