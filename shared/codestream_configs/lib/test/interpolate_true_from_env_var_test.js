@@ -4,7 +4,7 @@ const StructuredConfigBase = require('../structured_config_base');
 
 class InterpolateTrueFromEnvVarTest extends GenericTest {
 	get description () {
-		return 'interpolate should convert environment variable "false" string to a boolean false type';
+		return 'interpolate should convert environment variable "true" string to a boolean true type';
 	}
 
 	run (callback) {

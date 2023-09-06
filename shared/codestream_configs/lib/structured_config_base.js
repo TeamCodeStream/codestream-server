@@ -5,7 +5,7 @@ const fs = require('fs');
 const hjson = require('hjson');
 const StringifySortReplacer = require('../../server_utils/stringify_sort_replacer');
 const Interpolate = require('../../server_utils/interpolate');
-const { isTruthy } = require('../../../api_server/lib/util/utils');
+const { isTruthy } = require('../../server_utils/utils');
 
 const schemas = {};     // schema cache
 

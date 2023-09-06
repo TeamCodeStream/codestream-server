@@ -4,7 +4,7 @@ const StructuredConfigBase = require('../structured_config_base');
 
 class GetTrueFromNumericEnvVarTest extends GenericTest {
 	get description () {
-		return 'should convert environment variable "true" string to a boolean true';
+		return 'should convert environment variable "1" string to a boolean true';
 	}
 
 	run (callback) {
