@@ -50,12 +50,7 @@ class RefreshTokenFetchTest extends PostCompanyTest {
 			{
 				method: 'put',
 				path: '/login',
-				token,
-				requestOptions: {
-					headers: {
-						'x-cs-mock-nr-user-id': nrUserId
-					}
-				}
+				token
 			}, 
 			(error, response) => {
 				if (error) { return callback(error); }

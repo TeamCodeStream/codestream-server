@@ -19,16 +19,12 @@ describe('company requests', function() {
 
 	this.timeout(20000);
 
-	/*
 	describe('GET /companies/:id', companiesRequestTester.getCompanyTest);
 	describe('GET /companies', companiesRequestTester.getCompaniesTest);
-	*/
 	describe('POST /companies', PostCompanyRequestTester.test);
-	/*
 	describe('PUT /company-test-group/:id', CompanyTestGroupRequestTester.test);
 	describe('PUT /companies/:id', PutCompanyRequestTester.test);
 	describe('PUT /companies/join/:id', JoinCompanyRequestTester.test);
 	describe('POST /companies/add-nr-info/:id', AddNRInfoRequestTester.test);
 	describe('DELETE /companies/:id', DeleteCompanyRequestTester.test);
-	*/
 });

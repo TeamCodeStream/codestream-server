@@ -37,7 +37,8 @@ class IDPSignupTest extends FirstCompanyOneUserPerOrgTest {
 	}
 
 	waitForRefresh (callback) {
-		setTimeout(callback, 2000);
+		const time = this.mockMode ? 2000 : 12000;
+		setTimeout(callback, time);
 	}
 
 	validateResponse (data) {
