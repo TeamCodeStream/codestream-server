@@ -1,5 +1,12 @@
 # Change Log
 
+## [14.0.21] - 2023-9-13
+
+### Changed
+
+- Update copy in Weekly Activity emails
+- Disable email notifications for Feedback Request reminders
+
 ## [14.0.20] - 2023-8-24
 
 ### Added
