@@ -15,6 +15,7 @@ const InvalidTeamTest = require('./invalid_team_test');
 const ConfirmEmailRequestTester = require('./confirm_email/test');
 const WebSetPasswordRequestTester = require('./web_set_password/test');
 const SetPasswordRequestTester = require('./set_password/test');
+const WebProviderAuthRequestTester = require('./web_provider_auth/test');
 
 const SIMPLE_TESTS = [
 	{
@@ -61,4 +62,5 @@ describe('web', function() {
 	describe('GET /web/confirm-email', ConfirmEmailRequestTester.test);
 	describe('GET /web/user/password', WebSetPasswordRequestTester.test);
 	describe('POST /web/user/password', SetPasswordRequestTester.test);
+	describe('GET /web/provider-auth/:provider', WebProviderAuthRequestTester.test);
 });

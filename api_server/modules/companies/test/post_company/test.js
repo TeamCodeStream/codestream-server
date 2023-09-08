@@ -11,13 +11,18 @@ const SubscriptionTest = require('./subscription_test');
 const LoginTest = require('./login_test');
 const FirstCompanyOneUserPerOrgTest = require('./first_company_one_user_per_org_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
-const NRUserIdTest = require('./nr_user_id_test');
+const IDPSignupTest = require('./idp_signup_test');
+const IDPSignupBehindSGTest = require('./idp_signup_behind_sg_test');
 const LinkedNROrgIdTest = require('./linked_nr_org_id_test');
 const CompanyNameFromRegistrationTest = require('./company_name_from_registration_test');
 const RefreshTokenTest = require('./refresh_token_test');
 const RefreshTokenBehindSGTest = require('./refresh_token_behind_sg_test');
 const FirstCompanyRefreshTokenTest = require('./first_company_refresh_token_test');
 const FirstCompanyRefreshTokenBehindSGTest = require('./first_company_refresh_token_behind_sg_test');
+const RefreshTokenFetchTest = require('./refresh_token_fetch_test');
+const FirstCompanyRefreshTokenFetchTest = require('./first_company_refresh_token_fetch_test');
+const RefreshTokenBehindSGFetchTest = require('./refresh_token_behind_sg_fetch_test');
+const FirstCompanyRefreshTokenBehindSGFetchTest = require('./first_company_refresh_token_behind_sg_fetch_test');
 
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
@@ -35,17 +40,21 @@ class PostCompanyRequestTester {
 		new FirstCompanyOneUserPerOrgTest().test();
 		new FirstCompanyOneUserPerOrgTest({ unifiedIdentityEnabled: true }).test();
 		new ClearFirstSessionTest().test();
-		new NRUserIdTest().test();
+		new IDPSignupTest().test();
+		new IDPSignupBehindSGTest().test();
 		new LinkedNROrgIdTest().test();
 		new CompanyNameFromRegistrationTest().test();
-		// TODO: wrong type validations
 		// serialize these tests because they are time-dependent, and fail on the
 		// default setup-then-run methodology
 		SerializeTests([
 			RefreshTokenTest,
 			RefreshTokenBehindSGTest,
 			FirstCompanyRefreshTokenTest,
-			FirstCompanyRefreshTokenBehindSGTest
+			FirstCompanyRefreshTokenBehindSGTest,
+			RefreshTokenFetchTest,
+			RefreshTokenBehindSGFetchTest,
+			FirstCompanyRefreshTokenFetchTest,
+			FirstCompanyRefreshTokenBehindSGFetchTest
 		]);
 	}
 }

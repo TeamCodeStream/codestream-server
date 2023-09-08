@@ -96,7 +96,6 @@ class JoinCompanyHelper {
 
 	// process the request
 	async process () {
-		await this.checkServiceGatewayAuth();
 		await this.checkUnique();
 		if (!this.invitedUser) {
 			this.invitedUser = await this.duplicateUser();
@@ -120,15 +119,6 @@ class JoinCompanyHelper {
 			this.responseData.broadcasterToken = this.invitedUser.get('broadcasterToken');
 			this.responseData.user.version++;
 		}
-	}
-
-	// check if we are using Service Gateway auth (login service)
-	async checkServiceGatewayAuth () {
-		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
-			{ tag: 'serviceGatewayAuth' }, 
-			{ overrideHintRequired: true }
-		);
-		this.serviceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
 	}
 
 	// check if the joining user's email will be unique in the organization
@@ -194,7 +184,7 @@ class JoinCompanyHelper {
 				request: this.request,
 				user: this.invitedUser,
 				notRealLogin: true,
-				dontGenerateAccessToken: this.serviceGatewayAuth
+				dontGenerateAccessToken: this.request.request.serviceGatewayAuth
 			}).confirm({
 				email: this.user.get('email'),
 				username: this.user.get('username'),
@@ -299,7 +289,7 @@ class JoinCompanyHelper {
 
 		// if we are behind service gateway and using login service auth, we actually set the user's
 		// access token to the NR access token, this will be used for normal requests
-		if (this.serviceGatewayAuth) {
+		if (this.request.request.serviceGatewayAuth) {
 			set['accessTokens.web'] = { 
 				token,
 				isNRToken: true,
@@ -390,7 +380,7 @@ class JoinCompanyHelper {
 				[ `providerInfo.${this.team.id}.newrelic.provider` ]: provider
 			}
 		};
-		if (this.serviceGatewayAuth) {
+		if (this.request.request.serviceGatewayAuth) {
 			Object.assign(op.$set, {
 				[ `accessTokens.web.token`]: token,
 				[ `accessTokens.web.refreshToken`]: refreshToken,

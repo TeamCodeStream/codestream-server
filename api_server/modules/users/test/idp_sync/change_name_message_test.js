@@ -14,7 +14,13 @@ class ChangeNameMessageTest extends Aggregation(CodeStreamMessageTest, CommonIni
 	// make the data that triggers the message to be received
 	makeData (callback) {
 		this.delayLogin = true;
-		this.init(callback);
+		this.init(async error => {
+			if (error) { return callback(error); }
+			// here we wait for the token refresh that occurs after initial user signup,
+			// because that bumps the user version and we want the user version to match
+			await new Promise(r => { setTimeout(r, 600); });
+			callback();
+		});
 	}
 
 	// set mock data to use during the test

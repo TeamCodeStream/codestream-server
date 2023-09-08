@@ -153,7 +153,7 @@ class CompanyCreator extends ModelCreator {
 			}
 		);
 		this.password = generatedPassword || password; // save because caller needs to obtain a refresh token later in the process
-	
+
 		// for some insane reason, the user_id comes out as a string 
 		if (typeof nrUserInfo.id === 'string') {
 			nrUserInfo.id = parseInt(nrUserInfo.id, 10);
@@ -177,14 +177,7 @@ class CompanyCreator extends ModelCreator {
 		
 		// if we are behind service gateway and using login service auth, we actually set the user's
 		// access token to the NR access token, this will be used for normal requests
-		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
-			{ tag: 'serviceGatewayAuth' }, 
-			{ overrideHintRequired: true }
-		);
-		if (
-			serviceGatewayAuth &&
-			serviceGatewayAuth.enabled
-		) {
+		if (this.request.request.serviceGatewayAuth) {
 			set.accessTokens = {
 				web: {
 					token,
@@ -198,8 +191,9 @@ class CompanyCreator extends ModelCreator {
 		
 		// save NR user info obtained from the signup process
 		this.request.log('NEWRELIC IDP TRACK: Saving providerInfo from IDP signup');
+		let userId = this.transforms.additionalCompanyResponse ? this.transforms.additionalCompanyResponse.userId : this.user.id;
 		await this.data.users.applyOpById(
-			this.user.id,
+			userId,
 			{
 				$set: set,
 				$unset: {

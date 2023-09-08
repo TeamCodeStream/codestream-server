@@ -3,6 +3,7 @@
 const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_request.js');
 const WebErrors = require('./errors');
 const ProviderErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/errors');
+const RestfulErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/errors');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 
 class WebProviderAuthRequest extends APIRequest {
@@ -20,7 +21,11 @@ class WebProviderAuthRequest extends APIRequest {
 		this.serviceAuth = this.api.services[`${this.provider}Auth`];
 		if (!this.serviceAuth) {
 			this.warn(`Auth service ${this.provider} is not available`);
-			this.redirectLogin(WebErrors.internalError.code);
+			this.redirectError(WebErrors.internalError.code);
+			return;
+		}
+		if (this.provider === 'newrelicidp' && !this.request.query.signupToken) {
+			this.redirectError(RestfulErrors.parameterRequired);
 			return;
 		}
 
@@ -119,16 +124,9 @@ class WebProviderAuthRequest extends APIRequest {
 		}
 	}
 
-	redirectLogin (error) {
-		const url = encodeURIComponent(this.request.query.url);
-		const src = encodeURIComponent(this.request.query.src);
-		this.response.redirect(`/web/login?error=${error}&url=${url}&src=${src}`);
-		this.responseHandled = true;
-	}
-
 	redirectError (error) {
 		const message = error instanceof Error ? error.message : JSON.stringify(error);
-		const errorCode = typeof error === 'object' ? error.code : '';
+		const errorCode = typeof error === 'object' ? error.code : error;
 		this.warn('Error handling provider token request: ' + message);
 		let url = `/web/error?code=${errorCode}&provider=${this.provider}`;
 		this.response.redirect(url);

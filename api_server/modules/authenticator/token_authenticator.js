@@ -46,20 +46,26 @@ class TokenAuthenticator {
 
 	// get the authentication token from any number of places
 	async getToken () {
+		// check if we are using Service Gateway auth (login service),
+		// if so, we use the NR token as our actual access token
+		if (this.request.headers['x-cs-sg-test-secret'] === this.api.config.sharedSecrets.subscriptionCheat) {
+			this.request.serviceGatewayAuth = true;
+		} else {
+			const serviceGatewayAuth = await this.api.data.globals.getOneByQuery( 
+				{ tag: 'serviceGatewayAuth' }, 
+				{ overrideHintRequired: true }
+			);
+			this.request.serviceGatewayAuth = serviceGatewayAuth && serviceGatewayAuth.enabled;
+		}
+
 		// no token required if we are authorized to operate as if behind service gateway,
 		// and service gateway user ID is detected
-		const serviceGatewayAuth = await this.api.data.globals.getOneByQuery(
-			{ tag: 'serviceGatewayAuth' }, 
-			{ overrideHintRequired: true }
-		);
 		if (
-			serviceGatewayAuth &&
-			serviceGatewayAuth.enabled &&
+			this.request.serviceGatewayAuth &&
 			this.request.headers['service-gateway-user-id']
 		) {
 			return;
 		}
-
 		if (this.pathIsNoAuth(this.request)) {
 			// e.g. '/no-auth/path' ... no authentication required
 			return true;

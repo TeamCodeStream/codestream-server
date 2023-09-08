@@ -5,13 +5,14 @@ const fs = require('fs');
 const hjson = require('hjson');
 const StringifySortReplacer = require('../../server_utils/stringify_sort_replacer');
 const Interpolate = require('../../server_utils/interpolate');
+const { isTruthy } = require('../../server_utils/utils');
 
 const schemas = {};     // schema cache
 
 const ConfigTypes = {
 	base: 'base',
 	file: 'file',
-	mongo: 'mongo'
+	mongo: 'mongo',
 };
 
 /* eslint no-console: 0 */
@@ -19,7 +20,7 @@ const ConfigTypes = {
 
 // evidentally I need this according to some doc on the interwebs
 // for when promises go south
-process.on('unhandledRejection', (err) => { 
+process.on('unhandledRejection', (err) => {
 	console.warn(err);
 	process.exit(1);
 });
@@ -98,7 +99,7 @@ class StructuredConfigBase {
 
 	/**
 	 * Initialize the config file object; establish connections to any storage services
-	 * 
+	 *
 	 * @param {object}  [initOptions]              - initialization options
 	 * @param {boolean} [initOptions.connectOnly]  - true will connect to mongo only
 	 */
@@ -110,7 +111,7 @@ class StructuredConfigBase {
 
 	/**
 	 * load the configuration data
-	 * 
+	 *
 	 * @param {object}  [loadOptions]           - options for loading
 	 * @param {boolean} [loadOptions.reload]    - true to force a reload of the config data
 	 */
@@ -134,7 +135,7 @@ class StructuredConfigBase {
 			setTimeout(resolve, ms);
 		});
 	}
- 
+
 	/**
 	 * return config data to the caller. Will initialize, load schema and evaluate
 	 * custom config function if need be.
@@ -266,8 +267,13 @@ class StructuredConfigBase {
 	}
 
 	// from eric - so we can interpolate variables in string props of the config file
-	_interpolate(template, context) {
-		return Interpolate(template, context);
+	_interpolate(template, context, type) {
+		const result = Interpolate(template, context);
+		if (type) {
+			return this._coerce(result, type);
+		} else {
+			return result;
+		}
 	}
 
 	// logic to determine a variable's value by checking the environment variable
@@ -275,14 +281,16 @@ class StructuredConfigBase {
 	_getConfigValue(prop, schema, data) {
 		if (schema[prop].hasOwnProperty('env') && process.env[ schema[prop]['env'] ]) {
 			// this.logger.log(`overriding config value for ${prop} from ${schema[prop]['env']}`);
-			return process.env[ schema[prop]['env'] ];
+			const value = process.env[ schema[prop]['env'] ];
+			const propertyType = schema[prop].type;
+			return this._coerce(value, propertyType);
 		}
 		if (data.hasOwnProperty(prop)) {
 			return data[prop];
 		}
 		if(schema[prop].hasOwnProperty('default')) {
 			// this.logger.log(`using default config value for ${prop}`);
-			return this._interpolate(schema[prop]['default'], process.env);
+			return this._interpolate(schema[prop]['default'], process.env, schema[prop].type);
 		}
 		// this.logger.warn(`property ${prop} does not have a value nor a default (it is undefined)`);
 		return;
@@ -320,7 +328,7 @@ class StructuredConfigBase {
 				sectionData[prop] = this._getConfigValue(prop, schema, data);
 				if (typeof(sectionData[prop]) == 'string') {
 					// this.logger.log(`-- ${sectionData[prop]}`);
-					sectionData[prop] = this._interpolate(sectionData[prop], process.env);
+					sectionData[prop] = this._interpolate(sectionData[prop], process.env, schema[schemaProp].type);
 				}
 			}
 			else if (data[prop] !== null) {
@@ -335,9 +343,9 @@ class StructuredConfigBase {
 
 	/**
 	 * Returns section of the configuration file
-	 * 
+	 *
 	 * @param {string} section   - dotted notation to get the section (must refer to a block)
-	 * 
+	 *
 	 * @returns {object}   section of the config file
 	 */
 	getSection(section = '') {
@@ -351,7 +359,7 @@ class StructuredConfigBase {
 
 	/**
 	 * returns a property (leaf) of the config file
-	 * 
+	 *
 	 * @param {object} propString   - dotted notation of property
 	 */
 	getProperty(propString) {
@@ -363,6 +371,17 @@ class StructuredConfigBase {
 		let sectionData = {};
 		this._buildSection(sectionData, schema, data);
 		return sectionData[property];
+	}
+
+	_coerce (result, type) {
+		switch (type) {
+		case 'boolean':
+			return isTruthy(result);
+		case 'number':
+			return parseInt(result, 10);
+		default:
+			return result;
+		}
 	}
 }
 module.exports = StructuredConfigBase;

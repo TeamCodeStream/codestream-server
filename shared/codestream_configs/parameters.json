@@ -23,27 +23,32 @@
 {
 	"adminServer": {
 		"adminServerDisabled": {
+			"type": "boolean",
 			"default": false,
 			"desc": "true will disable admin server and related functionality",
 			"env": "OPADM_DISABLED"
 		},
 		"ignoreHttps": {
+			"type": "boolean",
 			"default": false,
 			"desc": "set to true to respond to http instead of https",
 			"env": "OPADM_IGNORE_HTTPS"
 		},
 		"logger": {
 			"consoleOk": {
+				"type": "boolean",
 				"default": true,
 				"desc": "allow logging to the console",
 				"env": "OPADM_LOG_CONSOLE_OK"
 			},
 			"debugOk": {
+				"type": "boolean",
 				"default": false,
 				"desc": "more verbose logging (debug level)",
 				"env": "OPADM_LOG_DEBUG_OK"
 			},
 			"directory": {
+				"type": "string",
 				"default": "${OPADM_LOGS}",
 				"desc": "directory for the onprem admin server logs",
 				"env": "OPADM_LOGS",
@@ -51,16 +56,19 @@
 			}
 		},
 		"port": {
+			"type": "number",
 			"default": 12076,
 			"desc": "admin server port",
 			"env": "OPADM_PORT"
 		},
 		"securePort": {
+			"type": "number",
 			"default": 12077,
 			"desc": "admin server secure port",
 			"env": "OPADM_SECURE_PORT"
 		},
 		"showConfig": {
+			"type": "boolean",
 			"default": false,
 			"desc": "dump configuration data to console",
 			"env": "OPADM_SHOW_CFG"
@@ -68,71 +76,85 @@
 	},
 	"apiServer": {
 		"altBroadcasterHost": {
+			"type": "string",
 			"default": null,
 			"desc": "alternate hostname for api -> broadcaster communication",
 			"env": "CS_API_ALT_BROADCASTER_HOST"
 		},
 		"authOrigin": {
+			"type": "string",
 			"desc": "origin to use for third-party auth callbacks",
 			"env": "CS_API_AUTH_ORIGIN"
 		},
 		"callbackEnvironment": {
+			"type": "string",
 			"default": "${CS_API_CALLBACK_ENV}",
 			"desc": "allows for callbacks through VPN to developers' local servers",
 			"env": "CS_API_CALLBACK_ENV"
 		},
 		"confirmCodeExpiration": {
+			"type": "number",
 			"default": 604800000,
 			"desc": "how long a confirmation code remains valid (in millisecs, default = 1 week)",
 			"env": "CS_API_CONFIRM_CODE_EXPIRATION"
 		},
 		"confirmationExpiration": {
+			"type": "number",
 			"default": 86400000,
 			"desc": "how long a token for email confirmation remains valid (in millisecs, default = 1 day)",
 			"env": "CS_API_CONFIRMATION_EXPIRATION"
 		},
 		"confirmationNotRequired": {
+			"type": "boolean",
 			"default": false,
 			"desc": "set to true to disable email confirmation",
 			"env": "CS_API_CONFIRMATION_NOT_REQUIRED"
 		},
 		"disablePhoneHome": {
+			"type": "boolean",
 			"default": true,
 			"desc": "set to false to disable phone home reporting (license permitting)",
 			"env": "CS_API_PHONE_HOME"
 		},
 		"dontWantAWS": {
+			"type": "boolean",
 			"default": false,
 			"desc": "set to true so API server will not use any AWS services",
 			"env": "CS_API_DONT_WANT_AWS"
 		},
 		"forgotPasswordExpiration": {
+			"type": "number",
 			"default": 86400000,
 			"desc": "how long a token for forgot-password remains valid (in millisecs, default = 1 day)",
 			"env": "CS_API_FORGOT_PASSWORD_EXPIRATION"
 		},
 		"helpIsAvailable": {
+			"type": "boolean",
 			"default": false,
 			"desc": "set to true enable API /help",
 			"env": "CS_API_HELP_AVAILABLE"
 		},
 		"ignoreHttps": {
+			"type": "boolean",
 			"default": false,
 			"desc": "set to true to respond to http instead of https",
 			"env": "CS_API_IGNORE_HTTPS"
 		},
 		"logger": {
 			"consoleOk": {
+				"type": "boolean",
 				"default": true,
 				"desc": "allow logging to the console",
 				"env": "CS_API_LOG_CONSOLE_OK"
 			},
 			"debugOk": {
+				"type": "boolean",
 				"default": false,
 				"desc": "more verbose logging (debug level)",
 				"env": "CS_API_DEBUG_OK"
 			},
 			"directory": {
+				"type": "string",
 				"default": "${CS_API_LOGS}",
 				"desc": "directory for api server logs",
 				"env": "CS_API_LOGS",
@@ -140,56 +162,67 @@
 			}
 		},
 		"marketingSiteUrl": {
+			"type": "string",
 			"default": "https://teamcodestream.webflow.io",
 			"desc": "marketing site; used for redirects",
 			"env": "CS_API_MARKETING_SITE_URL"
 		},
 		"mockMode": {
+			"type": "boolean",
 			"default": false,
 			"desc": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC",
 			"env": "CS_API_MOCK_MODE"
 		},
 		"phoneHomeUrl": {
+			"type": "string",
 			"default": "http://localhost.codestream.us:12089",
 			"desc": "server-side endpoint for phone home data collection",
 			"env": "CS_API_PHONE_HOME_URL"
 		},
 		"port": {
+			"type": "number",
 			"default": 12079,
 			"desc": "Network port for the api service",
 			"env": "CS_API_PORT"
 		},
 		"publicApiUrl": {
+			"type": "string",
 			"default": "https://localhost.codestream.us:12079",
 			"desc": "public url to access the API server from beyond",
 			"env": "CS_API_PUBLIC_URL"
 		},
 		"requireTLS12": {
+			"type": "boolean",
 			"default": false,
 			"desc": "enable TLS 1.2 communications for compliance",
 			"env": "CS_API_TLS_12"
 		},
 		"securePort": {
+			"type": "number",
 			"default": 12078,
 			"desc": "Secure network port for the api service",
 			"env": "CS_API_SECURE_PORT"
 		},
 		"sessionAwayTimeout": {
+			"type": "number",
 			"default": 600000,
 			"desc": "how long before we call a user 'away' from keyboard (in millisecs)",
 			"env": "CS_API_SESSION_AWAY_TIMEOUT"
 		},
 		"showConfig": {
+			"type": "boolean",
 			"default": false,
 			"desc": "print exported api configuration data to console",
 			"env": "CS_API_SHOW_CFG"
 		},
 		"signupTokenExpiration": {
+			"type": "number",
 			"default": 600000,
 			"desc": "how long a signup token issued by the IDE for a user to signup on web remains valid (in millisecs, default = 10 min)",
 			"env": "CS_API_SIGNUP_TOKEN_EXPIRATION"
 		},
 		"tmpDirectory": {
+			"type": "string",
 			"default": "${CS_API_SANDBOX}/tmp",
 			"desc": "temp directory",
 			"env": "CS_API_TMP",
@@ -199,31 +232,37 @@
 	"broadcastEngine": {
 		"codestreamBroadcaster": {
 			"altApiHost": {
+				"type": "string",
 				"default": null,
 				"desc": "alternate hostname to use to make api requests",
 				"env": "CS_BROADCASTER_ALT_API_HOST"
 			},
 			"host": {
+				"type": "string",
 				"default": "localhost.codestream.us",
 				"desc": "hostname of the broadcaster service (from client point-of-view)"
 			},
 			"ignoreHttps": {
+				"type": "boolean",
 				"default": false,
 				"desc": "set to true to respond to http instead of https",
 				"env": "CS_BROADCASTER_IGNORE_HTTPS"
 			},
 			"logger": {
 				"consoleOk": {
+					"type": "boolean",
 					"default": true,
 					"desc": "allow logging to the console",
 					"env": "CS_BROADCASTER_LOG_CONSOLE_OK"
 				},
 				"debugOk": {
+					"type": "boolean",
 					"default": false,
 					"desc": "more verbose logging (debug level)",
 					"env": "CS_BROADCASTER_DEBUG_OK"
 				},
 				"directory": {
+					"type": "string",
 					"default": "${CS_BROADCASTER_SANDBOX}/log",
 					"desc": "directory for broadcaster logs",
 					"env": "CS_BROADCASTER_LOGS",
@@ -231,28 +270,33 @@
 				}
 			},
 			"port": {
+				"type": "number",
 				"default": 12443,
 				"desc": "Network port for the broadcaster service",
 				"env": "CSSVC_BROADCASTER_PORT"
 			},
 			"secrets": {
 				"api": {
+					"type": "string",
 					"desc": "used to generate json web tokens for authentication tokens passed to the client",
 					"env": "CSSVC_BROADCASTER_API_SECRET",
 					"required": true
 				},
 				"auth": {
+					"type": "string",
 					"desc": "used to privilege certain api server requests to the broadcaster service",
 					"env": "CSSVC_BROADCASTER_AUTH_SECRET",
 					"required": true
 				}
 			},
 			"securePort": {
+				"type": "number",
 				"default": 12075,
 				"desc": "Secure network port for the broadcaster service",
 				"env": "CSSVC_BROADCASTER_SECURE_PORT"
 			},
 			"showConfig": {
+				"type": "boolean",
 				"default": false,
 				"desc": "print exported broadcaster configuration data to console",
 				"env": "CS_BROADCASTER_SHOW_CFG"
@@ -261,16 +305,19 @@
 		"pubnub": {
 			"blueKey": {
 				"publishKey": {
+					"type": "string",
 					"desc": "pubnub publishing key",
 					"env": "CSSVC_PUBNUB_PUBLISH_BLUE_KEY",
 					"required": true
 				},
 				"secretKey": {
+					"type": "string",
 					"desc": "pubnub adminstrative (secret) key",
 					"env": "CSSVC_PUBNUB_BLUE_SECRET",
 					"required": true
 				},
 				"subscribeKey": {
+					"type": "string",
 					"desc": "pubnub subscription key",
 					"env": "CSSVC_PUBNUB_SUBSCRIBE_BLUE_KEY",
 					"required": true
@@ -278,66 +325,80 @@
 			},
 			"greenKey": {
 				"publishKey": {
+					"type": "string",
 					"desc": "pubnub publishing key",
 					"env": "CSSVC_PUBNUB_PUBLISH_GREEN_KEY",
 					"required": true
 				},
 				"secretKey": {
+					"type": "string",
 					"desc": "pubnub adminstrative (secret) key",
 					"env": "CSSVC_PUBNUB_GREEN_SECRET",
 					"required": true
 				},
 				"subscribeKey": {
+					"type": "string",
 					"desc": "pubnub subscription key",
 					"env": "CSSVC_PUBNUB_SUBSCRIBE_GREEN_KEY",
 					"required": true
 				}
 			},
 			"keepAlive": {
+				"type": "boolean",
 				"default": true,
 				"desc": "use pubnub keep-alives"
 			},
 			"preferredKeyColor": {
+				"type": "string",
 				"desc": "preferred keyset to use (blue or green)",
 				"env": "CSSVC_PUBNUB_PREFERRED_KEY_COLOR",
 				"required": true
 			},
 			"ssl": {
+				"type": "boolean",
 				"default": true,
 				"desc": "use SSL for pubnub communications"
 			},
 			"uuid": {
+				"type": "string",
 				"default": "CodeStreamServer",
 				"desc": "description needed"
 			}
 		},
 		"selected": {
+			"type": "string",
 			"desc": "chosen broadcast engine (pubnub or codestreamBroadcaster)",
 			"env": "CSSVC_BROADCAST_ENGINE"
 		}
 	},
 	"email": {
 		"emailTo": {
+			"type": "string",
 			"default": "${DT_USER}@codestream.com",
 			"desc": "Divert all email to this address"
 		},
 		"notificationInterval": {
+			"type": "number",
 			"default": 300000,
 			"desc": "Frequency email is generated (in millisecs, default = 30 secs)"
 		},
 		"replyToDomain": {
+			"type": "string",
 			"default": "${CSSVC_ENV}.codestream.us",
 			"desc": "email domain for routing replies back to codestream"
 		},
 		"senderEmail": {
+			"type": "string",
 			"default": "${CSSVC_ENV}_alerts@codestream.us",
 			"desc": "all generated emails will be sent as this user"
 		},
 		"supportEmail": {
+			"type": "string",
 			"default": "${CSSVC_ENV}_support@codestream.us",
 			"desc": "support email address to include on email and forms"
 		},
 		"suppressEmails": {
+			"type": "boolean",
 			"default": true,
 			"desc": "Stop all email from being sent"
 		}
@@ -345,42 +406,52 @@
 	"emailDeliveryService": {
 		"NodeMailer": {
 			"disabled": {
+				"type": "boolean",
 				"default": false,
 				"desc": "disable nodeMailer delivery service"
 			},
 			"host": {
+				"type": "string",
 				"desc": "smtp mailer host",
 				"required": true
 			},
 			"password": {
+				"type": "string",
 				"desc": "smtp authentication password"
 			},
 			"port": {
+				"type": "number",
 				"default": 587,
 				"desc": "Email submission port"
 			},
 			"secure": {
+				"type": "boolean",
 				"default": true,
 				"desc": "use secure transport when sending mail"
 			},
 			"service": {
+				"type": "string",
 				"desc": "NodeMailer service type (gmail, ...)",
 				"required": true
 			},
 			"username": {
+				"type": "string",
 				"desc": "smtp authentication user"
 			}
 		},
 		"sendgrid": {
 			"apiKey": {
+				"type": "string",
 				"desc": "key to access sendgrid API",
 				"required": true
 			},
 			"disabled": {
+				"type": "boolean",
 				"default": false,
 				"desc": "disable sendgrid delivery service"
 			},
 			"url": {
+				"type": "string",
 				"default": "/v3/mail/send",
 				"desc": "sendgrid api uri"
 			}
@@ -389,18 +460,22 @@
 	"environmentGroup": {
 		"<envId>": {
 			"name": {
+				"type": "string",
 				"desc": "user-facing environment name"
 			},
 			"publicApiUrl": {
+				"type": "string",
 				"desc": "public url of api"
 			},
 			"shortName": {
+				"type": "string",
 				"desc": "user-facing environment short identifier"
 			}
 		}
 	},
 	"environmentGroupSecrets": {
 		"requestAuth": {
+			"type": "string",
 			"default": "localMutliEnvRequestAuthSecret",
 			"desc": "secret shared by all environments in one environment group used to authenticate inter-environment requests",
 			"env": "CS_API_ENVGRP_SECRETS_REQUESET_AUTH"
@@ -408,27 +483,32 @@
 	},
 	"inboundEmailServer": {
 		"inboundEmailDirectory": {
+			"type": "string",
 			"default": "${CS_MAILIN_SANDBOX}/mailq/new",
 			"desc": "new email files will be delivered to this directory by the mail agent",
 			"env": "CS_MAILIN_INBOUND_EMAIL_DIR"
 		},
 		"inboundEmailDisabled": {
+			"type": "boolean",
 			"default": false,
 			"desc": "true will disable inbound email processing",
 			"env": "CS_MAILIN_INBOUND_EMAIL_DISABLED"
 		},
 		"logger": {
 			"consoleOk": {
+				"type": "boolean",
 				"default": true,
 				"desc": "allow logging to the console",
 				"env": "CS_MAILIN_LOG_CONSOLE_OK"
 			},
 			"debugOk": {
+				"type": "boolean",
 				"default": false,
 				"desc": "more verbose logging (debug level)",
 				"env": "CS_MAILIN_DEBUG_OK"
 			},
 			"directory": {
+				"type": "string",
 				"default": "${CS_MAILIN_SANDBOX}/log",
 				"desc": "directory for inbound email logs",
 				"env": "CS_MAILIN_LOGS",
@@ -436,19 +516,23 @@
 			}
 		},
 		"processDirectory": {
+			"type": "string",
 			"default": "${CS_MAILIN_SANDBOX}/mailq/process",
 			"desc": "email files will be moved to this directory for processing"
 		},
 		"showConfig": {
+			"type": "boolean",
 			"default": false,
 			"desc": "print exported inbound email configuration data to console",
 			"env": "CS_MAILIN_SHOW_CFG"
 		},
 		"tempAttachmentDirectory": {
+			"type": "string",
 			"default": "${CS_MAILIN_SANDBOX}/mailq/attachments",
 			"desc": "attachments in incoming emails will be stored temporarily here"
 		},
 		"tmpDirectory": {
+			"type": "string",
 			"default": "${CS_MAILIN_SANDBOX}/tmp",
 			"desc": "temp directory",
 			"env": "CS_MAILIN_TMP"
@@ -457,13 +541,17 @@
 	"integrations": {
 		"asana": {
 			"<appProvider>": {
+				"type": "string",
 				"appClientId": {
+					"type": "string",
 					"desc": "Asana client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "Asana secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -472,12 +560,15 @@
 		"bitbucket": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "Bitbucket API client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "Bitbucket API secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -486,14 +577,17 @@
 		"devops": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "MS Azure DevOps API client Id",
 					"env": "CSSVC_DEVOPS_CLIENT_ID"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "MS Azure DevOps API secret",
 					"env": "CSSVC_DEVOPS_CLIENT_SECRET"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -502,12 +596,15 @@
 		"github": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "Github API client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "Github API secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -516,12 +613,15 @@
 		"gitlab": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "GitLab API client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "GitLab API secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -530,12 +630,15 @@
 		"glip": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "Glip API client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "Glip API secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -544,12 +647,15 @@
 		"jira": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "Jira API client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "Jira API secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -558,12 +664,15 @@
 		"linear": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "Linear API client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "Linear API secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -572,22 +681,27 @@
 		"msteams": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "MS Teams API client Id",
 					"env": "CSSVC_MSTEAMS_CLIENT_ID"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "MS Teams API secret",
 					"env": "CSSVC_MSTEAMS_CLIENT_SECRET"
 				},
 				"botAppId": {
+					"type": "string",
 					"desc": "Sharing MS Teams Bot App Id",
 					"env": "CSSVC_MSTEAMS_BOT_APP_ID"
 				},
 				"botAppPassword": {
+					"type": "string",
 					"desc": "Sharing MS Teams Bot App Password",
 					"env": "CSSVC_MSTEAMS_BOT_APP_PASS"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -596,27 +710,33 @@
 		"newrelic": {
 			"<appProvider>": {
 				"accountNumber": {
+					"type": "string",
 					"desc": "NR1 Account Number for webview telemetry",
 					"env": "CSSVC_NEWRELIC_WEBVIEW_ACCOUNT_NUMBER"
 				},
 				"browserIngestKey": {
+					"type": "string",
 					"desc": "NR1 ingest browser key",
 					"env": "CSSVC_NEWRELIC_BROWSER_KEY"
 				},
 				"licenseIngestKey": {
+					"type": "string",
 					"desc": "NR1 ingest license key",
 					"env": "CSSVC_NEWRELIC_LICENSE_KEY"
 				},
 				"telemetryEndpoint": {
+					"type": "string",
 					"default": "staging-collector.newrelic.com",
 					"desc": "Host endpoint passed to APM tracing library",
 					"env": "CSSVC_NEWRELIC_TELEMETRY_ENDPOINT"
 				},
 				"webviewAgentId": {
+					"type": "string",
 					"desc": "NR1 Agent ID for webview telemetry",
 					"env": "CSSVC_NEWRELIC_WEBVIEW_AGENT_ID"
 				},
 				"webviewAppId": {
+					"type": "string",
 					"desc": "NR1 App ID for webview telemetry",
 					"env": "CSSVC_NEWRELIC_WEBVIEW_APP_ID"
 				}
@@ -625,10 +745,12 @@
 		"newrelicgrok":{
 			"<appProvider>": {
 				"apiUrl": {
+					"type": "string",
 					"desc": "API Url for New Relic Grok Requests (through Azure OpenAI)",
 					"env": "CSSVC_NEWRELICGROK_API_URL"
 				},
 				"apiKey": {
+					"type": "string",
 					"desc": "API Key for New Relic Grok Requests (through Azure OpenAI)",
 					"env": "CSSVC_NEWRELICGROK_API_KEY"
 				}
@@ -637,64 +759,79 @@
 		"newRelicIdentity": {
 			"<appProvider>": {
 				"signupServiceHost": {
+					"type": "string",
 					"desc": "NR Signup Service Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_SIGNUP_SERVICE_HOST"
 				},
 				"userServiceHost": {
+					"type": "string",
 					"desc": "NR User Service Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_HOST"
 				},
 				"loginServiceHost": {
+					"type": "string",
 					"desc": "NR Login Service Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_LOGIN_SERVICE_HOST"
 				},
 				"credentialsServiceHost": {
+					"type": "string",
 					"desc": "NR Credentials Service Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_CREDENTIALS_SERVICE_HOST"
 				},
 				"orgServiceHost": {
+					"type": "string",
 					"desc": "NR Org Service Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_ORG_SERVICE_HOST"
 				},
 				"graphQLHost": {
+					"type": "string",
 					"desc": "NR GraphQL Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_GRAPHQL_HOST"
 				},
 				"idpServiceHost": {
+					"type": "string",
 					"desc": "NR IdP Service Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_IDP_SERVICE_HOST"
 				},
 				"newRelicClientId": {
+					"type": "string",
 					"desc": "NR Client Id",
 					"env": "CSSVC_NEWRELIC_IDENTITY_CLIENT_ID"
 				},
 				"newRelicClientSecret": {
+					"type": "string",
 					"desc": "NR Client Secret",
 					"env": "CSSVC_NEWRELIC_IDENTITY_CLIENT_SECRET"
 				},
 				"userServiceSecret": {
+					"type": "string",
 					"desc": "NR User Service Secret",
 					"env": "CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_SECRET"
 				},
 				"newRelicRegion": {
+					"type": "string",
 					"desc": "NR Region",
 					"env": "CSSVC_NEWRELIC_IDENTITY_REGION"
 				},
 				"passwordKey": {
+					"type": "string",
 					"desc": "NR Password Key (we maintain for short lived encryption)",
 					"env": "CSSVC_NEWRELIC_IDENTITY_PASSWORD_KEY"
-				},
+				}
 			}
 		},
 		"okta": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "Okta API client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "Okta API secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -703,23 +840,29 @@
 		"slack": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "Slack app client Id (legacy scopes)"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "Slack app secret (legacy scopes)"
 				},
 				"appId": {
+					"type": "string",
 					"desc": "Slack app Id (legacy scopes)"
 				},
 				"appSigningSecret": {
+					"type": "string",
 					"default": null,
 					"desc": "Slack app signing secret (legacy scopes)"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				},
 				"interactiveComponentsEnabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "configures Slack app interactive callback capabilities"
 				}
@@ -728,9 +871,11 @@
 		"trello": {
 			"<appProvider>": {
 				"apiKey": {
+					"type": "string",
 					"desc": "Trello API key"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -739,12 +884,15 @@
 		"youtrack": {
 			"<appProvider>": {
 				"appClientId": {
+					"type": "string",
 					"desc": "YouTrack API client Id"
 				},
 				"appClientSecret": {
+					"type": "string",
 					"desc": "YouTrack API secret"
 				},
 				"disabled": {
+					"type": "boolean",
 					"default": false,
 					"desc": "disable integration"
 				}
@@ -754,16 +902,19 @@
 	"outboundEmailServer": {
 		"logger": {
 			"consoleOk": {
+				"type": "boolean",
 				"default": true,
 				"desc": "allow logging to the console",
 				"env": "CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK"
 			},
 			"debugOk": {
+				"type": "boolean",
 				"default": false,
 				"desc": "more verbose logging (debug level)",
 				"env": "CS_OUTBOUND_EMAIL_DEBUG_OK"
 			},
 			"directory": {
+				"type": "string",
 				"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/log",
 				"desc": "directory for outbound email logs",
 				"env": "CS_OUTBOUND_EMAIL_LOGS",
@@ -771,6 +922,7 @@
 			}
 		},
 		"showConfig": {
+			"type": "boolean",
 			"default": false,
 			"desc": "print exported outbound email configuration data to console",
 			"env": "CS_OUTBOUND_EMAIL_SHOW_CFG"
@@ -778,12 +930,14 @@
 		"storage": {
 			"mongo": {
 				"url": {
+					"type": "string",
 					"desc": "optional override for mongo connect string",
 					"env": "CS_OUTBOUND_EMAIL_MONGO_URL"
 				}
 			}
 		},
 		"tmpDirectory": {
+			"type": "string",
 			"default": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp",
 			"desc": "temp directory",
 			"env": "CS_OUTBOUND_EMAIL_TMP"
@@ -792,18 +946,23 @@
 	"payments": {
 		"stripe": {
 			"annualPlanId": {
+				"type": "string",
 				"desc": "annual payment plan Id"
 			},
 			"buyNowCouponCode": {
+				"type": "string",
 				"desc": "buy-now coupon code"
 			},
 			"monthlyPlanId": {
+				"type": "string",
 				"desc": "monthly payment plan Id"
 			},
 			"publishableKey": {
+				"type": "string",
 				"desc": "stripe payment key visible to clients"
 			},
 			"secretKey": {
+				"type": "string",
 				"desc": "stripe payment secret"
 			}
 		}
@@ -811,12 +970,14 @@
 	"queuingEngine": {
 		"awsSQS": {
 			"outboundEmailQueueName": {
+				"type": "string",
 				"default": "local_${DT_USER}_outboundEmail",
 				"desc": "SQS queue name",
 				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
 				"envRequred": true
 			},
 			"region": {
+				"type": "string",
 				"default": "us-east-1",
 				"desc": "AWS region where queue resides",
 				"env": "AWS_REGION"
@@ -824,26 +985,31 @@
 		},
 		"rabbitmq": {
 			"host": {
+				"type": "string",
 				"default": "localhost.codestream.us",
 				"desc": "hostname of rabbitMQ service",
 				"required": true
 			},
 			"outboundEmailQueueName": {
+				"type": "string",
 				"default": "outboundEmail",
 				"desc": "RabbitMQ queue name",
 				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME"
 			},
 			"password": {
+				"type": "string",
 				"default": "stream",
 				"desc": "rabbitmq password for authentication",
 				"env": "CSSVC_RABBITMQ_PASS"
 			},
 			"port": {
+				"type": "number",
 				"default": 5672,
 				"desc": "network port for rabbitmq service",
 				"env": "CSSVC_RABBITMQ_PORT"
 			},
 			"user": {
+				"type": "string",
 				"default": "code",
 				"desc": "rabbitmq user for authentication",
 				"env": "CSSVC_RABBITMQ_USER"
@@ -852,30 +1018,36 @@
 	},
 	"sharedGeneral": {
 		"installationId": {
+			"type": "string",
 			"desc": "unique identifier for the onprem installation",
 			"env": "CSSVC_INSTALLATION_ID"
 		},
 		"isProductionCloud": {
+			"type": "boolean",
 			"default": false,
 			"desc": "identifies customer-facing environments",
 			"env": "CSSVC_IS_PRODUCTION_CLOUD"
 		},
 		"newRelicApiUrl": {
+			"type": "string",
 			"default": "https://staging-api.newrelic.com",
 			"desc": "NR1 user-facing api",
 			"env": "CSSVC_NEW_RELIC_API_URL"
 		},
 		"newRelicLandingServiceUrl": {
+			"type": "string",
 			"default": "https://landing.staging-service.newrelic.com",
 			"desc": "service to decide if user has an account in NR1",
 			"env": "CSSVC_NEW_RELIC_LANDING_SERVICE_URL"
 		},
 		"newRelicSecApiUrl": {
+			"type": "string",
 			"default": "https://nrsec-workflow-api.staging-service.newrelic.com",
 			"desc": "NR1 vulnerability mgmt user-facing api",
 			"env": "CSSVC_NEW_RELIC_SEC_API_URL"
 		},
 		"runTimeEnvironment": {
+			"type": "string",
 			"default": "${CSSVC_ENV}",
 			"desc": "run-time environment (local, onprem, prod, qa, pd, ...)",
 			"env": "CSSVC_ENV",
@@ -884,41 +1056,49 @@
 	},
 	"sharedSecrets": {
 		"auth": {
+			"type": "string",
 			"default": "AuthSecret",
 			"desc": "secret used for authentication",
 			"env": "CSSVC_AUTH_SECRET"
 		},
 		"commentEngine": {
+			"type": "string",
 			"default": "commentEngineSecret",
 			"desc": "for sharing comments with NR1",
 			"env": "CSSVC_COMMENT_ENGINE_SECRET"
 		},
 		"commentEngineAlt": {
+			"type": "string",
 			"default": "commentEngineAltSecret",
 			"desc": "for sharing comments with NR1 during key rotation",
 			"env": "CSSVC_COMMENT_ENGINE_ALT_SECRET"
 		},
 		"confirmationCheat": {
+			"type": "string",
 			"default": "ConfirmationCheatCode",
 			"desc": "for bypassing email confirmation, used for unit testing",
 			"env": "CSSVC_CONFIRMATION_CHEAT_CODE"
 		},
 		"cookie": {
+			"type": "string",
 			"default": "CookieSecret",
 			"desc": "secret used for permalinks",
 			"env": "CSSVC_COOKIE_SECRET"
 		},
 		"mail": {
+			"type": "string",
 			"default": "InboundEmailSecret",
 			"desc": "requests to the API server fromm the inbound email server provide this secret. This prevents outside clients from simulating inbound emails",
 			"env": "CSSVC_INBOUND_EMAIL_SECRET"
 		},
 		"signupFlowJWT": {
+			"type": "string",
 			"default": "signupFlowJWTSecret",
 			"desc": "to enable data exchange with NR1 during signup flow",
 			"env": "CSSVC_SIGNUP_FLOW_JWT_SECRET"
 		},
 		"subscriptionCheat": {
+			"type": "string",
 			"default": "SubscriptionCheatCode",
 			"desc": "allows unregistered users to subscribe to their me-channel, for testing emails",
 			"env": "CSSVC_SUBSCRIPTION_CHEAT_CODE"
@@ -926,21 +1106,25 @@
 	},
 	"ssl": {
 		"cafile": {
+			"type": "string",
 			"default": "${HOME}/.codestream/certs/wildcard.codestream.us/wildcard.codestream.us-ca",
 			"desc": "SSL certificate authority bundle (chain) file",
 			"env": "CSSVC_SSL_CAFILE"
 		},
 		"certfile": {
+			"type": "string",
 			"default": "${HOME}/.codestream/certs/wildcard.codestream.us/wildcard.codestream.us-crt",
 			"desc": "SSL certificate",
 			"env": "CSSVC_SSL_CERTFILE"
 		},
 		"keyfile": {
+			"type": "string",
 			"default": "${HOME}/.codestream/certs/wildcard.codestream.us/wildcard.codestream.us-key",
 			"desc": "SSL private key file",
 			"env": "CSSVC_SSL_KEYFILE"
 		},
 		"requireStrictSSL": {
+			"type": "boolean",
 			"default": true,
 			"desc": "require client-side strict SSL certificate verification"
 		}
@@ -948,30 +1132,38 @@
 	"sslCertificates": {
 		"<certId>": {
 			"caChain": {
+				"type": "string",
 				"desc": "certificate authority trust chain"
 			},
 			"cert": {
+				"type": "string",
 				"desc": "signed certificate"
 			},
 			"expirationDate": {
+				"type": "string",
 				"desc": "certificate expiration date"
 			},
 			"key": {
+				"type": "string",
 				"desc": "private key"
 			},
 			"privateCA": {
+				"type": "boolean",
 				"default": false,
 				"desc": "true indicates certificate signed by private CA"
 			},
 			"requireStrictSSL": {
+				"type": "boolean",
 				"default": true,
 				"desc": "clients seeing this cert should expect it to be valid WRT accepted public certificate authorities"
 			},
 			"selfSigned": {
+				"type": "boolean",
 				"default": false,
 				"desc": "true indicates certificate is self-signed"
 			},
 			"targetName": {
+				"type": "string",
 				"desc": "certificate's target host name"
 			}
 		}
@@ -979,10 +1171,12 @@
 	"storage": {
 		"mongo": {
 			"tlsCAFile": {
+				"type": "string",
 				"desc": "file containing mongo certificate for TLS connections",
 				"env": "CSSVC_MONGO_CLIENT_CERT_FILE"
 			},
 			"url": {
+				"type": "string",
 				"default": "mongodb://localhost/codestream",
 				"desc": "mongo connect string",
 				"env": "CSSVC_MONGO_URL"
@@ -991,26 +1185,31 @@
 	},
 	"telemetry": {
 		"disabled": {
+			"type": "boolean",
 			"default": true,
 			"desc": "disable telemetry",
 			"env": "CSSVC_TELEMETRY_DISABLED"
 		},
 		"mixpanel": {
 			"token": {
+				"type": "string",
 				"desc": "Mixpanel API token"
 			}
 		},
 		"segment": {
 			"token": {
+				"type": "string",
 				"desc": "segment token for clients"
 			},
 			"webToken": {
+				"type": "string",
 				"desc": "segment web token for the web app"
 			}
 		}
 	},
 	"universalSecrets": {
 		"telemetry": {
+			"type": "string",
 			"default": "PreAuthSecret",
 			"desc": "for accessing the api prior to authentication (pre-auth secret)",
 			"env": "CSSVC_PRE_AUTH_SECRET"
@@ -1019,32 +1218,38 @@
 	"uploadEngine": {
 		"s3": {
 			"bucket": {
+				"type": "string",
 				"default": "codestream-dev",
 				"desc": "S3 bucket name",
 				"env": "CSSVC_S3_BUCKET_NAME"
 			},
 			"disableSse": {
+				"type": "boolean",
 				"default": false,
 				"desc": "disable server-side-encryption when copying images to S3",
 				"env": "CSSVC_S3_DISABLE_SSE"
 			},
 			"keyPrefix": {
+				"type": "string",
 				"default": "usercontent/users/${DT_USER}",
 				"desc": "S3 object key prefix (no trailing /)",
 				"env": "CSSVC_S3_KEY_PREFIX"
 			},
 			"publicUrl": {
+				"type": "string",
 				"default": "http://codestream-dev.s3.us-east-1.amazonaws.com",
 				"desc": "public-facing url and prefix for serving images from S3",
 				"env": "CSSVC_S3_PUBLIC_URL"
 			},
 			"stripKeyPrefixFromUrl": {
+				"type": "boolean",
 				"default": false,
 				"desc": "determines if file urls saved in mongo include the keyPrefix",
 				"env": "CSSVC_S3_STRIP_KEY_PREFIX"
 			}
 		},
 		"selected": {
+			"type": "string",
 			"desc": "selected upload engine (s3)",
 			"env": "CSSVC_UPLOAD_ENGINE"
 		}

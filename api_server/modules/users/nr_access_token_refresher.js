@@ -20,20 +20,15 @@ module.exports = async (options) => {
 		return;
 	}
 
-	// if we are behind service gateway and using login service auth, we actually set the user's
-	// access token to the refreshed NR access token, this will be used for normal requests
-	const serviceGatewayAuthResult = await request.api.data.globals.getOneByQuery(
-		{ tag: 'serviceGatewayAuth' }, 
-		{ overrideHintRequired: true }
-	);
-	const serviceGatewayAuth = serviceGatewayAuthResult && serviceGatewayAuthResult.enabled;
 
 	request.log('User\'s New Relic issued access token is expired, attempting to refresh...');
 	const newTokenInfo = await request.api.services.idp.customRefreshToken(tokenInfo, { request });
 	request.log('User\'s New Relic issued access token was successfully refreshed');
 	
+	// if we are behind service gateway and using login service auth, we actually set the user's
+	// access token to the refreshed NR access token, this will be used for normal requests
 	const userSet = {};
-	if (serviceGatewayAuth) {
+	if (this.request.request.serviceGatewayAuth) {
 		userSet[`accessTokens.${loginType}.token`] = newTokenInfo.accessToken;
 		userSet[`accessTokens.${loginType}.refreshToken`] = newTokenInfo.refreshToken;
 		userSet[`accessTokens.${loginType}.expiresAt`] = newTokenInfo.expiresAt;

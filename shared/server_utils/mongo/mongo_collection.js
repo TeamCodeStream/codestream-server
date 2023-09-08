@@ -719,18 +719,21 @@ class MongoCollection {
 		}
 		else if (typeof obj[field] === 'string') {
 			const len = obj[field].length;
-			let lastPart, charRepeat;
-			if (len > 14) {
+			let firstPart, lastPart, charRepeat;
+			if (len > 28) {
+				firstPart = obj[field].slice(0, 7);
 				lastPart = obj[field].slice(-7);
-				charRepeat = len - 7;
-			} else if (len > 10) {
+				charRepeat = len - 14;
+			} else if (len > 20) {
+				firstPart = obj[field].slice(0, 4);
 				lastPart = obj[field].slice(-4);
-				charRepeat = len - 4;
+				charRepeat = len - 8;
 			} else {
+				firstPart = '';
 				lastPart = '';
 				charRepeat = len;
 			}
-			obj[field] = '*'.repeat(charRepeat) + lastPart;
+			obj[field] = firstPart + '*'.repeat(charRepeat) + lastPart;
 		}
 		else if (typeof obj[field] === 'object') {
 			obj[field] = {'*': '*'};

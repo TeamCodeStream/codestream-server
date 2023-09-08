@@ -141,7 +141,7 @@ return `
 
 	renderYourActivity (userData) {
 		const activity = (
-			this.renderReviews(userData) +
+			//this.renderReviews(userData) +
 			this.renderCodemarks(userData) + 
 			this.renderMentions(userData) +
 			this.renderPosts(userData)
@@ -207,11 +207,11 @@ ${activity}
 	}
 
 	renderNew (userData) {
-		return this.renderSectionEntries(userData, 'newCodemarksReviews', 'New Feedback Requests, Comments & Issues');
+		return this.renderSectionEntries(userData, 'newCodemarksReviews', 'New Comments & Issues');
 	}
 
 	renderResolved (userData) {
-		return this.renderSectionEntries(userData, 'closedCodemarksReviews', 'Resolved Feedback Requests, Comments & Issues');
+		return this.renderSectionEntries(userData, 'closedCodemarksReviews', 'Resolved Comments & Issues');
 	}
 
 	renderSectionEntries(userData, collection, heading) {

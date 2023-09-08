@@ -89,8 +89,10 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 		if (this.unifiedIdentityEnabled) { // remove this check when we fully move to UNIFIED_IDENTITY
 			Object.assign(expectedMessage.properties, {
+				/* Remove these per NR-156469
 				'CodeStream Only': true,
 				'Org Origination': 'CS',
+				*/
 				'NR User ID': this.currentUser.user.nrUserId,
 				'NR Tier': 'basic_user_tier',
 				'NR Organization ID': this.company.linkedNROrgId

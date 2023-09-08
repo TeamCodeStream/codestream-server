@@ -31,7 +31,7 @@ class RefreshTokenBehindSGTest extends RefreshTokenTest {
 		const csKey = 'accessTokens.web';
 		Assert.strictEqual(user[`${csKey}.token`], user[`${nrKey}.accessToken`], 'CodeStream access token not equal to New Relic access token');
 		expectedUser[`${csKey}.token`] = user[`${nrKey}.accessToken`];
-		Assert.strictEqual(user[`${csKey}.refreshToken`], user[`${nrKey}.refreshToken`], 'CodeStream refres token not equal to New Relic refresh token');
+		Assert.strictEqual(user[`${csKey}.refreshToken`], user[`${nrKey}.refreshToken`], 'CodeStream refresh token not equal to New Relic refresh token');
 		expectedUser[`${csKey}.refreshToken`] = user[`${nrKey}.refreshToken`];
 		Assert.strictEqual(user[`${csKey}.expiresAt`], user[`${nrKey}.expiresAt`], 'CodeStream expiration time not equal to New Relic expiration time');
 		expectedUser[`${csKey}.expiresAt`] = user[`${nrKey}.expiresAt`];

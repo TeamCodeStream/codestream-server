@@ -87,7 +87,9 @@ class IPCResponse extends EventEmitter {
 	cookie (name, value, options = {}) {
 		let cookieHeader = this.get('cookie') || '';
 		const signedPart = options.signed ? 's:' : '';
-		cookieHeader += `${name}=${signedPart}${value}; `;
+		const signature = options.signed ? 'SIGNATURE' : '';
+		const signedFlag = options.signed ? 'Secure' : ''
+		cookieHeader += `${name}=${signedPart}${value}.${signature}; Path=/; ${signedFlag}`;
 		this.set('set-cookie', cookieHeader);
 	}
 
