@@ -138,7 +138,11 @@ class MigrationHandler {
 				}
 			};
 			this.logVerbose(`Updating company: ${JSON.stringify(update, 0, 5)}`);
-			await this.data.companies.updateById(company.id, update);
+			if (this.dryRun) {
+				this.log(`Would have updated company ${company.id} with linkedNROrgId ${toNROrgId}`);
+			} else {
+				await this.data.companies.updateById(company.id, update);
+			}
 
 			return { numUsersMigrated, numUserErrors, numUsersExisting };
 		}
@@ -228,23 +232,27 @@ class MigrationHandler {
 			}
 
 			// save NR user info obtained from the signup process
-			await this.data.users.applyOpById(
-				firstUser.id,
-				{
-					$set: {
-						nrUserInfo: { 
-							userTier: nrUserInfo.attributes.userTier,
-							userTierId: nrUserInfo.attributes.userTierId
+			if (this.dryRun) {
+				this.log(`Would have updated first user ${firstUser.id} with nrUserId ${nrUserInfo.id}`);
+			} else {
+				await this.data.users.applyOpById(
+					firstUser.id,
+					{
+						$set: {
+							nrUserInfo: { 
+								userTier: nrUserInfo.attributes.userTier,
+								userTierId: nrUserInfo.attributes.userTierId
+							},
+							nrUserId: nrUserInfo.id
 						},
-						nrUserId: nrUserInfo.id
-					},
-					$unset: {
-						encryptedPasswordTemp: true,
-						companyName: true,
-						originalEmail: true
+						$unset: {
+							encryptedPasswordTemp: true,
+							companyName: true,
+							originalEmail: true
+						}
 					}
-				}
-			);
+				);
+			}
 
 			// return the signup response
 			return signupResponse;
@@ -303,7 +311,11 @@ class MigrationHandler {
 					originalEmail: true
 				}
 			};
-			await this.data.users.applyOpById(user.id, op);
+			if (this.dryRun) {
+				this.log(`Would have updated user ${user.id} with nrUserId ${nrUserInfo.id}`);
+			} else {
+				await this.data.users.applyOpById(user.id, op);
+			}
 
 			return nrUserInfo;
 		} catch (ex) {
@@ -337,7 +349,12 @@ class MigrationHandler {
 				originalEmail: true
 			}
 		};
-		await this.data.users.applyOpById(csUser.id, op);
+
+		if (this.dryRun) {
+			this.log(`Would have updated existing user ${csUser.id} with nrUserId ${nrUser.id}`);
+		} else {
+			await this.data.users.applyOpById(csUser.id, op);
+		}
 	}
 
 	// wait this number of milliseconds
@@ -365,14 +382,18 @@ class MigrationHandler {
 	async companyError (company, msg) {
 		// update the company, setting error
 		this.warn(msg);
-		await this.data.companies.updateById(company.id, { migrationError: msg });
+		if (!this.dryRun) {
+			await this.data.companies.updateById(company.id, { migrationError: msg });
+		}
 		return { error: msg };
 	}
 
 	async userError (user, msg) {
 		// update the user, setting error
 		this.warn(`Failed to migrate user ${user.id}:${user.email}: ${msg}`);
-		await this.data.users.updateById(user.id, { migrationError: msg });
+		if (!this.dryRun) {
+			await this.data.users.updateById(user.id, { migrationError: msg });
+		}
 		return { error: msg };
 	}
 
