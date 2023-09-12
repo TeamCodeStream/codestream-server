@@ -31,7 +31,7 @@ class MigrationHandler {
 			// determine the NR organization ID that we will migrate users to, if any
 			let toNROrgId = this.getNROrgId(company);
 
-			// if we're not migrating to an existing NR org (meaning this will be a "codestream-only" comany),
+			// if we're not migrating to an existing NR org (meaning this will be a "codestream-only" company),
 			// determine first user to migrate, based on company creator and/or admins, then migrate
 			// them first by doing a sign-up provisioning, which creates an org ... all other users get created directly
 			let firstUser;
@@ -88,10 +88,15 @@ class MigrationHandler {
 			}
 
 			// fetch users in the company
+			const query = {
+				teamIds: teamId
+			};
+			if (this.incremental) {
+				query.nrUserId = { $exists: false };
+			}
+
 			const users = await this.data.users.getByQuery(
-				{
-					teamIds: teamId
-				},
+				query,
 				{
 					hint: UserIndexes.byTeamIds
 				}
@@ -100,7 +105,12 @@ class MigrationHandler {
 			// migrate each (registered) user in the everyone team of the company
 			let numUserErrors = 0;
 			let numUsersExisting = 0;
-			this.logVerbose(`Found ${users.length} users`);
+			if (this.incremental) {
+				this.logVerbose(`Found ${users.length} users with no nrUserId`);
+			} else {
+				this.logVerbose(`Found ${users.length} users`);
+			}
+
 			for (let user of users) {
 				if (firstUser && user.id === firstUser.id) continue;
 				if (
@@ -128,20 +138,22 @@ class MigrationHandler {
 			}
 
 			// update the company, setting its linked NR Org ID
-			const update = {
-				linkedNROrgId: toNROrgId,
-				orgOrigination: origin,
-				codestreamOnly: origin === 'CS',
-				nrOrgInfo: {
-					authentication_domain_id: nrOrgInfo.authentication_domain_id,
-					account_id: nrOrgInfo.account_id
+			if (!this.incremental) {
+				const update = {
+					linkedNROrgId: toNROrgId,
+					orgOrigination: origin,
+					codestreamOnly: origin === 'CS',
+					nrOrgInfo: {
+						authentication_domain_id: nrOrgInfo.authentication_domain_id,
+						account_id: nrOrgInfo.account_id
+					}
+				};
+				this.logVerbose(`Updating company: ${JSON.stringify(update, 0, 5)}`);
+				if (this.dryRun) {
+					this.log(`Would have updated company ${company.id} with linkedNROrgId ${toNROrgId}`);
+				} else {
+					await this.data.companies.updateById(company.id, update);
 				}
-			};
-			this.logVerbose(`Updating company: ${JSON.stringify(update, 0, 5)}`);
-			if (this.dryRun) {
-				this.log(`Would have updated company ${company.id} with linkedNROrgId ${toNROrgId}`);
-			} else {
-				await this.data.companies.updateById(company.id, update);
 			}
 
 			return { numUsersMigrated, numUserErrors, numUsersExisting };
@@ -155,6 +167,12 @@ class MigrationHandler {
 
 	// determine what NR organization ID we will migrate users to from this company, if any
 	getNROrgId (company) {
+		// under incremental migrations, where we are migrating already migrated companies, but
+		// some users may have not yet been migrated, look for linkedNROrgId
+		if (company.linkedNROrgId) {
+			return company.linkedNROrgId;
+		}
+
 		// for now, assume the company has only one linked NR org, and use that
 		if (company.nrOrgIds && company.nrOrgIds.length > 0) {
 			return company.nrOrgIds[0];

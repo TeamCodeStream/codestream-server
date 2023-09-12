@@ -18,6 +18,7 @@ Commander
 	.option('--company <company>', 'Migrate only this company')
 	.option('--verbose', 'Verbose logging output')
 	.option('--nr', 'Only migrate NR-connected orgs')
+	.option('--incremental', 'Incremental migration, include companies that have already been migrated, just looking for un-migrated users')
 	.parse(process.argv);
 
 // wait this number of milliseconds
@@ -73,6 +74,7 @@ class Migrator {
 			dryRun: this.dryrun,
 			verbose: this.verbose,
 			throttle: this.throttle,
+			incremental: this.incremental,
 			idp: this.idp
 		});
 
@@ -80,11 +82,13 @@ class Migrator {
 			{
 				_id: this.data.companies.objectIdSafe(this.company)
 			} : {
-				linkedNROrgId: { $exists: false },
 				deactivated: false
 			};
 		if (!this.company && this.nrConnectedOnly) {
 			query.nrOrgIds = { $exists: true };
+		}
+		if (!this.incremental) {
+			query.linkedNROrgId = { $exists: false };
 		}
 
 		const result = await this.data.companies.getByQuery(query, {
@@ -142,6 +146,7 @@ class Migrator {
 			dryrun: !!Commander.dryrun,
 			throttle,
 			nrConnectedOnly: Commander.nr,
+			incremental: !!Commander.incremental,
 			verbose: !!Commander.verbose,
 			company: Commander.company
 		});
