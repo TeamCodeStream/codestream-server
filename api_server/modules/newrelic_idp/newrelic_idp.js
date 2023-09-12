@@ -944,7 +944,11 @@ if (!data.password) {
 	}
 
 	_getMockLoginResponse (params, options = {}) {
-		const nrUserId = options.mockNRUserId || options.request.request.headers['x-cs-mock-nr-user-id'] || this._getMockNRUserId();
+		const nrUserId = (
+			options.mockNRUserId || 
+			(options.request && options.request.request.headers['x-cs-mock-nr-user-id']) ||
+			this._getMockNRUserId()
+		);
 		return {
 			idp: {
 				id_token: 'MNR-' + nrUserId + '-' + RandomString.generate(100),

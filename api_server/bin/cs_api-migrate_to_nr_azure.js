@@ -17,6 +17,7 @@ Commander
 	.option('--throttle <throttle>', 'Throttle processing each user by this amount of time')
 	.option('--company <company>', 'Migrate only this company')
 	.option('--verbose', 'Verbose logging output')
+	.option('--nr', 'Only migrate NR-connected orgs')
 	.parse(process.argv);
 
 // wait this number of milliseconds
@@ -82,6 +83,10 @@ class Migrator {
 				linkedNROrgId: { $exists: false },
 				deactivated: false
 			};
+		if (!this.company && this.nrConnectedOnly) {
+			query.nrOrgIds = { $exists: true };
+		}
+
 		const result = await this.data.companies.getByQuery(query, {
 			stream: true,
 			overrideHintRequired: true,
@@ -136,6 +141,7 @@ class Migrator {
 		await new Migrator().go({ 
 			dryrun: !!Commander.dryrun,
 			throttle,
+			nrConnectedOnly: Commander.nr,
 			verbose: !!Commander.verbose,
 			company: Commander.company
 		});
