@@ -627,13 +627,11 @@ class ProviderTokenRequest extends RestfulRequest {
 
 		let redirect = this.redirectUrl;
 		if (!redirect) {
-			const host = this.api.config.apiServer.marketingSiteUrl;
-			const authCompletePage = this.serviceAuth.getAuthCompletePage();
 			redirect = this.provider === 'newrelicidp'
 				? '/web/signed-in'
 				: this.tokenPayload && this.tokenPayload.url
 				? `${decodeURIComponent(this.tokenPayload.url)}?state=${this.request.query.state}`
-				: `${host}/auth-complete/${authCompletePage}`;
+				: `/web/provider-connected/${this.provider}`;
 			// TODO: issue cookie in case of New Relic login
 			if (this.tokenPayload && this.tokenPayload.url) {
 				this.issueCookie();			

@@ -17,6 +17,9 @@ Commander
 	.option('--throttle <throttle>', 'Throttle processing each user by this amount of time')
 	.option('--company <company>', 'Migrate only this company')
 	.option('--verbose', 'Verbose logging output')
+	.option('--nr', 'Only migrate NR-connected orgs')
+	.option('--incremental', 'Incremental migration, include companies that have already been migrated, just looking for un-migrated users')
+	.option('--setidppwd', 'Set the flag that says verify password before first login after migration')
 	.parse(process.argv);
 
 // wait this number of milliseconds
@@ -66,12 +69,22 @@ class Migrator {
 	async doMigrations () {
 		this.idp = new NewRelicIDP();
 		await this.idp.initialize(this.config);
+
+		// do not allow us to run without setting IDP password when in production
+		if (this.config.sharedGeneral.isProductionCloud && !this.setIDPPassowrd) {
+			this.warn('Cannot run IDP migration in production without setidppwd flag set');
+			process.exit(1);
+		}
+		
 		this.migrationHandler = new NewRelicIDPMigrationHandler({
 			data: this.data,
 			logger: console,
 			dryRun: this.dryrun,
 			verbose: this.verbose,
 			throttle: this.throttle,
+			incremental: this.incremental,
+			setIDPPassword: this.setIDPPassword,
+			passwordPlaceholder: this.setIDPPassword ? this.config.integrations.newRelicIdentity.passwordKey : 'Temp123!',
 			idp: this.idp
 		});
 
@@ -79,9 +92,15 @@ class Migrator {
 			{
 				_id: this.data.companies.objectIdSafe(this.company)
 			} : {
-				linkedNROrgId: { $exists: false },
 				deactivated: false
 			};
+		if (!this.company && this.nrConnectedOnly) {
+			query.nrOrgIds = { $exists: true };
+		}
+		if (!this.incremental) {
+			query.linkedNROrgId = { $exists: false };
+		}
+
 		const result = await this.data.companies.getByQuery(query, {
 			stream: true,
 			overrideHintRequired: true,
@@ -136,6 +155,9 @@ class Migrator {
 		await new Migrator().go({ 
 			dryrun: !!Commander.dryrun,
 			throttle,
+			nrConnectedOnly: Commander.nr,
+			incremental: !!Commander.incremental,
+			setIDPPassword: !!Commander.setidppwd,
 			verbose: !!Commander.verbose,
 			company: Commander.company
 		});

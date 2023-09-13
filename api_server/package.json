@@ -1,6 +1,6 @@
 {
 	"name": "api-server",
-	"version": "14.0.21",
+	"version": "14.0.22",
 	"dependencies": {
 		"@microsoft/microsoft-graph-client": "3.0.5",
 		"@newrelic/pino-enricher": "1.1.1",
@@ -39,7 +39,7 @@
 		"markdown-it-slack": "1.2.0",
 		"moment": "2.29.4",
 		"moment-timezone": "0.5.40",
-		"mongodb": "4.5.0",
+		"mongodb": "4.17.0",
 		"msal": "1.4.17",
 		"multer": "1.4.5-lts.1",
 		"multer-s3": "2.10.0",

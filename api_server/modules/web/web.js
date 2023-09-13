@@ -130,6 +130,11 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
+		path: 'web/provider-connected/:provider',
+		requestClass: require('./web_provider_connected_request')
+	},
+	{
+		method: 'get',
 		path: 'web/provider-auth/:provider',
 		requestClass: require('./web_provider_auth_request')
 	},

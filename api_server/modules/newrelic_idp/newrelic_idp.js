@@ -110,8 +110,9 @@ if (!password) {
 
 		// user needs to be added to the default user group
 		await this.addUserToUserGroup(createUserResponse.data.id, attributes.authentication_domain_id, options);
-			if (options.request) options.request.log('NEWRELIC IDP TRACK: Calling NR login service with email/password to get ID token...');
-		
+
+		// login user to get an ID token
+		if (options.request) options.request.log('NEWRELIC IDP TRACK: Calling NR login service with email/password to get ID token...');
 		const loginResponse = await this.loginUser(
 			{
 				username: attributes.email,
@@ -119,6 +120,11 @@ if (!password) {
 			},
 			options
 		);
+
+		// if we're doing migration, flag the user as needing to verify their password before first login
+		if (options.setIDPPassword) {
+			await this.setIDPMigration(idpId, options);
+		}
 
 		const nrUserInfo = createUserResponse.data;
 		const tokenInfo = {
@@ -224,6 +230,11 @@ if (!data.password) {
 
 		// get user info so we can get the user's tier info
 		const userInfo = await this.getUser(signupResponse.user_id, options);
+
+		// if we're doing migration, flag the user as needing to verify their password before first login
+		if (options.setIDPPassword) {
+			await this.setIDPMigration(userInfo.data.attributes.activeIdpObjectId, options);
+		}
 
 		return {
 			signupResponse,
@@ -493,6 +504,18 @@ if (!data.password) {
 			options
 		);
 		return result;
+	}
+
+	// flag the user as being created during migration,
+	// this ensures the user's password is verified against CodeStream the first time they login
+	async setIDPMigration (userId, options = {}) {
+		const result = await this._newrelic_idp_call(
+			'idp',
+			`/azureb2c/users/${userId}/set_codestream_idp_migration`,
+			'post',
+			{ migration_required: true },
+			options
+		);
 	}
 
 	// get redirect parameters and url to use in the redirect response,
@@ -830,6 +853,8 @@ if (!data.password) {
 			let match;
 			if (match = path.match(/^\/azureb2c\/users\/(.+)\/password$/) && method === 'post') {
 				return this._getMockPasswordResponse();
+			} else if (match = path.match(/^\/azureb2c\/users\/(.+)\/set_codestream_idp_migration$/) && method === 'post') {
+				return this._getMockSetIDPMigrationResponse();
 			}
 		}
 
@@ -944,7 +969,11 @@ if (!data.password) {
 	}
 
 	_getMockLoginResponse (params, options = {}) {
-		const nrUserId = options.mockNRUserId || options.request.request.headers['x-cs-mock-nr-user-id'] || this._getMockNRUserId();
+		const nrUserId = (
+			options.mockNRUserId || 
+			(options.request && options.request.request.headers['x-cs-mock-nr-user-id']) ||
+			this._getMockNRUserId()
+		);
 		return {
 			idp: {
 				id_token: 'MNR-' + nrUserId + '-' + RandomString.generate(100),
@@ -1061,6 +1090,10 @@ if (!data.password) {
 	}
 
 	_getMockPasswordResponse (options = {}) {
+		return {};
+	}
+
+	_getMockSetIDPMigrationResponse (options = {}) {
 		return {};
 	}
 

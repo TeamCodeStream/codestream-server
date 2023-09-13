@@ -2,8 +2,6 @@
 
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
-const PASSWORD_PLACEHOLDER = 'Temp123!'
-
 class MigrationHandler {
 	
 	constructor (options) {
@@ -14,7 +12,8 @@ class MigrationHandler {
 		this.idpOptions = {
 			mockResponse: this.dryRun,
 			logger: this.logger,
-			verbose: this.verbose
+			verbose: this.verbose,
+			setIDPPassword: this.setIDPPassword,
 		};
 	}
 
@@ -31,7 +30,7 @@ class MigrationHandler {
 			// determine the NR organization ID that we will migrate users to, if any
 			let toNROrgId = this.getNROrgId(company);
 
-			// if we're not migrating to an existing NR org (meaning this will be a "codestream-only" comany),
+			// if we're not migrating to an existing NR org (meaning this will be a "codestream-only" company),
 			// determine first user to migrate, based on company creator and/or admins, then migrate
 			// them first by doing a sign-up provisioning, which creates an org ... all other users get created directly
 			let firstUser;
@@ -88,10 +87,15 @@ class MigrationHandler {
 			}
 
 			// fetch users in the company
+			const query = {
+				teamIds: teamId
+			};
+			if (this.incremental) {
+				query.nrUserId = { $exists: false };
+			}
+
 			const users = await this.data.users.getByQuery(
-				{
-					teamIds: teamId
-				},
+				query,
 				{
 					hint: UserIndexes.byTeamIds
 				}
@@ -100,7 +104,12 @@ class MigrationHandler {
 			// migrate each (registered) user in the everyone team of the company
 			let numUserErrors = 0;
 			let numUsersExisting = 0;
-			this.logVerbose(`Found ${users.length} users`);
+			if (this.incremental) {
+				this.logVerbose(`Found ${users.length} users with no nrUserId`);
+			} else {
+				this.logVerbose(`Found ${users.length} users`);
+			}
+
 			for (let user of users) {
 				if (firstUser && user.id === firstUser.id) continue;
 				if (
@@ -128,17 +137,23 @@ class MigrationHandler {
 			}
 
 			// update the company, setting its linked NR Org ID
-			const update = {
-				linkedNROrgId: toNROrgId,
-				orgOrigination: origin,
-				codestreamOnly: origin === 'CS',
-				nrOrgInfo: {
-					authentication_domain_id: nrOrgInfo.authentication_domain_id,
-					account_id: nrOrgInfo.account_id
+			if (!this.incremental) {
+				const update = {
+					linkedNROrgId: toNROrgId,
+					orgOrigination: origin,
+					codestreamOnly: origin === 'CS',
+					nrOrgInfo: {
+						authentication_domain_id: nrOrgInfo.authentication_domain_id,
+						account_id: nrOrgInfo.account_id
+					}
+				};
+				this.logVerbose(`Updating company: ${JSON.stringify(update, 0, 5)}`);
+				if (this.dryRun) {
+					this.log(`Would have updated company ${company.id} with linkedNROrgId ${toNROrgId}`);
+				} else {
+					await this.data.companies.updateById(company.id, update);
 				}
-			};
-			this.logVerbose(`Updating company: ${JSON.stringify(update, 0, 5)}`);
-			await this.data.companies.updateById(company.id, update);
+			}
 
 			return { numUsersMigrated, numUserErrors, numUsersExisting };
 		}
@@ -151,6 +166,12 @@ class MigrationHandler {
 
 	// determine what NR organization ID we will migrate users to from this company, if any
 	getNROrgId (company) {
+		// under incremental migrations, where we are migrating already migrated companies, but
+		// some users may have not yet been migrated, look for linkedNROrgId
+		if (company.linkedNROrgId) {
+			return company.linkedNROrgId;
+		}
+
 		// for now, assume the company has only one linked NR org, and use that
 		if (company.nrOrgIds && company.nrOrgIds.length > 0) {
 			return company.nrOrgIds[0];
@@ -207,7 +228,7 @@ class MigrationHandler {
 				const name = firstUser.fullName || firstUser.email.split('@')[0];
 				nrInfo = await this.idp.fullSignup({
 					email: firstUser.email,
-					password: PASSWORD_PLACEHOLDER, // this will ultimatey be replaced!
+					password: this.passwordPlaceholder, // this will ultimatey be replaced!
 					name,
 					orgName: company.name
 				}, this.idpOptions);
@@ -228,23 +249,27 @@ class MigrationHandler {
 			}
 
 			// save NR user info obtained from the signup process
-			await this.data.users.applyOpById(
-				firstUser.id,
-				{
-					$set: {
-						nrUserInfo: { 
-							userTier: nrUserInfo.attributes.userTier,
-							userTierId: nrUserInfo.attributes.userTierId
+			if (this.dryRun) {
+				this.log(`Would have updated first user ${firstUser.id} with nrUserId ${nrUserInfo.id}`);
+			} else {
+				await this.data.users.applyOpById(
+					firstUser.id,
+					{
+						$set: {
+							nrUserInfo: { 
+								userTier: nrUserInfo.attributes.userTier,
+								userTierId: nrUserInfo.attributes.userTierId
+							},
+							nrUserId: nrUserInfo.id
 						},
-						nrUserId: nrUserInfo.id
-					},
-					$unset: {
-						encryptedPasswordTemp: true,
-						companyName: true,
-						originalEmail: true
+						$unset: {
+							encryptedPasswordTemp: true,
+							companyName: true,
+							originalEmail: true
+						}
 					}
-				}
-			);
+				);
+			}
 
 			// return the signup response
 			return signupResponse;
@@ -270,7 +295,7 @@ class MigrationHandler {
 						email_is_verified: true,
 						active: true
 					},
-					PASSWORD_PLACEHOLDER, // this will ultimately be replaced!
+					this.passwordPlaceholder,
 					this.idpOptions
 				);
 				if (nrUserInfo.nrUserInfo) nrUserInfo = nrUserInfo.nrUserInfo;
@@ -303,7 +328,11 @@ class MigrationHandler {
 					originalEmail: true
 				}
 			};
-			await this.data.users.applyOpById(user.id, op);
+			if (this.dryRun) {
+				this.log(`Would have updated user ${user.id} with nrUserId ${nrUserInfo.id}`);
+			} else {
+				await this.data.users.applyOpById(user.id, op);
+			}
 
 			return nrUserInfo;
 		} catch (ex) {
@@ -337,7 +366,12 @@ class MigrationHandler {
 				originalEmail: true
 			}
 		};
-		await this.data.users.applyOpById(csUser.id, op);
+
+		if (this.dryRun) {
+			this.log(`Would have updated existing user ${csUser.id} with nrUserId ${nrUser.id}`);
+		} else {
+			await this.data.users.applyOpById(csUser.id, op);
+		}
 	}
 
 	// wait this number of milliseconds
@@ -365,14 +399,18 @@ class MigrationHandler {
 	async companyError (company, msg) {
 		// update the company, setting error
 		this.warn(msg);
-		await this.data.companies.updateById(company.id, { migrationError: msg });
+		if (!this.dryRun) {
+			await this.data.companies.updateById(company.id, { migrationError: msg });
+		}
 		return { error: msg };
 	}
 
 	async userError (user, msg) {
 		// update the user, setting error
 		this.warn(`Failed to migrate user ${user.id}:${user.email}: ${msg}`);
-		await this.data.users.updateById(user.id, { migrationError: msg });
+		if (!this.dryRun) {
+			await this.data.users.updateById(user.id, { migrationError: msg });
+		}
 		return { error: msg };
 	}
 

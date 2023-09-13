@@ -7,7 +7,7 @@ class WebSignedInRequest extends WebRequestBase {
 	async authorize () {}
 
 	async process () {
-		return super.render('signed_in');
+		return super.render('signed_in', { newRelic: true });
 	}
 }
 

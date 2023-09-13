@@ -1,6 +1,6 @@
 {
 	"name": "outbound-email",
-	"version": "14.0.21",
+	"version": "14.0.22",
 	"dependencies": {
 		"@newrelic/pino-enricher": "1.1.1",
 		"@sendgrid/mail": "7.7.0",
@@ -16,7 +16,7 @@
 		"markdown-it-emoji-mart": "0.1.1",
 		"markdown-it-slack": "1.2.0",
 		"moment-timezone": "0.5.35",
-		"mongodb": "4.5.0",
+		"mongodb": "4.17.0",
 		"newrelic": "10.4.1",
 		"node-fetch": "2.6.7",
 		"nodemailer": "6.7.3",
