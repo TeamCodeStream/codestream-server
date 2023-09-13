@@ -24,8 +24,13 @@
 	<div class="container mt-5">
 		<div class="row">
 			<div class="col-sm-12">
+				{{#if newRelic}}
 				<h1 class="text-center">You are now signed in to New Relic</h1>
 				<p class="text-center">Return to your IDE to start using CodeStream.</p>
+				{{else}}
+				<h1 class="text-center">You are now connected to {{providerName}}</h1>
+				<p class="text-center">Return to CodeStream in your IDE.</p>
+				{{/if}}
 			</div>
 		</div>
 	</div>
