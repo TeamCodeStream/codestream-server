@@ -12,7 +12,7 @@ class WebProviderConnectedRequest extends WebRequestBase {
 		const providerName = ProviderDisplayNames[this.request.params.provider.toLowerCase()]
 		if (!providerName) {
 			this.warn(`Auth service ${this.provider} is not available`);
-			this.response.redirect(`/web/error?code=${WebErrors.internalError.code}&provider=${this.provider}`);
+			this.response.redirect(`/web/error?code=${WebErrors.internalError.code}&provider=${this.request.params.provider}`);
 			this.responseHandled = true;
 			return;
 		}
