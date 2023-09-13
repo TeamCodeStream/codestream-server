@@ -2,8 +2,6 @@
 
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 
-const PASSWORD_PLACEHOLDER = 'Temp123!'
-
 class MigrationHandler {
 	
 	constructor (options) {
@@ -14,7 +12,8 @@ class MigrationHandler {
 		this.idpOptions = {
 			mockResponse: this.dryRun,
 			logger: this.logger,
-			verbose: this.verbose
+			verbose: this.verbose,
+			setIDPPassword: this.setIDPPassword,
 		};
 	}
 
@@ -229,7 +228,7 @@ class MigrationHandler {
 				const name = firstUser.fullName || firstUser.email.split('@')[0];
 				nrInfo = await this.idp.fullSignup({
 					email: firstUser.email,
-					password: PASSWORD_PLACEHOLDER, // this will ultimatey be replaced!
+					password: this.passwordPlaceholder, // this will ultimatey be replaced!
 					name,
 					orgName: company.name
 				}, this.idpOptions);
@@ -296,7 +295,7 @@ class MigrationHandler {
 						email_is_verified: true,
 						active: true
 					},
-					PASSWORD_PLACEHOLDER, // this will ultimately be replaced!
+					this.passwordPlaceholder,
 					this.idpOptions
 				);
 				if (nrUserInfo.nrUserInfo) nrUserInfo = nrUserInfo.nrUserInfo;
