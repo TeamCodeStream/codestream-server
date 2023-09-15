@@ -19,9 +19,9 @@
     },
     "description": {
         "short": "CodeStream{{env}}",
-        "full": "The world's best code discussion tool! A code discussion tool is the foundation that streamlines your existing workflows and development activity. Take the pain out of code reviews, resolve issues faster, and dramatically improve code quality by increasing communication between the developers on your team."
+        "full": "Shift left by making code performance, code quality and code discussion part of the earliest stages of the development process."
     },
-    "accentColor": "#009AEF",
+    "accentColor": "#00CE7C",
     "bots": [
         {
             "botId": "{{botId}}",
