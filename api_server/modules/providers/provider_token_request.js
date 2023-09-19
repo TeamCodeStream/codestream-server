@@ -535,6 +535,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			provider: this.provider,
 			okToCreateUser,
 			wasNRCodeHostSignOn,
+			wasNREmailSignOn,
 			tokenData: this.tokenData,
 			hostUrl: this.hostUrl,
 			machineId: this.machineId,
