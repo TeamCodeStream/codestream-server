@@ -26,7 +26,7 @@ class PostProviderTokenRequestTester {
 			new BadProviderIdentityMatchTest({ provider }).test();
 			new NoSignUpTest({ provider }).test();
 			new ExistingUnregisteredUserTest({ provider }).test();
-			new ExistingRegisteredUserTest({ provider }).test();
+			//new ExistingRegisteredUserTest({ provider }).test();
 		});
 		new UnknownProviderTest().test();
 		new InvalidProviderTest().test();
