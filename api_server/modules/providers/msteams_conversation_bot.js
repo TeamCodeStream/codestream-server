@@ -17,7 +17,7 @@ const {
 
 const PERSONAL_BOT_MESSAGE = 'Please run this command from your personal bot chat.';
 const TEAM_BOT_MESSAGE = 'Please run this command from a team channel.';
-// const HELP_URL = 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/';
+// const HELP_URL = 'https://docs.newrelic.com/docs/codestream/code-discussion/msteams-integration/';
 // Keys of properties used to store
 const STATE_PROPERTY_WELCOMED_USER = 'welcomedUser';
 const STATE_PROPERTY_CODESTREAM_USER_ID = 'codestreamUserId';
@@ -616,7 +616,7 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					{
 						type: 'Action.OpenUrl',
 						title: 'Sign up',
-						url: 'https://www.codestream.com',
+						url: 'https://newrelic.com/codestream',
 						iconUrl: OPEN_EXTERNAL_LINK_ICON,
 					},
 				],
@@ -671,13 +671,13 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					{
 						type: 'Action.OpenUrl',
 						title: 'Detailed Instructions',
-						url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/',
+						url: 'https://docs.newrelic.com/docs/codestream/code-discussion/msteams-integration/',
 						iconUrl: OPEN_EXTERNAL_LINK_ICON,
 					},
 					{
 						type: 'Action.OpenUrl',
 						title: 'Download CodeStream',
-						url: 'https://www.codestream.com',
+						url: 'https://newrelic.com/codestream',
 						iconUrl: OPEN_EXTERNAL_LINK_ICON,
 					},
 				],
@@ -791,13 +791,13 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					{
 						type: 'Action.OpenUrl',
 						title: 'Detailed Instructions',
-						url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/',
+						url: 'https://docs.newrelic.com/docs/codestream/code-discussion/msteams-integration/',
 						iconUrl: OPEN_EXTERNAL_LINK_ICON,
 					},
 					{
 						type: 'Action.OpenUrl',
 						title: 'Download CodeStream',
-						url: 'https://www.codestream.com',
+						url: 'https://newrelic.com/codestream',
 						iconUrl: OPEN_EXTERNAL_LINK_ICON,
 					},
 				],
@@ -886,13 +886,13 @@ class MSTeamsConversationBot extends TeamsActivityHandler {
 					{
 						type: 'Action.OpenUrl',
 						title: 'Detailed Instructions',
-						url: 'https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/',
+						url: 'https://docs.newrelic.com/docs/codestream/code-discussion/msteams-integration/',
 						iconUrl: OPEN_EXTERNAL_LINK_ICON,
 					},
 					{
 						type: 'Action.OpenUrl',
 						title: 'Download CodeStream',
-						url: 'https://www.codestream.com',
+						url: 'https://newrelic.com/codestream',
 						iconUrl: OPEN_EXTERNAL_LINK_ICON,
 					},
 				],
