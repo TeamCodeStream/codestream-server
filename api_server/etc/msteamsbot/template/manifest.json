@@ -6,9 +6,9 @@
     "packageName": "codestream.codestream{{env}}",
     "developer": {
         "name": "CodeStream{{env}}",
-        "websiteUrl": "https://www.codestream.com",
-        "privacyUrl": "https://www.codestream.com/privacy",
-        "termsOfUseUrl": "https://www.codestream.com/terms"
+        "websiteUrl": "https://newrelic.com/codestream",
+        "privacyUrl": "https://newrelic.com/termsandconditions/privacy",
+        "termsOfUseUrl": "https://newrelic.com/termsandconditions/terms"
     },
     "icons": {
         "color": "color.png",

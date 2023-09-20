@@ -8,9 +8,9 @@
 	"developer": {
 		"name": "CodeStream",
 		"mpnId": "",
-		"websiteUrl": "https://www.codestream.com",
-		"privacyUrl": "https://www.codestream.com/privacy",
-		"termsOfUseUrl": "https://www.codestream.com/terms"
+		"websiteUrl": "https://newrelic.com/codestream",
+		"privacyUrl": "https://newrelic.com/termsandconditions/privacy",
+		"termsOfUseUrl": "https://newrelic.com/termsandconditions/terms"
 	},
 	"description": {
 		"short": "CodeStream is an extension to your IDE that works with your existing tools.",
