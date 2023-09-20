@@ -10,6 +10,7 @@ const TokenIsValidTest = require('./token_is_valid_test');
 const SubscriptionTest = require('./subscription_test');
 const EligibleJoinCompaniesTest = require('./eligible_join_companies_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
+const PossibleAuthDomainsTest = require('./possible_auth_domains_test');
 
 class RawLoginRequestTester {
 
@@ -24,6 +25,7 @@ class RawLoginRequestTester {
 		//new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new EligibleJoinCompaniesTest().test();
 		new ClearFirstSessionTest().test();
+		new PossibleAuthDomainsTest().test();
 	}
 }
 

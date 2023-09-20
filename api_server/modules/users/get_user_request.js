@@ -19,6 +19,22 @@ class GetUserRequest extends GetRequest {
 			if (eligibleJoinCompanies && eligibleJoinCompanies.length > 0) {
 				this.responseData.user.eligibleJoinCompanies = eligibleJoinCompanies;
 			}
+
+			// send "possible auth domains" if needed
+			const teamId = (this.user.get('teamIds') || [])[0];
+			const uidEnabled = !!this.request.headers['x-cs-enable-uid'];
+			const mockResponse = !!this.request.headers['x-cs-no-newrelic'];
+			if (teamId && uidEnabled) {
+				const token = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).accessToken;
+				const bearerToken = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).bearerToken;
+				if (token && bearerToken) {
+					this.responseData.user.possibleAuthDomains = await this.api.services.idp.getPossibleAuthDomains(token, {
+						request: this,
+						mockResponse
+					});
+				}
+			}
+
 			return;
 		}
 		await super.process();
