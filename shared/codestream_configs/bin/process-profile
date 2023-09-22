@@ -29,6 +29,8 @@ def debugMsg(msg):
 
 def getSectionDefaultsFromSchema(schema, cfg, spaces):
 	for prop in list(schema.keys()):
+		if prop == 'type':
+			continue
 		debugMsg(f"{spaces}getSectionDefaultsFromSchema: prop = {prop}")
 		if 'desc' in schema[prop]:
 			cfg[prop] = dtCore.util.someValueOrNone(schema[prop], 'default')
@@ -157,6 +159,8 @@ def findNode(keyPath):
 def buildCfgFileProperties(schema, keyPath, task='show-desc'):
 	global cfgFile
 	for k in schema.keys():
+		if k == 'type':
+			continue
 		node = findNode(keyPath)
 		if 'desc' not in schema[k]:
 			node[k] = {}
