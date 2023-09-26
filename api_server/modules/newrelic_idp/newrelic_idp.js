@@ -534,7 +534,7 @@ if (!data.password) {
 
 		// remove v1 users
 		return result.data.filter(domain => {
-			domain.userId >= 1000000000;
+			return domain.user_id >= 1000000000;
 		});
 	}
 
