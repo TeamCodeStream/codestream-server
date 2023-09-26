@@ -531,7 +531,11 @@ if (!data.password) {
 			{ },
 			{ ...options, headers: { 'Authorization': authHeader } }
 		);
-		return result.data;
+
+		// remove v1 users
+		return result.data.filter(domain => {
+			domain.userId >= 1000000000;
+		});
 	}
 
 	// get redirect parameters and url to use in the redirect response,
@@ -686,7 +690,9 @@ if (!data.password) {
 			delete idpInfo.accessToken;
 			const showInfo = { ...idpInfo };
 			options.request.log('Additional identity info: ' + JSON.stringify(showInfo, 0, 5));
+			const email = identityInfo.email;
 			Object.assign(identityInfo, idpInfo);
+			if (!identityInfo.email) identityInfo.email = email;
 		}
 
 		return identityInfo;
@@ -700,7 +706,7 @@ if (!data.password) {
 	
 	async getGitLabIdentityInfo (token, options) {
 		options.request.log('NEWRELIC IDP TRACK: Getting additional identitying info from Gitlab...');
-		const authorizer = new GitlabAuthorizer({ options: { request: options.request } });
+		const authorizer = new GitlabAuthorizer({ options: { request: options.request }, ignoreNoPublicEmail: true });
 		return authorizer.getGitlabIdentity(token);
 	}
 	
@@ -1137,7 +1143,7 @@ if (!data.password) {
 	}
 
 	_getMockNRUserId () {
-		return Math.floor(Math.random() * 1000000000);
+		return 1000000000 + Math.floor(Math.random() * 999999999);
 	}
 
 	_throw (type, message, options = {}) {
