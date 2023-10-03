@@ -14,7 +14,7 @@ class SlackInteractiveComponentBlocks {
 						text: 'Sign Up',
 						emoji: true
 					},
-					url: 'https://codestream.com',
+					url: 'https://newrelic.com/codestream',
 					value: 'click_me_123'
 				}
 			}

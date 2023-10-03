@@ -518,6 +518,26 @@ if (!data.password) {
 		);
 	}
 
+	// get the "possible" authentication domains for a user, which leads to all the orgs their in, by email
+	async getPossibleAuthDomains (token, options = {}) {
+		const authHeader = Buffer.from(JSON.stringify({
+			provider: 'azureb2c',
+			token
+		})).toString('base64');
+		const result = await this._newrelic_idp_call(
+			'login',
+			'/api/v1/current_user/possible_authentication_domains.json',
+			'get',
+			{ },
+			{ ...options, headers: { 'Authorization': authHeader } }
+		);
+
+		// remove v1 users
+		return result.data.filter(domain => {
+			return domain.user_id >= 1000000000;
+		});
+	}
+
 	// get redirect parameters and url to use in the redirect response,
 	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
@@ -670,7 +690,9 @@ if (!data.password) {
 			delete idpInfo.accessToken;
 			const showInfo = { ...idpInfo };
 			options.request.log('Additional identity info: ' + JSON.stringify(showInfo, 0, 5));
+			const email = identityInfo.email;
 			Object.assign(identityInfo, idpInfo);
+			if (!identityInfo.email) identityInfo.email = email;
 		}
 
 		return identityInfo;
@@ -684,7 +706,7 @@ if (!data.password) {
 	
 	async getGitLabIdentityInfo (token, options) {
 		options.request.log('NEWRELIC IDP TRACK: Getting additional identitying info from Gitlab...');
-		const authorizer = new GitlabAuthorizer({ options: { request: options.request } });
+		const authorizer = new GitlabAuthorizer({ options: { request: options.request }, ignoreNoPublicEmail: true });
 		return authorizer.getGitlabIdentity(token);
 	}
 	
@@ -765,6 +787,7 @@ if (!data.password) {
 		const fetchOptions = {
 			method,
 			headers: {
+				...(options.headers || {}),
 				'content-type': 'application/json'
 			}
 		};
@@ -832,6 +855,8 @@ if (!data.password) {
 		} else if (service === 'login') {
 			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
 				return this._getMockLoginResponse(params, options);
+			} else if (path === '/api/v1/current_user/possible_authentication_domains.json' && method === 'get') {
+				return this._getMockPossibleAuthDomainsResponse(params, options);
 			}
 		} else if (service === 'credentials') {
 			let match;
@@ -1079,6 +1104,26 @@ if (!data.password) {
 		};
 	}
 
+	_getMockPossibleAuthDomainsResponse (options = {}) {
+		const loginServiceHost = this.serviceHosts.login;
+		const authDomainId = UUID();
+		const orgId = UUID();
+		const userId = this._getMockNRUserId();
+		const email = RandomString.generate(8) + '@' + RandomString.generate(8) + '.com';
+		const loginUrl = `${loginServiceHost}/logout?no_re=true&return_to=${encodeURIComponent(loginServiceHost)}%2Flogin%3Fauthentication_domain_id%3D${authDomainId}%26email%3D${encodeURIComponent(email)}`;
+		return {
+			data: [{
+				"authentication_domain_id": authDomainId,
+				"authentication_domain_name": "Default",
+				"authentication_type": "password",
+				"organization_id": orgId,
+				"organization_name": RandomString.generate(10),
+				"login_url": loginUrl,
+				"user_id": userId
+			}]
+		};
+	}
+
 	_getMockGetUsersResponse (options = {}) {
 		const mockUsers = [];
 		(options.mockUsers || []).forEach(mockUser => {
@@ -1098,7 +1143,7 @@ if (!data.password) {
 	}
 
 	_getMockNRUserId () {
-		return Math.floor(Math.random() * 1000000000);
+		return 1000000000 + Math.floor(Math.random() * 999999999);
 	}
 
 	_throw (type, message, options = {}) {

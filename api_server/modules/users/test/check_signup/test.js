@@ -16,6 +16,8 @@ const IsWebmailTest = require('./is_webmail_test');
 //const AccountIsConnectedFalseTest = require('./account_is_connected_false_test');
 //const AccountIsConnectedByOrgTest = require('./account_is_connected_by_org_test');
 //const AccountIsConnectedByOrgFalseTest = require('./account_is_connected_by_org_false_test');
+const PossibleAuthDomainsTest = require('./possible_auth_domains_test');
+
 const SerializeTests = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/serialize_tests');
 
 class CheckSignupRequestTester {
@@ -37,7 +39,8 @@ class CheckSignupRequestTester {
 			//AccountIsConnectedTest,
 			//AccountIsConnectedFalseTest,
 			//AccountIsConnectedByOrgTest,
-			//AccountIsConnectedByOrgFalseTest
+			//AccountIsConnectedByOrgFalseTest,
+			PossibleAuthDomainsTest
 		]);
 	}
 }

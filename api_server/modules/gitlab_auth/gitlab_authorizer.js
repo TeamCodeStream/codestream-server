@@ -27,7 +27,7 @@ class GitlabAuthorizer {
 		}
 
 		const email = emailData.public_email || emailData.email;
-		if (!email) {
+		if (!email && !this.ignoreNoPublicEmail) {
 			throw this.request.errorHandler.error('gitlabPublicEmail');
 		}
 

@@ -6,9 +6,9 @@
     "packageName": "codestream.codestream{{env}}",
     "developer": {
         "name": "CodeStream{{env}}",
-        "websiteUrl": "https://www.codestream.com",
-        "privacyUrl": "https://www.codestream.com/privacy",
-        "termsOfUseUrl": "https://www.codestream.com/terms"
+        "websiteUrl": "https://newrelic.com/codestream",
+        "privacyUrl": "https://newrelic.com/termsandconditions/privacy",
+        "termsOfUseUrl": "https://newrelic.com/termsandconditions/terms"
     },
     "icons": {
         "color": "color.png",
@@ -19,9 +19,9 @@
     },
     "description": {
         "short": "CodeStream{{env}}",
-        "full": "The world's best code discussion tool! A code discussion tool is the foundation that streamlines your existing workflows and development activity. Take the pain out of code reviews, resolve issues faster, and dramatically improve code quality by increasing communication between the developers on your team."
+        "full": "Shift left by making code performance, code quality and code discussion part of the earliest stages of the development process."
     },
-    "accentColor": "#009AEF",
+    "accentColor": "#00CE7C",
     "bots": [
         {
             "botId": "{{botId}}",

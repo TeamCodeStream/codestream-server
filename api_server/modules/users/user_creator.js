@@ -214,11 +214,13 @@ class UserCreator extends ModelCreator {
 			password: this.attributes.password
 		}).hashPassword();
 
+		/*
 		// save a two-way encrypted password for later retrieval, when we need to 
 		// create a user account on NewRelic/Azure IDP
 		this.request.log('NEWRELIC IDP TRACK: Encrypting password...');
 		this.attributes.encryptedPasswordTemp = await this.encryptPassword(this.attributes.password);
-
+		*/
+		
 		delete this.attributes.password;
 	}
 

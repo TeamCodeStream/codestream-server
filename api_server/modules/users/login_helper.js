@@ -51,6 +51,7 @@ class LoginHelper {
 		await this.resetLoginCode();
 		this.getThirdPartyProviders();
 		await this.getEligibleJoinCompanies();	// get companies the user is not a member of, but is eligible to join
+		await this.getPossibleAuthDomains();	// get possible auth domains for the user to log into on New Relic
 		await this.getAccountIsConnected();		// get whether this user's account is connected to a CS company
 		await this.formResponse();
 		return this.responseData;
@@ -150,7 +151,7 @@ class LoginHelper {
 		let isNRToken = false;
 		try {
 			const currentTokenInfo = this.user.getTokenInfoByType(this.loginType);
-			isNRToken = currentTokenInfo && currentTokenInfo.isNRToken;
+ 			isNRToken = currentTokenInfo && currentTokenInfo.isNRToken;
 			const minIssuance = typeof currentTokenInfo === 'object' ? (currentTokenInfo.minIssuance || null) : null;
 			this.accessToken = typeof currentTokenInfo === 'object' ? currentTokenInfo.token : this.user.get('accessToken');
 			const tokenPayload = (!force && this.accessToken && !isNRToken) ? 
@@ -338,6 +339,9 @@ class LoginHelper {
 		if (this.eligibleJoinCompanies && this.eligibleJoinCompanies.length > 0) {
 			this.responseData.user.eligibleJoinCompanies = this.eligibleJoinCompanies;
 		}
+
+		// add possibleAuthDomains as a user attribute
+		this.responseData.user.possibleAuthDomains = this.possibleAuthDomains || [];
 	}
 
 	// grant the user permission to subscribe to various broadcaster channels
@@ -371,6 +375,34 @@ class LoginHelper {
 			this.request,
 			{ ignoreDomain, ignoreInvite }
 		);
+	}
+
+	// get possible auth domains for the user to log into on New Relic
+	async getPossibleAuthDomains () {
+		if (!this.api.services.idp) { return; }
+		if (!this.request.request.headers['x-cs-enable-uid']) { return; }
+		let mockResponse;
+		if (this.request.request.headers['x-cs-no-newrelic']) {
+			mockResponse = true;
+			this.request.log('NOTE: not getting possible auth domains, sending mock response');
+		}
+
+		// don't let this determination preempt the login process
+		try {
+			const teamId = (this.user.get('teamIds') || [])[0];
+			if (!teamId) return;
+			const token = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).accessToken;
+			const bearerToken = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).bearerToken;
+			if (!token || !bearerToken) return;
+			this.possibleAuthDomains = await this.api.services.idp.getPossibleAuthDomains(token, { 
+				request: this.request,
+				mockResponse
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.request.warn(`Unable to determine possible auth domains: ${message}`);
+			this.possibleAuthDomains = [];
+		}
 	}
 
 	// set flag indicating whether this user's New Relic account is connected to a CodeStream company
