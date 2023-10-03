@@ -9,8 +9,17 @@ const Strftime = require('strftime');
 const Path = require('path');
 const FS = require('fs');
 const { callbackWrap } = require('./await_utils');
-const nrPino = require('@newrelic/pino-enricher')
-const pino = require('pino')
+const nrPino = require('@newrelic/pino-enricher');
+const pino = require('pino');
+
+const newRelicLevelMapper = {
+	//  ours  => theirs
+	"debug": "debug",
+	"info": "info",
+	"warn" : "warn",
+	"error": "error",
+	"critical": "fatal"
+};
 
 class SimpleFileLogger {
 	constructor(options) {
@@ -119,6 +128,8 @@ class SimpleFileLogger {
 		return text;
 	}
 
+	
+
 	// log something, with an optional request ID, severity (default is 'info')
 	// and custom log properties for json log format only
 	async log(text, requestId, severity, customLogProperties, json) {
@@ -126,36 +137,33 @@ class SimpleFileLogger {
 		if (!this.startedOn) {
 			await this.initialize();
 			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
+			this.newRelicLogger[newRelicLevelMapper[severity || "info"] || "info"].call(this.newRelicLogger, {...customLogProperties, requestId}, text);
 		} else {
 			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
+			this.newRelicLogger[newRelicLevelMapper[severity || "info"] || "info"].call(this.newRelicLogger, {...customLogProperties, requestId}, text);
 		}
 	}
 
 	critical(text, requestId, customLogProperties) {
 		this.log(text, requestId, 'critical', customLogProperties);
-		this.newRelicLogger.fatal({...customLogProperties, requestId}, text);
 	}
 
 	error(text, requestId, customLogProperties) {
 		this.log(text, requestId, 'error', customLogProperties);
-		this.newRelicLogger.error({...customLogProperties, requestId}, text);
 	}
 
 	warn(text, requestId, customLogProperties) {
 		this.log(text, requestId, 'warn', customLogProperties);
-		this.newRelicLogger.warn({...customLogProperties, requestId}, text);
 	}
 
 	debug(text, requestId, customLogProperties) {
 		if (this.debugOk) {
 			this.log(text, requestId, 'debug', customLogProperties);
-			this.newRelicLogger.debug({...customLogProperties, requestId}, text);
 		}
 	}
 
 	info(text, requestId, customLogProperties) {
 		this.log(text, requestId, 'info', customLogProperties);
-		this.newRelicLogger.info({...customLogProperties, requestId}, text);
 	}
 
 	// after initialization, we're assured of a log file to write to
