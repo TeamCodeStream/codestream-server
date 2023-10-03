@@ -137,10 +137,10 @@ class SimpleFileLogger {
 		if (!this.startedOn) {
 			await this.initialize();
 			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
-			this.newRelicLogger[newRelicLevelMapper[severity || "info"]].call(this.newRelicLogger, {...customLogProperties, requestId}, text);
+			this.newRelicLogger[newRelicLevelMapper[severity || "info"] || "info"].call(this.newRelicLogger, {...customLogProperties, requestId}, text);
 		} else {
 			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
-			this.newRelicLogger[newRelicLevelMapper[severity || "info"]].call(this.newRelicLogger, {...customLogProperties, requestId}, text);
+			this.newRelicLogger[newRelicLevelMapper[severity || "info"] || "info"].call(this.newRelicLogger, {...customLogProperties, requestId}, text);
 		}
 	}
 
