@@ -146,5 +146,10 @@ module.exports = {
 		description: 'Enable code analysis',
 		version: '14.24.1',
 		restricted: true
+	},
+	'showLogSearch': {
+		description: 'Enable log search for entities',
+		version: '14.24.1',
+		restricted: true
 	}
 };
