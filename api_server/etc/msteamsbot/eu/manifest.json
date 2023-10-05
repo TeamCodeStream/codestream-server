@@ -1,6 +1,6 @@
 {
 	"$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.12/MicrosoftTeams.schema.json",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"manifestVersion": "1.12",
 	"id": "{botId}",
 	"packageName": "codestream.codestream-eu",
