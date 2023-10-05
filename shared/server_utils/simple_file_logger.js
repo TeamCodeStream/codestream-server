@@ -58,7 +58,17 @@ class SimpleFileLogger {
 		// what is my timezone offset? we'll assume it never changes
 		this.timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 
-		this.newRelicLogger = pino(nrPino());
+		const enrichmentConfig = nrPino();
+
+		if(this.consoleOk) {
+			this.newRelicLogger = pino(enrichmentConfig);
+		}
+		else {
+			const noopWriteStream = {
+				write: () => {}
+			};
+			this.newRelicLogger = pino(enrichmentConfig, noopWriteStream);
+		}
 	}
 
 	setLoggerId(loggerId) {
