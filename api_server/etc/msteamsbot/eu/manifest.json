@@ -1,57 +1,80 @@
 {
-	"$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.12/MicrosoftTeams.schema.json",
-	"version": "1.0.4",
-	"manifestVersion": "1.12",
-	"id": "{botId}",
-	"packageName": "codestream.codestream-eu",
-	"name": { "short": "CodeStream EU", "full": "" },
-	"developer": {
-		"name": "CodeStream",
-		"mpnId": "",
-		"websiteUrl": "https://newrelic.com/codestream",
-		"privacyUrl": "https://newrelic.com/termsandconditions/privacy",
-		"termsOfUseUrl": "https://newrelic.com/termsandconditions/terms"
-	},
-	"description": {
-		"short": "CodeStream is an extension to your IDE that works with your existing tools.",
-		"full": "CodeStream EU is intended for use with CodeStream organizations in the EU region. For CodeStream organizations in the US region use the CodeStream app instead. Shift left by making code performance, code quality and code discussion part of the earliest stages of the development process."
-	},
-	"icons": { "outline": "outline.png", "color": "color.png" },
-	"accentColor": "#00CE7C",
-	"bots": [
-		{
-			"botId": "{botId}",
-			"scopes": ["personal", "team"],
-			"commandLists": [
-				{
-					"commands": [
-						{ "title": "help", "description": "Get help using CodeStream" },
-						{ "title": "signin", "description": "Sign in to CodeStream" },
-						{ "title": "signout", "description": "Sign out from CodeStream" }
-					],
-					"scopes": ["personal"]
-				},
-				{
-					"commands": [
-						{ "title": "help", "description": "Get help using CodeStream" },
-						{
-							"title": "connect",
-							"description": "Connect this channel to CodeStream"
-						},
-						{
-							"title": "disconnect",
-							"description": "Disconnect this channel from CodeStream"
-						}
-					],
-					"scopes": ["team"]
-				}
-			],
-			"isNotificationOnly": false,
-			"supportsCalling": false,
-			"supportsVideo": false,
-			"supportsFiles": false
-		}
-	],
-	"validDomains": ["csaction.codestream.us", "www.codestream.com", "*.codestream.us"],
-	"authorization": { "permissions": { "resourceSpecific": [] } }
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.12/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.12",
+    "version": "1.0.4",
+    "id": "{{botId}}",
+    "packageName": "codestream.codestream-eu",
+    "developer": {
+        "name": "CodeStream",
+        "websiteUrl": "https://newrelic.com/codestream",
+        "privacyUrl": "https://newrelic.com/termsandconditions/privacy",
+        "termsOfUseUrl": "https://newrelic.com/termsandconditions/terms"
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
+    "name": {
+        "short": "CodeStream EU"
+    },
+    "description": {
+        "short": "Discuss code on Microsoft Teams to improve code quality and resolve issues.",
+        "full": "<p><strong>CodeStream EU is intended for use with CodeStream organizations in the EU region. For CodeStream organizations in the US region use the CodeStream app instead.</strong></p><p>New Relic CodeStream allows you to discuss code, either in the context of your normal development lifecycle or as part of an error investigation, right in your IDE. The Microsoft Teams integration allows you to share those discussions to any team channel. Your teammates can jump directly from MS Teams into their IDE of choice with the appropriate block of code, and corresponding discussion, automatically opened.</p><p>Just like commenting on a Word doc, select a block of code in the editor and click on the Comment icon. Click on the MS Teams logo to install the CodeStream bot, and connect any MS Teams channels that you’d like to share to.</p><p>A New Relic account is required to use the app. <a href=\"https://newrelic.com/codestream\">Download the New Relic CodeStream extension</a> for VS Code, JetBrains, or Visual Studio and then sign in with your New Relic credentials.</p><p><a href=\"https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/\">Click here for more detailed instructions</a></p>"
+    },
+    "accentColor": "#00CE7C",
+    "bots": [
+        {
+            "botId": "{{botId}}",
+            "scopes": [
+                "personal",
+                "team"
+            ],
+            "commandLists": [
+                {
+                    "scopes": [
+                        "personal"
+                    ],
+                    "commands": [
+                        {
+                            "title": "help",
+                            "description": "Get help using CodeStream"
+                        },
+                        {
+                            "title": "signin",
+                            "description": "Sign in to CodeStream"
+                        },
+                        {
+                            "title": "signout",
+                            "description": "Sign out from CodeStream"
+                        }
+                    ]
+                },
+                {
+                    "scopes": [
+                        "team"
+                    ],
+                    "commands": [
+                        {
+                            "title": "help",
+                            "description": "Get help using CodeStream"
+                        },
+                        {
+                            "title": "connect",
+                            "description": "Connect this channel to CodeStream"
+                        },
+                        {
+                            "title": "disconnect",
+                            "description": "Disconnect this channel from CodeStream"
+                        }
+                    ]
+                }
+            ],
+            "supportsFiles": false,
+            "isNotificationOnly": false
+        }
+    ],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ]
 }
