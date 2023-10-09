@@ -708,7 +708,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				enforceRegion = 'eu01';
 			}
 		} else {
-			enforceRegin = region;
+			enforceRegion = region;
 		}
 		if (!enforceRegion || !environmentGroup) { return; }
 
@@ -725,15 +725,15 @@ class ProviderTokenRequest extends RestfulRequest {
 				'local1': 'local2'
 			}
 		};
-		if (switchToGroup[enforceRegin] &&
-			switchToGroup[enforceRegin][runTimeEnvironment] &&
-			environmentGroup[switchToGroup[enforceRegin][runTimeEnvironment]]
+		if (switchToGroup[enforceRegion] &&
+			switchToGroup[enforceRegion][runTimeEnvironment] &&
+			environmentGroup[switchToGroup[enforceRegion][runTimeEnvironment]]
 		) {
-			this.redirectHost = environmentGroup[switchToGroup[enforceRegin][runTimeEnvironment]].publicApiUrl;
+			this.redirectHost = environmentGroup[switchToGroup[enforceRegion][runTimeEnvironment]].publicApiUrl;
 			this.redirectUrl = `${this.redirectHost}${this.request.path}?` + Object.keys(this.request.query).map(param => {
 				return `${param}=${this.request.query[param]}`;
 			}).join('&');
-			this.log(`New Relic region is ${enforceRegin}, switching to host ${this.redirectHost}...`);
+			this.log(`New Relic region is ${enforceRegion}, switching to host ${this.redirectHost}...`);
 			return true;
 		}
 	}
