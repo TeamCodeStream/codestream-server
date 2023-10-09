@@ -1,6 +1,6 @@
 {
-    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
-    "manifestVersion": "1.5",
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.12/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.12",
     "version": "1.0.4",
     "id": "{{botId}}",
     "packageName": "codestream.codestream{{env}}",
@@ -18,8 +18,8 @@
         "short": "CodeStream{{env}}"
     },
     "description": {
-        "short": "CodeStream{{env}}",
-        "full": "Shift left by making code performance, code quality and code discussion part of the earliest stages of the development process."
+        "short": "Discuss code on Microsoft Teams to improve code quality and resolve issues.",
+        "full": "New Relic CodeStream allows you to discuss code, either in the context of your normal development lifecycle or as part of an error investigation, right in your IDE. The Microsoft Teams integration allows you to share those discussions to any team channel. Your teammates can jump directly from MS Teams into their IDE of choice with the appropriate block of code, and corresponding discussion, automatically opened. Just like commenting on a Word doc, select a block of code in the editor and click on the Comment icon. Click on the MS Teams logo to install the CodeStream bot, and connect any MS Teams channels that you’d like to share to. A New Relic account is required to use the app.  [Download the New Relic CodeStream extension](https://newrelic.com/codestream) for VS Code, JetBrains, or Visual Studio and then sign in with your New Relic credentials. [Click here for more detailed instructions](https://docs.newrelic.com/docs/codestream/codestream-integrations/msteams-integration/) or [here for support](https://support.newrelic.com/s/)"
     },
     "accentColor": "#00CE7C",
     "bots": [

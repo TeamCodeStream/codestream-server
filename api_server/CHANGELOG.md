@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.24] - 2023-10-9
+
+### Fixed
+
+- Fixes a typo related to region selection at login
+
 ## [14.0.23] - 2023-10-3
 
 ### Fixed
