@@ -350,7 +350,7 @@ window.CODESTREAM.openEditor = function(ide) {
 			route = { controller: 'codeerror', action: 'open', id: options.id, query: results }
 			 
 		}
-		else if (type ==='errorsinbox' || type === 'pixie') {
+		else if (type ==='errorsinbox' || type === 'span' || type === 'pixie') {
 			const urlSearchParams = new URLSearchParams(window.location.search);
 			const entries = Object.fromEntries(urlSearchParams.entries());			 
 			let results = Object.keys(entries).map((key) => { return { key: key, value: entries[key] }; } );
