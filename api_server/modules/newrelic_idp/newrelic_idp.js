@@ -404,6 +404,11 @@ if (!data.password) {
 
 	// return the region code associated with a particular account
 	async regionFromAccountId (accountId, accessToken, options = {}) {
+		if (options.request.request.headers['x-cs-no-newrelic']) {
+			options.request.log('Returning mock response of us01 for region');
+			return 'us01';
+		}
+
 		// use the NewRelicAuthorizer, which makes a graphql call 
 		const authorizer = new NewRelicAuthorizer({
 			request: options.request,
@@ -652,19 +657,25 @@ if (!data.password) {
 			const org = await this.getOrg(payload.nr_orgid, options);
 			identityInfo.companyName = org.name;
 			// unfortunately it seems we need to wait a bit before the token that was issued by Azure/New Relic
-			// can be used for a NerdGraph call, hopefully 1 second is enough...
-			let done = false;
+			// can be used for a NerdGraph call, hopefully 2 seconds is enough...
+			let done = false; 
+			let lastEx = null;
 			for (let i = 0; i < 10 && !done; i++) {
 				done = await new Promise(async resolve => {
 					setTimeout(async () => {
 						try {
 							identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options);
+							options.request.log(`NEWRELIC IDP TRACK: region determined to be ${identityInfo.region} after ${i} tries`);
 						} catch (ex) {
+							lastEx = ex;
 							resolve(false);
 						}
 						resolve(true);
 					}, 200);
 				});
+			}
+			if (!done) {
+				options.request.log(`NEWRELIC IDP TRACK: Could not determine region after 10 tries, last Exception: ${JSON.stringify(lastEx)}`);
 			}
 		}
 		

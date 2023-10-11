@@ -724,11 +724,14 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (!isProductionCloud) { 
 			if (email.match(/\/+testus/)) {
 				enforceRegion = 'us01';
+				this.log('NEWRELIC IDP TRACK: enforcing region us01 by email');
 			} else if (email.match(/\+testeu/)) {
 				enforceRegion = 'eu01';
+				this.log('NEWRELIC IDP TRACK: enforcing region eu01 by email');
 			}
 		} else {
 			enforceRegion = region;
+			this.log(`NEWRELIC IDP TRACK: enforcing region ${region}`);
 		}
 		if (!enforceRegion || !environmentGroup) { return; }
 
@@ -745,6 +748,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				'local1': 'local2'
 			}
 		};
+		this.log(`NEWRELIC IDP TRACK: rte=${runTimeEnvironment}`);
 		if (switchToGroup[enforceRegion] &&
 			switchToGroup[enforceRegion][runTimeEnvironment] &&
 			environmentGroup[switchToGroup[enforceRegion][runTimeEnvironment]]
