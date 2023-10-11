@@ -78,13 +78,17 @@ class CommonInit {
 		this.code = `mock-${this.providerUserId}-${this.providerTeamId}`;
 		this.mockToken = RandomString.generate(16);
 		const path = this.getProviderTokenPath();
+		const headers = {
+			'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat
+		};
 		this.doApiRequest(
 			{
 				method: 'get',
 				path: path,
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true
+					expectRedirect: true,
+					headers
 				}
 			},
 			(error, data, response) => {
@@ -112,8 +116,7 @@ class CommonInit {
 		const params = {
 			code: this.code,
 			state: this.state,
-			_mockToken: this.mockToken,
-			_secret: this.apiConfig.sharedSecrets.confirmationCheat
+			_mockToken: this.mockToken
 		};
 		if (this.mockEmail) {
 			params._mockEmail = this.mockEmail;
