@@ -80,6 +80,9 @@ class IdentityMatchCommonInit {
 			this.path = path;
 			return callback();
 		}
+		const headers = {
+			'x-cs-mock-secret': this.apiConfig.sharedSecrets.confirmationCheat
+		};
 		this.path = '/users/me';
 		this.doApiRequest(
 			{
@@ -87,7 +90,8 @@ class IdentityMatchCommonInit {
 				path: path,
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true
+					expectRedirect: true,
+					headers
 				}
 			},
 			(error, data, response) => {
@@ -112,8 +116,7 @@ class IdentityMatchCommonInit {
 		return {
 			code: this.code,
 			state: this.state,
-			_mockToken: this.mockToken,
-			_secret: this.apiConfig.sharedSecrets.confirmationCheat
+			_mockToken: this.mockToken
 		};
 	}
 

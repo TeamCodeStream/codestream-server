@@ -87,19 +87,22 @@ class CommonInit {
 		const parameters = {
 			code: this.code,
 			state: this.state,
-			_mockToken: this.firstMockToken,
-			_secret: this.apiConfig.sharedSecrets.confirmationCheat
+			_mockToken: this.firstMockToken
 		};
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
+		const headers = {
+			'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat
+		};
 		this.doApiRequest(
 			{
 				method: 'get',
 				path: `/no-auth/provider-token/${this.provider}?${query}`,
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true
+					expectRedirect: true,
+					headers
 				}
 			},
 			() => {

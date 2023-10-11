@@ -16,7 +16,6 @@ class PossibleAuthDomainsTest extends InitialDataTest {
 
 	// validate the response to the test request
 	validateResponse (data) {
-console.warn('RESPONSE:', JSON.stringify(data.user.possibleAuthDomains, 0, 5));
 	 	const domain = data.user.possibleAuthDomains[0];
 		Assert(typeof domain.authentication_domain_id === 'string', 'no authentication_domain_id, or wrong type');
 		Assert.strictEqual(domain.authentication_domain_name, 'Default', 'authentication_domain_name should be "Default"');

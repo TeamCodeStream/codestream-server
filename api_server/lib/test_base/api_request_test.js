@@ -237,6 +237,14 @@ class APIRequestTest extends GenericTest {
 			if (options.token && options.token.startsWith('MNR-')) {
 				const nrUserId = options.token.split('-')[1];
 				requestOptions.headers['Service-Gateway-User-Id'] = nrUserId;
+			} else if (options.token && options.token.startsWith('{"email')) {
+				let parsed;
+				try {
+					parsed = JSON.parse(options.token);
+				} catch (ex) { }
+				if (parsed && parsed.nr_userid) {
+					requestOptions.headers['Service-Gateway-User-Id'] = parsed.nr_userid;
+				}
 			}
 		}
 		requestOptions.headers['X-CS-No-NewRelic'] = true;

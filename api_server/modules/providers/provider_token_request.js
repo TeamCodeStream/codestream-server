@@ -62,8 +62,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			if (this.userId === 'anon') {
 				await this.matchOrCreateUser();
 				await this.saveSignupToken();
-			}
-			else {
+			} else {
 				await this.saveToken();				// save the provided token
 				await this.saveServerToken();		// save the provided server token to the team
 			}
@@ -81,7 +80,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				this.tokenPayload &&
 				this.tokenPayload.url
 			) {
-				let url = `${this.tokenPayload.url}?state=${this.request.query.state}&error=${this.errorCode}`;
+				let url = `${this.tokenPayload.url}?state=${this.request.query.state || '0'}&error=${this.errorCode}`;
 				if (this.userIdentity && this.userIdentity.email) {
 					url += `&email=${encodeURIComponent(this.userIdentity.email)}`;
 				}
@@ -90,10 +89,14 @@ class ProviderTokenRequest extends RestfulRequest {
 			else {
 				const message = error instanceof Error ? error.message : JSON.stringify(error);
 				this.warn('Error handling provider token request: ' + message);
-				let url = `/web/error?state=${this.request.query.state}&code=${this.errorCode}&provider=${this.provider}`;
+				let url = `/web/error?state=${this.request.query.state || '0'}&code=${this.errorCode}&provider=${this.provider}`;
 				this.response.redirect(url);
 			}
 			delete this.user;
+			if (this.request.params.st) {
+				const parts = this.request.params.st.split('.');
+				this.stateToken = parts[0];
+			}
 			await this.saveSignupToken();
 			this.responseHandled = true;
 		}
@@ -112,10 +115,15 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 
 		// mock token must be accompanied by secret
-		if (input._mockToken && decodeURIComponent(input._secret || '') !== this.api.config.sharedSecrets.confirmationCheat) {
+		const secret = this.request.headers['x-cs-mock-secret'];
+		if (input._mockToken && secret !== this.api.config.sharedSecrets.confirmationCheat) {
 			this.warn('Deleting mock token because incorrect secret sent');
 			delete input._mockToken;
 			delete input._mockEmail;
+		}
+		if (this.request.headers['x-cs-nr-mock-user'] && secret !== this.api.config.sharedSecrets.confirmationCheat) {
+			this.warn('Deleting mock user because incorrect secret sent');
+			delete this.request.headers['x-cs-nr-mock-user'];
 		}
 		delete input._secret;
 
@@ -146,6 +154,10 @@ class ProviderTokenRequest extends RestfulRequest {
 			requireAllow.required = {
 				string: ['token']
 			};
+		} else if (this.provider === 'newrelicidp') {
+			requireAllow.required = {
+				string: ['code']
+			};
 		}
 		await this.requireAllowParameters(which, requireAllow);
 	}
@@ -165,11 +177,9 @@ class ProviderTokenRequest extends RestfulRequest {
 			delete result.state;
 			this.tokenData = this.serviceAuth.normalizeTokenDataResponse(result);
 			return false;
-		}
-		else if (result) {
+		} else if (result) {
 			return false;
-		}
-		else {
+		} else {
 			return true;	// indicates to stop further processing
 		}
 	}
@@ -314,6 +324,15 @@ class ProviderTokenRequest extends RestfulRequest {
 			sharing: this.sharing,
 			hostUrl: this.hostUrl
 		};
+		if (
+			this.provider === 'newrelicidp' && 
+			this.request.headers['x-cs-no-newrelic']
+		) {
+			options.mockResponse = true;
+			if (this.request.headers['x-cs-nr-mock-user']) {
+				options.mockUser = JSON.parse(this.request.headers['x-cs-nr-mock-user']);
+			}
+		}
 		try {
 			const tokenData = await this.serviceAuth.exchangeAuthCodeForToken(options);
 			if (!tokenData.accessToken && tokenData.userToken) {
@@ -497,6 +516,7 @@ class ProviderTokenRequest extends RestfulRequest {
 				mockEmail: input._mockEmail
 			},
 			hostUrl: this.hostUrl,
+			mockResponse: this.provider === 'newrelicidp' && this.request.headers['x-cs-no-newrelic'],
 			request: this
 		});
 		if (!this.userIdentity.email) {
