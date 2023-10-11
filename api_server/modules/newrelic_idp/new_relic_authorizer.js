@@ -380,6 +380,7 @@ mutation {
 		catch (error) {
 			throw error;
 		}
+		this.request.log(`NEWRELIC IDP TRACK: regionFromAccountId returned ${JSON.stringify(response)}`);
 		return response.currentUser?.account?.region?.code;
 	}
 }
