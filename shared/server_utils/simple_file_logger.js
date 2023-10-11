@@ -9,7 +9,6 @@ const Strftime = require('strftime');
 const Path = require('path');
 const FS = require('fs');
 const { callbackWrap } = require('./await_utils');
-const nrPino = require('@newrelic/pino-enricher');
 const pino = require('pino');
 
 const newRelicLevelMapper = {
@@ -58,16 +57,11 @@ class SimpleFileLogger {
 		// what is my timezone offset? we'll assume it never changes
 		this.timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 
-		const enrichmentConfig = nrPino();
-
-		if(this.consoleOk) {
-			this.newRelicLogger = pino(enrichmentConfig);
-		}
-		else {
+		if (this.newRelicLoggingOk) {
 			const noopWriteStream = {
 				write: () => {}
 			};
-			this.newRelicLogger = pino(enrichmentConfig, noopWriteStream);
+			this.newRelicLogger = pino({}, noopWriteStream);
 		}
 	}
 
@@ -138,18 +132,15 @@ class SimpleFileLogger {
 		return text;
 	}
 
-	
-
 	// log something, with an optional request ID, severity (default is 'info')
 	// and custom log properties for json log format only
 	async log(text, requestId, severity, customLogProperties, json) {
 		// the first logged message triggers initialization
 		if (!this.startedOn) {
 			await this.initialize();
-			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
-			this.newRelicLogger[newRelicLevelMapper[severity || "info"] || "info"].call(this.newRelicLogger, {...customLogProperties, requestId}, text);
-		} else {
-			this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
+		}
+		this.logAfterInitialized(text, requestId, severity, customLogProperties, json);
+		if (this.newRelicLoggingOk) {
 			this.newRelicLogger[newRelicLevelMapper[severity || "info"] || "info"].call(this.newRelicLogger, {...customLogProperties, requestId}, text);
 		}
 	}
