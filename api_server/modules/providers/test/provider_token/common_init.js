@@ -93,8 +93,14 @@ class CommonInit {
 		if (this.runRequestAsTest) {
 			// in this case, the actual test is actually making the request, so just prepare the path
 			this.path = path;
+			this.apiRequestOptions = this.apiRequestOptions || {};
+			this.apiRequestOptions.headers = this.apiRequestOptions.headers || {};
+			this.apiRequestOptions.headers['X-CS-Mock-Secret'] = this.apiConfig.sharedSecrets.confirmationCheat;
 			return callback();
 		}
+		const headers = {
+			'x-cs-mock-secret': this.apiConfig.sharedSecrets.confirmationCheat
+		};
 		this.path = '/users/me';
 		this.doApiRequest(
 			{
@@ -102,7 +108,8 @@ class CommonInit {
 				path: path,
 				requestOptions: {
 					noJsonInResponse: true,
-					expectRedirect: true
+					expectRedirect: true,
+					headers
 				}
 			},
 			callback
@@ -123,8 +130,7 @@ class CommonInit {
 		return {
 			code: this.code,
 			state: this.state,
-			_mockToken: this.mockToken,
-			_secret: this.apiConfig.sharedSecrets.confirmationCheat
+			_mockToken: this.mockToken
 		};
 	}
 

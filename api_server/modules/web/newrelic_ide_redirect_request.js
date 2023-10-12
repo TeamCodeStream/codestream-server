@@ -41,15 +41,15 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			pageType,
 			pageWhat,
 			analyticsContentType,
-			launchIde: this.parsedPayload.ide === '' ? 'default' : this.parsedPayload.ide,
-			queryString: { ide: this.parsedPayload.ide === '' ? 'default' : this.parsedPayload.ide },
+			launchIde: this.parsedPayload?.ide === '' ? 'default' : this.parsedPayload?.ide,
+			queryString: { ide: this.parsedPayload?.ide === '' ? 'default' : this.parsedPayload?.ide },
 			errorGroupGuid: this.parsedPayload.errorGroupGuid,
-			newToCodeStream: launcherModel.isMru ? "false" : "true",
+			newToCodeStream: launcherModel?.isMru ? "false" : "true",
 			icons: {},
 			partial_launcher_model: launcherModel,
 			partial_title_model: {},
 			segmentKey: this.api.config.telemetry.segment.webToken,
-			src: decodeURIComponent(this.parsedPayload.src || ''),
+			src: decodeURIComponent(this.parsedPayload?.src || ''),
 		}
 
 		return true;
@@ -69,7 +69,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			cookieNames.push(`${defaultCookieName}--${repoId}`);
 		}
 		cookieNames.push(defaultCookieName);
-		const queryStringIDE = this.parsedPayload.ide;
+		const queryStringIDE = this.parsedPayload?.ide;
 		let autoOpen = !!(!queryStringIDE || queryStringIDE === 'default');
 
 		if (queryStringIDE && queryStringIDE !== 'default') {

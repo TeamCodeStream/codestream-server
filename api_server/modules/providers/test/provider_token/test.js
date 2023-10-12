@@ -20,6 +20,12 @@ const NoIdentityMatchTokenTest = require('./no_identity_match_token_test');
 const NoSignUpTest = require('./no_signup_test');
 const ExistingUserTest = require('./existing_user_test');
 const AlreadyRegisteredTest = require('./already_registered_test');
+const NRLoginTest = require('./nrlogin_test');
+const NoCodeTest = require('./no_code_test');
+const NoSignupIrrelevantTest = require('./no_signup_irrelevant_test');
+const NewUserInCompanyTest = require('./new_user_in_company_test');
+const ExistingUserInCompanyTest = require('./existing_user_in_company_test');
+const ExistingUserInCompanyByEmailTest = require('./existing_user_in_company_by_email_test');
 
 const PROVIDERS = [
 	'trello',
@@ -81,6 +87,20 @@ class ProviderTokenRequestTester {
 		new WrongTokenTypeTest({ provider: 'gitlab' }).test();
 		new UserNotFoundTest({ provider: 'bitbucket' }).test();
 		new UserNotOnTeamTest({ provider: 'trello' }).test();
+		
+		// these tests pertain particularly to New Relic authorization flow
+		new NRLoginTest().test();
+		new NoCodeTest().test();
+		new NoSignupIrrelevantTest().test();
+		new NewUserInCompanyTest().test();
+		new ExistingUserInCompanyTest().test();
+		new ExistingUserInCompanyByEmailTest().test();
+		new NRLoginTest({ serviceGatewayEnabled: true }).test();
+		new NoCodeTest({ serviceGatewayEnabled: true }).test();
+		new NoSignupIrrelevantTest({ serviceGatewayEnabled: true }).test();
+		new NewUserInCompanyTest({ serviceGatewayEnabled: true }).test();
+		new ExistingUserInCompanyTest({ serviceGatewayEnabled: true }).test();
+		new ExistingUserInCompanyByEmailTest({ serviceGatewayEnabled: true }).test();
 	}
 }
 

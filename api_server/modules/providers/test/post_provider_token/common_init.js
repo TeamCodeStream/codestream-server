@@ -71,8 +71,7 @@ class CommonInit {
 			code: this.code,
 			token: this.mockToken,
 			signup_token: this.signupToken,
-			_mockToken: this.mockToken, // avoids calling out to the actual provider service
-			_secret: this.apiConfig.sharedSecrets.confirmationCheat
+			_mockToken: this.mockToken // avoids calling out to the actual provider service
 		};
 	}
 

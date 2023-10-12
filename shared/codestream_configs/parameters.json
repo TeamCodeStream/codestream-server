@@ -53,6 +53,12 @@
 				"desc": "directory for the onprem admin server logs",
 				"env": "OPADM_LOGS",
 				"envRequired": true
+			},
+			"newRelicLoggingOk": {
+				"type": "boolean",
+				"default": true,
+				"desc": "allow forwarding APM logs to NR",
+				"env": "OPADM_LOG_NEW_RELIC_OK"
 			}
 		},
 		"port": {
@@ -159,6 +165,12 @@
 				"desc": "directory for api server logs",
 				"env": "CS_API_LOGS",
 				"envRequired": true
+			},
+			"newRelicLoggingOk": {
+				"type": "boolean",
+				"default": true,
+				"desc": "allow forwarding APM logs to NR",
+				"env": "OPADM_LOG_NEW_RELIC_OK"
 			}
 		},
 		"marketingSiteUrl": {
@@ -267,6 +279,12 @@
 					"desc": "directory for broadcaster logs",
 					"env": "CS_BROADCASTER_LOGS",
 					"required": true
+				},
+				"newRelicLoggingOk": {
+					"type": "boolean",
+					"default": true,
+					"desc": "allow forwarding APM logs to NR",
+					"env": "OPADM_LOG_NEW_RELIC_OK"
 				}
 			},
 			"port": {
@@ -513,6 +531,12 @@
 				"desc": "directory for inbound email logs",
 				"env": "CS_MAILIN_LOGS",
 				"envRequired": true
+			},
+			"newRelicLoggingOk": {
+				"type": "boolean",
+				"default": true,
+				"desc": "allow forwarding APM logs to NR",
+				"env": "OPADM_LOG_NEW_RELIC_OK"
 			}
 		},
 		"processDirectory": {
@@ -919,6 +943,12 @@
 				"desc": "directory for outbound email logs",
 				"env": "CS_OUTBOUND_EMAIL_LOGS",
 				"envRequired": true
+			},
+			"newRelicLoggingOk": {
+				"type": "boolean",
+				"default": true,
+				"desc": "allow forwarding APM logs to NR",
+				"env": "OPADM_LOG_NEW_RELIC_OK"
 			}
 		},
 		"showConfig": {

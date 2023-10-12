@@ -20,11 +20,11 @@ class IdeRedirectRequest extends WebRequestBase {
 
 	async prepareTemplateProps () {
 		this.templateProps = {
-			launchIde: this.request.query.ide === ''
+			launchIde: this.request.query?.ide === ''
 					? 'default'
-					: this.request.query.ide,
+					: this.request.query?.ide,
 			queryString: {
-				ide: this.request.query.ide === ''
+				ide: this.request.query?.ide === ''
 						? 'default'
 						: this.request.query.ide,
 			},
@@ -32,7 +32,7 @@ class IdeRedirectRequest extends WebRequestBase {
 			partial_launcher_model: this.createLauncherModel(''),
 			partial_title_model: {},
 			segmentKey: this.api.config.telemetry.segment.webToken,
-			src: decodeURIComponent(this.request.query.src || ''),
+			src: decodeURIComponent(this.request.query?.src || ''),
 		}
 	}
 
