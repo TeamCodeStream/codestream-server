@@ -16,23 +16,29 @@ class IdeRedirectRequest extends WebRequestBase {
 
 	async process () {
 		(await this.prepareTemplateProps()) && this.renderRedirect();
+		(await this.renderRedirect());
+
 	}
 
 	async prepareTemplateProps () {
 		this.templateProps = {
-			launchIde: this.request.query.ide === ''
-					? 'default'
-					: this.request.query.ide,
+			// launchIde: this.request.query.ide === ''
+			// 		? 'default'
+			// 		: this.request.query.ide,
+			// queryString: {
+			// 	ide: this.request.query.ide === ''
+			// 			? 'default'
+			// 			: this.request.query.ide,
+			// },
+			launchIde: 'default',
 			queryString: {
-				ide: this.request.query.ide === ''
-						? 'default'
-						: this.request.query.ide,
+				ide: 'default',
 			},
 			icons: {},
 			partial_launcher_model: this.createLauncherModel(''),
 			partial_title_model: {},
 			segmentKey: this.api.config.telemetry.segment.webToken,
-			src: decodeURIComponent(this.request.query.src || ''),
+			src: decodeURIComponent(this.request.query?.src || ''),
 		}
 	}
 

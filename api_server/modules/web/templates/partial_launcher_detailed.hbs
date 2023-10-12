@@ -616,9 +616,11 @@ function onIdeSelected(e, moniker) {
 				{{/lastOrigin}}							
 				<a href="#" class="btn-light dropdown-toggle-split dropdown-toggle-custom form-control"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<svg style="width:15px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" focusable="false" role="img"><title>Chevron bottom icon</title><path d="M6.6 1.6L4 4.3 1.4 1.6l-.8.8L4 5.7l3.4-3.3z"></path></svg>
+					<svg style="width:15px; margin-top: 12px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" focusable="false" role="img"><title>Chevron bottom icon</title><path d="M6.6 1.6L4 4.3 1.4 1.6l-.8.8L4 5.7l3.4-3.3z"></path></svg>
 				</a> 
-				<div class="dropdown-menu dropdown-menu-light dropdown-menu-right ide-list-items" data-element-ide-list="">
+				<div class="dropdown-menu dropdown-menu-light dropdown-menu-right ide-list-items" data-element-ide-list="" 
+					style="position: absolute !important; transform: translate3d(0px, 58px, 0px) !important; top: 0px !important; left: 0px !important; will-change: transform !important; width: 225px !important;"
+				>
 					{{#ides}}
 						{{#if ideName}}
 							<a class="dropdown-item dropdown-item-light" onclick="(function(e){onIdeSelected(e,'{{moniker}}');})(event)" href="#">
