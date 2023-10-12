@@ -22,17 +22,13 @@ class IdeRedirectRequest extends WebRequestBase {
 
 	async prepareTemplateProps () {
 		this.templateProps = {
-			// launchIde: this.request.query.ide === ''
-			// 		? 'default'
-			// 		: this.request.query.ide,
-			// queryString: {
-			// 	ide: this.request.query.ide === ''
-			// 			? 'default'
-			// 			: this.request.query.ide,
-			// },
-			launchIde: 'default',
+			launchIde: this.request.query?.ide === ''
+					? 'default'
+					: this.request.query?.ide,
 			queryString: {
-				ide: 'default',
+				ide: this.request.query?.ide === ''
+						? 'default'
+						: this.request.query.ide,
 			},
 			icons: {},
 			partial_launcher_model: this.createLauncherModel(''),

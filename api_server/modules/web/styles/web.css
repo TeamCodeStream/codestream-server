@@ -398,10 +398,6 @@ input.bg-light:-internal-autofill-selected {
 	flex: 0 0 auto;
 }
 
-/* .form-group {
-  padding-top: 10px;
-  box-sizing: border-box;
-} */
 .form-wrapper div {
 	flex: 0 0 auto;
 }

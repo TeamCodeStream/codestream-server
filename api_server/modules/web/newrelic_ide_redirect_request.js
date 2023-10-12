@@ -50,7 +50,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			cookieNames.push(`${defaultCookieName}--${repoId}`);
 		}
 		cookieNames.push(defaultCookieName);
-		const queryStringIDE = 'default'; //this.parsedPayload.ide;
+		const queryStringIDE = this.parsedPayload?.ide;
 		let autoOpen = !!(!queryStringIDE || queryStringIDE === 'default');
 
 		if (queryStringIDE && queryStringIDE !== 'default') {
