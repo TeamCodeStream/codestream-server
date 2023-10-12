@@ -16,8 +16,6 @@ class IdeRedirectRequest extends WebRequestBase {
 
 	async process () {
 		(await this.prepareTemplateProps()) && this.renderRedirect();
-		(await this.renderRedirect());
-
 	}
 
 	async prepareTemplateProps () {
