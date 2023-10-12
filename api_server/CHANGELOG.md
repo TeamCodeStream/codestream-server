@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.25] - 2023-10-12
+
+### Added
+
+- Adds better logging to debug region identification on New Relic auth flow
+
 ## [14.0.24] - 2023-10-9
 
 ### Fixed
