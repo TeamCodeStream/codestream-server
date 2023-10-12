@@ -95,7 +95,7 @@ class NRLoginCommonInit {
 		const path = this.getPath();
 		if (this.wantError) {
 			// in this case, the actual test is actually making the request, so just do a NOOP for the test request
-			this.path = '/no-auth/status';
+			this.path = '/no-auth/capabilities';
 		} else {
 			this.path = '/users/me';
 		}
