@@ -547,8 +547,9 @@ if (!data.password) {
 	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
 		const host = this.serviceHosts.login;
-		const whichPath = options.noSignup ? 'cs' : 'cssignup';
-		const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
+		//const whichPath = options.noSignup ? 'cs' : 'cssignup';
+		//const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
+		const url = `${host}/idp/azureb2c/redirect`;
 		let signupToken = options.signupToken;
 		if (options.joinCompanyId) {
 			signupToken += `.JCID~${options.joinCompanyId}`;
@@ -603,7 +604,7 @@ if (!data.password) {
 		const tokenInfo = {
 			accessToken: result.id_token,
 			refreshToken: result.refresh_token,
-			provider: 'azureb2c-cs',
+			provider: 'azureb2c',
 			expiresAt
 		};
 		const showTokenInfo = { ...tokenInfo };

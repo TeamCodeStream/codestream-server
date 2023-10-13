@@ -14,7 +14,7 @@ class WebLogOutRequest extends APIRequest {
 
 		const returnTo = encodeURIComponent(this.api.config.apiServer.publicApiUrl + '/web/finish');
 		// TODO: get this from configuration
-		const loginPath = 'https://staging-login.newrelic.com/idp/azureb2c-cs/redirect?return_to=' + returnTo;
+		const loginPath = 'https://staging-login.newrelic.com/idp/azureb2c/redirect?return_to=' + returnTo;
 		this.module.evalTemplate(this, 'signed_out', {
 			path: loginPath,
 			newRelicIcon: Icons['newrelic']

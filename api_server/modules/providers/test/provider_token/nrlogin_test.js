@@ -43,7 +43,7 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 			bearerToken: true,
 			refreshToken: 'placeholder',
 			expiresAt: Date.now(),
-			provider: 'azureb2c-cs'
+			provider: 'azureb2c'
 		};
 		Assert(typeof providerInfo.refreshToken === 'string', 'no refreshToken in providerInfo');
 		Assert(providerInfo.expiresAt > Date.now(), 'expiresAt not in the future');
@@ -58,7 +58,7 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 			Assert.strictEqual(accessToken, providerInfo.accessToken, 'CodeStream access token not set to the NR access token');
 			Assert.strictEqual(refreshToken, providerInfo.refreshToken, 'CodeStream refresh token not set to the NR refresh token');
 			Assert.strictEqual(expiresAt, providerInfo.expiresAt, 'CodeStream access token expiresAt not set to the NR expiresAt');
-			Assert.strictEqual(provider, 'azureb2c-cs', 'CodeStream access token provider not correct');
+			Assert.strictEqual(provider, 'azureb2c', 'CodeStream access token provider not correct');
 			Assert.strictEqual(isNRToken, true, 'CodeStream access token isNRToken not set to true');
 		}
 	}

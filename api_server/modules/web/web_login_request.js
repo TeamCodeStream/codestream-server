@@ -69,7 +69,7 @@ class WebLoginRequest extends APIRequest {
 		}
 
 		const returnTo = this.api.config.apiServer.publicApiUrl + finishUrl;
-		let nrLoginUrl = `https://staging-login.newrelic.com/idp/azureb2c-cs/redirect?return_to=${encodeURIComponent(returnTo)}`;
+		let nrLoginUrl = `https://staging-login.newrelic.com/idp/azureb2c/redirect?return_to=${encodeURIComponent(returnTo)}`;
 		if (orgId) {
 			nrLoginUrl += '&orgId=' + orgId;
 		}

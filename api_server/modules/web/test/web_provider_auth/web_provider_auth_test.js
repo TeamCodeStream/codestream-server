@@ -188,8 +188,9 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 			scheme: redirectUri,
 			response_mode: 'code',
 		};
-		const policy = this.doNoSignup ? 'cs' : 'cssignup';
-		const url = `${host}/idp/azureb2c-${policy}/redirect`;
+		//const policy = this.doNoSignup ? 'cs' : 'cssignup';
+		//const url = `${host}/idp/azureb2c-${policy}/redirect`;
+		const url = `${host}/idp/azureb2c/redirect`;
 		return { url, parameters };
 	}
 }
