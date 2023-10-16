@@ -107,7 +107,7 @@ class TokenAuthenticator {
 		let func, query, hint;
 
 		// if we have a service gateway user ID header, get the user based on that
-		if (this.request.headers['service-gateway-user-id']) {
+		if (this.request.serviceGatewayAuth && this.request.headers['service-gateway-user-id']) {
 			func = 'getOneByQuery';
 			query = { nrUserId: parseInt(this.request.headers['service-gateway-user-id'], 10), deactivated: false };
 			hint = UserIndexes.byNRUserId;
