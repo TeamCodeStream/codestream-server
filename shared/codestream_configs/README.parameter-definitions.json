@@ -5,7 +5,8 @@
 		"logger": {
 			"consoleOk": "allow logging to the console [OPADM_LOG_CONSOLE_OK]",
 			"debugOk": "more verbose logging (debug level) [OPADM_LOG_DEBUG_OK]",
-			"directory": "directory for the onprem admin server logs [OPADM_LOGS]"
+			"directory": "directory for the onprem admin server logs [OPADM_LOGS]",
+			"newRelicLoggingOk": "allow forwarding APM logs to NR [OPADM_LOG_NEW_RELIC_OK]"
 		},
 		"port": "admin server port [OPADM_PORT]",
 		"securePort": "admin server secure port [OPADM_SECURE_PORT]",
@@ -26,7 +27,8 @@
 		"logger": {
 			"consoleOk": "allow logging to the console [CS_API_LOG_CONSOLE_OK]",
 			"debugOk": "more verbose logging (debug level) [CS_API_DEBUG_OK]",
-			"directory": "directory for api server logs [CS_API_LOGS]"
+			"directory": "directory for api server logs [CS_API_LOGS]",
+			"newRelicLoggingOk": "allow forwarding APM logs to NR [OPADM_LOG_NEW_RELIC_OK]"
 		},
 		"marketingSiteUrl": "marketing site; used for redirects [CS_API_MARKETING_SITE_URL]",
 		"mockMode": "for running tests on same host; nothing is saved to a database and PubNub is replaced by IPC [CS_API_MOCK_MODE]",
@@ -48,7 +50,8 @@
 			"logger": {
 				"consoleOk": "allow logging to the console [CS_BROADCASTER_LOG_CONSOLE_OK]",
 				"debugOk": "more verbose logging (debug level) [CS_BROADCASTER_DEBUG_OK]",
-				"directory": "directory for broadcaster logs [CS_BROADCASTER_LOGS]"
+				"directory": "directory for broadcaster logs [CS_BROADCASTER_LOGS]",
+				"newRelicLoggingOk": "allow forwarding APM logs to NR [OPADM_LOG_NEW_RELIC_OK]"
 			},
 			"port": "Network port for the broadcaster service [CSSVC_BROADCASTER_PORT]",
 			"secrets": {
@@ -116,7 +119,8 @@
 		"logger": {
 			"consoleOk": "allow logging to the console [CS_MAILIN_LOG_CONSOLE_OK]",
 			"debugOk": "more verbose logging (debug level) [CS_MAILIN_DEBUG_OK]",
-			"directory": "directory for inbound email logs [CS_MAILIN_LOGS]"
+			"directory": "directory for inbound email logs [CS_MAILIN_LOGS]",
+			"newRelicLoggingOk": "allow forwarding APM logs to NR [OPADM_LOG_NEW_RELIC_OK]"
 		},
 		"processDirectory": "email files will be moved to this directory for processing",
 		"showConfig": "print exported inbound email configuration data to console [CS_MAILIN_SHOW_CFG]",
@@ -256,7 +260,8 @@
 		"logger": {
 			"consoleOk": "allow logging to the console [CS_OUTBOUND_EMAIL_LOG_CONSOLE_OK]",
 			"debugOk": "more verbose logging (debug level) [CS_OUTBOUND_EMAIL_DEBUG_OK]",
-			"directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]"
+			"directory": "directory for outbound email logs [CS_OUTBOUND_EMAIL_LOGS]",
+			"newRelicLoggingOk": "allow forwarding APM logs to NR [OPADM_LOG_NEW_RELIC_OK]"
 		},
 		"showConfig": "print exported outbound email configuration data to console [CS_OUTBOUND_EMAIL_SHOW_CFG]",
 		"storage": {
