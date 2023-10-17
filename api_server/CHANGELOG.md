@@ -1,5 +1,11 @@
 # Change Log
 
+## [14.0.26] - 2023-10-17
+
+### Fixed
+
+- Fixes an issue trying to Open in IDE from the errors inbox
+
 ## [14.0.25] - 2023-10-12
 
 ### Added
