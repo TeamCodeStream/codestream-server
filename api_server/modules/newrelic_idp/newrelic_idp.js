@@ -565,12 +565,17 @@ if (!data.password) {
 			url,
 			parameters: {
 				scheme: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
-				response_mode: 'code'
+				response_mode: 'code',
+				domain_hint: 'newrelic.com'
 			}
 		};
+		/*
 		if (options.domain) {
 			data.parameters.domain_hint = options.domain;
+		} else {
+			data.parameters.domain_hint = 'newrelic.com';
 		}
+		*/
 		return data;
 	}
 
