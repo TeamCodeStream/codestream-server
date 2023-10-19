@@ -30,6 +30,7 @@ class PutCompanyRequest extends PutRequest {
 			throw this.errorHandler.error('updateAuth', { reason: 'only admins can update this company' });
 		}
 
+		/*
 		// under unified identitiy, companies can only be updated if they are "codestream only",
 		// here we not only check if the flag is present, but we double-check with New Relic
 		const codestreamOnly = await IsCodeStreamOnly(this.company, this);
@@ -38,6 +39,7 @@ class PutCompanyRequest extends PutRequest {
 			await this.publishCompanyNoCSOnly();
 			throw this.errorHandler.error('updateAuth', { reason: 'this company/org is managed by New Relic and can not be updated' });
 		}
+		*/
 	}
 
 	// after the team is updated...

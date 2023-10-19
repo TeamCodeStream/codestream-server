@@ -261,8 +261,8 @@ class ProviderIdentityConnector {
 		}).createCompany({
 			name: this.providerInfo.companyName,
 			linkedNROrgId: this.providerInfo.nrOrgId,
-			codestreamOnly: false,
-			orgOrigination: 'NR'
+			//codestreamOnly: false,
+			//orgOrigination: 'NR'
 		});
 		this.createdTeam = this.transforms.createdTeam;
 	}

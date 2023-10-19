@@ -18,6 +18,7 @@ class PostUserRequest extends PostRequest {
 			throw this.errorHandler.error('notFound', { info: 'team' });
 		}
 
+		/*
 		// if the company is not a codestream-only company, which we'll verify through NR,
 		// then no members can be invited, all member management happens through NR
 		const company = await this.data.companies.getById(this.team.get('companyId'));
@@ -27,6 +28,7 @@ class PostUserRequest extends PostRequest {
 			await this.publishCompanyNoCSOnly();
 			throw this.errorHandler.error('createAuth', { reason: 'member management for this company can only be done through New Relic' });
 		}
+		*/
 
 		// then, if the onlyAdminsCanInvite team setting is set, then the user must be an admin for the team
 		if (

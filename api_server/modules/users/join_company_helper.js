@@ -49,6 +49,7 @@ class JoinCompanyHelper {
 			this.request.log('NEWRELIC IDP TRACK: Found admin ' + admin.id);
 		} 
 
+		/*
 		// check whether the company is marked as "codestream-only", and whether its linked NR org
 		// is also "codestream-only", which is the only scenario under which domain joining is possible
 		this.request.log('NEWRELIC IDP TRACK: Checking if this org is CS Only');
@@ -59,7 +60,8 @@ class JoinCompanyHelper {
 			await this.publishCompanyNoCSOnly();
 			throw this.errorHandler.error('notAuthorizedToJoin', { reason: 'membership in this company is managed by New Relic' });
 		}
-
+		*/
+		
 		// get the user record that corresponds to this user's invite
 		// note that the user can sign-up using a different email than the one they were invited with
 		const email = this.originalEmail || this.user.get('email'); 
