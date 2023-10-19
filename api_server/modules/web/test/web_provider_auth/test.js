@@ -19,6 +19,13 @@ const PROVIDERS = [
 	'bitbucket'
 ];
 
+const IDP_DOMAINS = [
+	'github.com',
+	'gitlab.com',
+	'bitbucket.com',
+	'google.com'
+];
+
 class WebProviderAuthRequestTester {
 
 	test () {
@@ -36,6 +43,9 @@ class WebProviderAuthRequestTester {
 		new SignupTokenRequiredTest().test();
 		new AnonUserIDTest().test();
 		new NoSignupNewRelicTest().test();
+		IDP_DOMAINS.forEach(idpDomain => {
+			new NewRelicIDPAuthTest({ idpDomain }).test();
+		});
 	}
 }
 
