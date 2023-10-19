@@ -187,6 +187,7 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		const parameters = {
 			scheme: redirectUri,
 			response_mode: 'code',
+			domain_hint: 'newrelic.com'
 		};
 		//const policy = this.doNoSignup ? 'cs' : 'cssignup';
 		//const url = `${host}/idp/azureb2c-${policy}/redirect`;
