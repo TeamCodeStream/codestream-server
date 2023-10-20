@@ -50,6 +50,7 @@ class ProviderIdentityConnector {
 			this.providerInfo.userId = this.providerInfo.nrUserId;
 		}
 
+		await this.findNRCompany();
 		await this.findUser();
 		await this.createUserAsNeeded();
 		await this.createOrJoinCompany();
@@ -57,20 +58,56 @@ class ProviderIdentityConnector {
 		await this.confirmUserAsNeeded();
 	}
 	
+	// find the company associated with the user's org ID (for New Relic login only)
+	async findNRCompany () {
+		if (!this.providerInfo.nrOrgId) { return; }
+		this.company = await this.request.data.companies.getOneByQuery(
+			{ 
+				linkedNROrgId: this.providerInfo.nrOrgId,
+				deactivated: false
+			}, {
+				hint: CompanyIndexes.byLinkedNROrgId
+			}
+		);
+		if (this.company) {
+			this.teamId = this.company.get('everyoneTeamId');
+		}
+	}
+
+
 	// find the user associated with the passed credentials, first by matching against the 
 	// provider identity extracted from the passed provider info, and then by matching against email
 	async findUser () {
+		const nrUserIDQueryHint = {
+			query: { nrUserId: parseInt(this.providerInfo.nrUserId, 10) },
+			hint: UserIndexes.byNRUserId,
+			by: 'nrUserId'
+		};
+		const emailQueryHint = {
+			query: { searchableEmail: this.providerInfo.email.toLowerCase() },
+			hint: UserIndexes.bySearchableEmail,
+			by: 'email'
+		};
+
 		// for normal OAuth, match on email, but for New Relic IDP, match on NR User ID
-		const { query, hint } = this.providerInfo.nrUserId ?
-			{
-				query: { nrUserId: parseInt(this.providerInfo.nrUserId, 10) },
-				hint: UserIndexes.byNRUserId
-			} :
-			{
-				query: { searchableEmail: this.providerInfo.email.toLowerCase() },
-				hint: UserIndexes.bySearchableEmail
-			};
-		const users = await this.data.users.getByQuery(query, { hint });
+		let { query, hint, by } = this.providerInfo.nrUserId ? nrUserIDQueryHint : emailQueryHint;
+
+		// if we have a company by virtue of knowing the New Relic org, search only within that company
+		if (this.company && this.teamId) {
+			query = { ...query, teamIds: this.teamId };
+		}
+
+		let users = await this.data.users.getByQuery(query, { hint });
+
+		// for New Relic IDP, where we know the org, if we found no users matching the NR User ID, check
+		// against email as well, if we find a match, we'll overwrite the NR User ID of that matching user,
+		// which protects against the same user belonging to multiple auth domains within the NR org
+		// (see NR-166697)
+		if (this.company && this.teamId && users.length === 0) {
+			query = { ...emailQueryHint.query, teamIds: this.teamId };
+			users = await this.data.users.getByQuery(query, { hint: emailQueryHint.hint });
+			by = emailQueryHint.by;
+		}
 
 		// if user is explicitly joining a company, need to get the team to find the invited user record
 		if (this.joinCompanyId) {
@@ -98,7 +135,6 @@ class ProviderIdentityConnector {
 
 		this.user = matchingUser || firstRegisteredUser || teamlessUnregisteredUser;
 		if (this.user) {
-			let by = this.providerInfo.nrUserId ? 'nrUserId' : 'email';
 			if (this.teamId) {
 				by += ` and teamId ${this.teamId}`;
 			}
@@ -225,8 +261,8 @@ class ProviderIdentityConnector {
 		}).createCompany({
 			name: this.providerInfo.companyName,
 			linkedNROrgId: this.providerInfo.nrOrgId,
-			codestreamOnly: false,
-			orgOrigination: 'NR'
+			//codestreamOnly: false,
+			//orgOrigination: 'NR'
 		});
 		this.createdTeam = this.transforms.createdTeam;
 	}
@@ -325,11 +361,19 @@ class ProviderIdentityConnector {
 			return;
 		}
 
+		// set NR user ID if new or different
+		if (this.user.get('nrUserId') !== this.providerInfo.nrUserId) {
+			this.request.log(`NEWRELIC IDP TRACK: Setting nrUserId to ${this.providerInfo.nrUserId} because it differs from ${this.user.get('nrUserId')}`);
+			op.$set.nrUserId = this.providerInfo.nrUserId;
+		}
+
+		// set brand new token details for newrelic
 		delete op.$set['providerInfo.newrelic'];
 		const rootStr = `providerInfo.${teamId}.newrelic`;
 		op.$set[`${rootStr}.accessToken`] = this.tokenData.accessToken;
 		op.$set[`${rootStr}.bearerToken`] = true;
 		if (this.request.request.serviceGatewayAuth) {
+			// under Service Gateway auth, the new token IS the CS access token
 			op.$set['accessTokens.web.token'] = this.tokenData.accessToken;
 			op.$set['accessTokens.web.isNRToken'] = true;
 		}
@@ -337,6 +381,7 @@ class ProviderIdentityConnector {
 			op.$set[`${rootStr}.refreshToken`] = this.tokenData.refreshToken;
 			op.$set[`${rootStr}.expiresAt`] = this.tokenData.expiresAt;
 			if (this.request.request.serviceGatewayAuth) {
+				// under Service Gateway auth, the new refresh token IS the CS refresh token
 				op.$set['accessTokens.web.refreshToken'] = this.tokenData.refreshToken;
 				op.$set['accessTokens.web.expiresAt'] = this.tokenData.expiresAt;
 			}

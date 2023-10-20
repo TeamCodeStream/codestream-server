@@ -15,9 +15,9 @@ const OriginalUserNotDeletedTest = require('./original_user_not_deleted_test');
 const JoinMethodTest = require('./join_method_test');
 const ClearFirstSessionTest = require('./clear_first_session_test');
 const MessageToUserTest = require('./message_to_user_test');
-const NotCodeStreamOnlyTest = require('./not_codestream_only_test');
-const NotCodeStreamOnlyDiscoveryTest = require('./not_codestream_only_discovery_test');
-const NotCodeStreamOnlyDiscoveryMessageTest = require('./not_codestream_only_discovery_message_test');
+//const NotCodeStreamOnlyTest = require('./not_codestream_only_test');
+//const NotCodeStreamOnlyDiscoveryTest = require('./not_codestream_only_discovery_test');
+//const NotCodeStreamOnlyDiscoveryMessageTest = require('./not_codestream_only_discovery_message_test');
 
 class JoinCompanyRequestTester {
 
@@ -47,9 +47,9 @@ class JoinCompanyRequestTester {
 		new ClearFirstSessionTest().test();
 		new MessageToUserTest().test();
 		new MessageToUserTest({ byDomainJoining: true }).test();
-		new NotCodeStreamOnlyTest().test();
-		new NotCodeStreamOnlyDiscoveryTest().test();
-		new NotCodeStreamOnlyDiscoveryMessageTest().test();
+		//new NotCodeStreamOnlyTest().test();
+		//new NotCodeStreamOnlyDiscoveryTest().test();
+		//new NotCodeStreamOnlyDiscoveryMessageTest().test();
 	}
 }
 

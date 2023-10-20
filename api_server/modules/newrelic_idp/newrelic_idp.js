@@ -547,8 +547,9 @@ if (!data.password) {
 	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
 		const host = this.serviceHosts.login;
-		const whichPath = options.noSignup ? 'cs' : 'cssignup';
-		const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
+		//const whichPath = options.noSignup ? 'cs' : 'cssignup';
+		//const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
+		const url = `${host}/idp/azureb2c/redirect`;
 		let signupToken = options.signupToken;
 		if (options.joinCompanyId) {
 			signupToken += `.JCID~${options.joinCompanyId}`;
@@ -564,12 +565,10 @@ if (!data.password) {
 			url,
 			parameters: {
 				scheme: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
-				response_mode: 'code'
+				response_mode: 'code',
+				domain_hint: options.domain || 'newrelic.com'
 			}
 		};
-		if (options.domain) {
-			data.parameters.domain_hint = options.domain;
-		}
 		return data;
 	}
 
@@ -603,7 +602,7 @@ if (!data.password) {
 		const tokenInfo = {
 			accessToken: result.id_token,
 			refreshToken: result.refresh_token,
-			provider: 'azureb2c-cs',
+			provider: 'azureb2c',
 			expiresAt
 		};
 		const showTokenInfo = { ...tokenInfo };
@@ -616,7 +615,7 @@ if (!data.password) {
 	// match the incoming New Relic identity to a CodeStream identity
 	async getUserIdentity (options) {
 		// decode the token, which is JWT, this will give us the NR User ID
-		const payload = JWT.decode(options.accessToken);
+		const payload = options.mockResponse ? JSON.parse(options.accessToken) : JWT.decode(options.accessToken);
 		const showPayload = { ...payload };
 		if (showPayload.idp_access_token) {
 			showPayload.idp_access_token = '<redacted>' + payload.idp_access_token.slice(-7);
@@ -867,7 +866,9 @@ if (!data.password) {
 			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
 				return this._getMockLoginResponse(params, options);
 			} else if (path === '/api/v1/current_user/possible_authentication_domains.json' && method === 'get') {
-				return this._getMockPossibleAuthDomainsResponse(params, options);
+				return this._getMockPossibleAuthDomainsResponse(options);
+			} else if (path === '/api/v1/tokens' && method === 'post') {
+				return this._getMockTokenExchangeResponse(options);
 			}
 		} else if (service === 'credentials') {
 			let match;
@@ -1132,6 +1133,17 @@ if (!data.password) {
 				"login_url": loginUrl,
 				"user_id": userId
 			}]
+		};
+	}
+
+	_getMockTokenExchangeResponse (options = {}) {
+		const idToken = options.mockUser ? JSON.stringify(options.mockUser) : RandomString.generate(100);
+		const refreshToken = RandomString.generate(100);
+		const expiresIn = 3600;
+		return {
+			id_token: idToken,
+			refresh_token: refreshToken,
+			expires_in: expiresIn
 		};
 	}
 

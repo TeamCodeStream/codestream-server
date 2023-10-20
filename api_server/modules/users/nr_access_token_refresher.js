@@ -28,7 +28,7 @@ module.exports = async (options) => {
 	// if we are behind service gateway and using login service auth, we actually set the user's
 	// access token to the refreshed NR access token, this will be used for normal requests
 	const userSet = {};
-	if (this.request.request.serviceGatewayAuth) {
+	if (request.serviceGatewayAuth) {
 		userSet[`accessTokens.${loginType}.token`] = newTokenInfo.accessToken;
 		userSet[`accessTokens.${loginType}.refreshToken`] = newTokenInfo.refreshToken;
 		userSet[`accessTokens.${loginType}.expiresAt`] = newTokenInfo.expiresAt;

@@ -140,8 +140,8 @@ class MigrationHandler {
 			if (!this.incremental) {
 				const update = {
 					linkedNROrgId: toNROrgId,
-					orgOrigination: origin,
-					codestreamOnly: origin === 'CS',
+					//orgOrigination: origin,
+					//codestreamOnly: origin === 'CS',
 					nrOrgInfo: {
 						authentication_domain_id: nrOrgInfo.authentication_domain_id,
 						account_id: nrOrgInfo.account_id

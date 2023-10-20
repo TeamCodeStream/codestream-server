@@ -7,6 +7,7 @@ const { defaultCookieName, ides} = require('./config');
 class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 
 	async prepareTemplateProps () {
+		this.redirectType = this.request.params.type.toLowerCase();
 		this.parsedPayload = {};
 		if (this.request.query && this.request.query.payload) {
 			try {
@@ -17,20 +18,38 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 				this.api.logger.warn(ex);
 			}
 		}
+		let pageType, pageWhat, analyticsContentType, entityId;
+		switch (this.redirectType) {
+			case 'error':
+				pageType = 'errorsinbox';
+				pageWhat = 'ErrorsInbox';
+				analyticsContentType = 'Error';
+				this.showVideo = true;
+				break;
+			case 'span':
+				pageType = 'span';
+				pageWhat = 'Span';
+				analyticsContentType = 'Span';
+				entityId = this.parsedPayload.spanId;
+				this.showVideo = false;
+				break;
+			default:
+				return this.redirect404();
+		}
 		const launcherModel = this.createLauncherModel('');
 		this.templateProps = {
-			pageType: 'errorsinbox',
-			pageWhat: 'ErrorsInbox',
-			analyticsContentType: 'Error',
-			launchIde: this.parsedPayload.ide === '' ? 'default' : this.parsedPayload.ide,
-			queryString: { ide: this.parsedPayload.ide === '' ? 'default' : this.parsedPayload.ide },
+			pageType,
+			pageWhat,
+			analyticsContentType,
+			launchIde: this.parsedPayload?.ide === '' ? 'default' : this.parsedPayload?.ide,
+			queryString: { ide: this.parsedPayload?.ide === '' ? 'default' : this.parsedPayload?.ide },
 			errorGroupGuid: this.parsedPayload.errorGroupGuid,
-			newToCodeStream: launcherModel.isMru ? "false" : "true",
+			newToCodeStream: launcherModel?.isMru ? "false" : "true",
 			icons: {},
 			partial_launcher_model: launcherModel,
 			partial_title_model: {},
 			segmentKey: this.api.config.telemetry.segment.webToken,
-			src: decodeURIComponent(this.parsedPayload.src || ''),
+			src: decodeURIComponent(this.parsedPayload?.src || ''),
 		}
 
 		return true;
@@ -50,7 +69,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			cookieNames.push(`${defaultCookieName}--${repoId}`);
 		}
 		cookieNames.push(defaultCookieName);
-		const queryStringIDE = this.parsedPayload.ide;
+		const queryStringIDE = this.parsedPayload?.ide;
 		let autoOpen = !!(!queryStringIDE || queryStringIDE === 'default');
 
 		if (queryStringIDE && queryStringIDE !== 'default') {
@@ -81,7 +100,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			ides: ides,
 			csrf: this.request.csrfToken(),
 			src: decodeURIComponent(this.parsedPayload.src || ''),
-			showVideo: true,
+			showVideo: this.showVideo,
 			...lastOrigin
 		};
 		result.isDefaultJetBrains = result.lastOrigin && result.lastOrigin.moniker.indexOf('jb-') === 0;

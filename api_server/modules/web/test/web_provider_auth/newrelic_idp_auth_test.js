@@ -11,7 +11,11 @@ class NewRelicIDPAuthTest extends WebProviderAuthTest {
 	}
 	
 	get description () {
-		return `should provide the appropriate redirect, when initiating an SSO authorization flow to ${this.provider}`;
+		let desc = `should provide the appropriate redirect, when initiating an SSO authorization flow to ${this.provider}`;
+		if (this.idpDomain) {
+			desc += ', with IDP domain ' + this.idpDomain;
+		}
+		return desc;
 	}
 
 	validateState (data) {

@@ -1,22 +1,21 @@
-// common initialization for tests of the "GET /no-auth/provider-token" request,
-// these tests are specifically concerned with providers that support authentication
-// for login, and test that the appropriate users/teams/etc. are created or matched
-// in conjunction with using third-party providers for login
+// base class for many tests of the "GET /~nrlogin" requests
 
 'use strict';
 
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
 const UUID = require('uuid').v4;
+const RandomString = require('randomstring');
 
-class IdentityMatchCommonInit {
+class NRLoginCommonInit {
 
 	init (callback) {
+		// get an auth-code and set the token, the test itself is verifying the token has been set in the user object
 		BoundAsync.series(this, [
 			this.setTestOptions,
 			CodeStreamAPITest.prototype.before.bind(this),
-			this.doProviderAuth,	// simulate the web-based provider auth process, to get the proper state variable
+			this.createCompany,		// create existing company, as needed
+			this.waitForCompanySignup, // wait for the created company to exist and result in a valid signup token
 			this.setProviderToken,	// make the provider-token request
 			this.wait,				// wait for signup token to be saved
 			this.waitForSignupToken	// wait for our signup token to be validated
@@ -32,37 +31,53 @@ class IdentityMatchCommonInit {
 		callback();
 	}
 
-	// simulate the web-based provider auth process, to get the proper state variable 
-	// to provide to the provider-token request, the state variable is normally generated
-	// in the web-based authentication process, which takes us into the third-party
-	// provider's permissions page, and then calls back to the provider-token request
-	doProviderAuth (callback) {
-		const parameters = this.getProviderAuthParameters();
-		const query = Object.keys(parameters)
-			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
-			.join('&');
+	// create an existing company, linked to an NR org, as needed
+	createCompany (callback) {
+		if (!this.wantExistingCompany) { return callback(); }
+
+		// do an ~nrlogin, with random user, this will create a company linked to a random NR org
+		this.signupToken = UUID();
+		const mockUser = this.getMockUser();
+		const headers = {
+			'X-CS-NR-Mock-User': JSON.stringify(mockUser),
+			'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat
+		};
+
+		const path = `/~nrlogin/${this.signupToken}?code=${RandomString.generate(100)}`;
 		this.doApiRequest(
 			{
 				method: 'get',
-				path: `/web/provider-auth/${this.provider}?${query}`
+				path,
+				requestOptions: {
+					noJsonInResponse: true,
+					expectRedirect: true,
+					headers
+				}
 			},
-			(error, response) => {
-				if (error) { return callback(error); }
-				this.state = response.state;
-				callback();
-			}
+			callback
 		);
 	}
 
-	// get parameter to use in the provider-auth request that kicks the authentication off
-	// here we will actually simulate the process, not actually redirecting to the third-party
-	// provider's permissions page
-	getProviderAuthParameters () {
-		this.signupToken = UUID();
-		return { 
-			_returnState: true,
-			signupToken: this.signupToken
-		};
+	// wait for the company created in the last step to exist, when the signup token is valid
+	waitForCompanySignup (callback) {
+		if (!this.wantExistingCompany) { return callback(); }
+
+		setTimeout(() => {
+			this.doApiRequest(
+				{
+					method: 'put',
+					path: '/no-auth/check-signup',
+					data: {
+						token: this.signupToken
+					}
+				},
+				(error, data) => {
+					if (error) { return callback(error); }
+					this.createCompanyResponse = data;
+					callback();
+				}
+			);
+		}, 1000);
 	}
 
 	// make the provider-token request to set the user's access token for the given provider,
@@ -70,20 +85,20 @@ class IdentityMatchCommonInit {
 	// the actual test is fetching the user object and verifying the token has been set
 	// note that this is a mock test, there is no actual call made to the provider
 	setProviderToken (callback) {
-		this.providerUserId = this.useProviderUserId || RandomString.generate(8);
-		this.providerTeamId = this.useProviderTeamId || RandomString.generate(8);
-		this.code = `mock-${this.providerUserId}-${this.providerTeamId}`;
-		this.mockToken = RandomString.generate(16);
-		const path = this.getPath();
-		if (this.runRequestAsTest) {
-			// in this case, the actual test is actually making the request, so just prepare the path
-			this.path = path;
-			return callback();
-		}
+		this.nrUserId = this.getMockNRUserId();
+		this.code = RandomString.generate(100);
+		this.mockUser = this.getMockUser();
 		const headers = {
-			'x-cs-mock-secret': this.apiConfig.sharedSecrets.confirmationCheat
+			'X-CS-NR-Mock-User': JSON.stringify(this.mockUser),
+			'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat
 		};
-		this.path = '/users/me';
+		const path = this.getPath();
+		if (this.wantError) {
+			// in this case, the actual test is actually making the request, so just do a NOOP for the test request
+			this.path = '/no-auth/capabilities';
+		} else {
+			this.path = '/users/me';
+		}
 		this.doApiRequest(
 			{
 				method: 'get',
@@ -102,21 +117,35 @@ class IdentityMatchCommonInit {
 		);
 	}
 
+	// get a mock user to use for the request
+	getMockUser () {
+		return  {
+			email: this.userFactory.randomEmail(),
+			name: this.userFactory.randomFullName(),
+			nr_userid: this.nrUserId || this.getMockNRUserId(),
+			nr_orgid: UUID(),
+		};
+	}
+
 	// get the path to use in the test request
 	getPath () {
+		this.signupToken = UUID();
+		this.anonUserId = UUID();
+		let path = `/~nrlogin/${this.signupToken}.AUID~${this.anonUserId}`;
+		if (this.noSignup) {
+			path += '.NOSU~1';
+		}
 		const parameters = this.getQueryParameters();
 		const query = Object.keys(parameters)
 			.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
 			.join('&');
-		return `/no-auth/provider-token/${this.provider}?${query}`;
+		return `${path}?${query}`;
 	}
 
 	// return the query parameters to use when constructing the path to use in the test request
 	getQueryParameters () {
 		return {
-			code: this.code,
-			state: this.state,
-			_mockToken: this.mockToken
+			code: this.code
 		};
 	}
 
@@ -139,8 +168,7 @@ class IdentityMatchCommonInit {
 				if (error) { return callback(error); }
 				if (!this.signupResponse) {
 					return callback('signup token never validated');
-				}
-				else {
+				} else {
 					return callback();
 				}
 			}
@@ -160,16 +188,14 @@ class IdentityMatchCommonInit {
 			},
 			(error, data) => {
 				if (error) { 
-					if (data.code === 'AUTH-1003') {
+					if (data.code === 'AUTH-1006') {
 						this.numAttempts++;
 						setTimeout(callback, 1000);
-					}
-					else if (this.expectError) {
+					} else if (this.wantError) {
 						this.signupError = data;
 						this.signupResponse = true;
 						callback();
-					}
-					else {
+					} else {
 						callback(error);
 					}
 				}
@@ -181,6 +207,10 @@ class IdentityMatchCommonInit {
 			}
 		);
 	}
+
+	getMockNRUserId () {
+		return (1000000000 + Math.floor(Math.random() * 999999999)).toString();
+	}
 }
 
-module.exports = IdentityMatchCommonInit;
+module.exports = NRLoginCommonInit;
