@@ -40,7 +40,6 @@ describe('web', function() {
 
 	this.timeout(10000);
 
-	/*
 	SIMPLE_TESTS.forEach(test => {
 		new SimpleWebTest(test).test();
 	});
@@ -63,6 +62,5 @@ describe('web', function() {
 	describe('GET /web/confirm-email', ConfirmEmailRequestTester.test);
 	describe('GET /web/user/password', WebSetPasswordRequestTester.test);
 	describe('POST /web/user/password', SetPasswordRequestTester.test);
-	*/
 	describe('GET /web/provider-auth/:provider', WebProviderAuthRequestTester.test);
 });
