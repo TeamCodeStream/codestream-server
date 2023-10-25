@@ -569,6 +569,9 @@ if (!data.password) {
 				domain_hint: options.domain || 'newrelic.com'
 			}
 		};
+		if (options.nrUserId) {
+			data.parameters.user_id = options.nrUserId;
+		}
 		return data;
 	}
 
