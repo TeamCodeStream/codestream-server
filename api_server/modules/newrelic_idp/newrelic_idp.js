@@ -566,7 +566,7 @@ if (!data.password) {
 			parameters: {
 				scheme: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
 				response_mode: 'code',
-				domain_hint: options.domain || 'newrelic.com'
+				//domain_hint: options.domain || 'newrelic.com'
 			}
 		};
 		if (options.nrUserId) {

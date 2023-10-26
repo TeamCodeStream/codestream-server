@@ -193,7 +193,7 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		const parameters = {
 			scheme: redirectUri,
 			response_mode: 'code',
-			domain_hint: this.idpDomain || 'newrelic.com'
+			//domain_hint: this.idpDomain || 'newrelic.com'
 		};
 		if (this.nrUserId) {
 			parameters.user_id = this.nrUserId;

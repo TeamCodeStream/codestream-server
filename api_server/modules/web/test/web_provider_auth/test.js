@@ -44,9 +44,9 @@ class WebProviderAuthRequestTester {
 		new SignupTokenRequiredTest().test();
 		new AnonUserIDTest().test();
 		new NoSignupNewRelicTest().test();
-		IDP_DOMAINS.forEach(idpDomain => {
-			new NewRelicIDPAuthTest({ idpDomain }).test();
-		});
+		//IDP_DOMAINS.forEach(idpDomain => {
+		//	new NewRelicIDPAuthTest({ idpDomain }).test();
+		//});
 		new NRUserIdTest().test();
 	}
 }
