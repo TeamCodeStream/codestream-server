@@ -549,7 +549,7 @@ if (!data.password) {
 		const host = this.serviceHosts.login;
 		//const whichPath = options.noSignup ? 'cs' : 'cssignup';
 		//const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
-		const url = `${host}/idp/azureb2c/redirect`;
+		const url = `${host}/idp/azureb2c-cs/redirect`;
 		let signupToken = options.signupToken;
 		if (options.joinCompanyId) {
 			signupToken += `.JCID~${options.joinCompanyId}`;
@@ -605,7 +605,7 @@ if (!data.password) {
 		const tokenInfo = {
 			accessToken: result.id_token,
 			refreshToken: result.refresh_token,
-			provider: 'azureb2c',
+			provider: 'azureb2c-cs',
 			expiresAt
 		};
 		const showTokenInfo = { ...tokenInfo };

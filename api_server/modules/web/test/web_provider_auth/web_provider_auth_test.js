@@ -198,9 +198,7 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		if (this.nrUserId) {
 			parameters.user_id = this.nrUserId;
 		}
-		//const policy = this.doNoSignup ? 'cs' : 'cssignup';
-		//const url = `${host}/idp/azureb2c-${policy}/redirect`;
-		const url = `${host}/idp/azureb2c/redirect`;
+		const url = `${host}/idp/azureb2c-cs/redirect`;
 		return { url, parameters };
 	}
 }

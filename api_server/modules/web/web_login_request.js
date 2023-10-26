@@ -70,7 +70,7 @@ class WebLoginRequest extends APIRequest {
 
 		const returnTo = this.api.config.apiServer.publicApiUrl + finishUrl;
 		const loginHost = this.api.config.integrations.newRelicIdentity.loginServiceHost;
-		let nrLoginUrl = `${loginHost}/idp/azureb2c/redirect?return_to=${encodeURIComponent(returnTo)}`;
+		let nrLoginUrl = `${loginHost}/idp/azureb2c-cs/redirect?return_to=${encodeURIComponent(returnTo)}`;
 		if (orgId) {
 			nrLoginUrl += '&orgId=' + orgId;
 		}
