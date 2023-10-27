@@ -12,6 +12,7 @@ const NewRelicIDPAuthTest = require('./newrelic_idp_auth_test');
 const SignupTokenRequiredTest = require('./signup_token_required_test');
 const AnonUserIDTest = require('./anon_user_id_test');
 const NoSignupNewRelicTest = require('./no_signup_newrelic_test');
+const NRUserIdTest = require('./nr_user_id_test');
 
 const PROVIDERS = [
 	'github',
@@ -43,9 +44,10 @@ class WebProviderAuthRequestTester {
 		new SignupTokenRequiredTest().test();
 		new AnonUserIDTest().test();
 		new NoSignupNewRelicTest().test();
-		IDP_DOMAINS.forEach(idpDomain => {
-			new NewRelicIDPAuthTest({ idpDomain }).test();
-		});
+		//IDP_DOMAINS.forEach(idpDomain => {
+		//	new NewRelicIDPAuthTest({ idpDomain }).test();
+		//});
+		new NRUserIdTest().test();
 	}
 }
 

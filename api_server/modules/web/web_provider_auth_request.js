@@ -85,7 +85,8 @@ class WebProviderAuthRequest extends APIRequest {
 			unifiedIdentityEnabled: this.request.query.enableUId || !!this.request.headers['x-cs-enable-uid'],
 			joinCompanyId: this.request.query.joinCompanyId,
 			anonUserId: this.request.query.anonUserId,
-			domain: this.request.query.domain
+			domain: this.request.query.domain,
+			nrUserId: this.request.query.nrUserId
 		};
 		this.log('redirectUri: ' + redirectUri);
 

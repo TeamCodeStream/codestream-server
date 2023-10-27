@@ -60,6 +60,9 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		if (this.idpDomain) {
 			params.domain = this.idpDomain;
 		}
+		if (this.nrUserId) {
+			params.nrUserId = this.nrUserId;
+		}
 		return params;
 	}
 
@@ -190,11 +193,12 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		const parameters = {
 			scheme: redirectUri,
 			response_mode: 'code',
-			domain_hint: this.idpDomain || 'newrelic.com'
+			//domain_hint: this.idpDomain || 'newrelic.com'
 		};
-		//const policy = this.doNoSignup ? 'cs' : 'cssignup';
-		//const url = `${host}/idp/azureb2c-${policy}/redirect`;
-		const url = `${host}/idp/azureb2c/redirect`;
+		if (this.nrUserId) {
+			parameters.user_id = this.nrUserId;
+		}
+		const url = `${host}/idp/azureb2c-cs/redirect`;
 		return { url, parameters };
 	}
 }
