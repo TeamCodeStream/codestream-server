@@ -38,17 +38,17 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 		const { user } = data;
 		const teamId = this.team ? this.team.id : this.signupResponse.teams[0].id;
 		const providerInfo = user.providerInfo[teamId].newrelic;
+		Assert(providerInfo.accessToken.startsWith('MNRI-'), 'not a valid mock access token');
+		Assert(providerInfo.refreshToken.startsWith('MNRR-'), 'not a valid mock refresh token');
 		const expectedProviderInfo = {
-			accessToken: JSON.stringify(this.mockUser),
+			accessToken: providerInfo.accessToken,
 			bearerToken: true,
-			refreshToken: 'placeholder',
+			refreshToken: providerInfo.refreshToken,
 			expiresAt: Date.now(),
 			provider: 'azureb2c-cs'
 		};
-		Assert(typeof providerInfo.refreshToken === 'string', 'no refreshToken in providerInfo');
 		Assert(providerInfo.expiresAt > Date.now(), 'expiresAt not in the future');
 		expectedProviderInfo.expiresAt = providerInfo.expiresAt;
-		expectedProviderInfo.refreshToken = providerInfo.refreshToken;
 		Assert.deepStrictEqual(providerInfo, expectedProviderInfo, 'providerInfo not correct');
 		Assert.strictEqual(user.nrUserId, parseInt(this.nrUserId, 10), 'provider userId does not match expected userId');
 

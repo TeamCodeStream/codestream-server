@@ -50,7 +50,7 @@ class IDPSignupTest extends FirstCompanyOneUserPerOrgTest {
 
 		const teamId = this.createCompanyResponse.team.id;
 		const nrProviderInfo = user.providerInfo[teamId].newrelic;
-		Assert(nrProviderInfo.accessToken.startsWith('MNR-'), 'user does not have a mock NR access token');
+		Assert(nrProviderInfo.accessToken.startsWith('MNRI-'), 'user does not have a mock NR access token');
 		Assert(nrProviderInfo.refreshToken.startsWith('MNRR-'), 'user does not have a mock NR refresh token');
 		Assert(nrProviderInfo.expiresAt >= Date.now(), 'user does not have an expiredAt with their access token that expires in the future');
 		Assert(nrProviderInfo.bearerToken === true, 'user does not have a bearerToken flag for their NR access token');

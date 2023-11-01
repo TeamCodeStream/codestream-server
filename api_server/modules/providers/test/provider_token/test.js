@@ -87,7 +87,7 @@ class ProviderTokenRequestTester {
 		new WrongTokenTypeTest({ provider: 'gitlab' }).test();
 		new UserNotFoundTest({ provider: 'bitbucket' }).test();
 		new UserNotOnTeamTest({ provider: 'trello' }).test();
-		
+
 		// these tests pertain particularly to New Relic authorization flow
 		new NRLoginTest().test();
 		new NoCodeTest().test();

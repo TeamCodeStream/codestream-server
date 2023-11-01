@@ -21,7 +21,7 @@ class RefreshTokenBehindSGFetchTest extends RefreshTokenFetchTest {
 		Assert.strictEqual(accessToken, nrToken, 'CodeStream access token not equal to New Relic access token');
 
 		const originalToken = this.loginResponse.accessToken;
-		Assert(accessToken.startsWith('MNR-'), 'CS access token should be an NR access token');
+		Assert(accessToken.startsWith('MNRI-'), 'CS access token should be an NR access token');
 		Assert.notStrictEqual(originalToken, accessToken, 'access token on fetch is the same as the one originally issued');
 		return super.validateResponse(data);
 	}

@@ -4,6 +4,8 @@ module.exports = async (options) => {
 	const { tokenInfo, request, loginType = 'web', force = false } = options;
 	tokenInfo.provider = tokenInfo.provider || 'azureb2c-cs';
 	const { refreshToken, expiresAt, provider } = tokenInfo;
+	const mockResponse = !!request.request.headers['x-cs-no-newrelic'];
+
 	if (!refreshToken) {
 		request.log('Cannot refresh New Relic issued access token, no refresh token is available');
 		return;
@@ -21,9 +23,8 @@ module.exports = async (options) => {
 		return;
 	}
 
-
 	request.log('User\'s New Relic issued access token is expired, attempting to refresh...');
-	const newTokenInfo = await request.api.services.idp.customRefreshToken(tokenInfo, { request });
+	const newTokenInfo = await request.api.services.idp.customRefreshToken(tokenInfo, { request, mockResponse });
 	request.log('User\'s New Relic issued access token was successfully refreshed');
 
 	// if we are behind service gateway and using login service auth, we actually set the user's
@@ -38,7 +39,7 @@ module.exports = async (options) => {
 	
 	let user = request.user;
 	if (!user) {
-		const identity = await request.api.services.idp.getUserIdentity({ accessToken: newTokenInfo.accessToken, request });
+		const identity = await request.api.services.idp.getUserIdentity({ accessToken: newTokenInfo.accessToken, request, mockResponse });
 		user = await request.data.users.getOneByQuery(
 			{
 				nrUserId: identity.nrUserId,
@@ -49,7 +50,7 @@ module.exports = async (options) => {
 			}
 		);
 		if (!user) {
-			throw this.errorHandler.error('notFound', { info: 'user' });
+			throw request.errorHandler.error('notFound', { info: 'user' });
 		}
 	}
 

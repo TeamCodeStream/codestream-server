@@ -17,7 +17,7 @@ class IDPSignupBehindSGTest extends IDPSignupTest {
 	validateResponse (data) {
 		const { accessToken, accessTokenInfo } = data;
 
-		Assert(accessToken.startsWith('MNR-'), 'user does not have a mock NR access token for CS access token');
+		Assert(accessToken.startsWith('MNRI-'), 'user does not have a mock NR access token for CS access token');
 		Assert(accessTokenInfo.refreshToken.startsWith('MNRR-'), 'user does not have a mock NR refresh token');
 		Assert(accessTokenInfo.expiresAt >= Date.now(), 'user does not have an expiredAt with their access token that expires in the future');
 		Assert.strictEqual(accessTokenInfo.provider, 'azureb2c-csropc', 'user does not have NR provider set to azureb2c-csropc');

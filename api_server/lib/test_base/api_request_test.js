@@ -234,7 +234,7 @@ class APIRequestTest extends GenericTest {
 			// the only supported configuration, relying solely on SG for authn and authz, we
 			// don't have to be scared of this secret
 			requestOptions.headers['X-CS-SG-Test-Secret'] = this.apiConfig.sharedSecrets.subscriptionCheat;
-			if (options.token && options.token.startsWith('MNR-')) {
+			if (options.token && options.token.startsWith('MNRI-')) {
 				const nrUserId = options.token.split('-')[1];
 				requestOptions.headers['Service-Gateway-User-Id'] = nrUserId;
 			} else if (options.token && options.token.startsWith('{"email')) {

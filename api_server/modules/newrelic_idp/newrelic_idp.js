@@ -618,7 +618,24 @@ if (!data.password) {
 	// match the incoming New Relic identity to a CodeStream identity
 	async getUserIdentity (options) {
 		// decode the token, which is JWT, this will give us the NR User ID
-		const payload = options.mockResponse ? JSON.parse(options.accessToken) : JWT.decode(options.accessToken);
+		let payload;
+		if (options.mockResponse) {
+			if (options.accessToken.startsWith('MNRI-')) {
+				const [, nrUserId, json] = options.accessToken.split('-');
+				payload = Buffer.from(json, 'base64').toString();
+				try {
+					payload = JSON.parse(payload); 
+				}
+				catch (ex) {
+					payload = {};
+				}
+			} else {
+				payload = {};
+			}
+		} else {
+			payload = JWT.decode(options.accessToken);
+		}
+
 		const showPayload = { ...payload };
 		if (showPayload.idp_access_token) {
 			showPayload.idp_access_token = '<redacted>' + payload.idp_access_token.slice(-7);
@@ -746,7 +763,7 @@ if (!data.password) {
 
 	// refresh a user's token
 	async refreshToken (refreshToken, provider, options) {
-		return this._newrelic_idp_call(
+		const response = await this._newrelic_idp_call(
 			'login',
 			'/refresh_token',
 			'post',
@@ -756,6 +773,7 @@ if (!data.password) {
 			},
 			options
 		);
+		return response;
 	}
 
 	// perform custom refresh of a token per OAuth
@@ -872,6 +890,8 @@ if (!data.password) {
 				return this._getMockPossibleAuthDomainsResponse(options);
 			} else if (path === '/api/v1/tokens' && method === 'post') {
 				return this._getMockTokenExchangeResponse(options);
+			} else if (path === '/refresh_token' && method === 'post') {
+				return this._getMockRefreshTokenResponse(params, options);
 			}
 		} else if (service === 'credentials') {
 			let match;
@@ -1016,8 +1036,8 @@ if (!data.password) {
 		);
 		return {
 			idp: {
-				id_token: 'MNR-' + nrUserId + '-' + RandomString.generate(100),
-				refresh_token: 'MNRR-' + nrUserId + '-' + RandomString.generate(100),
+				id_token: this._getMockNRIDToken(nrUserId),
+				refresh_token: this._getMockNRRefreshToken(nrUserId),
 				expires_in: 3600
 			}
 		}
@@ -1140,8 +1160,16 @@ if (!data.password) {
 	}
 
 	_getMockTokenExchangeResponse (options = {}) {
-		const idToken = options.mockUser ? JSON.stringify(options.mockUser) : RandomString.generate(100);
-		const refreshToken = RandomString.generate(100);
+		let nrUserId, idToken, refreshToken;
+		if (options.mockUser) {
+			nrUserId = options.mockUser.nr_userid;
+			idToken = this._getMockNRIDToken(nrUserId, options.mockUser);
+			refreshToken = this._getMockNRRefreshToken(nrUserId, options.mockUser);
+		} else {
+			nrUserId = this._getMockNRUserId();
+			idToken = this._getMockNRIDToken(nrUserId);
+			refreshToken = this._getMockNRRefreshToken(nrUserId);
+		}
 		const expiresIn = 3600;
 		return {
 			id_token: idToken,
@@ -1160,6 +1188,24 @@ if (!data.password) {
 		return { data: mockUsers.map(mu => mu.data) };
 	}
 
+	_getMockRefreshTokenResponse (params = {}, options = {}) {
+		if (!params.refresh_token) {
+			throw new Error('no refreshToken given for mock refresh token response');
+		}
+		if (!params.refresh_token.startsWith('MNRR-')) {
+			throw new Error('not a valid mock refresh token');
+		}
+		const [, nrUserId, json] = params.refresh_token.split('-');
+		const decoded = Buffer.from(json, 'base64').toString();
+		const payload = JSON.parse(decoded);
+		return {
+			id_token: this._getMockNRIDToken(nrUserId, payload),
+			provider: 'azureb2c-cs',
+			refresh_token: this._getMockNRRefreshToken(nrUserId, payload),
+			expires_in: 300
+		};
+	}
+
 	_getMockPasswordResponse (options = {}) {
 		return {};
 	}
@@ -1170,6 +1216,16 @@ if (!data.password) {
 
 	_getMockNRUserId () {
 		return 1000000000 + Math.floor(Math.random() * 999999999);
+	}
+
+	_getMockNRIDToken (nrUserId, payload = {}) {
+		const encoded = Buffer.from(JSON.stringify(payload)).toString('base64');
+		return `MNRI-${nrUserId}-${encoded}-${RandomString.generate(100)}`;
+	}
+
+	_getMockNRRefreshToken (nrUserId, payload = {}) {
+		const encoded = Buffer.from(JSON.stringify(payload)).toString('base64');
+		return `MNRR-${nrUserId}-${encoded}-${RandomString.generate(100)}`;
 	}
 
 	_throw (type, message, options = {}) {
