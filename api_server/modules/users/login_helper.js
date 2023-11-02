@@ -278,6 +278,7 @@ class LoginHelper {
 			newRelicLandingServiceUrl,
 			newRelicApiUrl,
 			newRelicSecApiUrl,
+			csecApiUrl,
 		} = this.apiConfig.sharedGeneral;
 		const { environmentGroup } = this.apiConfig;
 		
@@ -308,7 +309,8 @@ class LoginHelper {
 			accountIsConnected: this.accountIsConnected,
 			newRelicLandingServiceUrl,
 			newRelicApiUrl,
-			newRelicSecApiUrl
+			newRelicSecApiUrl,
+			csecApiUrl
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub

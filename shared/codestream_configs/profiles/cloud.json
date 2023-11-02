@@ -735,6 +735,7 @@
 			"isProductionCloud": true,
 			"newRelicApiUrl": "https://api.eu.newrelic.com",
 			"newRelicSecApiUrl": "https://nrsec-workflow-api.service.eu.newrelic.com",
+			"csecApiUrl": "https://csec-workflow-api.service.eu.newrelic.com",
 			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
 			"runTimeEnvironment": "eu0"
 		},
@@ -754,6 +755,7 @@
 			"isProductionCloud": true,
 			"newRelicApiUrl": "https://api.newrelic.com",
 			"newRelicSecApiUrl": "https://nrsec-workflow-api.service.newrelic.com",
+			"csecApiUrl": "https://csec-workflow-api.service.newrelic.com",
 			"newRelicLandingServiceUrl": "https://landing.service.newrelic.com",
 			"runTimeEnvironment": "prod"
 		},
