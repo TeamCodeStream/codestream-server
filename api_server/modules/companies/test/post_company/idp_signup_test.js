@@ -3,6 +3,7 @@
 const FirstCompanyOneUserPerOrgTest = require('./first_company_one_user_per_org_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 // we derive this from PostCompanyTest, which tests the behavior when one-user-per-org is not active
 
@@ -54,7 +55,7 @@ class IDPSignupTest extends FirstCompanyOneUserPerOrgTest {
 		Assert(nrProviderInfo.refreshToken.startsWith('MNRR-'), 'user does not have a mock NR refresh token');
 		Assert(nrProviderInfo.expiresAt >= Date.now(), 'user does not have an expiredAt with their access token that expires in the future');
 		Assert(nrProviderInfo.bearerToken === true, 'user does not have a bearerToken flag for their NR access token');
-		Assert.strictEqual(nrProviderInfo.provider, 'azureb2c-csropc', 'user does not have NR provider set to azureb2c-csropc');
+		Assert.strictEqual(nrProviderInfo.provider, NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY, 'user does not have NR provider set to the correct password policy');
 
 		Assert.strictEqual(user.preferences.hasDoneNRLogin, true, 'preferences.hasDoneNRLogin not set to true');
 	}

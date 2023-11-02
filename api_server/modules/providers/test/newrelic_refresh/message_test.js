@@ -4,6 +4,7 @@ const Aggregation = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_uti
 const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/broadcaster/test/codestream_message_test');
 const CommonInit = require('./common_init');
 const Assert = require('assert');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -57,7 +58,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const refreshToken = $set['accessTokens.web.refreshToken'];
 		Assert(typeof refreshToken === 'string' && refreshToken.startsWith('MNRR-'));
 		const providerInfoKey = `providerInfo.${teamId}.newrelic`;
-		const provider = 'azureb2c-cs';
+		const provider = NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
 		this.message = {
 			user: {
 				id: this.signupResponse.user.id,

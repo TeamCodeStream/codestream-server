@@ -5,6 +5,7 @@ const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/
 const NRLoginCommonInit = require('./nrlogin_common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 
@@ -45,7 +46,7 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 			bearerToken: true,
 			refreshToken: providerInfo.refreshToken,
 			expiresAt: Date.now(),
-			provider: 'azureb2c-cs'
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY
 		};
 		Assert(providerInfo.expiresAt > Date.now(), 'expiresAt not in the future');
 		expectedProviderInfo.expiresAt = providerInfo.expiresAt;
@@ -58,7 +59,7 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 			Assert.strictEqual(accessToken, providerInfo.accessToken, 'CodeStream access token not set to the NR access token');
 			Assert.strictEqual(refreshToken, providerInfo.refreshToken, 'CodeStream refresh token not set to the NR refresh token');
 			Assert.strictEqual(expiresAt, providerInfo.expiresAt, 'CodeStream access token expiresAt not set to the NR expiresAt');
-			Assert.strictEqual(provider, 'azureb2c-cs', 'CodeStream access token provider not correct');
+			Assert.strictEqual(provider, NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY, 'CodeStream access token provider not correct');
 			Assert.strictEqual(isNRToken, true, 'CodeStream access token isNRToken not set to true');
 		}
 	}

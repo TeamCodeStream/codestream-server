@@ -5,6 +5,7 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 const Assert = require('assert');
 const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 const UUID = require('uuid').v4;
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class WebProviderAuthTest extends CodeStreamAPITest {
 
@@ -193,12 +194,12 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		const parameters = {
 			scheme: redirectUri,
 			response_mode: 'code',
-			//domain_hint: this.idpDomain || 'newrelic.com'
+			domain_hint: NewRelicIDPConstants.FEDERATION_ON_LOGIN ? (this.idpDomain || 'newrelic.com') : undefined
 		};
 		if (this.nrUserId) {
 			parameters.user_id = this.nrUserId;
 		}
-		const url = `${host}/idp/azureb2c-cs/redirect`;
+		const url = `${host}/idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}/redirect`;
 		return { url, parameters };
 	}
 }

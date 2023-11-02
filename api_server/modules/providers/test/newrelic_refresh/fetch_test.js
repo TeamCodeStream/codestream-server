@@ -2,6 +2,7 @@
 
 const NewRelicRefreshTest = require('./newrelic_refresh_test');
 const Assert = require('assert');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class FetchTest extends NewRelicRefreshTest {
 
@@ -36,14 +37,14 @@ class FetchTest extends NewRelicRefreshTest {
 			refreshToken: this.refreshResponse.refreshToken,
 			bearerToken: true,
 			expiresAt: this.refreshResponse.expiresAt,
-			provider: 'azureb2c-cs'
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY
 		};
 		Assert.deepStrictEqual(providerInfo, expectedProviderInfo, 'providerInfo not correct');
 		Assert.strictEqual(data.accessToken, this.refreshResponse.accessToken, 'accessToken not correct');
 		const expectedTokenInfo = {
 			refreshToken: this.refreshResponse.refreshToken,
 			expiresAt: this.refreshResponse.expiresAt,
-			provider: 'azureb2c-cs',
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			isNRToken: true
 		};
 		Assert.deepStrictEqual(data.accessTokenInfo, expectedTokenInfo, 'tokenInfo not correct');

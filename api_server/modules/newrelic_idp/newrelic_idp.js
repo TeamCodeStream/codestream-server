@@ -13,6 +13,7 @@ const JWT = require('jsonwebtoken');
 const GithubAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/github_auth/github_authorizer');
 const GitlabAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/gitlab_auth/gitlab_authorizer');
 const BitbucketAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/bitbucket_auth/bitbucket_authorizer');
+const NewRelicIDPConstants = require('./newrelic_idp_constants');
 
 class NewRelicIDP extends APIServerModule {
 
@@ -70,7 +71,7 @@ if (!password) {
 		const idpId = createUserResponse.data.attributes.activeIdpObjectId;
 		await this._newrelic_idp_call(
 			'idp',
-			`/azureb2c/users/${idpId}/password`,
+			`/${NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY}/users/${idpId}/password`,
 			'post',
 			{
 				password
@@ -162,7 +163,7 @@ if (!password) {
 			token: loginResponse.idp.id_token,
 			refreshToken: loginResponse.idp.refresh_token,
 			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000,
-			provider: 'azureb2c-csropc'
+			provider: NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY
 		};
 	}
 
@@ -267,7 +268,7 @@ if (!data.password) {
 	async loginUser (data, options = {}) {
 		return this._newrelic_idp_call(
 			'login',
-			'/idp/azureb2c-csropc/token',
+			`/idp/${NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY}/token`,
 			'post',
 			data,
 			options
@@ -516,7 +517,7 @@ if (!data.password) {
 	async setIDPMigration (userId, options = {}) {
 		const result = await this._newrelic_idp_call(
 			'idp',
-			`/azureb2c/users/${userId}/set_codestream_idp_migration`,
+			`/${NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY}/users/${userId}/set_codestream_idp_migration`,
 			'post',
 			{ migration_required: true },
 			options
@@ -526,7 +527,7 @@ if (!data.password) {
 	// get the "possible" authentication domains for a user, which leads to all the orgs their in, by email
 	async getPossibleAuthDomains (token, options = {}) {
 		const authHeader = Buffer.from(JSON.stringify({
-			provider: 'azureb2c',
+			provider: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 			token
 		})).toString('base64');
 		const result = await this._newrelic_idp_call(
@@ -548,8 +549,8 @@ if (!data.password) {
 	getRedirectData (options) {
 		const host = this.serviceHosts.login;
 		//const whichPath = options.noSignup ? 'cs' : 'cssignup';
-		//const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
-		const url = `${host}/idp/azureb2c-cs/redirect`;
+		//const url = `${host}/idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}-${whichPath}/redirect`;
+		const url = `${host}/idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}/redirect`;
 		let signupToken = options.signupToken;
 		if (options.joinCompanyId) {
 			signupToken += `.JCID~${options.joinCompanyId}`;
@@ -566,7 +567,7 @@ if (!data.password) {
 			parameters: {
 				scheme: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
 				response_mode: 'code',
-				//domain_hint: options.domain || 'newrelic.com'
+				domain_hint: NewRelicIDPConstants.FEDERATION_ON_LOGIN ? (options.domain || 'newrelic.com') : undefined
 			}
 		};
 		if (options.nrUserId) {
@@ -605,7 +606,7 @@ if (!data.password) {
 		const tokenInfo = {
 			accessToken: result.id_token,
 			refreshToken: result.refresh_token,
-			provider: 'azureb2c-cs',
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			expiresAt
 		};
 		const showTokenInfo = { ...tokenInfo };
@@ -884,7 +885,7 @@ if (!data.password) {
 				return this._getMockGroupsResponse(options);
 			}
 		} else if (service === 'login') {
-			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
+			if (path === `/idp/${NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY}/token` && method === 'post') {
 				return this._getMockLoginResponse(params, options);
 			} else if (path === '/api/v1/current_user/possible_authentication_domains.json' && method === 'get') {
 				return this._getMockPossibleAuthDomainsResponse(options);
@@ -911,9 +912,9 @@ if (!data.password) {
 			}
 		} else if (service === 'idp') {
 			let match;
-			if (match = path.match(/^\/azureb2c\/users\/(.+)\/password$/) && method === 'post') {
+			if (match = path.match(/^\/azureb2c.*?\/users\/(.+)\/password$/) && method === 'post') {
 				return this._getMockPasswordResponse();
-			} else if (match = path.match(/^\/azureb2c\/users\/(.+)\/set_codestream_idp_migration$/) && method === 'post') {
+			} else if (match = path.match(/^\/azureb2c.*?\/users\/(.+)\/set_codestream_idp_migration$/) && method === 'post') {
 				return this._getMockSetIDPMigrationResponse();
 			}
 		}
@@ -959,11 +960,11 @@ if (!data.password) {
 					name,
 					timeZone: 'Etc/UTC',
 					authenticationDomainId,
-					activeIdp: 'azureb2c',
+					activeIdp: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 					activeIdpObjectId: idpObjectId,
 					supportedIdps: [
 						{
-							name: 'azureb2c',
+							name: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 							idp_object_id: idpObjectId
 						}
 					],
@@ -1008,11 +1009,11 @@ if (!data.password) {
 					name: params.data.attributes.name,
 					timeZone: 'Etc/UTC',
 					authenticationDomainId: params.data.attributes.authentication_domain_id,
-					activeIdp: 'azureb2c',
+					activeIdp: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 					activeIdpObjectId: idpObjectId,
 					supportedIdps: [
 						{
-							name: 'azureb2c',
+							name: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 							idp_object_id: idpObjectId
 						}
 					],
@@ -1200,7 +1201,7 @@ if (!data.password) {
 		const payload = JSON.parse(decoded);
 		return {
 			id_token: this._getMockNRIDToken(nrUserId, payload),
-			provider: 'azureb2c-cs',
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			refresh_token: this._getMockNRRefreshToken(nrUserId, payload),
 			expires_in: 300
 		};

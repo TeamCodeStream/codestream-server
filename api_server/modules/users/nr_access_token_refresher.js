@@ -1,8 +1,9 @@
 const UserIndexes = require('./indexes');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 module.exports = async (options) => {
 	const { tokenInfo, request, loginType = 'web', force = false } = options;
-	tokenInfo.provider = tokenInfo.provider || 'azureb2c-cs';
+	tokenInfo.provider = tokenInfo.provider || NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
 	const { refreshToken, expiresAt, provider } = tokenInfo;
 	const mockResponse = !!request.request.headers['x-cs-no-newrelic'];
 

@@ -5,6 +5,7 @@ const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/
 const CommonInit = require('./common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class NewRelicRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
@@ -37,7 +38,7 @@ class NewRelicRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	validateResponse (data) {
 		Assert(data.accessToken.startsWith('MNRI-'), 'not a valid mock NR access token');
 		Assert(data.refreshToken.startsWith('MNRR-'), 'not a valid mock NR refresh token');
-		Assert.strictEqual(data.provider, 'azureb2c-cs', 'provider not correct');
+		Assert.strictEqual(data.provider, NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY, 'provider not correct');
 		Assert(typeof data.expiresAt === 'number' && data.expiresAt > Date.now());
 		this.refreshResponse = data;
 	}
