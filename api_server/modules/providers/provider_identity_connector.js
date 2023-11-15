@@ -372,10 +372,12 @@ class ProviderIdentityConnector {
 		const rootStr = `providerInfo.${teamId}.newrelic`;
 		op.$set[`${rootStr}.accessToken`] = this.tokenData.accessToken;
 		op.$set[`${rootStr}.bearerToken`] = true;
+		op.$set[`${rootStr}.tokenType`] = this.tokenData.tokenType;
 		if (this.request.request.serviceGatewayAuth) {
 			// under Service Gateway auth, the new token IS the CS access token
 			op.$set['accessTokens.web.token'] = this.tokenData.accessToken;
 			op.$set['accessTokens.web.isNRToken'] = true;
+			op.$set['accessTokens.web.tokenType'] = this.tokenData.tokenType;
 		}
 		if (this.tokenData.refreshToken) {
 			op.$set[`${rootStr}.refreshToken`] = this.tokenData.refreshToken;

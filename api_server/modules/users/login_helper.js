@@ -323,7 +323,8 @@ class LoginHelper {
 				refreshToken: this.accessTokenInfo.refreshToken,
 				expiresAt: this.accessTokenInfo.expiresAt,
 				provider: this.accessTokenInfo.provider,
-				isNRToken: true
+				tokenType: this.accessTokenInfo.tokenType,
+				isNRToken: true,
 			};
 		}
 		
@@ -395,8 +396,9 @@ class LoginHelper {
 			if (!teamId) return;
 			const token = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).accessToken;
 			const bearerToken = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).bearerToken;
+			const tokenType = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).tokenType;
 			if (!token || !bearerToken) return;
-			this.possibleAuthDomains = await this.api.services.idp.getPossibleAuthDomains(token, { 
+			this.possibleAuthDomains = await this.api.services.idp.getPossibleAuthDomains(token, tokenType, { 
 				request: this.request,
 				mockResponse
 			});

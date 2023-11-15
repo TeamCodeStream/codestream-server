@@ -6,7 +6,7 @@ const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/li
 const Fetch = require('node-fetch');
 const Crypto = require('crypto');
 const UUID = require('uuid').v4;
-const NewRelicAuthorizer = require('./new_relic_authorizer');
+const NerdGraphOps = require('./nerd_graph_ops');
 //const NewRelicListener = require('./newrelic_listener');
 const RandomString = require('randomstring');
 const JWT = require('jsonwebtoken');
@@ -376,6 +376,17 @@ if (!data.password) {
 		);
 	}
 
+	// get the current user, associated with the passed token
+	async getCurrentUser (token, tokenType, options = {}) {
+		const ngOps = new NerdGraphOps({
+			request: options.request,
+			accessToken: token,
+			tokenType
+		});
+		await ngOps.init();
+		return ngOps.getCurrentUser(options);
+	}
+
 	async updateUser (id, data, options = {}) {
 		const user = await this.getUser(id, options);
 		if (!user) return null;
@@ -394,29 +405,30 @@ if (!data.password) {
 	}
 
 	async deleteUser (id, codestreamTeamId, options = {}) {
-		// use the NewRelicAuthorizer, which makes a graphql call to delete the user
-		const authorizer = new NewRelicAuthorizer({
+		// use the NerdGraphOps, which makes a graphql call to delete the user
+		const ngOps = new NerdGraphOps({
 			request: options.request,
 			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
 		});
-		await authorizer.init();
-		return authorizer.deleteUser(id, options);
+		await ngOps.init();
+		return ngOps.deleteUser(id, options);
 	}
 
 	// return the region code associated with a particular account
-	async regionFromAccountId (accountId, accessToken, options = {}) {
+	async regionFromAccountId (accountId, accessToken, tokenType, options = {}) {
 		if (options.request.request.headers['x-cs-no-newrelic']) {
 			options.request.log('Returning mock response of us01 for region');
 			return 'us01';
 		}
 
-		// use the NewRelicAuthorizer, which makes a graphql call 
-		const authorizer = new NewRelicAuthorizer({
+		// use the NerdGraphOps, which makes a graphql call 
+		const ngOps = new NerdGraphOps({
 			request: options.request,
-			accessToken
+			accessToken,
+			tokenType
 		});
-		await authorizer.init();
-		return authorizer.regionFromAccountId(accountId);
+		await ngOps.init();
+		return ngOps.regionFromAccountId(accountId);
 	}
 
 	// determine whether an NR org qualifies as "codestream only"
@@ -437,16 +449,16 @@ if (!data.password) {
 		}
 		options.request.log(`NEWRELIC IDP TRACK: accountId=${accountId}`);
 		
-		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
+		// use the NerdGraphOps, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
 		options.request.log('NEWRELIC IDP TRACK: Checking if this org has the unlimited consumption entitlement...');
-		const authorizer = new NewRelicAuthorizer({
+		const ngOps = new NerdGraphOps({
 			request: options.request,
 			teamId: codestreamTeamId, // used to get the user's API key, to make a nerdgraph request
 			adminUser: options.adminUser // grab token or API key from this admin user, instead of the requesting user
 		});
-		await authorizer.init();
-		const hasEntitlement = await authorizer.nrOrgHasUnlimitedConsumptionEntitlement(accountId, options);
+		await ngOps.init();
+		const hasEntitlement = await ngOps.nrOrgHasUnlimitedConsumptionEntitlement(accountId, options);
 		options.request.log('NEWRELIC IDP TRACK: hasEntitlement=' + hasEntitlement);
 		return !hasEntitlement;
 	}
@@ -524,8 +536,8 @@ if (!data.password) {
 		);
 	}
 
-	// get the "possible" authentication domains for a user, which leads to all the orgs their in, by email
-	async getPossibleAuthDomains (token, options = {}) {
+	// get the "possible" authentication domains for a user, which leads to all the orgs they're in, by email
+	async getPossibleAuthDomains (token, tokenType, options = {}) {
 		const authHeader = Buffer.from(JSON.stringify({
 			provider: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 			token
@@ -548,9 +560,10 @@ if (!data.password) {
 	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
 		const host = this.serviceHosts.login;
+		const { newRelicClientId } = this.apiConfig.integrations.newRelicIdentity;
 		//const whichPath = options.noSignup ? 'cs' : 'cssignup';
 		//const url = `${host}/idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}-${whichPath}/redirect`;
-		const url = `${host}/idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}/redirect`;
+		const url = `${host}/login`; //idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}/redirect`;
 		let signupToken = options.signupToken;
 		if (options.joinCompanyId) {
 			signupToken += `.JCID~${options.joinCompanyId}`;
@@ -565,9 +578,11 @@ if (!data.password) {
 		const data = { 
 			url,
 			parameters: {
-				scheme: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
+				return_to: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
 				response_mode: 'code',
-				domain_hint: NewRelicIDPConstants.FEDERATION_ON_LOGIN ? (options.domain || 'newrelic.com') : undefined
+				//domain_hint: NewRelicIDPConstants.FEDERATION_ON_LOGIN ? (options.domain || 'newrelic.com') : undefined,
+				client_id: newRelicClientId,
+				scheme: 'codestream'
 			}
 		};
 		if (options.nrUserId) {
@@ -604,7 +619,8 @@ if (!data.password) {
 		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
 		const expiresAt = Date.now() + result.expires_in * 1000;
 		const tokenInfo = {
-			accessToken: result.id_token,
+			accessToken: result.id_token || result.access_token,
+			tokenType: result.id_token ? 'id' : 'access',
 			refreshToken: result.refresh_token,
 			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			expiresAt
@@ -618,6 +634,15 @@ if (!data.password) {
 
 	// match the incoming New Relic identity to a CodeStream identity
 	async getUserIdentity (options) {
+		const user = await this.getCurrentUser(options.accessToken, options.tokenType, options);
+		const identityInfo = {
+			email: user.user.email,
+			fullName: user.user.name,
+			nrUserId: user.user.id,
+			nrOrgId: user.organization.id
+		};
+
+		/*
 		// decode the token, which is JWT, this will give us the NR User ID
 		let payload;
 		if (options.mockResponse) {
@@ -671,10 +696,11 @@ if (!data.password) {
 			catch (ex) {
 			}
 		}
+		*/
 
 		// extract company name and region as needed
-		if (payload.nr_orgid) {
-			const org = await this.getOrg(payload.nr_orgid, options);
+		if (identityInfo.nrOrgId) {
+			const org = await this.getOrg(identityInfo.nrOrgId, options);
 			identityInfo.companyName = org.name;
 			// unfortunately it seems we need to wait a bit before the token that was issued by Azure/New Relic
 			// can be used for a NerdGraph call, hopefully 2 seconds is enough...
@@ -684,7 +710,7 @@ if (!data.password) {
 				done = await new Promise(async resolve => {
 					setTimeout(async () => {
 						try {
-							identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options);
+							identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options.tokenType, options);
 							options.request.log(`NEWRELIC IDP TRACK: region determined to be ${identityInfo.region} after ${i} tries`);
 						} catch (ex) {
 							lastEx = ex;
@@ -700,15 +726,16 @@ if (!data.password) {
 		}
 		
 		// extract user ID and info as needed
-		if (payload.nr_userid) {
-			const userInfo = await this.getUser(payload.nr_userid, options);
-			identityInfo.nrUserId = parseInt(payload.nr_userid, 10);
+		if (identityInfo.nrUserId) {
+			const userInfo = await this.getUser(identityInfo.nrUserId, options);
+			//identityInfo.nrUserId = parseInt(payload.nr_userid, 10);
 			identityInfo.nrUserInfo = {
 				userTierId: userInfo.data?.attributes?.userTierId,
 				userTier: userInfo.data?.attributes?.userTier
 			};
 		}
 
+		/*
 		if (payload.idp && payload.idp_access_token) {
 			let idpInfo;
 			if (payload.idp && payload.idp === 'github.com') {
@@ -725,7 +752,7 @@ if (!data.password) {
 			Object.assign(identityInfo, idpInfo);
 			if (!identityInfo.email) identityInfo.email = email;
 		}
-
+		*/
 		return identityInfo;
 	}
 
@@ -781,7 +808,8 @@ if (!data.password) {
 	async customRefreshToken (providerInfo, options = {}) {
 		const result = await this.refreshToken(providerInfo.refreshToken, providerInfo.provider, options);
 		const tokenData = {
-			accessToken: result.id_token,
+			accessToken: result.id_token || result.access_token,
+			tokenType: result.id_token ? 'id' : 'access',
 			refreshToken: result.refresh_token,
 		};
 		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
@@ -833,7 +861,6 @@ if (!data.password) {
 		if (options.logger && options.verbose) {
 			options.logger.log(`Calling New Relic: ${url}\n`, JSON.stringify(fetchOptions, 0, 5));
 		}
-
 		const response = await Fetch(url, fetchOptions);
 		let json, text;
 		try {

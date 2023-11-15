@@ -40,7 +40,11 @@ module.exports = async (options) => {
 	
 	let user = request.user;
 	if (!user) {
-		const identity = await request.api.services.idp.getUserIdentity({ accessToken: newTokenInfo.accessToken, request, mockResponse });
+		const identity = await request.api.services.idp.getUserIdentity({
+			accessToken: newTokenInfo.accessToken,
+			tokenType: newTokenInfo.tokenType,
+			request, mockResponse
+		});
 		user = await request.data.users.getOneByQuery(
 			{
 				nrUserId: identity.nrUserId,

@@ -8,7 +8,7 @@ const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/module
 const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/await_utils');
 const PermalinkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/permalink_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
-const NewRelicAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/new_relic_authorizer');
+const NerdGraphOps = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/nerd_graph_ops');
 
 class ClaimCodeErrorRequest extends RestfulRequest {
 
@@ -46,12 +46,12 @@ class ClaimCodeErrorRequest extends RestfulRequest {
 	// the code error (error group) is associated with
 	async authorizeObject () {
 		const { objectId, objectType } = this.request.body;
-		const authorizer = new NewRelicAuthorizer({
+		const ngOps = new NerdGraphOps({
 			request: this,
 			teamId: this.teamId
 		});
-		await authorizer.init();
-		const result = await authorizer.authorizeObject(objectId, objectType);
+		await ngOps.init();
+		const result = await ngOps.authorizeObject(objectId, objectType);
 		if (result === true) {
 			return true;
 		} else {
