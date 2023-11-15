@@ -616,8 +616,12 @@ if (!data.password) {
 			},
 			options
 		);
-		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
-		const expiresAt = Date.now() + result.expires_in * 1000;
+		let expiresAt;
+		if (result.expires_at) {
+			expiresAt = result.expires_at * 1000;
+		} else {
+			expiresAt = Date.now() + 1000 * (result.expires_in || 3600);
+		}
 		const tokenInfo = {
 			accessToken: result.id_token || result.access_token,
 			tokenType: result.id_token ? 'id' : 'access',
