@@ -538,6 +538,7 @@ if (!data.password) {
 
 	// get the "possible" authentication domains for a user, which leads to all the orgs they're in, by email
 	async getPossibleAuthDomains (token, tokenType, options = {}) {
+		return [];
 		const authHeader = Buffer.from(JSON.stringify({
 			provider: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 			token
