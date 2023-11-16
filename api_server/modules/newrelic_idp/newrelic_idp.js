@@ -796,29 +796,35 @@ if (!data.password) {
 
 	// refresh a user's token
 	async refreshToken (refreshToken, provider, options) {
-		const response = await this._newrelic_idp_call(
+		const { newRelicClientId, newRelicClientSecret } = this.apiConfig.integrations.newRelicIdentity;
+		return this._newrelic_idp_call(
 			'login',
-			'/refresh_token',
+			'/api/v1/tokens/refresh',
 			'post',
 			{
-				provider,
-				refresh_token: refreshToken
+				refresh_token: refreshToken,
+				client_id: newRelicClientId,
+				client_secret: newRelicClientSecret
 			},
 			options
 		);
-		return response;
 	}
 
 	// perform custom refresh of a token per OAuth
 	async customRefreshToken (providerInfo, options = {}) {
 		const result = await this.refreshToken(providerInfo.refreshToken, providerInfo.provider, options);
+		let expiresAt;
+		if (result.expires_at) {
+			expiresAt = result.expires_at * 1000;
+		} else {
+			expiresAt = Date.now() + 1000 * (result.expires_in || 3600);
+		}
 		const tokenData = {
 			accessToken: result.id_token || result.access_token,
 			tokenType: result.id_token ? 'id' : 'access',
 			refreshToken: result.refresh_token,
+			expiresAt
 		};
-		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
-		tokenData.expiresAt = Date.now() + result.expires_in * 1000;
 		tokenData.provider = providerInfo.provider;
 		return tokenData;
 	}
