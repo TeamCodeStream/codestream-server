@@ -583,7 +583,8 @@ if (!data.password) {
 				response_mode: 'code',
 				//domain_hint: NewRelicIDPConstants.FEDERATION_ON_LOGIN ? (options.domain || 'newrelic.com') : undefined,
 				client_id: newRelicClientId,
-				scheme: 'codestream'
+				scheme: 'codestream',
+				force_login: 'true'
 			}
 		};
 		if (options.nrUserId) {
