@@ -275,6 +275,7 @@ if (!data.password) {
 		);
 	}
 
+
 	async listUsers (email, options = {}) {
 		return this._newrelic_idp_call(
 			'user',
@@ -1078,7 +1079,7 @@ if (!data.password) {
 			idp: {
 				id_token: this._getMockNRIDToken(nrUserId),
 				refresh_token: this._getMockNRRefreshToken(nrUserId, true),
-				expires_at: Math.floor(Date.now() / 1000) + 3600
+				expires_in: Math.floor(Date.now() / 1000) + 3600
 			}
 		}
 	}

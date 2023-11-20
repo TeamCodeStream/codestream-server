@@ -19,7 +19,7 @@ class IDPSignupBehindSGTest extends IDPSignupTest {
 		const { accessToken, accessTokenInfo } = data;
 
 		Assert(accessToken.startsWith('MNRI-'), 'user does not have a mock NR access token for CS access token');
-		Assert(accessTokenInfo.refreshToken.startsWith('MNRR-'), 'user does not have a mock NR refresh token');
+		Assert(accessTokenInfo.refreshToken.startsWith('MNRRI-'), 'user does not have a mock NR refresh token');
 		Assert(accessTokenInfo.expiresAt >= Date.now(), 'user does not have an expiredAt with their access token that expires in the future');
 		Assert.strictEqual(accessTokenInfo.provider, NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY, 'user does not have NR provider set to proper password policy');
 		Assert.strictEqual(accessTokenInfo.isNRToken, true, 'user does not have isNRToken set');
