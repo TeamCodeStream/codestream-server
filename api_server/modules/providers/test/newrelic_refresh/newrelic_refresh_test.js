@@ -15,7 +15,8 @@ class NewRelicRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	}
 	
 	get description () {
-		return 'should refresh a user\'s access token when requested';
+		const type = this.wantIDToken ? 'id' : 'access';
+		return `should refresh a user\'s ${type} token when requested`;
 	}
 
 	// before the test runs...
@@ -36,8 +37,13 @@ class NewRelicRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert(data.accessToken.startsWith('MNRI-'), 'not a valid mock NR access token');
-		Assert(data.refreshToken.startsWith('MNRR-'), 'not a valid mock NR refresh token');
+		if (this.wantIDToken) {
+			Assert(data.accessToken.startsWith('MNRI-'), 'not a valid mock NR IDtoken');
+			Assert(data.refreshToken.startsWith('MNRRI-'), 'not a valid mock NR refresh token');
+		} else {
+			Assert(data.accessToken.startsWith('MNRA-'), 'not a valid mock NR access token');
+			Assert(data.refreshToken.startsWith('MNRRA-'), 'not a valid mock NR refresh token');
+		}
 		Assert.strictEqual(data.provider, NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY, 'provider not correct');
 		Assert(typeof data.expiresAt === 'number' && data.expiresAt > Date.now());
 		this.refreshResponse = data;

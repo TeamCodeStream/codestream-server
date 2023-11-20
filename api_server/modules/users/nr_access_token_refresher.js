@@ -6,6 +6,10 @@ module.exports = async (options) => {
 	tokenInfo.provider = tokenInfo.provider || NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
 	const { refreshToken, expiresAt, provider } = tokenInfo;
 	const mockResponse = !!request.request.headers['x-cs-no-newrelic'];
+	let mockUser;
+	if (request.request.headers['x-cs-nr-mock-user']) {
+		mockUser = JSON.parse(request.request.headers['x-cs-nr-mock-user']);
+	}
 
 	if (!refreshToken) {
 		request.log('Cannot refresh New Relic issued access token, no refresh token is available');
@@ -43,7 +47,9 @@ module.exports = async (options) => {
 		const identity = await request.api.services.idp.getUserIdentity({
 			accessToken: newTokenInfo.accessToken,
 			tokenType: newTokenInfo.tokenType,
-			request, mockResponse
+			request,
+			mockResponse,
+			mockUser
 		});
 		user = await request.data.users.getOneByQuery(
 			{

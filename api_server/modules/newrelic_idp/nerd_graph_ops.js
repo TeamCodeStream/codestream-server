@@ -334,8 +334,18 @@ class NerdGraphOps {
 	// get the current user
 	async getCurrentUser (options = {}) {
 		let response;
-		if (options.mockResponse) {
-			return {};
+		if (options.mockUser) {
+			const { name, email, nr_userid, nr_orgid } = options.mockUser;
+			return {
+				user: {
+					name,
+					email,
+					id: parseInt(nr_userid, 10)
+				},
+				organization: {
+					id: nr_orgid
+				}
+			};
 		} else {
 			try {
 				const query = gql`

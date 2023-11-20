@@ -191,15 +191,18 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 	getNewRelicIDPRedirectData () {
 		const host = this.apiConfig.integrations.newRelicIdentity.loginServiceHost;
 		const redirectUri = `${this.apiConfig.apiServer.publicApiUrl}/~nrlogin/${this.signupToken}`;
+		const appClientId = this.apiConfig.integrations.newRelicIdentity.newRelicClientId;
 		const parameters = {
-			scheme: redirectUri,
+			return_to: redirectUri,
 			response_mode: 'code',
-			domain_hint: NewRelicIDPConstants.FEDERATION_ON_LOGIN ? (this.idpDomain || 'newrelic.com') : undefined
+			client_id: appClientId,
+			scheme: 'codestream',
+			force_login: 'true'
 		};
 		if (this.nrUserId) {
 			parameters.user_id = this.nrUserId;
 		}
-		const url = `${host}/idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}/redirect`;
+		const url = `${host}/login`;
 		return { url, parameters };
 	}
 }

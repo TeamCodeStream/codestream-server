@@ -39,14 +39,20 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 		const { user } = data;
 		const teamId = this.team ? this.team.id : this.signupResponse.teams[0].id;
 		const providerInfo = user.providerInfo[teamId].newrelic;
-		Assert(providerInfo.accessToken.startsWith('MNRI-'), 'not a valid mock access token');
-		Assert(providerInfo.refreshToken.startsWith('MNRR-'), 'not a valid mock refresh token');
+		if (this.mockUser.wantIDToken) {
+			Assert(providerInfo.accessToken.startsWith('MNRI-'), 'not a valid mock id token');
+			Assert(providerInfo.refreshToken.startsWith('MNRRI-'), 'not a valid mock refresh token');
+		} else {
+			Assert(providerInfo.accessToken.startsWith('MNRA-'), 'not a valid mock access token');
+			Assert(providerInfo.refreshToken.startsWith('MNRRA-'), 'not a valid mock refresh token');
+		}
 		const expectedProviderInfo = {
 			accessToken: providerInfo.accessToken,
 			bearerToken: true,
 			refreshToken: providerInfo.refreshToken,
 			expiresAt: Date.now(),
-			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			tokenType: this.wantIDToken ? 'id' : 'access'
 		};
 		Assert(providerInfo.expiresAt > Date.now(), 'expiresAt not in the future');
 		expectedProviderInfo.expiresAt = providerInfo.expiresAt;

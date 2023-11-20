@@ -930,7 +930,7 @@ if (!data.password) {
 				return this._getMockPossibleAuthDomainsResponse(options);
 			} else if (path === '/api/v1/tokens' && method === 'post') {
 				return this._getMockTokenExchangeResponse(options);
-			} else if (path === '/refresh_token' && method === 'post') {
+			} else if (path === '/api/v1/tokens/refresh' && method === 'post') {
 				return this._getMockRefreshTokenResponse(params, options);
 			}
 		} else if (service === 'credentials') {
@@ -1077,8 +1077,8 @@ if (!data.password) {
 		return {
 			idp: {
 				id_token: this._getMockNRIDToken(nrUserId),
-				refresh_token: this._getMockNRRefreshToken(nrUserId),
-				expires_in: 3600
+				refresh_token: this._getMockNRRefreshToken(nrUserId, true),
+				expires_at: Math.floor(Date.now() / 1000) + 3600
 			}
 		}
 	}
@@ -1200,21 +1200,32 @@ if (!data.password) {
 	}
 
 	_getMockTokenExchangeResponse (options = {}) {
-		let nrUserId, idToken, refreshToken;
+		let nrUserId, token, tokenKey, refreshToken, expires, expiresKey;
 		if (options.mockUser) {
 			nrUserId = options.mockUser.nr_userid;
-			idToken = this._getMockNRIDToken(nrUserId, options.mockUser);
-			refreshToken = this._getMockNRRefreshToken(nrUserId, options.mockUser);
+			if (options.mockUser.wantIDToken) {
+				token = this._getMockNRIDToken(nrUserId, options.mockUser);
+				tokenKey = 'id_token';
+				expires = 3600;
+				expiresKey = 'expires_in';
+			} else {
+				token = this._getMockNRAccessToken(nrUserId, options.mockUser);
+				tokenKey = 'access_token';
+				expires = Math.floor(Date.now() / 1000) + 3600;
+				expiresKey = 'expires_at';
+			}
+			refreshToken = this._getMockNRRefreshToken(nrUserId, options.mockUser.wantIDToken, options.mockUser);
 		} else {
 			nrUserId = this._getMockNRUserId();
-			idToken = this._getMockNRIDToken(nrUserId);
+			token = this._getMockNRAccessToken(nrUserId);
 			refreshToken = this._getMockNRRefreshToken(nrUserId);
+			expires = Math.floor(Date.now() / 1000) + 3600;
+			expiresKey = 'expires_at';
 		}
-		const expiresIn = 3600;
 		return {
-			id_token: idToken,
+			[tokenKey]: token,
 			refresh_token: refreshToken,
-			expires_in: expiresIn
+			[expiresKey]: expires
 		};
 	}
 
@@ -1232,17 +1243,22 @@ if (!data.password) {
 		if (!params.refresh_token) {
 			throw new Error('no refreshToken given for mock refresh token response');
 		}
-		if (!params.refresh_token.startsWith('MNRR-')) {
+		if (!params.refresh_token.match(/^MNRR(A|I)-/)) {
 			throw new Error('not a valid mock refresh token');
 		}
-		const [, nrUserId, json] = params.refresh_token.split('-');
+		const [tokenType, nrUserId, json] = params.refresh_token.split('-');
 		const decoded = Buffer.from(json, 'base64').toString();
 		const payload = JSON.parse(decoded);
+		const idToken = tokenType === 'MNRRI';
+		const tokenKey = idToken ? 'id_token' : 'access_token';
+		const token = idToken ? this._getMockNRIDToken(nrUserId, payload) : this._getMockNRAccessToken(nrUserId, payload);
+		const expiresKey = idToken ? 'expires_in' : 'expires_at';
+		const expires = idToken ? 300 : Math.floor(Date.now() / 1000) + 300;
 		return {
-			id_token: this._getMockNRIDToken(nrUserId, payload),
+			[tokenKey]: token,
 			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
-			refresh_token: this._getMockNRRefreshToken(nrUserId, payload),
-			expires_in: 300
+			refresh_token: this._getMockNRRefreshToken(nrUserId, idToken, payload),
+			[expiresKey]: expires
 		};
 	}
 
@@ -1259,13 +1275,21 @@ if (!data.password) {
 	}
 
 	_getMockNRIDToken (nrUserId, payload = {}) {
-		const encoded = Buffer.from(JSON.stringify(payload)).toString('base64');
-		return `MNRI-${nrUserId}-${encoded}-${RandomString.generate(100)}`;
+		return this._getMockNRToken(nrUserId, 'MNRI', payload);
 	}
 
-	_getMockNRRefreshToken (nrUserId, payload = {}) {
+	_getMockNRAccessToken (nrUserId, payload = {}) {
+		return this._getMockNRToken(nrUserId, 'MNRA', payload);
+	}
+
+	_getMockNRRefreshToken (nrUserId, idToken = false, payload = {}) {
+		const type = idToken ? 'MNRRI' : 'MNRRA';
+		return this._getMockNRToken(nrUserId, type, payload);
+	}
+
+	_getMockNRToken (nrUserId, type, payload = {}) {
 		const encoded = Buffer.from(JSON.stringify(payload)).toString('base64');
-		return `MNRR-${nrUserId}-${encoded}-${RandomString.generate(100)}`;
+		return `${type}-${nrUserId}-${encoded}-${RandomString.generate(100)}`;
 	}
 
 	_throw (type, message, options = {}) {

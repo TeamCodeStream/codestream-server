@@ -14,7 +14,8 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 	}
 
 	get description () {
-		return 'user should receive a message with the token data after refreshing a New Relic access token';
+		const type = this.wantIDToken ? 'id' : 'access';
+		return `user should receive a message with the token data after refreshing a New Relic ${type} token`;
 	}
 
 	// make the data that triggers the message to be received
@@ -40,7 +41,12 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			{
 				method: 'put',
 				path: '/no-auth/provider-refresh/newrelic',
-				data: this.data
+				data: this.data,
+				requestOptions: {
+					headers: {
+						'X-CS-NR-Mock-User': JSON.stringify(this.mockUser)
+					}
+				}
 			},
 			callback
 		);
@@ -54,9 +60,14 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const expiresAt = $set['accessTokens.web.expiresAt'];
 		Assert(typeof expiresAt === 'number' && expiresAt > this.messageSentAt);
 		const accessToken = $set['accessTokens.web.token'];
-		Assert(typeof accessToken === 'string' && accessToken.startsWith('MNRI-'));
 		const refreshToken = $set['accessTokens.web.refreshToken'];
-		Assert(typeof refreshToken === 'string' && refreshToken.startsWith('MNRR-'));
+		if (this.wantIDToken) {
+			Assert(typeof accessToken === 'string' && accessToken.startsWith('MNRI-'));
+			Assert(typeof refreshToken === 'string' && refreshToken.startsWith('MNRRI-'));
+		} else {
+			Assert(typeof accessToken === 'string' && accessToken.startsWith('MNRA-'));
+			Assert(typeof refreshToken === 'string' && refreshToken.startsWith('MNRRA-'));
+		}
 		const providerInfoKey = `providerInfo.${teamId}.newrelic`;
 		const provider = NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
 		this.message = {

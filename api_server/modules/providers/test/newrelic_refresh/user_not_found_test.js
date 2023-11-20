@@ -23,7 +23,8 @@ class UserNotFoundTest extends NewRelicRefreshTest {
 			const json = JSON.parse(Buffer.from(payload, 'base64').toString());
 			json.nr_userid = nrUserId;
 			payload = Buffer.from(JSON.stringify(json)).toString('base64');
-			this.data.refreshToken = `MNRR-${nrUserId}-${payload}-${random}`;
+			this.data.refreshToken = `MNRRA-${nrUserId}-${payload}-${random}`;
+			this.apiRequestOptions.headers['X-CS-NR-Mock-User'] = JSON.stringify(this.getMockUser());
 			callback();
 		});
 	}

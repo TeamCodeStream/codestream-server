@@ -510,7 +510,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('identityMatchingNotSupported');
 		}
 
-		this.userIdentity = await this.serviceAuth.getUserIdentity({
+		const userIdentityOptions = {
 			accessToken: token,
 			tokenType,
 			apiConfig: this.api.config[this.provider],
@@ -521,7 +521,12 @@ class ProviderTokenRequest extends RestfulRequest {
 			hostUrl: this.hostUrl,
 			mockResponse: this.provider === 'newrelicidp' && this.request.headers['x-cs-no-newrelic'],
 			request: this
-		});
+		};
+		if (this.request.headers['x-cs-nr-mock-user']) {
+			userIdentityOptions.mockUser = JSON.parse(this.request.headers['x-cs-nr-mock-user']);
+		}
+		this.userIdentity = await this.serviceAuth.getUserIdentity(userIdentityOptions);
+
 		if (!this.userIdentity.email) {
 			throw this.errorHandler.error('updateAuth', { reason: 'no email in identifying data' });
 		}

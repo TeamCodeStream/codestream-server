@@ -14,11 +14,14 @@ class NewRelicRefreshTester {
 
 	test () {
 		new NewRelicRefreshTest().test();
+		new NewRelicRefreshTest({ wantIDToken: true }).test();
 		new RefreshTokenRequiredTest().test();
 		new UserNotFoundTest().test();
 		new UserDeactivatedTest().test();
 		new MessageTest().test();
+		new MessageTest({ wantIDToken: true }).test();
 		new FetchTest().test();
+		new FetchTest({ wantIDToken: true }).test();
 	}
 }
 

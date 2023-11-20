@@ -7,7 +7,8 @@ const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_serv
 class FetchTest extends NewRelicRefreshTest {
 
 	get description () {
-		return 'should properly update the user\'s access token when manually refreshed, checked by checking the user';
+		const type = this.wantIDToken ? 'id' : 'access';
+		return `should properly update the user\'s ${type} token when manually refreshed, checked by checking the user`;
 	}
 
 	run (callback) {
@@ -37,7 +38,8 @@ class FetchTest extends NewRelicRefreshTest {
 			refreshToken: this.refreshResponse.refreshToken,
 			bearerToken: true,
 			expiresAt: this.refreshResponse.expiresAt,
-			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			tokenType: this.wantIDToken ? 'id' : 'access'
 		};
 		Assert.deepStrictEqual(providerInfo, expectedProviderInfo, 'providerInfo not correct');
 		Assert.strictEqual(data.accessToken, this.refreshResponse.accessToken, 'accessToken not correct');
@@ -45,7 +47,8 @@ class FetchTest extends NewRelicRefreshTest {
 			refreshToken: this.refreshResponse.refreshToken,
 			expiresAt: this.refreshResponse.expiresAt,
 			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
-			isNRToken: true
+			isNRToken: true,
+			tokenType: this.wantIDToken ? 'id' : 'access'
 		};
 		Assert.deepStrictEqual(data.accessTokenInfo, expectedTokenInfo, 'tokenInfo not correct');
 	}

@@ -5,7 +5,6 @@
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
 const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/test_base/codestream_api_test');
-const Base64 = require('base-64');
 const UUID = require('uuid').v4;
 
 class CommonInit {
@@ -31,13 +30,16 @@ class CommonInit {
 	// do an ~nrlogin, with random user, this will create a company linked to a random NR org
 	doNRLogin (callback) {
 		this.signupToken = UUID();
-		const mockUser = this.getMockUser();
+		this.mockUser = this.getMockUser();
+		if (this.wantIDToken) {
+			this.mockUser.wantIDToken = true;
+		}
 		const headers = {
-			'X-CS-NR-Mock-User': JSON.stringify(mockUser),
+			'X-CS-NR-Mock-User': JSON.stringify(this.mockUser),
 			'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat
 		};
 
-		const path = `/~nrlogin/${this.signupToken}?code=${RandomString.generate(100)}`;
+		const path = `/~nrlogin/${this.signupToken}?auth_code=${RandomString.generate(100)}`;
 		this.doApiRequest(
 			{
 				method: 'get',
@@ -68,6 +70,12 @@ class CommonInit {
 				this.data = {
 					refreshToken: response.accessTokenInfo.refreshToken
 				}
+				this.apiRequestOptions = {
+					headers: {
+						'X-CS-NR-Mock-User': JSON.stringify(this.mockUser),
+						'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat
+					}
+				};
 				callback();
 			}
 		);
@@ -78,7 +86,7 @@ class CommonInit {
 			email: this.userFactory.randomEmail(),
 			name: this.userFactory.randomFullName(),
 			nr_userid: this.nrUserId || this.getMockNRUserId(),
-			nr_orgid: UUID(),
+			nr_orgid: UUID()
 		};
 	}
 

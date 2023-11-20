@@ -43,7 +43,7 @@ class NRLoginCommonInit {
 			'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat
 		};
 
-		const path = `/~nrlogin/${this.signupToken}?code=${RandomString.generate(100)}`;
+		const path = `/~nrlogin/${this.signupToken}?auth_code=${RandomString.generate(100)}`;
 		this.doApiRequest(
 			{
 				method: 'get',
@@ -86,8 +86,11 @@ class NRLoginCommonInit {
 	// note that this is a mock test, there is no actual call made to the provider
 	setProviderToken (callback) {
 		this.nrUserId = this.getMockNRUserId();
-		this.code = RandomString.generate(100);
+		this.authCode = RandomString.generate(100);
 		this.mockUser = this.getMockUser();
+		if (this.wantIDToken) {
+			this.mockUser.wantIDToken = true;
+		}
 		const headers = {
 			'X-CS-NR-Mock-User': JSON.stringify(this.mockUser),
 			'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat
@@ -145,7 +148,7 @@ class NRLoginCommonInit {
 	// return the query parameters to use when constructing the path to use in the test request
 	getQueryParameters () {
 		return {
-			code: this.code
+			auth_code: this.authCode
 		};
 	}
 
