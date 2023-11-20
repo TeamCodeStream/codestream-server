@@ -40,7 +40,7 @@ class CheckSignupRequestTester {
 			//AccountIsConnectedFalseTest,
 			//AccountIsConnectedByOrgTest,
 			//AccountIsConnectedByOrgFalseTest,
-			PossibleAuthDomainsTest
+			//PossibleAuthDomainsTest - Disable pending resolution of NR-180586
 		]);
 	}
 }

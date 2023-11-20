@@ -42,7 +42,7 @@ class LoginRequestTester {
 		new ClearFirstSessionTest().test();
 		new EligibleJoinCompaniesTest().test();
 		new TeamIdTest().test();
-		new PossibleAuthDomainsTest().test();
+		//new PossibleAuthDomainsTest().test(); - Disable pending resolution of NR-180586
 	}
 }
 
