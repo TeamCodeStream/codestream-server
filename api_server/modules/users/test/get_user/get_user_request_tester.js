@@ -34,7 +34,7 @@ class GetUserRequestTester {
 		new GetForeignTeamMemberTest().test();
 		new ACLForeignTeamMemberTest().test();
 		new EligibleJoinCompaniesTest({ id: 'me' }).test();
-		//new PossibleAuthDomainsTest({ id: 'me' }).test(); - Disable pending resolution of NR-180586
+		new PossibleAuthDomainsTest({ id: 'me' }).test();
 	}
 }
 

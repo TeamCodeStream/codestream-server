@@ -25,7 +25,7 @@ class RawLoginRequestTester {
 		//new SubscriptionTest({ which: 'stream' }).test(); // subscription to stream channels is deprecated
 		new EligibleJoinCompaniesTest().test();
 		new ClearFirstSessionTest().test();
-		//new PossibleAuthDomainsTest().test(); - Disable pending resolution of NR-180586
+		new PossibleAuthDomainsTest().test();
 	}
 }
 
