@@ -401,6 +401,11 @@ class ProviderIdentityConnector {
 			op.$set['preferences.hasDoneNRLogin'] = true;
 		}
 
+		// remove any pre-existing top-level NR credentials (which would be an API Key from pre-unified identity NR sign-in)
+		op.$unset = {
+			'providerInfo.newrelic': true
+		};
+
 		this.request.log('NEWRELIC IDP TRACK: User provider info was adjusted for IDP signin');
 		return true;
 	}
