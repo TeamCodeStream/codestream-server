@@ -552,7 +552,7 @@ if (!data.password) {
 			{ ...options, headers: { 'Authorization': authHeader } }
 		);
 
-		options.request.log('NEWRELIC IDP TRACK: possible auth domains are:', JSON.stringify(result, 0, 5));
+		options.request.log('NEWRELIC IDP TRACK: possible auth domains are: ' + JSON.stringify(result, 0, 5));
 				
 		// remove v1 users
 		return result.data.filter(domain => {
