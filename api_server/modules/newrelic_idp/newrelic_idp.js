@@ -539,11 +539,11 @@ if (!data.password) {
 
 	// get the "possible" authentication domains for a user, which leads to all the orgs they're in, by email
 	async getPossibleAuthDomains (token, tokenType, options = {}) {
-		return [];
-		const authHeader = Buffer.from(JSON.stringify({
-			provider: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
-			token
-		})).toString('base64');
+		const tokenData = { token };
+		if (tokenType === 'id') {
+			tokenData.provider = NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY;
+		}
+		const authHeader = Buffer.from(JSON.stringify(tokenData)).toString('base64');
 		const result = await this._newrelic_idp_call(
 			'login',
 			'/api/v1/current_user/possible_authentication_domains.json',
