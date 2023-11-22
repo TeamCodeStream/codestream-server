@@ -85,7 +85,7 @@ class NRLoginCommonInit {
 	// the actual test is fetching the user object and verifying the token has been set
 	// note that this is a mock test, there is no actual call made to the provider
 	setProviderToken (callback) {
-		this.nrUserId = this.getMockNRUserId();
+		this.nrUserId = this.nrUserId || this.getMockNRUserId();
 		this.authCode = RandomString.generate(100);
 		this.mockUser = this.getMockUser();
 		if (this.wantIDToken) {

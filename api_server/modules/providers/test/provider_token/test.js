@@ -27,6 +27,7 @@ const NoSignupIrrelevantTest = require('./no_signup_irrelevant_test');
 const NewUserInCompanyTest = require('./new_user_in_company_test');
 const ExistingUserInCompanyTest = require('./existing_user_in_company_test');
 const ExistingUserInCompanyByEmailTest = require('./existing_user_in_company_by_email_test');
+const DeleteAPIKeyTest = require('./delete_api_key_test');
 
 const PROVIDERS = [
 	'trello',
@@ -97,6 +98,7 @@ class ProviderTokenRequestTester {
 		new NewUserInCompanyTest().test();
 		new ExistingUserInCompanyTest().test();
 		new ExistingUserInCompanyByEmailTest().test();
+		new DeleteAPIKeyTest().test();
 		new NRLoginTest({ serviceGatewayEnabled: true }).test();
 		new IDTokenTest({ serviceGatewayEnabled: true }).test();
 		new NoCodeTest({ serviceGatewayEnabled: true }).test();
@@ -104,6 +106,7 @@ class ProviderTokenRequestTester {
 		new NewUserInCompanyTest({ serviceGatewayEnabled: true }).test();
 		new ExistingUserInCompanyTest({ serviceGatewayEnabled: true }).test();
 		new ExistingUserInCompanyByEmailTest({ serviceGatewayEnabled: true }).test();
+		new DeleteAPIKeyTest({ serviceGatewayEnabled: true }).test();
 	}
 }
 
