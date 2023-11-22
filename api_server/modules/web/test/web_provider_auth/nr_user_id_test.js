@@ -1,6 +1,7 @@
 'use strict';
 
 const WebProviderAuthTest = require('./web_provider_auth_test');
+const UUID = require('uuid').v4;
 
 class NRUserIdTest extends WebProviderAuthTest {
 
@@ -9,6 +10,8 @@ class NRUserIdTest extends WebProviderAuthTest {
 		this.provider = 'newrelicidp';
 		this.doSignupToken = true;
 		this.nrUserId = 1000000000 + Math.floor(Math.random() * 999999999);
+		this.email = this.userFactory.randomEmail();
+		this.authDomainId = UUID();
 	}
 	
 	get description () {

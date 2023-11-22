@@ -64,6 +64,13 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		if (this.nrUserId) {
 			params.nrUserId = this.nrUserId;
 		}
+		if (this.email) {
+			params.email = this.email;
+		}
+		if (this.authDomainId) {
+			params.authDomainId = this.authDomainId;
+		}
+console.warn('Q:', JSON.stringify(params, 0, 5));
 		return params;
 	}
 
@@ -201,6 +208,12 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		};
 		if (this.nrUserId) {
 			parameters.user_id = this.nrUserId;
+		}
+		if (this.email) {
+			parameters.email = this.email;
+		}
+		if (this.authDomainId) {
+			parameters.authentication_domain_id = this.authDomainId;
 		}
 		const url = `${host}/login`;
 		return { url, parameters };

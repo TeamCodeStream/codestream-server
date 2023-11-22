@@ -86,7 +86,9 @@ class WebProviderAuthRequest extends APIRequest {
 			joinCompanyId: this.request.query.joinCompanyId,
 			anonUserId: this.request.query.anonUserId,
 			domain: this.request.query.domain,
-			nrUserId: this.request.query.nrUserId
+			nrUserId: this.request.query.nrUserId,
+			email: this.request.query.email,
+			authDomainId: this.request.query.authDomainId
 		};
 		this.log('redirectUri: ' + redirectUri);
 

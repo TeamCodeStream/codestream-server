@@ -593,6 +593,12 @@ if (!data.password) {
 		if (options.nrUserId) {
 			data.parameters.user_id = options.nrUserId;
 		}
+		if (options.email) {
+			data.parameters.email = options.email;
+		}
+		if (options.authDomainId) {
+			data.parameters.authentication_domain_id = options.authDomainId;
+		}
 		return data;
 	}
 
