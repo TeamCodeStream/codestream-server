@@ -34,13 +34,10 @@ class DeleteAPIKeyTest extends NRLoginTest {
 				},
 				requestOptions: {
 					headers: {
-						'X-CS-Mock-Secret': this.apiConfig.sharedSecrets.confirmationCheat,
-						'X-CS-No-NewRelic': true,
-						'X-CS-NR-Mock-User': JSON.stringify({
-							id: parseInt(nr_userid, 10),
-							email,
-							name
-						})
+						'X-CS-NewRelic-Secret': this.apiConfig.sharedSecrets.commentEngine,
+						'X-CS-Mock-Email': this.mockUser.email,
+						'X-CS-Mock-Id': this.nrUserId,
+						'X-CS-Mock-Name': this.mockUser.name
 					}
 				}
 			},

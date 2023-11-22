@@ -73,22 +73,7 @@ class NRRegisterRequest extends RestfulRequest {
 					"X-Query-Source-Component-Id": "codestream.api"
 				}
 
-				if (this.request.headers['x-cs-no-newrelic']) {
-					const secret = this.request.headers['x-cs-mock-secret'];
-					const mockUserHeader = this.request.headers['x-cs-nr-mock-user'];
-					if (mockUserHeader && secret === this.api.config.sharedSecrets.confirmationCheat) {
-						const mockUser = JSON.parse(mockUserHeader);
-						response = {
-							actor: {
-								user: mockUser
-							}
-						};
-					} else {
-						response = {};
-					}
-				} else {
-					response = await request(url, query, {}, headers);
-				}
+				response = await request(url, query, {}, headers);
 			}
 			if (!response.actor || !response.actor.user || !response.actor.user.email) {
 				this.warn('Response from NR: ' + JSON.stringify(response, undefined, 5));
