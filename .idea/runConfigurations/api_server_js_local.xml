@@ -1,0 +1,38 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="api_server.js local" type="NodeJSConfigurationType" application-parameters="--one_worker --dev_secrets" path-to-js-file="api_server/bin/api_server.js" working-dir="$PROJECT_DIR$">
+    <envs>
+      <env name="AWS_REGION" value="us-east-1" />
+      <env name="BROADCAST_ENGINE_PUBNUB_PREFERRED_KEY_COLOR" value="blue" />
+      <env name="BROADCAST_ENGINE_PUBNUB_UUID" value="CodeStreamServer" />
+      <env name="CS_API_AUTH_ORIGIN" value="https://auth.cdstrm.dev/no-auth" />
+      <env name="CS_API_CALLBACK_ENV" value="local" />
+      <env name="CS_API_DONT_WANT_AWS" value="true" />
+      <env name="CS_API_LOGS" value="$PROJECT_DIR$/log" />
+      <env name="CS_API_MARKETING_SITE_URL" value="https://teamcodestream.webflow.io" />
+      <env name="CS_API_PORT" value="12078" />
+      <env name="CS_API_PUBLIC_API_URL" value="https://localhost.newrelic.com:12079" />
+      <env name="CS_API_SANDBOX" value="$PROJECT_DIR$" />
+      <env name="CSSVC_BACKEND_ROOT" value="$PROJECT_DIR$" />
+      <env name="CSSVC_CFG_FILE" value="./codestream-docker.json" />
+      <env name="CSSVC_EMAIL_SUPPRESS_EMAILS" value="true" />
+      <env name="CSSVC_ENV" value="local" />
+      <env name="INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_CREDENTIALS_SERVICE_HOST" value="https://staging-credential-service.nr-ops.net" />
+      <env name="INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_GRAPHQL_HOST" value="https://nerd-graph.staging-service.nr-ops.net" />
+      <env name="INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_IDP_SERVICE_HOST" value="https://idp-service.staging-service.nr-ops.net" />
+      <env name="INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_LOGIN_SERVICE_HOST" value="https://staging-login.newrelic.com" />
+      <env name="INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_NEW_RELIC_REGION" value="us01" />
+      <env name="INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_ORG_SERVICE_HOST" value="https://staging-organization-service.nr-ops.net" />
+      <env name="INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_SIGNUP_SERVICE_HOST" value="https://signup-processor.staging-service.newrelic.com" />
+      <env name="INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_USER_SERVICE_HOST" value="https://staging-user-service.nr-ops.net" />
+      <env name="INTEGRATIONS_NEWRELICGROK_CLOUD_API_URL" value="https://nerd-completion.staging-service.nr-ops.net/v1/chat/completions" />
+      <env name="NODE_PATH" value="$PROJECT_DIR$/broadcaster/node_modules:$PROJECT_DIR$/api_server/node_modules" />
+      <env name="SERVICE_ENV" value="staging" />
+      <env name="SHARED_GENERAL_NEW_RELIC_API_URL" value="https://staging-api.newrelic.com" />
+      <env name="SHARED_GENERAL_NEW_RELIC_LANDING_SERVICE_URL" value="https://landing.staging-service.newrelic.com" />
+      <env name="SHARED_GENERAL_NEW_RELIC_SEC_API_URL" value="https://nrsec-workflow-api.staging-service.newrelic.com" />
+      <env name="SHARED_GENERAL_RUN_TIME_ENVIRONMENT" value="local" />
+      <env name="STORAGE_MONGO_URL" value="mongodb://localhost:27017/codestream" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>
