@@ -36,7 +36,7 @@ class RandomCompanyFactory {
 			path: '/login',
 			token: accessToken
 		};
-		if (accessToken.startsWith('MNR-')) {
+		if (accessToken.startsWith('MNRI-') || accessToken.startsWith('MNRA-')) {
 			const nrUserId = accessToken.split('-')[1];
 			apiRequest.requestOptions = {
 				headers: {

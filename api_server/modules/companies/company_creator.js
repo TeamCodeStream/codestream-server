@@ -41,8 +41,8 @@ class CompanyCreator extends ModelCreator {
 			// this means info associated with the New Relic org is being passed from the caller
 			// (not the user doing a POST /companies request, which we don't want to allow)
 			Object.assign(requiredAllowedAttributes.optional, {
-				string: ['linkedNROrgId', 'orgOrigination'],
-				boolean: ['codestreamOnly']
+				string: ['linkedNROrgId'/*, 'orgOrigination'*/],
+				//boolean: ['codestreamOnly']
 			});
 		}
 
@@ -216,8 +216,8 @@ class CompanyCreator extends ModelCreator {
 					authentication_domain_id: signupResponse.authentication_domain_id,
 					account_id: signupResponse.account_id
 				},
-				codestreamOnly: true,
-				orgOrigination: 'CS'
+				//codestreamOnly: true,
+				//orgOrigination: 'CS'
 			}
 		);
 	}

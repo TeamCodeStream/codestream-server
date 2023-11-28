@@ -1,8 +1,16 @@
 const UserIndexes = require('./indexes');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 module.exports = async (options) => {
 	const { tokenInfo, request, loginType = 'web', force = false } = options;
+	tokenInfo.provider = tokenInfo.provider || NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
 	const { refreshToken, expiresAt, provider } = tokenInfo;
+	const mockResponse = !!request.request.headers['x-cs-no-newrelic'];
+	let mockUser;
+	if (request.request.headers['x-cs-nr-mock-user']) {
+		mockUser = JSON.parse(request.request.headers['x-cs-nr-mock-user']);
+	}
+
 	if (!refreshToken) {
 		request.log('Cannot refresh New Relic issued access token, no refresh token is available');
 		return;
@@ -20,15 +28,14 @@ module.exports = async (options) => {
 		return;
 	}
 
-
 	request.log('User\'s New Relic issued access token is expired, attempting to refresh...');
-	const newTokenInfo = await request.api.services.idp.customRefreshToken(tokenInfo, { request });
+	const newTokenInfo = await request.api.services.idp.customRefreshToken(tokenInfo, { request, mockResponse });
 	request.log('User\'s New Relic issued access token was successfully refreshed');
-	
+
 	// if we are behind service gateway and using login service auth, we actually set the user's
 	// access token to the refreshed NR access token, this will be used for normal requests
 	const userSet = {};
-	if (request.serviceGatewayAuth) {
+	if (request.request.serviceGatewayAuth) {
 		userSet[`accessTokens.${loginType}.token`] = newTokenInfo.accessToken;
 		userSet[`accessTokens.${loginType}.refreshToken`] = newTokenInfo.refreshToken;
 		userSet[`accessTokens.${loginType}.expiresAt`] = newTokenInfo.expiresAt;
@@ -37,17 +44,24 @@ module.exports = async (options) => {
 	
 	let user = request.user;
 	if (!user) {
-		const identity = await request.api.services.idp.getUserIdentity({ accessToken: newTokenInfo.accessToken, request });
+		const identity = await request.api.services.idp.getUserIdentity({
+			accessToken: newTokenInfo.accessToken,
+			tokenType: newTokenInfo.tokenType,
+			request,
+			mockResponse,
+			mockUser
+		});
 		user = await request.data.users.getOneByQuery(
 			{
-				nrUserId: identity.nrUserId
+				nrUserId: identity.nrUserId,
+				deactivated: false
 			},
 			{
 				hint: UserIndexes.byNRUserId
 			}
 		);
 		if (!user) {
-			throw this.errorHandler.error('notFound', { info: 'user' });
+			throw request.errorHandler.error('notFound', { info: 'user' });
 		}
 	}
 

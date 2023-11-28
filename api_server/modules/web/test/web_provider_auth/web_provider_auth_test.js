@@ -5,6 +5,7 @@ const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util
 const Assert = require('assert');
 const TokenHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/token_handler');
 const UUID = require('uuid').v4;
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class WebProviderAuthTest extends CodeStreamAPITest {
 
@@ -57,6 +58,19 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		if (this.doNoSignup) {
 			params.noSignup = '1';
 		}
+		if (this.idpDomain) {
+			params.domain = this.idpDomain;
+		}
+		if (this.nrUserId) {
+			params.nrUserId = this.nrUserId;
+		}
+		if (this.email) {
+			params.email = this.email;
+		}
+		if (this.authDomainId) {
+			params.authDomainId = this.authDomainId;
+		}
+console.warn('Q:', JSON.stringify(params, 0, 5));
 		return params;
 	}
 
@@ -184,13 +198,24 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 	getNewRelicIDPRedirectData () {
 		const host = this.apiConfig.integrations.newRelicIdentity.loginServiceHost;
 		const redirectUri = `${this.apiConfig.apiServer.publicApiUrl}/~nrlogin/${this.signupToken}`;
+		const appClientId = this.apiConfig.integrations.newRelicIdentity.newRelicClientId;
 		const parameters = {
-			scheme: redirectUri,
+			return_to: redirectUri,
 			response_mode: 'code',
+			client_id: appClientId,
+			scheme: 'codestream',
+			force_login: 'true'
 		};
-		//const policy = this.doNoSignup ? 'cs' : 'cssignup';
-		//const url = `${host}/idp/azureb2c-${policy}/redirect`;
-		const url = `${host}/idp/azureb2c/redirect`;
+		if (this.nrUserId) {
+			parameters.user_id = this.nrUserId;
+		}
+		if (this.email) {
+			parameters.email = this.email;
+		}
+		if (this.authDomainId) {
+			parameters.authentication_domain_id = this.authDomainId;
+		}
+		const url = `${host}/login`;
 		return { url, parameters };
 	}
 }

@@ -72,6 +72,7 @@ class NRRegisterRequest extends RestfulRequest {
 					"X-Query-Source-Capability-Id": "CODESTREAM",
 					"X-Query-Source-Component-Id": "codestream.api"
 				}
+
 				response = await request(url, query, {}, headers);
 			}
 			if (!response.actor || !response.actor.user || !response.actor.user.email) {

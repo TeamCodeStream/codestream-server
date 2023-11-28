@@ -127,6 +127,7 @@ module.exports = {
 		description: 'Info associated with the company as returned by New Relic IdP when provisioning the first user',
 		serverOnly: true
 	},
+	/*
 	codestreamOnly: {
 		type: 'boolean',
 		description: 'Indicates this is a "CodeStream" only org from the perspective of New Relic IdP, CodeStream admins can administer',
@@ -136,4 +137,5 @@ module.exports = {
 		maxLength: '2',
 		description: 'When set to CS, indicates the org was not created to pair with an existing NR org'
 	}
+	*/
 };

@@ -156,7 +156,7 @@ class ProviderTokenRequest extends RestfulRequest {
 			};
 		} else if (this.provider === 'newrelicidp') {
 			requireAllow.required = {
-				string: ['code']
+				string: ['auth_code']
 			};
 		}
 		await this.requireAllowParameters(which, requireAllow);
@@ -312,8 +312,9 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 		const { authOrigin } = this.api.config.apiServer;
 		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
+		const code = this.provider === 'newrelicidp' ? this.request.query.auth_code : this.request.query.code;
 		const options = {
-			code: this.request.query.code || '',
+			code: code || '',
 			state: this.request.query.state,
 			redirectUri,
 			request: this,
@@ -498,6 +499,7 @@ class ProviderTokenRequest extends RestfulRequest {
 		// get access token
 		const input = this.isClientToken ? this.request.body : this.request.query;
 		const token = (this.tokenData && this.tokenData.accessToken) || input.token;
+		const tokenType = this.tokenData && this.tokenData.tokenType;
 		if (!token) {
 			throw this.errorHandler.error('updateAuth', { reason: 'token not returned from provider, tokenData is ' + JSON.stringify(this.tokenData) });
 		}
@@ -508,8 +510,9 @@ class ProviderTokenRequest extends RestfulRequest {
 			throw this.errorHandler.error('identityMatchingNotSupported');
 		}
 
-		this.userIdentity = await this.serviceAuth.getUserIdentity({
+		const userIdentityOptions = {
 			accessToken: token,
+			tokenType,
 			apiConfig: this.api.config[this.provider],
 			providerInfo: {
 				code: input.code,
@@ -518,7 +521,12 @@ class ProviderTokenRequest extends RestfulRequest {
 			hostUrl: this.hostUrl,
 			mockResponse: this.provider === 'newrelicidp' && this.request.headers['x-cs-no-newrelic'],
 			request: this
-		});
+		};
+		if (this.request.headers['x-cs-nr-mock-user']) {
+			userIdentityOptions.mockUser = JSON.parse(this.request.headers['x-cs-nr-mock-user']);
+		}
+		this.userIdentity = await this.serviceAuth.getUserIdentity(userIdentityOptions);
+
 		if (!this.userIdentity.email) {
 			throw this.errorHandler.error('updateAuth', { reason: 'no email in identifying data' });
 		}

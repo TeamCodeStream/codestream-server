@@ -19,7 +19,7 @@ class NoCodeTest extends NRLoginTest {
 
 	getQueryParameters () {
 		const parameters = super.getQueryParameters();
-		delete parameters.code;
+		delete parameters.auth_code;
 		return parameters;
 	}
 }

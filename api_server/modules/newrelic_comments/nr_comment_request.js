@@ -47,7 +47,7 @@ class NRCommentRequest extends RestfulRequest {
 	async checkForExistingCodeError () {
 		const { objectId, objectType } = this.request.body;
 		this.codeError = await this.data.codeErrors.getOneByQuery(
-			{ objectId, objectType },
+			{ objectId, objectType, deactivated: false },
 			{ hint: CodeErrorIndexes.byObjectId }
 		);
 		if (this.codeError && this.headerAccountId !== this.codeError.get('accountId')) {

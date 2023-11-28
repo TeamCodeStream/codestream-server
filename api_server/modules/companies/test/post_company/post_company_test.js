@@ -54,9 +54,9 @@ class PostCompanyTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 		if (this.unifiedIdentityEnabled) {
 			result &&= (
-				((typeof company.linkedNROrgId === 'string') || errors.push('linkedNROrgId not set')) &&
+				((typeof company.linkedNROrgId === 'string') || errors.push('linkedNROrgId not set')) /*&&
 				((company.codestreamOnly === true) || errors.push('codestreamOnly not set')) &&
-				((company.orgOrigination === 'CS') || errors.push('orgOrigination not set'))
+				((company.orgOrigination === 'CS') || errors.push('orgOrigination not set'))*/
 			);
 		}
 		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));

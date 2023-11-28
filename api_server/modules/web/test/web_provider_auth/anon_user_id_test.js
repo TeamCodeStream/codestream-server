@@ -17,7 +17,7 @@ class AnonUserIDTest extends NewRelicIDPAuthTest {
 
 	getNewRelicIDPRedirectData () {
 		const { url, parameters } = super.getNewRelicIDPRedirectData();
-		parameters.scheme += `.AUID~${this.anonUserId}`;
+		parameters.return_to += `.AUID~${this.anonUserId}`;
 		return { url, parameters };
 	}
 }

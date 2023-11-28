@@ -130,6 +130,8 @@ class TeamUpdater extends ModelUpdater {
 		if (!this.company) {
 			throw this.errorHandler.error('notFound', { info: 'parent company' }); // should never happen
 		}
+		
+		/*
 		const codestreamOnly = await IsCodeStreamOnly(this.company, this.request);
 		if (!codestreamOnly) {
 			// immediately abort, save the change in company to non-codestream only,
@@ -138,6 +140,7 @@ class TeamUpdater extends ModelUpdater {
 			await this.publishCompanyNoCSOnly();
 			throw this.errorHandler.error('notAuthorizedToAdmin', { reason: 'membership in this company is managed by New Relic' });
 		}
+		*/
 
 		// only admins can perform these operations
 		if (!(this.team.get('adminIds') || []).includes(this.user.id)) {

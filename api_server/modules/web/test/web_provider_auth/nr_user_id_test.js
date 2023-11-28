@@ -1,21 +1,21 @@
 'use strict';
 
 const WebProviderAuthTest = require('./web_provider_auth_test');
+const UUID = require('uuid').v4;
 
-class NewRelicIDPAuthTest extends WebProviderAuthTest {
+class NRUserIdTest extends WebProviderAuthTest {
 
 	constructor (options) {
 		super(options);
 		this.provider = 'newrelicidp';
 		this.doSignupToken = true;
+		this.nrUserId = 1000000000 + Math.floor(Math.random() * 999999999);
+		this.email = this.userFactory.randomEmail();
+		this.authDomainId = UUID();
 	}
 	
 	get description () {
-		let desc = `should provide the appropriate redirect, when initiating an SSO authorization flow to ${this.provider}`;
-		if (this.idpDomain) {
-			desc += ', with IDP domain ' + this.idpDomain;
-		}
-		return desc;
+		return `should provide the appropriate redirect, when initiating an SSO authorization flow to New Relic, and providing an NR User ID, which should appear in the redirect parameters`;
 	}
 
 	validateState (data) {
@@ -28,4 +28,4 @@ class NewRelicIDPAuthTest extends WebProviderAuthTest {
 	}
 }
 
-module.exports = NewRelicIDPAuthTest;
+module.exports = NRUserIdTest;

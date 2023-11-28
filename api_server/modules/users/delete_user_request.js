@@ -4,6 +4,7 @@
 
 const DeleteRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/delete_request');
 const UserPublisher = require('./user_publisher');
+const EligibleJoinCompaniesPublisher = require('./eligible_join_companies_publisher');
 
 class DeleteUserRequest extends DeleteRequest {
 

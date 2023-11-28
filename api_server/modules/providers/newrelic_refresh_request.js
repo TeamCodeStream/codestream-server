@@ -32,7 +32,10 @@ class NewRelicRefreshRequest extends RestfulRequest {
 			'body',
 			{
 				required: {
-					string: ['refreshToken', 'provider']
+					string: ['refreshToken']
+				},
+				optional: {
+					string: ['provider']
 				}
 			}
 		);
@@ -58,7 +61,6 @@ class NewRelicRefreshRequest extends RestfulRequest {
 				...this.refreshResult.userSet
 			}
 		};
-
 		this.updateOp = await new ModelSaver({
 			request: this,
 			collection: this.data.users,

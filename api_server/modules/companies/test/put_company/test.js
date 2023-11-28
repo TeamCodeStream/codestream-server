@@ -11,9 +11,9 @@ const ACLTeamTest = require('./acl_team_test');
 const MessageTest = require('./message_test');
 const NoUpdateOtherAttributeTest = require('./no_update_other_attribute_test');
 const MessageToInviteeTest = require('./message_to_invitee_test');
-const NotCodeStreamOnlyTest = require('./not_codestream_only_test');
-const NotCodeStreamOnlyDiscoveryTest = require('./not_codestream_only_discovery_test');
-const NotCodeStreamOnlyDiscoveryMessageTest = require('./not_codestream_only_discovery_message_test');
+//const NotCodeStreamOnlyTest = require('./not_codestream_only_test');
+//const NotCodeStreamOnlyDiscoveryTest = require('./not_codestream_only_discovery_test');
+//const NotCodeStreamOnlyDiscoveryMessageTest = require('./not_codestream_only_discovery_message_test');
 
 class PutCompanyRequestTester {
 
@@ -38,9 +38,9 @@ class PutCompanyRequestTester {
 		new NoUpdateOtherAttributeTest({ attribute: 'planPaidSeats' }).test();
 		new NoUpdateOtherAttributeTest({ attribute: 'planCoupon' }).test();
 		new MessageToInviteeTest().test();
-		new NotCodeStreamOnlyTest().test();
-		new NotCodeStreamOnlyDiscoveryTest().test();
-		new NotCodeStreamOnlyDiscoveryMessageTest().test();
+		//new NotCodeStreamOnlyTest().test();
+		//new NotCodeStreamOnlyDiscoveryTest().test();
+		//new NotCodeStreamOnlyDiscoveryMessageTest().test();
 	}
 }
 

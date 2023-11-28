@@ -5,6 +5,7 @@ const CodeStreamMessageTest = require(process.env.CSSVC_BACKEND_ROOT + '/api_ser
 const CommonInit = require('./common_init');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const Assert = require('assert');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class RefreshTokenTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
@@ -52,7 +53,7 @@ class RefreshTokenTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					$set: {
 						[ `providerInfo.${teamId}.newrelic.accessToken` ]: 'placeholder',
 						[ `providerInfo.${teamId}.newrelic.expiresAt` ]: Date.now(),
-						[ `providerInfo.${teamId}.newrelic.provider` ]: 'azureb2c-csropc',
+						[ `providerInfo.${teamId}.newrelic.provider` ]: NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY,
 						[ `providerInfo.${teamId}.newrelic.refreshToken` ]: 'placeholder',
 						version: expectedVersion
 					},
