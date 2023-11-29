@@ -72,16 +72,16 @@ class AnalyticsClient {
 				distinct_id: user.id,
 				'$email': user.get('email'),
 				name: user.get('fullName'),
-				'Join Method': user.get('joinMethod'),
-				'Last Invite Type': user.get('lastInviteType'),
+				//'Join Method': user.get('joinMethod'),
+				//'Last Invite Type': user.get('lastInviteType'),
 				'Country': user.get('countryCode')
 			});
 			if (user.get('registeredAt')) {
 				trackObject['$created'] = new Date(user.get('registeredAt')).toISOString();
 			}
-			if (user.get('lastPostCreatedAt')) {
-				trackObject['Date of Last Post'] = new Date(user.get('lastPostCreatedAt')).toISOString();
-			}
+			//if (user.get('lastPostCreatedAt')) {
+			//	trackObject['Date of Last Post'] = new Date(user.get('lastPostCreatedAt')).toISOString();
+			//}
 
 
 			if (!request.request.headers['x-cs-enable-uid']) {
@@ -120,7 +120,7 @@ class AnalyticsClient {
 			}
 			Object.assign(trackObject, {
 				'Team ID': team.id,
-				'Team Name': team.get('name'),
+				//'Team Name': team.get('name'),
 				'Team Size': teamSize,
 				'Team Created Date': new Date(team.get('createdAt')).toISOString()
 			});
@@ -129,7 +129,7 @@ class AnalyticsClient {
 		if (company) {
 			trackObject['Company Name'] = company.get('name');
 			trackObject['Company ID'] = company.id;
-			trackObject['Plan'] = company.get('plan');
+			//trackObject['Plan'] = company.get('plan');
 			trackObject['Reporting Group'] = company.get('reportingGroup') || '';
 			/* Remove these per NR-156469
 			if (request.request.headers['x-cs-enable-uid']) { // remove check when we move to UNIFIED_IDENTITY
@@ -137,12 +137,14 @@ class AnalyticsClient {
 				trackObject['Org Origination'] = company.get('orgOrigination');
 			}
 			*/
+			/*
 			trackObject.company = {
 				id: company.id,
 				name: company.get('name'),
 				plan: company.get('plan'),
 				created_at: new Date(company.get('createdAt')).toISOString()
 			};
+			*/
 			if (company.get('trialStartDate')) {
 				trackObject.company.trialStart_at = new Date(company.get('trialStartDate')).toISOString();
 			}
