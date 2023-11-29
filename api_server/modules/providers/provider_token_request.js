@@ -567,7 +567,8 @@ class ProviderTokenRequest extends RestfulRequest {
 			tokenData: this.tokenData,
 			hostUrl: this.hostUrl,
 			machineId: this.machineId,
-			joinCompanyId: this.joinCompanyId
+			joinCompanyId: this.joinCompanyId,
+			_pubnubUuid: userIdentity._pubnubUuid
 		});
 		const showIdentity = { ...userIdentity };
 		if (showIdentity.idpAccessToken) {

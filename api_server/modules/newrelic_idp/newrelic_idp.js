@@ -654,7 +654,8 @@ if (!data.password) {
 			email: user.user.email,
 			fullName: user.user.name,
 			nrUserId: user.user.id,
-			nrOrgId: user.organization.id
+			nrOrgId: user.organization.id,
+			_pubnubUuid: user.user._pubnubUuid
 		};
 
 		/*

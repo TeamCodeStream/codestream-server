@@ -16,6 +16,7 @@ class GenericTest {
 		Object.assign(this, options);
 		this.testNum = ++NumTests;
 		this.mockMode = process.env.CS_API_MOCK_MODE;
+		this.usingNRLogins = process.env.CS_API_USING_NR_LOGINS;
 		this.testLogs = [];
 	}
 

@@ -335,12 +335,13 @@ class NerdGraphOps {
 	async getCurrentUser (options = {}) {
 		let response;
 		if (options.mockUser) {
-			const { name, email, nr_userid, nr_orgid } = options.mockUser;
+			const { name, email, nr_userid, nr_orgid, _pubnubUuid } = options.mockUser;
 			return {
 				user: {
 					name,
 					email,
-					id: parseInt(nr_userid, 10)
+					id: parseInt(nr_userid, 10),
+					_pubnubUuid
 				},
 				organization: {
 					id: nr_orgid

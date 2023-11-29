@@ -208,6 +208,7 @@ class LoginHelper {
 		if (this.dontUpdateLastLogin) {
 			return;
 		}
+
 		const origin = this.request.request.headers['x-cs-plugin-ide'];
 		if (origin === 'webclient') {
 			return;

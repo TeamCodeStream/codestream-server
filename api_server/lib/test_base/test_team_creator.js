@@ -10,16 +10,26 @@ class TestTeamCreator {
 
 	create (callback) {
 		this.users = [];
-		BoundAsync.series(this, [
-			this.createUnregisteredUsers,
-			this.confirmTeamCreator,
-			this.preCreateTeam,
-			this.createTeam,
-			this.inviteUsers,
-			this.confirmUsers,
-			this.acceptInvites,
-			this.createRepos
-		], error => {
+		let series;
+		if (this.test.usingNRLogins) {
+			series = [
+				this.createNRCompany,
+				this.createNRUsers,
+				this.createRepos
+			];
+		} else {
+			series = [
+				this.createUnregisteredUsers,
+				this.confirmTeamCreator,
+				this.preCreateTeam,
+				this.createTeam,
+				this.inviteUsers,
+				this.confirmUsers,
+				this.acceptInvites,
+				this.createRepos
+			];
+		}
+		BoundAsync.series(this, series, error => {
 			if (error) { return callback(error); }
 			callback(null, {
 				team: this.team,
@@ -114,6 +124,66 @@ class TestTeamCreator {
 			},
 			{
 				token
+			}
+		);
+	}
+
+	createNRCompany (callback) {
+		if (typeof this.teamOptions.creatorIndex !== 'number') {
+			return callback();
+		}
+		this.test.userFactory.createMockNewRelicUser(
+			(error, response) => {
+				if (error) { return callback(error); }
+				this.team = response.teams[0];
+				this.company = response.companies[0];
+				this.teamStream = response.streams[0];
+				this.teamOptions.creatorToken = response.accessToken;
+				this.users[this.teamOptions.creatorIndex] = response;
+			}
+		);
+	}
+
+	createNRUsers (callback) {
+		BoundAsync.timesSeries(
+			this,
+			this.userOptions.numRegistered,
+			this.createNRUser,
+			callback
+		);
+	}
+
+	createNRUser (n, callback) {
+		if (typeof this.teamOptions.creatorIndex === 'number' && n === this.teamOptions.creatorIndex) {
+			n++;
+		}
+		const isMember = (
+			this.company && 
+			(
+				this.teamOptions.members === 'all' || 
+				(
+					this.teamOptions.members instanceof Array &&
+					this.teamOptions.members.findIndex(n) !== -1
+				)
+			)
+		);
+		this.test.userFactory.createMockNewRelicUser(
+			(error, response) => {
+				if (error) { return callback(error); }
+				if (n >= this.teamOptions.creatorIndex) {
+					n++;
+				}
+				this.users[n] = response;
+				if (n === this.userOptions.currentUserIndex) {
+					this.currentUser = this.users[n];
+					this.token = this.users[n].accessToken;
+				}
+				callback();
+			},
+			{
+				withProps: {
+					orgId: isMember ? this.company.linkedNROrgID : undefined
+				}
 			}
 		);
 	}
