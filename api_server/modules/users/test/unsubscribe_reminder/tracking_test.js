@@ -58,7 +58,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
 				$email: this.currentUser.user.email,
 				name: this.currentUser.user.fullName,
-				'Join Method': 'Created Team',
+				//'Join Method': 'Created Team',
 				distinct_id: this.currentUser.user.id,
 				'Email Type': 'Reminder'
 			}
