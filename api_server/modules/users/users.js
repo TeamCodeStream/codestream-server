@@ -361,6 +361,7 @@ class Users extends Restful {
 			this.reinviter.schedule();
 		}
 
+		/*
 		// schedule weekly email sending
 		if (process.env.CS_API_MOCK_MODE) {
 			this.api.log('NOTE: API Server is running in mock mode, weekly emails will not be scheduled');
@@ -371,7 +372,8 @@ class Users extends Restful {
 			});
 			this.weeklyEmails.schedule();
 		}
-
+		*/
+		
 		this.oneUserPerOrg = true;
 		this.api.log('NOTE: API Server is running in one-user-per-org mode');
 	}
