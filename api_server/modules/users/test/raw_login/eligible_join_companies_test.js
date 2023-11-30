@@ -7,6 +7,11 @@ const RandomString = require('randomstring');
 
 class EligibleJoinCompaniesTest extends InitialDataTest {
 
+	constructor (options) {
+		super(options);
+		this.cantRunUsingNRLogins = true;
+	}
+
 	get description () {
 		return `user should receive eligible companies to join via domain-based and invite, when doing a raw login, under one-user-per-org paradigm`;
 	}

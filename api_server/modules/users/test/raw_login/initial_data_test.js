@@ -9,7 +9,9 @@ class InitialDataTest extends LoginTest {
 
 	constructor (options) {
 		super(options);
-		this.firstSessionShouldBeUndefined = true;
+		if (!this.usingNRLogins) {
+			this.firstSessionShouldBeUndefined = true;
+		}
 		this.userOptions.numRegistered = 2;
 		Object.assign(this.teamOptions, {
 			creatorIndex: 1,

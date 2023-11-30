@@ -140,6 +140,7 @@ class TestTeamCreator {
 				this.teamStream = response.streams[0];
 				this.teamOptions.creatorToken = response.accessToken;
 				this.users[this.teamOptions.creatorIndex] = response;
+				callback();
 			}
 		);
 	}
@@ -167,6 +168,7 @@ class TestTeamCreator {
 				)
 			)
 		);
+		const withProps = isMember ? { nr_orgid: this.company.linkedNROrgId } : undefined;
 		this.test.userFactory.createMockNewRelicUser(
 			(error, response) => {
 				if (error) { return callback(error); }
@@ -181,9 +183,7 @@ class TestTeamCreator {
 				callback();
 			},
 			{
-				withProps: {
-					orgId: isMember ? this.company.linkedNROrgID : undefined
-				}
+				withProps
 			}
 		);
 	}
