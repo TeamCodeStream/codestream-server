@@ -71,7 +71,7 @@ class LoginTest extends CodeStreamAPITest {
 			if (this.firstSessionShouldBeUndefined) {
 				Assert.strictEqual(data.user.firstSessionStartedAt, undefined, 'firstSessionStartedAt should be undefined');
 			} else {
-				if (this.usingNRLogins) {
+				if (this.usingNRLogins && this.team) {
 					Assert(data.user.firstSessionStartedAt === 0, 'firstSessionStartedAt not set to 0');
 				} else {
 					Assert(data.user.firstSessionStartedAt >= this.beforeLogin, 'firstSessionStartedAt not set to most recent login time');

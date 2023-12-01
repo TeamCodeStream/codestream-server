@@ -47,7 +47,9 @@ class InitialDataTest extends ConfirmationTest {
 		Assert(data.teams.length === 0, 'found teams in one-user-per-org response');
 		Assert(data.repos.length === 0, 'found repos in one-user-per-org response');
 		Assert(!data.streams, 'found streams in one-user-per-org response');
-		Assert(data.user.eligibleJoinCompanies.length > 0, 'did not get an eligible join company in one-user-per-org response');
+		if (!this.usingNRLogins) {
+			Assert(data.user.eligibleJoinCompanies.length > 0, 'did not get an eligible join company in one-user-per-org response');
+		}
 		super.validateResponse(data);
 	}
 }

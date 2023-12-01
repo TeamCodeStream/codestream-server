@@ -11,10 +11,18 @@ class TestTeamCreator {
 	create (callback) {
 		this.users = [];
 		let series;
-		if (this.test.usingNRLogins) {
+		if (this.test.usingNRLogins && this.teamOptions.creatorIndex !== undefined) {
 			series = [
 				this.createNRCompany,
 				this.createNRUsers,
+
+				// these should no longer be supported, once we deprecate the ability
+				// to invite users, and adjust our test suite accordingly
+				this.createUnregisteredUsers,
+				this.inviteUsers,
+				this.confirmUsers,
+				this.acceptInvites,
+				
 				this.createRepos
 			];
 		} else {
@@ -49,9 +57,14 @@ class TestTeamCreator {
 	}
 
 	createUnregisteredUsers (callback) {
-		let numUsers =
-			(this.userOptions.numRegistered || 0) +
-			(this.userOptions.numUnregistered || 0);
+		let numUsers;
+		if (this.usingNRLogins) {
+			numUsers = this.userOptions.numUnregistered;
+		} else {
+			numUsers =
+				(this.userOptions.numRegistered || 0) +
+				(this.userOptions.numUnregistered || 0);
+		}
 		BoundAsync.timesSeries(
 			this,
 			numUsers,
@@ -129,7 +142,7 @@ class TestTeamCreator {
 	}
 
 	createNRCompany (callback) {
-		if (typeof this.teamOptions.creatorIndex !== 'number') {
+		if (typeof this.teamOptions.creatorIndex !== 'number' || this.userOptions.numRegistered < 1) {
 			return callback();
 		}
 		this.test.userFactory.createMockNewRelicUser(
@@ -140,6 +153,10 @@ class TestTeamCreator {
 				this.teamStream = response.streams[0];
 				this.teamOptions.creatorToken = response.accessToken;
 				this.users[this.teamOptions.creatorIndex] = response;
+				if (this.userOptions.currentUserIndex === this.teamOptions.creatorIndex) {
+					this.currentUser = this.users[this.teamOptions.creatorIndex];
+					this.token = this.users[this.teamOptions.creatorIndex].accessToken;
+				}
 				callback();
 			}
 		);
@@ -148,7 +165,7 @@ class TestTeamCreator {
 	createNRUsers (callback) {
 		BoundAsync.timesSeries(
 			this,
-			this.userOptions.numRegistered,
+			this.userOptions.numRegistered - 1,
 			this.createNRUser,
 			callback
 		);
@@ -164,7 +181,7 @@ class TestTeamCreator {
 				this.teamOptions.members === 'all' || 
 				(
 					this.teamOptions.members instanceof Array &&
-					this.teamOptions.members.findIndex(n) !== -1
+					this.teamOptions.members.includes(n)
 				)
 			)
 		);
@@ -172,7 +189,7 @@ class TestTeamCreator {
 		this.test.userFactory.createMockNewRelicUser(
 			(error, response) => {
 				if (error) { return callback(error); }
-				if (n >= this.teamOptions.creatorIndex) {
+				if (n === this.teamOptions.creatorIndex) {
 					n++;
 				}
 				this.users[n] = response;

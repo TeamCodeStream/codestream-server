@@ -12,6 +12,7 @@ class SubscriptionTest extends CodeStreamAPITest {
 
 	constructor (options) {
 		super(options);
+		this.cantRunUsingNRLogins = true;
 		this.reallySendMessages = true;	// we suppress pubnub messages ordinarily, but since we're actually testing them...
 		this.teamOptions.numRegistered = 2;
 		this.teamOptions.creatorIndex = 1;
@@ -31,8 +32,10 @@ class SubscriptionTest extends CodeStreamAPITest {
 	}
 
 	after (callback) {
-		this.broadcasterClient.unsubscribeAll();
-		this.broadcasterClient.disconnect();
+		if (this.broadcasterClient) {
+			this.broadcasterClient.unsubscribeAll();
+			this.broadcasterClient.disconnect();
+		}
 		super.after(callback);
 	}
 
