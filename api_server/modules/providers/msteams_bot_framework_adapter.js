@@ -51,6 +51,7 @@ const sendTelemetry = async function (context, errorString, options = {}) {
 	else if (context.activity.from && context.activity.from.id) {
 		trackOptions.anonymousId = context.activity.from.id;
 	}
+	/*
 	if (trackOptions.userId || trackOptions.anonymousId) {
 		analytics.track('Bot Error', {
 			TenantId: tenantId,
@@ -60,6 +61,7 @@ const sendTelemetry = async function (context, errorString, options = {}) {
 			CommandText: options.commandText
 		}, trackOptions);
 	}
+	*/
 };
 
 // list of commands that we care about seeing in logs/telemetry
