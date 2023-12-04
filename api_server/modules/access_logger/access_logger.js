@@ -61,11 +61,16 @@ class AccessLogger extends APIServerModule {
 		}
 		const testNum = request.headers['x-cs-test-num'] || '';
 
+		// obfuscate trello tokens during OAuth
+		const url = request.url.replace(/(\/no-auth\/provider-token\/trello\?token=)(.*?)($|&)/, (_, p1, p2, p3) => {
+			return `${p1}${'*'.repeat(p2.length)}${p3}`;
+		});
+
 		const json = {
 			id: request.id,
 			stat: status,
 			meth: request.method.toUpperCase(),
-			url: request.url,
+			url,
 			uid: userId,
 			code: response.statusCode,
 			len: response.get('content-length'),
@@ -83,7 +88,7 @@ class AccessLogger extends APIServerModule {
 			request.id                     + ' '   +
 			status                         + ' '   +
 			request.method.toUpperCase()   + ' '   +
-			request.url                    + ' '   +
+			url                            + ' '   +
 			userId                         + ' '   +
 			response.statusCode            + ' '   +
 			response.get('content-length') + ' '   +
