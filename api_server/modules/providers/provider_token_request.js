@@ -530,13 +530,6 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (!this.userIdentity.email) {
 			throw this.errorHandler.error('updateAuth', { reason: 'no email in identifying data' });
 		}
-		if (this.provider === 'newrelicidp') {
-			const showUserIdentity = { ...this.userIdentity };
-			if (showUserIdentity.idpAccessToken) {
-				showUserIdentity.idpAccessToken = '<redacted>' + this.userIdentity.idpAccessToken.slice(-7);
-			}
-			this.log('NEWRELIC IDP TRACK: User identity: ' + JSON.stringify(showUserIdentity, 0, 5));
-		}
 
 		// check if we need to redirect to another region
 		if (await this.handleRegion()) {
@@ -570,11 +563,6 @@ class ProviderTokenRequest extends RestfulRequest {
 			joinCompanyId: this.joinCompanyId,
 			_pubnubUuid: userIdentity._pubnubUuid
 		});
-		const showIdentity = { ...userIdentity };
-		if (showIdentity.idpAccessToken) {
-			showIdentity.idpAccessToken = '<redacted>' + userIdentity.idpAccessToken.slice(-7);
-		}
-		this.log('NEWRELIC IDP TRACK: Connecting user identity: ' + JSON.stringify(showIdentity, 0, 5));
 	
 		await this.connector.connectIdentity(userIdentity);
 		this.user = this.connector.user;

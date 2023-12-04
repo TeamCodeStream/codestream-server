@@ -97,8 +97,6 @@ class NerdGraphOps {
 			} else {
 				graphQLHeaders['x-id-token'] = token;
 			}
-			const showToken = '<redacted>' + token.slice(-7);
-			this.request.log(`NEWRELIC IDP TRACK: GraphQL will use token ${showToken}`);
 		} else {
 			graphQLHost= this.request.api.config.sharedGeneral.newRelicApiUrl;
 			graphQLHeaders['Api-Key'] = token;

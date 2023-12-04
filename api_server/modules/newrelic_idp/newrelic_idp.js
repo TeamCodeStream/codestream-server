@@ -552,8 +552,6 @@ if (!data.password) {
 			{ ...options, headers: { 'Authorization': authHeader } }
 		);
 
-		options.request.log('NEWRELIC IDP TRACK: possible auth domains are: ' + JSON.stringify(result, 0, 5));
-				
 		// remove v1 users
 		return result.data.filter(domain => {
 			return domain.user_id >= 1000000000;
@@ -640,10 +638,6 @@ if (!data.password) {
 			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			expiresAt
 		};
-		const showTokenInfo = { ...tokenInfo };
-		showTokenInfo.accessToken = '<redacted>' + tokenInfo.accessToken.slice(-6);
-		showTokenInfo.refreshToken = '<redacted>' + tokenInfo.refreshToken.slice(-6);
-		options.request.log(`NEWRELIC IDP TRACK: Token info from exchange: ${JSON.stringify(showTokenInfo)}`);
 		return tokenInfo;
 	}
 
@@ -657,62 +651,6 @@ if (!data.password) {
 			nrOrgId: user.organization.id,
 			_pubnubUuid: user.user._pubnubUuid
 		};
-
-		/*
-		// decode the token, which is JWT, this will give us the NR User ID
-		let payload;
-		if (options.mockResponse) {
-			if (options.accessToken.startsWith('MNRI-')) {
-				const [, nrUserId, json] = options.accessToken.split('-');
-				payload = Buffer.from(json, 'base64').toString();
-				try {
-					payload = JSON.parse(payload); 
-				}
-				catch (ex) {
-					payload = {};
-				}
-			} else {
-				payload = {};
-			}
-		} else {
-			payload = JWT.decode(options.accessToken);
-		}
-
-		const showPayload = { ...payload };
-		if (showPayload.idp_access_token) {
-			showPayload.idp_access_token = '<redacted>' + payload.idp_access_token.slice(-7);
-		}
-		if (showPayload.idp_refresh_token) {
-			showPayload.idp_refresh_token = '<redacted>' + payload.idp_refresh_token.slice(-7);
-		}
-		options.request.log('NEWRELIC IDP TRACK: ID token payload: ' + JSON.stringify(showPayload, 0, 5));
-		const identityInfo = {
-			email: payload.email,
-			fullName: payload.name,
-			nrUserId: payload.nr_userid,
-			nrOrgId: payload.nr_orgid,
-			idp: payload.idp,
-			idpAccessToken: payload.idp_access_token,
-			idpRefreshToken: payload.idp_refresh_token,
-			userId: payload.oid
-		};
-		if (payload.idp_access_token_expires_in) {
-			identityInfo.expiresAt = Date.now() + (payload.idp_access_token_expires_in - 60) * 1000;
-		}
-
-		// the refresh token we get from New Relic is stringified JSON
-		if (identityInfo.idpRefreshToken && identityInfo.idpRefreshToken.startsWith('{')) {
-			let parsedRefreshToken;
-			try {
-				parsedRefreshToken = JSON.parse(identityInfo.idpRefreshToken);
-				if (parsedRefreshToken.r) {
-					identityInfo.idpRefreshToken = parsedRefreshToken.r;
-				}
-			}
-			catch (ex) {
-			}
-		}
-		*/
 
 		// extract company name and region as needed
 		if (identityInfo.nrOrgId) {
