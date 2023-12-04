@@ -2,6 +2,7 @@
 
 const IDPSignupTest = require('./idp_signup_test');
 const Assert = require('assert');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class IDPSignupBehindSGTest extends IDPSignupTest {
 
@@ -17,10 +18,10 @@ class IDPSignupBehindSGTest extends IDPSignupTest {
 	validateResponse (data) {
 		const { accessToken, accessTokenInfo } = data;
 
-		Assert(accessToken.startsWith('MNR-'), 'user does not have a mock NR access token for CS access token');
-		Assert(accessTokenInfo.refreshToken.startsWith('MNRR-'), 'user does not have a mock NR refresh token');
+		Assert(accessToken.startsWith('MNRI-'), 'user does not have a mock NR access token for CS access token');
+		Assert(accessTokenInfo.refreshToken.startsWith('MNRRI-'), 'user does not have a mock NR refresh token');
 		Assert(accessTokenInfo.expiresAt >= Date.now(), 'user does not have an expiredAt with their access token that expires in the future');
-		Assert.strictEqual(accessTokenInfo.provider, 'azureb2c-csropc', 'user does not have NR provider set to azureb2c-csropc');
+		Assert.strictEqual(accessTokenInfo.provider, NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY, 'user does not have NR provider set to proper password policy');
 		Assert.strictEqual(accessTokenInfo.isNRToken, true, 'user does not have isNRToken set');
   
 		super.validateResponse(data);

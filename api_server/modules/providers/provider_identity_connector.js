@@ -372,10 +372,12 @@ class ProviderIdentityConnector {
 		const rootStr = `providerInfo.${teamId}.newrelic`;
 		op.$set[`${rootStr}.accessToken`] = this.tokenData.accessToken;
 		op.$set[`${rootStr}.bearerToken`] = true;
+		op.$set[`${rootStr}.tokenType`] = this.tokenData.tokenType;
 		if (this.request.request.serviceGatewayAuth) {
 			// under Service Gateway auth, the new token IS the CS access token
 			op.$set['accessTokens.web.token'] = this.tokenData.accessToken;
 			op.$set['accessTokens.web.isNRToken'] = true;
+			op.$set['accessTokens.web.tokenType'] = this.tokenData.tokenType;
 		}
 		if (this.tokenData.refreshToken) {
 			op.$set[`${rootStr}.refreshToken`] = this.tokenData.refreshToken;
@@ -398,6 +400,11 @@ class ProviderIdentityConnector {
 			this.request.log('User logging in under New Relic login for first time, setting hasDoneNRLogin preference');
 			op.$set['preferences.hasDoneNRLogin'] = true;
 		}
+
+		// remove any pre-existing top-level NR credentials (which would be an API Key from pre-unified identity NR sign-in)
+		op.$unset = {
+			'providerInfo.newrelic': true
+		};
 
 		this.request.log('NEWRELIC IDP TRACK: User provider info was adjusted for IDP signin');
 		return true;

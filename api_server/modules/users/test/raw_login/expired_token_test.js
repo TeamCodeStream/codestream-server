@@ -6,6 +6,11 @@ const RandomString = require('randomstring');
 
 class ExpiredTokenTest extends LoginTest {
 
+	constructor (options) {
+		super(options);
+		this.cantRunUsingNRLogins = true;
+	}
+
 	get description () {
 		return 'raw login request should return an error if the previous access token was invalidated';
 	}

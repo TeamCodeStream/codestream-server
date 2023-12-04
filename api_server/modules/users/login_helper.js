@@ -208,6 +208,7 @@ class LoginHelper {
 		if (this.dontUpdateLastLogin) {
 			return;
 		}
+
 		const origin = this.request.request.headers['x-cs-plugin-ide'];
 		if (origin === 'webclient') {
 			return;
@@ -278,6 +279,7 @@ class LoginHelper {
 			newRelicLandingServiceUrl,
 			newRelicApiUrl,
 			newRelicSecApiUrl,
+			csecApiUrl,
 		} = this.apiConfig.sharedGeneral;
 		const { environmentGroup } = this.apiConfig;
 		
@@ -308,7 +310,8 @@ class LoginHelper {
 			accountIsConnected: this.accountIsConnected,
 			newRelicLandingServiceUrl,
 			newRelicApiUrl,
-			newRelicSecApiUrl
+			newRelicSecApiUrl,
+			csecApiUrl
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {
 			this.responseData.pubnubKey = this.apiConfig.broadcastEngine.pubnub.subscribeKey;	// give them the subscribe key for pubnub
@@ -321,7 +324,8 @@ class LoginHelper {
 				refreshToken: this.accessTokenInfo.refreshToken,
 				expiresAt: this.accessTokenInfo.expiresAt,
 				provider: this.accessTokenInfo.provider,
-				isNRToken: true
+				tokenType: this.accessTokenInfo.tokenType,
+				isNRToken: true,
 			};
 		}
 		
@@ -393,8 +397,9 @@ class LoginHelper {
 			if (!teamId) return;
 			const token = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).accessToken;
 			const bearerToken = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).bearerToken;
+			const tokenType = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).tokenType;
 			if (!token || !bearerToken) return;
-			this.possibleAuthDomains = await this.api.services.idp.getPossibleAuthDomains(token, { 
+			this.possibleAuthDomains = await this.api.services.idp.getPossibleAuthDomains(token, tokenType, { 
 				request: this.request,
 				mockResponse
 			});

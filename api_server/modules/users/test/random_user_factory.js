@@ -4,6 +4,7 @@
 
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
 const RandomString = require('randomstring');
+const UUID = require('uuid').v4;
 
 // utility class to actually handle the registration and confirmation as needed
 class _UserCreator {
@@ -209,6 +210,64 @@ class RandomUserFactory {
 	// confirm registration of a user given some user data
 	confirmUser (user, callback, options = {}) {
 		new _UserCreator(this).confirmUser(user, callback, options);
+	}
+
+	createMockNewRelicUser (callback, options = {}) {
+		const user = this.getRandomNewRelicUserProps();
+		const mockUser = {
+			email: user.email,
+			name: user.name,
+			nr_userid: user.id,
+			nr_orgid: user.orgId,
+			_pubnubUuid: this.getNextPubnubUuid()
+		};
+		Object.assign(mockUser, options.withProps || {});
+		const signupToken = UUID();
+		const authCode = UUID();
+		this.apiRequester.doApiRequest(
+			{
+				method: 'get',
+				path: `/~nrlogin/${signupToken}?auth_code=${authCode}`,
+				requestOptions: {
+					headers: {
+						'X-CS-No-NewRelic': true,
+						'X-CS-NR-Mock-User': JSON.stringify(mockUser),
+						'X-CS-Mock-Secret': this.apiRequester.apiConfig.sharedSecrets.confirmationCheat
+					},
+					noJsonInResponse: true,
+					expectRedirect: true
+				}
+			},
+			error => {
+				if (error) { return callback(error); }
+				this.apiRequester.doApiRequest(
+					{
+						method: 'put',
+						path: '/no-auth/check-signup',
+						data: {
+							token: signupToken
+						}
+					},
+					callback
+				);
+			}
+		);
+	}
+
+	getRandomNewRelicUserProps () {
+		const email = this.randomEmail();
+		const name = this.randomFullName();
+		const id = this.getMockNewRelicUserID();
+		const orgId = this.getMockNewRelicOrgID();
+		return  { email, name, id, orgId };
+	}
+
+	getMockNewRelicUserID () {
+		return (1000000000 + Math.floor(Math.random() * 999999999)).toString();
+	}
+
+	getMockNewRelicOrgID () {
+		return UUID();
 	}
 }
 

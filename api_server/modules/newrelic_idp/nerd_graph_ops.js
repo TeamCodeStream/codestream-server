@@ -6,7 +6,7 @@
 const { GraphQLClient, gql } = require('graphql-request');
 const NRAccessTokenRefresher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/nr_access_token_refresher');
 
-class NewRelicAuthorizer {
+class NerdGraphOps {
 
 	constructor (options) {
 		Object.assign(this, options);
@@ -38,6 +38,7 @@ class NewRelicAuthorizer {
 
 		// get the user's NR access token, non-starter if no access token
 		let token = this.accessToken;
+		let tokenType = this.tokenType;
 		const user = this.adminUser || this.request.user;
 		let providerInfo;
 		if (!token) {
@@ -56,6 +57,7 @@ class NewRelicAuthorizer {
 				providerInfo = userProviderInfo;
 			}
 			token = providerInfo && providerInfo.accessToken;
+			tokenType = providerInfo && providerInfo.tokenType;
 		}
 		if (!token) {
 			const userId = user ? user.id : '???';
@@ -88,10 +90,13 @@ class NewRelicAuthorizer {
 		};
 		let graphQLHost;
 		if (this.accessToken || providerInfo.bearerToken) {
-			graphQLHost= this.request.api.config.integrations.newRelicIdentity.graphQLHost; 
-			graphQLHeaders.Authorization = `Bearer ${token}`;
-			const showToken = '<redacted>' + token.slice(-7);
-			this.request.log(`NEWRELIC IDP TRACK: GraphQL will use token ${showToken}`);
+			graphQLHost = this.request.api.config.integrations.newRelicIdentity.graphQLHost;
+			//graphQLHeaders.Authorization = `Bearer ${token}`;
+			if (tokenType === 'access') {
+				graphQLHeaders['x-access-token'] = token;
+			} else {
+				graphQLHeaders['x-id-token'] = token;
+			}
 		} else {
 			graphQLHost= this.request.api.config.sharedGeneral.newRelicApiUrl;
 			graphQLHeaders['Api-Key'] = token;
@@ -324,6 +329,46 @@ class NewRelicAuthorizer {
 		);
 	}
 
+	// get the current user
+	async getCurrentUser (options = {}) {
+		let response;
+		if (options.mockUser) {
+			const { name, email, nr_userid, nr_orgid, _pubnubUuid } = options.mockUser;
+			return {
+				user: {
+					name,
+					email,
+					id: parseInt(nr_userid, 10),
+					_pubnubUuid
+				},
+				organization: {
+					id: nr_orgid
+				}
+			};
+		} else {
+			try {
+				const query = gql`
+query {
+	actor {
+		user {
+			name
+			email
+			id
+		}
+		organization {
+			id
+		}
+	}
+}`;
+				response = await this.client.request(query);
+			}
+			catch (error) {
+				throw error;
+			}
+			return response.actor;
+		}
+	}
+
 	// delete the given user
 	async deleteUser (id, options = {}) {
 		let response;
@@ -385,4 +430,4 @@ mutation {
 	}
 }
 
-module.exports = NewRelicAuthorizer;
+module.exports = NerdGraphOps;

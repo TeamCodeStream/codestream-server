@@ -1,6 +1,6 @@
 {
 	"name": "outbound-email",
-	"version": "14.0.28",
+	"version": "14.0.29",
 	"dependencies": {
 		"@sendgrid/mail": "7.7.0",
 		"amqplib": "0.8.0",
@@ -16,7 +16,7 @@
 		"markdown-it-slack": "1.2.0",
 		"moment-timezone": "0.5.35",
 		"mongodb": "4.17.0",
-		"newrelic": "11.2.0",
+		"newrelic": "11.5.0",
 		"node-fetch": "2.6.7",
 		"nodemailer": "6.7.3",
 		"pino": "8.16.0",

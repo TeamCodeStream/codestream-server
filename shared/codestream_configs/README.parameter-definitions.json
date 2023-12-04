@@ -294,6 +294,7 @@
 		}
 	},
 	"sharedGeneral": {
+		"csecApiUrl": "IAST vulnerability mgmt user-facing api [CSSVC_CSEC_API_URL]",
 		"installationId": "unique identifier for the onprem installation [CSSVC_INSTALLATION_ID]",
 		"isProductionCloud": "identifies customer-facing environments [CSSVC_IS_PRODUCTION_CLOUD]",
 		"newRelicApiUrl": "NR1 user-facing api [CSSVC_NEW_RELIC_API_URL]",

@@ -1076,6 +1076,12 @@
 			"desc": "NR1 vulnerability mgmt user-facing api",
 			"env": "CSSVC_NEW_RELIC_SEC_API_URL"
 		},
+		"csecApiUrl": {
+			"type": "string",
+			"default": "https://csec-workflow-api.staging-service.newrelic.com",
+			"desc": "IAST vulnerability mgmt user-facing api",
+			"env": "CSSVC_CSEC_API_URL"
+		},
 		"runTimeEnvironment": {
 			"type": "string",
 			"default": "${CSSVC_ENV}",

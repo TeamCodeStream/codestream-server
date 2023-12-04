@@ -6,13 +6,14 @@ const APIServerModule = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/li
 const Fetch = require('node-fetch');
 const Crypto = require('crypto');
 const UUID = require('uuid').v4;
-const NewRelicAuthorizer = require('./new_relic_authorizer');
+const NerdGraphOps = require('./nerd_graph_ops');
 //const NewRelicListener = require('./newrelic_listener');
 const RandomString = require('randomstring');
 const JWT = require('jsonwebtoken');
 const GithubAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/github_auth/github_authorizer');
 const GitlabAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/gitlab_auth/gitlab_authorizer');
 const BitbucketAuthorizer = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/bitbucket_auth/bitbucket_authorizer');
+const NewRelicIDPConstants = require('./newrelic_idp_constants');
 
 class NewRelicIDP extends APIServerModule {
 
@@ -70,7 +71,7 @@ if (!password) {
 		const idpId = createUserResponse.data.attributes.activeIdpObjectId;
 		await this._newrelic_idp_call(
 			'idp',
-			`/azureb2c/users/${idpId}/password`,
+			`/${NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY}/users/${idpId}/password`,
 			'post',
 			{
 				password
@@ -162,7 +163,7 @@ if (!password) {
 			token: loginResponse.idp.id_token,
 			refreshToken: loginResponse.idp.refresh_token,
 			expiresAt: Date.now() + loginResponse.idp.expires_in * 1000,
-			provider: 'azureb2c-csropc'
+			provider: NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY
 		};
 	}
 
@@ -267,12 +268,13 @@ if (!data.password) {
 	async loginUser (data, options = {}) {
 		return this._newrelic_idp_call(
 			'login',
-			'/idp/azureb2c-csropc/token',
+			`/idp/${NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY}/token`,
 			'post',
 			data,
 			options
 		);
 	}
+
 
 	async listUsers (email, options = {}) {
 		return this._newrelic_idp_call(
@@ -375,6 +377,17 @@ if (!data.password) {
 		);
 	}
 
+	// get the current user, associated with the passed token
+	async getCurrentUser (token, tokenType, options = {}) {
+		const ngOps = new NerdGraphOps({
+			request: options.request,
+			accessToken: token,
+			tokenType
+		});
+		await ngOps.init();
+		return ngOps.getCurrentUser(options);
+	}
+
 	async updateUser (id, data, options = {}) {
 		const user = await this.getUser(id, options);
 		if (!user) return null;
@@ -393,29 +406,30 @@ if (!data.password) {
 	}
 
 	async deleteUser (id, codestreamTeamId, options = {}) {
-		// use the NewRelicAuthorizer, which makes a graphql call to delete the user
-		const authorizer = new NewRelicAuthorizer({
+		// use the NerdGraphOps, which makes a graphql call to delete the user
+		const ngOps = new NerdGraphOps({
 			request: options.request,
 			teamId: codestreamTeamId // used to get the user's API key, to make a nerdgraph request
 		});
-		await authorizer.init();
-		return authorizer.deleteUser(id, options);
+		await ngOps.init();
+		return ngOps.deleteUser(id, options);
 	}
 
 	// return the region code associated with a particular account
-	async regionFromAccountId (accountId, accessToken, options = {}) {
+	async regionFromAccountId (accountId, accessToken, tokenType, options = {}) {
 		if (options.request.request.headers['x-cs-no-newrelic']) {
 			options.request.log('Returning mock response of us01 for region');
 			return 'us01';
 		}
 
-		// use the NewRelicAuthorizer, which makes a graphql call 
-		const authorizer = new NewRelicAuthorizer({
+		// use the NerdGraphOps, which makes a graphql call 
+		const ngOps = new NerdGraphOps({
 			request: options.request,
-			accessToken
+			accessToken,
+			tokenType
 		});
-		await authorizer.init();
-		return authorizer.regionFromAccountId(accountId);
+		await ngOps.init();
+		return ngOps.regionFromAccountId(accountId);
 	}
 
 	// determine whether an NR org qualifies as "codestream only"
@@ -436,16 +450,16 @@ if (!data.password) {
 		}
 		options.request.log(`NEWRELIC IDP TRACK: accountId=${accountId}`);
 		
-		// use the NewRelicAuthorizer, which makes a graphql call to get the entitlements
+		// use the NerdGraphOps, which makes a graphql call to get the entitlements
 		// for this account ... if it DOES NOT have the entitlement, it can still be codestream-only
 		options.request.log('NEWRELIC IDP TRACK: Checking if this org has the unlimited consumption entitlement...');
-		const authorizer = new NewRelicAuthorizer({
+		const ngOps = new NerdGraphOps({
 			request: options.request,
 			teamId: codestreamTeamId, // used to get the user's API key, to make a nerdgraph request
 			adminUser: options.adminUser // grab token or API key from this admin user, instead of the requesting user
 		});
-		await authorizer.init();
-		const hasEntitlement = await authorizer.nrOrgHasUnlimitedConsumptionEntitlement(accountId, options);
+		await ngOps.init();
+		const hasEntitlement = await ngOps.nrOrgHasUnlimitedConsumptionEntitlement(accountId, options);
 		options.request.log('NEWRELIC IDP TRACK: hasEntitlement=' + hasEntitlement);
 		return !hasEntitlement;
 	}
@@ -516,19 +530,20 @@ if (!data.password) {
 	async setIDPMigration (userId, options = {}) {
 		const result = await this._newrelic_idp_call(
 			'idp',
-			`/azureb2c/users/${userId}/set_codestream_idp_migration`,
+			`/${NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY}/users/${userId}/set_codestream_idp_migration`,
 			'post',
 			{ migration_required: true },
 			options
 		);
 	}
 
-	// get the "possible" authentication domains for a user, which leads to all the orgs their in, by email
-	async getPossibleAuthDomains (token, options = {}) {
-		const authHeader = Buffer.from(JSON.stringify({
-			provider: 'azureb2c',
-			token
-		})).toString('base64');
+	// get the "possible" authentication domains for a user, which leads to all the orgs they're in, by email
+	async getPossibleAuthDomains (token, tokenType, options = {}) {
+		const tokenData = { token };
+		if (tokenType === 'id') {
+			tokenData.provider = NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY;
+		}
+		const authHeader = Buffer.from(JSON.stringify(tokenData)).toString('base64');
 		const result = await this._newrelic_idp_call(
 			'login',
 			'/api/v1/current_user/possible_authentication_domains.json',
@@ -547,9 +562,10 @@ if (!data.password) {
 	// which looks like the beginning of an OAuth process, but isn't
 	getRedirectData (options) {
 		const host = this.serviceHosts.login;
+		const { newRelicClientId } = this.apiConfig.integrations.newRelicIdentity;
 		//const whichPath = options.noSignup ? 'cs' : 'cssignup';
-		//const url = `${host}/idp/azureb2c-${whichPath}/redirect`;
-		const url = `${host}/idp/azureb2c-cs/redirect`;
+		//const url = `${host}/idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}-${whichPath}/redirect`;
+		const url = `${host}/login`; //idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}/redirect`;
 		let signupToken = options.signupToken;
 		if (options.joinCompanyId) {
 			signupToken += `.JCID~${options.joinCompanyId}`;
@@ -564,13 +580,22 @@ if (!data.password) {
 		const data = { 
 			url,
 			parameters: {
-				scheme: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
+				return_to: `${options.publicApiUrl}/~nrlogin/${signupToken}`,
 				response_mode: 'code',
-				//domain_hint: options.domain || 'newrelic.com'
+				//domain_hint: NewRelicIDPConstants.FEDERATION_ON_LOGIN ? (options.domain || 'newrelic.com') : undefined,
+				client_id: newRelicClientId,
+				scheme: 'codestream',
+				force_login: 'true'
 			}
 		};
 		if (options.nrUserId) {
 			data.parameters.user_id = options.nrUserId;
+		}
+		if (options.email) {
+			data.parameters.email = options.email;
+		}
+		if (options.authDomainId) {
+			data.parameters.authentication_domain_id = options.authDomainId;
 		}
 		return data;
 	}
@@ -600,63 +625,36 @@ if (!data.password) {
 			},
 			options
 		);
-		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
-		const expiresAt = Date.now() + result.expires_in * 1000;
+		let expiresAt;
+		if (result.expires_at) {
+			expiresAt = result.expires_at * 1000;
+		} else {
+			expiresAt = Date.now() + 1000 * (result.expires_in || 3600);
+		}
 		const tokenInfo = {
-			accessToken: result.id_token,
+			accessToken: result.id_token || result.access_token,
+			tokenType: result.id_token ? 'id' : 'access',
 			refreshToken: result.refresh_token,
-			provider: 'azureb2c-cs',
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			expiresAt
 		};
-		const showTokenInfo = { ...tokenInfo };
-		showTokenInfo.accessToken = '<redacted>' + tokenInfo.accessToken.slice(-6);
-		showTokenInfo.refreshToken = '<redacted>' + tokenInfo.refreshToken.slice(-6);
-		options.request.log(`NEWRELIC IDP TRACK: Token info from exchange: ${JSON.stringify(showTokenInfo)}`);
 		return tokenInfo;
 	}
 
 	// match the incoming New Relic identity to a CodeStream identity
 	async getUserIdentity (options) {
-		// decode the token, which is JWT, this will give us the NR User ID
-		const payload = options.mockResponse ? JSON.parse(options.accessToken) : JWT.decode(options.accessToken);
-		const showPayload = { ...payload };
-		if (showPayload.idp_access_token) {
-			showPayload.idp_access_token = '<redacted>' + payload.idp_access_token.slice(-7);
-		}
-		if (showPayload.idp_refresh_token) {
-			showPayload.idp_refresh_token = '<redacted>' + payload.idp_refresh_token.slice(-7);
-		}
-		options.request.log('NEWRELIC IDP TRACK: ID token payload: ' + JSON.stringify(showPayload, 0, 5));
+		const user = await this.getCurrentUser(options.accessToken, options.tokenType, options);
 		const identityInfo = {
-			email: payload.email,
-			fullName: payload.name,
-			nrUserId: payload.nr_userid,
-			nrOrgId: payload.nr_orgid,
-			idp: payload.idp,
-			idpAccessToken: payload.idp_access_token,
-			idpRefreshToken: payload.idp_refresh_token,
-			userId: payload.oid
+			email: user.user.email,
+			fullName: user.user.name,
+			nrUserId: user.user.id,
+			nrOrgId: user.organization.id,
+			_pubnubUuid: user.user._pubnubUuid
 		};
-		if (payload.idp_access_token_expires_in) {
-			identityInfo.expiresAt = Date.now() + (payload.idp_access_token_expires_in - 60) * 1000;
-		}
-
-		// the refresh token we get from New Relic is stringified JSON
-		if (identityInfo.idpRefreshToken && identityInfo.idpRefreshToken.startsWith('{')) {
-			let parsedRefreshToken;
-			try {
-				parsedRefreshToken = JSON.parse(identityInfo.idpRefreshToken);
-				if (parsedRefreshToken.r) {
-					identityInfo.idpRefreshToken = parsedRefreshToken.r;
-				}
-			}
-			catch (ex) {
-			}
-		}
 
 		// extract company name and region as needed
-		if (payload.nr_orgid) {
-			const org = await this.getOrg(payload.nr_orgid, options);
+		if (identityInfo.nrOrgId) {
+			const org = await this.getOrg(identityInfo.nrOrgId, options);
 			identityInfo.companyName = org.name;
 			// unfortunately it seems we need to wait a bit before the token that was issued by Azure/New Relic
 			// can be used for a NerdGraph call, hopefully 2 seconds is enough...
@@ -666,7 +664,7 @@ if (!data.password) {
 				done = await new Promise(async resolve => {
 					setTimeout(async () => {
 						try {
-							identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options);
+							identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options.tokenType, options);
 							options.request.log(`NEWRELIC IDP TRACK: region determined to be ${identityInfo.region} after ${i} tries`);
 						} catch (ex) {
 							lastEx = ex;
@@ -682,15 +680,16 @@ if (!data.password) {
 		}
 		
 		// extract user ID and info as needed
-		if (payload.nr_userid) {
-			const userInfo = await this.getUser(payload.nr_userid, options);
-			identityInfo.nrUserId = parseInt(payload.nr_userid, 10);
+		if (identityInfo.nrUserId) {
+			const userInfo = await this.getUser(identityInfo.nrUserId, options);
+			//identityInfo.nrUserId = parseInt(payload.nr_userid, 10);
 			identityInfo.nrUserInfo = {
 				userTierId: userInfo.data?.attributes?.userTierId,
 				userTier: userInfo.data?.attributes?.userTier
 			};
 		}
 
+		/*
 		if (payload.idp && payload.idp_access_token) {
 			let idpInfo;
 			if (payload.idp && payload.idp === 'github.com') {
@@ -707,7 +706,7 @@ if (!data.password) {
 			Object.assign(identityInfo, idpInfo);
 			if (!identityInfo.email) identityInfo.email = email;
 		}
-
+		*/
 		return identityInfo;
 	}
 
@@ -746,13 +745,15 @@ if (!data.password) {
 
 	// refresh a user's token
 	async refreshToken (refreshToken, provider, options) {
+		const { newRelicClientId, newRelicClientSecret } = this.apiConfig.integrations.newRelicIdentity;
 		return this._newrelic_idp_call(
 			'login',
-			'/refresh_token',
+			'/api/v1/tokens/refresh',
 			'post',
 			{
-				provider,
-				refresh_token: refreshToken
+				refresh_token: refreshToken,
+				client_id: newRelicClientId,
+				client_secret: newRelicClientSecret
 			},
 			options
 		);
@@ -761,12 +762,18 @@ if (!data.password) {
 	// perform custom refresh of a token per OAuth
 	async customRefreshToken (providerInfo, options = {}) {
 		const result = await this.refreshToken(providerInfo.refreshToken, providerInfo.provider, options);
+		let expiresAt;
+		if (result.expires_at) {
+			expiresAt = result.expires_at * 1000;
+		} else {
+			expiresAt = Date.now() + 1000 * (result.expires_in || 3600);
+		}
 		const tokenData = {
-			accessToken: result.id_token,
+			accessToken: result.id_token || result.access_token,
+			tokenType: result.id_token ? 'id' : 'access',
 			refreshToken: result.refresh_token,
+			expiresAt
 		};
-		result.expires_in = result.expires_in || 3600; // until NR-114085 is fixed
-		tokenData.expiresAt = Date.now() + result.expires_in * 1000;
 		tokenData.provider = providerInfo.provider;
 		return tokenData;
 	}
@@ -814,7 +821,6 @@ if (!data.password) {
 		if (options.logger && options.verbose) {
 			options.logger.log(`Calling New Relic: ${url}\n`, JSON.stringify(fetchOptions, 0, 5));
 		}
-
 		const response = await Fetch(url, fetchOptions);
 		let json, text;
 		try {
@@ -866,12 +872,14 @@ if (!data.password) {
 				return this._getMockGroupsResponse(options);
 			}
 		} else if (service === 'login') {
-			if (path === '/idp/azureb2c-csropc/token' && method === 'post') {
+			if (path === `/idp/${NewRelicIDPConstants.NR_AZURE_PASSWORD_POLICY}/token` && method === 'post') {
 				return this._getMockLoginResponse(params, options);
 			} else if (path === '/api/v1/current_user/possible_authentication_domains.json' && method === 'get') {
 				return this._getMockPossibleAuthDomainsResponse(options);
 			} else if (path === '/api/v1/tokens' && method === 'post') {
 				return this._getMockTokenExchangeResponse(options);
+			} else if (path === '/api/v1/tokens/refresh' && method === 'post') {
+				return this._getMockRefreshTokenResponse(params, options);
 			}
 		} else if (service === 'credentials') {
 			let match;
@@ -891,9 +899,9 @@ if (!data.password) {
 			}
 		} else if (service === 'idp') {
 			let match;
-			if (match = path.match(/^\/azureb2c\/users\/(.+)\/password$/) && method === 'post') {
+			if (match = path.match(/^\/azureb2c.*?\/users\/(.+)\/password$/) && method === 'post') {
 				return this._getMockPasswordResponse();
-			} else if (match = path.match(/^\/azureb2c\/users\/(.+)\/set_codestream_idp_migration$/) && method === 'post') {
+			} else if (match = path.match(/^\/azureb2c.*?\/users\/(.+)\/set_codestream_idp_migration$/) && method === 'post') {
 				return this._getMockSetIDPMigrationResponse();
 			}
 		}
@@ -939,11 +947,11 @@ if (!data.password) {
 					name,
 					timeZone: 'Etc/UTC',
 					authenticationDomainId,
-					activeIdp: 'azureb2c',
+					activeIdp: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 					activeIdpObjectId: idpObjectId,
 					supportedIdps: [
 						{
-							name: 'azureb2c',
+							name: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 							idp_object_id: idpObjectId
 						}
 					],
@@ -988,11 +996,11 @@ if (!data.password) {
 					name: params.data.attributes.name,
 					timeZone: 'Etc/UTC',
 					authenticationDomainId: params.data.attributes.authentication_domain_id,
-					activeIdp: 'azureb2c',
+					activeIdp: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 					activeIdpObjectId: idpObjectId,
 					supportedIdps: [
 						{
-							name: 'azureb2c',
+							name: NewRelicIDPConstants.NR_AZURE_SIGNUP_POLICY,
 							idp_object_id: idpObjectId
 						}
 					],
@@ -1016,9 +1024,9 @@ if (!data.password) {
 		);
 		return {
 			idp: {
-				id_token: 'MNR-' + nrUserId + '-' + RandomString.generate(100),
-				refresh_token: 'MNRR-' + nrUserId + '-' + RandomString.generate(100),
-				expires_in: 3600
+				id_token: this._getMockNRIDToken(nrUserId),
+				refresh_token: this._getMockNRRefreshToken(nrUserId, true),
+				expires_in: Math.floor(Date.now() / 1000) + 3600
 			}
 		}
 	}
@@ -1140,13 +1148,32 @@ if (!data.password) {
 	}
 
 	_getMockTokenExchangeResponse (options = {}) {
-		const idToken = options.mockUser ? JSON.stringify(options.mockUser) : RandomString.generate(100);
-		const refreshToken = RandomString.generate(100);
-		const expiresIn = 3600;
+		let nrUserId, token, tokenKey, refreshToken, expires, expiresKey;
+		if (options.mockUser) {
+			nrUserId = options.mockUser.nr_userid;
+			if (options.mockUser.wantIDToken) {
+				token = this._getMockNRIDToken(nrUserId, options.mockUser);
+				tokenKey = 'id_token';
+				expires = 3600;
+				expiresKey = 'expires_in';
+			} else {
+				token = this._getMockNRAccessToken(nrUserId, options.mockUser);
+				tokenKey = 'access_token';
+				expires = Math.floor(Date.now() / 1000) + 3600;
+				expiresKey = 'expires_at';
+			}
+			refreshToken = this._getMockNRRefreshToken(nrUserId, options.mockUser.wantIDToken, options.mockUser);
+		} else {
+			nrUserId = this._getMockNRUserId();
+			token = this._getMockNRAccessToken(nrUserId);
+			refreshToken = this._getMockNRRefreshToken(nrUserId);
+			expires = Math.floor(Date.now() / 1000) + 3600;
+			expiresKey = 'expires_at';
+		}
 		return {
-			id_token: idToken,
+			[tokenKey]: token,
 			refresh_token: refreshToken,
-			expires_in: expiresIn
+			[expiresKey]: expires
 		};
 	}
 
@@ -1160,6 +1187,29 @@ if (!data.password) {
 		return { data: mockUsers.map(mu => mu.data) };
 	}
 
+	_getMockRefreshTokenResponse (params = {}, options = {}) {
+		if (!params.refresh_token) {
+			throw new Error('no refreshToken given for mock refresh token response');
+		}
+		if (!params.refresh_token.match(/^MNRR(A|I)-/)) {
+			throw new Error('not a valid mock refresh token');
+		}
+		const [tokenType, nrUserId, json] = params.refresh_token.split('-');
+		const decoded = Buffer.from(json, 'base64').toString();
+		const payload = JSON.parse(decoded);
+		const idToken = tokenType === 'MNRRI';
+		const tokenKey = idToken ? 'id_token' : 'access_token';
+		const token = idToken ? this._getMockNRIDToken(nrUserId, payload) : this._getMockNRAccessToken(nrUserId, payload);
+		const expiresKey = idToken ? 'expires_in' : 'expires_at';
+		const expires = idToken ? 300 : Math.floor(Date.now() / 1000) + 300;
+		return {
+			[tokenKey]: token,
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			refresh_token: this._getMockNRRefreshToken(nrUserId, idToken, payload),
+			[expiresKey]: expires
+		};
+	}
+
 	_getMockPasswordResponse (options = {}) {
 		return {};
 	}
@@ -1170,6 +1220,24 @@ if (!data.password) {
 
 	_getMockNRUserId () {
 		return 1000000000 + Math.floor(Math.random() * 999999999);
+	}
+
+	_getMockNRIDToken (nrUserId, payload = {}) {
+		return this._getMockNRToken(nrUserId, 'MNRI', payload);
+	}
+
+	_getMockNRAccessToken (nrUserId, payload = {}) {
+		return this._getMockNRToken(nrUserId, 'MNRA', payload);
+	}
+
+	_getMockNRRefreshToken (nrUserId, idToken = false, payload = {}) {
+		const type = idToken ? 'MNRRI' : 'MNRRA';
+		return this._getMockNRToken(nrUserId, type, payload);
+	}
+
+	_getMockNRToken (nrUserId, type, payload = {}) {
+		const encoded = Buffer.from(JSON.stringify(payload)).toString('base64');
+		return `${type}-${nrUserId}-${encoded}-${RandomString.generate(100)}`;
 	}
 
 	_throw (type, message, options = {}) {

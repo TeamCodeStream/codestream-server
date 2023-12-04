@@ -5,6 +5,7 @@ const CodeStreamAPITest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/
 const NRLoginCommonInit = require('./nrlogin_common_init');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 
@@ -38,17 +39,23 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 		const { user } = data;
 		const teamId = this.team ? this.team.id : this.signupResponse.teams[0].id;
 		const providerInfo = user.providerInfo[teamId].newrelic;
+		if (this.mockUser.wantIDToken) {
+			Assert(providerInfo.accessToken.startsWith('MNRI-'), 'not a valid mock id token');
+			Assert(providerInfo.refreshToken.startsWith('MNRRI-'), 'not a valid mock refresh token');
+		} else {
+			Assert(providerInfo.accessToken.startsWith('MNRA-'), 'not a valid mock access token');
+			Assert(providerInfo.refreshToken.startsWith('MNRRA-'), 'not a valid mock refresh token');
+		}
 		const expectedProviderInfo = {
-			accessToken: JSON.stringify(this.mockUser),
+			accessToken: providerInfo.accessToken,
 			bearerToken: true,
-			refreshToken: 'placeholder',
+			refreshToken: providerInfo.refreshToken,
 			expiresAt: Date.now(),
-			provider: 'azureb2c-cs'
+			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			tokenType: this.wantIDToken ? 'id' : 'access'
 		};
-		Assert(typeof providerInfo.refreshToken === 'string', 'no refreshToken in providerInfo');
 		Assert(providerInfo.expiresAt > Date.now(), 'expiresAt not in the future');
 		expectedProviderInfo.expiresAt = providerInfo.expiresAt;
-		expectedProviderInfo.refreshToken = providerInfo.refreshToken;
 		Assert.deepStrictEqual(providerInfo, expectedProviderInfo, 'providerInfo not correct');
 		Assert.strictEqual(user.nrUserId, parseInt(this.nrUserId, 10), 'provider userId does not match expected userId');
 
@@ -58,7 +65,7 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 			Assert.strictEqual(accessToken, providerInfo.accessToken, 'CodeStream access token not set to the NR access token');
 			Assert.strictEqual(refreshToken, providerInfo.refreshToken, 'CodeStream refresh token not set to the NR refresh token');
 			Assert.strictEqual(expiresAt, providerInfo.expiresAt, 'CodeStream access token expiresAt not set to the NR expiresAt');
-			Assert.strictEqual(provider, 'azureb2c-cs', 'CodeStream access token provider not correct');
+			Assert.strictEqual(provider, NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY, 'CodeStream access token provider not correct');
 			Assert.strictEqual(isNRToken, true, 'CodeStream access token isNRToken not set to true');
 		}
 	}

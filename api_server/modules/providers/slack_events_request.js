@@ -318,6 +318,7 @@ class SlackEventsRequest extends RestfulRequest {
 		}
 
 		this.log('Code fence pasted in Slack');
+		/*
 		this.sendTelemetry({
 			event: 'Code Pasted in Messaging Service',
 			data: {
@@ -325,6 +326,7 @@ class SlackEventsRequest extends RestfulRequest {
 			},
 			userId: this.slackEvent.user
 		});
+		*/
 	}
 
 	// find probable filenames in the message text and send a telemetry event
@@ -338,6 +340,7 @@ class SlackEventsRequest extends RestfulRequest {
 			}
 
 			this.log('Filename mentioned in Slack');
+			/*
 			this.sendTelemetry({
 				event: 'Filename Mentioned in Messaging Service',
 				data: {
@@ -345,6 +348,7 @@ class SlackEventsRequest extends RestfulRequest {
 				},
 				userId: this.slackEvent.user
 			});
+			*/
 			break;
 		}
 	}
@@ -357,6 +361,7 @@ class SlackEventsRequest extends RestfulRequest {
 		}
 
 		this.log('Commit hash mentioned in Slack');
+		/*
 		this.sendTelemetry({
 			event: 'Commit Hash Mentioned in Messaging Service',
 			data: {
@@ -365,6 +370,7 @@ class SlackEventsRequest extends RestfulRequest {
 			},
 			userId: this.slackEvent.user
 		});
+		*/
 	}
 
 	async processCodeHosts () {

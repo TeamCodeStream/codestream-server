@@ -4,6 +4,7 @@ const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api
 const WebErrors = require('./errors');
 const Handlebars = require('handlebars');
 const Icons = require('./icons.json');
+const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp_constants');
 
 class WebLoginRequest extends APIRequest {
 
@@ -70,7 +71,7 @@ class WebLoginRequest extends APIRequest {
 
 		const returnTo = this.api.config.apiServer.publicApiUrl + finishUrl;
 		const loginHost = this.api.config.integrations.newRelicIdentity.loginServiceHost;
-		let nrLoginUrl = `${loginHost}/idp/azureb2c-cs/redirect?return_to=${encodeURIComponent(returnTo)}`;
+		let nrLoginUrl = `${loginHost}/idp/${NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY}redirect?return_to=${encodeURIComponent(returnTo)}`;
 		if (orgId) {
 			nrLoginUrl += '&orgId=' + orgId;
 		}

@@ -27,8 +27,9 @@ class GetUserRequest extends GetRequest {
 			if (teamId && uidEnabled) {
 				const token = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).accessToken;
 				const bearerToken = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).bearerToken;
+				const tokenType = (((this.user.get('providerInfo') || {})[teamId] || {}).newrelic || {}).tokenType;
 				if (token && bearerToken) {
-					this.responseData.user.possibleAuthDomains = await this.api.services.idp.getPossibleAuthDomains(token, {
+					this.responseData.user.possibleAuthDomains = await this.api.services.idp.getPossibleAuthDomains(token, tokenType, {
 						request: this,
 						mockResponse
 					});

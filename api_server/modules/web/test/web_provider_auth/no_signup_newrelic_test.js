@@ -15,7 +15,7 @@ class NoSignupNewRelicTest extends NewRelicIDPAuthTest {
 
 	getNewRelicIDPRedirectData () {
 		const { url, parameters } = super.getNewRelicIDPRedirectData();
-		parameters.scheme += `.NOSU~1`;
+		parameters.return_to += `.NOSU~1`;
 		return { url, parameters };
 	}
 }

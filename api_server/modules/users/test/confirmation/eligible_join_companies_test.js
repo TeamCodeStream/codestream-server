@@ -3,9 +3,13 @@
 const InitialDataTest = require('./initial_data_test');
 const Assert = require('assert');
 const BoundAsync = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/bound_async');
-const RandomString = require('randomstring');
 
 class EligibleJoinCompaniesTest extends InitialDataTest {
+
+	constructor (options) {
+		super(options);
+		this.cantRunUsingNRLogins = true;
+	}
 
 	get description () {
 		return `user should receive eligible companies to join via domain-based and invite with response to email confirmation, in one-user-per-org paradigm`;
