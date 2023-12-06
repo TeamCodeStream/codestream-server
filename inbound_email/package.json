@@ -10,7 +10,7 @@
 		"mongodb": "4.17.0",
 		"newrelic": "11.5.0",
 		"pino": "8.16.0",
-		"pubnub": "7.3.0",
+		"pubnub": "7.4.0",
 		"randomstring": "1.2.2",
 		"strftime": "0.10.1",
 		"uuid": "8.3.2"
