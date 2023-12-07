@@ -3,26 +3,26 @@
 	"version": "14.0.30",
 	"dependencies": {
 		"@sendgrid/mail": "7.7.0",
-		"amqplib": "0.8.0",
+		"amqplib": "0.10.3",
 		"async": "2.6.4",
-		"aws-sdk": "2.1354.0",
-		"deep-equal": "2.0.5",
-		"highlight.js": "11.5.1",
+		"aws-sdk": "2.1514.0",
+		"deep-equal": "2.2.3",
+		"highlight.js": "11.9.0",
 		"hjson": "3.2.2",
-		"jsonwebtoken": "9.0.0",
+		"jsonwebtoken": "9.0.2",
 		"juice": "8.0.0",
 		"markdown-it": "12.3.2",
 		"markdown-it-emoji-mart": "0.1.1",
 		"markdown-it-slack": "1.2.0",
-		"moment-timezone": "0.5.35",
+		"moment-timezone": "0.5.43",
 		"mongodb": "4.17.0",
-		"newrelic": "11.5.0",
+		"newrelic": "11.6.1",
 		"node-fetch": "2.6.7",
-		"nodemailer": "6.7.3",
-		"pino": "8.16.0",
-		"pubnub": "7.3.0",
+		"nodemailer": "6.9.7",
+		"pino": "8.16.2",
+		"pubnub": "7.4.5",
 		"socketcluster-client": "16.0.4",
-		"strftime": "0.10.1",
+		"strftime": "0.10.2",
 		"uuid": "8.3.2"
 	},
 	"scripts": {
@@ -49,11 +49,11 @@
 		"eslint"
 	],
 	"devDependencies": {
-		"eslint": "8.13.0",
-		"lambda-local": "2.0.2",
+		"eslint": "8.55.0",
+		"lambda-local": "2.1.2",
 		"nodemon": "2.0.20",
 		"pre-commit": "1.2.2",
-		"snyk": "1.1064.0"
+		"snyk": "1.1260.0"
 	},
 	"overrides": {
 		"nodemon@2.0.18": {
