@@ -83,7 +83,7 @@ class Migrator {
 		await this.idp.initialize(this.config);
 
 		// do not allow us to run without setting IDP password when in production
-		if (this.config.sharedGeneral.isProductionCloud && !this.setIDPPassowrd) {
+		if (this.config.sharedGeneral.isProductionCloud && !this.setIDPPassword) {
 			this.warn('Cannot run IDP migration in production without setidppwd flag set');
 			process.exit(1);
 		}
