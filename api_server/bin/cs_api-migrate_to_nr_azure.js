@@ -21,7 +21,7 @@ Commander
 	.option('--verbose', 'Verbose logging output')
 	.option('--nr', 'Only migrate NR-connected orgs')
 	.option('--incremental', 'Incremental migration, include companies that have already been migrated, just looking for un-migrated users')
-	.option('--setidppwd', 'Set the flag that says verify password before first login after migration')
+	//.option('--setidppwd', 'Set the flag that says verify password before first login after migration')
 	.parse(process.argv);
 
 // wait this number of milliseconds
@@ -82,12 +82,14 @@ class Migrator {
 		this.idp = new NewRelicIDP();
 		await this.idp.initialize(this.config);
 
+		/*
 		// do not allow us to run without setting IDP password when in production
 		if (this.config.sharedGeneral.isProductionCloud && !this.setIDPPassword) {
-			this.warn('Cannot run IDP migration in production without setidppwd flag set');
+			console.warn('Cannot run IDP migration in production without setidppwd flag set');
 			process.exit(1);
 		}
-		
+		*/
+
 		this.migrationHandler = new NewRelicIDPMigrationHandler({
 			data: this.data,
 			logger: console,
@@ -169,7 +171,7 @@ class Migrator {
 			throttle,
 			nrConnectedOnly: Commander.nr,
 			incremental: !!Commander.incremental,
-			setIDPPassword: !!Commander.setidppwd,
+			//setIDPPassword: !!Commander.setidppwd,
 			verbose: !!Commander.verbose,
 			company: Commander.company,
 			companyfile: Commander.companyfile
