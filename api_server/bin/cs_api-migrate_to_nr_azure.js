@@ -71,7 +71,7 @@ class Migrator {
 	// read company IDs from file, as needed
 	async readCompanyFile () {
 		if (this.companyfile) {
-			this.companyIds = FS.readFileSync(this.companyfile).toString().split("\n").filter(c => c);
+			this.companyIds = FS.readFileSync(this.companyfile).toString().split("\n").filter(c => c).map(c => c.trim());
 		} else if (this.company) {
 			this.companyIds = [this.company];
 		}
