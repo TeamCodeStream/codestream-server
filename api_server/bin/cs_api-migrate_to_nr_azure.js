@@ -11,11 +11,13 @@ const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/c
 const Commander = require('commander');
 const NewRelicIDPMigrationHandler = require('../lib/util/newrelic_idp_migration_handler');
 const NewRelicIDP = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/newrelic_idp');
+const FS = require('fs');
 
 Commander
 	.option('--dryrun', 'Do a dry run, meaning don\'t actually write anything to our database, but report on numbers')
 	.option('--throttle <throttle>', 'Throttle processing each user by this amount of time')
 	.option('--company <company>', 'Migrate only this company')
+	.option('--companyfile <companyfile>', 'Migrate only those companies listed (by ID) in this file')
 	.option('--verbose', 'Verbose logging output')
 	.option('--nr', 'Only migrate NR-connected orgs')
 	.option('--incremental', 'Incremental migration, include companies that have already been migrated, just looking for un-migrated users')
@@ -36,6 +38,7 @@ class Migrator {
 		try {
 			Object.assign(this, options);
 			await this.openMongoClient();
+			await this.readCompanyFile();
 			await this.doMigrations();
 		}
 		catch (error) {
@@ -65,6 +68,15 @@ class Migrator {
 		}
 	}
 
+	// read company IDs from file, as needed
+	async readCompanyFile () {
+		if (this.companyfile) {
+			this.companyIds = FS.readFileSync(this.companyfile).toString().split("\n").filter(c => c);
+		} else if (this.company) {
+			this.companyIds = [this.company];
+		}
+	}
+
 	// step through the companies that have not yet been migrated, and migrate them
 	async doMigrations () {
 		this.idp = new NewRelicIDP();
@@ -88,13 +100,13 @@ class Migrator {
 			idp: this.idp
 		});
 
-		const query = this.company ? 
+		const query = this.companyIds ? 
 			{
-				_id: this.data.companies.objectIdSafe(this.company)
+				_id: this.data.companies.inQuerySafe(this.companyIds)
 			} : {
 				deactivated: false
 			};
-		if (!this.company && this.nrConnectedOnly) {
+		if (!this.companyIds && this.nrConnectedOnly) {
 			query.nrOrgIds = { $exists: true };
 		}
 		if (!this.incremental) {
@@ -159,7 +171,8 @@ class Migrator {
 			incremental: !!Commander.incremental,
 			setIDPPassword: !!Commander.setidppwd,
 			verbose: !!Commander.verbose,
-			company: Commander.company
+			company: Commander.company,
+			companyfile: Commander.companyfile
 		});
 	}
 	catch (error) {
