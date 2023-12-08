@@ -1,5 +1,17 @@
 # Change Log
 
+## [15.0.0] - 2023-12-13
+
+### Changed
+
+- Set minimum required extension version to 15.0 for all IDEs
+
+## [14.0.29] - 2023-12-4
+
+### Added
+
+- Refresh token support for unified identity
+
 ## [14.0.28] - 2023-10-27
 
 ### Added
