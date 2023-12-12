@@ -285,7 +285,11 @@ class Users extends Restful {
 			);
 
 			// look for override maintenance mode header, to allow for internal testing
-			const overrideMaintenanceMode = request.headers['x-cs-override-maintenance-mode'] === 'xyz123';
+			const overrideMaintenanceMode = (
+				request.headers['x-cs-override-maintenance-mode'] === 'xyz123' ||
+				request.query._overrideMaintenanceMode === 'xyz123' ||
+				request.path.match(/~nrlogin.*OVMM~1/)
+			);
 
 			// for users in "maintenance mode", set header and return error
 			if (
@@ -300,7 +304,7 @@ class Users extends Restful {
 					status: 403,
 					error: this.errorHandler.error('inMaintenanceMode') 
 				};
-			}
+			} 
 
 			// for users for whom a password set is required, return error unless it is the
 			// actual call to set their password
