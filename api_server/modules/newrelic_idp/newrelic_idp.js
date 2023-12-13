@@ -576,7 +576,10 @@ if (!data.password) {
 		if (options.noSignup) {
 			signupToken += '.NOSU~1';
 		}
-
+		if (options.overrideMaintenanceMode) {
+			signupToken += '.OVMM~1';
+		}
+		
 		const data = { 
 			url,
 			parameters: {

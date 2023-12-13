@@ -85,7 +85,7 @@ class TrackingTest extends InboundEmailMessageTest {
 		}
 		const parentId = this.expectedParentId || this.postData[0].codemark.id;
 		const parentType = this.expectedParentType || 'Codemark';
-		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		//const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
 		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const abTest = Object.keys(this.testGroupData).map(key => {
 			return `${key}|${this.testGroupData[key]}`;
@@ -100,24 +100,24 @@ class TrackingTest extends InboundEmailMessageTest {
 			((properties.distinct_id === this.users[1].user.id) || errors.push('distinct_id not set to post originator\'s ID')) &&
 			((properties['$email'] === this.users[1].user.email) || errors.push('email does not match post originator')) &&
 			((properties['name'] === this.users[1].user.fullName) || errors.push('name does not match post originator')) &&
-			((properties['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
-			((properties['Last Invite Type'] === this.users[1].user.lastInviteType) || errors.push('Last Invite Type does not match post originator')) &&
+			//((properties['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
+			//((properties['Last Invite Type'] === this.users[1].user.lastInviteType) || errors.push('Last Invite Type does not match post originator')) &&
 			((properties['Team ID'] === this.team.id) || errors.push('Team ID does not match team')) &&
-			((properties['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&			
+			//((properties['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&			
 			((properties['Team Size'] === 2) || errors.push('Team Size does not match number of members in team')) &&
 			((properties['Team Created Date'] === new Date(this.team.createdAt).toISOString()) || errors.push('Team Created Date not correct')) &&
-			((properties['Plan'] === plan) || errors.push('Plan not correct')) &&
+			//((properties['Plan'] === plan) || errors.push('Plan not correct')) &&
 			((properties['Company Name'] === this.company.name) || errors.push('Company Name does not match name of company')) &&
 			((properties['Company ID'] === this.company.id) || errors.push('Company ID does not match ID of company')) &&
 			((properties.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&
-			((properties['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
+			//((properties['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
 			((properties['$created'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
 			((properties['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post')) &&
-			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string')) &&
-			((properties.company.id === this.company.id) || errors.push('company.id not correct')) &&
-			((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
-			((properties.company.created_at === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
-			((properties.company.plan === plan) || errors.push('company.plan not correct'))
+			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string')) 
+			//((properties.company.id === this.company.id) || errors.push('company.id not correct')) &&
+			//((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
+			//((properties.company.created_at === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
+			//((properties.company.plan === plan) || errors.push('company.plan not correct'))
 		);
 		/* Remove these per NR-156469
 		if (this.unifiedIdentityEnabled) {

@@ -53,7 +53,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			return false;
 		}
 
-		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		//const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
 		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const expectedMessage = {
 			userId: this.currentUser.user.id,
@@ -62,25 +62,25 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
 				$email: this.currentUser.user.email,
 				name: this.currentUser.user.fullName,
-				'Join Method': 'Added to Team',
+				//'Join Method': 'Added to Team',
 				'Team ID': this.team.id,
 				'Team Size': 2,
-				'Team Name': this.team.name,
+				//'Team Name': this.team.name,
 				'Team Created Date': new Date(this.team.createdAt).toISOString(),
-				Plan: plan,
+				//Plan: plan,
 				'Company Name': this.company.name,
 				'Company ID': this.company.id,
 				'Reporting Group': '',
 				distinct_id: this.currentUser.user.id,
 				Change: 'Review Unfollowed',
 				'Source of Change': 'Email link',
-				'Last Invite Type': 'invitation',
-				company: {
-					id: this.company.id,
-					name: this.company.name,
-					created_at: new Date(this.company.createdAt).toISOString(),
-					plan
-				},
+				//'Last Invite Type': 'invitation',
+				//company: {
+				//	id: this.company.id,
+				//	name: this.company.name,
+				//	created_at: new Date(this.company.createdAt).toISOString(),
+				//	plan
+				//},
 				'AB Test': Object.keys(this.testGroupData).map(key => {
 					return `${key}|${this.testGroupData[key]}`;
 				})

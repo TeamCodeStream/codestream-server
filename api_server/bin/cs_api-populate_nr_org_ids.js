@@ -158,26 +158,26 @@ class PopulateNewRelicOrgIds {
 	}
 
 	async setOrgId (company, orgId) {
-		if (this.dryrun) {
-			console.log(`Would have set nrOrgIds for company ${company.id}...`);
-		} else {
-			let set;
-			if (company.nrOrgIds && !company.isNRConnected) {
-				set = { isNRConnected: true };
-			} else if (!company.nrOrgIds) {
-				set = { nrOrgIds: [orgId], isNRConnected: true };
-			}
-			if (set) {
+		let set;
+		if (company.nrOrgIds && !company.isNRConnected) {
+			set = { isNRConnected: true };
+		} else if (!company.nrOrgIds) {
+			set = { nrOrgIds: [orgId], isNRConnected: true };
+		}
+		if (set) {
+			this.numCompaniesPopulated++;
+			if (this.dryrun) {
+				console.log(`Would have set nrOrgIds for company ${company.id} to ${orgId}...`);
+			} else {
 				console.log(`Setting nrOrgIds to ${orgId} for company ${company.id}...`);
 				await this.mongoClient.mongoCollections.companies.updateDirect(
 					{ id: this.mongoClient.mongoCollections.companies.objectIdSafe(company.id) },
 					{ $set: set }
 				);
-			} else {
-				console.log(`NR props already set for company ${company.id}`);
 			}
+		} else {
+			console.log(`NR props already set for company ${company.id}`);
 		}
-		this.numCompaniesPopulated++;
 		await Wait(this.throttle);
 	}
 

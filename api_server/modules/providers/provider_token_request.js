@@ -202,6 +202,8 @@ class ProviderTokenRequest extends RestfulRequest {
 				} else if (subParts[0] === 'NOSU') {
 					this.noSignup = true;
 					this.log('No signup directive found in signup token');
+				} else if (subParts[0] === 'OVMM') {
+					this.overrideMaintenanceMode = true;
 				}
 			}
 			this.fromNewRelicLogin = true;
@@ -657,6 +659,14 @@ class ProviderTokenRequest extends RestfulRequest {
 		}
 
 		this.log('NEWRELIC IDP TRACK: Provider token request redirecting to: ' + redirect);
+		if (this.overrideMaintenanceMode) {
+			if (!redirect.match(/\?/)) {
+				redirect += '?';
+			} else {
+				redirect += '&';
+			}
+			redirect += '_overrideMaintenanceMode=xyz123';
+		}
 		this.response.redirect(redirect);
 		this.responseHandled = true;
 	}

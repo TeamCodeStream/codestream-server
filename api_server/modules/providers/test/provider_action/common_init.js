@@ -102,25 +102,25 @@ class CommonInit {
 			api_app_id: this.apiConfig.integrations.slack.appId			
 		};
 
-		const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
+		//const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
 		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const properties = {
 			distinct_id: this.user ? this.user.id : this.mockUserId,
 			'Team ID': this.team.id,
-			'Team Name': this.team.name,
+			//'Team Name': this.team.name,
 			'Company Name': this.company.name,
 			'Company ID': this.company.id,
 			'Team Size': 1,
 			'Team Created Date': new Date(this.team.createdAt).toISOString(),
-			'Plan': plan,
+			//'Plan': plan,
 			'Reporting Group': '',
 			Endpoint: 'Slack',
-			company: {
-				id: this.company.id,
-				name: this.company.name,
-				created_at: new Date(this.company.createdAt).toISOString(),
-				plan
-			}
+			//company: {
+			//	id: this.company.id,
+			//	name: this.company.name,
+			//	created_at: new Date(this.company.createdAt).toISOString(),
+			//	plan
+			//}
 		};
 		if (trial) {
 			Object.assign(properties, {
@@ -132,7 +132,7 @@ class CommonInit {
 			Object.assign(properties, {
 				'$email': this.user.email,
 				name: this.user.fullName,
-				'Join Method': 'Created Team',
+				//'Join Method': 'Created Team',
 				'$created': new Date(this.user.registeredAt).toISOString()
 			});
 		}

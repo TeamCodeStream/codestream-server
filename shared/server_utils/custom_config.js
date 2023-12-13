@@ -273,10 +273,18 @@ module.exports = function customConfigFunc(nativeCfg) {
 				{
 					collection: 'users',
 					fields: [
+						'providerInfo.*.*.*.accessToken',
+						'providerInfo.*.*.*.refreshToken',
+						'providerInfo.*.*.*.apiKey',
+						'providerInfo.*.*.*.token',
 						'providerInfo.*.*.accessToken',
 						'providerInfo.*.*.refreshToken',
+						'providerInfo.*.*.apiKey',
+						'providerInfo.*.*.token',
 						'providerInfo.*.accessToken',
 						'providerInfo.*.refreshToken',
+						'providerInfo.*.apiKey',
+						'providerInfo.*.token',
 						'accessTokens.*.token',
 						'accessTokens.*.refreshToken',
 						'pubNubToken',

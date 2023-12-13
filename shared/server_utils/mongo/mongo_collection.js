@@ -712,7 +712,7 @@ class MongoCollection {
 			const topField = parts[0];
 			const keys = topField === '*' ? Object.keys(obj) : [topField];
 			for (let key of keys) {
-				if (typeof obj[key] === 'object') {
+				if (obj[key] !== null && typeof obj[key] === 'object') {
 					this._sanitizeFieldInObject(obj[key], parts.slice(1).join('.'));
 				}
 			}
