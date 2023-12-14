@@ -186,7 +186,6 @@ class TokenAuthenticator {
 	// for certain paths, authentication is optional,
 	// according to config
 	pathIsOptionalAuth (request) {
-		x();
 		const paths = this.api.config.apiServer.optionalAuthenticatedPaths || [];
 		return paths.find(path => {
 			const regExp = new RegExp(path);
