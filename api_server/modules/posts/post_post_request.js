@@ -78,7 +78,7 @@ class PostPostRequest extends PostRequest {
 		}
 
 		if(!!this.request.body.analyze ||
-			(this.request.body.text || '').match(/@Grok/gmi) ||
+			(this.request.body.text || '').match(/@AI/gmi) ||
 			this.reinitializeGrok){
 
 			return new GrokClient().analyzeErrorWithGrok(
