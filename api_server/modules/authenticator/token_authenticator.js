@@ -18,6 +18,7 @@ class TokenAuthenticator {
 	// authenticate the request, we'll look for the token in a variety of places
 	async authenticate () {
 		try {
+			this.identityIsOptional = !!this.pathIsOptionalAuth(this.request);
 			const noTokenNeeded = await this.getToken();
 			if (noTokenNeeded) {
 				return;
@@ -29,7 +30,7 @@ class TokenAuthenticator {
 		catch (error) {
 			if (
 				this.pathIsCookieAuth(this.request) &&
-				this.pathIsOptionalAuth(this.request)
+				this.identityIsOptional
 			) {
 				const cookie = this.api.config.apiServer.identityCookie || 't';
 				this.response.clearCookie(cookie, {
@@ -82,7 +83,6 @@ class TokenAuthenticator {
 		else {
 			token =	this.tokenFromHeader(this.request);
 		}
-		this.identityIsOptional = !!this.pathIsOptionalAuth(this.request);
 
 		if (!token && !this.identityIsOptional) {
 			throw this.errorHandler.error('missingAuthorization');
