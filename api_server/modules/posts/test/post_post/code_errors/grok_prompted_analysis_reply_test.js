@@ -38,7 +38,7 @@ class GrokPromptedAnalysisReplyTest extends GrokPromptedAnalysisTest {
 				data: {
 					parentPostId: this.data.codeError.postId,
 					streamId: this.expectedStreamId,
-					text: '@grok'		// this makes it 'prompted'
+					text: '@ai'		// this makes it 'prompted'
 				},
 				token: this.token
 			},

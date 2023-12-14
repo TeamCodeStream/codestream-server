@@ -31,7 +31,7 @@ class GrokPromptedAnalysisTest extends CodeErrorTest {
 
 	makePostData (callback) {
 		super.makePostData(() => {
-			this.data.text += "@grok";	// this makes it 'prompted'
+			this.data.text += "@ai";	// this makes it 'prompted'
 			callback();
 		});
 	}
