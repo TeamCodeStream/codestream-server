@@ -28,7 +28,7 @@ class TokenAuthenticator {
 			await this.validateToken();
 		}
 		catch (error) {
-			const msg = error instanceof Error ? error.message : JSON.stringify(msg);
+			const msg = error instanceof Error ? error.message : JSON.stringify(error);
 			const stack = error instanceof Error ? error.stack : '';
 			this.api.log('CAUGHT: ' + JSON.stringify(msg));
 			this.api.log('STACK: ' + stack);
