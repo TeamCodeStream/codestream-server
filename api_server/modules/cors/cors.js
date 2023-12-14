@@ -12,7 +12,10 @@ const _WHITELISTED_DOMAINS = [
 	'codestream.com',
 	'codestream.us',
 	'portal.azure.com',
-    'azure.com'
+	'azure.com',
+	'newrelic.com',
+	'nr-ops.net',
+	'cdstrm.dev'
 ];
 
 // parse domain out of url

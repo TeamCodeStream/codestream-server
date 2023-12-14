@@ -11,6 +11,7 @@ class WebRequestBase extends RestfulRequest {
 	}
 
 	async render (templateName, viewModel) {
+		this.log('NROPENERROR: RENDERING ' + templateName);
 		if (!templateName) throw 'templateName is required';
 
 		viewModel = viewModel || {};
@@ -22,6 +23,7 @@ class WebRequestBase extends RestfulRequest {
 				version: this.module.versionInfo()
 			}
 		}));
+		this.log('NROPENERROR: TEMPLATE EVALUATED');
 	}
 
 	/**

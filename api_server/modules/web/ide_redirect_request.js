@@ -15,6 +15,7 @@ class IdeRedirectRequest extends WebRequestBase {
 	}
 
 	async process () {
+		this.log('NROPENERROR: PROCESSING...');
 		(await this.prepareTemplateProps()) && this.renderRedirect();
 	}
 
@@ -34,6 +35,7 @@ class IdeRedirectRequest extends WebRequestBase {
 			segmentKey: this.api.config.telemetry.segment.webToken,
 			src: decodeURIComponent(this.request.query?.src || ''),
 		}
+		this.log('NROPENERROR: TEMPLATE PROPS:', JSON.stringify(this.templateProps, 0, 5));
 	}
 
 	getTeamId () {
