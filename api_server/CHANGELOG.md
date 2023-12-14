@@ -1,5 +1,11 @@
 # Change Log
 
+## [15.0.1] - 2023-12-14
+
+### Fixed
+
+- Fixes an issue with Open in IDE from errors on New Relic not working
+
 ## [15.0.0] - 2023-12-13
 
 ### Changed
