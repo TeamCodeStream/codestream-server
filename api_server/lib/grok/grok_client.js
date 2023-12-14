@@ -17,7 +17,7 @@ class GrokClient {
 
 		if (!!this.request.body.analyze) {
 			this.promptTracking = 'Unprompted';
-		} else if (this.request.body.text.match(/@Grok/gmi)) {
+		} else if (this.request.body.text.match(/@AI/gmi)) {
 			this.promptTracking = 'Prompted';
 		}
 
@@ -352,7 +352,7 @@ class GrokClient {
 		});
 
 		const grokUser = await userCreator.createUser({
-			username: 'Grok',
+			username: 'AI',
 			avatar: {
 				image: 'https://images.codestream.com/icons/grok-green.png'
 			}
@@ -474,7 +474,7 @@ class GrokClient {
 					try {
 						chonk = JSON.parse(line);
 					} catch (err) {
-						this.api.logger.warn(`Could not parse JSON from Grok: "${line}"" \n${chunkString}`);
+						this.api.logger.warn(`Could not parse JSON from AI: "${line}"" \n${chunkString}`);
 						continue;
 					}
 
@@ -534,7 +534,7 @@ class GrokClient {
 		} catch (err) {
 			await this.trackErrorAndThrow('apiException', {
 				request,
-				message: `Error getting Grok response: ${err.message}`
+				message: `Error getting AI response: ${err.message}`
 			});
 			await this.broadcastToUser({
 				grokStream: {
