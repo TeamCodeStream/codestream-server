@@ -350,17 +350,13 @@ class Web extends APIServerModule {
 	}
 
 	evalTemplate(request, name, data = {}) {
-		request.log('NROPENERROR: EVAL TEMPLATE ' + name);
 		const html = this.evalTemplateNoSend(name, data);
-		request.log('NOROPENERROR: ' + html);
 		if (!html) {
-			request.log('NROPENERROR: SENDING 500');
 			this.api.warn(`Could not fulfill request, no template for ${name}`);
 			request.response.send(500);
 			request.responseIssued = true;
 		}
 		else {
-			request.log('NROPENERROR: SENDING HTML (200)');
 			request.response.send(html);
 			request.responseHandled = true;
 		}
