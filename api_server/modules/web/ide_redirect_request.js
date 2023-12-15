@@ -15,8 +15,8 @@ class IdeRedirectRequest extends WebRequestBase {
 	}
 
 	async process () {
-		this.log('NROPENERROR: PROCESSING...');
-		(await this.prepareTemplateProps()) && this.renderRedirect();
+		await this.prepareTemplateProps();
+		await this.renderRedirect();
 	}
 
 	async prepareTemplateProps () {
@@ -35,7 +35,6 @@ class IdeRedirectRequest extends WebRequestBase {
 			segmentKey: this.api.config.telemetry.segment.webToken,
 			src: decodeURIComponent(this.request.query?.src || ''),
 		}
-		this.log('NROPENERROR: TEMPLATE PROPS:', JSON.stringify(this.templateProps, 0, 5));
 	}
 
 	getTeamId () {
@@ -55,8 +54,8 @@ class IdeRedirectRequest extends WebRequestBase {
 		return codemarkLink.get(key);
 	}
 
-	renderRedirect () {
-		super.render('ide_redirect', this.templateProps);
+	async renderRedirect () {
+		return super.render('ide_redirect', this.templateProps);
 	}
 
 	redirect404 (teamId) {

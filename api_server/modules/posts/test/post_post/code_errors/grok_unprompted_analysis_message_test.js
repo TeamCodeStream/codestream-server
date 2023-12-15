@@ -85,7 +85,7 @@ class GrokUnpromptedAnalysisMessageTest extends NewPostMessageToTeamStreamTest {
 		const parentPost = posts.find(m => !m.parentPostId);
 		const parentPostUpdate = posts.find(m => m.$set != undefined);
 		const grokPost = posts.find(m => m.parentPostId && m.parentPostId === parentPost.id);
-		const grokUser = users.find(m => m.username === "Grok");
+		const grokUser = users.find(m => m.username === "AI");
 		const teamUpdate = teams.find(m => m.memberIds.find(i => i === grokUser.id));
 
 		Assert.notEqual(grokUser, undefined, "Grok user was not present in messages");
