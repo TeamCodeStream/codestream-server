@@ -56,6 +56,11 @@ const ROUTES = [
 		method: 'post',
 		path: '/xenv/publish-ejc',
 		requestClass: require('./publish_eligible_join_companies_request')
+	},
+	{
+		method: 'post',
+		path: '/xenv/nrlogin',
+		requestClass: require('./nrlogin_request')
 	}
 ];
 
