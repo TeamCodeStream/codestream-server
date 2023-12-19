@@ -36,7 +36,7 @@ class NRLoginRequest extends XEnvRequest {
 				number: ['nrUserId', 'expiresAt']
 			},
 			optional: {
-				string: ['username', 'fullName', '_pubnubUuid'],
+				string: ['username', 'fullName', 'companyName', '_pubnubUuid'],
 				number: ['signupTokenExipresIn'],
 				object: ['nrUserInfo']
 			}
