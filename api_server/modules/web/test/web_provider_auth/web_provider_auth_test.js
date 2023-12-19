@@ -70,7 +70,6 @@ class WebProviderAuthTest extends CodeStreamAPITest {
 		if (this.authDomainId) {
 			params.authDomainId = this.authDomainId;
 		}
-console.warn('Q:', JSON.stringify(params, 0, 5));
 		return params;
 	}
 
