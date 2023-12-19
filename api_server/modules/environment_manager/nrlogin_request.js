@@ -45,7 +45,6 @@ class NRLoginRequest extends XEnvRequest {
 
 	// connect the given NR user identity to a CS user identity, either by matching the user, or creating it
 	async connectIdentity () {
-console.warn('CONNECTING IDENTITY:', JSON.stringify(this.request.body, 0, 5));
 		const {
 			token,
 			tokenType,
