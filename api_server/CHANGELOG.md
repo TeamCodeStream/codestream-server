@@ -1,6 +1,12 @@
 # Change Log
 
-## [15.0.1] - 2023-12-14
+## [15.0.2] - 2023-12-19
+
+### Fixed
+
+- Fixes an issue where the first attempt to sign into an organization based in the EU results in an error
+
+## [15.0.1] - 2023-12-15
 
 ### Fixed
 

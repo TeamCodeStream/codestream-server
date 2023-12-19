@@ -9,6 +9,7 @@ const ProviderIdentityConnector = require('./provider_identity_connector');
 const UserPublisher = require('../users/user_publisher');
 const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
 const NewRelicIDPErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/errors');
+const Fetch = require('node-fetch');
 
 class ProviderTokenRequest extends RestfulRequest {
 
@@ -609,9 +610,13 @@ class ProviderTokenRequest extends RestfulRequest {
 		this.log('NEWRELIC IDP TRACK: Saving signup token...');
 		
 		const token = (this.tokenPayload && this.tokenPayload.st) || this.stateToken;
+		const TEN_MINUTES = 10 * 60 * 1000;
 		let expiresIn = this.request.query && this.request.query.expires_in;
 		if (expiresIn) {
 			expiresIn = parseInt(expiresIn);
+			if (expiresIn > TEN_MINUTES) {
+				expiresIn = TEN_MINUTES;
+			}
 		}
 		await this.api.services.signupTokens.insert(
 			token,
@@ -761,12 +766,54 @@ class ProviderTokenRequest extends RestfulRequest {
 			environmentGroup[switchToGroup[enforceRegion][runTimeEnvironment]]
 		) {
 			this.redirectHost = environmentGroup[switchToGroup[enforceRegion][runTimeEnvironment]].publicApiUrl;
+			/*
 			this.redirectUrl = `${this.redirectHost}${this.request.path}?` + Object.keys(this.request.query).map(param => {
 				return `${param}=${this.request.query[param]}`;
 			}).join('&');
+			*/
 			this.log(`New Relic region is ${enforceRegion}, switching to host ${this.redirectHost}...`);
+			await this.handleRegionSwitch();
 			return true;
 		}
+	}
+
+	// handle region switch for New Relic login
+	async handleRegionSwitch () {
+		let response;
+		const options = { method: 'post' };
+		const { accessToken, refreshToken, expiresAt, tokenType } = this.tokenData;
+		const { email, name, nrUserId, nrOrgId, nrUserInfo, companyName, _pubnubUuid } = this.userIdentity;
+		options.body = JSON.stringify({
+			signupToken: this.stateToken,
+			token: accessToken,
+			refreshToken,
+			expiresAt,
+			tokenType,
+			nrOrgId,
+			email,
+			nrUserId,
+			fullName: name,
+			nrUserInfo,
+			companyName
+		});
+
+		options.headers = {
+			['x-cs-auth-secret']: this.api.config.environmentGroupSecrets.requestAuth,
+			['content-type']: 'application/json'
+		};
+		if (this.overrideMaintenanceMode) {
+			headers['x-cs-override-maintenance-mode'] = 'xyz123';
+		}
+
+		const url = `${this.redirectHost}/xenv/nrlogin`;
+		try {
+			response = await Fetch(url, options);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : JSON.stringify(error);
+			this.api.warn(`Caught exception fetching (${url}) from foreign environment host: ${message}`);
+		}
+		this.responseData = await response.json();
+		this.statusCode = response.status;
 	}
 
 	// after a response is returned....
