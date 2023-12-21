@@ -7,7 +7,7 @@ const RandomString = require('randomstring');
 class DeleteAPIKeyTest extends NRLoginTest {
 
 	get description () {
-		let desc = 'when matching an existing user on New Relic auth, the existing user\'s API key should be destroyed';
+		let desc = 'when matching an existing user on cross-environment New Relic auth, the existing user\'s API key should be destroyed';
 		if (this.serviceGatewayEnabled) {
 			desc += ', with Service Gateway auth enabled';
 		}

@@ -44,7 +44,7 @@ class NewRelicRefreshTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 			Assert(data.accessToken.startsWith('MNRA-'), 'not a valid mock NR access token');
 			Assert(data.refreshToken.startsWith('MNRRA-'), 'not a valid mock NR refresh token');
 		}
-		Assert.strictEqual(data.provider, NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY, 'provider not correct');
+		//Assert.strictEqual(data.provider, NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY, 'provider not correct');
 		Assert(typeof data.expiresAt === 'number' && data.expiresAt > Date.now());
 		this.refreshResponse = data;
 	}

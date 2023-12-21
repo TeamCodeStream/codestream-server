@@ -638,7 +638,7 @@ if (!data.password) {
 			accessToken: result.id_token || result.access_token,
 			tokenType: result.id_token ? 'id' : 'access',
 			refreshToken: result.refresh_token,
-			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			//provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			expiresAt
 		};
 		return tokenInfo;
@@ -1207,7 +1207,7 @@ if (!data.password) {
 		const expires = idToken ? 300 : Math.floor(Date.now() / 1000) + 300;
 		return {
 			[tokenKey]: token,
-			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			//provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			refresh_token: this._getMockNRRefreshToken(nrUserId, idToken, payload),
 			[expiresKey]: expires
 		};

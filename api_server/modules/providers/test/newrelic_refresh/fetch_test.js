@@ -38,7 +38,7 @@ class FetchTest extends NewRelicRefreshTest {
 			refreshToken: this.refreshResponse.refreshToken,
 			bearerToken: true,
 			expiresAt: this.refreshResponse.expiresAt,
-			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			//provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			tokenType: this.wantIDToken ? 'id' : 'access'
 		};
 		Assert.deepStrictEqual(providerInfo, expectedProviderInfo, 'providerInfo not correct');
@@ -46,7 +46,7 @@ class FetchTest extends NewRelicRefreshTest {
 		const expectedTokenInfo = {
 			refreshToken: this.refreshResponse.refreshToken,
 			expiresAt: this.refreshResponse.expiresAt,
-			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			//provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			isNRToken: true,
 			tokenType: this.wantIDToken ? 'id' : 'access'
 		};
