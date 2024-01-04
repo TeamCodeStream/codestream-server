@@ -21,7 +21,7 @@ class WebErrorRequest extends WebRequestBase {
 		const withCode = displayCode ? ` (error: <b>${displayCode}</b>)` : '';
 		return super.render('error', {
 			title: title || 'Authentication failed',
-			body: body || `We were not able to authenticate you${withProvider}${withCode}. <a href="mailto:support@codestream.com">Contact support</a> if you need assistance, or return to your IDE to try again.`,
+			body: body || `We were not able to authenticate you${withProvider}${withCode}. <a href="https://one.newrelic.com/help-xp">Contact support</a> if you need assistance, or return to your IDE to try again.`,
 			code: code || ''
 		});
 	}
@@ -36,13 +36,13 @@ class WebErrorRequest extends WebRequestBase {
 		case 'USRC-1015':
 			return {
 				title: 'Multiple Workspaces',
-				body: `Unfortunately, at this time, you can only be a member of one ${connectedTeam} team on CodeStream. <a href="mailto:support@codestream.com">Contact support</a> and we'll let you know as soon as support for multiple ${connectedTeam} teams is ready.`
+				body: `Unfortunately, at this time, you can only be a member of one ${connectedTeam} team on CodeStream. <a href="https://one.newrelic.com/help-xp">Contact support</a> and we'll let you know as soon as support for multiple ${connectedTeam} teams is ready.`
 			};
 
 		case 'USRC-1020':
 			return {
 				title: 'Invitation conflict.',
-				body: '<a href="mailto:support@codestream.com">Contact support</a>.'
+				body: '<a href="https://one.newrelic.com/help-xp">Contact support</a>.'
 			};
 		case 'PRVD-1005':
 			return {
