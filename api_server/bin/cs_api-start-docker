@@ -4,5 +4,6 @@
 
 cd $CS_API_TOP
 echo "API docker start script is running"
+bin/set-globals.js
 bin/ensure-indexes.js build
 bin/api_server.js --one_worker
