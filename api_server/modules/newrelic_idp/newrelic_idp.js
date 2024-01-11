@@ -651,12 +651,14 @@ if (!data.password) {
 			email: user.user.email,
 			fullName: user.user.name,
 			nrUserId: user.user.id,
-			nrOrgId: user.organization.id,
 			_pubnubUuid: user.user._pubnubUuid
 		};
+		if (user.organization) {
+			identityInfo.nrOrgId = user.organization.id;
+		}
 
 		// extract company name and region as needed
-		if (identityInfo.nrOrgId) {
+		if (!options.dontDetermineRegion && identityInfo.nrOrgId) {
 			const org = await this.getOrg(identityInfo.nrOrgId, options);
 			identityInfo.companyName = org.name;
 			// unfortunately it seems we need to wait a bit before the token that was issued by Azure/New Relic
@@ -678,7 +680,7 @@ if (!data.password) {
 				});
 			}
 			if (!done) {
-				options.request.log(`NEWRELIC IDP TRACK: Could not determine region after 10 tries, last Exception: ${JSON.stringify(lastEx)}`);
+				options.request.log(`NEWRELIC IDP TRACK: Could not determine region after 10 tries, last exception: ${JSON.stringify(lastEx)}`);
 			}
 		}
 		

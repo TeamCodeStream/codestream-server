@@ -51,7 +51,8 @@ module.exports = async (options) => {
 			tokenType: newTokenInfo.tokenType,
 			request,
 			mockResponse,
-			mockUser
+			mockUser,
+			dontDetermineRegion: true
 		});
 		user = await request.data.users.getOneByQuery(
 			{
