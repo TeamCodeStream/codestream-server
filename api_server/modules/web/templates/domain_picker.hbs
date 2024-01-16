@@ -149,9 +149,9 @@
 					const response = JSON.parse(req.responseText);
 					if (response && response.userId) {
 						const anonUserId = "{{anonymousUserId}}";
-						analytics.identify(response.userId, {}, {
-							anonymousId: anonUserId
-						});
+						//analytics.identify(response.userId, {}, {
+						//	anonymousId: anonUserId
+						//});
 					}
 					window.location.href = newURL;
 				}
@@ -193,9 +193,9 @@
 					});
 					const response = JSON.parse(req.responseText);
 					const anonUserId = "{{anonymousUserId}}";
-					analytics.identify("{{userId}}", {}, {
-						anonymousId: anonUserId
-					});
+					//analytics.identify("{{userId}}", {}, {
+					//	anonymousId: anonUserId
+					//});
 					window.location.href = newURL;
 				}
 				if (req.status >= 300) {
