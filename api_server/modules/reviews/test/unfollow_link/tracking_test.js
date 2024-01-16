@@ -8,6 +8,11 @@ const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_serv
 
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
+	constructor (options) {
+		super(options);
+		this.usingNRLogins = true;
+	}
+
 	get description () {
 		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
 		return `should send a Notification Change event for tracking purposes when user follows email link to unfollow a review${unifiedIdentity}`;
@@ -56,7 +61,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		//const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
 		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const expectedMessage = {
-			userId: this.currentUser.user.id,
+			userId: this.currentUser.user.nrUserId,
 			event: 'Notification Change',
 			properties: {
 				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
@@ -71,7 +76,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 				'Company Name': this.company.name,
 				'Company ID': this.company.id,
 				'Reporting Group': '',
-				distinct_id: this.currentUser.user.id,
+				distinct_id: this.currentUser.user.nrUserId,
 				Change: 'Review Unfollowed',
 				'Source of Change': 'Email link',
 				//'Last Invite Type': 'invitation',

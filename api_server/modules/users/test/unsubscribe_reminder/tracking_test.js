@@ -7,6 +7,11 @@ const CommonInit = require('./common_init');
 
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
+	constructor (options) {
+		super(options);
+		this.usingNRLogins = true;
+	}
+
 	get description () {
 		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
 		return `should send an Unsubscribe event for tracking purposes when user follows email link to unsubscribe from reminder emails${unifiedIdentity}`;
@@ -52,21 +57,21 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		}
 
 		const expectedMessage = {
-			userId: this.currentUser.user.id,
+			userId: this.currentUser.user.nrUserId,
 			event: 'Unsubscribed',
 			properties: {
 				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
 				$email: this.currentUser.user.email,
 				name: this.currentUser.user.fullName,
 				//'Join Method': 'Created Team',
-				distinct_id: this.currentUser.user.id,
+				distinct_id: this.currentUser.user.nrUserId,
 				'Email Type': 'Reminder'
 			}
 		};
 
 		if (this.unifiedIdentityEnabled) {
 			expectedMessage.properties['NR User ID'] = this.currentUser.user.nrUserId;
-			expectedMessage.properties['NR Tier'] = 'full_user_tier';
+			expectedMessage.properties['NR Tier'] = 'basic_user_tier';
 		}
 
 		Assert.deepStrictEqual(data, expectedMessage, 'tracking data not correct');
