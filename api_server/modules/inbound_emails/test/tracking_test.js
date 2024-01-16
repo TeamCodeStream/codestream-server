@@ -6,6 +6,11 @@ const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_serv
 
 class TrackingTest extends InboundEmailMessageTest {
 
+	constructor (options) {
+		super(options);
+		this.usingNRLogins = true;
+	}
+
 	get description () {
 		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
 		return `should send a Reply Created event for tracking purposes when handling a reply to a codemark via email${unifiedIdentity}`;
@@ -93,11 +98,11 @@ class TrackingTest extends InboundEmailMessageTest {
 		const { properties } = data;
 		const errors = [];
 		let result = (
-			((data.userId === this.users[1].user.id) || errors.push('userId not set to post originator\'s ID')) && 
+			((data.userId === this.users[1].user.nrUserId) || errors.push('userId not set to post originator\'s NR User ID')) && 
 			((data.event === 'Reply Created') || errors.push('event not correct')) &&
 			((properties['Parent ID'] === parentId) || errors.push('Parent ID not set to codemark or review ID')) &&
 			((properties['Parent Type'] === parentType) || errors.push('Parent Type not correct')) && 
-			((properties.distinct_id === this.users[1].user.id) || errors.push('distinct_id not set to post originator\'s ID')) &&
+			((properties.distinct_id === this.users[1].user.nrUserId) || errors.push('distinct_id not set to post originator\'s NR User ID')) &&
 			((properties['$email'] === this.users[1].user.email) || errors.push('email does not match post originator')) &&
 			((properties['name'] === this.users[1].user.fullName) || errors.push('name does not match post originator')) &&
 			//((properties['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
