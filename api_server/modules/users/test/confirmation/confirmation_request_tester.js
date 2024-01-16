@@ -73,8 +73,9 @@ class ConfirmationRequestTester {
 		//new TokenDeprecatedTest().test();
 		//new TrackTokenExpiredTest().test();
 		//new TrackTokenDeprecatedTest().test();
-		new TrackCodeExpiredTest().test();
-		new TrackIncorrectCodeTest().test();
+		// Disabling below because analytics are changing post-Unified Identity and confirmation is no longer a thing anyway
+		//new TrackCodeExpiredTest().test();
+		//new TrackIncorrectCodeTest().test();
 		new ReuseCodeTest().test();
 		new EligibleJoinCompaniesTest().test();
 		new IsWebmailTest().test();
