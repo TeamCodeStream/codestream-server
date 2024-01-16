@@ -661,29 +661,13 @@ if (!data.password) {
 		if (!options.dontDetermineRegion && identityInfo.nrOrgId) {
 			const org = await this.getOrg(identityInfo.nrOrgId, options);
 			identityInfo.companyName = org.name;
-			// unfortunately it seems we need to wait a bit before the token that was issued by Azure/New Relic
-			// can be used for a NerdGraph call, hopefully 2 seconds is enough...
-			let done = false; 
-			let lastEx = null;
-			for (let i = 0; i < 10 && !done; i++) {
-				done = await new Promise(async resolve => {
-					setTimeout(async () => {
-						try {
-							identityInfo.region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options.tokenType, options);
-							options.request.log(`NEWRELIC IDP TRACK: region determined to be ${identityInfo.region} after ${i} tries`);
-						} catch (ex) {
-							lastEx = ex;
-							resolve(false);
-						}
-						resolve(true);
-					}, 200);
-				});
-			}
-			if (!done) {
-				options.request.log(`NEWRELIC IDP TRACK: Could not determine region after 10 tries, last exception: ${JSON.stringify(lastEx)}`);
+	
+			const region = await this.determineRegion(org, options);
+			if (region) {
+				identityInfo.region = region;
 			}
 		}
-		
+
 		// extract user ID and info as needed
 		if (identityInfo.nrUserId) {
 			const userInfo = await this.getUser(identityInfo.nrUserId, options);
@@ -713,6 +697,40 @@ if (!data.password) {
 		}
 		*/
 		return identityInfo;
+	}
+
+	// determine the region of the given organization, for the given user
+	async determineRegion (org, options) {
+		// to determine region, we first try the org's "reporting account" ... but it's possible the user doesn't have access 
+		// to that account, so if that fails, fall back to _any_ account the user has access to
+		if (org.reportingAccountId) {
+			const region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options.tokenType, options);
+			if (region) {
+				options.request.log(`NEWRELIC IDP TRACK: region determined to be ${region} from reporting account`);
+			}
+			return region;
+		}
+
+		// get user accounts
+		const accounts = await this.getUserAccounts(options);
+		for (const accountId of accounts) {
+			const region = await this.regionFromAccountId(accountId, options.accessToken, options.tokenType, options);
+			if (region) {
+				options.request.log(`NEWRELIC IDP TRACK: region determined to be ${region} from account ${accountId}`);
+				return region;
+			}
+		}
+	}
+
+	async getUserAccounts (options) {
+		const { accessToken, tokenType, request } = options;
+		const ngOps = new NerdGraphOps({
+			request,
+			accessToken,
+			tokenType
+		});
+		await ngOps.init();
+		return ngOps.getUserAccounts(options);
 	}
 
 	async getGitHubIdentityInfo (token, options) {

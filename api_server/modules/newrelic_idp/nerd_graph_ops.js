@@ -428,6 +428,25 @@ mutation {
 		this.request.log(`NEWRELIC IDP TRACK: regionFromAccountId returned ${JSON.stringify(response)}`);
 		return response.currentUser?.account?.region?.code;
 	}
+
+	async getUserAccounts (options = {}) {
+		let response;
+		try {
+			const query = gql`
+{
+	actor {
+		accounts {
+			id
+		}
+	}
+}`;
+			response = await this.client.request(query);
+		} catch (error) {
+			throw error;
+		}
+		this.request.log(`NEWRELIC IDP TRACK: accounts ${JSON.stringify(response)}`);
+		return response.actor?.accounts?.map(account => account.id);
+	}
 }
 
 module.exports = NerdGraphOps;
