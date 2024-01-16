@@ -34,9 +34,10 @@ class AnalyticsClient {
 			event,
 			properties: data
 		};
-		const userId = options.user ? options.user.id : options.userId;		
+		const userId = options.user ? options.user.id : options.userId;
+		const nrUserId = options.user ? options.user.nrUserId : options.nrUserId;
 		if (userId) {
-			trackData.userId = userId;
+			trackData.userId = nrUserId; //userId;
 		}
 		if (options.anonymousId) {
 			trackData.anonymousId = options.anonymousId;
@@ -69,7 +70,7 @@ class AnalyticsClient {
 
 		if (user) {
 			Object.assign(trackObject, {
-				distinct_id: user.id,
+				distinct_id: user.nrUserId, //user.id,
 				'$email': user.get('email'),
 				name: user.get('fullName'),
 				//'Join Method': user.get('joinMethod'),
@@ -105,7 +106,7 @@ class AnalyticsClient {
 				}
 			} else {
 				if (user.get('nrUserId')) {
-					trackObject['NR User ID'] = user.get('nrUserId');
+					['NR User ID'] = user.get('nrUserId');
 				}
 				if (user.get('nrUserInfo') && user.get('nrUserInfo').userTier) {
 					trackObject['NR Tier'] = user.get('nrUserInfo').userTier
