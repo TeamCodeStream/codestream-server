@@ -1,5 +1,11 @@
 # Change Log
 
+## [15.1.0] - 2024-1-17
+
+### Fixed
+
+- Fixes an issue with signing into CodeStream when New Relic accounts are located in the EU
+
 ## [15.0.2] - 2023-12-19
 
 ### Fixed
