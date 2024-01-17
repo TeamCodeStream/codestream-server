@@ -51,7 +51,7 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 			bearerToken: true,
 			refreshToken: providerInfo.refreshToken,
 			expiresAt: Date.now(),
-			provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
+			//provider: NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY,
 			tokenType: this.wantIDToken ? 'id' : 'access'
 		};
 		Assert(providerInfo.expiresAt > Date.now(), 'expiresAt not in the future');
@@ -65,7 +65,7 @@ class NRLoginTest extends Aggregation(CodeStreamAPITest, NRLoginCommonInit) {
 			Assert.strictEqual(accessToken, providerInfo.accessToken, 'CodeStream access token not set to the NR access token');
 			Assert.strictEqual(refreshToken, providerInfo.refreshToken, 'CodeStream refresh token not set to the NR refresh token');
 			Assert.strictEqual(expiresAt, providerInfo.expiresAt, 'CodeStream access token expiresAt not set to the NR expiresAt');
-			Assert.strictEqual(provider, NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY, 'CodeStream access token provider not correct');
+			//Assert.strictEqual(provider, NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY, 'CodeStream access token provider not correct');
 			Assert.strictEqual(isNRToken, true, 'CodeStream access token isNRToken not set to true');
 		}
 	}

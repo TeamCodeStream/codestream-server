@@ -3,8 +3,8 @@ const NewRelicIDPConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_serv
 
 module.exports = async (options) => {
 	const { tokenInfo, request, loginType = 'web', force = false } = options;
-	tokenInfo.provider = tokenInfo.provider || NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
-	const { refreshToken, expiresAt, provider } = tokenInfo;
+	//tokenInfo.provider = tokenInfo.provider || NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
+	const { refreshToken, expiresAt } = tokenInfo;
 	const mockResponse = !!request.request.headers['x-cs-no-newrelic'];
 	let mockUser;
 	if (request.request.headers['x-cs-nr-mock-user']) {
@@ -19,10 +19,12 @@ module.exports = async (options) => {
 		request.log('Cannot refresh New Relic issued access token, no expiration was given');
 		return;
 	}
+	/*
 	if (!provider) {
 		request.log('Cannot refresh New Relic issued access token, no provider was given');
 		return;
 	}
+	*/
 
 	if (!force && expiresAt >= Date.now() + 60 * 1000) {
 		return;
@@ -39,7 +41,7 @@ module.exports = async (options) => {
 		userSet[`accessTokens.${loginType}.token`] = newTokenInfo.accessToken;
 		userSet[`accessTokens.${loginType}.refreshToken`] = newTokenInfo.refreshToken;
 		userSet[`accessTokens.${loginType}.expiresAt`] = newTokenInfo.expiresAt;
-		userSet[`accessTokens.${loginType}.provider`] = newTokenInfo.provider || provider;
+		//userSet[`accessTokens.${loginType}.provider`] = newTokenInfo.provider || provider;
 	}
 	
 	let user = request.user;
@@ -49,7 +51,8 @@ module.exports = async (options) => {
 			tokenType: newTokenInfo.tokenType,
 			request,
 			mockResponse,
-			mockUser
+			mockUser,
+			dontDetermineRegion: true
 		});
 		user = await request.data.users.getOneByQuery(
 			{
@@ -70,7 +73,7 @@ module.exports = async (options) => {
 		userSet[`providerInfo.${teamId}.newrelic.accessToken`] = newTokenInfo.accessToken;
 		userSet[`providerInfo.${teamId}.newrelic.refreshToken`] = newTokenInfo.refreshToken;
 		userSet[`providerInfo.${teamId}.newrelic.expiresAt`] = newTokenInfo.expiresAt;
-		userSet[`providerInfo.${teamId}.newrelic.provider`] = newTokenInfo.provider || provider;
+		//userSet[`providerInfo.${teamId}.newrelic.provider`] = newTokenInfo.provider || provider;
 	}
 
 	return { newTokenInfo, userSet, user };

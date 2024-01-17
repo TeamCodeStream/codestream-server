@@ -97,8 +97,8 @@ class Migrator {
 			verbose: this.verbose,
 			throttle: this.throttle,
 			incremental: this.incremental,
-			setIDPPassword: this.setIDPPassword,
-			passwordPlaceholder: this.setIDPPassword ? this.config.integrations.newRelicIdentity.passwordKey : 'Temp123!',
+			//setIDPPassword: this.setIDPPassword,
+			//passwordPlaceholder: this.config.integrations.newRelicIdentity.passwordKey,
 			idp: this.idp
 		});
 

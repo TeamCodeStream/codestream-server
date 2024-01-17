@@ -12,7 +12,7 @@ class WebUnsubscribeWeeklyErrorRequest extends WebRequestBase {
 		const errorCode = decodeURIComponent(this.request.query.error || '');
 		return super.render('error', {
 			title: 'Request failed',
-			body: `Your request to unsubscribe to feedback request reminder emails failed (error code <b>${errorCode}</b>). <a href="mailto:support@codestream.com">Contact support</a> for assistance.`
+			body: `Your request to unsubscribe to feedback request reminder emails failed (error code <b>${errorCode}</b>). <a href="https://one.newrelic.com/help-xp">Contact support</a> for assistance.`
 		});
 	}
 }

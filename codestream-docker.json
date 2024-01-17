@@ -1,0 +1,264 @@
+{
+	"apiServer": {
+		"altBroadcasterHost": null,
+		"authOrigin": "${CS_API_AUTH_ORIGIN}",
+		"callbackEnvironment": "${CS_API_CALLBACK_ENV}",
+		"confirmCodeExpiration": 604800000,
+		"confirmationExpiration": 86400000,
+		"confirmationNotRequired": false,
+		"disablePhoneHome": true,
+		"dontWantAWS": false,
+		"forgotPasswordExpiration": 86400000,
+		"helpIsAvailable": true,
+		"ignoreHttps": false,
+		"logger": {
+			"consoleOk": true,
+			"debugOk": false,
+			"directory": "${CS_API_LOGS}"
+		},
+		"marketingSiteUrl": "${CS_API_MARKETING_SITE_URL}",
+		"mockMode": false,
+		"phoneHomeUrl": "${CS_API_PHONE_HOME_URL}",
+		"port": "${CS_API_PORT}",
+		"publicApiUrl": "${CS_API_PUBLIC_API_URL}",
+		"requireTLS12": false,
+		"securePort": 12078,
+		"sessionAwayTimeout": 600000,
+		"showConfig": true,
+		"signupTokenExpiration": 600000,
+		"tmpDirectory": "${CS_API_SANDBOX}/tmp"
+	},
+	"broadcastEngine": {
+		"pubnub": {
+			"blueKey": {
+				"publishKey": "${BROADCAST_ENGINE_PUBNUB_BLUE_KEY_PUBLISH_KEY}",
+				"secretKey": "${BROADCAST_ENGINE_PUBNUB_BLUE_KEY_SECRET_KEY}",
+				"subscribeKey": "${BROADCAST_ENGINE_PUBNUB_BLUE_KEY_SUBSCRIBE_KEY}"
+			},
+			"greenKey": {
+				"publishKey": "${BROADCAST_ENGINE_PUBNUB_GREEN_KEY_PUBLISH_KEY}",
+				"secretKey": "${BROADCAST_ENGINE_PUBNUB_GREEN_KEY_SECRET_KEY}",
+				"subscribeKey": "${BROADCAST_ENGINE_PUBNUB_GREEN_KEY_SUBSCRIBE_KEY}"
+			},
+			"keepAlive": true,
+			"preferredKeyColor": "${BROADCAST_ENGINE_PUBNUB_PREFERRED_KEY_COLOR}",
+			"ssl": true,
+			"uuid": "${BROADCAST_ENGINE_PUBNUB_UUID}"
+		}
+	},
+	"email": {
+		"emailTo": "${DT_USER}@newrelic.com",
+		"notificationInterval": 300000,
+		"replyToDomain": "${CSSVC_ENV}.cdstrm.us",
+		"senderEmail": "${CSSVC_ENV}_alerts@cdstrm.us",
+		"supportEmail": "${CSSVC_ENV}_support@cdstrm.us",
+		"suppressEmails": "${CSSVC_EMAIL_SUPPRESS_EMAILS}"
+	},
+	"emailDeliveryService": {
+		"sendgrid": {
+			"apiKey": "${EMAIL_DELIVERY_SENDGRID_APIKEY}",
+			"disabled": "${EMAIL_DELIVERY_SENDGRID_DISABLED}",
+			"url": "/v3/mail/send"
+		}
+	},
+	"environmentGroup": null,
+	"environmentGroupSecrets": {
+		"requestAuth": "${ENVIRONMENT_GROUP_SECRETS_REQUEST_AUTH}"
+	},
+	"inboundEmailServer": {
+		"inboundEmailDirectory": "${CS_MAILIN_SANDBOX}/mailq/new",
+		"inboundEmailDisabled": false,
+		"logger": {
+			"consoleOk": true,
+			"debugOk": false,
+			"directory": "${CS_MAILIN_SANDBOX}/log"
+		},
+		"processDirectory": "${CS_MAILIN_SANDBOX}/mailq/process",
+		"showConfig": true,
+		"tempAttachmentDirectory": "${CS_MAILIN_SANDBOX}/mailq/attachments",
+		"tmpDirectory": "${CS_MAILIN_SANDBOX}/tmp"
+	},
+	"integrations": {
+		"asana": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_ASANA_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_ASANA_CLOUD_APP_CLIENT_SECRET}",
+				"disabled": false
+			}
+		},
+		"bitbucket": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_BITBUCKET_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_BITBUCKET_CLOUD_APP_CLIENT_SECRET}",
+				"disabled": false
+			}
+		},
+		"devops": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_DEVOPS_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_DEVOPS_CLOUD_APP_CLIENT_SECRET}",
+				"disabled": false
+			}
+		},
+		"github": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_GITHUB_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_GITHUB_CLOUD_APP_CLIENT_SECRET}",
+				"disabled": false
+			}
+		},
+		"gitlab": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_GITLAB_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_GITLAB_CLOUD_APP_CLIENT_SECRET}",
+				"disabled": false
+			}
+		},
+		"jira": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_JIRA_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_JIRA_CLOUD_APP_CLIENT_SECRET}",
+				"disabled": false
+			}
+		},
+		"linear": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_LINEAR_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_LINEAR_CLOUD_APP_CLIENT_SECRET}",
+				"disabled": false
+			}
+		},
+		"msteams": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_MSTEAMS_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_MSTEAMS_CLOUD_APP_CLIENT_SECRET}",
+				"botAppId": "${INTEGRATIONS_MSTEAMS_CLOUD_BOT_APP_ID}",
+				"botAppPassword": "${INTEGRATIONS_MSTEAMS_CLOUD_BOT_APP_PASSWORD}",
+				"disabled": false
+			}
+		},
+		"newRelicIdentity": {
+			"cloud": {
+				"credentialsServiceHost": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_CREDENTIALS_SERVICE_HOST}",
+				"graphQLHost": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_GRAPHQL_HOST}",
+				"idpServiceHost": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_IDP_SERVICE_HOST}",
+				"loginServiceHost": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_LOGIN_SERVICE_HOST}",
+				"newRelicClientId": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_NEW_RELIC_CLIENT_ID}",
+				"newRelicClientSecret": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_NEW_RELIC_CLIENT_SECRET}",
+				"newRelicRegion": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_NEW_RELIC_REGION}",
+				"orgServiceHost": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_ORG_SERVICE_HOST}",
+				"passwordKey": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_PASSWORD_KEY}",
+				"signupServiceHost": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_SIGNUP_SERVICE_HOST}",
+				"userServiceHost": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_USER_SERVICE_HOST}",
+				"userServiceSecret": "${INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_USER_SERVICE_SECRET}"
+			}
+		},
+		"newrelic": {
+			"cloud": {
+				"accountNumber": "${INTEGRATIONS_NEWRELIC_CLOUD_ACCOUNT_NUMBER}",
+				"browserIngestKey": "${INTEGRATIONS_NEWRELIC_CLOUD_BROWSER_INGEST_KEY}",
+				"licenseIngestKey": "${INTEGRATIONS_NEWRELIC_CLOUD_LICENSE_INGEST_KEY}",
+				"telemetryEndpoint": "${INTEGRATIONS_NEWRELIC_CLOUD_TELEMETRY_ENDPOINT}",
+				"webviewAgentId": "${INTEGRATIONS_NEWRELIC_CLOUD_WEBVIEW_AGENT_ID}",
+				"webviewAppId": "${INTEGRATIONS_NEWRELIC_CLOUD_WEBVIEW_APP_ID}"
+			}
+		},
+		"newrelicgrok": {
+			"cloud": {
+				"apiKey": "${INTEGRATIONS_NEWRELICGROK_CLOUD_API_KEY}",
+				"apiUrl": "${INTEGRATIONS_NEWRELICGROK_CLOUD_API_URL}"
+			}
+		},
+		"okta": {
+			"localInstallation": {
+				"appClientId": null,
+				"appClientSecret": null,
+				"disabled": false
+			}
+		},
+		"slack": {
+			"cloud": {
+				"appClientId": "${INTEGRATIONS_SLACK_CLOUD_APP_CLIENT_ID}",
+				"appClientSecret": "${INTEGRATIONS_SLACK_CLOUD_APP_CLIENT_SECRET}",
+				"appId": "${INTEGRATIONS_SLACK_CLOUD_APP_ID}",
+				"appSigningSecret": "${INTEGRATIONS_SLACK_CLOUD_APP_SIGNING_SECRET}",
+				"disabled": false,
+				"interactiveComponentsEnabled": false
+			}
+		},
+		"trello": {
+			"cloud": {
+				"apiKey": "${INTEGRATIONS_TRELLO_CLOUD_APP_CLIENT_ID}",
+				"disabled": false
+			}
+		}
+	},
+	"outboundEmailServer": {
+		"logger": {
+			"consoleOk": true,
+			"debugOk": false,
+			"directory": "${CS_OUTBOUND_EMAIL_SANDBOX}/log"
+		},
+		"showConfig": true,
+		"storage": {
+			"mongo": {
+				"url": null
+			}
+		},
+		"tmpDirectory": "${CS_OUTBOUND_EMAIL_SANDBOX}/tmp"
+	},
+	"queuingEngine": {
+		"awsSQS": {
+			"outboundEmailQueueName": "${QUEUING_ENGINE_AWS_SQS_OUTBOUND_EMAIL_QUEUE_NAME}",
+			"region": "${QUEUING_ENGINE_AWS_SQS_REGION}"
+		}
+	},
+	"sharedGeneral": {
+		"installationId": null,
+		"isProductionCloud": false,
+		"newRelicApiUrl": "${SHARED_GENERAL_NEW_RELIC_API_URL}",
+		"newRelicLandingServiceUrl": "${SHARED_GENERAL_NEW_RELIC_LANDING_SERVICE_URL}",
+		"newRelicSecApiUrl": "${SHARED_GENERAL_NEW_RELIC_SEC_API_URL}",
+		"runTimeEnvironment": "${SHARED_GENERAL_RUN_TIME_ENVIRONMENT}"
+	},
+	"sharedSecrets": {
+		"auth": "${SHARED_SECRETS_AUTH}",
+		"commentEngine": "${SHARED_SECRETS_COMMENT_ENGINE}",
+		"commentEngineAlt": "${SHARED_SECRETS_COMMENT_ENGINE_ALT}",
+		"confirmationCheat": "${SHARED_SECRETS_CONFIRMATION_CHEAT}",
+		"cookie": "${SHARED_SECRETS_COOKIE}",
+		"mail": "${SHARED_SECRETS_MAIL}",
+		"signupFlowJWT": "${SHARED_SECRETS_SIGNUP_FLOW_JWT}",
+		"subscriptionCheat": "${SHARED_SECRETS_SUBSCRIPTION_CHEAT}"
+	},
+	"ssl": {
+		"cafile": "${SSL_CA_FILE}",
+		"certfile": "${SSL_CERT_FILE}",
+		"keyfile": "${SSL_KEY_FILE}",
+		"requireStrictSSL": "${SSL_REQUIRE_STRICT_SSL}"
+	},
+	"storage": {
+		"mongo": {
+			"tlsCAFile": null,
+			"url": "${STORAGE_MONGO_URL}"
+		}
+	},
+	"telemetry": {
+		"segment": {
+			"token": "${TELEMETRY_SEGMENT_TOKEN}",
+			"webToken": "${TELEMETRY_SEGMENT_WEB_TOKEN}"
+		}
+	},
+	"universalSecrets": {
+		"telemetry": "${UNIVERSAL_SECRETS_TELEMETRY}"
+	},
+	"uploadEngine": {
+		"s3": {
+			"bucket": "${CSSVC_S3_BUCKET_NAME}",
+			"disableSse": "${CSSVC_S3_DISABLE_SSE}",
+			"keyPrefix": "${CSSVC_S3_KEY_PREFIX}",
+			"publicUrl": "${CSSVC_S3_PUBLIC_URL}",
+			"stripKeyPrefixFromUrl": "${CSSVC_S3_STRIP_KEY_PREFIX}"
+		}
+	}
+}

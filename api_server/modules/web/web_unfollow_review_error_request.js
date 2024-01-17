@@ -12,7 +12,7 @@ class WebUnfollowReviewErrorRequest extends WebRequestBase {
 		const errorCode = decodeURIComponent(this.request.query.error || '');
 		return super.render('error', {
 			title: 'Request failed',
-			body: `Your request to unfollow this code review failed (error code <b>${errorCode}</b>). <a href="mailto:support@codestream.com">Contact support</a> if you need assistance.`
+			body: `Your request to unfollow this code review failed (error code <b>${errorCode}</b>). <a href="https://one.newrelic.com/help-xp">Contact support</a> if you need assistance.`
 		});
 	}
 }

@@ -69,7 +69,7 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			Assert(typeof refreshToken === 'string' && refreshToken.startsWith('MNRRA-'));
 		}
 		const providerInfoKey = `providerInfo.${teamId}.newrelic`;
-		const provider = NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
+		//const provider = NewRelicIDPConstants.NR_AZURE_LOGIN_POLICY;
 		this.message = {
 			user: {
 				id: this.signupResponse.user.id,
@@ -84,11 +84,11 @@ class MessageTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 					'accessTokens.web.token': accessToken,
 					'accessTokens.web.refreshToken': refreshToken,
 					'accessTokens.web.expiresAt': expiresAt,
-					'accessTokens.web.provider': provider,
+					//'accessTokens.web.provider': provider,
 					[`${providerInfoKey}.accessToken`]: accessToken,
 					[`${providerInfoKey}.refreshToken`]: refreshToken,
 					[`${providerInfoKey}.expiresAt`]: expiresAt,
-					[`${providerInfoKey}.provider`]: provider
+					//[`${providerInfoKey}.provider`]: provider
 				}
 			}
 		};

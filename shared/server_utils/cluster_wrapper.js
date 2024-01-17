@@ -6,9 +6,11 @@
 const OS = require('os');
 const Program = require('commander');
 const Cluster = require('cluster');
+const DevSecrets = require('./dev_secrets.js');
 
 Program
 	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
+	.option('--dev_secrets', 'Load vault secrets at runtime')
 	.parse(process.argv);
 
 class ClusterWrapper {
@@ -26,6 +28,7 @@ class ClusterWrapper {
 		this.options = options;
 		this.logger = this.options.logger || console;
 		this.workers = {};
+		this.env = {};
 	}
 
 	async start () {
@@ -41,6 +44,7 @@ class ClusterWrapper {
 
 	async startMaster () {
 		this.processArguments();
+		await this.readDevSecrets();
 		this.startWorkers();
 	}
 
@@ -48,13 +52,22 @@ class ClusterWrapper {
 		if (Program.one_worker || this.options.oneWorker) {
 			this.oneWorker = true;
 		}
+		if (Program.dev_secrets) {
+			this.devSecrets = true;
+		}
+	}
+
+	async readDevSecrets () {
+		if (!this.devSecrets) { return; }
+		this.env = await DevSecrets.readVaultDevSecrets();
 	}
 
 	startWorkers () {
 		// spawn one worker for each available CPU, and set up some events to listen to
 		this.numCpus = this.oneWorker ? 1 : OS.cpus().length;
+		const workerEnv = Object.assign({}, process.env, this.env);
 		for (let i = 0; i < this.numCpus; i++) {
-			Cluster.fork();
+			Cluster.fork(workerEnv);
 		}
 		Cluster.on('exit', this.onExit.bind(this));
 		Cluster.on('disconnect', this.onDisconnect.bind(this));

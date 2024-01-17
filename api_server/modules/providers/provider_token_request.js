@@ -533,7 +533,10 @@ class ProviderTokenRequest extends RestfulRequest {
 		if (!this.userIdentity.email) {
 			throw this.errorHandler.error('updateAuth', { reason: 'no email in identifying data' });
 		}
-
+		if (this.provider === 'newrelicidp' && !this.userIdentity.nrOrgId) {
+			throw this.errorHandler.error('updateAuth', { reason: 'no New Relic Org ID in identitying data' });
+		}
+		
 		// check if we need to redirect to another region
 		if (await this.handleRegion()) {
 			// we're redirecting to a new region host, abort further processing

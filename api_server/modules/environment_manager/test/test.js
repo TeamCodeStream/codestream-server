@@ -13,6 +13,7 @@ const ChangeEmailTester = require('./change_email/test');
 const DeleteUserTester = require('./delete_user/test');
 const EnsureUserTester = require('./ensure_user/test');
 const PublishEligibleJoinCompaniesTester = require('./publish_eligible_join_companies/test');
+const NRLoginTester = require('./nrlogin/test');
 
 describe('environment manager requests', function() {
 
@@ -26,4 +27,5 @@ describe('environment manager requests', function() {
 	describe('DELETE /xenv/delete-user/:id', DeleteUserTester.test);
 	describe('POST /xenv/ensure-user', EnsureUserTester.test);
 	describe('POST /xenv/publish-ejc', PublishEligibleJoinCompaniesTester.test);
+	describe('POST /xenv/nrlogin', NRLoginTester.test);
 });
