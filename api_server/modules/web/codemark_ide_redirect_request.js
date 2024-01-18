@@ -25,7 +25,7 @@ class CodemarkIdeRedirectRequest extends IdeRedirectRequest {
 			);
 			return this.redirect404(this.teamId);
 		}
-		return codemark.get('type') === 'link' ? 'Permalink' : 'Codemark';
+		return codemark.get('type') === 'link' ? 'permalink' : 'codemark';
 	}
 }
 

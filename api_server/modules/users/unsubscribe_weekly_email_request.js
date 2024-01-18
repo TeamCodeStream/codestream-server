@@ -19,7 +19,7 @@ class UnsubscribeWeeklyEmailRequest extends UnsubscribeEmailRequest {
 	}
 
 	getEmailType () {
-		return 'Weekly Activity';
+		return 'weekly_activity';
 	}
 
 	// describe this route for help

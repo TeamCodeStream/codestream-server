@@ -23,13 +23,13 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			case 'error':
 				pageType = 'errorsinbox';
 				pageWhat = 'ErrorsInbox';
-				analyticsContentType = 'Error';
+				analyticsContentType = 'error';
 				this.showVideo = true;
 				break;
 			case 'span':
 				pageType = 'span';
 				pageWhat = 'Span';
-				analyticsContentType = 'Span';
+				analyticsContentType = 'span';
 				entityId = this.parsedPayload.spanId;
 				this.showVideo = false;
 				break;

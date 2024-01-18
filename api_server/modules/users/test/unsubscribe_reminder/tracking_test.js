@@ -58,14 +58,15 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
 		const expectedMessage = {
 			userId: this.currentUser.user.nrUserId,
-			event: 'Unsubscribed',
+			event: 'codestream/email unsubscribed',
 			properties: {
 				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
 				$email: this.currentUser.user.email,
 				name: this.currentUser.user.fullName,
 				//'Join Method': 'Created Team',
 				distinct_id: this.currentUser.user.nrUserId,
-				'Email Type': 'Reminder'
+				'meta_data': 'email_type: reminder',
+				'event_type': 'response'
 			}
 		};
 

@@ -27,11 +27,12 @@
 						window.segmentAnonymousId = decodeURIComponent(anonId);
 					}
 				}
-				analytics.track("NR1 Redirect Page Viewed", {
-					Source: "{{src}}",
-					"New to CodeStream": "{{newToCodeStream}}",
-					"Error Group ID": "{{errorGroupGuid}}",
-					Content: "{{analyticsContentType}}"
+				analytics.track("codestream/ide_redirect page_viewed", {
+					"event_type": "page_view",
+					"meta_data_2": "source: {{src}}",
+					"meta_data_3": "new_to_codestream: {{newToCodeStream}}",
+					"meta_data_4": "error_group_guid: {{errorGroupGuid}}",
+					"meta_data": "content: {{analyticsContentType}}"
 				});
 			}
 		}();
