@@ -83,6 +83,7 @@ class AnalyticsClient {
 
 		if (company) {
 			metaData.codestream_organization_id = company.id;
+			metaData.codestream_nr_organization_id = company.get('linkedNROrgId');
 		}
 
 		// translate the runtime environment into a region, if possible

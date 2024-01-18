@@ -61,7 +61,8 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const expectedMetaData = {
 			codestream_first_signin: new Date(this.currentUser.user.createdAt).toISOString(),
 			codestream_organization_created: new Date(this.team.createdAt).toISOString(),
-			codestream_organization_id: this.company.id
+			codestream_organization_id: this.company.id,
+			codestream_nr_organization_id: this.company.linkedNROrgId
 		};
 		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
 			expectedMetaData.codestream_region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
