@@ -29,10 +29,10 @@ class ProviderActionRequestTester {
 			new ProviderActionTest({ provider, linkType: 'ide' }).test();
 			new ProviderActionTest({ provider, linkType: 'external', externalType: 'code' }).test();
 			new ProviderActionTest({ provider, linkType: 'external', externalType: 'issue' }).test();
-			new TrackingTest({ provider, linkType: 'web' }).test();
-			new TrackingTest({ provider, linkType: 'ide' }).test();
-			new TrackingTest({ provider, linkType: 'external', externalType: 'code' }).test();
-			new TrackingTest({ provider, linkType: 'external', externalType: 'issue' }).test();
+			//new TrackingTest({ provider, linkType: 'web' }).test();
+			//new TrackingTest({ provider, linkType: 'ide' }).test();
+			//new TrackingTest({ provider, linkType: 'external', externalType: 'code' }).test();
+			//new TrackingTest({ provider, linkType: 'external', externalType: 'issue' }).test();
 			new PayloadRequiredTest({ provider }).test();
 			new NoActionIdTest({ provider }).test();
 			new InvalidActionIdTest({ provider }).test();

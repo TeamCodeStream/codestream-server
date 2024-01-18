@@ -56,24 +56,22 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			return false;
 		}
 
+		const expectedMetaData = {
+			codestream_first_signin: new Date(this.currentUser.user.createdAt).toISOString()
+		};
 		const expectedMessage = {
 			userId: this.currentUser.user.nrUserId,
 			event: 'codestream/email unsubscribed',
 			properties: {
-				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
-				$email: this.currentUser.user.email,
-				name: this.currentUser.user.fullName,
-				//'Join Method': 'Created Team',
-				distinct_id: this.currentUser.user.nrUserId,
+				user_id: this.currentUser.user.nrUserId,
+				platform: 'codestream',
+				path: 'N/A (codestream)',
+				section: 'N/A (codestream)',
+				meta_data_15: JSON.stringify(expectedMetaData),
 				'meta_data': 'email_type: discussion',
 				'event_type': 'response'
 			}
 		};
-
-		if (this.unifiedIdentityEnabled) {
-			expectedMessage.properties['NR User ID'] = this.currentUser.user.nrUserId;
-			expectedMessage.properties['NR Tier'] = 'basic_user_tier';			
-		}
 
 		Assert.deepStrictEqual(data, expectedMessage, 'tracking data not correct');
 		return true;
