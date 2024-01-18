@@ -56,28 +56,27 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			return false;
 		}
 
+		const expectedMetaData = {
+			codestream_first_signin: new Date(this.currentUser.user.createdAt).toISOString()
+		};
+		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
+			expectedMetaData.codestream_region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
+		}
+	
 		const expectedMessage = {
 			userId: this.currentUser.user.nrUserId,
 			event: 'codestream/email unsubscribed',
 			properties: {
-				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
-				$email: this.currentUser.user.email,
-				name: this.currentUser.user.fullName,
-				//'Join Method': 'Created Team',
-				distinct_id: this.currentUser.user.nrUserId,
+				user_id: this.currentUser.user.nrUserId,
+				platform: 'codestream',
+				path: 'N/A (codestream)',
+				section: 'N/A (codestream)',
+				meta_data_15: JSON.stringify(expectedMetaData),
 				'meta_data': 'email_type: weekly_activity',
 				'event_type': 'response'
 			}
 		};
 
-		if (this.unifiedIdentityEnabled) {
-			expectedMessage.properties['NR User ID'] = this.currentUser.user.nrUserId;
-			expectedMessage.properties['NR Tier'] = 'basic_user_tier';
-		}
-
-		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
-			expectedMessage.properties.Region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
-		}
 		Assert.deepStrictEqual(data, expectedMessage, 'tracking data not correct');
 		return true;
 	}

@@ -66,111 +66,33 @@ class AnalyticsClient {
 			return ;
 		}
 
-		const trackObject = { };
-
+		const trackObject = { 
+			platform: 'codestream',
+			path: 'N/A (codestream)',
+			section: 'N/A (codestream)'
+		};
+		const metaData = {};
 		if (user) {
-			Object.assign(trackObject, {
-				distinct_id: user.get('nrUserId'), //user.id,
-				'$email': user.get('email'),
-				name: user.get('fullName'),
-				//'Join Method': user.get('joinMethod'),
-				//'Last Invite Type': user.get('lastInviteType'),
-				'Country': user.get('countryCode')
-			});
-			if (user.get('registeredAt')) {
-				trackObject['$created'] = new Date(user.get('registeredAt')).toISOString();
-			}
-			//if (user.get('lastPostCreatedAt')) {
-			//	trackObject['Date of Last Post'] = new Date(user.get('lastPostCreatedAt')).toISOString();
-			//}
-
-
-			if (!request.request.headers['x-cs-enable-uid']) {
-				// handle pre unified identity analytics, remove when we fully move to UNIFIED_IDENTITY
-				if (user.get('providerInfo')) {
-					const providerInfo = user.get('providerInfo');
-					const data = (
-						team &&
-						providerInfo[team.id] &&
-						providerInfo[team.id].newrelic &&
-						providerInfo[team.id].newrelic.data
-					);
-					if (data) {
-						if (data.userId) {
-							trackObject['NR User ID'] = data.userId;
-						} 
-						if (data.orgIds && data.orgIds.length) {
-							trackObject['NR Organization ID'] = data.orgIds[0];
-						}
-					}
-				}
-			} else {
-				if (user.get('nrUserId')) {
-					trackObject['NR User ID'] = user.get('nrUserId');
-				}
-				if (user.get('nrUserInfo') && user.get('nrUserInfo').userTier) {
-					trackObject['NR Tier'] = user.get('nrUserInfo').userTier
-				}
-			}
+			trackObject.user_id = user.get('nrUserId');
+			metaData.codestream_first_signin = new Date(user.get('createdAt')).toISOString();
 		}
 
 		if (team) {
-			let teamSize;
-			if (company) {
-				teamSize = await company.getCompanyMemberCount(request.data);
-			}
-			Object.assign(trackObject, {
-				'Team ID': team.id,
-				//'Team Name': team.get('name'),
-				'Team Size': teamSize,
-				'Team Created Date': new Date(team.get('createdAt')).toISOString()
-			});
+			metaData.codestream_organization_created = new Date(team.get('createdAt')).toISOString();
 		}
 
 		if (company) {
-			trackObject['Company Name'] = company.get('name');
-			trackObject['Company ID'] = company.id;
-			//trackObject['Plan'] = company.get('plan');
-			trackObject['Reporting Group'] = company.get('reportingGroup') || '';
-			/* Remove these per NR-156469
-			if (request.request.headers['x-cs-enable-uid']) { // remove check when we move to UNIFIED_IDENTITY
-				trackObject['CodeStream Only'] = !!company.get('codestreamOnly');
-				trackObject['Org Origination'] = company.get('orgOrigination');
-			}
-			*/
-			/*
-			trackObject.company = {
-				id: company.id,
-				name: company.get('name'),
-				plan: company.get('plan'),
-				created_at: new Date(company.get('createdAt')).toISOString()
-			};
-			*/
-			if (company.get('trialStartDate')) {
-				trackObject.company.trialStart_at = new Date(company.get('trialStartDate')).toISOString();
-			}
-			if (company.get('trialEndDate')) {
-				trackObject.company.trialEnd_at = new Date(company.get('trialEndDate')).toISOString();
-			}
-			if (company.get('testGroups')) {
-				trackObject['AB Test'] = Object.keys(company.get('testGroups')).map(key => {
-					return `${key}|${company.get('testGroups')[key]}`;
-				});
-			}
-
-			// remove the header check for x-cs-enable-uid when we fully move to UNIFIED_IDENTITY
-			if (request.request.headers['x-cs-enable-uid'] && company.get('linkedNROrgId')) {
-				trackObject['NR Organization ID'] = company.get('linkedNROrgId');
-			}
+			metaData.codestream_organization_id = company.id;
 		}
 
 		// translate the runtime environment into a region, if possible
 		const { environmentGroup } = request.api.config;
 		const { runTimeEnvironment } = request.api.config.sharedGeneral;
 		if (environmentGroup && environmentGroup[runTimeEnvironment]) {
-			trackObject.Region = environmentGroup[runTimeEnvironment].name;
+			metaData.codestream_region = environmentGroup[runTimeEnvironment].name;
 		}
 
+		trackObject.meta_data_15 = JSON.stringify(metaData);
 		Object.assign(trackObject, data);
 		this.track(
 			event,

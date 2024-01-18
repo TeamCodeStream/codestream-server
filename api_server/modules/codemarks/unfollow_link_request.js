@@ -96,8 +96,8 @@ class UnfollowLinkRequest extends UnfollowCodemarkRequest {
 		const team = await this.data.teams.getById(this.codemark.get('teamId'));
 		const company = team && await this.data.companies.getById(team.get('companyId'));
 		const trackObject = {
-			Change: 'Codemark Unfollowed',
-			'Source of Change': 'Email link'
+			meta_data_14: 'change: codemark_unfollowed',
+			meta_data_13: 'source_of_change: email_link'
 		};
 		return this.api.services.analytics.trackWithSuperProperties(
 			'Notification Change',
