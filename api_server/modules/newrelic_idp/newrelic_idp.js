@@ -703,8 +703,13 @@ if (!data.password) {
 	async determineRegion (org, options) {
 		// to determine region, we first try the org's "reporting account" ... but it's possible the user doesn't have access 
 		// to that account, so if that fails, fall back to _any_ account the user has access to
+		let region;
 		if (org.reportingAccountId) {
-			const region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options.tokenType, options);
+			try {
+				region = await this.regionFromAccountId(org.reportingAccountId, options.accessToken, options.tokenType, options);
+			} catch (ex) {
+				options.request.log(`NEWRELIC IDP TRACK: unable to get region from reporting account ${org.reportingAccountId}: ${ex.message}`);
+			}
 			if (region) {
 				options.request.log(`NEWRELIC IDP TRACK: region determined to be ${region} from reporting account`);
 			}
@@ -714,7 +719,11 @@ if (!data.password) {
 		// get user accounts
 		const accounts = await this.getUserAccounts(options);
 		for (const accountId of accounts) {
-			const region = await this.regionFromAccountId(accountId, options.accessToken, options.tokenType, options);
+			try {
+				region = await this.regionFromAccountId(accountId, options.accessToken, options.tokenType, options);
+			} catch (ex) {
+				options.request.log(`NEWRELIC IDP TRACK: unable to get region from accout ${accountId}: ${ex.message}`);
+			}
 			if (region) {
 				options.request.log(`NEWRELIC IDP TRACK: region determined to be ${region} from account ${accountId}`);
 				return region;
