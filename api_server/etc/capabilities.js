@@ -151,5 +151,10 @@ module.exports = {
 		description: 'Enable log search for entities',
 		version: '14.24.1',
 		restricted: true
+	},	
+	'showNrqlBuilder': {
+		description: 'Enable NRQL Builder',
+		version: '15.0.2',
+		restricted: true
 	}
 };
