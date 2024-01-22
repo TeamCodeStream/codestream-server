@@ -2,6 +2,7 @@
 
 'use strict';
 
+const Fs = require("fs");
 const StructuredConfigFactory = require(process.env.CSSVC_BACKEND_ROOT + '/shared/codestream_configs/lib/structured_config');
 const customConfigFunc = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_config');
 
@@ -19,6 +20,20 @@ const customConfigFunc = require(process.env.CSSVC_BACKEND_ROOT + '/shared/serve
 // }
 
 var Config;
+
+if (!Config) {
+	// pre-set config variables in the process environment
+	const EnvDataFile = `${process.env.CSSVC_BACKEND_ROOT}/api_server/config/${process.env.CSSVC_ENV}.json`;
+	if (Fs.existsSync(EnvDataFile)) {
+		for (const [key, value] of Object.entries(JSON.parse(Fs.readFileSync(EnvDataFile, 'UTF-8')))) {
+			if (!process.env[key]) {
+				process.env[key] = value;
+			}
+		}
+		process.env['CS_API_SANDBOX'] = process.env.CSSVC_BACKEND_ROOT;
+		process.env['CS_API_LOGS'] = `${process.env.CSSVC_BACKEND_ROOT}/log`;
+	}
+}
 
 Config = Config || StructuredConfigFactory.create({
 	configFile: process.env.CS_API_CFG_FILE || process.env.CSSVC_CFG_FILE,
