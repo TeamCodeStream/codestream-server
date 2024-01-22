@@ -23,5 +23,8 @@
 	"SHARED_GENERAL_NEW_RELIC_LANDING_SERVICE_URL": "https://landing.staging-service.newrelic.com",
 	"SHARED_GENERAL_NEW_RELIC_SEC_API_URL": "https://nrsec-workflow-api.staging-service.newrelic.com",
 	"SHARED_GENERAL_RUN_TIME_ENVIRONMENT": "local",
-	"STORAGE_MONGO_URL": "mongodb://localhost:27017/codestream"
+	"STORAGE_MONGO_URL": "mongodb://localhost:27017/codestream",
+	"US_VAULT_HOST": "https://vault-prd1a.r10.us.nr-ops.net:8200",
+	"BASE_VAULT_PATH": "containers/teams/codestream/base/codestream-server/",
+	"DEV_SECRETS_FILE": "api_server/config/dev-secrets.json"
 }
