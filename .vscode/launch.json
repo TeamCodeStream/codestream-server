@@ -9,8 +9,7 @@
             "CSSVC_BACKEND_ROOT": "${workspaceFolder}",
             "CSSVC_ENV": "local",
             "CSSVC_CFG_FILE": "${workspaceFolder}/codestream-docker.json",
-            "NODE_PATH": "${workspaceFolder}/broadcaster/node_modules:${workspaceFolder}/api_server/node_modules",
-            "STORAGE_MONGO_URL": "mongodb://localhost:27017/codestream"
+            "NODE_PATH": "${workspaceFolder}/api_server/node_modules:${workspaceFolder}/broadcaster/node_modules",
         },
         "request": "launch",
         "skipFiles": [

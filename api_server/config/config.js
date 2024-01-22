@@ -21,8 +21,9 @@ const customConfigFunc = require(process.env.CSSVC_BACKEND_ROOT + '/shared/serve
 
 var Config;
 
-if (!Config) {
-	// pre-set config variables in the process environment
+// Pre-set config variables in the process environment
+// This block should not fire when running in a legacy sandbox
+if (!Config && !process.env.CS_API_SANDBOX) {
 	const EnvDataFile = `${process.env.CSSVC_BACKEND_ROOT}/api_server/config/${process.env.CSSVC_ENV}.json`;
 	if (Fs.existsSync(EnvDataFile)) {
 		for (const [key, value] of Object.entries(JSON.parse(Fs.readFileSync(EnvDataFile, 'UTF-8')))) {
