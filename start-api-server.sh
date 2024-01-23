@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 function init_database {
-    export STORAGE_MONGO_URL=$(grep '"STORAGE_MONGO_URL"' api_server/config/local.json | cut -f4 -d\")
-    api_server/bin/set-globals.js || { echo "set-globals failed"l; exit 1; }
-    api_server/bin/ensure-indexes.js build || { echo "ensure-indexes failed"; exit 1; }
+	[ -z "$STORAGE_MONGO_URL" ] && export STORAGE_MONGO_URL=$(grep '"STORAGE_MONGO_URL"' api_server/config/local.json | cut -f4 -d\")
+	api_server/bin/set-globals.js || { echo "set-globals failed"l; exit 1; }
+	api_server/bin/ensure-indexes.js build || { echo "ensure-indexes failed"; exit 1; }
 }
 
 export CSSVC_BACKEND_ROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -18,8 +18,8 @@ CSSVC_ENV=$CSSVC_ENV
 "
 
 echo "$*" | grep -q '\-no-db' || {
-    echo "======= Initializing database ======="
-    init_database
+	echo "======= Initializing database ======="
+	init_database
 }
 echo "$*" | grep -q '\-init-db-only' && exit 0
 
