@@ -17,8 +17,10 @@ CSSVC_CFG_FILE=$CSSVC_CFG_FILE
 CSSVC_ENV=$CSSVC_ENV
 "
 
-echo "======= Initializing database ======="
-init_database
+echo "$*" | grep -q '\-no-db' || {
+    echo "======= Initializing database ======="
+    init_database
+}
 echo "$*" | grep -q '\-init-db-only' && exit 0
 
 echo "======== Starting API ========="
