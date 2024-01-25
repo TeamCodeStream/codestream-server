@@ -17,7 +17,6 @@ const getOnPremSupportData = require(process.env.CSSVC_BACKEND_ROOT + '/shared/s
 const customSchemaMigrationMatrix = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_schema_migration');
 const firstConfigInstallationHook= require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/custom_cfg_initialization');
 
-
 // establish our data collections
 const DataCollections = {
 	users: require(ModuleDirectory + '/users/user'),
@@ -55,7 +54,6 @@ const MongoCollections = Object.keys(DataCollections).concat([
 	'globals',
 	'newRelicOrgs'
 ]);
-
 
 (async function() {
 	if (ApiConfig.configIsMongo()) {
