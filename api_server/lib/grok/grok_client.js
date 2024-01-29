@@ -2,6 +2,7 @@
 
 const { Client } = require('undici');
 const Errors = require('./errors');
+const NerdGraphOps = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_idp/nerd_graph_ops');
 const PostCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/post_creator');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
@@ -16,9 +17,9 @@ class GrokClient {
 		this.errorHandler.add(Errors);
 
 		if (!!this.request.body.analyze) {
-			this.promptTracking = 'Unprompted';
+			this.promptTracking = 'unprompted';
 		} else if (this.request.body.text.match(/@AI/gmi)) {
-			this.promptTracking = 'Prompted';
+			this.promptTracking = 'prompted';
 		}
 
 		if (!this.request.body.teamId) {
@@ -59,6 +60,7 @@ class GrokClient {
 			// the clients know there was an issue - otherwise, infinite spin.
 			throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
+		this.accountId = new NerdGraphOps().accountIdFromErrorGroupGuid(this.codeError.get('objectId'));
 
 		const grokConversation = this.topmostPost.get('grokConversation');
 
@@ -552,16 +554,14 @@ class GrokClient {
 	async trackErrorAndThrow (errorKey, data) {
 		const { postRequest, user, team, company } = this;
 
-		let errorCode = Errors[errorKey].code;
-
 		const trackData = {
-			'Parent ID': this.topmostPost.get('id'),
-			'Code Error ID': this.topmostPost.get('codeErrorId'),
-			'Error Code': errorCode,
+			event_type: 'response',
+			account_id: this.accountId,
+			meta_data: `item_guid: ${this.codeError.get('objectId')}`
 		};
 
 		await this.api.services.analytics.trackWithSuperProperties(
-			'Grok Response Failed',
+			'codestream/grok_response failed',
 			trackData,
 			{ request: postRequest, user, team, company }
 		);
@@ -597,16 +597,14 @@ class GrokClient {
 	async trackPost () {
 		const { postRequest, user, team, company } = this;
 
-		const codeErrorId = this.codeError.get('id');
-
 		const trackData = {
-			'Parent ID': codeErrorId,
-			'Parent Type': 'Error',
-			'Grok Post': this.promptTracking,
+			event_type: 'response',
+			account_id: this.accountId,
+			meta_data: `response_type: ${this.promptTracking}`
 		};
 
 		await this.api.services.analytics.trackWithSuperProperties(
-			'Reply Created',
+			'codestream/grok_response',
 			trackData,
 			{ request: postRequest, user, team, company }
 		);
