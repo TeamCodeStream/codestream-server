@@ -82,6 +82,9 @@
 		"shell-escape": "0.2.0",
 		"snyk": "1.1266.0"
 	},
+	"otherDependencies": {
+		"@datanerd/codestream-utils": "^0.1.7"
+	},
 	"overrides": {
 		"multer-s3@2.10.0": {
 			"file-type": "16.5.4"

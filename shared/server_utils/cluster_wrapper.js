@@ -6,7 +6,7 @@
 const OS = require('os');
 const Program = require('commander');
 const Cluster = require('cluster');
-// const DevSecrets = require('@datanerd/codestream-utils');
+const DevSecrets = require('@datanerd/codestream-utils');
 
 Program
 	.option('--one_worker [one_worker]', 'Use only one worker')	// force to use only worker, sometimes desirable for clarity when reading output
