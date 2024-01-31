@@ -4,6 +4,7 @@
 
 const Utils = require('./utils');
 const HtmlEscape = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/html_escape');
+const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_util/email_utilities');
 
 const MAX_PER_SECTION = 20;
 
