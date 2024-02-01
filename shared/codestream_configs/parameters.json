@@ -418,7 +418,8 @@
 		"suppressEmails": {
 			"type": "boolean",
 			"default": true,
-			"desc": "Stop all email from being sent"
+			"desc": "Stop all email from being sent",
+			"env": "CSSVC_SUPPRESS_EMAILS"
 		}
 	},
 	"emailDeliveryService": {
@@ -1001,7 +1002,7 @@
 		"awsSQS": {
 			"outboundEmailQueueName": {
 				"type": "string",
-				"default": "local_${DT_USER}_outboundEmail",
+				"default": "local_${USER}_outboundEmail",
 				"desc": "SQS queue name",
 				"env": "CSSVC_OUTBOUND_EMAIL_QUEUE_NAME",
 				"envRequred": true
