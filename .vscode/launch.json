@@ -21,7 +21,7 @@
 			"type": "node"
 		},
 		{
-			"name": "api_ser.js jprice",
+			"name": "api_ser.js local-with-email",
 			"program": "${workspaceFolder}/api_server/bin/api_server.js",
 			"args": [
 				"--one_worker",
@@ -35,7 +35,7 @@
 				"AWS_PROFILE": "nrdev-super",
 				"_comment": "These vars enable the api to queue outbound emails via SQS",
 				"CSSVC_SUPPRESS_EMAILS": "false",
-				"CSSVC_OUTBOUND_EMAIL_QUEUE_NAME": "local_jprice_outboundEmail",
+				"CSSVC_OUTBOUND_EMAIL_QUEUE_NAME": "local_${env:USER}_outboundEmail",
 				"CS_API_DONT_WANT_AWS": "false"
 			},
 			"request": "launch",
