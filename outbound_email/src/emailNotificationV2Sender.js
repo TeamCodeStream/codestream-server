@@ -12,7 +12,7 @@ class EmailNotificationV2Sender {
 		const fromName = creator ? `${sender.getUserDisplayName(creator)} (via CodeStream)` : 'CodeStream';
 		const subject = this.getNotificationSubject(options);
 		const teamId = codeError ? codeError.accountId : team.id;
-		const replyTo = inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${teamId}@${replyToDomain}`;
+		const replyTo = ''; //inboundEmailDisabled ? '' : `${replyToPostId}.${stream.id}.${teamId}@${replyToDomain}`;
 		await sender.sendEmail({
 			type: 'notification',
 			from: { email: senderEmail, name: fromName },
