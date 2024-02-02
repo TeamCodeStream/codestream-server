@@ -777,6 +777,16 @@
 					"type": "string",
 					"desc": "API Key for New Relic Grok Requests (through Azure OpenAI)",
 					"env": "CSSVC_NEWRELICGROK_API_KEY"
+				},
+				"model": {
+					"type": "string",
+					"desc": "Model for New Relic Grok Requests (through Azure OpenAI)",
+					"env": "CSSVC_NEWRELICGROK_MODEL"
+				},
+				"prompt": {
+					"type": "string",
+					"desc": "Prompt for New Relic Grok Requests (through Azure OpenAI)",
+					"env": "CSSVC_NEWRELICGROK_PROMPT"
 				}
 			}
 		},
