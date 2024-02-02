@@ -217,23 +217,32 @@ class GrokClient {
 		}
 
 		const code = this.request.body.codeBlock;
+		const language = this.request.body.language;
 
 		const errorText = `${this.codeError.get('title')} ${this.codeError.get('text')}`;
 
-		let content = `Analyze this stack trace:\n\`\`\`\n${errorText}\n${stackTrace}\n\`\`\`\n`;
+		let content = '';
 
-		if (code) {
-			content += `\nAnd fix the following code:\n\`\`\`\n"${code}"\n\`\`\``;
+		if (language) {
+			content += `\ncoding language: ${language}\n`;
 		}
 
-		const initialPrompt = [{
-			role: 'system',
-			content: 'As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. I will output brief descriptions and the fixed code blocks.'
-		},
+		content += `Analyze this stack trace:\n\`\`\`\n${errorText}\n${stackTrace}\n\`\`\`\n`;
+
+		if (code) {
+			content += `\nAnd fix the following code:\n\`\`\`\n${code}\n\`\`\``;
+		}
+
+		const initialPrompt = [
+			{
+				role: 'system',
+				content: this.api.config.integrations.newrelicgrok.prompt
+			},
 			{
 				role: 'user',
 				content: content
-			}];
+			}
+		];
 
 		const postCreator = new PostCreator({
 			request: this.postRequest,
@@ -403,7 +412,7 @@ class GrokClient {
 		}
 
 		const request = {
-			model: 'gpt-35-turbo',
+			model: this.api.config.integrations.newrelicgrok.model,
 			messages: conversation,
 			temperature: temperature,
 			stream: true

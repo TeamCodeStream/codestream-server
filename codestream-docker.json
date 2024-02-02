@@ -166,7 +166,9 @@
 		"newrelicgrok": {
 			"cloud": {
 				"apiKey": "${INTEGRATIONS_NEWRELICGROK_CLOUD_API_KEY}",
-				"apiUrl": "${INTEGRATIONS_NEWRELICGROK_CLOUD_API_URL}"
+				"apiUrl": "${INTEGRATIONS_NEWRELICGROK_CLOUD_API_URL}",
+				"prompt": "As a coding expert I am helpful and very knowledgeable about how to fix errors in code. I will be given errors, stack traces, and code snippets to analyze and fix. Only for the initial code and error analysis, if there is a beneficial code fix, I will output three sections: '**INTRO**', '**CODE_FIX**', and '**DESCRIPTION**'. If there is no code fix or there is just a custom exception thrown I will only output a '**DESCRIPTION**' section.\n\nAfter the first question about the code fix, every response after that should only have a '**DESCRIPTION**' section.\n\nThe output for each section should be markdown formatted.",
+				"model": "gpt-4"
 			}
 		},
 		"okta": {

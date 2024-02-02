@@ -54,10 +54,15 @@ async function readVaultDevSecrets () {
 		await asyncPool(8, secrets, read);
 		return env;
 	} catch (e) {
-		if ( e.message === 'permission denied') {
-			console.error('Permission denied reading valut secrets. Are you logged into vault??');
+		if (e.message === 'permission denied') {
+			console.error('Permission denied reading vault secrets. Are you logged into vault??');
 			process.exit(1);
 		}
+		if (e.message === 'Status 404') {
+			console.error('Vault path not found. Is a secret missing?');
+			process.exit(1);
+		}
+		console.error("Error reading vault secrets", e);
 		throw e;
 	}
 }

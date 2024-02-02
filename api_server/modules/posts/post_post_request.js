@@ -47,8 +47,8 @@ class PostPostRequest extends PostRequest {
 			return super.handleResponse();
 		}
 
-		if(this.reinitializeGrok){
-			if(!this.request.body.parentPostId){
+		if(this.reinitializeGrok) {
+			if(!this.request.body.parentPostId) {
 				throw this.errorHandler.error('parameterRequired', { reason: 'parentPostId is required for Grok reinitialization' });
 			}
 
@@ -107,7 +107,8 @@ class PostPostRequest extends PostRequest {
 				'reviewCheckpoint': '<Checkpoint number of the review this post is associated with>',
 				'addedUsers': '<Array of emails representing non-team users being implicitly invited and mentioned>',
 				'analyze':'<Boolean to indicate whether to have Grok analyze the codeError>',
-				'codeBlock':'<String representing a code block associated with an error >'
+				'codeBlock':'<String representing a code block associated with an error>',
+				'language':'<String representing the language of the code block>'
 			}
 		};
 		description.returns.summary = 'A post object, plus additional objects that may have been created on-the-fly, marker objects and marker locations for any markers';
