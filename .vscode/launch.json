@@ -1,27 +1,54 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-    {
-        "name": "api_ser.js local",
-        "program": "${workspaceFolder}/api_server/bin/api_server.js",
-        "args": ["--one_worker", "--dev_secrets"],
-        "env": {
-            "CSSVC_BACKEND_ROOT": "${workspaceFolder}",
-            "CSSVC_ENV": "local",
-            "CSSVC_CFG_FILE": "${workspaceFolder}/codestream-docker.json",
-            "NODE_PATH": "${workspaceFolder}/api_server/node_modules:${workspaceFolder}/broadcaster/node_modules",
-        },
-        "request": "launch",
-        "skipFiles": [
-            "<node_internals>/**"
-        ],
-        "type": "node"
-    },
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Node: Debugger (Remote)",
-            "port": 9230
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "api_ser.js local",
+			"program": "${workspaceFolder}/api_server/bin/api_server.js",
+			"args": [
+				"--one_worker",
+				"--dev_secrets"
+			],
+			"env": {
+				"CSSVC_BACKEND_ROOT": "${workspaceFolder}",
+				"CSSVC_ENV": "local",
+				"CSSVC_CFG_FILE": "${workspaceFolder}/codestream-docker.json",
+				"NODE_PATH": "${workspaceFolder}/api_server/node_modules:${workspaceFolder}/broadcaster/node_modules",
+			},
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node"
+		},
+		{
+			"name": "api_ser.js local-with-email",
+			"program": "${workspaceFolder}/api_server/bin/api_server.js",
+			"args": [
+				"--one_worker",
+				"--dev_secrets"
+			],
+			"env": {
+				"CSSVC_BACKEND_ROOT": "${workspaceFolder}",
+				"CSSVC_ENV": "local",
+				"CSSVC_CFG_FILE": "${workspaceFolder}/codestream-docker.json",
+				"NODE_PATH": "${workspaceFolder}/api_server/node_modules:${workspaceFolder}/broadcaster/node_modules",
+				"_comment": "These vars enable the api to queue outbound emails via SQS",
+				"_AWS_PROFILE": "nrdev-super",
+				"CSSVC_SUPPRESS_EMAILS": "false",
+				"CSSVC_OUTBOUND_EMAIL_QUEUE_NAME": "local_${env:USER}_outboundEmail",
+				"CS_API_DONT_WANT_AWS": "false"
+			},
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node"
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Node: Debugger (Remote)",
+			"port": 9230
 		}
-    ]
+	]
 }

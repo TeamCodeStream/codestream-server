@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "$*" | egrep -q '\-(help|h)' && echo "usage: $0 [-init-db-only | -no-db | -enable-mailout ]" && exit 1
+
 function init_database {
 	[ -z "$STORAGE_MONGO_URL" ] && export STORAGE_MONGO_URL=$(grep '"STORAGE_MONGO_URL"' api_server/config/local.json | cut -f4 -d\")
 	api_server/bin/set-globals.js || { echo "set-globals failed"l; exit 1; }
@@ -24,4 +26,5 @@ echo "$*" | grep -q '\-no-db' || {
 echo "$*" | grep -q '\-init-db-only' && exit 0
 
 echo "======== Starting API ========="
+echo "$*" | grep -q '-enable-mailout' && source ./enable-mailout.env.sh && echo "API will queue outbound email to SQS $CSSVC_OUTBOUND_EMAIL_QUEUE_NAME"
 api_server/bin/api_server.js --one_worker --dev_secrets

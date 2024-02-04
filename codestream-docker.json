@@ -47,7 +47,7 @@
 		}
 	},
 	"email": {
-		"emailTo": "${DT_USER}@newrelic.com",
+		"emailTo": "${USER}@newrelic.com",
 		"notificationInterval": 300000,
 		"replyToDomain": "${CSSVC_ENV}.cdstrm.us",
 		"senderEmail": "${CSSVC_ENV}_alerts@cdstrm.us",
