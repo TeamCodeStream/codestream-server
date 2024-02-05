@@ -6,7 +6,7 @@
 		"commander": "8.3.0",
 		"hjson": "3.2.2",
 		"html-entities": "1.4.0",
-		"mailparser": "3.6.5",
+		"mailparser": "3.6.7",
 		"mongodb": "4.17.0",
 		"newrelic": "11.6.1",
 		"node-vault": "0.10.2",
