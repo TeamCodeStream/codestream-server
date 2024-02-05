@@ -1,11 +1,10 @@
 {
-	"AWS_REGION": "us-east-1",
+	"QUEUING_ENGINE_AWS_SQS_REGION": "us-east-1",
 	"BROADCAST_ENGINE_PUBNUB_PREFERRED_KEY_COLOR": "blue",
-	"BROADCAST_ENGINE_PUBNUB_UUID": "CodeStreamServer",
 	"CS_API_AUTH_ORIGIN": "https://auth.cdstrm.dev/no-auth",
 	"CS_API_CALLBACK_ENV": "local",
 	"CS_API_DONT_WANT_AWS": "true",
-	"CS_API_MARKETING_SITE_URL": "https://teamcodestream.webflow.io",
+	"CS_API_MARKETING_SITE_URL": "https://newrelic.com/codestream",
 	"CS_API_PORT": "12078",
 	"CS_API_PUBLIC_API_URL": "https://localhost.newrelic.com:12079",
 	"CSSVC_EMAIL_SUPPRESS_EMAILS": "true",
@@ -23,8 +22,7 @@
 	"SHARED_GENERAL_NEW_RELIC_LANDING_SERVICE_URL": "https://landing.staging-service.newrelic.com",
 	"SHARED_GENERAL_NEW_RELIC_SEC_API_URL": "https://nrsec-workflow-api.staging-service.newrelic.com",
 	"SHARED_GENERAL_RUN_TIME_ENVIRONMENT": "local",
-	"STORAGE_MONGO_URL": "mongodb://localhost:27017/codestream",
 	"US_VAULT_HOST": "https://vault-prd1a.r10.us.nr-ops.net:8200",
-	"BASE_VAULT_PATH": "containers/teams/codestream/base/codestream-server/",
+	"BASE_VAULT_PATH": "containers/teams/codestream/services/codestream-server/base/",
 	"DEV_SECRETS_FILE": "api_server/config/dev-secrets.json"
 }
