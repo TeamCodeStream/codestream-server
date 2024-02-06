@@ -71,15 +71,4 @@ Develop to your heart's content!!!!  We _love_ pull-requests.
 
 ## Run everything in docker
 
-If you want to just run the api_server locally with fewer commands. 
-
-1. Make sure you are logged into vault
-
-1. Source the secrets into your current shell
-   ```
-   . ./devSecrets.sh
-   ```
-1. Start docker compose
-   ```
-   docker compose up
-   ```
+Not working right now :(. Check back later.
