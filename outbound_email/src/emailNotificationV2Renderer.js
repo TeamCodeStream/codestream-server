@@ -58,11 +58,13 @@ class EmailNotificationV2Renderer {
 </div>
 `;
 				if (!inboundEmailDisabled) {
+					/*
 					secondFooterDiv = `
 <div class="ensure-white">
 	Tip: post a reply to this ${what} by replying to this email directly.
 </div>
 `;
+					*/
 				}
 			}
 		}

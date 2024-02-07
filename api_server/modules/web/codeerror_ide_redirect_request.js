@@ -12,7 +12,7 @@ class CodeErrorIdeRedirectRequest extends IdeRedirectRequest {
 		this.templateProps.teamId = teamId;
 		this.templateProps.pageType = 'codeerror';
 		this.templateProps.pageWhat = 'CodeError';
-		this.templateProps.analyticsContentType = 'Error';
+		this.templateProps.analyticsContentType = 'error';
 		if (!this.templateProps.entityId) return false;
 		else return true;
 	}

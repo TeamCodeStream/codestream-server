@@ -9,6 +9,11 @@ const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_serv
 
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
+	constructor (options) {
+		super(options);
+		this.usingNRLogins = true;
+	}
+
 	get description () {
 		return 'should send a Team Member Invited event for tracking purposes when a user is invited';
 	}
@@ -77,9 +82,9 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
 		const errors = [];
 		let result = (
-			((data.userId === this.currentUser.user.id) || errors.push('userId not correct')) &&
+			((data.userId === this.currentUser.user.nrUserId) || errors.push('userId not correct')) &&
 			((data.event === 'Team Member Invited') || errors.push('event not correct')) &&
-			((properties.distinct_id === this.currentUser.user.id) || errors.push('distinct_id not set to request originator\'s ID')) &&
+			((properties.distinct_id === this.currentUser.user.nrUserId) || errors.push('distinct_id not set to request originator\'s ID')) &&
 			((properties['Invitee Email Address'] === this.createdUser.email) || errors.push('Email Address does not match request originator')) &&
 			((properties['First Invite'] === firstInvite) || errors.push('First Invite not correct')) &&
 			((properties['$email'] === this.currentUser.user.email) || errors.push('email not correct')) && 

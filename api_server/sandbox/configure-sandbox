@@ -36,7 +36,7 @@ else
 fi
 
 echo "npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS (from `pwd`)"
-npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS
+npm install --no-save $CS_API_NPM_INSTALL_XTRA_OPTS || exit 1
 
 # Add absolute remotes
 echo git remote add private git@github.com:teamcodestream/codestream-server-private

@@ -17,8 +17,6 @@ services:
       - "8443"
     ports:
       - "12078:8443"
-    env_file:
-      - dev.env
     environment:
       # Secrets below - pass through (populate with `. ./devSecrets.sh`)
       - BROADCAST_ENGINE_PUBNUB_BLUE_KEY_PUBLISH_KEY

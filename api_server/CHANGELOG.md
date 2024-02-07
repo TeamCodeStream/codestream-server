@@ -1,5 +1,11 @@
 # Change Log
 
+## [15.1.0] - 2024-2-7
+
+### Changed
+
+- Backend support for new "Apply Fix" NRAI feature
+
 ## [15.0.5] - 2024-1-22
 
 ### Fixed

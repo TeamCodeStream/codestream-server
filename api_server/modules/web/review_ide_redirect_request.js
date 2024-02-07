@@ -12,7 +12,7 @@ class ReviewIdeRedirectRequest extends IdeRedirectRequest {
 		this.templateProps.teamId = teamId;
 		this.templateProps.pageType = 'review';
 		this.templateProps.pageWhat = 'Review';
-		this.templateProps.analyticsContentType = 'Feedback Request';
+		this.templateProps.analyticsContentType = 'feedback_request';
 		if (!this.templateProps.entityId) return false;
 		else return true;
 	}

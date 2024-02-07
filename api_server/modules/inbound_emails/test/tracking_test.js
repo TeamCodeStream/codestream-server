@@ -6,6 +6,11 @@ const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_serv
 
 class TrackingTest extends InboundEmailMessageTest {
 
+	constructor (options) {
+		super(options);
+		this.usingNRLogins = true;
+	}
+
 	get description () {
 		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
 		return `should send a Reply Created event for tracking purposes when handling a reply to a codemark via email${unifiedIdentity}`;
@@ -83,63 +88,36 @@ class TrackingTest extends InboundEmailMessageTest {
 		if (type !== 'track') {
 			return false;
 		}
+
+		const expectedMetaData = {
+			codestream_first_signin: new Date(this.currentUser.user.createdAt).toISOString(),
+			codestream_organization_created: new Date(this.team.createdAt).toISOString(),
+			codestream_organization_id: this.company.id,
+			codestream_nr_organization_id: this.company.linkedNROrgId
+		};
+		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
+			expectedMetaData.codestream_region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
+		}
+	
 		const parentId = this.expectedParentId || this.postData[0].codemark.id;
 		const parentType = this.expectedParentType || 'Codemark';
-		//const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
-		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
-		const abTest = Object.keys(this.testGroupData).map(key => {
-			return `${key}|${this.testGroupData[key]}`;
-		});
-		const { properties } = data;
-		const errors = [];
-		let result = (
-			((data.userId === this.users[1].user.id) || errors.push('userId not set to post originator\'s ID')) && 
-			((data.event === 'Reply Created') || errors.push('event not correct')) &&
-			((properties['Parent ID'] === parentId) || errors.push('Parent ID not set to codemark or review ID')) &&
-			((properties['Parent Type'] === parentType) || errors.push('Parent Type not correct')) && 
-			((properties.distinct_id === this.users[1].user.id) || errors.push('distinct_id not set to post originator\'s ID')) &&
-			((properties['$email'] === this.users[1].user.email) || errors.push('email does not match post originator')) &&
-			((properties['name'] === this.users[1].user.fullName) || errors.push('name does not match post originator')) &&
-			//((properties['Join Method'] === this.users[1].user.joinMethod) || errors.push('Join Method does not match post originator')) &&
-			//((properties['Last Invite Type'] === this.users[1].user.lastInviteType) || errors.push('Last Invite Type does not match post originator')) &&
-			((properties['Team ID'] === this.team.id) || errors.push('Team ID does not match team')) &&
-			//((properties['Team Name'] === this.team.name) || errors.push('Team Name does not match team')) &&			
-			((properties['Team Size'] === 2) || errors.push('Team Size does not match number of members in team')) &&
-			((properties['Team Created Date'] === new Date(this.team.createdAt).toISOString()) || errors.push('Team Created Date not correct')) &&
-			//((properties['Plan'] === plan) || errors.push('Plan not correct')) &&
-			((properties['Company Name'] === this.company.name) || errors.push('Company Name does not match name of company')) &&
-			((properties['Company ID'] === this.company.id) || errors.push('Company ID does not match ID of company')) &&
-			((properties.Endpoint === 'Email') || errors.push('Endpoint not correct')) &&
-			//((properties['Date of Last Post'] === new Date(this.post.createdAt).toISOString()) || errors.push('Date of Last Post not correct')) &&
-			((properties['$created'] === new Date(this.users[1].user.registeredAt).toISOString()) || errors.push('createdAt not correct')) &&
-			((properties['First Post?'] === new Date(this.post.createdAt).toISOString()) || errors.push('First Post not set to creation date of post')) &&
-			((properties['Reporting Group'] === '') || errors.push('Reporting Group should be empty string')) 
-			//((properties.company.id === this.company.id) || errors.push('company.id not correct')) &&
-			//((properties.company.name === this.company.name) || errors.push('company.name not correct')) &&
-			//((properties.company.created_at === new Date(this.company.createdAt).toISOString()) || errors.push('company.createdAt not correct')) &&
-			//((properties.company.plan === plan) || errors.push('company.plan not correct'))
-		);
-		/* Remove these per NR-156469
-		if (this.unifiedIdentityEnabled) {
-			result &&= (
-				((properties['CodeStream Only'] === true) || errors.push('CodeStream Only should be true')) &&
-				((properties['Org Origination'] === 'CS') || errors.push('Org Origination should be CS'))
-			);
-		}
-		*/
-		
-		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
-			result &&= (properties.Region === (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name) || errors.push('Region not correct');
-		}
-		if (trial) {
-			result = result && (
-				((properties.company.trialStart_at === new Date(this.company.trialStartDate).toISOString()) || errors.push('company.trialStart_at not correct')) &&
-				((properties.company.trialEnd_at === new Date(this.company.trialEndDate).toISOString()) || errors.push('company.trialEnd_at not correct'))
-			);
-		}
-		Assert.deepStrictEqual(properties['AB Test'], abTest, 'AB Test is not correct');
+		const expectedMessage = {
+			userId: this.currentUser.user.nrUserId,
+			event: 'Reply Created',
+			properties: {
+				//user_id: this.currentUser.user.nrUserId,
+				platform: 'codestream',
+				path: 'N/A (codestream)',
+				section: 'N/A (codestream)',
+				meta_data_15: JSON.stringify(expectedMetaData),
+				'Parent ID': parentId,
+				'Parent Type': parentType,
+				Endpoint: 'Email',
+				'First Post?': new Date(this.post.createdAt).toISOString()
+			}
+		};
 
-		Assert(result === true && errors.length === 0, 'response not valid: ' + errors.join(', '));
+		Assert.deepStrictEqual(data, expectedMessage, 'tracking data not correct');
 		return true;
 	}
 }

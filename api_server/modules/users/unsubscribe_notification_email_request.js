@@ -27,7 +27,7 @@ class UnsubscribeWeeklyEmailRequest extends UnsubscribeEmailRequest {
 	}
 
 	getEmailType () {
-		return 'Notification';
+		return 'discussion';
 	}
 
 	// describe this route for help

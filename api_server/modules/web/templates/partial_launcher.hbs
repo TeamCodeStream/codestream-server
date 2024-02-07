@@ -451,34 +451,42 @@ window.CODESTREAM.openEditor = function(ide) {
 		var ideSelection;
 		if (window.CODESTREAM._state) {
 			if (window.CODESTREAM._state.MRU === true) {
-				ideSelection = "MRU";
+				ideSelection = "mru";
 			}
 			else if (window.CODESTREAM._state.lastOriginDetail === true) {
-				ideSelection = "lastOriginDetail";
+				ideSelection = "last_origin_detail";
 			}
 			else {
-				ideSelection = "User Selected";
+				ideSelection = "user_selected";
 			}
 		}
 		if (!ideSelection) {
-			ideSelection = "User Selected";
+			ideSelection = "user_selected";
 		}
 
 		window.protocolCheck(protocol,
 			function () {
 				//fail				
-				window.analytics.track("Opened in IDE Failed", { 
-					Source: "{{src}}" || "Shared Link",
-					IDE: moniker, 
-					"IDE Selection": ideSelection
+				const source = "{{src}}" || "shared_link";
+				window.analytics.track("codestream/ide redirect_failed", { 
+					properties: {
+						"event_type": "response",
+						"meta_data_3": `source: ${source}`,
+						"meta_data": `ide_detail: ${moniker}`, 
+						"meta_data_2": `selection_method: ${ideSelection}`
+					}
 				});
 				console.log(`CodeStream: failed in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 			}, function () {
 				//success			
-				window.analytics.track("Opened in IDE", { 
-					Source: "{{src}}" || "Shared Link",
-					IDE: moniker, 
-					"IDE Selection": ideSelection
+				const source = "{{src}}" || "shared_link";
+				window.analytics.track("codestream/ide selected", { 
+					properties: {
+						"event_type": "response",
+						"meta_data_3": `source: ${source}`,
+						"meta_data": `ide_detail: ${moniker}`, 
+						"meta_data_2": `selection_method: ${ideSelection}`
+					}
 				});
 				console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 		});	

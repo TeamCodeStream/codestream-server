@@ -138,10 +138,11 @@ class UnsubscribeEmailRequest extends RestfulRequest {
 	// track an event indicating the user unsubscribed
 	async trackUnsubscribe () {
 		const trackObject = {
-			'Email Type': this.getEmailType()
+			"event_type": "response",
+			'meta_data': `email_type: ${this.getEmailType()}`
 		};
 		return this.api.services.analytics.trackWithSuperProperties(
-			'Unsubscribed',
+			'codestream/email unsubscribed',
 			trackObject,
 			{
 				request: this,

@@ -8,6 +8,11 @@ const CompanyTestConstants = require(process.env.CSSVC_BACKEND_ROOT + '/api_serv
 
 class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 
+	constructor (options) {
+		super(options);
+		this.usingNRLogins = true;
+	}
+
 	get description () {
 		const unifiedIdentity = this.unifiedIdentityEnabled ? ', under unified identity' : '';
 		return `should send a Notification Change event for tracking purposes when user follows email link to unfollow a review${unifiedIdentity}`;
@@ -53,62 +58,31 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			return false;
 		}
 
-		//const plan = this.isOnPrem() ? CompanyTestConstants.DEFAULT_ONPREM_COMPANY_PLAN : CompanyTestConstants.DEFAULT_COMPANY_PLAN;
-		const trial = this.isOnPrem() ? CompanyTestConstants.ONPREM_COMPANIES_ON_TRIAL : CompanyTestConstants.COMPANIES_ON_TRIAL;
+		const expectedMetaData = {
+			codestream_first_signin: new Date(this.currentUser.user.createdAt).toISOString(),
+			codestream_organization_created: new Date(this.team.createdAt).toISOString(),
+			codestream_organization_id: this.company.id,
+			codestream_nr_organization_id: this.company.linkedNROrgId
+		};
+		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
+			expectedMetaData.codestream_region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
+		}
+	
 		const expectedMessage = {
-			userId: this.currentUser.user.id,
+			userId: this.currentUser.user.nrUserId,
 			event: 'Notification Change',
 			properties: {
-				$created: new Date(this.currentUser.user.registeredAt).toISOString(),
-				$email: this.currentUser.user.email,
-				name: this.currentUser.user.fullName,
-				//'Join Method': 'Added to Team',
-				'Team ID': this.team.id,
-				'Team Size': 2,
-				//'Team Name': this.team.name,
-				'Team Created Date': new Date(this.team.createdAt).toISOString(),
-				//Plan: plan,
-				'Company Name': this.company.name,
-				'Company ID': this.company.id,
-				'Reporting Group': '',
-				distinct_id: this.currentUser.user.id,
-				Change: 'Review Unfollowed',
-				'Source of Change': 'Email link',
-				//'Last Invite Type': 'invitation',
-				//company: {
-				//	id: this.company.id,
-				//	name: this.company.name,
-				//	created_at: new Date(this.company.createdAt).toISOString(),
-				//	plan
-				//},
-				'AB Test': Object.keys(this.testGroupData).map(key => {
-					return `${key}|${this.testGroupData[key]}`;
-				})
+				//user_id: this.currentUser.user.nrUserId,
+				platform: 'codestream',
+				path: 'N/A (codestream)',
+				section: 'N/A (codestream)',
+				meta_data_15: JSON.stringify(expectedMetaData),
+				meta_data_14: 'change: review_unfollowed',
+				meta_data_13: 'source_of_change: email_link'
 			}
 		};
 
-		if (this.unifiedIdentityEnabled) { // remove this check when we fully move to UNIFIED_IDENTITY
-			Object.assign(expectedMessage.properties, {
-				/* Remove these per NR-156469
-				'CodeStream Only': true,
-				'Org Origination': 'CS',
-				*/
-				'NR User ID': this.currentUser.user.nrUserId,
-				'NR Tier': 'basic_user_tier',
-				'NR Organization ID': this.company.linkedNROrgId
-			});
-		}
-
-		if (Object.keys(this.apiConfig.environmentGroup || {}).length > 0) {
-			expectedMessage.properties.Region = (this.apiConfig.environmentGroup[this.apiConfig.sharedGeneral.runTimeEnvironment] || {}).name;
-		}
-		if (trial) {
-			Object.assign(expectedMessage.properties.company, {
-				trialStart_at: new Date(this.company.trialStartDate).toISOString(),
-				trialEnd_at: new Date(this.company.trialEndDate).toISOString()
-			});
-		}
-		Assert.deepEqual(data, expectedMessage, 'tracking data not correct');
+		Assert.deepStrictEqual(data, expectedMessage, 'tracking data not correct');
 		return true;
 	}
 }

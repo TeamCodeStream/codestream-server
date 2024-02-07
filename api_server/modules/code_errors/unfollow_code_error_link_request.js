@@ -96,8 +96,8 @@ class UnfollowCodeErrorLinkRequest extends UnfollowCodeErrorRequest {
 		const team = await this.data.teams.getById(this.codeError.get('teamId'));
 		const company = team && await this.data.companies.getById(team.get('companyId'));
 		const trackObject = {
-			Change: 'Code Error Unfollowed',
-			'Source of Change': 'Email link'
+			meta_data_14: 'change: code_error_unfollowed',
+			meta_data_13: 'source_of_change: email_link'
 		};
 		return this.api.services.analytics.trackWithSuperProperties(
 			'Notification Change',
