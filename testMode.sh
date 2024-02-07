@@ -7,16 +7,10 @@ function dev_settings {
     done
 }
 
-function dev_secrets {
-    $SCRIPT_DIR/api_server/bin/cs_dev_secrets.js
-}
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export CSSVC_BACKEND_ROOT=$SCRIPT_DIR
 export NODE_PATH="$CSSVC_BACKEND_ROOT/api_server/node_modules:$CSSVC_BACKEND_ROOT/broadcaster/node_modules"
-eval `dev_settings` # Needed for dev_secrets to work
-# dev_settings
-eval `dev_secrets`
+eval `dev_settings`
 export CS_API_MOCK_MODE='1'
 export CSSVC_ENV=local
 export CSSVC_CFG_FILE="$CSSVC_BACKEND_ROOT/codestream-docker.json"

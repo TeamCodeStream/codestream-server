@@ -61,7 +61,7 @@
 	},
 	"scripts": {
 		"veryclean": "git clean -fXd",
-		"test": "mocha --exit",
+		"test": "mocha --exit --dev_secrets",
 		"test:ci": "npm run test -- --reporter mocha-teamcity-reporter",
 		"clean": "git clean -fXd -e !node_modules -e !node_modules/**/*",
 		"eslint": "eslint .",
