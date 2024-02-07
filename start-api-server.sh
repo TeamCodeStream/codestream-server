@@ -23,7 +23,6 @@ CSSVC_ENV=$CSSVC_ENV
 "
 
 echo "$*" | grep -q '\-mock-mode' && {
-	echo "======= Mocky ======="
 	export CS_API_MOCK_MODE=1
 }
 
