@@ -31,6 +31,11 @@ CSSVC_ENV=$CSSVC_ENV
 AWS access will use codestream-server/base/ keys from vault
 "
 
+echo "$*" | grep -q '\-mock-mode' && {
+	echo "======= Mocky ======="
+	export CS_API_MOCK_MODE=1
+}
+
 echo "$*" | grep -q '\-no-db' || {
 	echo "======= Initializing database ======="
 	init_database

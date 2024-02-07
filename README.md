@@ -7,8 +7,6 @@ disabled.
 
 ## Development Setup with docker-compose
 
-## Development Setup
-
 ### Prerequisites
 
 1. Mac or Linux computer using zsh or bash.
@@ -52,7 +50,7 @@ api-server locally via your IDE or command line.
    behavior is to initialize the database and disable outbound
    email queueing.
    ```
-   ./start-api-server.sh [-init-db-only | -no-db | -enable-mailout ]
+   ./start-api-server.sh [-init-db-only | -no-db | -enable-mailout | -mock-mode ]
    ```
 
 ### Method 2 - launch from IDE
@@ -72,3 +70,24 @@ Develop to your heart's content!!!!  We _love_ pull-requests.
 ## Run everything in docker
 
 Not working right now :(. Check back later.
+
+## Running Tests
+
+As usual, make sure you are authenticated with vault. 
+
+Start the api server - use `-mock-mode` flag if needed
+```bash
+./start-api-server.sh [-init-db-only | -no-db | -enable-mailout | -mock-mode ]
+```
+
+In a separate terminal, source testMode.sh (this will also set CS_API_MOCK_MODE=1)
+
+```bash
+. ./testMode.sh
+```
+
+then run the tests
+```bash
+cd api_server
+npm run test
+```
