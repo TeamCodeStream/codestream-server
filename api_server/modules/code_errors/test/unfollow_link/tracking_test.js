@@ -72,7 +72,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			userId: this.currentUser.user.nrUserId,
 			event: 'Notification Change',
 			properties: {
-				user_id: this.currentUser.user.nrUserId,
+				//user_id: this.currentUser.user.nrUserId,
 				platform: 'codestream',
 				path: 'N/A (codestream)',
 				section: 'N/A (codestream)',

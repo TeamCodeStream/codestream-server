@@ -73,7 +73,7 @@ class AnalyticsClient {
 		};
 		const metaData = {};
 		if (user) {
-			trackObject.user_id = user.get('nrUserId');
+			//trackObject.user_id = user.get('nrUserId');
 			metaData.codestream_first_signin = new Date(user.get('createdAt')).toISOString();
 		}
 

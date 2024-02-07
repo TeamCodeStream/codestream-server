@@ -105,7 +105,7 @@ class TrackingTest extends InboundEmailMessageTest {
 			userId: this.currentUser.user.nrUserId,
 			event: 'Reply Created',
 			properties: {
-				user_id: this.currentUser.user.nrUserId,
+				//user_id: this.currentUser.user.nrUserId,
 				platform: 'codestream',
 				path: 'N/A (codestream)',
 				section: 'N/A (codestream)',
