@@ -6,7 +6,7 @@ const { readVaultDevSecrets } = require('../../shared/server_utils/dev_secrets')
 async function main() {
 	const env = await readVaultDevSecrets();
 	for (const key in env) {
-		console.log(`export ${key}="${shellescape([env[key]])}"`);
+		console.log(`export ${key}=${shellescape([env[key]])}`);
 	}
 }
 

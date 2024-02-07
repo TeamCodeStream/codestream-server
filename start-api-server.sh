@@ -22,6 +22,11 @@ CSSVC_CFG_FILE=$CSSVC_CFG_FILE
 CSSVC_ENV=$CSSVC_ENV
 "
 
+echo "$*" | grep -q '\-mock-mode' && {
+	echo "======= Mocky ======="
+	export CS_API_MOCK_MODE=1
+}
+
 echo "$*" | grep -q '\-no-db' || {
 	echo "======= Initializing database ======="
 	init_database
