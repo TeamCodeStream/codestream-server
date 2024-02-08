@@ -33,9 +33,8 @@
 				"CSSVC_CFG_FILE": "${workspaceFolder}/codestream-docker.json",
 				"NODE_PATH": "${workspaceFolder}/api_server/node_modules:${workspaceFolder}/broadcaster/node_modules",
 				"_comment": "These vars enable the api to queue outbound emails via SQS",
-				"_AWS_PROFILE": "nrdev-super",
 				"CSSVC_SUPPRESS_EMAILS": "false",
-				"CSSVC_OUTBOUND_EMAIL_QUEUE_NAME": "local_${env:USER}_outboundEmail",
+				"CSSVC_OUTBOUND_EMAIL_QUEUE_NAME": "dev_${env:USER}_outboundEmail",
 				"CS_API_DONT_WANT_AWS": "false"
 			},
 			"request": "launch",
