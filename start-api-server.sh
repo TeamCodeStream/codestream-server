@@ -6,7 +6,7 @@ function init_database {
 	local unset_after=0
 	[ -z "$STORAGE_MONGO_URL" ] && unset_after=1 && export STORAGE_MONGO_URL=$(newrelic-vault us read -field=value containers/teams/codestream/services/codestream-server/base/STORAGE_MONGO_URL)
 	[ -z "$STORAGE_MONGO_URL" ] && echo "unable to read STORAGE_MONGO_URL from vault" && exit 1
-	api_server/bin/set-globals.js || { echo "set-globals failed"l; exit 1; }
+	#api_server/bin/set-globals.js || { echo "set-globals failed"l; exit 1; }
 	api_server/bin/ensure-indexes.js build || { echo "ensure-indexes failed"; exit 1; }
 	[ $unset_after -eq 1 ] && unset STORAGE_MONGO_URL
 }

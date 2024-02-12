@@ -76,7 +76,7 @@ class PostCompanyRequest extends PostRequest {
 		// a response to the client with a valid access token, but knowing the refresh token
 		// isn't valid ... but we'll fetch a new refresh token after a generous period of time 
 		// to allow the race condition to clear
-		await this.updateRefreshToken();
+		//await this.updateRefreshToken();
 	}
 
 	// evidently there is some kind of race condition in the Azure B2C API which causes

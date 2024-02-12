@@ -316,7 +316,14 @@ class CodeStreamMessageTest extends CodeStreamAPITest {
 			Assert(message.message.messageId, 'received message has no messageId');
 			this.message.messageId = message.message.messageId;	// don't care what it is
 		}
-		Assert.deepEqual(message.message, this.message, 'received message doesn\'t match');
+		try {
+			Assert.deepStrictEqual(message.message, this.message, 'received message doesn\'t match');
+		}
+		catch (e) {
+			// I have no clue why I need to do this, shouldn't Assert just throw???
+			console.warn('Message assertion failed:', e);
+			throw e;
+		}
 		return true;
 	}
 
