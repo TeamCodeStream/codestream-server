@@ -43,6 +43,7 @@ class DeactivateUserTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 	doLogin (callback) {
 		super.doLogin(error => {
 			Assert(error, 'no error thrown during login');
+			delete this.data;
 			callback();
 		});
 	}

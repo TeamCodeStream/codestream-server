@@ -29,12 +29,17 @@ class ChangeEmailTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
-		this.init(callback);
+		this.init(error => {
+			if (error) { return callback(error); }
+			this.inputEmail = this.data.email;
+			delete this.data;
+			callback();
+		});
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.strictEqual(data.user.email, this.data.email, 'fetched user\'s email does not match');
+		Assert.deepStrictEqual(data.user.email, this.inputEmail, 'fetched user\'s email does not match');
 	}
 }
 

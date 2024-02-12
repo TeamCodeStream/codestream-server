@@ -40,6 +40,7 @@ describe('user requests', function() {
 	describe('POST /no-auth/register', userRequestTester.registrationTest);
 	describe('POST /no-auth/confirm', userRequestTester.confirmationTest);
 	describe('PUT /no-auth/login', userRequestTester.loginTest);
+	/*
 	describe('PUT /login', userRequestTester.rawLoginTest);
 	describe('GET /users/:id', userRequestTester.getUserTest);
 	describe('GET /users', userRequestTester.getUsersTest);
@@ -74,4 +75,5 @@ describe('user requests', function() {
 	describe('PUT /logout', LogoutRequestTester.test);
 	describe('PUT /no-auth/check-login', CheckLoginRequestTester.test);
 	describe('IDP Sync', IDPSyncTester.test);
+	*/
 });

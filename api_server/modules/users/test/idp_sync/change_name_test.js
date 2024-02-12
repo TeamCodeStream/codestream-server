@@ -29,12 +29,17 @@ class ChangeNameTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
-		this.init(callback);
+		this.init(error => {
+			if (error) { return callback(error); }
+			this.inputName = this.data.name;
+			delete this.data;
+			callback();
+		});
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.strictEqual(data.user.fullName, this.data.name, 'fetched user\'s name does not match');
+		Assert.deepStrictEqual(data.user.fullName, this.inputName, 'fetched user\'s name does not match');
 	}
 }
 
