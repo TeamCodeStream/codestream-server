@@ -18,12 +18,13 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 				this.api.logger.warn(ex);
 			}
 		}
-		let pageType, pageWhat, analyticsContentType, entityId;
+		let pageType, pageWhat, analyticsContentType, entityId, itemGuid;
 		switch (this.redirectType) {
 			case 'error':
 				pageType = 'errorsinbox';
 				pageWhat = 'ErrorsInbox';
 				analyticsContentType = 'error';
+				itemGuid = this.parsedPayload.errorGroupGuid;
 				this.showVideo = true;
 				break;
 			case 'span':
@@ -31,6 +32,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 				pageWhat = 'Span';
 				analyticsContentType = 'span';
 				entityId = this.parsedPayload.spanId;
+				itemGuid = this.parsedPayload.spanId;
 				this.showVideo = false;
 				break;
 			default:
@@ -44,6 +46,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			launchIde: this.parsedPayload?.ide === '' ? 'default' : this.parsedPayload?.ide,
 			queryString: { ide: this.parsedPayload?.ide === '' ? 'default' : this.parsedPayload?.ide },
 			errorGroupGuid: this.parsedPayload.errorGroupGuid,
+			itemGuid,
 			newToCodeStream: launcherModel?.isMru ? "false" : "true",
 			icons: {},
 			partial_launcher_model: launcherModel,
