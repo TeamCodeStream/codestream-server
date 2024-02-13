@@ -6,15 +6,12 @@
 /* globals describe */
 
 describe('modules', () => {
-	/*
 	require('./authenticator/test/test.js');
 	require('./versioner/test/test.js');
 	require('./analytics/test/test.js');
 	require('./newrelic/test/test.js');
 	require('./broadcaster/test/test.js');
-	*/
 	require('./users/test/test.js');
-	/*
 	require('./providers/test/test.js');
 	require('./repos/test/test.js');
 	require('./companies/test/test.js');
@@ -30,5 +27,4 @@ describe('modules', () => {
 	require('./marker_locations/test/test.js');
 	require('./newrelic_comments/test/test.js');
 	require('./environment_manager/test/test.js');
-	*/
 });
