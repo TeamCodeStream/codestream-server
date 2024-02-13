@@ -178,6 +178,14 @@ class APIRequestTest extends GenericTest {
 	// make header options to go out with the API request
 	makeHeaderOptions (options, requestOptions) {
 		requestOptions.headers = Object.assign({}, requestOptions.headers || {});
+
+		// IMPORTANT!
+		// set to explicitly close and reopen the connection every time when running test suites
+		// running through Faker Service Gateway (per local dev in the New Relic world) _sometimes_ runs into
+		// timeouts on keep-alive connections, resulting in ECONNRESETs in response to the test requests (eventually)
+		// disable this at your own peril!
+		requestOptions.headers['Connection'] = 'close';
+
 		if (options.token) {
 			// use this token in the request
 			requestOptions.headers.Authorization = 'Bearer ' + options.token;

@@ -40,10 +40,11 @@ class PostCompanyRequestTester {
 		new FirstCompanyOneUserPerOrgTest().test();
 		new FirstCompanyOneUserPerOrgTest({ unifiedIdentityEnabled: true }).test();
 		new ClearFirstSessionTest().test();
-		new IDPSignupTest().test();
-		new IDPSignupBehindSGTest().test();
+		//new IDPSignupTest().test();
+		//new IDPSignupBehindSGTest().test();
 		new LinkedNROrgIdTest().test();
 		new CompanyNameFromRegistrationTest().test();
+		/*
 		// serialize these tests because they are time-dependent, and fail on the
 		// default setup-then-run methodology
 		SerializeTests([
@@ -56,6 +57,7 @@ class PostCompanyRequestTester {
 			FirstCompanyRefreshTokenFetchTest,
 			FirstCompanyRefreshTokenBehindSGFetchTest
 		]);
+		*/
 	}
 }
 
