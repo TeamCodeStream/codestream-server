@@ -51,6 +51,10 @@ class TokenAuthenticator {
 
 	// get the authentication token from any number of places
 	async getToken () {
+		if (this.request.url === '/no-auth/capabilities') {
+			return true;
+		}
+
 		// check if we are using Service Gateway auth (login service),
 		// if so, we use the NR token as our actual access token
 		if (this.request.headers['x-cs-sg-test-secret'] === this.api.config.sharedSecrets.subscriptionCheat) {
