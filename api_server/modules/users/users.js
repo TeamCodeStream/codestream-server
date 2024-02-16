@@ -278,6 +278,11 @@ class Users extends Restful {
 	middlewares () {
 		return async (request, response, next) => {
 
+			if (request.url === '/no-auth/capabilities') {
+				next();
+				return;
+			}
+
 			// look for global maintenance mode set
 			const globalMaintenanceMode = await this.api.data.globals.getOneByQuery(
 				{ tag: 'inMaintenanceMode' }, 
