@@ -278,24 +278,39 @@ class Users extends Restful {
 	middlewares () {
 		return async (request, response, next) => {
 
-			if (request.url === '/no-auth/capabilities') {
-				next();
-				return;
-			}
-
-			// look for global maintenance mode set
-			// but only actually fetch this from the database once a minute
-			let globalMaintenanceMode;
 			const now = Date.now();
-			if (!this.lastCacheTimeForMaintenanceMode || this.lastCacheTimeForMaintenanceMode < now - 60 * 1000) {
+
+			// read globals, but only once a minute
+			let globalMaintenanceMode, clientBlackList;
+			if (!this.lastGlobalRead || this.lastGlobalRead < now - 15 * 1000) {
 				globalMaintenanceMode = await this.api.data.globals.getOneByQuery(
 					{ tag: 'inMaintenanceMode' }, 
 					{ overrideHintRequired: true }
 				);
-				this.lastCacheTimeForMaintenanceMode = now;
-				this.cachedGlobalMaintenanceMode = globalMaintenanceMode;
+				clientBlackList = await this.api.data.globals.getOneByQuery(
+					{ tag: 'clientBlackList' },
+					{ overrideHintRequired: true }
+				);
+				this.lastGlobalRead = now;
+				this.cachedGLobalMaintenanceMode = globalMaintenanceMode;
+				this.cachedClientBlackList = clientBlackList;
 			} else {
 				globalMaintenanceMode = this.cachedGlobalMaintenanceMode;
+				clientBlackList = this.cachedClientBlackList;
+			}
+
+			// determine whether this client's client-generated machine ID is blacklisted,
+			// and if so, deny this request
+			const clientMachineId = request.headers['x-cs-client-machine-id'];
+			if (clientMachineId && clientBlackList && clientBlackList.enabled) {
+				clientBlackList = clientBlackList.list?.split(',');
+				if (clientBlackList.includes(clientMachineId)) {
+					request.abortWith = {
+						status: 403,
+						error: this.errorHandler.error('clientBlacklisted')
+					};
+					return next();
+				}
 			}
 
 			// look for override maintenance mode header, to allow for internal testing
