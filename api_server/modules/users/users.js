@@ -282,7 +282,7 @@ class Users extends Restful {
 
 			// read globals, but only once a minute
 			let globalMaintenanceMode, clientBlackList;
-			if (!this.lastGlobalRead || this.lastGlobalRead < now - 15 * 1000) {
+			if (!this.lastGlobalRead || this.lastGlobalRead < now - 60 * 1000) {
 				globalMaintenanceMode = await this.api.data.globals.getOneByQuery(
 					{ tag: 'inMaintenanceMode' }, 
 					{ overrideHintRequired: true }
