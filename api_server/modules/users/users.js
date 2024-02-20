@@ -284,10 +284,19 @@ class Users extends Restful {
 			}
 
 			// look for global maintenance mode set
-			const globalMaintenanceMode = await this.api.data.globals.getOneByQuery(
-				{ tag: 'inMaintenanceMode' }, 
-				{ overrideHintRequired: true }
-			);
+			// but only actually fetch this from the database once a minute
+			let globalMaintenanceMode;
+			const now = Date.now();
+			if (!this.lastCacheTimeForMaintenanceMode || this.lastCacheTimeForMaintenanceMode < now - 60 * 1000) {
+				globalMaintenanceMode = await this.api.data.globals.getOneByQuery(
+					{ tag: 'inMaintenanceMode' }, 
+					{ overrideHintRequired: true }
+				);
+				this.lastCacheTimeForMaintenanceMode = now;
+				this.cachedGlobalMaintenanceMode = globalMaintenanceMode;
+			} else {
+				globalMaintenanceMode = this.cachedGlobalMaintenanceMode;
+			}
 
 			// look for override maintenance mode header, to allow for internal testing
 			const overrideMaintenanceMode = (
