@@ -49,6 +49,7 @@ class AccessLogger extends APIServerModule {
 		const ide = request.headers['x-cs-plugin-ide'] || '???';
 		const pluginVersion = request.headers['x-cs-plugin-version'] || '???';
 		const ideVersion = request.headers['x-cs-ide-version'] || '???';
+		const clientMachineId = request.headers['x-cs-client-machine-id'] || '???';
 		let ip = request.headers['x-forwarded-for'];
 		if (!ip && request.connection) {
 			const addr = request.connection.remoteAddress;
@@ -81,7 +82,8 @@ class AccessLogger extends APIServerModule {
 			ide,
 			ver: pluginVersion,
 			idev: ideVersion,
-			tnum: testNum
+			tnum: testNum,
+			cmi: clientMachineId
 		};
 			
 		const text = 
@@ -98,7 +100,8 @@ class AccessLogger extends APIServerModule {
 			request.headers['user-agent']  + '" "' + 
 			ide                            + '" "' +
 			pluginVersion                  + '" "' + 
-			ideVersion                     + '" '  +
+			ideVersion                     + '" "'  +
+			clientMachineId                + '" '  +
 			testNum;				
 
 		this.api.log(text, request.id, 'info', {}/*, json*/);

@@ -87,6 +87,7 @@ class ClearFirstSessionTest extends PostCompanyTest {
 				if (error) { return callback(error); }
 				this.path = '/users/me';
 				this.token = response.accessToken;
+				delete this.data;
 				callback();
 			}
 		);

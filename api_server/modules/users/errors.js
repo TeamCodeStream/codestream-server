@@ -172,5 +172,10 @@ module.exports = {
 		code: 'USRC-1032',
 		message: 'Client must switch to using a different server URL',
 		description: 'The client is directed to switch to using a different server URL, the URL is given in the error info'
+	},
+	'clientBlacklisted': {
+		code: 'USRC-1033',
+		message: 'Requests are being denied to this client',
+		description: 'This client was found to be on the client black list, all requests will be denied'
 	}
 };

@@ -27,12 +27,17 @@ class ChangeOrgNameTest extends Aggregation(CodeStreamAPITest, CommonInit) {
 
 	// before the test runs...
 	before (callback) {
-		this.init(callback);
+		this.init(error => {
+			if (error) { return callback(error); }
+			this.inputName = this.data.name;
+			delete this.data;
+			callback();
+		});
 	}
 
 	// validate the response to the test request
 	validateResponse (data) {
-		Assert.strictEqual(data.company.name, this.data.name, 'fetched company\'s name does not match');
+		Assert.deepStrictEqual(data.company.name, this.inputName, 'fetched company\'s name does not match');
 	}
 }
 
