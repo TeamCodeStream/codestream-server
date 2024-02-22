@@ -44,6 +44,20 @@ api-server locally via your IDE or command line.
    npm run install:all
    ```
 
+### Mongo upgrade caveat
+
+If you have been running mongodb 4 in docker compose you will need to delete the mongodb volume to get a clean start 
+for mongodb 5, otherwise mongo will exit shortly after startup. This will delete all the data in your local docker
+mongodb instance. 
+
+```
+docker compose down --volumes
+docker compose up mongodb -d
+```
+
+With a fresh database you will need to run `./start-api-server.sh -init-db-only` before being able to run api-server from the IDE. 
+
+
 ### Method 1 - launch from shell and run natively
 
 1. Setup and start up the api-server without docker. The default
