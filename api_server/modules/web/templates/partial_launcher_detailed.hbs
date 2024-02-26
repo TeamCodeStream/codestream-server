@@ -468,7 +468,7 @@ window.CODESTREAM.openEditor = function(ide) {
 			function () {
 				//fail				
 				const source = "{{src}}" || "shared_link";
-				window.analytics.track("codestream/ide redirect_failed", { 
+				window.analytics.track("codestream/ide_redirect failed", { 
 					properties: {
 						"event_type": "response",
 						"meta_data_3": `source: ${source}`,

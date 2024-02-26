@@ -61,7 +61,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		};
 		const expectedMessage = {
 			userId: this.currentUser.user.nrUserId,
-			event: 'codestream/email unsubscribed',
+			event: 'codestream/email_unsubscribe succeeded',
 			properties: {
 				//user_id: this.currentUser.user.nrUserId,
 				platform: 'codestream',
