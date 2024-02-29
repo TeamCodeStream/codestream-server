@@ -1,5 +1,0 @@
-#!/bin/bash
-
-#desc# Display sandbox environment variables
-
-dt-vars -p CS_MAILIN "$@"
