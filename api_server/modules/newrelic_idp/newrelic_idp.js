@@ -853,6 +853,16 @@ if (!data.password) {
 		if (options.logger && options.verbose) {
 			options.logger.log(`Calling New Relic: ${url}\n`, JSON.stringify(fetchOptions, 0, 5));
 		}
+		if (url.includes("api/v1/tokens/refresh")) {
+			if (options.logger) {
+				options.logger.log("*** provider-refresh test case ***")
+			}
+			const message = JSON.stringify({
+					code: 'NRID-1001',
+					message: 'POST /api/v1/tokens/refresh: {"code":"NRID-1001","message":"POST /api/v1/tokens/refresh: response not ok (401): {"message":"Token beginning OXbO3yWd... was not verified","should_authenticate":true,"authentication_url":"https://login.newrelic.com/reauthenticate"}","description":"The call to the New Relic IDP API failed"}',
+			})
+			this._throw('apiFailed', `${method.toUpperCase()} ${path}: ${message}`, options);
+		}
 		const response = await Fetch(url, fetchOptions);
 		let json, text;
 		try {
