@@ -1,6 +1,6 @@
 {
 	"name": "outbound-email",
-	"version": "15.1.2",
+	"version": "15.2.0",
 	"dependencies": {
 		"@sendgrid/mail": "7.7.0",
 		"amqplib": "0.10.3",
@@ -19,7 +19,7 @@
 		"newrelic": "11.6.1",
 		"node-fetch": "2.6.7",
 		"node-vault": "0.10.2",
-		"nodemailer": "6.9.7",
+		"nodemailer": "6.9.9",
 		"pino": "8.16.2",
 		"pubnub": "7.4.5",
 		"socketcluster-client": "16.0.4",

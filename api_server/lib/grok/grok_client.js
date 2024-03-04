@@ -613,7 +613,7 @@ class GrokClient {
 		};
 
 		await this.api.services.analytics.trackWithSuperProperties(
-			'codestream/grok_response generated',
+			'codestream/grok_response created',
 			trackData,
 			{ request: postRequest, user, team, company }
 		);

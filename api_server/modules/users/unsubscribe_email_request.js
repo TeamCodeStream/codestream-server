@@ -142,7 +142,7 @@ class UnsubscribeEmailRequest extends RestfulRequest {
 			'meta_data': `email_type: ${this.getEmailType()}`
 		};
 		return this.api.services.analytics.trackWithSuperProperties(
-			'codestream/email unsubscribed',
+			'codestream/email_unsubscribe succeeded',
 			trackObject,
 			{
 				request: this,
