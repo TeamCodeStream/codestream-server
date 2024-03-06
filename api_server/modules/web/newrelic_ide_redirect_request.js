@@ -35,6 +35,14 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 				itemGuid = this.parsedPayload.spanId;
 				this.showVideo = false;
 				break;
+			case 'logs':
+				pageType = 'logs';
+				pageWhat = 'Logs';
+				analyticsContentType = 'logs';
+				entityId = this.parsedPayload.entityId;
+				itemGuid = this.parsedPayload.entityId;
+				this.showVideo = false;
+				break;
 			default:
 				return this.redirect404();
 		}
