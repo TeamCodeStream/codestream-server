@@ -13,6 +13,7 @@ class NerdGraphOps {
 	}
 
 	async init () {
+		const { newRelicIdentity: newRelicIdentityConfig } = this.request.api.config.integrations;
 		const secretsList = this.request.api.config.sharedSecrets.commentEngineSecrets;
 		if (!secretsList.length) {
 			throw this.errorHandler.error('readAuth', { reason: 'server is not configured to support the comment engine' });
@@ -90,7 +91,11 @@ class NerdGraphOps {
 		};
 		let graphQLHost;
 		if (this.accessToken || providerInfo.bearerToken) {
-			graphQLHost = this.request.api.config.integrations.newRelicIdentity.graphQLHost;
+			if (this.useOtherRegion && newRelicIdentityConfig.otherRegionGraphQLHost) {
+				graphQLHost = newRelicIdentityConfig.otherRegionGraphQLHost;
+			} else {
+				graphQLHost = newRelicIdentityConfig.graphQLHost;
+			}
 			//graphQLHeaders.Authorization = `Bearer ${token}`;
 			if (tokenType === 'access') {
 				graphQLHeaders['x-access-token'] = token;
