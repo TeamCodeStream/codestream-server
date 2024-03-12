@@ -20,5 +20,11 @@ module.exports = {
 	byIsTeamStream: {
 		teamId: 1,
 		isTeamStream: 1
+	},
+	byObject: {
+		teamId: 1,
+		type: 1,
+		objectId: 1,
+		objectType: 1
 	}
 };
