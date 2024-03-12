@@ -230,7 +230,7 @@ class GrokClient {
 		content += `Analyze this stack trace:\n\`\`\`\n${errorText}\n${stackTrace}\n\`\`\`\n`;
 
 		if (code) {
-			content += `\nAnd fix the following code:\n\`\`\`\n${code}\n\`\`\``;
+			content += `\nAnd fix the following code, but only if a fix is truly needed:\n\`\`\`\n${code}\n\`\`\``;
 		}
 
 		const initialPrompt = [
