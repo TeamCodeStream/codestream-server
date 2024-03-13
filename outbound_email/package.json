@@ -1,6 +1,6 @@
 {
 	"name": "outbound-email",
-	"version": "15.2.1",
+	"version": "15.3.0",
 	"dependencies": {
 		"@sendgrid/mail": "8.1.1",
 		"amqplib": "0.10.3",
