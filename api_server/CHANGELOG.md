@@ -1,5 +1,11 @@
 # Change Log
 
+## [15.3.0] - 2024-3-14
+
+### Fixed
+
+- Fixes an issue where organizations in the EU region sometimes get placed in CodeStream's US region
+
 ## [15.2.0] - 2024-3-4
 
 ### Changed

@@ -426,7 +426,8 @@ if (!data.password) {
 		const ngOps = new NerdGraphOps({
 			request: options.request,
 			accessToken,
-			tokenType
+			tokenType,
+			useOtherRegion: options.useOtherRegion
 		});
 		await ngOps.init();
 		return ngOps.regionFromAccountId(accountId);
@@ -712,34 +713,55 @@ if (!data.password) {
 			}
 			if (region) {
 				options.request.log(`NEWRELIC IDP TRACK: region determined to be ${region} from reporting account`);
+				return region;
 			}
-			return region;
 		}
 
 		// get user accounts
 		const accounts = await this.getUserAccounts(options);
-		for (const accountId of accounts) {
-			try {
-				region = await this.regionFromAccountId(accountId, options.accessToken, options.tokenType, options);
-			} catch (ex) {
-				options.request.log(`NEWRELIC IDP TRACK: unable to get region from accout ${accountId}: ${ex.message}`);
-			}
-			if (region) {
-				options.request.log(`NEWRELIC IDP TRACK: region determined to be ${region} from account ${accountId}`);
-				return region;
+		for (let whichRegion in accounts) {
+			const regionAccounts = accounts[whichRegion];
+			for (const accountId of regionAccounts) {
+				try {
+					const regionOptions = { ...options };
+					if (whichRegion === 'other') {
+						regionOptions.useOtherRegion = true;
+					}
+					region = await this.regionFromAccountId(accountId, options.accessToken, options.tokenType, regionOptions);
+				} catch (ex) {
+					options.request.log(`NEWRELIC IDP TRACK: unable to get region from account ${accountId} in ${whichRegion} region: ${ex.message}`);
+				}
+				if (region) {
+					options.request.log(`NEWRELIC IDP TRACK: region determined to be ${region} from account ${accountId} in ${whichRegion} region`);
+					return region;
+				}
 			}
 		}
 	}
 
 	async getUserAccounts (options) {
 		const { accessToken, tokenType, request } = options;
-		const ngOps = new NerdGraphOps({
-			request,
-			accessToken,
-			tokenType
-		});
-		await ngOps.init();
-		return ngOps.getUserAccounts(options);
+		const allAccounts = {};
+		const regions = ['home'];
+		if (options.request.api.config.integrations.newRelicIdentity.otherRegionGraphQLHost) {
+			regions.push('other');
+		}
+		await Promise.all(regions.map(async whichRegion => {
+			const ngOptions = {
+				request,
+				accessToken,
+				tokenType
+			};
+			if (whichRegion === 'other') {
+				ngOptions.useOtherRegion = true;
+			}
+			const ngOps = new NerdGraphOps(ngOptions);
+			await ngOps.init();
+			const userAccounts = await ngOps.getUserAccounts(options);
+			allAccounts[whichRegion] = userAccounts;
+		}));
+
+		return allAccounts;
 	}
 
 	async getGitHubIdentityInfo (token, options) {

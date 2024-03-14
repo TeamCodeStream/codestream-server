@@ -182,7 +182,7 @@ class StreamCreator extends ModelCreator {
 			// object streams match by object ID
 			query.objectId = this.attributes.objectId;
 			query.objectType = this.attributes.objectType;
-			hint = Indexes.byTeamId; // few enough streams now that this should be ok
+			hint = Indexes.byObject;
 		}
 		return { query, hint };
 	}

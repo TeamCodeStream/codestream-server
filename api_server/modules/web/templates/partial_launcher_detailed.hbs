@@ -350,7 +350,7 @@ window.CODESTREAM.openEditor = function(ide) {
 			route = { controller: 'codeerror', action: 'open', id: options.id, query: results }
 			 
 		}
-		else if (type ==='errorsinbox' || type === 'span' || type === 'pixie') {
+		else if (type ==='errorsinbox' || type === 'span' || type === 'logs' || type === 'pixie') {
 			const urlSearchParams = new URLSearchParams(window.location.search);
 			const entries = Object.fromEntries(urlSearchParams.entries());			 
 			let results = Object.keys(entries).map((key) => { return { key: key, value: entries[key] }; } );
@@ -471,9 +471,12 @@ window.CODESTREAM.openEditor = function(ide) {
 				window.analytics.track("codestream/ide_redirect failed", { 
 					properties: {
 						"event_type": "response",
-						"meta_data_3": `source: ${source}`,
+						"platform": "codestream",
+						"path": "N/A (codestream)",
+						"section": "N/A (codestream)",
 						"meta_data": `ide_detail: ${moniker}`, 
-						"meta_data_2": `selection_method: ${ideSelection}`
+						"meta_data_2": `selection_method: ${ideSelection}`,
+						"meta_data_3": `source: ${source}`
 					}
 				});
 				console.log(`CodeStream: failed in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
@@ -483,9 +486,12 @@ window.CODESTREAM.openEditor = function(ide) {
 				window.analytics.track("codestream/ide selected", { 
 					properties: {
 						"event_type": "response",
-						"meta_data_3": `source: ${source}`,
+						"platform": "codestream",
+						"path": "N/A (codestream)",
+						"section": "N/A (codestream)",
 						"meta_data": `ide_detail: ${moniker}`, 
-						"meta_data_2": `selection_method: ${ideSelection}`
+						"meta_data_2": `selection_method: ${ideSelection}`,
+						"meta_data_3": `source: ${source}`
 					}
 				});
 				console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
