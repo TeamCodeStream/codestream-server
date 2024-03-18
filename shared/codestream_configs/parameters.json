@@ -825,6 +825,11 @@
 					"desc": "NR GraphQL Host",
 					"env": "CSSVC_NEWRELIC_IDENTITY_GRAPHQL_HOST"
 				},
+				"otherRegionGraphQLHost": {
+					"type": "string",
+					"desc": "NR GraphQL Host",
+					"env": "CSSVC_NEWRELIC_IDENTITY_OTHER_REGION_GRAPHQL_HOST"
+				},
 				"idpServiceHost": {
 					"type": "string",
 					"desc": "NR IdP Service Host",
