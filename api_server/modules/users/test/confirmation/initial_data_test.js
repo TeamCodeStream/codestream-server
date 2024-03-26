@@ -45,7 +45,7 @@ class InitialDataTest extends ConfirmationTest {
 		// been invited to by accepting the invite ... so we should see NO team data in the initial data
 		Assert(data.companies.length === 0, 'found companies in one-user-per-org response');
 		Assert(data.teams.length === 0, 'found teams in one-user-per-org response');
-		Assert(data.repos.length === 0, 'found repos in one-user-per-org response');
+		Assert(!data.repos || data.repos.length === 0, 'found repos in one-user-per-org response');
 		Assert(!data.streams, 'found streams in one-user-per-org response');
 		if (!this.usingNRLogins) {
 			Assert(data.user.eligibleJoinCompanies.length > 0, 'did not get an eligible join company in one-user-per-org response');

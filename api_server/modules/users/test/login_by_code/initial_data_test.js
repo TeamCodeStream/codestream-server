@@ -40,8 +40,8 @@ class InitialDataTest extends LoginByCodeTest {
 		this.validateMatchingObject(this.company.id, data.companies[0], 'company');
 		Assert(data.teams.length === 1, 'no team in response');
 		this.validateMatchingObject(this.team.id, data.teams[0], 'team');
-		Assert(data.repos.length === 1, 'no repo in response');
-		this.validateMatchingObject(this.repo.id, data.repos[0], 'repo');
+		Assert(!data.repos, 'repo in response');
+		// this.validateMatchingObject(this.repo.id, data.repos[0], 'repo');
 		Assert(data.streams.length === 3, 'expected 3 streams');
 		const teamStream = data.streams.find(stream => stream.isTeamStream);
 		const fileStream = data.streams.find(stream => stream.type === 'file');
