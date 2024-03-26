@@ -63,7 +63,6 @@ const EXPECTED_LOGIN_RESPONSE = {
 	pubnubKey: true,
 
 	teams: true,
-	repos: true,
 	isOnPrem: true,
 	isProductionCloud: true,
 	runtimeEnvironment: true,

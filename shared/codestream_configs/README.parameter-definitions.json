@@ -85,7 +85,7 @@
 		"replyToDomain": "email domain for routing replies back to codestream",
 		"senderEmail": "all generated emails will be sent as this user",
 		"supportEmail": "support email address to include on email and forms",
-		"suppressEmails": "Stop all email from being sent"
+		"suppressEmails": "Stop all email from being sent [CSSVC_SUPPRESS_EMAILS]"
 	},
 	"emailDeliveryService": {
 		"NodeMailer": {
@@ -203,6 +203,7 @@
 				"newRelicClientSecret": "NR Client Secret [CSSVC_NEWRELIC_IDENTITY_CLIENT_SECRET]",
 				"newRelicRegion": "NR Region [CSSVC_NEWRELIC_IDENTITY_REGION]",
 				"orgServiceHost": "NR Org Service Host [CSSVC_NEWRELIC_IDENTITY_ORG_SERVICE_HOST]",
+				"otherRegionGraphQLHost": "NR GraphQL Host [CSSVC_NEWRELIC_IDENTITY_OTHER_REGION_GRAPHQL_HOST]",
 				"passwordKey": "NR Password Key (we maintain for short lived encryption) [CSSVC_NEWRELIC_IDENTITY_PASSWORD_KEY]",
 				"signupServiceHost": "NR Signup Service Host [CSSVC_NEWRELIC_IDENTITY_SIGNUP_SERVICE_HOST]",
 				"userServiceHost": "NR User Service Host [CSSVC_NEWRELIC_IDENTITY_USER_SERVICE_HOST]",
@@ -222,7 +223,9 @@
 		"newrelicgrok": {
 			"<appProvider>": {
 				"apiKey": "API Key for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_API_KEY]",
-				"apiUrl": "API Url for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_API_URL]"
+				"apiUrl": "API Url for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_API_URL]",
+				"model": "Model for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_MODEL]",
+				"prompt": "Prompt for New Relic Grok Requests (through Azure OpenAI) [CSSVC_NEWRELICGROK_PROMPT]"
 			}
 		},
 		"okta": {

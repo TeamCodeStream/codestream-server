@@ -55,6 +55,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			queryString: { ide: this.parsedPayload?.ide === '' ? 'default' : this.parsedPayload?.ide },
 			errorGroupGuid: this.parsedPayload.errorGroupGuid,
 			itemGuid,
+			nrUserId: this.parsedPayload.userId,
 			newToCodeStream: launcherModel?.isMru ? "false" : "true",
 			icons: {},
 			partial_launcher_model: launcherModel,

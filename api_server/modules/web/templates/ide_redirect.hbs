@@ -26,17 +26,18 @@
 						window.segmentAnonymousId = decodeURIComponent(anonId);
 					}
 				}
-				analytics.track("codestream/ide_redirect page_viewed", {
-					properties: {
-						"event_type": "page_view",
+				analytics.track("codestream/ide_redirect displayed", {
+					//properties: {
+						"event_type": "modal_display",
 						"platform": "codestream",
 						"path": "N/A (codestream)",
 						"section": "N/A (codestream)",
+						"userId": "{{nrUserId}}",
 						"meta_data": "content: {{analyticsContentType}}",
 						"meta_data_2": "source: {{src}}",
 						"meta_data_3": "new_to_codestream: {{newToCodeStream}}",
 						"meta_data_4": "item_guid: {{itemGuid}}"
-					}
+					//}
 				});
 			}
 		}();
@@ -53,7 +54,8 @@
 				teamId: '{{teamId}}',
 				teamName: '{{teamName}}',
 				companyName: '{{companyName}}',
-				isLink: '{{isLink}}'
+				isLink: '{{isLink}}',
+				nrUserId: '{{nrUserId}}'
 			}
 		}	 
 	</script>

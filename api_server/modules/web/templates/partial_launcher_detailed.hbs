@@ -469,30 +469,32 @@ window.CODESTREAM.openEditor = function(ide) {
 				//fail				
 				const source = "{{src}}" || "shared_link";
 				window.analytics.track("codestream/ide_redirect failed", { 
-					properties: {
+					//properties: {
 						"event_type": "response",
 						"platform": "codestream",
 						"path": "N/A (codestream)",
 						"section": "N/A (codestream)",
+						"userId": options.nrUserId,
 						"meta_data": `ide_detail: ${moniker}`, 
 						"meta_data_2": `selection_method: ${ideSelection}`,
 						"meta_data_3": `source: ${source}`
-					}
+					//}
 				});
 				console.log(`CodeStream: failed in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 			}, function () {
 				//success	
 				const source = "{{src}}" || "shared_link";
 				window.analytics.track("codestream/ide selected", { 
-					properties: {
+					//properties: {
 						"event_type": "response",
 						"platform": "codestream",
 						"path": "N/A (codestream)",
 						"section": "N/A (codestream)",
+						"userId": options.nrUserId,
 						"meta_data": `ide_detail: ${moniker}`, 
 						"meta_data_2": `selection_method: ${ideSelection}`,
 						"meta_data_3": `source: ${source}`
-					}
+					//}
 				});
 				console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 		});	
