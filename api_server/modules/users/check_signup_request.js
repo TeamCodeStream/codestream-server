@@ -98,7 +98,7 @@ class CheckSignupRequest extends RestfulRequest {
 			user: this.user,
 			loginType: this.loginType,
 			dontSetFirstSession: this.signupToken.provider && !this.signupToken.teamId,
-			nrAccountId: this.request.body.nrAccountId
+			nrAccountId: this.request.body.nrAccountId,
 		}).login();
 		this.responseData.signupStatus = this.signupToken.signupStatus;
 		this.responseData.provider = this.signupToken.provider;
@@ -125,7 +125,7 @@ class CheckSignupRequest extends RestfulRequest {
 				}
 			},
 			returns: {
-				summary: 'Returns an updated user object, plus access token and PubNub subscription key, and teams the user is on as well as repos owned by those teams',
+				summary: 'Returns an updated user object, plus access token and PubNub subscription key, and teams the user is on',
 				looksLike: {
 					user: '<@@#user object#user@@>',
 					accessToken: '<user\'s access token, to be used in future requests>',
@@ -135,10 +135,6 @@ class CheckSignupRequest extends RestfulRequest {
 					broadcasterToken: '<user\'s token for subscribing to real-time messaging channels>',
 					teams: [
 						'<@@#team object#team@@>',
-						'...'
-					],
-					repos: [
-						'<@@#repo object#repo@@>',
 						'...'
 					]
 				}

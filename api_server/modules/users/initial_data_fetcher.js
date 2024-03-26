@@ -22,7 +22,7 @@ class InitialDataFetcher  {
 		await this.getTeams();			// get the teams they are a member of
 		await this.getCompanies();		// get the companies associated with these teams
 		this.updateTeamPlans();			// copy company plan info to their teams
-		await this.getRepos();			// get the repos owned by their teams
+		// await this.getRepos();			// get the repos owned by their teams
 		await this.getStreams();		// get streams owned by the teams
 		return this.initialData;
 	}
