@@ -104,6 +104,9 @@ class TrackingTest extends InboundEmailMessageTest {
 		const expectedMessage = {
 			userId: this.currentUser.user.nrUserId,
 			event: 'Reply Created',
+			messageId: data.messageId || '<missing messageId>',
+			timestamp: data.timestamp || '<missing timestamp>',
+			type: 'track',
 			properties: {
 				//user_id: this.currentUser.user.nrUserId,
 				platform: 'codestream',
