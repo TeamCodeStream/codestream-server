@@ -1,5 +1,11 @@
 # Change Log
 
+## [15.4.0] - 2024-4-4
+
+### Changed
+
+- Updates to telemetry events
+
 ## [15.3.0] - 2024-3-14
 
 ### Fixed
