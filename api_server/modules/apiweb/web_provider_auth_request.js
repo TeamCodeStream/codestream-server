@@ -1,0 +1,127 @@
+'use strict';
+
+const APIRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/api_server/api_request.js');
+const WebErrors = require('./errors');
+const ProviderErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/providers/errors');
+const RestfulErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/errors');
+const ErrorHandler = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/error_handler');
+
+class WebProviderAuthRequest extends APIRequest {
+
+	constructor (options) {
+		super(options);
+		this.errorHandler = new ErrorHandler(ProviderErrors);
+	}
+
+	async authorize () {
+	}
+
+	async process () {
+		this.provider = this.request.params.provider.toLowerCase();
+		this.serviceAuth = this.api.services[`${this.provider}Auth`];
+		if (!this.serviceAuth) {
+			this.warn(`Auth service ${this.provider} is not available`);
+			this.redirectError(WebErrors.internalError.code);
+			return;
+		}
+		if (this.provider === 'newrelicidp' && !this.request.query.signupToken) {
+			this.redirectError(RestfulErrors.parameterRequired);
+			return;
+		}
+
+		let expiresIn = 2 * 60 * 1000;
+		const passedExpiresIn = parseInt(this.request.query.expiresIn || '', 10);
+		if (passedExpiresIn && passedExpiresIn < expiresIn) {
+			expiresIn = passedExpiresIn;
+		}
+		const expiresAt = Date.now() + expiresIn;
+		const payload = { userId: 'anon' };
+		const payloadMappings = {
+			teamId: 'teamId',
+			signupToken: 'st',
+			access: 'access',
+			inviteCode: 'ic',
+			noSignup: 'nosu',
+			tenantId: 'tid',
+			hostUrl: 'hu',
+			repoInfo: 'ri',
+			machineId: 'mi',
+			nrAccountId: 'nri'
+		};
+		Object.keys(payloadMappings).forEach(mapping => {
+			if (this.request.query[mapping]) {
+				payload[payloadMappings[mapping]] = decodeURIComponent(this.request.query[mapping]);
+			}
+		});
+
+		const code = this.api.services.tokenHandler.generate(
+			payload,
+			'pauth',
+			{ expiresAt }
+		);
+		this.response.cookie(`t-${this.provider}`, code, {
+			secure: true,
+			signed: true
+		});
+
+		// set up options for initiating a redirect 
+		const { authOrigin, publicApiUrl, callbackEnvironment } = this.api.config.apiServer;
+		let state = `${callbackEnvironment}!${code}`;
+		const redirectUri = `${authOrigin}/provider-token/${this.provider}`;
+		const options = {
+			state,
+			provider: this.provider,
+			request: this,
+			redirectUri,
+			access: this.request.query.access,
+			sharing: !!this.request.query.sharing,
+			hostUrl: this.hostUrl || payload.hu,
+			signupToken: payload.st,
+			noSignup: payload.nosu,
+			publicApiUrl,
+			unifiedIdentityEnabled: this.request.query.enableUId || !!this.request.headers['x-cs-enable-uid'],
+			joinCompanyId: this.request.query.joinCompanyId,
+			anonUserId: this.request.query.anonUserId,
+			domain: this.request.query.domain,
+			nrUserId: this.request.query.nrUserId,
+			email: this.request.query.email,
+			authDomainId: this.request.query.authDomainId,
+			overrideMaintenanceMode: this.request.query._overrideMaintenanceMode
+		};
+		this.log('redirectUri: ' + redirectUri);
+
+		// test mode to just return the generated state variable
+		if (this.request.query._returnState) {
+			this.responseData = { state };
+			return;
+		}
+
+		// get the specific query data to use in the redirect, and respond with the redirect url
+		try {
+			const { parameters, url } = this.serviceAuth.getRedirectData(options); 
+			const query = Object.keys(parameters)
+				.map(key => `${key}=${encodeURIComponent(parameters[key])}`)
+				.join('&');
+			const redirectTo = `${url}?${query}`;
+			this.log('Redirect to: ' + redirectTo);
+			this.log('NEWRELIC IDP TRACK: Web provider auth redirecting to: ' + redirectTo);
+			
+			this.response.redirect(redirectTo);
+			this.responseHandled = true;
+		}
+		catch (error) {
+			this.redirectError(error);
+		}
+	}
+
+	redirectError (error) {
+		const message = error instanceof Error ? error.message : JSON.stringify(error);
+		const errorCode = typeof error === 'object' ? error.code : error;
+		this.warn('Error handling provider token request: ' + message);
+		let url = `/web/error?code=${errorCode}&provider=${this.provider}`;
+		this.response.redirect(url);
+		this.responseHandled = true;
+	}
+}
+
+module.exports = WebProviderAuthRequest;
