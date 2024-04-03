@@ -26,7 +26,6 @@ class Analytics extends APIServerModule {
 		return async () => {
 			this.api.log('Connecting to Segment Analytics...');
 			let segmentConfig = (this.api.config.telemetry && this.api.config.telemetry.segment) || {};
-			segmentConfig.telemetryEndpoint = 'https://taxonomy-enforcer.service.newrelic.com'; // for now, should come from config
 			segmentConfig = Object.assign({}, segmentConfig, {
 				testCallback: this.testCallback.bind(this),
 				logger: this.api
