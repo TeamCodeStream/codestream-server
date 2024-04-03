@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>CodeStream - Redirecting...</title>
+	<link rel="dns-prefetch" href="https://images.codestream.com">
+	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+	{{> partial_html_head partial_html_head_model}}
+	<script>		 
+		window.CODESTREAM = window.CODESTREAM || {};
+		window.CODESTREAM.page = {
+			type: "navigate",
+			what: "Link",
+			data: {
+				action: "{{navigate}}",
+				q: "{{queryString.q}}"
+			}
+		}
+	</script>
+</head>
+<body>	
+	{{> partial_menu partial_menu_model}}
+	<div class="container-fluid" id="root">
+		{{> partial_launcher partial_launcher_model}}
+	</div>
+	{{> partial_scripts_footer}}
+</body>
+</html>
