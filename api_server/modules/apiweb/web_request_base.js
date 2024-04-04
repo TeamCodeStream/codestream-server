@@ -2,7 +2,6 @@
 'use strict';
 
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
-//const Partials = require('./partials'); // NEEDED?
 const { defaultCookieName, ides, lastOriginToIdeMonikers } = require('./config');
 
 class WebRequestBase extends RestfulRequest {
@@ -14,12 +13,8 @@ class WebRequestBase extends RestfulRequest {
 		if (!templateName) throw 'templateName is required';
 
 		viewModel = viewModel || {};
-		// NEEDED?
-		//const partials = new Partials(this.data);
 
 		this.module.evalTemplate(this, templateName, Object.assign(viewModel, {
-			// NEEDED?
-			//partial_menu_model: await partials.getMenu(this.user, this.team),
 			partial_html_head_model: {
 				version: this.module.versionInfo()
 			},
@@ -58,16 +53,6 @@ class WebRequestBase extends RestfulRequest {
 		return result;
 	}
 
-	/*
-	NEEDED?
-	decodeLinkId (linkId, pad) {
-		linkId = linkId.replace(/-/g, '+').replace(/_/g, '/');
-		const padding = '='.repeat(pad);
-		linkId = `${linkId}${padding}`;
-		return Buffer.from(linkId, 'base64').toString('hex');
-	}
-	*/
-
 	/**
 	 * Gets the best IDE by checking:
 	 * 0) Check the queryString for a specific moniker
@@ -85,7 +70,6 @@ class WebRequestBase extends RestfulRequest {
 	 * @returns
 	 * @memberof WebRequestBase
 	 */
-	// NEEDED?
 	getLastIde (repoId, users) {
 		try {
 			const queryStringIDE = this.request.query && this.request.query.ide;

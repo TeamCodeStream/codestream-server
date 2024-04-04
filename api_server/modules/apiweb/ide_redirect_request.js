@@ -30,45 +30,18 @@ class IdeRedirectRequest extends WebRequestBase {
 						: this.request.query.ide,
 			},
 			icons: {},
-			// NEEDED?
 			partial_launcher_model: this.createLauncherModel(''),
-			//partial_title_model: {}, // NEEDED?
 			src: decodeURIComponent(this.request.query?.src || ''),
 			csrf: this.request.csrfToken(),
 		}
 	}
-
-	// NEEDED?
-	//getTeamId () {
-	//	return this.decodeLinkId(this.request.params.teamId);
-	//}
-
-	/* NEEDED?
-	async getEntityId (teamId, key) {
-		const linkId = this.decodeLinkId(this.request.params.id, 2);
-		const codemarkLink = await this.data.codemarkLinks.getOneByQuery(
-			{ teamId: teamId, _id: linkId },
-			{ hint: CodemarkLinkIndexes.byTeamId }
-		)
-		if (!codemarkLink) {
-			this.warn('User requested a codemark link that was not found');
-			return this.redirect404(this.teamId);
-		}
-		return codemarkLink.get(key);
-	}
-	*/
 
 	async renderRedirect () {
 		return super.render('ide_redirect', this.templateProps);
 	}
 
 	redirect404 (teamId) {
-		let url = '/web/404';
-		// NEEDED?
-		//if (teamId) {
-		//	url += `?teamId=${teamId}`;
-		//}
-		this.response.redirect(url);
+		this.response.redirect('/web/404');
 		this.responseHandled = true;
 	}
 }

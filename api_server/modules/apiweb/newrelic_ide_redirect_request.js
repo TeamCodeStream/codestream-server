@@ -59,8 +59,6 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			newToCodeStream: launcherModel?.isMru ? "false" : "true",
 			icons: {},
 			partial_launcher_model: launcherModel,
-			//partial_title_model: {}, // NEEDED?
-			//segmentKey: this.api.config.telemetry.segment.webToken, REMOVE!!!
 			src: decodeURIComponent(this.parsedPayload?.src || ''),
 			csrf: this.request.csrfToken(),
 		}
