@@ -67,6 +67,7 @@ class ProviderTokenRequestTester {
 			new MessageTest({ provider, testHost }).test();
 		});
 		AUTH_PROVIDERS.forEach(provider => {
+			/* No longer supported
 			new IdentityMatchTest({ provider }).test();
 			new InvalidIdentityTokenTest({ provider }).test();
 			new BadProviderIdentityMatchTest({ provider }).test();
@@ -80,6 +81,7 @@ class ProviderTokenRequestTester {
 			//new ExistingUserTest({ provider, userIsInvited: true, isRegistered: true }).test();
 			new AlreadyRegisteredTest({ provider }).test();
 			new AlreadyRegisteredTest({ provider, userIsInvited: true }).test();
+			*/
 		});
 		new UnknownProviderTest().test();
 		new StateRequiredTest({ provider: 'trello' }).test();
