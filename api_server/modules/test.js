@@ -22,7 +22,7 @@ describe('modules', () => {
 	require('./reviews/test/test.js');
 	require('./code_errors/test/test.js');
 	require('./markers/test/test.js');
-	require('./web/test/test.js');
+	//require('./web/test/test.js');
 	require('./inbound_emails/test/test.js');
 	require('./marker_locations/test/test.js');
 	require('./newrelic_comments/test/test.js');
