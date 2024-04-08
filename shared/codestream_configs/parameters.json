@@ -1251,6 +1251,11 @@
 			}
 		},
 		"segment": {
+			"telemetryEndpoint": {
+				"type": "string",
+				"desc": "endpoint for clickstream events",
+				"env": "CSSVC_TELEMETRY_SEGMENT_TELEMETRYENDPOINT"
+			},
 			"token": {
 				"type": "string",
 				"desc": "segment token for clients"
