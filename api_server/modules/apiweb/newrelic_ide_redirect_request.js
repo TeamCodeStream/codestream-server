@@ -4,7 +4,12 @@
 const IdeRedirectRequest = require('./ide_redirect_request');
 const { defaultCookieName, ides} = require('./config');
 
+
 class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
+	constructor(options) {
+        super(options);
+        this.abTest = Math.random() < 0.5 ? "feature_tabs" : "feature_bullets";
+    }
 
 	async prepareTemplateProps () {
 		this.redirectType = this.request.params.type.toLowerCase();
@@ -48,6 +53,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 		}
 		const launcherModel = this.createLauncherModel('');
 		this.templateProps = {
+			abTest: this.abTest,
 			pageType,
 			pageWhat,
 			analyticsContentType,
@@ -59,8 +65,9 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			newToCodeStream: launcherModel?.isMru ? "false" : "true",
 			icons: {},
 			partial_launcher_model: launcherModel,
+			partial_title_model: {},
+			segmentKey: this.api.config.telemetry.segment.webToken,
 			src: decodeURIComponent(this.parsedPayload?.src || ''),
-			csrf: this.request.csrfToken(),
 		}
 
 		return true;
@@ -107,10 +114,11 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			}
 		}).bind(this))();
 		const result = {
+			abTest: this.abTest,
 			environment,
 			ides: ides,
-			src: decodeURIComponent(this.parsedPayload.src || ''),
 			csrf: this.request.csrfToken(),
+			src: decodeURIComponent(this.parsedPayload.src || ''),
 			showVideo: this.showVideo,
 			...lastOrigin
 		};
