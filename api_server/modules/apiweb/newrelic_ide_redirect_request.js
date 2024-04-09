@@ -65,9 +65,8 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			newToCodeStream: launcherModel?.isMru ? "false" : "true",
 			icons: {},
 			partial_launcher_model: launcherModel,
-			partial_title_model: {},
-			segmentKey: this.api.config.telemetry.segment.webToken,
 			src: decodeURIComponent(this.parsedPayload?.src || ''),
+			csrf: this.request.csrfToken(),
 		}
 
 		return true;
@@ -117,8 +116,8 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			abTest: this.abTest,
 			environment,
 			ides: ides,
-			csrf: this.request.csrfToken(),
 			src: decodeURIComponent(this.parsedPayload.src || ''),
+			csrf: this.request.csrfToken(),
 			showVideo: this.showVideo,
 			...lastOrigin
 		};
