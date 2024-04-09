@@ -61,7 +61,7 @@ class AnalyticsClient {
 		//this.segment.track(trackData);
 		if (options.request) {
 			options.request.log('TRACKING TO ' + this.config.telemetryEndpoint + '/events');
-			options.request.log('trackData:', JSON.stringify(trackData));
+			options.request.log('trackData: ' + JSON.stringify(trackData));
 		}
 		Fetch(
 			this.config.telemetryEndpoint + '/events',
