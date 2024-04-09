@@ -2,27 +2,29 @@
 
 'use strict';
 
-const AnalyticsNode = require('analytics-node');
+//const AnalyticsNode = require('analytics-node');
+const Fetch = require('node-fetch');
+const UUID = require('uuid').v4;
 
 class AnalyticsClient {
 
 	constructor (config) {
 		// this config comes from global config.telemetry.segment, plus additional runtime options
 		this.config = config || {};
-		if (this.config.token) {
-			this.segment = new AnalyticsNode(this.config.token);
-		}
-		else {
-			this.warn('No Segment token provided, no telemetry will be available');
-		}
+		//if (this.config.token) {
+		//	this.segment = new AnalyticsNode(this.config.token);
+		//}
+		//else {
+		//	this.warn('No Segment token provided, no telemetry will be available');
+		//}
 	}
 
 	// track an analytics event
 	track (event, data, options = {}) {
-		if (!this.segment) { 
-			this.log('Would have sent tracking event, tracking disabled: ' + event);
-			return; 
-		}
+		//if (!this.segment) { 
+		//	this.log('Would have sent tracking event, tracking disabled: ' + event);
+		//	return; 
+		//}
 
 		if (this._requestSaysToBlockTracking(options)) {
 			// we are blocking tracking, for testing purposes
@@ -32,9 +34,11 @@ class AnalyticsClient {
 
 		const trackData = {
 			event,
-			properties: data
+			properties: data,
+			messageId: UUID(),
+			timestamp: new Date(),
+			type: "track"
 		};
-		const userId = options.user ? options.user.id : options.userId;
 		const nrUserId = options.user ? options.user.get('nrUserId') : options.nrUserId;
 		if (nrUserId) {
 			trackData.userId = nrUserId; //userId;
@@ -54,8 +58,19 @@ class AnalyticsClient {
 			return;
 		}
 
-		this.segment.track(trackData);
+		//this.segment.track(trackData);
+		Fetch(
+			this.config.telemetryEndpoint + '/events',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(trackData)
+			}
+		);
 	}
+
 
 	// track an analytics event, extracting super-properties
 	async trackWithSuperProperties(event, data, options = {}) {

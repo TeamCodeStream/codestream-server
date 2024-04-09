@@ -345,6 +345,7 @@
 			"token": "Mixpanel API token"
 		},
 		"segment": {
+			"telemetryEndpoint": "endpoint for clickstream events [CSSVC_TELEMETRY_SEGMENT_TELEMETRYENDPOINT]",
 			"token": "segment token for clients",
 			"webToken": "segment web token for the web app"
 		}

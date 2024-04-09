@@ -17,34 +17,6 @@ const STANDARD_PAGES = [
 		template: 'example'
 	},
 	*/
-	{
-		route: 'web/unfollow-complete',
-		template: 'unfollow_complete'
-	},
-	{
-		route: 'web/unfollow-review-complete',
-		template: 'unfollow_review_complete'
-	},
-	{
-		route: 'web/confirm-email-complete',
-		template: 'email_confirmed'
-	},
-	{
-		route: 'web/unsubscribe-weekly-complete',
-		template: 'unsubscribe_weekly_complete'
-	},
-	{
-		route: 'web/unsubscribe-notification-complete',
-		template: 'unsubscribe_notification_complete'
-	},
-	{
-		route: 'web/unsubscribe-reminder-complete',
-		template: 'unsubscribe_reminder_complete'
-	},
-	{
-		route: 'web/signed-out',
-		template: 'signed_out'
-	}
 ];
 
 const ROUTES = [
@@ -55,83 +27,8 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'web/user/password/reset/invalid',
-		requestClass: require('./password_reset_invalid')
-	},
-	{
-		method: 'get',
-		path: 'web/user/password/updated',
-		requestClass: require('./password_updated_request')
-	},
-	{
-		method: 'get',
-		path: 'web/finish',
-		requestClass: require('./web_finish_request')
-	},
-	{
-		method: 'get',
-		path: 'web/user/password',
-		requestClass: require('./web_set_password_request')
-	},
-	{
-		method: 'post',
-		path: 'web/user/password',
-		requestClass: require('./set_password_request')
-	},
-	{
-		method: 'post',
-		path: 'web/user/forgot-password',
-		requestClass: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/forgot_password_request')
-	},
-	{
-		method: 'get',
-		path: 'web/assign/team',
-		requestClass: require('./web_assign_team_request')
-	},
-	{
-		method: 'post',
-		path: 'web/assign/team',
-		requestClass: require('./assign_team_request')
-	},
-	{
-		method: 'get',
-		path: 'web/login',
-		requestClass: require('./web_login_request')
-	},
-	{
-		method: 'post',
-		path: 'web/login-code',
-		requestClass: require('./web_login_code_request')
-	},
-	{
-		method: 'get',
-		path: 'web/confirm-code',
-		requestClass: require('./web_confirm_code_request')
-	},
-	{
-		method: 'post',
-		path: 'web/signin',
-		requestClass: require('./web_signin_request')
-	},
-	{
-		method: 'post',
-		path: 'web/signin-code',
-		requestClass: require('./web_signin_code_request')
-	},
-	{
-		method: 'get',
-		path: 'web/logout',
-		requestClass: require('./web_logout_request')
-	},
-	{
-		method: 'get',
 		path: 'web/signed-in',
 		requestClass: require('./web_signed_in_request')
-	},
-	{
-		method: 'get',
-		path: 'web/provider-connected/:provider',
-		requestClass: require('./web_provider_connected_request')
 	},
 	{
 		method: 'get',
@@ -140,68 +37,13 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'web/provider-auth-complete/:provider',
-		requestClass: require('./web_provider_auth_complete_request')
-	},
-	{
-		method: 'get',
-		path: 'web/error',
-		requestClass: require('./web_error_request')
-	},
-	{
-		method: 'get',
 		path: 'web/ext/:navigate',
 		requestClass: require('./link_ext_navigate_request')
 	},
 	{
 		method: 'get',
-		path: 'no-auth/web/error',
-		requestClass: require('./web_error_request')
-	},
-	{ 
-		method: 'get',
-		path: 'r/:teamId/:id',
-		requestClass: require('./review_ide_redirect_request')
-	},
-	{ 
-		method: 'get',
-		path: 'e/:teamId/:id',
-		requestClass: require('./codeerror_ide_redirect_request')
-	},
-	{
-		method: 'get',
-		path: 'c/:teamId/:id',
-		requestClass: require('./codemark_ide_redirect_request')
-	},
-	{
-		method: 'get',
-		path: 'p/:teamId/:id',
-		requestClass: require('./codemark_ide_redirect_request')
-	},
-	{
-		method: 'get',
 		path: 'open/:type',
 		requestClass: require('./newrelic_ide_redirect_request')
-	},
-	{
-		method: 'get',
-		path: 'web/unfollow-error',
-		requestClass: require('./web_unfollow_error_request')
-	},
-	{
-		method: 'get',
-		path: 'web/unfollow-review-error',
-		requestClass: require('./web_unfollow_review_error_request')
-	},
-	{
-		method: 'get',
-		path: 'web/confirm-email',
-		requestClass: require('./confirm_email_request')
-	},
-	{
-		method: 'get',
-		path: 'web/confirm-email-error',
-		requestClass: require('./web_confirm_email_failed_request')
 	},
 	{
 		method: 'post',
@@ -215,50 +57,19 @@ const ROUTES = [
 	},
 	{
 		method: 'get',
-		path: 'web/configure-okta',
-		requestClass: require('./web_configure_okta_request')
-	},
-	{
-		method: 'get',
 		path: 'robots.txt',
 		requestClass: require('./web_robots_request')
 	},
 	{
-		method: 'get',
-		path: 'web/subscription/upgrade/:companyId',
-		requestClass: require('./web_subscription_upgrade_request')
+		method: 'post',
+		path: 'web/track',
+		requestClass: require('./web_track_request')
 	},
-	{
-		method: 'get',
-		path: 'web/subscription/checkout',
-		requestClass: require('./web_subscription_checkout_request')
-	},
-	{
-		method: 'get',
-		path: 'web/subscription/thankyou/:companyId',
-		requestClass: require('./web_subscription_thankyou_request')
-	},
-	{
-		method: 'get',
-		path: 'web/subscription/error',
-		requestClass: require('./subscription_error_request')
-	},
-	{
-		method: 'get',
-		path: 'web/unsubscribe-weekly-error',
-		requestClass: require('./web_unsubscribe_weekly_error_request')
-	},
-	{
-		method: 'get',
-		path: 'web/domain-picker/:provider',
-		requestClass: require('./domain_picker_request')
-	}
 ];
 
 class Web extends APIServerModule {
 
 	getRoutes() {
-		return []; // disabling in favor of apiweb, ultimately totally delete this module
 		return ROUTES.concat(
 			STANDARD_PAGES.map(page => {
 				return {
@@ -272,13 +83,11 @@ class Web extends APIServerModule {
 	}
 
 	async initialize() {
-		return;
-		
 		this.templates = {};
 
 		let files;
 		try {
-			files = await Glob(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/web/templates/*.hbs');
+			files = await Glob(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/apiweb/templates/*.hbs');
 		}
 		catch (error) {
 			const message = error instanceof Error ? error.message : JSON.stringify(error);

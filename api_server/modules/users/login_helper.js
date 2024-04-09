@@ -281,6 +281,9 @@ class LoginHelper {
 			newRelicSecApiUrl,
 			csecApiUrl,
 		} = this.apiConfig.sharedGeneral;
+		const {
+			telemetryEndpoint
+		} = this.apiConfig.telemetry.segment;
 		const { environmentGroup } = this.apiConfig;
 		
 		// substitute the "short name" of this environment host, if found
@@ -311,6 +314,7 @@ class LoginHelper {
 			newRelicLandingServiceUrl,
 			newRelicApiUrl,
 			newRelicSecApiUrl,
+			telemetryEndpoint,
 			csecApiUrl
 		};
 		if (this.apiConfig.broadcastEngine.pubnub && this.apiConfig.broadcastEngine.pubnub.subscribeKey) {

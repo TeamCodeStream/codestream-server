@@ -71,6 +71,9 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 		const expectedMessage = {
 			userId: this.currentUser.user.nrUserId,
 			event: 'Notification Change',
+			messageId: data.messageId || '<missing messageId>',
+			timestamp: data.timestamp || '<missing timestamp>',
+			type: 'track',
 			properties: {
 				//user_id: this.currentUser.user.nrUserId,
 				platform: 'codestream',
