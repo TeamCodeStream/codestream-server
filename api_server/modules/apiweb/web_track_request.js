@@ -26,6 +26,9 @@ class WebTrackRequest extends RestfulRequest {
 					string: ['event'],
 					object:['properties']
 				},
+				optional: {
+					string: ['nrUserId']
+				}
 			}
 		);
 
@@ -38,8 +41,12 @@ class WebTrackRequest extends RestfulRequest {
 	async process () {
 		await this.requireAndAllow();
 
-		const { event, properties } = this.request.body;
-		this.api.services.analytics.track(event, properties, { request: this });
+		const { event, properties, nrUserId } = this.request.body;
+		const options = { request: this };
+		if (nrUserId) {
+			options.nrUserId = nrUserId;
+		}
+		this.api.services.analytics.track(event, properties, options);
 	}
 }
 
