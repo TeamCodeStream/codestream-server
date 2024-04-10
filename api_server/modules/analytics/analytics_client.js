@@ -37,15 +37,13 @@ class AnalyticsClient {
 			properties: data,
 			messageId: UUID(),
 			timestamp: new Date(),
-			type: "track"
+			type: "track",
+			anonymousId: UUID()
 		};
 		const nrUserId = options.user ? options.user.get('nrUserId') : options.nrUserId;
 		if (nrUserId) {
 			trackData.userId = nrUserId; //userId;
 		}
-		if (options.anonymousId) {
-			trackData.anonymousId = options.anonymousId;
-		}		
 
 		if (this._requestSaysToTestTracking(options)) {
 			// we received a header in the request asking us to divert this tracking event
