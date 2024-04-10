@@ -73,6 +73,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			event: 'Notification Change',
 			messageId: data.messageId || '<missing messageId>',
 			timestamp: data.timestamp || '<missing timestamp>',
+			anonymousId: data.anonymousId || '<missing anonymousId>',
 			type: 'track',
 			properties: {
 				//user_id: this.currentUser.user.nrUserId,
