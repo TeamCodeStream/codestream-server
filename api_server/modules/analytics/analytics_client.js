@@ -38,7 +38,8 @@ class AnalyticsClient {
 			messageId: UUID(),
 			timestamp: new Date(),
 			type: "track",
-			anonymousId: UUID()
+			anonymousId: UUID(),
+			session_id: UUID()
 		};
 		const nrUserId = options.user ? options.user.get('nrUserId') : options.nrUserId;
 		if (nrUserId) {

@@ -69,6 +69,7 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			messageId: data.messageId || '<missing messageId>',
 			timestamp: data.timestamp || '<missing timestamp>',
 			anonymousId: data.anonymousId || '<missing anonymousId>',
+			session_id: data.session_id || '<missing session_id>',
 			type: 'track',
 			properties: {
 				//user_id: this.currentUser.user.nrUserId,
