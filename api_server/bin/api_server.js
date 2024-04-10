@@ -67,7 +67,6 @@ const MongoCollections = Object.keys(DataCollections).concat([
 
 	// changes to Config will be available globally via the /config/writeable.js module
 	const Config = await ApiConfig.loadPreferredConfig({ wait: true });
-Config.telemetry.segment.telemetryEndpoint = 'https://taxonomy-enforcer.service.newrelic.com'; // for now
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.apiServer.logger);
