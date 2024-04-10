@@ -681,6 +681,11 @@ hr {
 	.content-body-tab-icon {
 	  display: none !important;
 	}
+	.content-body-tab-header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
   }
 
 @media (min-width: 1px) {
