@@ -206,18 +206,26 @@ h6 {
 .content-body-tab-container {
 	margin-top: 32px;
 	margin-bottom: 10px;
+	border-bottom: 1px solid #3c3c3c;
 	display: flex;
 	justify-content: space-between;
 }
 .content-body-tab-header {
 	font-size: larger;
 	cursor: pointer;
+	display: inline-block;
+	text-align: center;
+	padding-bottom: 5px;
+	margin-bottom: -1px;
+}
+.content-body-copy {
+	margin-bottom: 12px;
 }
 .content-body-tab {
 	display: none;
 }
 .content-active-tab {
-	display: block !important;
+	/* display: block !important; */
 	border-bottom: 1px solid;
 }
 .box-border {
@@ -668,6 +676,17 @@ hr {
 	border-radius: 8px;
 	margin-top: 10px;
 }
+
+@media (max-width: 768px) {
+	.content-body-tab-icon {
+	  display: none !important;
+	}
+	.content-body-tab-header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+  }
 
 @media (min-width: 1px) {
 	.btn-block-wrap {
