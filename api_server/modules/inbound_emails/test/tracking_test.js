@@ -113,7 +113,7 @@ class TrackingTest extends InboundEmailMessageTest {
 				platform: 'codestream',
 				path: 'N/A (codestream)',
 				section: 'N/A (codestream)',
-				session_id: data.session_id || '<missing session_id>',
+				session_id: data.properties.session_id || '<missing session_id>',
 				meta_data_15: JSON.stringify(expectedMetaData),
 				'Parent ID': parentId,
 				'Parent Type': parentType,
