@@ -39,8 +39,9 @@ class AnalyticsClient {
 			timestamp: new Date(),
 			type: "track",
 			anonymousId: UUID(),
-			session_id: UUID()
 		};
+		data.session_id = data.session_id || UUID();
+
 		const nrUserId = options.user ? options.user.get('nrUserId') : options.nrUserId;
 		if (nrUserId) {
 			trackData.userId = nrUserId; //userId;
