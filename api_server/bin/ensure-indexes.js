@@ -32,7 +32,8 @@ const AllModuleIndexes = {
 	msteams_teams: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/msteams_teams/indexes'),
 	reposByCommitHash: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/repo_by_commit_hash_indexes'),
 	gitLensUsers: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/gitlens_user_indexes'),
-	newRelicOrgs: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes')
+	newRelicOrgs: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/newrelic_comments/new_relic_org_indexes'),
+	entities: require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/entities/indexes')
 };
 
 const AllFinished = {
