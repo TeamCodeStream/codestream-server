@@ -35,7 +35,8 @@ const DataCollections = {
 	msteams_conversations: require(ModuleDirectory + '/msteams_conversations/msteams_conversation'),
 	msteams_states: require(ModuleDirectory + '/msteams_states/msteams_state'),
 	msteams_teams: require(ModuleDirectory + '/msteams_teams/msteams_team'),
-	reposByCommitHash: require(ModuleDirectory + '/repos/repo_by_commit_hash')
+	reposByCommitHash: require(ModuleDirectory + '/repos/repo_by_commit_hash'),
+	entities: require(ModuleDirectory + '/entities/entity')
 };
 
 // establish our mongo collections, these include our DataCollections, but 
@@ -67,7 +68,6 @@ const MongoCollections = Object.keys(DataCollections).concat([
 
 	// changes to Config will be available globally via the /config/writeable.js module
 	const Config = await ApiConfig.loadPreferredConfig({ wait: true });
-Config.telemetry.segment.telemetryEndpoint = 'https://taxonomy-enforcer.service.newrelic.com'; // for now
 
 	// establish our logger
 	const Logger = new SimpleFileLogger(Config.apiServer.logger);

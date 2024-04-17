@@ -3,8 +3,9 @@ const ApiConfig = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/config/c
 const ObjectId = require('mongodb').ObjectId;
 const UserIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/indexes');
 const RepoIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/repos/indexes');
+const EntityIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/entities/indexes');
 
-const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'codemarks', 'markers', 'markerLocations'];
+const COLLECTIONS = ['companies', 'teams', 'repos', 'users', 'streams', 'posts', 'codemarks', 'markers', 'markerLocations', 'entities'];
 
 
 class Deleter {
@@ -25,6 +26,7 @@ class Deleter {
 		await this.deleteCodemarks();
 		await this.deleteMarkers();
 		await this.deleteMarkerLocations();
+		await this.deleteEntities();
 	}
 
 	async openMongoClient () {
@@ -363,6 +365,19 @@ class Deleter {
 		}
 		catch (error) {
 			throw `unable to delete marker locations: ${JSON.stringify(error)}`;
+		}
+	}
+
+	async deleteEntities () {
+		this.logger.log(`Deleting entities in team ${this.teamId}...`);
+		try {
+			await this.mongoClient.mongoCollections.entities.deleteByQuery(
+				{ teamId: this.teamId },
+				{ overrideHintRequired: true }
+			);
+		}
+		catch (error) {
+			throw `unable to delete entities: ${JSON.stringify(error)}`;
 		}
 	}
 }

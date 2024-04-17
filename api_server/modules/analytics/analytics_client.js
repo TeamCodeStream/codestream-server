@@ -37,15 +37,15 @@ class AnalyticsClient {
 			properties: data,
 			messageId: UUID(),
 			timestamp: new Date(),
-			type: "track"
+			type: "track",
+			anonymousId: UUID(),
 		};
+		data.session_id = data.session_id || UUID();
+
 		const nrUserId = options.user ? options.user.get('nrUserId') : options.nrUserId;
 		if (nrUserId) {
 			trackData.userId = nrUserId; //userId;
 		}
-		if (options.anonymousId) {
-			trackData.anonymousId = options.anonymousId;
-		}		
 
 		if (this._requestSaysToTestTracking(options)) {
 			// we received a header in the request asking us to divert this tracking event
@@ -59,6 +59,10 @@ class AnalyticsClient {
 		}
 
 		//this.segment.track(trackData);
+		if (options.request) {
+			options.request.log('TRACKING TO ' + this.config.telemetryEndpoint + '/events');
+			options.request.log('trackData: ' + JSON.stringify(trackData));
+		}
 		Fetch(
 			this.config.telemetryEndpoint + '/events',
 			{

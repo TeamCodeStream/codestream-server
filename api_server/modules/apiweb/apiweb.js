@@ -102,6 +102,8 @@ class Web extends APIServerModule {
 			return JSON.stringify(obj);
 		});
 
+		Handlebars.registerHelper('eq', (a, b) => a == b);
+
 		// Not in use, but might be useful in the future
 		/**
 		 * Format string with data

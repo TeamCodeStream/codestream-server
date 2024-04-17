@@ -3,9 +3,9 @@
 const RestfulRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/restful_request.js');
 
 const ALLOWED_EVENTS = [
-    'codestream/ide_redirect displayed',
-    'codestream/ide_redirect failed',
-    'codestream/ide selected'
+	'codestream/ide_redirect displayed',
+	'codestream/ide_redirect failed',
+	'codestream/ide selected'
 ];
 
 class WebTrackRequest extends RestfulRequest {
@@ -24,23 +24,30 @@ class WebTrackRequest extends RestfulRequest {
 			{
 				required: {
 					string: ['event'],
-                    object:['properties']
+					object:['properties']
 				},
+				optional: {
+					string: ['nrUserId']
+				}
 			}
 		);
 
-        const { event } = this.request.body;
-        if (!ALLOWED_EVENTS.includes(event)) {
-            throw this.errorHandler.error('invalidParameter', { info: 'not a valid event' });
-        }
-    }
+		const { event } = this.request.body;
+		if (!ALLOWED_EVENTS.includes(event)) {
+			throw this.errorHandler.error('invalidParameter', { info: 'not a valid event' });
+		}
+	}
 
 	async process () {
 		await this.requireAndAllow();
 
-        const { event, properties } = this.request.body;
-        this.api.services.analytics.track(event, properties);
-    }
+		const { event, properties, nrUserId } = this.request.body;
+		const options = { request: this };
+		if (nrUserId) {
+			options.nrUserId = nrUserId;
+		}
+		this.api.services.analytics.track(event, properties, options);
+	}
 }
 
 module.exports = WebTrackRequest;

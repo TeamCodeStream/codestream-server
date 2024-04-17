@@ -68,12 +68,14 @@ class TrackingTest extends Aggregation(CodeStreamMessageTest, CommonInit) {
 			event: 'codestream/email_unsubscribe succeeded',
 			messageId: data.messageId || '<missing messageId>',
 			timestamp: data.timestamp || '<missing timestamp>',
+			anonymousId: data.anonymousId || '<missing anonymousId>',
 			type: 'track',
 			properties: {
 				//user_id: this.currentUser.user.nrUserId,
 				platform: 'codestream',
 				path: 'N/A (codestream)',
 				section: 'N/A (codestream)',
+				session_id: data.properties.session_id || '<missing session_id>',
 				meta_data_15: JSON.stringify(expectedMetaData),
 				'meta_data': 'email_type: weekly_activity',
 				'event_type': 'response'

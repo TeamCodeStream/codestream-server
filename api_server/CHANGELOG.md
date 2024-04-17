@@ -1,10 +1,11 @@
 # Change Log
 
-## [15.4.0] - 2024-4-4
+## [15.4.0] - 2024-4-17
 
 ### Changed
 
 - Updates to telemetry events
+- A/B test open-in-IDE redirect pages
 
 ## [15.3.0] - 2024-3-14
 

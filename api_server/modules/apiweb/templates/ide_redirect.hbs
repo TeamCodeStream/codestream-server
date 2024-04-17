@@ -8,17 +8,17 @@
 	{{> partial_html_head }}
 	<script>
 		!function () {
-			CODESTREAM.track("codestream/ide_redirect displayed", {
+			window.CODESTREAM.track("codestream/ide_redirect displayed", {
 				"event_type": "modal_display",
 				"platform": "codestream",
 				"path": "N/A (codestream)",
 				"section": "N/A (codestream)",
-				"userId": "{{nrUserId}}",
 				"meta_data": "content: {{analyticsContentType}}",
 				"meta_data_2": "source: {{src}}",
 				"meta_data_3": "new_to_codestream: {{newToCodeStream}}",
-				"meta_data_4": "item_guid: {{itemGuid}}"
-			});
+				"meta_data_4": "item_guid: {{itemGuid}}",
+				"meta_data_5": "ab_test_version: {{abTest}}",
+			}, "{{nrUserId}}");
 		}();
 	</script>
 	<script>		 

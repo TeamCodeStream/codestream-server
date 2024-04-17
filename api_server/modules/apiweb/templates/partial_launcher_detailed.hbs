@@ -423,30 +423,28 @@ window.CODESTREAM.openEditor = function(ide) {
 			function () {
 				//fail				
 				const source = "{{src}}" || "shared_link";
-				CODESTREAM.track("codestream/ide_redirect failed", { 
+				window.CODESTREAM.track("codestream/ide_redirect failed", { 
 					"event_type": "response",
 					"platform": "codestream",
 					"path": "N/A (codestream)",
 					"section": "N/A (codestream)",
-					"userId": options.nrUserId,
 					"meta_data": `ide_detail: ${moniker}`, 
 					"meta_data_2": `selection_method: ${ideSelection}`,
 					"meta_data_3": `source: ${source}`
-				});
+				}, options.nrUserId);
 				console.log(`CodeStream: failed in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 			}, function () {
 				//success	
 				const source = "{{src}}" || "shared_link";
-				CODESTREAM.track("codestream/ide selected", { 
+				window.CODESTREAM.track("codestream/ide selected", { 
 					"event_type": "response",
 					"platform": "codestream",
 					"path": "N/A (codestream)",
 					"section": "N/A (codestream)",
-					"userId": options.nrUserId,
 					"meta_data": `ide_detail: ${moniker}`, 
 					"meta_data_2": `selection_method: ${ideSelection}`,
 					"meta_data_3": `source: ${source}`
-				});
+				}, options.nrUserId);
 				console.log(`CodeStream: success in ${(new Date() - startTime)/1000}s for Moniker=${moniker} Path=${protocol} IDESelection=${ideSelection}`);
 		});	
 }
@@ -559,18 +557,12 @@ function onIdeSelected(e, moniker) {
 
 <div class="container" style="margin-bottom:35px;">
 	<div class="interstitial-detail-wrapper">
-        <div class="interstitial-title-wrapper"> 
-            <span id="notification-title">
-            {{#if autoOpen}} 
-                Opening link in New Relic CodeStream...
-            {{else}}
-                Choose an IDE to open this link in New Relic CodeStream
-            {{/if}}
-            </span>
-        </div>
 		<div class="interstitial-action-wrapper">
 			<div class="btn-group btn-set-width" style="white-space:nowrap;">
-				{{#lastOrigin}}		 
+				{{#lastOrigin}}
+					<span style="margin-right: 10px; font-size: x-large">
+						Open in
+					</span>
 					<a id="selected-ide" 
 						class="selected-ide btn-light btn-block form-control btn-open-in" 
 						title="Open with {{ideName}}"
@@ -583,8 +575,7 @@ function onIdeSelected(e, moniker) {
 				{{/lastOrigin}}							
 				<a href="#" class="btn-light dropdown-toggle-split dropdown-toggle-custom form-control"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<svg style="width:15px; margin-top: 12px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" focusable="false" role="img"><title>Chevron bottom icon</title><path d="M6.6 1.6L4 4.3 1.4 1.6l-.8.8L4 5.7l3.4-3.3z"></path></svg>
-				</a> 
+					<svg style="width:15px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" focusable="false" role="img"><title>Chevron bottom icon</title><path d="M6.6 1.6L4 4.3 1.4 1.6l-.8.8L4 5.7l3.4-3.3z"></path></svg>				</a> 
 				<div class="dropdown-menu dropdown-menu-light dropdown-menu-right ide-list-items" data-element-ide-list="" 
 					style="position: absolute !important; transform: translate3d(0px, 58px, 0px) !important; top: 0px !important; left: 0px !important; will-change: transform !important; width: 225px !important;"
 				>
@@ -638,31 +629,153 @@ function onIdeSelected(e, moniker) {
 			</div> 
         </div>
 	</div>
-	{{#if showVideo}}
-	<div class="video-section-wrapper">
-		<div class="video-section-text-wrapper">
-			<div class="video-section-header">
-				See New Relic CodeStream in action.
+	{{#if (eq abTest "feature_tabs")}} 
+		<div class="content-body-container">
+			<h4 style="text-align: center" class="content-body-header">
+				All the power of New Relic, right in your IDE
+			</h4>
+			<div>
+				Install New Relic's CodeStream IDE extension to see how the services built from your code
+				are performing, and access powerful tools for identifying and investigating performance issues.
 			</div>
-			<div class="video-section-description">
-				Install the CodeStream extension so that you can review errors right inside your IDE. 
-				Step through the stack trace and collaborate with teammates on the resolution.
+
+			<div class="content-body-tab-container">
+				<div style="width: 17%" class="content-body-tab-header" onclick="openTab(event, 'content-body-tab1')">
+					<svg class="content-body-tab-icon" style="margin-top: -5px; width: 16px; fill: rgb(220, 223, 228)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M4.446 1h7.108c.377 0 .747.114 1.067.327a2.131 2.131 0 01.747.882l2.576 5.534A.61.61 0 0116 8v4.82c0 .578-.213 1.133-.594 1.541-.38.41-.895.639-1.433.639H2.027c-.538 0-1.053-.23-1.433-.639A2.267 2.267 0 010 12.82V8c0-.09.02-.177.056-.257L2.632 2.21c.168-.363.426-.669.747-.883.32-.213.69-.327 1.067-.327zm0 1.148a.91.91 0 00-.505.155 1.01 1.01 0 00-.354.418v.001l-2.19 4.704h3.616c.179 0 .345.096.444.256l1.335 2.154h2.416l1.335-2.154a.524.524 0 01.444-.256h3.616l-2.19-4.704v-.001a1.009 1.009 0 00-.354-.418.91.91 0 00-.505-.155m3.38 6.426h-3.662l-1.335 2.154a.524.524 0 01-.444.256H6.507a.524.524 0 01-.444-.256L4.728 8.574H1.067v4.246c0 .274.1.536.28.73.18.194.425.302.68.302h11.946a.928.928 0 00.68-.302c.18-.194.28-.456.28-.73V8.574z" clip-rule="evenodd"></path></svg>
+					Errors
+				</div>
+				<div style="width: 17%" class="content-body-tab-header" onclick="openTab(event, 'content-body-tab2')">
+					<svg class="content-body-tab-icon" style="margin-top: -5px; width: 16px; fill: rgb(220, 223, 228)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M7.7 0H2v15h11V5.3L7.7 0zm3.6 5H8V1.7L11.3 5zM3 1v13h9V6H7V1H3zm2 7h5v1H5V8zm3 3H5v1h3v-1z" clip-rule="evenodd"></path></svg>
+					Logs
+				</div>
+				<div style="width: 29%" class="content-body-tab-header" onclick="openTab(event, 'content-body-tab3')">
+					<svg class="content-body-tab-icon" style="margin-top: -5px; width: 16px; fill: rgb(220, 223, 228)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M13 1H2C.9 1 0 1.9 0 3v10c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm1 12c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V5h13v8zM1 4h13V3c0-.6-.4-1-1-1H2c-.6 0-1 .4-1 1v1zm3.4 8.4l2.8-2.9-2.8-2.9-.8.8 2.2 2.1-2.2 2.1.8.8zM12 11H8v1h4v-1z" clip-rule="evenodd"></path></svg>
+					NRQL Queries
+				</div>
+				<div style="width: 32%" class="content-body-tab-header" onclick="openTab(event, 'content-body-tab4')">
+					<svg class="content-body-tab-icon" style="margin-top: -5px; width: 16px; fill: rgb(220, 223, 228)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M9 12v3H1v-3h8zm-1 1H2v1h6v-1zm4-6v3H1V7h11zm-1 1H2v1h9V8zm4-6v3H1V2h14zm-1 1H2v1h12V3z" clip-rule="evenodd"></path></svg>
+					Code Performance
+				</div>
+			</div>
+
+			<div class="content-body-tab" id="content-body-tab1">
+				<div class="content-body-copy">
+					Use the frames of the stack trace to navigate the code.  Leverage the power of New Relic AI, and the help
+					your teammates, to collaborate on the investigation.
+				</div>
+				<div>
+					<img class="observability-gif" src="https://raw.githubusercontent.com/TeamCodeStream/CodeStream/develop/images/animated/ErrorsAI-VSC.gif" alt="CodeStream Observability" /> 
+				</div>
+			</div>
+			<div class="content-body-tab" id="content-body-tab2">
+				<div class="content-body-copy">
+					Search logs for your APM or OTel services, or even an Infra container.  Intiate a log search
+					directly from specific log lines in your code.
+				</div>
+				<div>
+					<img class="observability-gif" src="https://images.codestream.com/misc/redirect-logs.png" /> 
+				</div>
+			</div>
+			<div class="content-body-tab" id="content-body-tab3">		
+				<div class="content-body-copy">
+					Run queries right from your IDE, with auto-complete, visualizations, and export.  Share commonly
+					used queries in .nrql files added to your repo, and run queries right from the file.
+				</div>
+				<div>
+					<img class="observability-gif" src="https://images.codestream.com/misc/redirect-queries.png" /> 
+				</div>
+			</div>
+			<div class="content-body-tab" id="content-body-tab4">
+				<div class="content-body-copy">
+					Identify transactions that are exhibiting performance problems since your last release, and drill down
+					into specific methods, database operations or external services that are at the root of the problem.
+				</div>
+				<div>
+					<img class="observability-gif" src="https://images.codestream.com/misc/redirect-anomalies.png" /> 
+				</div>
 			</div>
 		</div>
-		<div class="video-wrapper">
-			<img class="observability-gif" src="https://raw.githubusercontent.com/TeamCodeStream/CodeStream/develop/images/animated/ErrorsAI-VSC.gif" alt="CodeStream Observability" /> 
+	{{/if}}
+
+	{{#if (eq abTest "feature_bullets")}} 
+		<div class="content-body-container">
+			<h4 class="content-body-header">
+				All the power of New Relic, right in your IDE
+			</h4>
+			<div>
+				Install New Relic's CodeStream IDE extension to see how the services built from your code
+				are performing, and access powerful tools for identifying and investigating performance issues.
+			</div>
+			<h4 class="content-body-section-header">
+				<svg style="margin-top: -5px; width: 22px; fill: rgb(220, 223, 228)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M7.7 0H2v15h11V5.3L7.7 0zm3.6 5H8V1.7L11.3 5zM3 1v13h9V6H7V1H3zm2 7h5v1H5V8zm3 3H5v1h3v-1z" clip-rule="evenodd"></path></svg>
+				Search Logs
+			</h4>
+			<div>
+				Search logs for your APM or OTel services, or even an Infra container.  Intiate a log search
+				directly from specific log lines in your code.
+			</div>
+			<h4 class="content-body-section-header">
+				<svg style="margin-top: -5px; width: 22px; fill: rgb(220, 223, 228)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M13 1H2C.9 1 0 1.9 0 3v10c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zm1 12c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V5h13v8zM1 4h13V3c0-.6-.4-1-1-1H2c-.6 0-1 .4-1 1v1zm3.4 8.4l2.8-2.9-2.8-2.9-.8.8 2.2 2.1-2.2 2.1.8.8zM12 11H8v1h4v-1z" clip-rule="evenodd"></path></svg>
+				Run NRQL Queries
+			</h4>
+			<div>
+				Run queries right from your IDE, with auto-complete, visualizations, and export.  Share commonly
+				used queries in .nrql files added to your repo, and run queries right from the file.
+			</div>
+			<h4 class="content-body-section-header">
+				<svg style="margin-top: -5px; width: 22px; fill: rgb(220, 223, 228)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M4.446 1h7.108c.377 0 .747.114 1.067.327a2.131 2.131 0 01.747.882l2.576 5.534A.61.61 0 0116 8v4.82c0 .578-.213 1.133-.594 1.541-.38.41-.895.639-1.433.639H2.027c-.538 0-1.053-.23-1.433-.639A2.267 2.267 0 010 12.82V8c0-.09.02-.177.056-.257L2.632 2.21c.168-.363.426-.669.747-.883.32-.213.69-.327 1.067-.327zm0 1.148a.91.91 0 00-.505.155 1.01 1.01 0 00-.354.418v.001l-2.19 4.704h3.616c.179 0 .345.096.444.256l1.335 2.154h2.416l1.335-2.154a.524.524 0 01.444-.256h3.616l-2.19-4.704v-.001a1.009 1.009 0 00-.354-.418.91.91 0 00-.505-.155m3.38 6.426h-3.662l-1.335 2.154a.524.524 0 01-.444.256H6.507a.524.524 0 01-.444-.256L4.728 8.574H1.067v4.246c0 .274.1.536.28.73.18.194.425.302.68.302h11.946a.928.928 0 00.68-.302c.18-.194.28-.456.28-.73V8.574z" clip-rule="evenodd"></path></svg>
+				Investigate Errors
+			</h4>
+			<div>
+				Use the frames of the stack trace to navigate the code.  Leverage the power of New Relic AI, and the help
+				your teammates, to collaborate on the investigation.
+			</div>
+			<h4 class="content-body-section-header">
+				<svg style="margin-top: -5px; width: 22px; fill: rgb(220, 223, 228)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" focusable="false"><path fill-rule="evenodd" d="M9 12v3H1v-3h8zm-1 1H2v1h6v-1zm4-6v3H1V7h11zm-1 1H2v1h9V8zm4-6v3H1V2h14zm-1 1H2v1h12V3z" clip-rule="evenodd"></path></svg>
+				Identify Poorly Performing Code
+			</h4>
+			<div>
+				Identify transactions that are exhibiting performance problems since your last release, and drill down
+				into specific methods, database operations or external services that are at the root of the problem.
+			</div>
 		</div>
-	</div>
 	{{/if}}
 </div>
 <script src="//fast.wistia.com/embed/medias/aei2dq75qi.jsonp" async></script>
 <script src="//fast.wistia.com/assets/external/E-v1.js" async></script>
 <script>
-$(function() {	
-	if (
-		String("{{autoOpen}}") == "true"
-	) {
-		$('#selected-ide').click();
+    function openTab(evt, tabName) {
+      	let tabcontent, tablinks;
+
+        tabcontent = document.getElementsByClassName("content-body-tab");
+        for (let i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        tablinks = document.getElementsByClassName("content-body-tab-header");
+        for (let i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("content-active-tab");
+        }
+
+        document.getElementById(tabName).style.display = "block";
+
+        evt.currentTarget.classList.add("content-active-tab");
+    }
+
+	// By default, display the first tab
+	// @TODO - modify to open Logs by default if coming from 
+	if ("{{abTest}}" === "feature_tabs"){
+		document.getElementById("content-body-tab1").style.display = "block";
+		document.getElementsByClassName("content-body-tab-header")[0].classList.add("content-active-tab");
 	}
-});
+
+</script>
+<script>
+	$(function() {	
+		if (
+			String("{{autoOpen}}") == "true"
+		) {
+			$('#selected-ide').click();
+		}
+	});
 </script>

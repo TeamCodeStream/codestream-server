@@ -248,7 +248,8 @@
 	"telemetry": {
 		"segment": {
 			"token": "${TELEMETRY_SEGMENT_TOKEN}",
-			"webToken": "${TELEMETRY_SEGMENT_WEB_TOKEN}"
+			"webToken": "${TELEMETRY_SEGMENT_WEB_TOKEN}",
+			"telemetryEndpoint": "${TELEMETRY_ENDPOINT}"
 		}
 	},
 	"universalSecrets": {

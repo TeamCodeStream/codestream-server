@@ -82,6 +82,8 @@ class User extends CodeStreamModel {
 			return await this.authorizeReview(id, request, options);
 		case 'codeError': 
 			return await this.authorizeCodeError(id, request, options);
+		case 'entity': 
+			return await this.authorizeEntity(id, request, options);
 		case 'user':
 			return await this.authorizeUser(id, request, options);
 		default:
@@ -238,6 +240,17 @@ class User extends CodeStreamModel {
 		// to access a code error, the user must be on the team that owns it
 		const authorized = codeError.get('teamId') && this.hasTeam(codeError.get('teamId'));
 		return authorized ? codeError : false;
+	}
+
+	// authorize the user to "access" a New Relic entity, based on ID
+	async authorizeEntity (id, request, options) {
+		const entity = await request.data.entities.getById(id, options);
+		if (!entity) {
+			throw request.errorHandler.error('notFound', { info: 'entity' });
+		}
+		// to access an entity, the user must be on the team that owns it
+		const authorized = entity.get('teamId') && this.hasTeam(entity.get('teamId'));
+		return authorized ? entity : false;
 	}
 
 	// authorize the user to "access" a user model, based on ID
