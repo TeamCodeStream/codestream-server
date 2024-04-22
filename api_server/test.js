@@ -8,9 +8,9 @@
 before(function (done) {
 	if (process.argv.find((_) => _ === '--dev_secrets') !== undefined) {
 		this.timeout(7000);
-		const devSecrets = require('@datanerd/codestream-utils');
-		devSecrets
-			.readVaultSecrets()
+		const DevSecrets = require('@datanerd/codestream-utils').VaultSecrets;
+		DevSecrets
+			.fetchAllBaseVaultSecrets()
 			.then((secretsEnv) => {
 				console.log('Merging secrets...');
 				Object.assign(process.env, secretsEnv);

@@ -61,12 +61,12 @@ const EXPECTED_LOGIN_RESPONSE = {
 	pubnubToken: true,
 	broadcasterToken: true,
 	pubnubKey: true,
-
 	teams: true,
 	isOnPrem: true,
 	isProductionCloud: true,
 	runtimeEnvironment: true,
 	newRelicLandingServiceUrl: true,
+	o11yServerUrl: true,
 	newRelicApiUrl: true
 };
 

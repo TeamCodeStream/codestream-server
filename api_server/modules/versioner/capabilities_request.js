@@ -18,6 +18,7 @@ class CapabilitiesRequest extends RestfulRequest {
 			isOnPrem,
 			isProductionCloud,
 			newRelicLandingServiceUrl,
+			o11yServerUrl,
 			newRelicApiUrl,
 			newRelicSecApiUrl,
 			csecApiUrl
@@ -43,6 +44,7 @@ class CapabilitiesRequest extends RestfulRequest {
 			isOnPrem: isOnPrem,
 			isProductionCloud: isProductionCloud,
 			newRelicLandingServiceUrl: newRelicLandingServiceUrl,
+			o11yServerUrl: o11yServerUrl,
 			newRelicApiUrl: newRelicApiUrl,
 			newRelicSecApiUrl: newRelicSecApiUrl,
 			csecApiUrl: csecApiUrl,
