@@ -8,6 +8,7 @@
 	"CS_API_PORT": "12078",
 	"CS_API_PUBLIC_API_URL": "https://localhost.newrelic.com:12079",
 	"CSSVC_EMAIL_SUPPRESS_EMAILS": "true",
+	"CSSVC_O11Y_SERVER_URL": "https://localhost.newrelic.com:12083",
 	"INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_CREDENTIALS_SERVICE_HOST": "https://staging-credential-service.nr-ops.net",
 	"INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_GRAPHQL_HOST": "https://nerd-graph.staging-service.nr-ops.net",
 	"INTEGRATIONS_NEW_RELIC_IDENTITY_CLOUD_IDP_SERVICE_HOST": "https://idp-service.staging-service.nr-ops.net",

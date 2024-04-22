@@ -1094,6 +1094,12 @@
 			"desc": "NR1 vulnerability mgmt user-facing api",
 			"env": "CSSVC_NEW_RELIC_SEC_API_URL"
 		},
+		"o11yServerUrl": {
+			"type": "string",
+			"default": "https://localhost:12083",
+			"desc": "URL of the o11y service endpoint",
+			"env": "CSSVC_O11Y_SERVER_URL"
+		},
 		"csecApiUrl": {
 			"type": "string",
 			"default": "https://csec-workflow-api.staging-service.newrelic.com",
