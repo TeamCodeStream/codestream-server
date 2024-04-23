@@ -49,7 +49,7 @@
 		"path": "0.12.7",
 		"pino": "8.17.1",
 		"printf": "0.6.1",
-		"pubnub": "7.4.5",
+		"pubnub": "8.0.0",
 		"read-package-json": "7.0.0",
 		"socketcluster-client": "16.0.4",
 		"strftime": "0.10.2",
