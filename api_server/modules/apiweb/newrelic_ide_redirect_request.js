@@ -8,7 +8,7 @@ const { defaultCookieName, ides} = require('./config');
 class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 	constructor(options) {
         super(options);
-        this.abTest = Math.random() < 0.5 ? "feature_tabs" : "feature_bullets";
+        this.pageType = ''
     }
 
 	async prepareTemplateProps () {
@@ -26,14 +26,14 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 		let pageType, pageWhat, analyticsContentType, entityId, itemGuid;
 		switch (this.redirectType) {
 			case 'error':
-				pageType = 'errorsinbox';
+				this.pageType = 'errorsinbox';
 				pageWhat = 'ErrorsInbox';
 				analyticsContentType = 'error';
 				itemGuid = this.parsedPayload.errorGroupGuid;
 				this.showVideo = true;
 				break;
 			case 'span':
-				pageType = 'span';
+				this.pageType = 'span';
 				pageWhat = 'Span';
 				analyticsContentType = 'span';
 				entityId = this.parsedPayload.spanId;
@@ -41,7 +41,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 				this.showVideo = false;
 				break;
 			case 'logs':
-				pageType = 'logs';
+				this.pageType = 'logs';
 				pageWhat = 'Logs';
 				analyticsContentType = 'logs';
 				entityId = this.parsedPayload.entityId;
@@ -53,8 +53,7 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 		}
 		const launcherModel = this.createLauncherModel('');
 		this.templateProps = {
-			abTest: this.abTest,
-			pageType,
+			pageType: this.pageType,
 			pageWhat,
 			analyticsContentType,
 			launchIde: this.parsedPayload?.ide === '' ? 'default' : this.parsedPayload?.ide,
@@ -113,11 +112,11 @@ class NewRelicIdeRedirectRequest extends IdeRedirectRequest {
 			}
 		}).bind(this))();
 		const result = {
-			abTest: this.abTest,
 			environment,
 			ides: ides,
 			src: decodeURIComponent(this.parsedPayload.src || ''),
 			csrf: this.request.csrfToken(),
+			pageType: this.pageType,
 			showVideo: this.showVideo,
 			...lastOrigin
 		};
