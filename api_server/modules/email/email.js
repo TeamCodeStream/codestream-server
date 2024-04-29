@@ -202,6 +202,7 @@ class Email extends APIServerModule {
 
 	// determine if special header was sent with the request that says to block emails
 	requestSaysToBlockEmails (options) {
+		return true; // as of the death of codemarks, we are blocking ALL outbound emails! ... NR-255016
 		const headers = (
 			options.request &&
 			options.request.request &&

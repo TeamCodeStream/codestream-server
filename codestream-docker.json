@@ -220,6 +220,7 @@
 		"isProductionCloud": false,
 		"newRelicApiUrl": "${SHARED_GENERAL_NEW_RELIC_API_URL}",
 		"newRelicLandingServiceUrl": "${SHARED_GENERAL_NEW_RELIC_LANDING_SERVICE_URL}",
+		"o11yServerUrl": "${CSSVC_O11Y_SERVER_URL}",
 		"newRelicSecApiUrl": "${SHARED_GENERAL_NEW_RELIC_SEC_API_URL}",
 		"runTimeEnvironment": "${SHARED_GENERAL_RUN_TIME_ENVIRONMENT}"
 	},

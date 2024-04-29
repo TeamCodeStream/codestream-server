@@ -1003,6 +1003,7 @@ class PostCreator extends ModelCreator {
 
 	// send an email notification as needed to users who are offline
 	async triggerNotificationEmails () {
+		return; // as of the death of codemarks, we are blocking ALL outbound emails! ... NR-255016
 		if (this.requestSaysToBlockEmails()) {
 			// don't do email notifications for unit tests, unless asked
 			this.request.log('Would have triggered email notifications for stream ' + this.stream.id);

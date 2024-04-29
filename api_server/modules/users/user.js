@@ -527,7 +527,7 @@ class User extends CodeStreamModel {
 
 		this.didIDPSync = true;
 		return request.data.users.updateDirect(
-			{ id: request.data.users.id },
+			{ id: this.id },
 			{ $set: { lastIDPSync: now } }
 		);
 

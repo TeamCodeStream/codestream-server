@@ -303,6 +303,7 @@
 		"newRelicApiUrl": "NR1 user-facing api [CSSVC_NEW_RELIC_API_URL]",
 		"newRelicLandingServiceUrl": "service to decide if user has an account in NR1 [CSSVC_NEW_RELIC_LANDING_SERVICE_URL]",
 		"newRelicSecApiUrl": "NR1 vulnerability mgmt user-facing api [CSSVC_NEW_RELIC_SEC_API_URL]",
+		"o11yServerUrl": "URL of the o11y service endpoint [CSSVC_O11Y_SERVER_URL]",
 		"runTimeEnvironment": "run-time environment (local, onprem, prod, qa, pd, ...) [CSSVC_ENV]"
 	},
 	"sharedSecrets": {
