@@ -1,5 +1,12 @@
 # Change Log
 
+## [15.5.0] - 2024-4-29
+
+### Changed
+
+- Shut down A/B test of redirect pages
+- Shut down email notifications for codemarks
+
 ## [15.4.0] - 2024-4-17
 
 ### Changed
