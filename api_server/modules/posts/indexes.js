@@ -1,10 +1,10 @@
 // these database indexes are in place for the posts module, all fetch queries
-// must use one of these 
+// must use one of these
 
 'use strict';
 
 module.exports = {
-	
+
 	// WARNING -- DO NOT CHANGE OR REMOVE THIS INDEX
 	// IT IS USED BY THE OUTBOUND EMAIL SERVER, VERBATIM,
 	// BUT WITHOUT SIGNIFICANT STRUCTURAL CHANGES TO OUR
@@ -14,7 +14,7 @@ module.exports = {
 		teamId: 1,
 		_id: -1
 	},
-	
+
 	byParentPostId: {
 		parentPostId: 1,
 		_id: -1
@@ -25,5 +25,11 @@ module.exports = {
 	},
 	byShareIdentifiers: {
 		shareIdentifiers: 1
+	},
+	byCodeErrorId: {
+		codeErrorId: 1
+	},
+	byErrorGuid: {
+		errorGuid: 1
 	}
 };

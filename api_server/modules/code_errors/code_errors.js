@@ -28,6 +28,11 @@ const CODE_ERROR_ADDITIONAL_ROUTES = [
 		requestClass: require('./claim_code_error_request')
 	},
 	{
+		method: 'post',
+		path: 'code-errors/associate',
+		requestClass: require('./associate_code_error_request')
+	},
+	{
 		method: 'put',
 		path: 'code-errors/follow/:id',
 		requestClass: require('./follow_code_error_request')
