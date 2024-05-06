@@ -47,7 +47,8 @@ class PostDeleter extends ModelDeleter {
 		}
 
 		// and for code errors, it includes...
-		if (this.post.get('codeErrorId')) {
+		this.stream = await this.data.streams.getById(this.post.get('streamId'));
+		if (this.post.get('codeErrorId') || (this.stream && this.stream.get('objectType') === 'errorGroup')) {
 			// the referenced code error and its markers...
 			await this.collectObjectsToDeleteFromCodeError(this.post.get('codeErrorId'));
 
@@ -114,12 +115,13 @@ class PostDeleter extends ModelDeleter {
 
 	// for a code error, collect the code error, and all its markers for deletion
 	async collectObjectsToDeleteFromCodeError (codeErrorId) {
+		if (!codeErrorId) return;
 		this.codeError = await this.data.codeErrors.getById(codeErrorId);
 		this.toDelete.codeErrors.push(codeErrorId);
 	}
 
 	// for the replies to a post (for now, this only applies to a post pointing to a review),
-	// collect all the replies, their codemarks, and their markers, for deletion 
+	// collect all the replies, their codemarks, and their markers, for deletion
 	async collectObjectsToDeleteFromReplies (posts) {
 		// fetch all the replies to these posts
 		const postIds = posts.map(post => post.id);
@@ -157,7 +159,7 @@ class PostDeleter extends ModelDeleter {
 			await this.deleteCodemarkRelations(codemark);
 		}));
 	}
-	
+
 	// for a given codemark, delete the relations with any other codemarks
 	async deleteCodemarkRelations (codemark) {
 		const relatedCodemarkIds = codemark.get('relatedCodemarkIds') || [];
@@ -176,8 +178,8 @@ class PostDeleter extends ModelDeleter {
 	// delete the relation from one codemark to the one being deactivated
 	async deleteRelation (relatedCodemarkId, codemarkId) {
 		const now = Date.now();
-		const op = { 
-			$pull: { 
+		const op = {
+			$pull: {
 				relatedCodemarkIds: codemarkId
 			},
 			$set: {
