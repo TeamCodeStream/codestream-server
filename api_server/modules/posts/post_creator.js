@@ -11,6 +11,7 @@ const StreamPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/mo
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const CodemarkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_creator');
 const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
+const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 const ReviewCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/review_creator');
 const CodeErrorCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/code_error_creator');
 const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_helper');
@@ -168,10 +169,40 @@ class PostCreator extends ModelCreator {
 			this.creatingCodeError = true;
 		} else if (this.attributes.errorGuid) { // New style where we just associate NR error via error entity guid
 				this.request.log("errorGuid in request - looking up existing post");
-				const existingPost = await this.data.posts.getOneByQuery(
+				let existingPost = await this.data.posts.getOneByQuery(
 					{ errorGuid: this.attributes.errorGuid, deactivated: false },
 					{ hint: PostIndexes.byErrorGuid }
 				);
+				if (!existingPost) {
+					// Check for a legacy codeError
+					this.request.log("looking for a legacy codeError");
+					const legacyCodeError = await this.data.codeErrors.getOneByQuery(
+						{ objectId: this.attributes.errorGuid, deactivated: false },
+						{ hint: CodeErrorIndexes.byObjectId}
+					);
+					if (legacyCodeError) {
+						this.request.log("found a legacy codeError");
+						// need to update the post with the errorGuid and not create a stream (suppressSave will get set later based on existingPost)
+						const legacyPostId = legacyCodeError.get('postId');
+						existingPost = await this.data.posts.getById(legacyPostId);
+						existingPost.attributes.errorGuid = this.attributes.errorGuid;
+						// legacyPost.set('errorGuid', this.attributes.errorGuid);
+						const op = {
+							$set: {
+								errorGuid: this.attributes.errorGuid,
+								modifiedAt: Date.now()
+							}
+						};
+						this.transforms.postUpdate = await new ModelSaver({
+							request: this.request,
+							collection: this.data.posts,
+							id: legacyPostId
+						}).save(op);
+						this.request.log(
+							`updated post ${legacyPostId} with errorGuide ${this.attributes.errorGuid} for legacy codeError ${legacyCodeError.get('id')}`
+						);
+					}
+				}
 				if (existingPost) {
 					this.request.log(`errorGuid in request - found post, suppressing save, attributes: ${JSON.stringify(existingPost.attributes)}`);
 					this.suppressSave = true;
