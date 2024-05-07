@@ -84,7 +84,7 @@ module.exports = {
 		maxLength: 1000,
 		description: 'URL to the code error in the provider'
 	},
-	errorGuid: { // TODO revert to objectId
+	objectId: {
 		type: 'string',
 		required: true,
 		maxLength: 200,

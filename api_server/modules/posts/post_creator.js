@@ -184,23 +184,27 @@ class PostCreator extends ModelCreator {
 						this.request.log("found a legacy codeError");
 						// need to update the post with the errorGuid and not create a stream (suppressSave will get set later based on existingPost)
 						const legacyPostId = legacyCodeError.get('postId');
-						existingPost = await this.data.posts.getById(legacyPostId);
-						existingPost.attributes.errorGuid = this.attributes.errorGuid;
-						// legacyPost.set('errorGuid', this.attributes.errorGuid);
-						const op = {
-							$set: {
-								errorGuid: this.attributes.errorGuid,
-								modifiedAt: Date.now()
-							}
-						};
-						this.transforms.postUpdate = await new ModelSaver({
-							request: this.request,
-							collection: this.data.posts,
-							id: legacyPostId
-						}).save(op);
-						this.request.log(
-							`updated post ${legacyPostId} with errorGuide ${this.attributes.errorGuid} for legacy codeError ${legacyCodeError.get('id')}`
-						);
+						const legacyPost = await this.data.posts.getById(legacyPostId);
+						if (legacyPost.get('deactivated') !== true) {
+							existingPost.attributes.errorGuid = this.attributes.errorGuid;
+							// legacyPost.set('errorGuid', this.attributes.errorGuid);
+							const op = {
+								$set: {
+									errorGuid: this.attributes.errorGuid,
+									modifiedAt: Date.now()
+								}
+							};
+							this.transforms.postUpdate = await new ModelSaver({
+								request: this.request,
+								collection: this.data.posts,
+								id: legacyPostId
+							}).save(op);
+							this.request.log(
+								`updated post ${legacyPostId} with errorGuid ${this.attributes.errorGuid} for legacy codeError ${legacyCodeError.get('id')}`
+							);
+						} else {
+							this.request.log(`skipping deactivated legacy post ${legacyPostId}`);
+						}
 					}
 				}
 				if (existingPost) {

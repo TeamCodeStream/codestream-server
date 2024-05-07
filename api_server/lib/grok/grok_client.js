@@ -14,8 +14,6 @@ class GrokClient {
 		Object.assign(this, options);
 		['request', 'data', 'api', 'errorHandler', 'responseData', 'user', 'company'].forEach(x => this[x] = this.postRequest[x]);
 
-		this.api.logger.warn(`analyzeErrorWithGrok in the house`);
-
 		this.errorHandler.add(Errors);
 
 		if (!!this.request.body.analyze) {
@@ -49,7 +47,7 @@ class GrokClient {
 
 		this.topmostPost = await this.findTopMostPost();
 
-		this.api.logger.log(`analyzeErrorWithGrok - topmostPost ${JSON.stringify(this.topmostPost)}`);
+		// this.api.logger.log(`analyzeErrorWithGrok - topmostPost ${JSON.stringify(this.topmostPost)}`);
 
 		if (!this.topmostPost) {
 			// We need to find a way to send this issue back down so
@@ -59,8 +57,8 @@ class GrokClient {
 
 		const codeErrorId = this.topmostPost.get('codeErrorId');
 		if (codeErrorId) {
-			this.api.logger.warn(`analyzeErrorWithGrok - looking up ${codeErrorId}`);
-			this.codeError = await this.data.codeErrors.getById(this.topmostPost.get('codeErrorId'));
+			this.api.logger.warn(`analyzeErrorWithGrok - looking up codeError ${codeErrorId}`);
+			this.codeError = await this.data.codeErrors.getById(codeErrorId);
 		}
 
 		if (!this.codeError && !this.topmostPost.get('errorGuid')) {
@@ -68,7 +66,15 @@ class GrokClient {
 			// the clients know there was an issue - otherwise, infinite spin.
 			throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
-		this.accountId = new NerdGraphOps().accountIdFromErrorGroupGuid(this.topmostPost.get('errorGuid'));
+		// Legacy get accountId - from codeError
+		this.accountId = this.codeError ? this.codeError.get('accountId') : undefined;
+		this.api.logger.warn(`got account id ${this.accountId} from codeError `);
+		if (!this.accountId) {
+			// Newer method - accountId from entityGuid
+			const errorGuid = this.topmostPost.get('errorGuid');
+			this.api.logger.warn(`getting accountId from errorGuid ${errorGuid}`);
+			this.accountId = new NerdGraphOps().accountIdFromErrorGroupGuid(errorGuid);
+		}
 
 		const grokConversation = this.topmostPost.get('grokConversation');
 

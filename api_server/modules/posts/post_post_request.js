@@ -53,7 +53,7 @@ class PostPostRequest extends PostRequest {
 			}
 
 			const post = await this.data.posts.getById(this.request.body.parentPostId);
-			this.request.log("PostPostRequest - handleResponse - reinitializeGrok - looking up codeError");
+			this.log("PostPostRequest - handleResponse - reinitializeGrok - looking up codeError");
 			const codeError = await this.data.codeErrors.getById(post.get('codeErrorId')); // TODO not in errorGuid mode
 
 			// When we force a reinitialization on a Code Error with Grok, we need to return
