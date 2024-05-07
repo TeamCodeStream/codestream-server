@@ -211,7 +211,7 @@ class GrokClient {
 
 	async startNewConversation (grokUserId) {
 		// get the last stack trace we have - text is full stack trace, split it into lines
-		const stackTraceLines = (this.request.body.codeError.stackTraces || []) // TODO - get from request?
+		const stackTraceLines = (this.request.body.codeError.stackTraces || [])
 			.slice(-1)
 			.pop()
 			.text

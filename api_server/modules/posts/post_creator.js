@@ -186,7 +186,7 @@ class PostCreator extends ModelCreator {
 						const legacyPostId = legacyCodeError.get('postId');
 						const legacyPost = await this.data.posts.getById(legacyPostId);
 						if (legacyPost.get('deactivated') !== true) {
-							existingPost.attributes.errorGuid = this.attributes.errorGuid;
+							legacyPost.attributes.errorGuid = this.attributes.errorGuid;
 							// legacyPost.set('errorGuid', this.attributes.errorGuid);
 							const op = {
 								$set: {
