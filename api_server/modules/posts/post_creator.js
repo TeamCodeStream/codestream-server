@@ -202,6 +202,7 @@ class PostCreator extends ModelCreator {
 							this.request.log(
 								`updated post ${legacyPostId} with errorGuid ${this.attributes.errorGuid} for legacy codeError ${legacyCodeError.get('id')}`
 							);
+							existingPost = legacyPost;
 						} else {
 							this.request.log(`skipping deactivated legacy post ${legacyPostId}`);
 						}

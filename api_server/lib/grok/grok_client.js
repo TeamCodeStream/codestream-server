@@ -59,6 +59,8 @@ class GrokClient {
 		if (codeErrorId) {
 			this.api.logger.warn(`analyzeErrorWithGrok - looking up codeError ${codeErrorId}`);
 			this.codeError = await this.data.codeErrors.getById(codeErrorId);
+		} else {
+			this.newMode = true;
 		}
 
 		if (!this.codeError && !this.topmostPost.get('errorGuid')) {
@@ -66,8 +68,12 @@ class GrokClient {
 			// the clients know there was an issue - otherwise, infinite spin.
 			throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
+		if (this.newMode) {
+			// codeErrors passed in on request, not in mongo but we need the attributes
+			this.codeError = { attributes: this.request.body.codeError }
+		}
 		// Legacy get accountId - from codeError
-		this.accountId = this.codeError ? this.codeError.get('accountId') : undefined;
+		this.accountId = this.codeError?.attributes ? this.codeError.attributes.accountId : undefined;
 		this.api.logger.warn(`got account id ${this.accountId} from codeError `);
 		if (!this.accountId) {
 			// Newer method - accountId from entityGuid
@@ -160,7 +166,7 @@ class GrokClient {
 				text: '',
 				promptRole: 'system',
 				parentPostId: this.topmostPost.get('id')
-				// codeError: this.codeError.get('id') // TODO keep for legacy
+				// codeError: this.codeError.attributes.id // TODO keep for legacy
 			},
 			{
 				overrideCreatorId: grokUserId
@@ -211,7 +217,7 @@ class GrokClient {
 
 	async startNewConversation (grokUserId) {
 		// get the last stack trace we have - text is full stack trace, split it into lines
-		const stackTraceLines = (this.request.body.codeError.stackTraces || [])
+		const stackTraceLines = (this.codeError.attributes.stackTraces || [])
 			.slice(-1)
 			.pop()
 			.text
@@ -233,7 +239,7 @@ class GrokClient {
 		const code = this.request.body.codeBlock;
 		const language = this.request.body.language;
 
-		const errorText = `${this.request.body.codeError.title} ${this.request.body.codeError.text}`; // TODO from request
+		const errorText = `${this.codeError.attributes.title} ${this.codeError.attributes.text}`;
 
 		let content = '';
 
@@ -273,7 +279,7 @@ class GrokClient {
 			text: '',
 			promptRole: 'system',
 			parentPostId: targetParentPostId
-			// codeError: this.codeError.get('id') // TODO keep for legacy
+			// codeError: this.codeError.attributes.id // TODO keep for legacy
 		};
 		const grokResponsePost = await postCreator.createPost(grokRequest,
 			{
@@ -535,7 +541,7 @@ class GrokClient {
 					},
 					extra: {
 						topmostPostId: this.topmostPost.get('id'),
-						// codeErrorId: this.codeError.get('id'), // TODO keep for legacy?
+						// codeErrorId: this.codeError.attributes.id, // TODO keep for legacy?
 						postId: post.get('id'),
 						streamId: post.get('streamId'),
 					}
@@ -547,7 +553,7 @@ class GrokClient {
 				grokStream: {
 					extra: {
 						topmostPostId: this.topmostPost.get('id'),
-						// codeErrorId: this.codeError.get('id'), // TODO keep for legacy
+						// codeErrorId: this.codeError.attributes.id, // TODO keep for legacy
 						postId: post.get('id'),
 						streamId: post.get('streamId'),
 						done: true
@@ -597,7 +603,7 @@ class GrokClient {
 
 	async logExceptionAndDispatch (message, postId, streamId) {
 		const topmostPostId = this.topmostPost.get('id');
-		const codeErrorId = this.codeError ? this.codeError.get('id') : this.topmostPost.get('errorGuid');
+		const codeErrorId = this.codeError ? this.codeError.attributes.id : this.topmostPost.get('errorGuid');
 
 		const trackData = {
 			'Parent ID': topmostPostId,
