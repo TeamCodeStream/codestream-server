@@ -47,20 +47,20 @@ class PostPostRequest extends PostRequest {
 			return super.handleResponse();
 		}
 
-		if (this.reinitializeGrok) {
+		if (this.reinitializeGrok) { // This is only called from older extensions - can be removed later.
 			if (!this.request.body.parentPostId) {
 				throw this.errorHandler.error('parameterRequired', { reason: 'parentPostId is required for Grok reinitialization' });
 			}
 
 			const post = await this.data.posts.getById(this.request.body.parentPostId);
 			this.log("PostPostRequest - handleResponse - reinitializeGrok - looking up codeError");
-			const codeError = await this.data.codeErrors.getById(post.get('codeErrorId')); // TODO not in errorGuid mode
+			const codeError = await this.data.codeErrors.getById(post.get('codeErrorId'));
 
 			// When we force a reinitialization on a Code Error with Grok, we need to return
 			// the original Parent Post and the Code Error associated with it. The client
 			// doesn't know how to handle the response without them.
 			this.responseData.post = post.getSanitizedObject({ request: this.request });
-			this.responseData.codeError = codeError.getSanitizedObject({ request: this.request }); // TODO not in errorGuid mode
+			this.responseData.codeError = codeError.getSanitizedObject({ request: this.request });
 
 			return super.handleResponse();
 		}
