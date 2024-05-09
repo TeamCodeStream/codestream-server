@@ -165,8 +165,8 @@ class GrokClient {
 				teamId: this.team.get('id'),
 				text: '',
 				promptRole: 'system',
-				parentPostId: this.topmostPost.get('id')
-				// codeError: this.codeError.attributes.id // TODO keep for legacy
+				parentPostId: this.topmostPost.get('id'),
+				codeError: this.codeError?.attributes?.id
 			},
 			{
 				overrideCreatorId: grokUserId
@@ -278,8 +278,8 @@ class GrokClient {
 			teamId: this.team.get('id'),
 			text: '',
 			promptRole: 'system',
-			parentPostId: targetParentPostId
-			// codeError: this.codeError.attributes.id // TODO keep for legacy
+			parentPostId: targetParentPostId,
+			codeError: this.codeError?.attributes?.id
 		};
 		const grokResponsePost = await postCreator.createPost(grokRequest,
 			{
@@ -541,7 +541,7 @@ class GrokClient {
 					},
 					extra: {
 						topmostPostId: this.topmostPost.get('id'),
-						// codeErrorId: this.codeError.attributes.id, // TODO keep for legacy?
+						codeErrorId: this.codeError?.attributes?.id,
 						postId: post.get('id'),
 						streamId: post.get('streamId'),
 					}
@@ -553,7 +553,7 @@ class GrokClient {
 				grokStream: {
 					extra: {
 						topmostPostId: this.topmostPost.get('id'),
-						// codeErrorId: this.codeError.attributes.id, // TODO keep for legacy
+						codeErrorId: this.codeError?.attributes?.id,
 						postId: post.get('id'),
 						streamId: post.get('streamId'),
 						done: true
