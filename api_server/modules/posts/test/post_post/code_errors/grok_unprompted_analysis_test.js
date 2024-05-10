@@ -44,7 +44,6 @@ class GrokUnpromptedAnalysisTest extends CodeErrorTest {
 			if (error) {
 				return callback(error);
 			}
-			console.log("posts", response.posts);
 			Assert.equal(response.posts.length, 2);
 
 			const parentPost = response.posts.find(p => p.parentPostId === undefined);

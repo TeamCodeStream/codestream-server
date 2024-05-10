@@ -47,8 +47,6 @@ class GrokClient {
 
 		this.topmostPost = await this.findTopMostPost();
 
-		// this.api.logger.log(`analyzeErrorWithGrok - topmostPost ${JSON.stringify(this.topmostPost)}`);
-
 		if (!this.topmostPost) {
 			// We need to find a way to send this issue back down so
 			// the clients know there was an issue - otherwise, infinite spin.
