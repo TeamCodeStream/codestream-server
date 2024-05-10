@@ -471,7 +471,7 @@ class PostPostRequestTester {
 		new CodemarkMessageTest().test();
 
 		// concerning reviews...
-		// we do a subset of the tests for codemarks, assuming that marker validation 
+		// we do a subset of the tests for codemarks, assuming that marker validation
 		// between the two API calls is basically the same
 		new ReviewTest().test();
 		new ReviewMarkersTest().test();

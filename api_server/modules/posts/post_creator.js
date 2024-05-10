@@ -10,6 +10,8 @@ const { awaitParallel } = require(process.env.CSSVC_BACKEND_ROOT + '/shared/serv
 const StreamPublisher = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_publisher');
 const ModelSaver = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/model_saver');
 const CodemarkCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_creator');
+const PostIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/posts/indexes');
+const CodeErrorIndexes = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/indexes');
 const ReviewCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/reviews/review_creator');
 const CodeErrorCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/code_errors/code_error_creator');
 const CodemarkHelper = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/codemarks/codemark_helper');
@@ -18,6 +20,7 @@ const ArrayUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_
 const UserInviter = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/users/user_inviter');
 const EmailUtilities = require(process.env.CSSVC_BACKEND_ROOT + '/shared/server_utils/email_utilities');
 const StreamErrors = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/errors');
+const StreamCreator = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/modules/streams/stream_creator');
 
 class PostCreator extends ModelCreator {
 
@@ -26,7 +29,7 @@ class PostCreator extends ModelCreator {
 		this.errorHandler.add(Errors);
 		this.errorHandler.add(StreamErrors);
 	}
-	
+
 	get modelClass () {
 		return Post;	// class to use to create a post model
 	}
@@ -48,10 +51,10 @@ class PostCreator extends ModelCreator {
 			required: {
 			},
 			optional: {
-				string: ['text', 'parentPostId', '_subscriptionCheat', 'promptRole', 'creatorId', 'codeBlock', 'language'],
+				string: ['text', 'parentPostId', '_subscriptionCheat', 'promptRole', 'creatorId', 'codeBlock', 'language', 'errorGuid'],
 				object: ['codemark', 'review', 'codeError', 'inviteInfo', 'grokConversation'],
 				boolean: ['dontSendEmail', '_forNRMigration', '_fromNREngine', 'analyze', 'forGrok'],
-				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn'],
+				number: ['reviewCheckpoint', '_delayEmail', '_inviteCodeExpiresIn', 'accountId'],
 				'array(string)': ['mentionedUserIds', 'addedUsers'],
 				'array(object)': ['files', 'sharedTo']
 			}
@@ -98,6 +101,7 @@ class PostCreator extends ModelCreator {
 		await this.createAddedUsers();	// create any unregistered users being mentioned
 		await this.createCodemark();	// create the associated codemark, if any
 		await this.createReview();		// create the associated review, if any
+		// Legacy style where we store codeError in mongo
 		if (!await this.createCodeError()) { // create the associated code error, if any
 			// here we found a match to the code error, and we don't create a post at all
 			// instead make the code error's post the post we "seemed to" create
@@ -108,17 +112,36 @@ class PostCreator extends ModelCreator {
 			}
 			return;
 		}
-		await this.getSeqNum();			// requisition a sequence number for the post
-		await super.preSave({ setModifiedAt: this.setModifiedAt || this.setCreatedAt });			// base-class preSave
-		await this.updateStream();		// update the stream as needed
-		await this.updateLastReads();	// update lastReads attributes for affected users
-		await this.updateParents();		// update the parent post and codemark if applicable
-		await this.updatePostCount();	// update the post count for the author of the post
-		this.updateTeam();				// update info for team, note, no need to "await"
+		if (!this.suppressSave) {
+			await this.getSeqNum();			// requisition a sequence number for the post
+			await super.preSave({ setModifiedAt: this.setModifiedAt || this.setCreatedAt });			// base-class preSave
+			await this.updateStream();		// update the stream as needed
+			await this.updateLastReads();	// update lastReads attributes for affected users
+			await this.updateParents();		// update the parent post and codemark if applicable
+			await this.updatePostCount();	// update the post count for the author of the post
+			this.updateTeam();				// update info for team, note, no need to "await"
+		}
+	}
+
+	// create a stream for this code error
+	async createStream () {
+		this.transforms.createdStreamForCodeError = this.stream = await new StreamCreator({
+			request: this.request,
+			nextSeqNum: this.replyIsComing ? 3 : 2
+		}).createStream({
+			type: 'object',
+			privacy: 'public',
+			accountId: this.attributes.codeError.accountId,
+			objectId: this.attributes.errorGuid,
+			objectType: 'errorGroup',
+			teamId: this.attributes.teamId
+		});
+		this.attributes.streamId = this.stream.id;
+		this.assumeSeqNum = 1;
 	}
 
 	// validate the various options for objects attached to this post
-	validatePostObjects () { 
+	validatePostObjects () {
 		if (this.attributes.codemark) {
 			if (this.attributes.review) {
 				throw this.errorHandler.error('noCodemarkAndReview');
@@ -141,10 +164,61 @@ class PostCreator extends ModelCreator {
 	// check if the post is for a code error, or a reply to a code error
 	async checkCodeError () {
 		let codeErrorId;
-		if (this.attributes.codeError) {
+		if (this.attributes.codeError && !this.attributes.errorGuid) {
 			// creating a code error
 			this.creatingCodeError = true;
-		} else if (this.attributes.parentPostId) {
+		} else if (this.attributes.errorGuid) { // New style where we just associate NR error via error entity guid
+				this.request.log("errorGuid in request - looking up existing post");
+				let existingPost = await this.data.posts.getOneByQuery(
+					{ errorGuid: this.attributes.errorGuid, deactivated: false },
+					{ hint: PostIndexes.byErrorGuid }
+				);
+				if (!existingPost) {
+					// Check for a legacy codeError
+					this.request.log("looking for a legacy codeError");
+					const legacyCodeError = await this.data.codeErrors.getOneByQuery(
+						{ objectId: this.attributes.errorGuid, deactivated: false },
+						{ hint: CodeErrorIndexes.byObjectId}
+					);
+					if (legacyCodeError) {
+						this.request.log("found a legacy codeError");
+						// need to update the post with the errorGuid and not create a stream (suppressSave will get set later based on existingPost)
+						const legacyPostId = legacyCodeError.get('postId');
+						const legacyPost = await this.data.posts.getById(legacyPostId);
+						if (legacyPost.get('deactivated') !== true) {
+							legacyPost.attributes.errorGuid = this.attributes.errorGuid;
+							// legacyPost.set('errorGuid', this.attributes.errorGuid);
+							const op = {
+								$set: {
+									errorGuid: this.attributes.errorGuid,
+									modifiedAt: Date.now()
+								}
+							};
+							this.transforms.postUpdate = await new ModelSaver({
+								request: this.request,
+								collection: this.data.posts,
+								id: legacyPostId
+							}).save(op);
+							this.request.log(
+								`updated post ${legacyPostId} with errorGuid ${this.attributes.errorGuid} for legacy codeError ${legacyCodeError.get('id')}`
+							);
+							existingPost = legacyPost;
+						} else {
+							this.request.log(`skipping deactivated legacy post ${legacyPostId}`);
+						}
+					}
+				}
+				if (existingPost) {
+					this.request.log(`errorGuid in request - found post, suppressing save, attributes: ${JSON.stringify(existingPost.attributes)}`);
+					this.suppressSave = true;
+					this.creatingCodeError = false;
+					this.attributes = existingPost.attributes;
+				} else {
+					this.request.log(`errorGuid in request - did not find post, creating stream with accountId ${this.attributes.accountId}`);
+					this.creatingCodeError = true;
+					await this.createStream();
+				}
+			} else if (this.attributes.parentPostId) {
 			// is the parent a code error?
 			this.parentPost = await this.data.posts.getById(this.attributes.parentPostId);
 			if (!this.parentPost) {
@@ -160,10 +234,11 @@ class PostCreator extends ModelCreator {
 				}
 				codeErrorId = this.grandParentPost.get('codeErrorId');
 			}
-		} 
+		}
 
 		// get the code error if this is a reply to one
 		if (codeErrorId) {
+			this.request.log(`checkCodeError - looking up code codeErrorId ${codeErrorId}`);
 			this.codeError = await this.data.codeErrors.getById(codeErrorId);
 			if (!this.codeError) {
 				throw this.errorHandler.error('notFound', { info: 'code error' });
@@ -178,13 +253,18 @@ class PostCreator extends ModelCreator {
 
 	// get the stream we're trying to create the post in
 	async getStream () {
-		if (this.codeError) {
+		if (this.codeError && !this.attributes.errorGuid) {
 			// replies to code errors become part of the code error stream
 			this.attributes.streamId = this.codeError.get('streamId');
 		} else if (this.creatingCodeError) {
 			// if creating a code error, we'll create a stream
 			return;
 		}
+
+		// // Use the streamId from the parent post when errorGuid present
+		// if (this.attributes.get('errorGuid')) {
+		//
+		// }
 
 		this.stream = await this.data.streams.getById(this.attributes.streamId);
 		if (!this.stream) {
@@ -193,7 +273,7 @@ class PostCreator extends ModelCreator {
 		if (this.stream.get('type') === 'file') {
 			// creating posts in a file stream is no longer allowed
 			throw this.errorHandler.error('createAuth', { reason: 'can not post to a file stream' });
-		} else if (this.stream.get('type') === 'object' && !this.attributes.parentPostId) {
+		} else if (this.stream.get('type') === 'object' && !this.attributes.parentPostId && !this.suppressSave) {
 			// can't create root posts in an object stream
 			throw this.errorHandler.error('createAuth', { reason: 'cannot create non-reply in object stream' });
 		}
@@ -216,7 +296,7 @@ class PostCreator extends ModelCreator {
 	}
 
 	// get the company that owns the team for which the post is being created
-	// only needed for analytics so we only do this for inbound emails 
+	// only needed for analytics so we only do this for inbound emails
 	async getCompany () {
 		if ((!this.forInboundEmail && !this.forCommentEngine && !this.forSlack) || !this.team) {
 			// only needed for inbound email, for tracking
@@ -229,7 +309,7 @@ class PostCreator extends ModelCreator {
 	// validate that any mentioned users are on the team
 	async validateMentionedUsers () {
 		if (!this.team || this.forCommentEngine) { return; }
-		
+
 		const userIds = this.attributes.mentionedUserIds || [];
 		if (this.attributes.review) {
 			userIds.push.apply(userIds, this.attributes.review.reviewers || [])
@@ -270,10 +350,10 @@ class PostCreator extends ModelCreator {
 			this.reviewId = this.request.data.reviews.createId();
 			this.inviteTrigger = `R${this.reviewId}`;
 		}
-		if (this.attributes.codeError) {
-			this.codeErrorId = this.request.data.codeErrors.createId();
-			this.inviteTrigger = `E${this.codeErrorId}`;
-		}
+		// if (this.attributes.codeError) {
+		// 	this.codeErrorId = this.request.data.codeErrors.createId();
+		// 	this.inviteTrigger = `E${this.codeErrorId}`;
+		// }
 
 		// filter to users that have a valid email
 		this.addedUsers = (this.addedUsers || []).filter(email => {
@@ -303,7 +383,7 @@ class PostCreator extends ModelCreator {
 		});
 
 		const userData = this.addedUsers.map(email => {
-			return { 
+			return {
 				email,
 				inviteTrigger: this.inviteTrigger
 			};
@@ -363,7 +443,7 @@ class PostCreator extends ModelCreator {
 
 	// create an associated code error, if applicable
 	async createCodeError () {
-		if (!this.attributes.codeError) {
+		if (!this.attributes.codeError || this.attributes.errorGuid) {
 			return true;
 		}
 		this.attributes.codeError.postId = this.attributes.id;
@@ -490,7 +570,7 @@ class PostCreator extends ModelCreator {
 			return;
 		}
 		this.parentPost = this.parentPost || await this.data.posts.getById(this.model.get('parentPostId'));
-		if (!this.parentPost) { 
+		if (!this.parentPost) {
 			throw this.errorHandler.error('notFound', { info: 'parent post' });
 		}
 		if (this.parentPost.get('streamId') !== this.attributes.streamId) {
@@ -498,7 +578,7 @@ class PostCreator extends ModelCreator {
 		}
 
 		if (this.parentPost.get('parentPostId')) {
-			// the only reply to a reply we allow is if the parent post of the post we are replying to is a 
+			// the only reply to a reply we allow is if the parent post of the post we are replying to is a
 			// review or code error post
 			this.grandParentPost = this.grandParentPost || await this.data.posts.getById(this.parentPost.get('parentPostId'));
 			if (this.grandParentPost && !this.grandParentPost.get('reviewId') && !this.grandParentPost.get('codeErrorId')) {
@@ -514,11 +594,11 @@ class PostCreator extends ModelCreator {
 
 	// update numReplies for a parent post to this post
 	async updateParentPost () {
-		const op = { 
+		const op = {
 			$set: {
 				numReplies: (this.parentPost.get('numReplies') || 0) + 1,
 				modifiedAt: Date.now()
-			} 
+			}
 		};
 		this.transforms.postUpdate = await new ModelSaver({
 			request: this.request,
@@ -526,15 +606,15 @@ class PostCreator extends ModelCreator {
 			id: this.parentPost.id
 		}).save(op);
 	}
-	
+
 	// update numReplies for a grandparent post to this post
 	async updateGrandParentPost () {
 		if (!this.grandParentPost) { return; }
-		const op = { 
+		const op = {
 			$set: {
 				numReplies: (this.grandParentPost.get('numReplies') || 0) + 1,
 				modifiedAt: Date.now()
-			} 
+			}
 		};
 		this.transforms.grandParentPostUpdate = await new ModelSaver({
 			request: this.request,
@@ -542,7 +622,7 @@ class PostCreator extends ModelCreator {
 			id: this.grandParentPost.id
 		}).save(op);
 	}
-	
+
 	// update numReplies for the parent post's codemark, if any
 	async updateParentCodemark () {
 		if (!this.parentPost.get('codemarkId')) {
@@ -552,7 +632,7 @@ class PostCreator extends ModelCreator {
 		if (!codemark) { return; }
 
 		const now = Date.now();
-		const op = { 
+		const op = {
 			$set: {
 				numReplies: (codemark.get('numReplies') || 0) + 1,
 				lastReplyAt: now,
@@ -583,7 +663,7 @@ class PostCreator extends ModelCreator {
 		if (!review) { return; }
 
 		const now = Date.now();
-		const op = { 
+		const op = {
 			$set: {
 				numReplies: (review.get('numReplies') || 0) + 1,
 				lastReplyAt: now,
@@ -611,7 +691,7 @@ class PostCreator extends ModelCreator {
 		}
 
 		const now = Date.now();
-		const op = { 
+		const op = {
 			$set: {
 				numReplies: (this.codeError.get('numReplies') || 0) + 1,
 				lastReplyAt: now,
@@ -649,7 +729,7 @@ class PostCreator extends ModelCreator {
 		}
 
 		// also add this user as a follower if they have that preference, and are not a follower already
-		const userNotificationPreference = options.ignorePreferences ? 'involveMe' : 
+		const userNotificationPreference = options.ignorePreferences ? 'involveMe' :
 			((this.user.get('preferences') || {}).notifications || 'involveMe');
 		const followerIds = thing.get('followerIds') || [];
 		if (userNotificationPreference === 'involveMe' && followerIds.indexOf(this.user.id) === -1) {
@@ -701,7 +781,7 @@ class PostCreator extends ModelCreator {
 			const notificationPreference = preferences.notifications || 'involveMe';
 			return (
 				options.ignorePreferences || (
-					!user.get('deactivated') && 
+					!user.get('deactivated') &&
 					(
 						notificationPreference === 'all' ||
 						notificationPreference === 'involveMe'
@@ -722,10 +802,10 @@ class PostCreator extends ModelCreator {
 	}
 
 	// update the total post count for the author of the post, along with the date/time of last post,
-	// also clear lastReads for the stream 
+	// also clear lastReads for the stream
 	async updatePostCount () {
 		const op = {
-			$set: { 
+			$set: {
 				lastPostCreatedAt: this.attributes.createdAt,
 				totalPosts: (this.user.get('totalPosts') || 0) + 1,
 				modifiedAt: Date.now()
@@ -775,7 +855,7 @@ class PostCreator extends ModelCreator {
 			responseData.repos = transforms.createdRepos.map(repo => repo.getSanitizedObject({ request: this }));
 		}
 
-		// add any repos updated for posts with codemarks and markers, which may have brought 
+		// add any repos updated for posts with codemarks and markers, which may have brought
 		// new remotes into the fold for the repo
 		if (transforms.repoUpdates && transforms.repoUpdates.length > 0) {
 			responseData.repos = [
@@ -803,7 +883,7 @@ class PostCreator extends ModelCreator {
 			];
 		}
 
-		// add any markers created 
+		// add any markers created
 		if (transforms.createdMarkers && transforms.createdMarkers.length > 0) {
 			responseData.markers = [
 				...(responseData.markers || []),
@@ -825,7 +905,7 @@ class PostCreator extends ModelCreator {
 		if (transforms.createdReview) {
 			responseData.review = transforms.createdReview.getSanitizedObject({ request: this });
 			// don't send these back, or broadcast
-			delete responseData.review.reviewDiffs; 
+			delete responseData.review.reviewDiffs;
 			delete responseData.review.checkpointReviewDiffs;
 		}
 
@@ -842,22 +922,22 @@ class PostCreator extends ModelCreator {
 			responseData.posts = responseData.posts || [];
 			responseData.posts.push(transforms.grandParentPostUpdate);
 		}
-		
+
 		// if there are other codemarks updated, add them
 		if (transforms.updatedCodemarks) {
 			responseData.codemarks = transforms.updatedCodemarks;
 		}
-		
+
 		// if there are other reviews updated, add them
 		if (transforms.updatedReviews) {
 			responseData.reviews = transforms.updatedReviews;
 		}
-		
+
 		// if there are other code errors updated, add them
 		if (transforms.updatedCodeErrors) {
 			responseData.codeErrors = transforms.updatedCodeErrors;
 		}
-		
+
 		// handle users invited to the team, filter out any users that were already on the team
 		if (transforms.invitedUsers) {
 			const newUsers = transforms.invitedUsers.filter(userData => !userData.wasOnTeam);
@@ -904,8 +984,8 @@ class PostCreator extends ModelCreator {
 
 	// publish any created or updated repos to the team
 	async publishRepos () {
-		// the repos only need to be published if the stream for the post (this.stream, 
-		// which is possibly different from the stream to be published) is a private stream ... 
+		// the repos only need to be published if the stream for the post (this.stream,
+		// which is possibly different from the stream to be published) is a private stream ...
 		// otherwise the repos will be published along with the post anyway, to the entire team
 		if (!this.stream.hasPrivateContent()) {
 			return;
@@ -938,8 +1018,8 @@ class PostCreator extends ModelCreator {
 
 	// publish a given stream
 	async publishStream (stream) {
-		// the stream only needs to be published if the stream for the post (this.stream, 
-		// which is possibly different from the stream to be published) is a private stream ... 
+		// the stream only needs to be published if the stream for the post (this.stream,
+		// which is possibly different from the stream to be published) is a private stream ...
 		// otherwise the stream will be published along with the post anyway, to the entire team
 		if (!this.stream.hasPrivateContent()) {
 			return;
@@ -954,7 +1034,7 @@ class PostCreator extends ModelCreator {
 			isNew: true
 		}).publishStream();
 	}
-	
+
 	// publish the post to the appropriate broadcaster channel
 	async publishPost (customData) {
 		if (!this.team) { return; }
@@ -967,7 +1047,7 @@ class PostCreator extends ModelCreator {
 	}
 
 	/* This shouldn't be necessary anymore, the transforms should just be part of the regular
-	   message publish 
+	   message publish
 	// if the parent post or codemark was updated, publish the parent post or codemark
 	async publishParents () {
 		if (!this.team) { return; }
@@ -989,7 +1069,7 @@ class PostCreator extends ModelCreator {
 			data.codeErrors = this.transforms.updatedCodeErrors;
 			needPublish = true;
 		}
-		
+
 		if (needPublish) {
 			await new PostPublisher({
 				request: this.request,
@@ -1031,7 +1111,7 @@ class PostCreator extends ModelCreator {
 	}
 
 	// publish a message reflecting this post to the post's author
-	// this includes an increase in the post count, and a clearing of the 
+	// this includes an increase in the post count, and a clearing of the
 	// author's lastReads for the stream
 	async publishToAuthor () {
 		if (!this.user.get('isRegistered')) {
@@ -1068,7 +1148,7 @@ class PostCreator extends ModelCreator {
 		const dateOfLastPost = new Date(this.model.get('createdAt')).toISOString();
 		const parentId = (
 			this.parentPost.get('codemarkId') ||
-			this.parentPost.get('reviewId') || 
+			this.parentPost.get('reviewId') ||
 			this.parentPost.get('codeErrorId') ||
 			(this.grandParentPost && this.grandParentPost.get('reviewId')) ||
 			(this.grandParentPost && this.grandParentPost.get('codeErrorId'))

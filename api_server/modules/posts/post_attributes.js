@@ -94,6 +94,10 @@ module.exports = {
 		type: 'id',
 		description: 'ID of the code error attached to this post, if any'
 	},
+	errorGuid: {
+		type: 'string',
+		description: 'NR entity guid of the error attached to this post, if any'
+	},
 	grokConversation: {
 		type: 'arrayOfObjects',
 		description: 'The initial conversation to Grok',

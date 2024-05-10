@@ -18,7 +18,7 @@ class GrokUnpromptedAnalysisTest extends CodeErrorTest {
 			BoundAsync.series(this, [
 				super.run,
 				this.wait,
-				this.validatePostThread		
+				this.validatePostThread
 			], callback);
 		}
 	}
@@ -41,8 +41,8 @@ class GrokUnpromptedAnalysisTest extends CodeErrorTest {
 		 	path: `/posts?streamId=${this.expectedStreamId}`,
 		 	token: this.token
 		}, (error, response) => {
-			if (error) { 
-				return callback(error); 
+			if (error) {
+				return callback(error);
 			}
 			Assert.equal(response.posts.length, 2);
 
