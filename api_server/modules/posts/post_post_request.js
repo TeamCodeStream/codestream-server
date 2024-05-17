@@ -2,7 +2,7 @@
 
 'use strict';
 
-const GrokClient = require("../../lib/grok/grok_client");
+const GrokClient = require('../../lib/grok/grok_client');
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 
 class PostPostRequest extends PostRequest {
@@ -53,7 +53,7 @@ class PostPostRequest extends PostRequest {
 			}
 
 			const post = await this.data.posts.getById(this.request.body.parentPostId);
-			this.log("PostPostRequest - handleResponse - reinitializeGrok - looking up codeError");
+			this.log('PostPostRequest - handleResponse - reinitializeGrok - looking up codeError');
 			const codeError = await this.data.codeErrors.getById(post.get('codeErrorId'));
 
 			// When we force a reinitialization on a Code Error with Grok, we need to return
