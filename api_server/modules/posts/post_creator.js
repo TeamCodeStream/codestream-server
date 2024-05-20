@@ -168,57 +168,58 @@ class PostCreator extends ModelCreator {
 			// creating a code error
 			this.creatingCodeError = true;
 		} else if (this.attributes.errorGuid) { // New style where we just associate NR error via error entity guid
-				this.request.log("errorGuid in request - looking up existing post");
-				let existingPost = await this.data.posts.getOneByQuery(
-					{ errorGuid: this.attributes.errorGuid, deactivated: false },
-					{ hint: PostIndexes.byErrorGuid }
+			this.request.log('errorGuid in request - looking up existing post');
+			let existingPost = await this.data.posts.getOneByQuery(
+				{ errorGuid: this.attributes.errorGuid, deactivated: false },
+				{ hint: PostIndexes.byErrorGuid }
+			);
+			if (!existingPost) {
+				// Check for a legacy codeError
+				this.request.log('looking for a legacy codeError');
+				const legacyCodeError = await this.data.codeErrors.getOneByQuery(
+					{ objectId: this.attributes.errorGuid, deactivated: false },
+					{ hint: CodeErrorIndexes.byObjectId}
 				);
-				if (!existingPost) {
-					// Check for a legacy codeError
-					this.request.log("looking for a legacy codeError");
-					const legacyCodeError = await this.data.codeErrors.getOneByQuery(
-						{ objectId: this.attributes.errorGuid, deactivated: false },
-						{ hint: CodeErrorIndexes.byObjectId}
-					);
-					if (legacyCodeError) {
-						this.request.log("found a legacy codeError");
-						// need to update the post with the errorGuid and not create a stream (suppressSave will get set later based on existingPost)
-						const legacyPostId = legacyCodeError.get('postId');
-						const legacyPost = await this.data.posts.getById(legacyPostId);
-						if (legacyPost.get('deactivated') !== true) {
-							legacyPost.attributes.errorGuid = this.attributes.errorGuid;
-							// legacyPost.set('errorGuid', this.attributes.errorGuid);
-							const op = {
-								$set: {
-									errorGuid: this.attributes.errorGuid,
-									modifiedAt: Date.now()
-								}
-							};
-							this.transforms.postUpdate = await new ModelSaver({
-								request: this.request,
-								collection: this.data.posts,
-								id: legacyPostId
-							}).save(op);
-							this.request.log(
-								`updated post ${legacyPostId} with errorGuid ${this.attributes.errorGuid} for legacy codeError ${legacyCodeError.get('id')}`
-							);
-							existingPost = legacyPost;
-						} else {
-							this.request.log(`skipping deactivated legacy post ${legacyPostId}`);
-						}
+				if (legacyCodeError) {
+					this.request.log('found a legacy codeError');
+					// need to update the post with the errorGuid and not create a stream (suppressSave will get set later based on existingPost)
+					const legacyPostId = legacyCodeError.get('postId');
+					const legacyPost = await this.data.posts.getById(legacyPostId);
+					if (legacyPost.get('deactivated') !== true) {
+						legacyPost.attributes.errorGuid = this.attributes.errorGuid;
+						// legacyPost.set('errorGuid', this.attributes.errorGuid);
+						const op = {
+							$set: {
+								errorGuid: this.attributes.errorGuid,
+								modifiedAt: Date.now()
+							}
+						};
+						this.transforms.postUpdate = await new ModelSaver({
+							request: this.request,
+							collection: this.data.posts,
+							id: legacyPostId
+						}).save(op);
+						this.request.log(
+							`updated post ${legacyPostId} with errorGuid ${this.attributes.errorGuid} for legacy codeError ${legacyCodeError.get('id')}`
+						);
+						existingPost = legacyPost;
+					} else {
+						this.request.log(`skipping deactivated legacy post ${legacyPostId}`);
 					}
 				}
-				if (existingPost) {
-					this.request.log(`errorGuid in request - found post, suppressing save, attributes: ${JSON.stringify(existingPost.attributes)}`);
-					this.suppressSave = true;
-					this.creatingCodeError = false;
-					this.attributes = existingPost.attributes;
-				} else {
-					this.request.log(`errorGuid in request - did not find post, creating stream with accountId ${this.attributes.accountId}`);
-					this.creatingCodeError = true;
-					await this.createStream();
-				}
-			} else if (this.attributes.parentPostId) {
+			}
+			if (existingPost) {
+				this.request.log(`errorGuid in request - found post, suppressing save, attributes: ${JSON.stringify(existingPost.attributes)}`);
+				this.suppressSave = true;
+				this.useId = existingPost.id;
+				this.creatingCodeError = false;
+				this.attributes = existingPost.attributes;
+			} else {
+				this.request.log(`errorGuid in request - did not find post, creating stream with accountId ${this.attributes.accountId}`);
+				this.creatingCodeError = true;
+				await this.createStream();
+			}
+		} else if (this.attributes.parentPostId) {
 			// is the parent a code error?
 			this.parentPost = await this.data.posts.getById(this.attributes.parentPostId);
 			if (!this.parentPost) {
