@@ -60,7 +60,7 @@ class ClusterWrapper {
 	async readDevSecrets () {
 		if (!this.devSecrets) { return; }
 		const DevSecrets = require('@datanerd/codestream-utils').VaultSecrets;
-		this.env = await DevSecrets.fetchAllBaseVaultSecrets();
+		this.env = await DevSecrets.fetchAllBaseVaultSecrets(this.serverOptions.serviceName);
 	}
 
 	startWorkers () {

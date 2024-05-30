@@ -89,7 +89,8 @@ const MongoCollections = Object.keys(DataCollections).concat([
 			moduleDirectory: ModuleDirectory,
 			dataCollections: DataCollections,
 			rawCollections: MongoCollections,
-			onprem: onPremSupportData
+			onprem: onPremSupportData,
+			serviceName: 'codestream-server'
 		},
 		{
 			logger: Logger, // the logger used by ClusterWrapper itself
