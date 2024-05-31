@@ -2,7 +2,7 @@
 
 'use strict';
 
-const GrokClient = require("../../lib/grok/grok_client");
+const GrokClient = require('../../lib/grok/grok_client');
 const PostRequest = require(process.env.CSSVC_BACKEND_ROOT + '/api_server/lib/util/restful/post_request');
 
 class PostPostRequest extends PostRequest {
@@ -34,7 +34,7 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async process(){
-		if(this.reinitializeGrok){
+		if (this.reinitializeGrok) {
 			return;
 		}
 
@@ -47,12 +47,13 @@ class PostPostRequest extends PostRequest {
 			return super.handleResponse();
 		}
 
-		if(this.reinitializeGrok) {
-			if(!this.request.body.parentPostId) {
+		if (this.reinitializeGrok) { // This is only called from older extensions - can be removed later.
+			if (!this.request.body.parentPostId) {
 				throw this.errorHandler.error('parameterRequired', { reason: 'parentPostId is required for Grok reinitialization' });
 			}
 
 			const post = await this.data.posts.getById(this.request.body.parentPostId);
+			this.log('PostPostRequest - handleResponse - reinitializeGrok - looking up codeError');
 			const codeError = await this.data.codeErrors.getById(post.get('codeErrorId'));
 
 			// When we force a reinitialization on a Code Error with Grok, we need to return
@@ -73,13 +74,13 @@ class PostPostRequest extends PostRequest {
 	}
 
 	async postProcess () {
-		if(!this.reinitializeGrok || this.gotError){
+		if (!this.reinitializeGrok || this.gotError) {
 			await super.postProcess();
 		}
 
-		if(!!this.request.body.analyze ||
+		if (!!this.request.body.analyze ||
 			(this.request.body.text || '').match(/@AI/gmi) ||
-			this.reinitializeGrok){
+			this.reinitializeGrok) {
 
 			return new GrokClient().analyzeErrorWithGrok(
 				{
@@ -103,6 +104,7 @@ class PostPostRequest extends PostRequest {
 				'codemark': '<Single @@#codemark#codemark@@ object, for creating a codemark referenced by the post>',
 				'review': '<Single @@review@review@@ object, for creating a code review referenced by the post>',
 				'codeError': '<Single @@code error@codeError@@ object, for creating a code error referenced by the post>',
+				'errorGuid': '<GUID of a NR entity associated with the post - replaces codeError>',
 				'mentionedUserIds': '<Array of IDs representing users mentioned in the post>',
 				'reviewCheckpoint': '<Checkpoint number of the review this post is associated with>',
 				'addedUsers': '<Array of emails representing non-team users being implicitly invited and mentioned>',

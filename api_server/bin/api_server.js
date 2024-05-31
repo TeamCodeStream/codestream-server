@@ -39,7 +39,7 @@ const DataCollections = {
 	entities: require(ModuleDirectory + '/entities/entity')
 };
 
-// establish our mongo collections, these include our DataCollections, but 
+// establish our mongo collections, these include our DataCollections, but
 // may also include other collections that we speak to directly
 // through mongo, we don't abstract them out into DataCollections
 const MongoCollections = Object.keys(DataCollections).concat([
@@ -89,7 +89,8 @@ const MongoCollections = Object.keys(DataCollections).concat([
 			moduleDirectory: ModuleDirectory,
 			dataCollections: DataCollections,
 			rawCollections: MongoCollections,
-			onprem: onPremSupportData
+			onprem: onPremSupportData,
+			serviceName: 'codestream-server'
 		},
 		{
 			logger: Logger, // the logger used by ClusterWrapper itself
@@ -100,7 +101,7 @@ const MongoCollections = Object.keys(DataCollections).concat([
 		await MyAPICluster.start();
 	}
 	catch (error) {
-		console.error('Failed to start: ' + error); // eslint-disable-line no-console
+		console.error('Failed to start: ',  error); // eslint-disable-line no-console
 		process.exit(1);
 	}
 })();

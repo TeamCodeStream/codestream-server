@@ -1,5 +1,11 @@
 # Change Log
 
+## [15.6.0] - 2024-6-3
+
+### Changed
+
+- Backend changes to support refactor of errors integration
+
 ## [15.5.0] - 2024-4-29
 
 ### Changed

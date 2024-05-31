@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="api_ser.js local" type="NodeJSConfigurationType" application-parameters="--one_worker --dev_secrets" path-to-js-file="api_server/bin/api_server.js" working-dir="$PROJECT_DIR$">
+    <envs>
+      <env name="CSSVC_BACKEND_ROOT" value="$PROJECT_DIR$" />
+      <env name="CSSVC_CFG_FILE" value="./codestream-docker.json" />
+      <env name="CSSVC_ENV" value="local" />
+      <env name="NODE_PATH" value="$PROJECT_DIR$/broadcaster/node_modules:$PROJECT_DIR$/api_server/node_modules" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>

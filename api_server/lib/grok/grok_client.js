@@ -53,14 +53,32 @@ class GrokClient {
 			throw this.errorHandler.error('notFound', { info: 'topmostPost' });
 		}
 
-		this.codeError = await this.data.codeErrors.getById(this.topmostPost.get('codeErrorId'));
+		const codeErrorId = this.topmostPost.get('codeErrorId');
+		if (codeErrorId) {
+			this.api.logger.warn(`analyzeErrorWithGrok - looking up codeError ${codeErrorId}`);
+			this.codeError = await this.data.codeErrors.getById(codeErrorId);
+		} else {
+			this.newMode = true;
+		}
 
-		if (!this.codeError) {
+		if (!this.codeError && !this.topmostPost.get('errorGuid')) {
 			// We need to find a way to send this issue back down so
 			// the clients know there was an issue - otherwise, infinite spin.
 			throw this.errorHandler.error('notFound', { info: 'codeError' });
 		}
-		this.accountId = new NerdGraphOps().accountIdFromErrorGroupGuid(this.codeError.get('objectId'));
+		if (this.newMode) {
+			// codeErrors passed in on request, not in mongo but we need the attributes
+			this.codeError = { attributes: this.request.body.codeError }
+		}
+		// Legacy get accountId - from codeError
+		this.accountId = this.codeError?.attributes ? this.codeError.attributes.accountId : undefined;
+		this.api.logger.warn(`got account id ${this.accountId} from codeError `);
+		if (!this.accountId) {
+			// Newer method - accountId from entityGuid
+			const errorGuid = this.topmostPost.get('errorGuid');
+			this.api.logger.warn(`getting accountId from errorGuid ${errorGuid}`);
+			this.accountId = new NerdGraphOps().accountIdFromErrorGroupGuid(errorGuid);
+		}
 
 		const grokConversation = this.topmostPost.get('grokConversation');
 
@@ -141,12 +159,12 @@ class GrokClient {
 		// Store Grok response as new Post - text will be populated via streaming -> pubnub
 		const grokResponsePost = await postCreator.createPost({
 				forGrok: true,
-				streamId: this.codeError.get('streamId'),
+				streamId: this.topmostPost.get('streamId'),
 				teamId: this.team.get('id'),
 				text: '',
 				promptRole: 'system',
 				parentPostId: this.topmostPost.get('id'),
-				codeError: this.codeError.get('id')
+				codeError: this.codeError?.attributes?.id
 			},
 			{
 				overrideCreatorId: grokUserId
@@ -197,7 +215,7 @@ class GrokClient {
 
 	async startNewConversation (grokUserId) {
 		// get the last stack trace we have - text is full stack trace, split it into lines
-		const stackTraceLines = (this.codeError.get('stackTraces') || [])
+		const stackTraceLines = (this.codeError.attributes.stackTraces || [])
 			.slice(-1)
 			.pop()
 			.text
@@ -219,7 +237,7 @@ class GrokClient {
 		const code = this.request.body.codeBlock;
 		const language = this.request.body.language;
 
-		const errorText = `${this.codeError.get('title')} ${this.codeError.get('text')}`;
+		const errorText = `${this.codeError.attributes.title} ${this.codeError.attributes.text}`;
 
 		let content = '';
 
@@ -250,15 +268,18 @@ class GrokClient {
 		});
 
 		// Store Grok response as new Post - text will be populated via streaming -> pubnub
-		const grokResponsePost = await postCreator.createPost({
-				forGrok: true,
-				streamId: this.codeError.get('streamId'),
-				teamId: this.team.get('id'),
-				text: '',
-				promptRole: 'system',
-				parentPostId: this.topmostPost.get('id'),
-				codeError: this.codeError.get('id')
-			},
+		const targetStreamId = this.topmostPost.get('streamId');
+		const targetParentPostId = this.topmostPost.get('id');
+		const grokRequest = {
+			forGrok: true,
+			streamId: targetStreamId,
+			teamId: this.team.get('id'),
+			text: '',
+			promptRole: 'system',
+			parentPostId: targetParentPostId,
+			codeError: this.codeError?.attributes?.id
+		};
+		const grokResponsePost = await postCreator.createPost(grokRequest,
 			{
 				overrideCreatorId: grokUserId
 			});
@@ -518,7 +539,7 @@ class GrokClient {
 					},
 					extra: {
 						topmostPostId: this.topmostPost.get('id'),
-						codeErrorId: this.codeError.get('id'),
+						codeErrorId: this.codeError?.attributes?.id,
 						postId: post.get('id'),
 						streamId: post.get('streamId'),
 					}
@@ -530,7 +551,7 @@ class GrokClient {
 				grokStream: {
 					extra: {
 						topmostPostId: this.topmostPost.get('id'),
-						codeErrorId: this.codeError.get('id'),
+						codeErrorId: this.codeError?.attributes?.id,
 						postId: post.get('id'),
 						streamId: post.get('streamId'),
 						done: true
@@ -566,7 +587,7 @@ class GrokClient {
 		const trackData = {
 			event_type: 'response',
 			account_id: this.accountId,
-			meta_data: `item_guid: ${this.codeError.get('objectId')}`
+			meta_data: `item_guid: ${this.topmostPost.get('errorGuid')}`
 		};
 
 		await this.api.services.analytics.trackWithSuperProperties(
@@ -580,7 +601,7 @@ class GrokClient {
 
 	async logExceptionAndDispatch (message, postId, streamId) {
 		const topmostPostId = this.topmostPost.get('id');
-		const codeErrorId = this.codeError.get('id');
+		const codeErrorId = this.codeError ? this.codeError.attributes.id : this.topmostPost.get('errorGuid');
 
 		const trackData = {
 			'Parent ID': topmostPostId,
