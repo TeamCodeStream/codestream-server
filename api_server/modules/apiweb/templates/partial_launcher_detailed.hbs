@@ -262,6 +262,10 @@
 							successCb && successCb();
 						}
 
+						function unsupportedCallback() {
+							unsupportedCb && unsupportedCb();
+						}
+
 						if (navigator.msLaunchUri) { //for IE and Edge in Win 8 and Win 10
 							openUriWithMsLaunchUri(uri, failCb, successCb);
 						} else {
@@ -276,8 +280,9 @@
 							} else if (browser.isSafari) {
 								openUriWithHiddenFrame(uri, failCallback, successCallback);
 							} else {
-								unsupportedCb();
-								//not supported, implement please
+								unsupportedCallback();
+								// this works for most common browsers, so we try it if detection fails
+								openUriWithTimeoutHack(uri, failCallback, successCallback);
 							}
 						}
 					}
