@@ -1,10 +1,14 @@
 # Change Log
 
-## [15.6.0] - 2024-6-3
+## [15.6.0] - 2024-6-6
 
 ### Changed
 
 - Backend changes to support refactor of errors integration
+
+### Fixed
+
+- Fixes an issue with opening in IDE from New Relic using Firefox
 
 ## [15.5.0] - 2024-4-29
 
