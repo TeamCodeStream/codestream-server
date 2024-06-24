@@ -145,5 +145,10 @@ module.exports = {
 		description: 'Enable code analysis',
 		version: '14.24.1',
 		restricted: true
+	},
+	'showNotificationsMenu': {
+		description: 'Show Notifications Menu',
+		version: '15.10.1',
+		restricted: true
 	}
 };
