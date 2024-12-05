@@ -6,7 +6,7 @@
     "commander": "4.1.1",
     "connect": "3.7.0",
     "deep-equal": "2.0.1",
-    "express": "4.18.2",
+    "express": "4.19.2",
     "hjson": "3.2.1",
     "mongodb": "3.5.3",
     "node-ipc": "9.1.1",
